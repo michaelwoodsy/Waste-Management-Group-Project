@@ -21,8 +21,12 @@ tags:
     description: 'This story is implemented inside the client alone, and as such requires no associated API endpoints to be created'
   - name: 'U3: Searching for Users using Name'
   - name: 'U4: Default Global Application Admin (DGAA)'
+  - name: 'U5: Creating Business Accounts'
   # Entities
   - name: 'Users'
+    description: 'Grouping of endpoints related to the User entity'
+  - name: 'Business Accounts'
+    description: 'Grouping of endpoints related to Business Accounts'
   
 security: 
   - BearerAuth: 
@@ -93,6 +97,7 @@ paths:
         - BearerAuth:
           - user
           - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
       parameters:
         - name: id
           in: path
@@ -109,6 +114,8 @@ paths:
                 $ref: '#/components/schemas/User'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
           
   '/users/search':
     get:
@@ -120,6 +127,7 @@ paths:
         - BearerAuth:
           - user
           - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
       parameters: 
         - in: query
           name: searchQuery
@@ -163,7 +171,7 @@ paths:
         '403':
           $ref: '#/components/responses/ForbiddenError'
         '404':
-          description: No such user found with given ID
+          $ref: '#/components/responses/NotFoundError'
           
   '/users/{id}/revokeAdmin':
     put:
@@ -189,7 +197,60 @@ paths:
         '403':
           $ref: '#/components/responses/ForbiddenError'
         '404':
-          description: No such user found with given ID
+          $ref: '#/components/responses/NotFoundError'
+          
+  '/businesses':
+    post:
+      tags:
+      - 'U5: Creating Business Accounts'
+      - 'Business Accounts'
+      summary: Create a new business entity
+      security: 
+        - BearerAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Business'
+        description: New business account data, id will be generated automatically by the server
+      responses:
+        '201':
+          description: Business account created successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  
+  '/businesses/{id}':
+    get:
+      tags:
+        - 'U5: Creating Business Accounts'
+        - 'Business Accounts'
+      summary: Retrieve a specific business account
+      security: 
+        - BearerAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Business retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Business'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
  
 components:
   securitySchemes:
@@ -202,6 +263,8 @@ components:
       description: Access token is missing or invalid
     ForbiddenError:
       description: The user does not have permission to perform the requested action
+    NotFoundError:
+      description: Requested resource not found on the server
     AuthenticatedResponse:
       description: >
         Response returned to client when they have performed an action to gain authentication (registering or logging in).
@@ -215,7 +278,49 @@ components:
                 type: string
                 description: Secret token returned by server to client for future authentication
                 example: '8Zz5tw0Ionm3XPZZfN0NOml3z9FMfmpgXwovR9fp6ryDIoGRM8EPHAB6iHsc0fb'
+                
   schemas:
+    Business:
+      type: object
+      description: Business account entity
+      required:
+        - name
+        - address
+        - businessType
+      properties:
+        id:
+          type: integer
+          example: 100
+          readOnly: true
+          description: Automatically generated and assigned by the server
+        administrators:
+          type: array
+          items: 
+            $ref: '#/components/schemas/User'
+          readOnly: true
+        name:
+          type: string
+          example: 'Lumbridge General Store'
+        description:
+          type: string
+          example: 'A one-stop shop for all your adventuring needs'
+        address:
+          type: string
+          example: '92 River Lum Road, Lumbridge, Misthalin'
+        businessType:
+          type: string
+          enum: 
+            - Accommodation and Food Services
+            - Retail Trade
+            - Charitable organisation
+            - Non-profit organisation
+        created:
+          type: string
+          format: date-time
+          example: '2020-07-14T14:52:00Z'
+          readOnly: true
+          description: Date and time when the account was created
+          
     User:
       type: object
       description: Basic user entity
@@ -230,6 +335,7 @@ components:
           type: integer
           example: 100
           readOnly: true
+          description: Automatically generated and assigned by the server
         firstName:
           type: string
           example: John
@@ -244,7 +350,7 @@ components:
           example: Jonny
         bio:
           type: string
-          example: Likes long walk on the beach
+          example: Likes long walks on the beach
         email:
           type: string
           format: email
@@ -264,13 +370,13 @@ components:
           example: '1337-H%nt3r2'
           format: password
           writeOnly: true
-          description: Should not be stored in plain text (i.e hashed)
+          description: Should not be stored in plain text (i.e hash it)
         created:
           type: string
           format: date-time
           example: '2020-07-14T14:32:00Z'
           readOnly: true
-          description: Date and time when the account was created.
+          description: Date and time when the account was created
         role:
           type: string
           readOnly: true
