@@ -7,7 +7,7 @@ servers:
 info:
   description: API specification for the SENG302 2021 project
   version: "1.0.0"
-  title: Reduced To Clear
+  title: Wasteless
   contact:
     email: seng302@canterbury.ac.nz
   license:
@@ -29,7 +29,7 @@ tags:
     description: 'Grouping of endpoints related to Business Accounts'
   
 security: 
-  - BearerAuth: 
+  - CookieAuth: 
     - user
     - globalApplicationAdmin
     - defaultGlobalApplicationAdmin
@@ -94,7 +94,7 @@ paths:
         - 'Users'
       summary: Retrieve a specific user account
       security: 
-        - BearerAuth:
+        - CookieAuth:
           - user
           - globalApplicationAdmin
           - defaultGlobalApplicationAdmin
@@ -124,7 +124,7 @@ paths:
         - 'Users'
       summary: 'Search for users by some criteria, for now: their name'
       security: 
-        - BearerAuth:
+        - CookieAuth:
           - user
           - globalApplicationAdmin
           - defaultGlobalApplicationAdmin
@@ -154,7 +154,7 @@ paths:
         - 'Users'
       summary: Promote a user account to the Global Application Admin role
       security: 
-        - BearerAuth:
+        - CookieAuth:
           - defaultGlobalApplicationAdmin
       parameters:
         - name: id
@@ -180,7 +180,7 @@ paths:
         - 'Users'
       summary: Revokes the Global Application Admin role from a user account
       security: 
-        - BearerAuth:
+        - CookieAuth:
           - defaultGlobalApplicationAdmin
       parameters:
         - name: id
@@ -206,7 +206,7 @@ paths:
       - 'Business Accounts'
       summary: Create a new business entity
       security: 
-        - BearerAuth:
+        - CookieAuth:
           - user
           - globalApplicationAdmin
           - defaultGlobalApplicationAdmin
@@ -229,7 +229,7 @@ paths:
         - 'Business Accounts'
       summary: Retrieve a specific business account
       security: 
-        - BearerAuth:
+        - CookieAuth:
           - user
           - globalApplicationAdmin
           - defaultGlobalApplicationAdmin
@@ -254,10 +254,10 @@ paths:
  
 components:
   securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
@@ -268,17 +268,14 @@ components:
     AuthenticatedResponse:
       description: >
         Response returned to client when they have performed an action to gain authentication (registering or logging in).
-        This response includes a bearer token that the client can use in future API requests to authenticate itself
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              bearerToken:
-                type: string
-                description: Secret token returned by server to client for future authentication
-                example: '8Zz5tw0Ionm3XPZZfN0NOml3z9FMfmpgXwovR9fp6ryDIoGRM8EPHAB6iHsc0fb'
-                
+        This response includes a session token that the client can use in future API requests to authenticate itself. 
+        This session token is set as a cookie with name 'JSESSIONID', and will need to be included in subsequent requests to the server.
+      headers: 
+        Set-Cookie:
+          schema: 
+            type: string
+            example: JSESSIONID=abcde12345; Path=/; HttpOnly
+
   schemas:
     Business:
       type: object
