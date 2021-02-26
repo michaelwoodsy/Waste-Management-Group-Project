@@ -22,11 +22,16 @@ tags:
   - name: 'U3: Searching for Users using Name'
   - name: 'U4: Default Global Application Admin (DGAA)'
   - name: 'U5: Creating Business Accounts'
+  - name: 'U6: Acting as Individual or Business'
+    description: 'All necessary API endpoints are found in prior stories'
+  - name: 'U7: Create and display Products'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
   - name: 'Business Accounts'
     description: 'Grouping of endpoints related to Business Accounts'
+  - name: 'Products'
+    description: 'Grouping of endpoints related to Product entities'
   
 security: 
   - CookieAuth: 
@@ -252,6 +257,95 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
  
+  '/products':
+    post:
+      tags:
+        - 'U7: Create and display Products'
+        - 'Products'
+      summary: Create a new product
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      responses:
+        '201':
+          description: Product created successfully
+        '400': 
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        description: New product entity data, id will be generated automatically by the server
+ 
+  '/products/{id}':
+    get:
+      tags:
+        - 'U7: Create and display Products'
+        - 'Products'
+      summary: Retrieve a specific product
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Account retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when trying to access a product that is not inactive or expired, and is not owned by the user making the request.'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+          
+  '/businesses/{id}/products':
+    get:
+      tags:
+        - 'U7: Create and display Products'
+        - 'Business Accounts'
+        - 'Products'
+      summary: Retrieve the products of a business account
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Products retrieved successfully. This could be an empty array, if the user making the request is not an administrator of the business (or a global application admin) then only return the "public" products: i.e those that are active and not expired.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Product'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    
+ 
 components:
   securitySchemes:
     CookieAuth:
@@ -277,6 +371,62 @@ components:
             example: JSESSIONID=abcde12345; Path=/; HttpOnly
 
   schemas:
+    Product:
+      type: object
+      description: Entity for items that are available to be sold / purchased through the application
+      required:
+        - name
+        - quantity
+        - totalPrice
+        - expires
+      properties:
+        id: 
+          type: integer
+          example: 100
+          readOnly: true
+        quantity:
+          type: integer
+          example: 5
+        pricePerItem:
+          type: number
+          format: double
+          description: Price to purchase a single item of the product
+        totalPrice:
+          type: number
+          format: double
+          description: Price for purchasing the entire stock of the product
+        manufactured:
+          type: string
+          format: date
+          description: The date on which the product was prepared / manufactured.
+        sellBy:
+          type: string
+          format: date
+          description: The date by which the product ought to be sold
+        bestBefore:
+          type: string
+          format: date
+          description: 'The "best before" date of the product'
+        expires:
+          type: string
+          format: date
+          description: The expiry date of the product
+        status:
+          type: string
+          readOnly: true
+          description: 'A products status. Active and inactive can be set by the creator - but expired is set automatically after the expiry date'
+          enum:
+            - active
+            - inactive
+            - expired
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The date and time when this product was created on the server. This field is generated automatically by the server.
+        creator:
+          $ref: '#/components/schemas/User'
+      
     Business:
       type: object
       description: Business account entity
@@ -317,7 +467,7 @@ components:
           example: '2020-07-14T14:52:00Z'
           readOnly: true
           description: Date and time when the account was created
-          
+
     User:
       type: object
       description: Basic user entity
@@ -377,8 +527,15 @@ components:
         role:
           type: string
           readOnly: true
-          description: This property should only be shown to Global Application Admins (U4)
+          description: '(Implemented in U4): This property should only be shown to Global Application Admins'
           enum:
             - user
             - globalApplicationAdmin
             - defaultGlobalApplicationAdmin
+        businessesAdministered:
+          type: array
+          readOnly: true
+          description: '(Implemented in U6): A list of IDs of business accounts for which the user is an administrator'
+          example: [12,42,99]
+          items:
+            type: integer
