@@ -119,8 +119,8 @@ paths:
                 $ref: '#/components/schemas/User'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
           
   '/users/search':
     get:
@@ -175,8 +175,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
           
   '/users/{id}/revokeAdmin':
     put:
@@ -199,10 +199,10 @@ paths:
           description: Action completed successfully
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        '403': # 409 thrown if dgaa tries to revoke their own access
           $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
           
   '/businesses':
     post:
@@ -254,31 +254,8 @@ paths:
                 $ref: '#/components/schemas/Business'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
- 
-  '/products':
-    post:
-      tags:
-        - 'U7: Create and display Products'
-        - 'Products'
-      summary: Create a new product
-      security: 
-        - CookieAuth:
-          - user
-          - globalApplicationAdmin
-          - defaultGlobalApplicationAdmin
-      responses:
-        '201':
-          description: Product created successfully
-        '400': 
-          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
-        description: New product entity data, id will be generated automatically by the server
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
  
   '/products/{id}':
     get:
@@ -308,9 +285,9 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '403':
-          description: 'Forbidden: Returned when trying to access a product that is not inactive or expired, and is not owned by the user making the request.'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
+          description: 'Forbidden: Returned when trying to access a product that is inactive or expired, and is not owned by the user making the request.'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
           
   '/businesses/{id}/products':
     get:
@@ -342,9 +319,91 @@ paths:
                   $ref: '#/components/schemas/Product'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-    
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+    post:
+      tags:
+        - 'U7: Create and display Products'
+        - 'Products'
+        - 'Business Accounts'
+      summary: Create a new product for a business account
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      responses:
+        '201':
+          description: Product created successfully
+        '400': 
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+        '403':
+          description: 'Forbidden: Returned when a user tries to add a product to business they do not administer AND the user is not a global admin'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        description: New product entity data, id will be generated automatically by the server
+          
+          
+  '/users/{id}/products':
+    get:
+      tags:
+        - 'U7: Create and display Products'
+        - 'Users'
+        - 'Products'
+      summary: Retrieve the products of a user account
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Products retrieved successfully. This could be an empty array, if the user making the request is not the same user for which the products are being requested (i.e someone requesting their own products) then only return the "public" products: i.e those that are active and not expired.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Product'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+          
+    post:
+      tags:
+        - 'U7: Create and display Products'
+        - 'Products'
+        - 'Users'
+      summary: Create a new product for a user account
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      responses:
+        '201':
+          description: Product created successfully
+        '400': 
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+        '403':
+          description: 'Forbidden: Returned when a user tries to add a product for another user other than themselves AND the user is not a global admin'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        description: New product entity data, id will be generated automatically by the server
  
 components:
   securitySchemes:
@@ -357,8 +416,8 @@ components:
       description: Access token is missing or invalid
     ForbiddenError:
       description: The user does not have permission to perform the requested action
-    NotFoundError:
-      description: Requested resource not found on the server
+    NotAcceptableError:
+      description: 'The requested route does exist (so not a 404) but some part of the request is not acceptable, for example trying to access a resource by an ID that does not exist.'
     AuthenticatedResponse:
       description: >
         Response returned to client when they have performed an action to gain authentication (registering or logging in).
@@ -427,7 +486,7 @@ components:
         creator:
           $ref: '#/components/schemas/User'
       
-    Business:
+    Business: 
       type: object
       description: Business account entity
       required:
