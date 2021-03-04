@@ -536,6 +536,7 @@ components:
         - email
         - dateOfBirth
         - homeAddress
+        - password
       properties:
         id:
           type: integer
