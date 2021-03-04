@@ -332,6 +332,13 @@ paths:
           - user
           - globalApplicationAdmin
           - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
       responses:
         '201':
           description: Product created successfully
@@ -391,6 +398,13 @@ paths:
           - user
           - globalApplicationAdmin
           - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
       responses:
         '201':
           description: Product created successfully
