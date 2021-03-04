@@ -6,7 +6,7 @@ servers:
     
 info:
   description: API specification for the SENG302 2021 project
-  version: "1.0.0"
+  version: "1.0.1"
   title: Wasteless
   contact:
     email: seng302@canterbury.ac.nz
