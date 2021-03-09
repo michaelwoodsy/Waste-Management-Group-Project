@@ -2,11 +2,11 @@ openapi: 3.0.0
 servers:
   # Added by API Auto Mocking Plugin
   - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/matthewminish/seng302-2021-api-spec/1.0.0
+    url: https://virtserver.swaggerhub.com/matthewminish/seng302-2021-api-spec/1.0.2
     
 info:
   description: API specification for the SENG302 2021 project
-  version: "1.0.1"
+  version: "1.0.2"
   title: Wasteless
   contact:
     email: seng302@canterbury.ac.nz
@@ -79,8 +79,8 @@ paths:
       summary: Create a new user account
       security: []
       responses:
-        '201':
-          description: Account created successfully
+        '201': 
+          $ref: '#/components/responses/AuthenticatedResponse' 
         '400': 
           description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
         '409':
@@ -437,6 +437,16 @@ components:
         Response returned to client when they have performed an action to gain authentication (registering or logging in).
         This response includes a session token that the client can use in future API requests to authenticate itself. 
         This session token is set as a cookie with name 'JSESSIONID', and will need to be included in subsequent requests to the server.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userId:
+                type: integer
+                description: The ID of the user that has just been authenticated
+                example: 100
+        
       headers: 
         Set-Cookie:
           schema: 
