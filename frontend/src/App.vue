@@ -1,30 +1,35 @@
 <template>
   <div id="app">
-    <Students />
-    <footer class="info">
-      <h4>Seng302 template project</h4>
+
+    <header class="mb-3">
+      <Navbar/>
+    </header>
+
+    <body>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="d-none d-sm-block col-sm-1"></div>
+          <div class="col-12 col-sm-10">
+            <router-view/>
+          </div>
+          <div class="d-none d-sm-block col-sm-1"></div>
+        </div>
+      </div>
+    </body>
+
+    <footer class="text-center">
+      <p class="text-muted">SENG302 Team 10</p>
     </footer>
   </div>
 </template>
 
 <script>
-import Students from "./components/Students";
-// Vue app instance
-// it is declared as a reusable component in this case.
-// For global instance https://vuejs.org/v2/guide/instance.html
-// For comparison: https://stackoverflow.com/questions/48727863/vue-export-default-vs-new-vue
+import Navbar from "./components/Navbar"
 const app = {
   name: "app",
   components: {
-    // list your components here to register them (located under 'components' folder)
-    // https://vuejs.org/v2/guide/components-registration.html
-    Students,
-  },
-  // app initial state
-  // https://vuejs.org/v2/guide/instance.html#Data-and-Methods
-  data: () => {
-    return {};
-  },
+    Navbar
+  }
 };
 
 // make the 'app' available
@@ -35,4 +40,9 @@ export default app;
 [v-cloak] {
   display: none;
 }
+
+body {
+  min-height: 500px;
+}
+
 </style>

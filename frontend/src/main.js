@@ -30,8 +30,12 @@
  */
 import Vue from 'vue'
 import App from './App'
+import Store from './store'
+import './router'
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.css';
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 import VueLogger from 'vuejs-logger';
 
@@ -51,5 +55,6 @@ Vue.use(VueLogger, options);
 new Vue({
   el: '#app',
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  data: Store
 });

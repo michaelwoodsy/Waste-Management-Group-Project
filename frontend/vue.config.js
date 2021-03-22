@@ -31,5 +31,13 @@ module.exports = {
   // see https://vuejs.org/v2/guide/installation.html#Runtime-Compiler-vs-Runtime-only
   runtimeCompiler: true,
   // because of nginx inner routing and http-server, must set public path to empty
-  publicPath:''
+  publicPath:'/',
+  chainWebpack: config => {
+    config
+        .plugin('html')
+        .tap(args => {
+          args[0].title = "Wasteless";
+          return args;
+        })
+  }
 };
