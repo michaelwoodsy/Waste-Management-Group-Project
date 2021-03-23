@@ -1,0 +1,773 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/matthewminish/seng302-2021-api-spec/2.0.0
+    
+info:
+  description: API specification for the SENG302 2021 project
+  version: 2.0.0
+  title: Wasteless
+  contact:
+    email: seng302@canterbury.ac.nz
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+    
+tags:
+  # User stories
+  - name: 'U1: Registering and logging into an individual account'
+  - name: 'U2: Cities, States/Regions, Countries'
+    description: 'This story is implemented inside the client alone, and as such requires no associated API endpoints to be created'
+  - name: 'U3: Searching for Users using Name'
+  - name: 'U4: Default Global Application Admin (DGAA)'
+  - name: 'U5: Creating Business Accounts'
+  - name: 'U6: Acting as Individual or Business'
+    description: 'All necessary API endpoints are found in prior stories'
+  - name: 'U13: Home page'
+    description: 'No endpoints required for this story specifically, but several will likely be used from prior and latter stories'
+  - name: 'U15: Product Catalogue'
+  - name: 'U16: Product Images'
+  - name: 'U17: Modify catalogue entries'
+  # Entities
+  - name: 'Users'
+    description: 'Grouping of endpoints related to the User entity'
+  - name: 'Business Accounts'
+    description: 'Grouping of endpoints related to Business Accounts'
+  - name: 'Catalogue / Products'
+    description: 'Grouping of endpoints related to Product entities'
+  
+security: 
+  - CookieAuth: 
+    - user
+    - globalApplicationAdmin
+    - defaultGlobalApplicationAdmin
+    
+paths:
+  '/login':
+    post:
+      tags:
+      - 'U1: Registering and logging into an individual account'
+      - 'Users'
+      summary: Attempt to authenticate a user account with a username and password
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  description: Email address of user account for login attempt
+                  example: johnsmith99@gmail.com
+                password:
+                  type: string
+                  format: password
+                  description: Plain text user password
+                  example: '1337-H%nt3r2'
+      responses:
+        '200': 
+          $ref: '#/components/responses/AuthenticatedResponse' 
+        '400':
+          description: Failed login attempt, email or password incorrect
+          
+  '/users':
+    post:
+      tags:
+        - 'U1: Registering and logging into an individual account'
+        - 'Users'
+      summary: Create a new user account
+      security: []
+      responses:
+        '201': 
+          $ref: '#/components/responses/AuthenticatedResponse' 
+        '400': 
+          $ref: '#/components/responses/BadRequestError'
+        '409':
+          description: Email address already in use
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: New user account data, id will be generated automatically by the server
+        
+  '/users/{id}':
+    get:
+      tags:
+        - 'U1: Registering and logging into an individual account'
+        - 'Users'
+      summary: Retrieve a specific user account
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Account retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+          
+  '/users/search':
+    get:
+      tags:
+        - 'U3: Searching for Users using Name'
+        - 'Users'
+      summary: 'Search for users by some criteria, for now: their name'
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters: 
+        - in: query
+          name: searchQuery
+          schema:
+            type: string
+          required: true
+          description: 'Criteria to search users for, e.g: user’s full name or one or more of their names/nickname'
+      responses:
+        '200':
+          description: Request successful, a (possibly empty) list of users is returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      
+  '/users/{id}/makeAdmin':
+    put:
+      tags:
+        - 'U4: Default Global Application Admin (DGAA)'
+        - 'Users'
+      summary: Promote a user account to the Global Application Admin role
+      security: 
+        - CookieAuth:
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Action completed successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+          
+  '/users/{id}/revokeAdmin':
+    put:
+      tags:
+        - 'U4: Default Global Application Admin (DGAA)'
+        - 'Users'
+      summary: Revokes the Global Application Admin role from a user account
+      security: 
+        - CookieAuth:
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Action completed successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+        '409':
+          description: "Returned when the DGAA tries to revoke their own admin status, this is not an allowed action."
+          
+  '/businesses':
+    post:
+      tags:
+      - 'U5: Creating Business Accounts'
+      - 'Business Accounts'
+      summary: Create a new business entity
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Business'
+        description: New business account data, id will be generated automatically by the server
+      responses:
+        '201':
+          description: Business account created successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  
+  '/businesses/{id}':
+    get:
+      tags:
+        - 'U5: Creating Business Accounts'
+        - 'Business Accounts'
+      summary: Retrieve a specific business account
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Business retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Business'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+          
+  '/businesses/{id}/products':
+    get:
+      tags:
+        - 'U15: Product Catalogue'
+        - 'Business Accounts'
+        - 'Catalogue / Products'
+      summary: "Retrieve all the products in a business's catalogue"
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Catalogue retrieved successfully. This could be an empty array.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Product'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'The account performing the request is neither an administrator of the business, nor a global application admin.'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+    post:
+      tags:
+        - 'U15: Product Catalogue'
+        - 'Business Accounts'
+        - 'Catalogue / Products'
+      summary: "Add a new product to a business's catalogue"
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Product created successfully
+        '400': 
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+        '403':
+          description: 'Forbidden: Returned when a user tries to add a product to business they do not administer AND the user is not a global application admin'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+              
+  '/businesses/{businessId}/products/{productId}':
+    get:
+      tags:
+        - 'U15: Product Catalogue'
+        - 'Catalogue / Products'
+      summary: Retrieve a specific product from a business's catalogue
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: ID of business to search catalogue of
+          required: true
+          schema:
+            type: integer
+        - name: productId
+          in: path
+          description: ID (Product Code) of product to try to find in catalogue
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product retrieved successfully from business catalogue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user tries to retrieve a product from catalogue of a business they do not administer AND the user is not a global application admin'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+    put:
+      tags:
+        - 'U17: Modify catalogue entries'
+        - 'Catalogue / Products'
+      summary: Modify an existing catalogue item
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: ID of business to search catalogue of
+          required: true
+          schema:
+            type: integer
+        - name: productId
+          in: path
+          description: ID (Product Code) of product to try to find in catalogue
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Product updated successfully
+        '400': 
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+        '403':
+          description: 'Forbidden: Returned when a user tries to update a product for a business they do not administer AND the user is not a global application admin'
+          
+  '/businesses/{businessId}/products/{productId}/images':
+    post:
+      tags:
+        - 'U16: Product Images'
+        - 'Catalogue / Products'
+      summary: Upload a new image for some photo
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: ID of business to search catalogue of
+          required: true
+          schema:
+            type: integer
+        - name: productId
+          in: path
+          description: ID (Product Code) of product to try to find in catalogue
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '201':
+          description: Image successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imageId:
+                    type: integer
+                    description: The ID of the image that was just created
+                    example: 6543
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user tries to add an image for a product that it is in a catalogue for a business they do not administer AND the user is not a global application admin'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+          
+  '/businesses/{businessId}/products/{productId}/images/{imageId}':
+    delete:
+      tags:
+        - 'U16: Product Images'
+        - 'Catalogue / Products'
+      summary: Delete an image of a product
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: ID of business that owns product
+          required: true
+          schema:
+            type: integer
+        - name: productId
+          in: path
+          description: ID (Product Code) of product to delete image for
+          required: true
+          schema:
+            type: string
+        - name: imageId
+          in: path
+          description: ID of the image to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Image deleted successfully
+        '401':
+            $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user tries to delete an image for a product that it is in a catalogue for a business they do not administer AND the user is not a global application admin'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+          
+  '/businesses/{businessId}/products/{productId}/images/{imageId}/makePrimary':
+    put:
+      tags:
+        - 'U16: Product Images'
+        - 'Catalogue / Products'
+      summary: Set an existing image to be the new primary image for some product
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: ID of business that owns product
+          required: true
+          schema:
+            type: integer
+        - name: productId
+          in: path
+          description: ID (Product Code) of product to update primary image for
+          required: true
+          schema:
+            type: string
+        - name: imageId
+          in: path
+          description: ID of the image to set as being the primary image for product
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Primary image successfully updated
+        '401':
+            $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user tries to update the primary image for a product that it is in a catalogue for a business they do not administer AND the user is not a global application admin'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+ 
+components:
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+  responses:
+    BadRequestError:
+      description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    ForbiddenError:
+      description: The user does not have permission to perform the requested action
+    NotAcceptableError:
+      description: 'The requested route does exist (so not a 404) but some part of the request is not acceptable, for example trying to access a resource by an ID that does not exist.'
+    AuthenticatedResponse:
+      description: >
+        Response returned to client when they have performed an action to gain authentication (registering or logging in).
+        This response includes a session token that the client can use in future API requests to authenticate itself. 
+        This session token is set as a cookie with name 'JSESSIONID', and will need to be included in subsequent requests to the server.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userId:
+                type: integer
+                description: The ID of the user that has just been authenticated
+                example: 100
+        
+      headers: 
+        Set-Cookie:
+          schema: 
+            type: string
+            example: JSESSIONID=abcde12345; Path=/; HttpOnly
+
+  schemas:
+    Image:
+      type: object
+      description: Entity representing an image stored on the server
+      required:
+        - filename
+        - thumbnailFilename
+      properties:
+        id: 
+          type: integer
+          example: 1234
+          readOnly: true
+          description: A unique identifier (system-wide) to represent this image
+        filename:
+          type: string
+          example: "/media/images/23987192387509-123908794328.png"
+          description: Relative URI to full size image. A fully qualified URI (e.g www.wasteless.com/media/images/...) should NOT be given.
+        thumbnailFilename:
+          type: string
+          example: "/media/images/23987192387509-123908794328_thumbnail.png"
+          description: Relative URI to thumbnail of image. A fully qualified URI (e.g www.wasteless.com/media/images/...) should NOT be given.
+  
+    Product:
+      type: object
+      description: Entity for catalogue items in a product catalogue
+      required:
+        - name
+      properties:
+        id: 
+          type: string
+          example: 'WATT-420-BEANS'
+          description: >
+            Developers can choose whether or not to make this a required field (i.e user 
+            specified vs. auto-generated). In the case that the team automatically 
+            generates the IDs, they should still allow this field to be present when 
+            creating (POST) or modifying (PUT) a product, and then simply ignore its 
+            value (i.e do not return a 400 code if it is present but not needed). An
+            ID only needs to be unique within its catalogue, not system-wide.
+        name:
+          type: string
+          description: The full name of the product 
+          example: "Watties Baked Beans - 420g can"
+        description:
+          type: string
+          description: A desription of the product
+          example: "Baked Beans as they should be."
+        recommendedRetailPrice:
+          type: number
+          format: double
+          example: 2.20
+          description: The recommended retail price of the product, given in whatever currency is in use at the business's location.
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The date and time when this product was created. This field is generated automatically by the server.
+        images:
+          type: array
+          readOnly: true
+          description: List of images of a product (implemented in U16).
+          items:
+            $ref: '#/components/schemas/Image'
+      
+    Business: 
+      type: object
+      description: Business account entity
+      required:
+        - name
+        - address
+        - businessType
+      properties:
+        id:
+          type: integer
+          example: 100
+          readOnly: true
+          description: Automatically generated and assigned by the server
+        administrators:
+          type: array
+          items: 
+            $ref: '#/components/schemas/User'
+          readOnly: true
+        name:
+          type: string
+          example: 'Lumbridge General Store'
+        description:
+          type: string
+          example: 'A one-stop shop for all your adventuring needs'
+        address:
+          $ref: '#/components/schemas/Address'
+        businessType:
+          type: string
+          enum: 
+            - Accommodation and Food Services
+            - Retail Trade
+            - Charitable organisation
+            - Non-profit organisation
+        created:
+          type: string
+          format: date-time
+          example: '2020-07-14T14:52:00Z'
+          readOnly: true
+          description: Date and time when the account was created
+
+    Address:
+      type: object
+      description: Entity representing some physical address
+      required:
+        - country
+      properties:
+        streetNumber:
+          type: string
+          example: '3/24'
+        streetName:
+          type: string
+          example: 'Ilam Road'
+        city:
+          type: string
+          example: 'Christchurch'
+        region:
+          type: string
+          example: 'Canterbury'
+        country:
+          type: string
+          example: 'New Zealand'
+        postcode:
+          type: string
+          example: '90210'
+
+    User:
+      type: object
+      description: Basic user entity
+      required:
+        - firstName
+        - lastName
+        - email
+        - dateOfBirth
+        - homeAddress
+        - password
+      properties:
+        id:
+          type: integer
+          example: 100
+          readOnly: true
+          description: Automatically generated and assigned by the server
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Smith
+        middleName:
+          type: string
+          example: Hector
+        nickname:
+          type: string
+          example: Jonny
+        bio:
+          type: string
+          example: Likes long walks on the beach
+        email:
+          type: string
+          format: email
+          example: johnsmith99@gmail.com
+        dateOfBirth:
+          type: string
+          format: date
+          example: '1999-04-27'
+        phoneNumber:
+          type: string
+          example: '+64 3 555 0129'
+        homeAddress:
+          $ref: '#/components/schemas/Address'
+        password:
+          type: string
+          example: '1337-H%nt3r2'
+          format: password
+          writeOnly: true
+          description: Should not be stored in plain text (i.e hash it)
+        created:
+          type: string
+          format: date-time
+          example: '2020-07-14T14:32:00Z'
+          readOnly: true
+          description: Date and time when the account was created
+        role:
+          type: string
+          readOnly: true
+          description: '(Implemented in U4): This property should only be shown to Global Application Admins'
+          enum:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+        businessesAdministered:
+          type: array
+          readOnly: true
+          description: '(Implemented in U6): A list of IDs of business accounts for which the user is an administrator'
+          example: [12,42,99]
+          items:
+            type: integer
