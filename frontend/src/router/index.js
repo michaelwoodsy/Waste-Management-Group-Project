@@ -20,7 +20,7 @@ const routes = [
         component: UserSearch
     },
     {
-        path: '/user/:userId',
+        path: '/users/:userId',
         name: 'viewUser',
         component: Public_profile_page
     },
