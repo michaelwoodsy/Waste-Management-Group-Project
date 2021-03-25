@@ -13,6 +13,8 @@ export default {
                 .then((res) => {
                     this.state.loggedIn = true;
                     this.state.userId = res.data.userId;
+                    console.log(res)
+                    console.log(res.headers)
                     resolve(res)
                 })
                 .catch((err) => {
