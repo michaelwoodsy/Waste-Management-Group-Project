@@ -69,7 +69,7 @@
   import Alert from "./Alert"
 
   const LoginPage = {
-    name: "Login_page",
+    name: "LoginPage",
     data () {
       return {
         username: '',
