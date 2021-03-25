@@ -4,7 +4,7 @@
             page="view your profile page"
             v-if="!isLoggedIn"
     />
-
+    <!-- Greeting User -->
     <div v-else>
       <div class="row">
         <div class="col-12 text-center mb-2">
