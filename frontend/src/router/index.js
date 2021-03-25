@@ -35,7 +35,7 @@ const routes = [
         component: LoginPage
     },
     {
-        path: '/profile', //TODO: change to '/' after user logged in
+        path: '/home', //TODO: change to '/' after user logged in
         name: 'user',
         component: Home
     }

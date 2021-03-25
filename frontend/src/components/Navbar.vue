@@ -8,11 +8,11 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <router-link class="nav-link" to="/">Home</router-link>
+                    <li class="nav-item" v-if="isLoggedIn">
+                        <router-link class="nav-link" to="/home">Home</router-link>
                     </li>
                     <li class="nav-item" v-if="isLoggedIn">
-                        <router-link class="nav-link" to="/users">Users</router-link>
+                        <router-link class="nav-link" to="/users/search">Users</router-link>
                     </li>
                 </ul>
                 <span class="navbar-text">
