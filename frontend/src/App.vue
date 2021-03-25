@@ -18,7 +18,7 @@
     </body>
 
     <footer class="text-center">
-      <p class="text-muted">SENG302 Team 10</p>
+      <p class="text-muted">SENG302 Team 200</p>
     </footer>
   </div>
 </template>

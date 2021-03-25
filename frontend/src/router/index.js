@@ -1,43 +1,43 @@
 import Vue from 'vue'
 import Router from './custom-router'
 
-import Home from '../components/Home'
+import Landing from '../components/Landing'
 import UserSearch from '../components/UserSearch'
-import Register_page from "../components/Register_page";
-import Login_page from "../components/Login_page";
-import Profile_page from "../components/Profile_page";
-import Public_profile_page from "../components/Public_profile_page";
+import RegisterPage from "../components/RegisterPage";
+import LoginPage from "../components/LoginPage";
+import Home from "../components/Home";
+import ProfilePage from "../components/ProfilePage";
 
 const routes = [
     {
         path: '/',
-        name: 'home',
-        component: Home
+        name: 'landing',
+        component: Landing
     },
     {
-        path: '/users',
+        path: '/users/search',
         name: 'users',
         component: UserSearch
     },
     {
-        path: '/user/:userId',
+        path: '/users/:userId',
         name: 'viewUser',
-        component: Public_profile_page
+        component: ProfilePage
     },
     {
         path: '/register',
         name: 'register',
-        component: Register_page
+        component: RegisterPage
     },
     {
         path: '/login',
         name: 'login',
-        component: Login_page
+        component: LoginPage
     },
     {
-        path: '/profile',
+        path: '/profile', //TODO: change to '/' after user logged in
         name: 'user',
-        component: Profile_page
+        component: Home
     }
 ];
 

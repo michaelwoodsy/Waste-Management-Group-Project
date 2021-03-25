@@ -106,7 +106,7 @@ import axios from "axios";
 import LogoutRequired from "./LogoutRequired";
 //Default starting parameters
 export default {
-  name: "Register_page",
+  name: "RegisterPage",
   components: {LogoutRequired},
   data() {
     return {
