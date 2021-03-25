@@ -104,9 +104,17 @@ export default {
     User.getUserDataFake(this.userId).then((response) => this.profile(response)) // TODO: Change to real function when teamed up with backend team
   },
   computed: {
+    /**
+     * Gets the users' ID
+     * @returns {any}
+     */
     userId () {
       return this.$route.params.userId
     },
+    /**
+     * Checks to see if user is logged in currently
+     * @returns {boolean|*}
+     */
     isLoggedIn () {
       console.log(this.$root.$data.user.state.loggedIn)
       return this.$root.$data.user.state.loggedIn
@@ -116,6 +124,10 @@ export default {
     LoginRequired
   },
   methods: {
+    /**
+     * Assigns the data from the response to the profile variables
+     * @param response is the response from the server
+     */
     profile(response) {
       this.firstName = response.data.firstName
       this.middleName = response.data.middleName
