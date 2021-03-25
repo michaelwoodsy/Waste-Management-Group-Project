@@ -17,8 +17,8 @@
                 </ul>
                 <span class="navbar-text">
                     <span class="float-right d-inline" v-if="isLoggedIn">
-                        <router-link class="nav-link d-inline" @click.native="logOut()" to="/">Logout</router-link> /
-                        <router-link class="nav-link d-inline" to="/profile">Profile</router-link>
+                        <router-link class="nav-link d-inline" @click.native="logOut()" to="/login">Logout</router-link> /
+                        <router-link class="nav-link d-inline" :to="userProfileRoute">Profile</router-link>
                     </span>
                         <span class="float-right d-inline" v-else>
                         <router-link class="nav-link d-inline" to="/login">Login</router-link> /
@@ -41,6 +41,9 @@
           isLoggedIn () {
             return this.$root.$data.user.state.loggedIn
 
+          },
+          userProfileRoute () {
+            return `users/${this.$root.$data.user.state.userId}`;
           }
         },
         methods: {
