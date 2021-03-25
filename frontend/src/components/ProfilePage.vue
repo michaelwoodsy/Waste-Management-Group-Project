@@ -96,7 +96,7 @@ import { User } from '@/Api'
 import LoginRequired from "./LoginRequired";
 
 export default {
-  name: "Public_profile_page",
+  name: "ProfilePage",
   props: {
     msg: String
   },

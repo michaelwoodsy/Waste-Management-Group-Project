@@ -68,7 +68,7 @@
   import LogoutRequired from "./LogoutRequired";
   import Alert from "./Alert"
 
-  const Login_page = {
+  const LoginPage = {
     name: "Login_page",
     data () {
       return {
@@ -106,7 +106,7 @@
     }
   };
 
-  export default Login_page;
+  export default LoginPage;
 
 </script>
 
