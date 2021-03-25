@@ -132,6 +132,10 @@ export default {
     User.getUserData(this.$root.$data.user.state.userId).then((response) => this.profile(response))
   },
   computed: {
+    /**
+     * Checks that user is logged in, is called once the page is loaded
+     * @returns {boolean|*}
+     */
     isLoggedIn () {
       return this.$root.$data.user.state.loggedIn
     }
@@ -141,6 +145,10 @@ export default {
   },
   methods: {
     // Save the data given by the API into the variables used to display the information on screen
+    /**
+     * Assigns the data from the response to the profile variables
+     * @param response this is the response from the server
+     */
     profile(response) {
 
       this.firstName = response.data.firstName
@@ -157,6 +165,10 @@ export default {
       this.dateJoined = this.dateJoined.substring(0, 10)
     },
 
+    /**
+     * Calculates the time since the user joined the site
+     * @param joined this is the date that the user joined
+     */
     timeCalculator(joined) {
       let dateNow = new Date();
       const milliYear = 31557600000
