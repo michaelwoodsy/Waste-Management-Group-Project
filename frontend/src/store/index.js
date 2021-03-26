@@ -1,4 +1,4 @@
-import User from './User'
+import User from './modules/user'
 
 export default {
     user: User

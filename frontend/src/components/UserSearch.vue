@@ -201,7 +201,7 @@
                 this.loading = true;
                 this.page = 1;
 
-                User.getUsersFake(this.searchTerm) // TODO: Change to proper api function
+                User.getUsers(this.searchTerm) // TODO: Change to proper api function
                     .then((res) => {
                         this.users = res.data;
                         this.loading = false;

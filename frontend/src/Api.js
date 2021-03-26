@@ -34,7 +34,8 @@ const SERVER_URL = process.env.VUE_APP_SERVER_ADD;
 
 const instance = axios.create({
   baseURL: SERVER_URL,
-  timeout: 2000
+  timeout: 2000,
+  withCredentials: true
 });
 
 export default {
@@ -336,7 +337,7 @@ export const User = {
 
   login: (username, password) => instance.post('login', {username, password}),
 
-  getUserData: (id) => instance.get('/users/' +id, {}),
+  getUserData: (id) => instance.get(`users/${id}`, {}),
 
   getUserDataFake (id) {
     return new Promise ((resolve, reject) => {
@@ -351,7 +352,7 @@ export const User = {
     })
   },
 
-  getUsers: (searchTerm) => instance.get('users/search', {query: {'searchQuery': searchTerm}}),
+  getUsers: (searchTerm) => instance.get('users/search', {params: {'searchQuery': searchTerm}}),
 
   getUsersFake (searchTerm) {
     return new Promise ((resolve, reject) => {
