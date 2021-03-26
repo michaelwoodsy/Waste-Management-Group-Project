@@ -352,7 +352,7 @@ export const User = {
     })
   },
 
-  getUsers: (searchTerm) => instance.get('users/search', {query: {'searchQuery': searchTerm}}),
+  getUsers: (searchTerm) => instance.get('users/search', {params: {'searchQuery': searchTerm}}),
 
   getUsersFake (searchTerm) {
     return new Promise ((resolve, reject) => {
