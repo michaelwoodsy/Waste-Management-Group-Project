@@ -16,6 +16,10 @@
             }
         },
         computed: {
+          /**
+           * Returns the alert that just occurred
+           * @returns {string}
+           */
             alertStyles () {
                 return `alert ${this.alertType}`
             }

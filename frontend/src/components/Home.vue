@@ -4,7 +4,7 @@
             page="view your profile page"
             v-if="!isLoggedIn"
     />
-
+    <!-- Greeting User -->
     <div v-else>
       <div class="row">
         <div class="col-12 text-center mb-2">
@@ -32,6 +32,10 @@ export default {
     User.getUserData(this.$root.$data.user.state.userId).then((response) => this.profile(response))
   },
   computed: {
+    /**
+     * Check if user is logged in
+     * @returns {boolean|*}
+     */
     isLoggedIn () {
       return this.$root.$data.user.state.loggedIn
     }
@@ -41,6 +45,10 @@ export default {
   },
   methods: {
     // Save the data given by the API into the variables used to display the information on screen
+    /**
+     * Assigns the data from the response to the profile variables
+     * @param response is the response from the server
+     */
     profile(response) {
 
       this.firstName = response.data.firstName
@@ -57,6 +65,10 @@ export default {
       this.dateJoined = this.dateJoined.substring(0, 10)
     },
 
+    /**
+     * Calculate the time since the user joined in Unix time (in milliseconds)
+     * @param joined is the date the user joined in Unix time (in milliseconds)
+     */
     timeCalculator(joined) {
       let dateNow = new Date();
       const milliYear = 31557600000

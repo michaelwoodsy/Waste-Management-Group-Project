@@ -30,27 +30,37 @@
             }
         },
         computed: {
-            // An array of page numbers
-            pages () {
-                return [
-                    ...Array(Math.ceil(this.totalItems / this.itemsPerPage)).keys()
+          // An array of page numbers
+          /**
+           *Creates an array for the correct number of pages needed
+           */
+          pages () {
+            return [
+                ...Array(Math.ceil(this.totalItems / this.itemsPerPage)).keys()
                 ].map(pageNo => pageNo + 1)
             }
         },
         methods: {
-            changePage (page) {
-                this.$emit('update:currentPage', page);
-                this.scrollToTop()
-            },
-            styles (page) {
+          /**
+           * Lets user to change page
+           * @param page
+           */
+          changePage (page) {
+            this.$emit('update:currentPage', page);
+            this.scrollToTop()
+          },
+          styles (page) {
                 return {
                     'page-item': true,
                     'active': page === this.currentPage
                 }
             },
-            scrollToTop () {
-                window.scrollTo(0, 0)
-            }
+          /**
+           * Lets user to scroll to top of window
+           */
+          scrollToTop () {
+            window.scrollTo(0, 0)
+          }
         }
     }
 </script>
