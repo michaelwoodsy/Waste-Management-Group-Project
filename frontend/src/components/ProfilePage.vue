@@ -1,13 +1,12 @@
 <template>
   <div>
 
-<!--    <login-required-->
-<!--        page="view a users profile page"-->
-<!--        v-if="!isLoggedIn"-->
-<!--    />-->
+    <login-required
+        page="view a users profile page"
+        v-if="!isLoggedIn"
+    />
 
-<!--    <div v-else>-->
-    <div>
+    <div v-else>
 
       <div class="row">
         <div class="col-12 text-center mb-2">
@@ -94,7 +93,7 @@
 <script>
 
 import { User } from '@/Api'
-//import LoginRequired from "./LoginRequired";
+import LoginRequired from "./LoginRequired";
 
 export default {
   name: "ProfilePage",
@@ -123,7 +122,7 @@ export default {
     }
   },
   components: {
-    //LoginRequired
+    LoginRequired
   },
   methods: {
     /**
