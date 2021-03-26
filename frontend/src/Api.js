@@ -337,7 +337,7 @@ export const User = {
 
   login: (username, password) => instance.post('login', {username, password}),
 
-  getUserData: (id) => instance.get('/users/' +id, {}),
+  getUserData: (id) => instance.get('users/' +id, {}),
 
   getUserDataFake (id) {
     return new Promise ((resolve, reject) => {

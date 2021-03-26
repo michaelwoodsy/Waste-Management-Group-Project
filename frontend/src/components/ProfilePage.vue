@@ -1,12 +1,13 @@
 <template>
   <div>
 
-    <login-required
-        page="view a users profile page"
-        v-if="!isLoggedIn"
-    />
+<!--    <login-required-->
+<!--        page="view a users profile page"-->
+<!--        v-if="!isLoggedIn"-->
+<!--    />-->
 
-    <div v-else>
+<!--    <div v-else>-->
+    <div>
 
       <div class="row">
         <div class="col-12 text-center mb-2">
@@ -93,7 +94,7 @@
 <script>
 
 import { User } from '@/Api'
-import LoginRequired from "./LoginRequired";
+//import LoginRequired from "./LoginRequired";
 
 export default {
   name: "ProfilePage",
@@ -101,7 +102,8 @@ export default {
     msg: String
   },
   mounted() {
-    User.getUserDataFake(this.userId).then((response) => this.profile(response)) // TODO: Change to real function when teamed up with backend team
+    User.getUserData(this.userId).then((response) => this.profile(response))
+    //User.getUserDataFake(this.userId).then((response) => this.profile(response)) // TODO: Change to real function when teamed up with backend team
   },
   computed: {
     /**
@@ -121,7 +123,7 @@ export default {
     }
   },
   components: {
-    LoginRequired
+    //LoginRequired
   },
   methods: {
     /**
@@ -137,7 +139,7 @@ export default {
       this.email = response.data.email
 
       //Need to remove the street and number part of this address, just splice from the first ','
-      this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",")+2);
+      //this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",")+2);
     }
   },
 
