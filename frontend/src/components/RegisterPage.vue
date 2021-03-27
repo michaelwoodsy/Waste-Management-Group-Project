@@ -64,7 +64,7 @@
           <div class="form-row">
             <!--    Phone Number    -->
             <label for="phoneNumber"><b>Phone Number</b></label><br/>
-            <input style="width:100%" type="number" placeholder="Enter your Phone Number" id="phoneNumber" class="form-control" v-model="phoneNumber"><br><br><br>
+            <input style="width:100%" type="text" placeholder="Enter your Phone Number with extension" id="phoneNumber" class="form-control" v-model="phoneNumber"><br><br><br>
           </div>
 
           <hr/>
@@ -155,7 +155,6 @@
 </template>
 
 <script>
-import { User } from '@/Api'
 import axios from "axios";
 import LogoutRequired from "./LogoutRequired";
 
@@ -470,8 +469,9 @@ export default {
      * If this fails the program should set the error text to the error recived from the backend server
      */
     addUser() {
-      console.log(`${this.address.streetNumber} ${this.address.streetName}, ${this.address.city}, ${this.address.region}, ${this.address.country}, ${this.address.postcode}`)
-      User.createNew(
+      console.log(this.phoneNumber)
+      console.log(typeof this.phoneNumber)
+      this.$root.$data.user.register(
           this.firstName,
           this.lastName,
           this.middleName,
@@ -483,19 +483,13 @@ export default {
           //For now address is string. Will be changed when the database accepts the address object
           `${this.address.streetNumber} ${this.address.streetName}, ${this.address.city}, ${this.address.region}, ${this.address.country}, ${this.address.postcode}`,
           //this.address,
-          this.password).then(() => {
-          this.$root.$data.user.login(this.username, this.password)
-              .then(() => {
+          this.password
+      ).then(() => {
                 this.$router.push({name: 'user'})
               })
               .catch((err) => {
                 this.msg.errorChecks = err;
               });
-        console.log("new user created");
-      }).catch((err) => {
-        this.$log.debug(err);
-        this.msg.errorChecks = "Failed to add user";
-      });
     },
   }
 };
