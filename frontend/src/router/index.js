@@ -7,6 +7,7 @@ import RegisterPage from "../components/RegisterPage";
 import LoginPage from "../components/LoginPage";
 import Home from "../components/Home";
 import ProfilePage from "../components/ProfilePage";
+import BusinessProfilePage from "@/components/BusinessProfilePage";
 
 const routes = [
     {
@@ -38,6 +39,11 @@ const routes = [
         path: '/home', //TODO: change to '/' after user logged in
         name: 'user',
         component: Home
+    },
+    {
+        path: '/businesses/:id',
+        name: 'viewBusiness',
+        component: BusinessProfilePage
     }
 ];
 
