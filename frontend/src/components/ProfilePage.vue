@@ -127,7 +127,6 @@ export default {
      * @returns {boolean|*}
      */
     isLoggedIn () {
-      console.log(this.$root.$data.user.state.loggedIn)
       return this.$root.$data.user.state.loggedIn
     }
   },

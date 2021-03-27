@@ -30,6 +30,23 @@ export default {
         deleteCookie('userId');
     },
 
+    register (firstName, lastName, middleName, nickname, bio, email, dateOfBirth, phoneNumber, homeAddress, password) {
+        // Return a promise for the api call
+        return new Promise((resolve, reject) => {
+            User.createNew(firstName, lastName, middleName, nickname, bio, email, dateOfBirth, phoneNumber, homeAddress, password)
+                .then((res) => {
+                    // Set logged in then resolve the promise
+                    this.setLoggedIn(res.data.userId);
+                    resolve(res)
+                })
+                .catch((err) => {
+                    // Set logged out then reject the promise
+                    this.setLoggedOut();
+                    reject(err)
+                })
+        })
+    },
+
     /**
      * Logs the user in, and sets the corresponding loggedIn value if successful
      * @param username Username to send to api

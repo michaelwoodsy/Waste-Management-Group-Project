@@ -90,7 +90,7 @@ public class UserController {
         }
 
         String phoneRegEx = "^\\+[1-9]\\d{1,14}$";
-        if (!(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
+        if (!newUser.getPhoneNumber().equals("") && !(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
             InvalidPhoneNumberException exception = new InvalidPhoneNumberException();
             logger.error(exception.getMessage());
             throw exception;
