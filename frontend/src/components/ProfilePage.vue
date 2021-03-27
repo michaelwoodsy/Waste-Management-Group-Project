@@ -218,6 +218,8 @@ export default {
       bio: null,
       email: null,
       homeAddress: null,
+      dateJoined: null,
+      dateSinceJoin: null
     }
   }
 }
