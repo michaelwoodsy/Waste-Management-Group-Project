@@ -117,7 +117,6 @@ export default {
      * @returns {boolean|*}
      */
     isLoggedIn () {
-      console.log(this.$root.$data.user.state.loggedIn)
       return this.$root.$data.user.state.loggedIn
     }
   },
@@ -138,7 +137,7 @@ export default {
       this.email = response.data.email
 
       //Need to remove the street and number part of this address, just splice from the first ','
-      //this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",")+2);
+      //this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",")+2)
     }
   },
 

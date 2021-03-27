@@ -332,8 +332,8 @@ export const User = {
               email,
               dateOfBirth,
               phoneNumber,
-              address,
-              password) => instance.post('users', {firstName, lastName, middleName, nickname, bio, email, dateOfBirth, phoneNumber, address, password}),
+              homeAddress,
+              password) => instance.post('users', {firstName, lastName, middleName, nickname, bio, email, dateOfBirth, phoneNumber, homeAddress, password}),
 
   login: (username, password) => instance.post('login', {username, password}),
 

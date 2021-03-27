@@ -19,13 +19,13 @@
           </div>
           <!-- Username -->
           <div class="form-row">
-            <label for="username" style="margin-top:20px"><b>Username<span class="required">*</span></b></label><br/>
+            <label for="username" style="margin-top:20px"><b>Email<span class="required">*</span></b></label><br/>
             <input type="text"
                    :class="inputClass(username)"
                    class="form-control"
                    style="width: 100%"
                    v-model="username"
-                   placeholder="Enter Username"
+                   placeholder="Enter Email"
                    id="username"
                    @keyup.enter="login"
                    required>
@@ -45,7 +45,7 @@
           </div>
           <!-- Username error (empty) -->
           <div class="form-row">
-            <p class="red-text" v-if="isIncorrectField(username)">A username must be entered!</p>
+            <p class="red-text" v-if="isIncorrectField(username)">An email must be entered!</p>
           </div>
           <!-- Password error (empty) -->
           <div class="form-row">
@@ -95,7 +95,7 @@
                     this.$router.push({name: 'user'})
                   })
                   .catch((err) => {
-                    this.error = err;
+                    this.error = err.response.data.slice(err.response.data.indexOf(":")+2)
                     this.showMissingFields = false
                   })
         }

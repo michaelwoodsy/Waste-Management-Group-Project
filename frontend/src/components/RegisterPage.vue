@@ -77,13 +77,13 @@
           <div class="form-row">
             <!--    Home Address Street Number    -->
             <label for="homeAddressNumber"><b>Street Number<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Number" id="homeAddressNumber" class="form-control" v-model="address.streetNumber" required><br>
+            <input style="width:100%" type="text" placeholder="Enter your Street Number" id="homeAddressNumber" class="form-control" v-model="homeAddress.streetNumber" required><br>
           </div><br>
 
           <div class="form-row">
             <!--    Home Address Street Name    -->
             <label for="homeAddressStreet"><b>Street Name<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Name" id="homeAddressStreet" class="form-control" v-model="address.streetName" required><br>
+            <input style="width:100%" type="text" placeholder="Enter your Street Name" id="homeAddressStreet" class="form-control" v-model="homeAddress.streetName" required><br>
           </div><br>
 
           <div class="form-row">
@@ -122,7 +122,7 @@
           <div class="form-row">
             <!--    Home Address Post Code    -->
             <label for="homeAddressPostCode"><b>Postcode<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Postcode" id="homeAddressPostCode" class="form-control" v-model="address.postcode" required><br>
+            <input style="width:100%" type="text" placeholder="Enter your Postcode" id="homeAddressPostCode" class="form-control" v-model="homeAddress.postcode" required><br>
           </div><br>
 
           <!--    Error message for the address inputs    -->
@@ -143,7 +143,15 @@
           <div class="form-row">
             <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" v-on:click="checkInputs">Create Account</button>
             <!--    Error message for the registering process    -->
-            <p style="width: 100%; margin:0 20px; text-align: center"><span class="error-msg" v-if="msg.errorChecks">{{msg.errorChecks}}</span></p><br>
+
+            <div class="login-box" style="width: 100%; margin:20px 20px; text-align: center">
+              <!-- Show error if something wrong -->
+              <alert v-if="msg.errorChecks">
+                {{ msg.errorChecks }}
+              </alert>
+
+            </div>
+
             <p  style="width: 100%; margin:0 20px; text-align: center">Already have an account?
               <router-link class="link-text" to="/login">Login here</router-link></p><br><br>
           </div>
@@ -157,13 +165,17 @@
 <script>
 import axios from "axios";
 import LogoutRequired from "./LogoutRequired";
+import Alert from "./Alert"
 
 /**
  * Default starting parameters
  */
 export default {
   name: "RegisterPage",
-  components: {LogoutRequired},
+  components: {
+    LogoutRequired,
+    Alert
+  },
   data() {
     return {
       //Sets text boxes to empty at start
@@ -181,7 +193,7 @@ export default {
       addressRegion: '',
       addressCity: '',
 
-      address: {  //Required
+      homeAddress: {  //Required
         streetNumber: '',
         streetName: '',
         city: '',
@@ -198,7 +210,7 @@ export default {
         'dateOfBirth': '',
         'homeAddress': '',
         'password': '',
-        'errorChecks': ''
+        'errorChecks': null
       },
       valid: true,
 
@@ -227,15 +239,15 @@ export default {
      * Checks if the country can be autofilled, and if so, calls the proton function which returns autofill candidates
      */
     addressCountry(value) {
-      this.address.country = value
+      this.homeAddress.country = value
       //re enable autofill
-      if (!this.autofillCountry && this.address.country !== this.prevAutofilledCountry) {
+      if (!this.autofillCountry && this.homeAddress.country !== this.prevAutofilledCountry) {
         this.prevAutofilledCountry = ''
         this.autofillCountry = true
       }
 
       //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCountry && this.address.country.length > 3) {
+      if (this.autofillCountry && this.homeAddress.country.length > 3) {
         this.countries = this.photon(value, 'place:country')
       }
     },
@@ -246,15 +258,15 @@ export default {
      * Checks if the region can be autofilled, and if so, calls the proton function which returns autofill candidates
      */
     addressRegion(value) {
-      this.address.region = value
+      this.homeAddress.region = value
       //re enable autofill
-      if (!this.autofillRegion && this.address.region !== this.prevAutofilledRegion) {
+      if (!this.autofillRegion && this.homeAddress.region !== this.prevAutofilledRegion) {
         this.prevAutofilledRegion = ''
         this.autofillRegion = true
       }
 
       //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillRegion && this.address.region.length > 3) {
+      if (this.autofillRegion && this.homeAddress.region.length > 3) {
         this.regions = this.photon(value, 'boundary:administrative')
       }
     },
@@ -265,15 +277,15 @@ export default {
      * Checks if the city can be autofilled, and if so, calls the proton function which returns autofill candidates
      */
     addressCity(value) {
-      this.address.city = value
+      this.homeAddress.city = value
       //re enable autofill
-      if (!this.autofillCity && this.address.city !== this.prevAutofilledCity) {
+      if (!this.autofillCity && this.homeAddress.city !== this.prevAutofilledCity) {
         this.prevAutofilledCity = ''
         this.autofillCity = true
       }
 
       //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCity && this.address.city.length > 3) {
+      if (this.autofillCity && this.homeAddress.city.length > 3) {
         this.cities = this.photon(value, 'place:city&osm_tag=place:town')
       }
     },
@@ -336,9 +348,9 @@ export default {
      * Checks if the variables are empty, if so displays a warning message
      */
     validateAddress() {
-      if (this.address.streetNumber === '' || this.address.streetName === '' ||
-          this.address.city === '' || this.address.region === '' ||
-          this.address.country === '' || this.address.postcode === '') {
+      if (this.homeAddress.streetNumber === '' || this.homeAddress.streetName === '' ||
+          this.homeAddress.city === '' || this.homeAddress.region === '' ||
+          this.homeAddress.country === '' || this.homeAddress.postcode === '') {
         this.msg['homeAddress'] = 'Please enter a full Address'
         this.valid = false
       } else {
@@ -411,7 +423,6 @@ export default {
               }
 
             }
-            //console.log(addresses)
             return addresses
           })
           .catch(function(error){
@@ -427,11 +438,11 @@ export default {
      */
     changeCountry(country) {
       //Changes the address input to the selected autofill address
-      this.address.country = country
+      this.homeAddress.country = country
       this.addressCountry = country
       this.countries = []
       this.autofillCountry = false
-      this.prevAutofilledCountry = this.address.country
+      this.prevAutofilledCountry = this.homeAddress.country
     },
 
     /**
@@ -441,11 +452,11 @@ export default {
      */
     changeRegion(region) {
       //Changes the address input to the selected autofill address
-      this.address.region = region
+      this.homeAddress.region = region
       this.addressRegion = region
       this.regions = []
       this.autofillRegion = false
-      this.prevAutofilledRegion = this.address.region
+      this.prevAutofilledRegion = this.homeAddress.region
     },
 
     /**
@@ -455,11 +466,11 @@ export default {
      */
     changeCity(city) {
       //Changes the address input to the selected autofill address
-      this.address.city = city
+      this.homeAddress.city = city
       this.addressCity = city
       this.cities = []
       this.autofillCity = false
-      this.prevAutofilledCity = this.address.city
+      this.prevAutofilledCity = this.homeAddress.city
     },
 
 
@@ -469,8 +480,6 @@ export default {
      * If this fails the program should set the error text to the error recived from the backend server
      */
     addUser() {
-      console.log(this.phoneNumber)
-      console.log(typeof this.phoneNumber)
       this.$root.$data.user.register(
           this.firstName,
           this.lastName,
@@ -481,14 +490,14 @@ export default {
           this.dateOfBirth,
           this.phoneNumber,
           //For now address is string. Will be changed when the database accepts the address object
-          `${this.address.streetNumber} ${this.address.streetName}, ${this.address.city}, ${this.address.region}, ${this.address.country}, ${this.address.postcode}`,
-          //this.address,
+          `${this.homeAddress.streetNumber} ${this.homeAddress.streetName}, ${this.homeAddress.city}, ${this.homeAddress.region}, ${this.homeAddress.country}, ${this.homeAddress.postcode}`,
+          //this.homeAddress,
           this.password
       ).then(() => {
                 this.$router.push({name: 'user'})
               })
               .catch((err) => {
-                this.msg.errorChecks = err;
+                this.msg.errorChecks = err.response.data.slice(err.response.data.indexOf(":")+2)
               });
     },
   }
