@@ -64,6 +64,16 @@
           <p>[e.g. "Registered since: 2 April 2020 (10 months)"]</p>
         </div>
       </div>
+
+      <!-- Administrators -->
+      <div class="row">
+        <div class="col-6 text-right font-weight-bold">
+          <p>Administrators: </p>
+        </div>
+        <div class="col-6">
+          <p>[Links to admin profile pages here]</p>
+        </div>
+      </div>
     </div>
 
   </div>
