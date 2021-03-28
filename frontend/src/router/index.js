@@ -8,6 +8,7 @@ import LoginPage from "../components/LoginPage";
 import Home from "../components/Home";
 import ProfilePage from "../components/ProfilePage";
 import BusinessProfilePage from "@/components/BusinessProfilePage";
+import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 
 const routes = [
     {
@@ -44,6 +45,11 @@ const routes = [
         path: '/businesses/:id',
         name: 'viewBusiness',
         component: BusinessProfilePage
+    },
+    {
+        path: '/businesses/',
+        name: 'registerBusiness',
+        component: RegisterBusinessPage
     }
 ];
 
