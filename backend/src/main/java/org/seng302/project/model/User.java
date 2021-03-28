@@ -15,17 +15,14 @@ import java.util.List;
  */
 @Data // generate setters and getters for all fields (lombok pre-processor)
 @NoArgsConstructor // generate a no-args constructor needed by JPA (lombok pre-processor)
-@ToString // generate a toString method
-@NamedEntityGraph( //Allows us to fetch businessesAdministered whenever getting a User (prevent LazyInitialisationException)
-        name = "graph.userBusinessesAdministered",
-        attributeNodes = @NamedAttributeNode("businessesAdministered")
-)
+//@ToString // generate a toString method
+//@NamedEntityGraph( //Allows us to fetch businessesAdministered whenever getting a User (prevent LazyInitialisationException)
+//        name = "graph.userBusinessesAdministered",
+//        attributeNodes = @NamedAttributeNode("businessesAdministered")
+//)
 @Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
 public class User {
 
-    private final LocalDateTime created = LocalDateTime.now();
-    @Id // this field (attribute) is the primary key of the table
-    @GeneratedValue // autoincrement the ID
     private Integer id; // automatically generated and assigned by the server
     private String firstName;
     private String lastName;
@@ -36,14 +33,11 @@ public class User {
     private String dateOfBirth;
     private String phoneNumber;
     private String homeAddress;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     // One of [ user, globalApplicationAdmin, defaultGlobalApplicationAdmin ]
     private String role; // This property should only be shown to Global org.seng302.project.controller.Application Admins
-
-    // TODO: change this to a list of Business ids, not objects
-    @ManyToMany(targetEntity = Business.class)
     private List<Business> businessesAdministered;
+    private LocalDateTime created = LocalDateTime.now();
 
     public User(String firstName, String lastName, String middleName,
                 String nickname, String bio, String email, String dateOfBirth,
@@ -59,6 +53,29 @@ public class User {
         this.homeAddress = homeAddress;
         this.password = password;
         this.role = "user";
+    }
+
+    @Id // this field (attribute) is the primary key of the table
+    @GeneratedValue // autoincrement the ID
+    @Column(name = "id_user")
+    public Integer getId() {
+        return this.id;
+    }
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    public String getPassword() {
+        return this.password;
+    }
+
+    // TODO: change this to a list of Business ids, not objects
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_administers_business",
+            joinColumns = @JoinColumn(name = "id_user"),
+            inverseJoinColumns = @JoinColumn(name = "id_business")
+    )
+    public List<Business> getBusinessesAdministered() {
+        return this.businessesAdministered;
     }
 
 }
