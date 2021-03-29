@@ -54,7 +54,7 @@
           <!-- Button for login and link to register-->
           <div class="form-row">
             <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" @click="login">Login</button><br>
-            <p  style="width: 100%; margin:0 20px; text-align: center">Dont have an account? <router-link class="link-text" to="/register">Register here</router-link></p>
+            <p  style="width: 100%; margin:0 20px; text-align: center">Don't have an account? <router-link class="link-text" to="/register">Register here</router-link></p>
           </div>
 
 
