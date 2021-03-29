@@ -34,7 +34,7 @@ plugins {
     id 'org.sonarqube' version '3.0'
 }
 
-group = 'Team 19'
+group = 'Team 200'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
@@ -69,6 +69,9 @@ dependencies {
     testImplementation 'io.cucumber:cucumber-java:6.9.1'
     testImplementation 'io.cucumber:cucumber-junit:6.9.1'
     testImplementation 'io.cucumber:cucumber-spring:6.9.1'
+
+    // logging facility
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
 
     // use code pre-processor to generate boiler plate code (e.g., getters)
     compileOnly 'org.projectlombok:lombok:1.18.16'
