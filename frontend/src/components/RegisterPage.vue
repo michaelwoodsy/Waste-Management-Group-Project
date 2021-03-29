@@ -71,25 +71,25 @@
 
           <!--    Title for Address inputs    -->
           <div class="form-row">
-            <span class="addressText">Address</span>
+            <span class="addressText"><b>Address</b></span>
           </div>
 
           <div class="form-row">
             <!--    Home Address Street Number    -->
-            <label for="homeAddressNumber"><b>Street Number<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Number" id="homeAddressNumber" class="form-control" v-model="homeAddress.streetNumber" required><br>
+            <label for="homeAddressNumber"><b>Street Number</b></label><br/>
+            <input style="width:100%" type="text" placeholder="Enter your Street Number" id="homeAddressNumber" class="form-control" v-model="homeAddress.streetNumber"><br>
           </div><br>
 
           <div class="form-row">
             <!--    Home Address Street Name    -->
-            <label for="homeAddressStreet"><b>Street Name<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Name" id="homeAddressStreet" class="form-control" v-model="homeAddress.streetName" required><br>
+            <label for="homeAddressStreet"><b>Street Name</b></label><br/>
+            <input style="width:100%" type="text" placeholder="Enter your Street Name" id="homeAddressStreet" class="form-control" v-model="homeAddress.streetName"><br>
           </div><br>
 
           <div class="form-row">
             <!--    Home Address City    -->
-            <label for="homeAddressCity"><b>City or Town<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your City" id="homeAddressCity" class="form-control" v-model="addressCity" required><br>
+            <label for="homeAddressCity"><b>City or Town</b></label><br/>
+            <input style="width:100%" type="search" placeholder="Enter your City" id="homeAddressCity" class="form-control" v-model="addressCity"><br>
 
             <!--    Autofill City/Town    -->
             <div style="width:100%; text-align: left" v-for="city in cities" v-bind:key="city">
@@ -99,8 +99,8 @@
 
           <div class="form-row">
             <!--    Home Address Region    -->
-            <label for="homeAddressRegion"><b>Region<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your Region" id="homeAddressRegion" class="form-control" v-model="addressRegion" required><br>
+            <label for="homeAddressRegion"><b>Region</b></label><br/>
+            <input style="width:100%" type="search" placeholder="Enter your Region" id="homeAddressRegion" class="form-control" v-model="addressRegion"><br>
 
             <!--    Autofill region    -->
             <div style="width:100%; text-align: left" v-for="region in regions" v-bind:key="region">
@@ -119,16 +119,16 @@
             </div>
           </div><br>
 
+          <!--    Error message for the country input    -->
+          <div class="form-row">
+            <span class="error-msg" v-if="msg.country">{{msg.country}}</span>
+          </div>
+
           <div class="form-row">
             <!--    Home Address Post Code    -->
-            <label for="homeAddressPostCode"><b>Postcode<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Postcode" id="homeAddressPostCode" class="form-control" v-model="homeAddress.postcode" required><br>
+            <label for="homeAddressPostCode"><b>Postcode</b></label><br/>
+            <input style="width:100%" type="text" placeholder="Enter your Postcode" id="homeAddressPostCode" class="form-control" v-model="homeAddress.postcode"><br>
           </div><br>
-
-          <!--    Error message for the address inputs    -->
-          <div class="form-row">
-            <span class="error-msg" v-if="msg.homeAddress">{{msg.homeAddress}}</span>
-          </div>
 
           <hr/>
 
@@ -208,7 +208,7 @@ export default {
         'lastName': '',
         'email': '',
         'dateOfBirth': '',
-        'homeAddress': '',
+        'country': '',
         'password': '',
         'errorChecks': null
       },
@@ -348,13 +348,11 @@ export default {
      * Checks if the variables are empty, if so displays a warning message
      */
     validateAddress() {
-      if (this.homeAddress.streetNumber === '' || this.homeAddress.streetName === '' ||
-          this.homeAddress.city === '' || this.homeAddress.region === '' ||
-          this.homeAddress.country === '' || this.homeAddress.postcode === '') {
-        this.msg['homeAddress'] = 'Please enter a full Address'
+      if (this.homeAddress.country === '') {
+        this.msg['country'] = 'Please enter a Country'
         this.valid = false
       } else {
-        this.msg['homeAddress'] = ''
+        this.msg['country'] = ''
       }
     },
     /**
@@ -489,7 +487,7 @@ export default {
           this.email,
           this.dateOfBirth,
           this.phoneNumber,
-          //For now address is string. Will be changed when the database accepts the address object
+          //For now address is string. Will be changed when the database accepts the address object. Remove the following line when addresses are an object and uncomment the line below
           `${this.homeAddress.streetNumber} ${this.homeAddress.streetName}, ${this.homeAddress.city}, ${this.homeAddress.region}, ${this.homeAddress.country}, ${this.homeAddress.postcode}`,
           //this.homeAddress,
           this.password

@@ -146,8 +146,19 @@ export default {
       this.bio = response.data.bio
       this.email = response.data.email
 
+
       //Need to remove the street and number part of this address, just splice from the first ','
-      this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",")+2);
+      if (response.data.homeAddress.indexOf(",") === -1) this.homeAddress = response.data.homeAddress
+      else this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",")+2)
+
+      //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
+      /*
+      this.homeAddress = ''
+      if (response.data.homeAddress.city !== '') this.homeAddress += `${response.data.homeAddress.city}, `
+      if (response.data.homeAddress.region !== '') this.homeAddress += `${response.data.homeAddress.region}, `
+      this.homeAddress += response.data.homeAddress.country
+      if (response.data.homeAddress.postcode !== '') this.homeAddress += `, ${response.data.homeAddress.postcode}`
+      */
 
       this.dateJoined = response.data.created
       this.timeCalculator(Date.parse(this.dateJoined))

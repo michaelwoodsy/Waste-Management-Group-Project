@@ -10,7 +10,7 @@
 
             <div v-if="error" class="row">
                 <div class="col-8 offset-2 text-center mb-2">
-                    <alert>error</alert>
+                    <alert>{{ error }}</alert>
                 </div>
             </div>
 
@@ -201,15 +201,19 @@
                 this.loading = true;
                 this.page = 1;
 
-                User.getUsers(this.searchTerm) // TODO: Change to proper api function
-                    .then((res) => {
+                if (this.searchTerm === null || this.searchTerm === "") this.error = "Please enter a search query"
+                else {
+                  User.getUsers(this.searchTerm)
+                      .then((res) => {
+                        this.error = null;
                         this.users = res.data;
                         this.loading = false;
-                    })
-                    .catch((err) => {
+                      })
+                      .catch((err) => {
                         this.error = err;
                         this.loading = false;
-                    })
+                      })
+                }
             },
             blurSearch () {
                 document.getElementById('search').blur()
