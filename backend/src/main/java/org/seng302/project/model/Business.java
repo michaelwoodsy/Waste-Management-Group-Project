@@ -15,7 +15,7 @@ import java.util.List;
 @Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
 public class Business {
 
-    private Integer id; //Automatically generated and assigned by the server
+    private Integer id; //Automatically generated and assigned by database connection.
     private String name;
     private String description;
     private String address; // TODO Use Address class once implemented.
@@ -24,6 +24,15 @@ public class Business {
     private List<User> administrators;
     private LocalDateTime created = LocalDateTime.now();
 
+    /**
+     * Constructor for creating a new Business object.
+     *
+     * @param name Name of the business.
+     * @param description Description of the business.
+     * @param address Address of the business.
+     * @param businessType Type of the business. Valid types defined in BusinessType.
+     * @param primaryAdministratorId ID of the User who creates the Business.
+     */
     public Business(String name, String description, String address, String businessType,
                     Integer primaryAdministratorId) {
         this.name = name;
@@ -40,7 +49,6 @@ public class Business {
         return this.id;
     }
 
-    //The API says this should be a list of User objects, so we can leave as is :)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_administers_business",

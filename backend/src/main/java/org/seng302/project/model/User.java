@@ -3,7 +3,6 @@ package org.seng302.project.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,11 +14,6 @@ import java.util.List;
  */
 @Data // generate setters and getters for all fields (lombok pre-processor)
 @NoArgsConstructor // generate a no-args constructor needed by JPA (lombok pre-processor)
-//@ToString // generate a toString method
-//@NamedEntityGraph( //Allows us to fetch businessesAdministered whenever getting a User (prevent LazyInitialisationException)
-//        name = "graph.userBusinessesAdministered",
-//        attributeNodes = @NamedAttributeNode("businessesAdministered")
-//)
 @Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
 public class User {
 
