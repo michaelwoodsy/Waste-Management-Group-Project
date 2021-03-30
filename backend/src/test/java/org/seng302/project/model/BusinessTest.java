@@ -1,5 +1,6 @@
 package org.seng302.project.model;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.seng302.project.model.types.BusinessType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,14 @@ public class BusinessTest {
 
     @Autowired
     private BusinessRepository businessRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    @BeforeEach
+    public void initTest() {
+        businessRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     /**
      * Basic test to check Business class functionality.
@@ -69,6 +78,40 @@ public class BusinessTest {
         assertTrue(retrievedBusiness.getCreated().isBefore(LocalDateTime.now()));
         assertTrue(retrievedBusiness.getCreated().isAfter(LocalDateTime.now().minusSeconds(1)));
         assertTrue(BusinessType.checkType(retrievedBusiness.getBusinessType()));
+    }
+
+    /**
+     * Tests adding a User to Business admin list
+     */
+    @Test
+    public void testUserBusinessRelation() {
+        Business testBusiness = new Business("Test Business", "This business is a test.", "5 Lab Test Ave, New Zealand",
+                "Retail Trade", 1);
+        businessRepository.save(testBusiness);
+        User testUser = new User("John", "Smith", "Hector", "Jonny",
+                "Likes long walks on the beach", "johnsmith99@gmail.com",
+                "1999-04-27", "+64 3 555 0129", "4 Rountree Street, Upper Riccarton",
+                "1337-H%nt3r2");
+        userRepository.save(testUser);
+
+        assertEquals(0, testBusiness.getAdministrators().size());
+        assertEquals(0, testUser.getBusinessesAdministered().size());
+
+        testUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
+        testBusiness = businessRepository.findByName("Test Business").get(0);
+
+        testBusiness.addAdministrator(testUser);
+        businessRepository.save(testBusiness);
+
+        User retrievedUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
+        Business retrievedBusiness = businessRepository.findByName("Test Business").get(0);
+
+        assertEquals(1, retrievedBusiness.getAdministrators().size());
+        assertEquals(1, retrievedUser.getBusinessesAdministered().size());
+        assertTrue(retrievedBusiness.userIsAdmin(retrievedUser.getId()));
+        assertTrue(retrievedUser.businessIsAdministered(retrievedBusiness.getId()));
+        assertEquals("John", retrievedBusiness.getAdministrators().get(0).getFirstName());
+        assertEquals("Test Business", retrievedUser.getBusinessesAdministered().get(0).getName());
     }
 
 }

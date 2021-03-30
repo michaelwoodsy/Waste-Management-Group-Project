@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -22,7 +24,7 @@ public class Business {
     private String address; // TODO Use Address class once implemented.
     private String businessType;
     private Integer primaryAdministratorId;
-    private Set<User> administrators = new HashSet<>();
+    private List<User> administrators = new ArrayList<>();
     private LocalDateTime created = LocalDateTime.now();
 
     /**
@@ -50,18 +52,30 @@ public class Business {
         return this.id;
     }
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_administers_business",
             joinColumns = @JoinColumn(name = "id_business"),
             inverseJoinColumns = @JoinColumn(name = "id_user")
     )
-    public Set<User> getAdministrators() {
+    public List<User> getAdministrators() {
         return this.administrators;
     }
 
     public void addAdministrator(User admin) {
+        if (userIsAdmin(admin.getId())) {
+            return;
+        }
         this.administrators.add(admin);
+    }
+
+    public boolean userIsAdmin(Integer userId) {
+        for (User user : this.administrators) {
+            if (userId.equals(user.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

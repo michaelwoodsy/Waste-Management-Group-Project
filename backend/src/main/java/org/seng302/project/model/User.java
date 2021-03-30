@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -31,7 +33,7 @@ public class User {
     private String password;
     // One of [ user, globalApplicationAdmin, defaultGlobalApplicationAdmin ]
     private String role; // This property should only be shown to Global org.seng302.project.controller.Application Admins
-    private Set<Business> businessesAdministered = new HashSet<>();
+    private List<Business> businessesAdministered = new ArrayList<>();
     private LocalDateTime created = LocalDateTime.now();
 
     public User(String firstName, String lastName, String middleName,
@@ -63,14 +65,30 @@ public class User {
     }
 
     // TODO: change this to a list of Business ids, not objects
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_administers_business",
             joinColumns = @JoinColumn(name = "id_user"),
             inverseJoinColumns = @JoinColumn(name = "id_business")
     )
-    public Set<Business> getBusinessesAdministered() {
+    public List<Business> getBusinessesAdministered() {
         return this.businessesAdministered;
+    }
+
+    public void addBusinessAdministered(Business business) {
+        if (businessIsAdministered(business.getId())) {
+            return;
+        }
+        this.businessesAdministered.add(business);
+    }
+
+    public boolean businessIsAdministered(Integer businessId) {
+        for (Business business : this.businessesAdministered) {
+            if (businessId.equals(business.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
