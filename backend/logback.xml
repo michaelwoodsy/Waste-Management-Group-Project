@@ -1,0 +1,29 @@
+<configuration status="info">
+    <appender>
+        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+            <file>logfile.log</file>
+            <append>true</append>
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <!-- All logs from classes in org.seng302.project -->
+        <logger name="org.seng302.project" level="INFO" additivity="false">
+            <appender-ref ref="FILE"/>
+        </logger>
+
+        <!-- Address different levels: TRACE, DEBUG, INFO, WARN and ERROR-->
+
+        <root level="debug">
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="STDOUT" />
+        </root>
+    </appender>
+</configuration>
