@@ -5,7 +5,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Business class for storing data about a specific business.
@@ -15,13 +16,13 @@ import java.util.List;
 @Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
 public class Business {
 
-    private Integer id; //Automatically generated and assigned by database connection.
+    private Integer id; // automatically generated and assigned by database connection.
     private String name;
     private String description;
     private String address; // TODO Use Address class once implemented.
     private String businessType;
     private Integer primaryAdministratorId;
-    private List<User> administrators;
+    private Set<User> administrators = new HashSet<>();
     private LocalDateTime created = LocalDateTime.now();
 
     /**
@@ -55,8 +56,12 @@ public class Business {
             joinColumns = @JoinColumn(name = "id_business"),
             inverseJoinColumns = @JoinColumn(name = "id_user")
     )
-    public List<User> getAdministrators() {
+    public Set<User> getAdministrators() {
         return this.administrators;
+    }
+
+    public void addAdministrator(User admin) {
+        this.administrators.add(admin);
     }
 
 }

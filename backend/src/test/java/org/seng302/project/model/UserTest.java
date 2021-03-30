@@ -2,12 +2,14 @@ package org.seng302.project.model;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 
 /**
  * Unit tests for User class
  */
+@SpringBootTest
 public class UserTest {
 
     /**

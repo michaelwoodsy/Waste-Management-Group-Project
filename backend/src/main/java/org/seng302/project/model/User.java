@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -30,7 +31,7 @@ public class User {
     private String password;
     // One of [ user, globalApplicationAdmin, defaultGlobalApplicationAdmin ]
     private String role; // This property should only be shown to Global org.seng302.project.controller.Application Admins
-    private List<Business> businessesAdministered;
+    private Set<Business> businessesAdministered = new HashSet<>();
     private LocalDateTime created = LocalDateTime.now();
 
     public User(String firstName, String lastName, String middleName,
@@ -68,7 +69,7 @@ public class User {
             joinColumns = @JoinColumn(name = "id_user"),
             inverseJoinColumns = @JoinColumn(name = "id_business")
     )
-    public List<Business> getBusinessesAdministered() {
+    public Set<Business> getBusinessesAdministered() {
         return this.businessesAdministered;
     }
 
