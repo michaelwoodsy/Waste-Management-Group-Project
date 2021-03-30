@@ -34,7 +34,7 @@ plugins {
     id 'org.sonarqube' version '3.0'
 }
 
-group = 'Team 19'
+group = 'Team 200'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
@@ -70,12 +70,18 @@ dependencies {
     testImplementation 'io.cucumber:cucumber-junit:6.9.1'
     testImplementation 'io.cucumber:cucumber-spring:6.9.1'
 
+    // logging facility
+    implementation 'ch.qos.logback:logback-core:1.2.3'
+    implementation 'org.slf4j:slf4j-api:1.7.30'
+    testImplementation 'ch.qos.logback:logback-classic:1.2.3'
+
     // use code pre-processor to generate boiler plate code (e.g., getters)
     compileOnly 'org.projectlombok:lombok:1.18.16'
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
     testCompileOnly 'org.projectlombok:lombok:1.18.16'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 }
+
 
 // create a specific task to run cucumber tests
 task cucumber(type: Test) {
@@ -86,6 +92,7 @@ task cucumber(type: Test) {
 
 // configure test task to run on JUnit 5
 test {
+    systemProperty 'logback.configurationFile', 'logback.xml'
     description = "Runs JUnit 5/Jupiter tests (unit tests)"
     testLogging.showStandardStreams = true
     useJUnitPlatform()

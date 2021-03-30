@@ -85,6 +85,16 @@
         </div>
       </div>
 
+      <!-- Member Since -->
+      <div class="row">
+        <div class="col-6 text-right font-weight-bold">
+          <p>Member Since: </p>
+        </div>
+        <div class="col-6 ">
+          <p>{{dateJoined}} ({{dateSinceJoin}}) </p>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -117,7 +127,6 @@ export default {
      * @returns {boolean|*}
      */
     isLoggedIn () {
-      console.log(this.$root.$data.user.state.loggedIn)
       return this.$root.$data.user.state.loggedIn
     }
   },
@@ -137,8 +146,75 @@ export default {
       this.bio = response.data.bio
       this.email = response.data.email
 
+
       //Need to remove the street and number part of this address, just splice from the first ','
-      //this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",")+2);
+      if (response.data.homeAddress.indexOf(",") === -1) this.homeAddress = response.data.homeAddress
+      else this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",")+2)
+
+      //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
+      /*
+      this.homeAddress = ''
+      if (response.data.homeAddress.city !== '') this.homeAddress += `${response.data.homeAddress.city}, `
+      if (response.data.homeAddress.region !== '') this.homeAddress += `${response.data.homeAddress.region}, `
+      this.homeAddress += response.data.homeAddress.country
+      if (response.data.homeAddress.postcode !== '') this.homeAddress += `, ${response.data.homeAddress.postcode}`
+      */
+
+      this.dateJoined = response.data.created
+      this.timeCalculator(Date.parse(this.dateJoined))
+      this.dateJoined = this.dateJoined.substring(0, 10)
+    },
+
+    /**
+     * Calculates the time since the user joined in ms from the start of time (1970)
+     * @param joined date when the user joined
+     */
+    timeCalculator(joined) {
+      let dateNow = new Date();
+      const milliYear = 31557600000
+      //milliMonths = 30.4 days
+      const milliMonth = 2629800000
+
+      let text = ''
+      dateNow = Date.parse(dateNow)
+      //Calculate time since they have been a member in milliseconds
+      let since = dateNow - joined
+      let sinceYears = 0
+      let sinceMonths = 0
+
+      //Find how many years
+      while (since >= milliYear) {
+        sinceYears += 1
+        since -= milliYear
+      }
+
+      //Find how many months
+      while (since >= milliMonth) {
+        sinceMonths += 1
+        since -= milliMonth
+      }
+
+      //Format Text
+      switch (true) {
+        case (sinceYears === 1): text = `${sinceYears} year`
+          break
+        case (sinceYears > 1): text = `${sinceYears} years`
+          break
+      }
+
+      switch (true) {
+        case (text === '' && sinceMonths > 1): text = `${sinceMonths} months`
+          break
+        case (text === '' && sinceMonths === 1): text = `${sinceMonths} month`
+          break
+        case (sinceMonths > 1): text += ` and ${sinceMonths} months`
+          break
+        case (sinceMonths === 1): text += `and ${sinceMonths} month`
+          break
+        case (text === '' && sinceMonths === 0): text = 'Less than 1 month'
+          break
+      }
+      this.dateSinceJoin = text
     }
   },
 
@@ -153,6 +229,8 @@ export default {
       bio: null,
       email: null,
       homeAddress: null,
+      dateJoined: null,
+      dateSinceJoin: null
     }
   }
 }

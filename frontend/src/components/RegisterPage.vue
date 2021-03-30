@@ -15,6 +15,7 @@
               <!--    First Name    -->
               <label for="firstName" style="margin-top:20px"><b>First Name<span class="required">*</span></b></label><br/>
               <input style="width:100%" type="text" placeholder="Enter your First Name" id="firstName" class="form-control" v-model="firstName" required><br>
+            <!--    Error message for the first name input    -->
               <span class="error-msg" style="margin: 0" v-if="msg.firstName">{{msg.firstName}}</span><br><br>
           </div>
 
@@ -28,6 +29,7 @@
             <!--    Last Name    -->
             <label for="lastName"><b>Last Name<span class="required">*</span></b></label><br/>
             <input style="width:100%" type="text" placeholder="Enter your Last Name" id="lastName" class="form-control" v-model="lastName" required><br>
+            <!--    Error message for the last name input    -->
             <span class="error-msg" style="margin: 0" v-if="msg.lastName">{{msg.lastName}}</span><br><br>
           </div>
 
@@ -41,6 +43,7 @@
             <!--    Email    -->
             <label for="email"><b>Email<span class="required">*</span></b></label><br/>
             <input style="width: 100%" type="email" placeholder="Enter your Email" id="email" class="form-control" v-model="email" required><br>
+            <!--    Error message for the email input    -->
             <span class="error-msg" v-if="msg.email">{{msg.email}}</span><br><br>
           </div>
 
@@ -54,60 +57,125 @@
             <!--    Date of Birth    -->
             <label for="dateOfBirth"><b>Date of Birth<span class="required">*</span></b></label><br/>
             <input style="width:100%" type="date" id="dateOfBirth" class="form-control" v-model="dateOfBirth" required><br>
+            <!--    Error message for the date of birth input    -->
             <span class="error-msg" v-if="msg.dateOfBirth">{{msg.dateOfBirth}}</span><br><br>
           </div>
 
           <div class="form-row">
             <!--    Phone Number    -->
             <label for="phoneNumber"><b>Phone Number</b></label><br/>
-            <input style="width:100%" type="number" placeholder="Enter your Phone Number" id="phoneNumber" class="form-control" v-model="phoneNumber"><br><br><br>
+            <input style="width:100%" type="text" placeholder="Enter your Phone Number with extension" id="phoneNumber" class="form-control" v-model="phoneNumber"><br><br><br>
+          </div>
+
+          <hr/>
+
+          <!--    Title for Address inputs    -->
+          <div class="form-row">
+            <span class="addressText"><b>Address</b></span>
           </div>
 
           <div class="form-row">
-            <!--    Home Address    -->
-            <label for="homeAddress"><b>Home Address<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your Home Address" id="homeAddress" class="form-control" v-model="homeAddress" required><br>
-
-            <span class="address-output-label" style="width:100%; text-align: left">Autofillable Addresses:</span>
-            <div style="width:100%; text-align: left" v-for="address in addresses" v-bind:key="address">
-              <a class="address-output" @click="changeAddress(address)">{{address}}</a><br>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <span class="error-msg" v-if="msg.homeAddress">{{msg.homeAddress}}</span>
+            <!--    Home Address Street Number    -->
+            <label for="homeAddressNumber"><b>Street Number</b></label><br/>
+            <input style="width:100%" type="text" placeholder="Enter your Street Number" id="homeAddressNumber" class="form-control" v-model="homeAddress.streetNumber"><br>
           </div><br>
+
+          <div class="form-row">
+            <!--    Home Address Street Name    -->
+            <label for="homeAddressStreet"><b>Street Name</b></label><br/>
+            <input style="width:100%" type="text" placeholder="Enter your Street Name" id="homeAddressStreet" class="form-control" v-model="homeAddress.streetName"><br>
+          </div><br>
+
+          <div class="form-row">
+            <!--    Home Address City    -->
+            <label for="homeAddressCity"><b>City or Town</b></label><br/>
+            <input style="width:100%" type="search" placeholder="Enter your City" id="homeAddressCity" class="form-control" v-model="addressCity"><br>
+
+            <!--    Autofill City/Town    -->
+            <div style="width:100%; text-align: left" v-for="city in cities" v-bind:key="city">
+              <a class="address-output" @click="changeCity(city)">{{city}}</a><br>
+            </div>
+          </div><br>
+
+          <div class="form-row">
+            <!--    Home Address Region    -->
+            <label for="homeAddressRegion"><b>Region</b></label><br/>
+            <input style="width:100%" type="search" placeholder="Enter your Region" id="homeAddressRegion" class="form-control" v-model="addressRegion"><br>
+
+            <!--    Autofill region    -->
+            <div style="width:100%; text-align: left" v-for="region in regions" v-bind:key="region">
+              <a class="address-output" @click="changeRegion(region)">{{region}}</a><br>
+            </div>
+          </div><br>
+
+          <div class="form-row">
+            <!--    Home Address Country    -->
+            <label for="homeAddressCountry"><b>Country<span class="required">*</span></b></label><br/>
+            <input style="width:100%" type="search" placeholder="Enter your Country" id="homeAddressCountry" class="form-control" v-model="addressCountry" required><br>
+
+            <!--    Autofill country    -->
+            <div style="width:100%; text-align: left" v-for="country in countries" v-bind:key="country">
+              <a class="address-output" @click="changeCountry(country)">{{country}}</a><br>
+            </div>
+          </div><br>
+
+          <!--    Error message for the country input    -->
+          <div class="form-row">
+            <span class="error-msg" v-if="msg.country">{{msg.country}}</span>
+          </div>
+
+          <div class="form-row">
+            <!--    Home Address Post Code    -->
+            <label for="homeAddressPostCode"><b>Postcode</b></label><br/>
+            <input style="width:100%" type="text" placeholder="Enter your Postcode" id="homeAddressPostCode" class="form-control" v-model="homeAddress.postcode"><br>
+          </div><br>
+
+          <hr/>
 
           <div class="form-row">
             <!--    Password    -->
             <label for="password"><b>Password<span class="required">*</span></b></label><br>
             <input style="width:100%" type="password" placeholder="Enter your Password" id="password" class="form-control" v-model="password"><br>
+            <!--    Error message for the password input    -->
             <span class="error-msg" v-if="msg.password">{{msg.password}}</span><br><br><br>
           </div>
 
           <div class="form-row">
             <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" v-on:click="checkInputs">Create Account</button>
-            <p style="width: 100%; margin:0 20px; text-align: center"><span class="error-msg" v-if="msg.errorChecks">{{msg.errorChecks}}</span></p><br>
+            <!--    Error message for the registering process    -->
+
+            <div class="login-box" style="width: 100%; margin:20px 20px; text-align: center">
+              <!-- Show error if something wrong -->
+              <alert v-if="msg.errorChecks">
+                {{ msg.errorChecks }}
+              </alert>
+
+            </div>
+
             <p  style="width: 100%; margin:0 20px; text-align: center">Already have an account?
               <router-link class="link-text" to="/login">Login here</router-link></p><br><br>
           </div>
-
         </div>
       </div>
-
     </logout-required>
   </div>
 
 </template>
 
 <script>
-import { User } from '@/Api'
 import axios from "axios";
 import LogoutRequired from "./LogoutRequired";
-//Default starting parameters
+import Alert from "./Alert"
+
+/**
+ * Default starting parameters
+ */
 export default {
   name: "RegisterPage",
-  components: {LogoutRequired},
+  components: {
+    LogoutRequired,
+    Alert
+  },
   data() {
     return {
       //Sets text boxes to empty at start
@@ -119,94 +187,190 @@ export default {
       email: '',        //Required
       dateOfBirth: '',  //Required
       phoneNumber: '',
-      homeAddress: '',  //Required
+
+      //Need these to be able to use the watcher methods
+      addressCountry: '',
+      addressRegion: '',
+      addressCity: '',
+
+      homeAddress: {  //Required
+        streetNumber: '',
+        streetName: '',
+        city: '',
+        region: '',
+        country: '',
+        postcode: '',
+      },
+
       password: '',
       msg: {
         'firstName': '',
         'lastName': '',
         'email': '',
         'dateOfBirth': '',
-        'homeAddress': '',
+        'country': '',
         'password': '',
-        'errorChecks': ''
+        'errorChecks': null
       },
       valid: true,
-      addresses: [],
-      prevAutofilledAddress: '',
-      autofill: true,
+
+      //Used to autofill parts of the address
+      countries: [],
+      regions: [],
+      cities: [],
+
+      //Used to remove autofill when the user clicks an option and enabled again when the user changes the address fields again
+      prevAutofilledCountry: '',
+      autofillCountry: true,
+      prevAutofilledRegion: '',
+      autofillRegion: true,
+      prevAutofilledCity: '',
+      autofillCity: true,
     }
   },
 
+  /**
+   * these methods are called when their respective input field is changed
+   */
   watch: {
-    homeAddress(value) {
+    /**
+     * Called when the addressCountry variable is updated.
+     * cant be when the address.country variable is updated as it cant check a variable in an object
+     * Checks if the country can be autofilled, and if so, calls the proton function which returns autofill candidates
+     */
+    addressCountry(value) {
+      this.homeAddress.country = value
       //re enable autofill
-      if (!this.autofill && this.homeAddress !== this.prevAutofilledAddress) {
-        this.autofill = true;
+      if (!this.autofillCountry && this.homeAddress.country !== this.prevAutofilledCountry) {
+        this.prevAutofilledCountry = ''
+        this.autofillCountry = true
       }
 
-      //Only autofill address if the number of characters typed is more than 5
-      if (this.autofill && this.homeAddress.length > 5) {
-        this.addresses = this.photon(value);
+      //Only autofill address if the number of characters typed is more than 3
+      if (this.autofillCountry && this.homeAddress.country.length > 3) {
+        this.countries = this.photon(value, 'place:country')
       }
-      //this.validateAddress();
+    },
+
+    /**
+     * Called when the addressRegion variable is updated.
+     * cant be when the address.region variable is updated as it cant check a variable in an object
+     * Checks if the region can be autofilled, and if so, calls the proton function which returns autofill candidates
+     */
+    addressRegion(value) {
+      this.homeAddress.region = value
+      //re enable autofill
+      if (!this.autofillRegion && this.homeAddress.region !== this.prevAutofilledRegion) {
+        this.prevAutofilledRegion = ''
+        this.autofillRegion = true
+      }
+
+      //Only autofill address if the number of characters typed is more than 3
+      if (this.autofillRegion && this.homeAddress.region.length > 3) {
+        this.regions = this.photon(value, 'boundary:administrative')
+      }
+    },
+
+    /**
+     * Called when the addressCity variable is updated.
+     * cant be when the address.city variable is updated as it cant check a variable in an object
+     * Checks if the city can be autofilled, and if so, calls the proton function which returns autofill candidates
+     */
+    addressCity(value) {
+      this.homeAddress.city = value
+      //re enable autofill
+      if (!this.autofillCity && this.homeAddress.city !== this.prevAutofilledCity) {
+        this.prevAutofilledCity = ''
+        this.autofillCity = true
+      }
+
+      //Only autofill address if the number of characters typed is more than 3
+      if (this.autofillCity && this.homeAddress.city.length > 3) {
+        this.cities = this.photon(value, 'place:city&osm_tag=place:town')
+      }
     },
   },
 
-
+  /**
+   * Methods that can be called but the program
+   */
   methods: {
-    changePage (page) {
-      this.$emit('changePage', page)
-    },
-
+    /**
+     * Validates the first name variable
+     * Checks if the string is empty, if so displays a warning message
+     */
     validateFirstName() {
       if (this.firstName === '') {
-        this.msg['firstName'] = 'Please enter a First Name';
-        this.valid = false;
+        this.msg['firstName'] = 'Please enter a First Name'
+        this.valid = false
       } else {
-        this.msg['firstName'] = '';
+        this.msg['firstName'] = ''
       }
     },
+    /**
+     * Validates the last name variable
+     * Checks if the string is empty, if so displays a warning message
+     */
     validateLastName() {
       if (this.lastName === '') {
-        this.msg['lastName'] = 'Please enter a Last Name';
-        this.valid = false;
+        this.msg['lastName'] = 'Please enter a Last Name'
+        this.valid = false
       } else {
-        this.msg['lastName'] = '';
+        this.msg['lastName'] = ''
       }
     },
+    /**
+     * Validates the email variable
+     * Checks if the string is of an email format using regex, if not, displays a warning message
+     */
     validateEmail() {
       if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(this.email)) {
-        this.msg['email'] = '';
+        this.msg['email'] = ''
       } else {
-        this.msg['email'] = 'Invalid Email Address';
-        this.valid = false;
+        this.msg['email'] = 'Invalid Email Address'
+        this.valid = false
       }
     },
+    /**
+     * Validates the date of birth variable
+     * Checks if the string is empty, if so displays a warning message
+     */
     validateDateOfBirth() {
       if (this.dateOfBirth === '') {
-        this.msg['dateOfBirth'] = 'Please enter a Date of Birth';
-        this.valid = false;
+        this.msg['dateOfBirth'] = 'Please enter a Date of Birth'
+        this.valid = false
       } else {
-        this.msg['dateOfBirth'] = '';
+        this.msg['dateOfBirth'] = ''
       }
     },
+    /**
+     * Validates the address variables
+     * Checks if the variables are empty, if so displays a warning message
+     */
     validateAddress() {
-      if (this.homeAddress === '') {
-        this.msg['homeAddress'] = 'Please enter an Address';
-        this.valid = false;
+      if (this.homeAddress.country === '') {
+        this.msg['country'] = 'Please enter a Country'
+        this.valid = false
       } else {
-        this.msg['homeAddress'] = '';
+        this.msg['country'] = ''
       }
     },
+    /**
+     * Validates the password variable
+     * Checks if the string is empty, if so displays a warning message
+     */
     validatePassword() {
       if (this.password === '') {
-        this.msg['password'] = 'Please enter a Password';
-        this.valid = false;
+        this.msg['password'] = 'Please enter a Password'
+        this.valid = false
       } else {
-        this.msg['password'] = '';
+        this.msg['password'] = ''
       }
     },
 
+    /**
+     * Validating to check if the data entered is inputted correctly, If not displays a warning message
+     */
     checkInputs() {
       this.validateFirstName();
       this.validateLastName();
@@ -227,57 +391,94 @@ export default {
       }
     },
 
-    //Method that allows autofill of the address
-    photon(textEntered) {
-      let addresses = [];
-      axios.get('https://photon.komoot.io/api?q=' + textEntered)
+    /**
+     * Function that uses the photon api to get address data.
+     * This function calls the photon api and gets valid address variables, then returns the string of these address variables
+     * @param textEntered The text entered into the autofillable text field
+     * @param tag The tag used to get a specific part of the address, e.g: Country, Region or City/Town
+     * @returns [] address variables that can be autofilled
+     */
+    photon(textEntered, tag) {
+
+      let addresses = []
+      axios.get(`https://photon.komoot.io/api?q=${textEntered}&osm_tag=${tag}&limit=5`)
           .then(function(response) {
-            //The addresses that are building addresses, not cities or districts
             for (let i = 0; i < response.data.features.length; i++) {
-              if (response.data.features[i].properties.osm_key === "place" && response.data.features[i].properties.type === "house") {
-                const currAddress = response.data.features[i].properties;
-                let addressString = `${currAddress.housenumber} ${currAddress.street}, `
+              const currAddress = response.data.features[i].properties;
+              let addressString = ''
+              //Is Country
+              if (tag === 'place:country') addressString = `${currAddress.name}`
+              //Is Region
+              else if (tag === "boundary:administrative") addressString = `${currAddress.name}`
+              //Is City
+                  //tag is like this so you can get a town or a city
+              else if (tag === "place:city&osm_tag=place:town") addressString = `${currAddress.name}`
 
-                //Making sure no possible undefined variables are added. house number, street and country will not be undefined
-                //Only one of city or county is required, to reduce string length
-                if (typeof currAddress.city !== "undefined") {
-                  addressString += `${currAddress.city}, `;
-                } else if (typeof currAddress.county !== "undefined") {
-                  addressString += `${currAddress.county}, `;
-                }
-                if (typeof currAddress.state !== "undefined") {
-                  addressString += `${currAddress.state}, `;
-                }
 
-                addressString += currAddress.country;
-
-                //Making sure to not add duplicate addresses as sometimes the api has multiples of the same address (why though???)
-                if (addresses.indexOf(addressString) === -1) {
-                  addresses.push(addressString);
-                }
+              //Making sure to not add duplicate addresses as sometimes there is more than one region in the world with the same name
+              if (addressString !== '' && addresses.indexOf(addressString) === -1) {
+                addresses.push(addressString);
               }
+
             }
+            return addresses
           })
           .catch(function(error){
-            console.log(error);
+            console.log(error)
           });
-      return addresses;
+      return addresses
     },
 
-    changeAddress(text) {
+    /**
+     * Changes the address.country variable to display the new autofilled country
+     * Called when a user clicks a country to autofill
+     * @param country autofill string that was chosen
+     */
+    changeCountry(country) {
       //Changes the address input to the selected autofill address
-      this.homeAddress = text;
-      this.addresses = [];
-      this.autofill = false;
-      this.prevAutofilledAddress = this.homeAddress;
+      this.homeAddress.country = country
+      this.addressCountry = country
+      this.countries = []
+      this.autofillCountry = false
+      this.prevAutofilledCountry = this.homeAddress.country
+    },
+
+    /**
+     * Changes the address.region variable to display the new autofilled region
+     * Called when a user clicks a region to autofill
+     * @param region autofill string that was chosen
+     */
+    changeRegion(region) {
+      //Changes the address input to the selected autofill address
+      this.homeAddress.region = region
+      this.addressRegion = region
+      this.regions = []
+      this.autofillRegion = false
+      this.prevAutofilledRegion = this.homeAddress.region
+    },
+
+    /**
+     * Changes the address.city variable to display the new autofilled city
+     * Called when a user clicks a city to autofill
+     * @param city autofill string that was chosen
+     */
+    changeCity(city) {
+      //Changes the address input to the selected autofill address
+      this.homeAddress.city = city
+      this.addressCity = city
+      this.cities = []
+      this.autofillCity = false
+      this.prevAutofilledCity = this.homeAddress.city
     },
 
 
-
-//Add user to the server. need a server to function properly.
+    /**
+     * Add the new user to the server
+     * Calls the api function createNew which sends a new user to the backend server
+     * If this fails the program should set the error text to the error recived from the backend server
+     */
     addUser() {
-      //This api call fails because there is no server yet to add the user to
-      User.createNew(
+      this.$root.$data.user.register(
           this.firstName,
           this.lastName,
           this.middleName,
@@ -286,20 +487,16 @@ export default {
           this.email,
           this.dateOfBirth,
           this.phoneNumber,
-          this.homeAddress,
-          this.password).then(() => {
-          this.$root.$data.user.login(this.username, this.password)
-              .then(() => {
+          //For now address is string. Will be changed when the database accepts the address object. Remove the following line when addresses are an object and uncomment the line below
+          `${this.homeAddress.streetNumber} ${this.homeAddress.streetName}, ${this.homeAddress.city}, ${this.homeAddress.region}, ${this.homeAddress.country}, ${this.homeAddress.postcode}`,
+          //this.homeAddress,
+          this.password
+      ).then(() => {
                 this.$router.push({name: 'user'})
               })
               .catch((err) => {
-                this.msg.errorChecks = err;
+                this.msg.errorChecks = err.response.data.slice(err.response.data.indexOf(":")+2)
               });
-        console.log("new user created");
-      }).catch((err) => {
-        this.$log.debug(err);
-        this.msg.errorChecks = "Failed to add user";
-      });
     },
   }
 };
@@ -316,15 +513,15 @@ export default {
 
 .address-output {
   cursor: pointer;
-  font-size: 18px;
-}
-
-.address-output-label {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .error-msg {
   color: red;
+}
+
+.addressText {
+  font-size: 30px;
 }
 
 .required {

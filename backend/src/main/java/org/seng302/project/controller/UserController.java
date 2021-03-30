@@ -1,13 +1,13 @@
 package org.seng302.project.controller;
 
 import net.minidev.json.JSONObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.seng302.project.exceptions.*;
 import org.seng302.project.model.LoginCredentials;
 import org.seng302.project.model.User;
 import org.seng302.project.model.UserRepository;
 import org.seng302.project.util.DateArithmetic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,7 +28,7 @@ import java.util.Date;
 @RestController
 public class UserController {
 
-    private static final Logger logger = LogManager.getLogger(UserController.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class.getName());
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
@@ -90,7 +90,7 @@ public class UserController {
         }
 
         String phoneRegEx = "^\\+[1-9]\\d{1,14}$";
-        if (!(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
+        if (!newUser.getPhoneNumber().equals("") && !(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
             InvalidPhoneNumberException exception = new InvalidPhoneNumberException();
             logger.error(exception.getMessage());
             throw exception;

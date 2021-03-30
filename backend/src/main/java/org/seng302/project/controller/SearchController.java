@@ -1,11 +1,11 @@
 package org.seng302.project.controller;
 
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.seng302.project.model.User;
 import org.seng302.project.model.UserRepository;
 import org.seng302.project.model.UserSpecifications;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -26,7 +26,7 @@ import java.util.Set;
 @RestController
 public class SearchController {
 
-    private static final Logger logger = LogManager.getLogger(SearchController.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(SearchController.class.getName());
     private final UserRepository userRepository;
 
     @Autowired

@@ -30,10 +30,10 @@ package org.seng302.project;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.seng302.project.model.User;
 import org.seng302.project.model.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -49,7 +49,7 @@ import java.io.FileReader;
 @Component
 public class MainApplicationRunner implements ApplicationRunner {
 
-    private static final Logger logger = LogManager.getLogger(MainApplicationRunner.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(MainApplicationRunner.class.getName());
     private static final JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
