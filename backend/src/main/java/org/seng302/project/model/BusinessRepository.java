@@ -10,6 +10,12 @@ import java.util.List;
  */
 public interface BusinessRepository extends JpaRepository<Business, Integer> {
 
+    /**
+     * Allows finding a business by name.
+     *
+     * @param name name of business.
+     * @return list of businesses with matching name.
+     */
     List<Business> findByName(@Param("name") String name);
 
 }

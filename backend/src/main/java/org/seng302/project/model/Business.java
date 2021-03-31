@@ -6,9 +6,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Business class for storing data about a specific business.
@@ -30,10 +28,10 @@ public class Business {
     /**
      * Constructor for creating a new Business object.
      *
-     * @param name Name of the business.
-     * @param description Description of the business.
-     * @param address Address of the business.
-     * @param businessType Type of the business. Valid types defined in BusinessType.
+     * @param name                   Name of the business.
+     * @param description            Description of the business.
+     * @param address                Address of the business.
+     * @param businessType           Type of the business. Valid types defined in BusinessType.
      * @param primaryAdministratorId ID of the User who creates the Business.
      */
     public Business(String name, String description, String address, String businessType,
@@ -47,7 +45,7 @@ public class Business {
 
     @Id // this field (attribute) is the table primary key
     @GeneratedValue // autoincrement the ID
-    @Column(name = "id_business")
+    @Column(name = "business_id")
     public Integer getId() {
         return this.id;
     }
@@ -55,13 +53,18 @@ public class Business {
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_administers_business",
-            joinColumns = @JoinColumn(name = "id_business"),
-            inverseJoinColumns = @JoinColumn(name = "id_user")
+            joinColumns = @JoinColumn(name = "business_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     public List<User> getAdministrators() {
         return this.administrators;
     }
 
+    /**
+     * Adds a User to the list of administrators of a business.
+     *
+     * @param admin User to add to list of administrators.
+     */
     public void addAdministrator(User admin) {
         if (userIsAdmin(admin.getId())) {
             return;
@@ -69,6 +72,11 @@ public class Business {
         this.administrators.add(admin);
     }
 
+    /**
+     * Checks to see if a User with a specific user ID is already managing a business.
+     * @param userId user ID to search for in administrators list.
+     * @return true if user already administers business, false otherwise.
+     */
     public boolean userIsAdmin(Integer userId) {
         for (User user : this.administrators) {
             if (userId.equals(user.getId())) {

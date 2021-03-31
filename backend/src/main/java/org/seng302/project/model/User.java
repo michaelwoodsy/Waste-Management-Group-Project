@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -54,7 +52,7 @@ public class User {
 
     @Id // this field (attribute) is the primary key of the table
     @GeneratedValue // autoincrement the ID
-    @Column(name = "id_user")
+    @Column(name = "user_id")
     public Integer getId() {
         return this.id;
     }
@@ -68,18 +66,11 @@ public class User {
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_administers_business",
-            joinColumns = @JoinColumn(name = "id_user"),
-            inverseJoinColumns = @JoinColumn(name = "id_business")
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "business_id")
     )
     public List<Business> getBusinessesAdministered() {
         return this.businessesAdministered;
-    }
-
-    public void addBusinessAdministered(Business business) {
-        if (businessIsAdministered(business.getId())) {
-            return;
-        }
-        this.businessesAdministered.add(business);
     }
 
     public boolean businessIsAdministered(Integer businessId) {
