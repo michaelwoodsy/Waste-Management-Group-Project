@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -30,7 +31,7 @@ public class User {
     private String password;
     // One of [ user, globalApplicationAdmin, defaultGlobalApplicationAdmin ]
     private String role; // This property should only be shown to Global org.seng302.project.controller.Application Admins
-    private List<Business> businessesAdministered;
+    private List<Business> businessesAdministered = new ArrayList<>();
     private LocalDateTime created = LocalDateTime.now();
 
     public User(String firstName, String lastName, String middleName,
@@ -51,7 +52,7 @@ public class User {
 
     @Id // this field (attribute) is the primary key of the table
     @GeneratedValue // autoincrement the ID
-    @Column(name = "id_user")
+    @Column(name = "user_id")
     public Integer getId() {
         return this.id;
     }
@@ -62,14 +63,23 @@ public class User {
     }
 
     // TODO: change this to a list of Business ids, not objects
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_administers_business",
-            joinColumns = @JoinColumn(name = "id_user"),
-            inverseJoinColumns = @JoinColumn(name = "id_business")
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "business_id")
     )
     public List<Business> getBusinessesAdministered() {
         return this.businessesAdministered;
+    }
+
+    public boolean businessIsAdministered(Integer businessId) {
+        for (Business business : this.businessesAdministered) {
+            if (businessId.equals(business.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
