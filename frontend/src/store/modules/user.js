@@ -22,8 +22,8 @@ export default {
             .then((res) => {
                 // Successfully got user data
                 this.state.userData = res.data;
-                this.state.loggedIn = true;
                 this.state.userId = userId;
+                this.state.loggedIn = true;
                 setCookie('userId', this.state.userId, null);
             })
             .catch((err) => {
