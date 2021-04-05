@@ -1,5 +1,5 @@
 {
-  "name": "seng302-team-10",
+  "name": "seng302-team-200",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -30,11 +30,11 @@
     "babel-jest": "^26.6.3",
     "eslint": "^7.19.0",
     "eslint-plugin-vue": "^7.5.0",
+    "vue-template-compiler": "^2.6.12",
     "jest": "^26.6.3",
-    "jest-sonar-reporter": "^2.0.0",
-    "sonarqube-scanner": "^2.8.0",
     "vue-jest": "^3.0.7",
-    "vue-template-compiler": "^2.6.12"
+    "jest-sonar-reporter": "^2.0.0",
+    "sonarqube-scanner": "^2.8.0"
   },
   "eslintConfig": {
     "root": true,

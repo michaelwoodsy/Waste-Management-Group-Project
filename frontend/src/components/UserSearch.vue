@@ -2,18 +2,21 @@
     <div>
         <div class="container-fluid" v-if="isLoggedIn">
 
+            <!--    Search Users Header    -->
             <div class="row">
                 <div class="col-12 text-center mb-2">
                     <h4>Search Users</h4>
                 </div>
             </div>
 
+            <!--    Error Alert    -->
             <div v-if="error" class="row">
                 <div class="col-8 offset-2 text-center mb-2">
                     <alert>{{ error }}</alert>
                 </div>
             </div>
 
+            <!--    Search Input    -->
             <div class="row mb-2">
                 <div class="col-12 col-sm-8 col-lg-6 col-xl-4 col-centered">
                     <div class="input-group">
@@ -30,6 +33,7 @@
                 </div>
             </div>
 
+            <!--    Result Information    -->
             <div class="row">
                 <div class="d-none d-lg-block col-lg-1"/>
                 <div class="col-12 col-lg-10">
@@ -41,41 +45,49 @@
                         />
                     </div>
 
+                    <!--    Order By   -->
                     <div class="overflow-auto">
                         <table class="table table-hover">
                             <thead>
                             <tr>
+                                <!--    ID    -->
                                 <th scope="col" class="pointer" @click="orderResults('id')">
                                     <p class="d-inline">Id</p>
                                     <p class="d-inline" v-if="orderCol === 'id'">{{ orderDirArrow }}</p>
                                 </th>
 
+                                <!--    First Name    -->
                                 <th scope="col" class="pointer" @click="orderResults('firstName')">
                                     <p class="d-inline">Firstname</p>
                                     <p class="d-inline" v-if="orderCol === 'firstName'">{{ orderDirArrow }}</p>
                                 </th>
 
+                                <!--    Middle Name    -->
                                 <th scope="col" class="pointer" @click="orderResults('middleName')">
                                     <p class="d-inline">Middlename</p>
                                     <p class="d-inline" v-if="orderCol === 'middleName'">{{ orderDirArrow }}</p>
                                 </th>
 
+                                <!--    Last Name    -->
                                 <th scope="col"  class="pointer" @click="orderResults('lastName')">
                                     <p class="d-inline">Lastname</p>
                                     <p class="d-inline" v-if="orderCol === 'lastName'">{{ orderDirArrow }}</p>
                                 </th>
 
+                                <!--    Email    -->
                                 <th scope="col" class="pointer" @click="orderResults('email')">
                                     <p class="d-inline">Email</p>
                                     <p class="d-inline" v-if="orderCol === 'email'">{{ orderDirArrow }}</p>
                                 </th>
 
+                                <!--    Home Address    -->
                                 <th scope="col" class="pointer" @click="orderResults('homeAddress')">
                                     <p class="d-inline">Address</p>
                                     <p class="d-inline" v-if="orderCol === 'homeAddress'">{{ orderDirArrow }}</p>
                                 </th>
                             </tr>
                             </thead>
+                            <!--    User Information    -->
                             <tbody v-if="!loading">
                                 <tr v-bind:key="user.id"
                                     v-for="user in paginatedUsers"
@@ -102,6 +114,7 @@
                 </div>
             </div>
 
+            <!--    Result Information    -->
             <div class="row">
                 <div class="col-12">
                     <pagination
@@ -146,15 +159,29 @@
             }
         },
         computed: {
+          /**
+           * Checks to see if user is logged in currently
+           * @returns {boolean|*}
+           */
             isLoggedIn () {
                 return this.$root.$data.user.state.loggedIn
             },
+
+          /**
+           * Checks which direction (ascending or descending) the order by should be
+           * @returns {string}
+           */
             orderDirArrow () {
                 if (this.orderDirection) {
                     return '↓'
                 }
                 return '↑'
             },
+
+          /**
+           * Sort Users Logic
+           * @returns {[]|*[]}
+           */
             sortedUsers () {
                 if (this.orderCol === null) {
                     return this.users
@@ -175,7 +202,11 @@
 
                 return newUsers
             },
-            // Paginate the users
+
+          /**
+           * Paginate the users
+           * @returns {*[]|*[]}
+           */
             paginatedUsers () {
                 let newUsers = this.sortedUsers;
 
@@ -189,12 +220,18 @@
 
                 return newUsers
             },
-            // Number of results in users array
+          /**
+           * Calculates the number of results in users array
+           * @returns {number}
+           */
             totalCount () {
                 return this.users.length
             }
         },
         methods: {
+          /**
+           * Search Logic
+           */
             search () {
                 this.blurSearch();
                 this.users = [];

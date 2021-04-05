@@ -2,12 +2,14 @@ package org.seng302.project.model;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 
 /**
  * Unit tests for User class
  */
+@SpringBootTest
 public class UserTest {
 
     /**
@@ -22,6 +24,7 @@ public class UserTest {
                 "Likes long walks on the beach", "johnsmith99@gmail.com",
                 "1999-04-27", "+64 3 555 0129", "4 Rountree Street, Upper Riccarton",
                 "1337-H%nt3r2");
+
         Assertions.assertNull(testUser.getId());
         Assertions.assertEquals("John", testUser.getFirstName());
         Assertions.assertEquals("Smith", testUser.getLastName());
