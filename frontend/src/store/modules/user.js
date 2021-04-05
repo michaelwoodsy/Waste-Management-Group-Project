@@ -1,5 +1,6 @@
 import { User } from '../../Api'
-import { getCookie, setCookie, deleteCookie} from "../../../utils/cookieJar";
+import { getCookie, setCookie, deleteCookie } from "../../../utils/cookieJar";
+import { createRed as createAlertRed } from "@/../utils/globalAlerts"
 
 export default {
     debug: true,
@@ -8,7 +9,8 @@ export default {
     state: {
         message: 'Hello!',
         loggedIn: false,
-        userId: null
+        userId: null,
+        userData: {}
     },
 
     /**
@@ -16,9 +18,19 @@ export default {
      * @param userId UserId of the user that is logged in
      */
     setLoggedIn(userId) {
-        this.state.loggedIn = true;
-        this.state.userId = userId;
-        setCookie('userId', this.state.userId, null);
+        User.getUserData(userId)
+            .then((res) => {
+                // Successfully got user data
+                this.state.userData = res.data;
+                this.state.loggedIn = true;
+                this.state.userId = userId;
+                setCookie('userId', this.state.userId, null);
+            })
+            .catch((err) => {
+                // Failed to get data, alert the user
+                createAlertRed(err.response.data)
+                this.setLoggedOut()
+            })
     },
 
     /**
@@ -27,6 +39,7 @@ export default {
     setLoggedOut() {
         this.state.loggedIn = false;
         this.state.userId = null;
+        this.state.userData = {};
         deleteCookie('userId');
     },
 
@@ -85,7 +98,7 @@ export default {
         const userId = getCookie('userId');
 
         // Check if the userId was null
-        if (userId === null) {
+        if (userId == null) {
             return
         } else {
             this.setLoggedIn(userId)
