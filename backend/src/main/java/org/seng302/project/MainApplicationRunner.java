@@ -30,6 +30,8 @@ package org.seng302.project;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+import org.seng302.project.model.Business;
+import org.seng302.project.model.BusinessRepository;
 import org.seng302.project.model.User;
 import org.seng302.project.model.UserRepository;
 import org.slf4j.Logger;
@@ -52,6 +54,7 @@ public class MainApplicationRunner implements ApplicationRunner {
     private static final Logger logger = LoggerFactory.getLogger(MainApplicationRunner.class.getName());
     private static final JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
     private final UserRepository userRepository;
+    private final BusinessRepository businessRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     /**
@@ -62,9 +65,10 @@ public class MainApplicationRunner implements ApplicationRunner {
      * @param userRepository the user repository to persist example data.
      */
     @Autowired
-    public MainApplicationRunner(UserRepository userRepository,
+    public MainApplicationRunner(UserRepository userRepository, BusinessRepository businessRepository,
                                  BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.businessRepository = businessRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -100,6 +104,16 @@ public class MainApplicationRunner implements ApplicationRunner {
                 logger.info(String.format("Added %d entries to repository", userRepository.count()));
             }
         }
+
+        //Creating a test business to be retrieved
+        if (businessRepository.count() == 0) {
+            logger.info("Adding sample to data to business repository");
+            Business newBusiness = new Business("Sarah's business", "Baking by Sarah", "Sarah's bakery", "Accommodation and Food Services", 1);
+            businessRepository.save(newBusiness);
+
+            logger.info(String.format("Added new business with id %d", businessRepository.findByName("Sarah's business").get(0).getId()));
+        }
+
     }
 
 }

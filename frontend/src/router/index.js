@@ -42,7 +42,7 @@ const routes = [
         component: Home
     },
     {
-        path: '/businesses/:id',
+        path: '/businesses/:businessId',
         name: 'viewBusiness',
         component: BusinessProfilePage
     },
