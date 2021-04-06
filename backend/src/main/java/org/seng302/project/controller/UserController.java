@@ -141,7 +141,9 @@ public class UserController {
             userRepository.save(newUser);
             logger.info(String.format("Successful registration of user %d", newUser.getId()));
             return authenticate(credentials);
-
+        } catch ( InvalidEmailException | InvalidPhoneNumberException |  ExistingRegisteredEmailException
+                 | InvalidDateException | UserUnderageException | RequiredFieldsMissingException expectedException) {
+            throw expectedException;
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while creating user: %s", exception.getMessage()));
             throw exception;
