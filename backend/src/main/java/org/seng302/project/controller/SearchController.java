@@ -47,29 +47,38 @@ public class SearchController {
     @GetMapping("/users/search")
     @ResponseStatus(HttpStatus.OK)
     public List<User> searchUsers(@RequestParam("searchQuery") String searchQuery) {
+
         logger.info(String.format("Request to search users with query: %s", searchQuery));
-        Set<User> result = new LinkedHashSet<>();
 
-        searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
-        String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
+        try {
+            Set<User> result = new LinkedHashSet<>();
 
-        for (String conjunction : conjunctions) {
-            Specification<User> hasSpec = Specification.where(null);
-            Specification<User> containsSpec = Specification.where(null);
-            String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
+            searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
+            String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
-            for (String name : names) {
-                name = name.replaceAll("\"", "");
-                hasSpec = hasSpec.and(UserSpecifications.hasName(name));
-                containsSpec = containsSpec.and(UserSpecifications.containsName(name));
+            for (String conjunction : conjunctions) {
+                Specification<User> hasSpec = Specification.where(null);
+                Specification<User> containsSpec = Specification.where(null);
+                String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
+
+                for (String name : names) {
+                    name = name.replaceAll("\"", "");
+                    hasSpec = hasSpec.and(UserSpecifications.hasName(name));
+                    containsSpec = containsSpec.and(UserSpecifications.containsName(name));
+                }
+
+                result.addAll(userRepository.findAll(hasSpec));
+                result.addAll(userRepository.findAll(containsSpec));
             }
 
-            result.addAll(userRepository.findAll(hasSpec));
-            result.addAll(userRepository.findAll(containsSpec));
+            logger.info(String.format("Retrieved %d users", result.size()));
+            return new ArrayList<>(result);
+
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while searching users: %s", exception.getMessage()));
+            throw exception;
         }
 
-        logger.info(String.format("Retrieved %d users", result.size()));
-        return new ArrayList<>(result);
     }
 
 }
