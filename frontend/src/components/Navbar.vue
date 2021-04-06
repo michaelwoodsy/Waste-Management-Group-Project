@@ -21,46 +21,7 @@
                 <span class="navbar-text">
 
                   <!-- Logged in user links -->
-                  <div v-if="isLoggedIn" class="btn-group">
-                    <span class="float-right d-inline pointer"  data-toggle="dropdown">
-                      <!-- Profile photo -->
-                      <img
-                          class="img-fluid profile-image rounded-circle mr-1"
-                          alt="profile"
-                          src="../../public/profile.png"
-                      >
-                      <!-- Users name -->
-                      {{ userData.firstName }} {{ userData.lastName }}
-                    </span>
-
-                    <!-- Dropdown menu when name is clicked -->
-                        <div class="dropdown-menu dropdown-menu-left dropdown-menu-sm-right">
-                          <!-- Change account menu -->
-                          <h6 class="dropdown-header">Associated Businesses</h6>
-                          <a class="dropdown-item" href="#">
-                            <img class="profile-image-sm rounded-circle mb-1" alt="profile"
-                                 src="../../public/profile.png">
-                            Business Account
-                          </a>
-
-                          <a class="dropdown-item" href="#">
-                            <img class="profile-image-sm rounded-circle mb-1" alt="profile"
-                                 src="../../public/profile.png">
-                            Business Account 2
-                          </a>
-
-                          <a class="dropdown-item" href="#">
-                            <img class="profile-image-sm rounded-circle mb-1" alt="profile"
-                                 src="../../public/profile.png">
-                            Business Account 3
-                          </a>
-
-                          <!-- Profile and logout section -->
-                          <div class="dropdown-divider"></div>
-                          <router-link class="dropdown-item" :to="userProfileRoute">My Profile</router-link>
-                          <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
-                        </div>
-                  </div>
+                  <user-profile-links v-if="isLoggedIn"/>
 
                   <!-- If not logged in, Login and register link -->
                     <span class="float-right d-inline" v-else>
@@ -78,8 +39,13 @@
 </template>
 
 <script>
+import UserProfileLinks from '@/components/UserProfileLinks'
+
     export default {
         name: "Navbar",
+        components: {
+          UserProfileLinks
+        },
         computed: {
           /**
            * Checks if user is logged in
@@ -87,53 +53,10 @@
            */
           isLoggedIn () {
             return this.$root.$data.user.state.loggedIn
-          },
-
-          /** Returns the current logged in users data **/
-          userData () {
-            return this.$root.$data.user.state.userData
-          },
-
-          /**
-           * Returns the users profile url
-           * @returns {string}
-           */
-          userProfileRoute () {
-            return `users/${this.$root.$data.user.state.userId}`;
-          }
-        },
-        methods: {
-          /**
-           * Logs the user out
-           */
-          logOut() {
-            this.$root.$data.user.logout();
-          },
-
-          /** Opens the profile links under user image & name **/
-          openProfileLinks () {
-
           }
         }
     }
 </script>
 
 <style scoped>
-.profile-image {
-  height: 35px;
-}
-
-.profile-image-sm {
-  height: 20px;
-}
-
-/*.dropdown-container {*/
-/*  position: relative;*/
-/*}*/
-
-/*.dropdown-menu {*/
-/*  position: absolute;*/
-/*  top: 100%; !* Bottom of button *!*/
-/*  right: 0;*/
-/*}*/
 </style>
