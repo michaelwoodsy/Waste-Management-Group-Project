@@ -10,7 +10,8 @@ export default {
         message: 'Hello!',
         loggedIn: false,
         userId: null,
-        userData: {}
+        userData: {},
+        actingAs: null
     },
 
     /**
@@ -24,6 +25,13 @@ export default {
                 this.state.userData = res.data;
                 this.state.userId = userId;
                 this.state.loggedIn = true;
+
+                // Set acting as if its null
+                if (this.state.actingAs == null) {
+                    let name = `${res.data.firstName} ${res.data.lastName}`
+                    this.setActingAs(res.data.id, name, 'user')
+                }
+
                 setCookie('userId', this.state.userId, null);
             })
             .catch((err) => {
@@ -40,7 +48,9 @@ export default {
         this.state.loggedIn = false;
         this.state.userId = null;
         this.state.userData = {};
+        this.state.actingAs = null;
         deleteCookie('userId');
+        deleteCookie('actor');
     },
 
     register (firstName, lastName, middleName, nickname, bio, email, dateOfBirth, phoneNumber, homeAddress, password) {
@@ -97,10 +107,21 @@ export default {
         // Ger userId from cookies
         const userId = getCookie('userId');
 
+
         // Check if the userId was null
         if (userId == null) {
             return
         } else {
+            // Try set actor
+            try {
+                const actor = JSON.parse(getCookie('actor'));
+                this.setActingAs(actor.id, actor.name, actor.type)
+            }
+            catch(err) {
+                deleteCookie('actor')
+            }
+
+            // Set logged in
             this.setLoggedIn(userId)
         }
 
@@ -108,5 +129,21 @@ export default {
         User.getUserData(userId)
             .then(() => this.setLoggedIn(userId))
             .catch(() => this.setLoggedOut())
+    },
+
+    /**
+     * Sets the user to act as either a business or user
+     * @param id The id of the person or business
+     * @param name The name of the person or business
+     * @param type The type, either "business" or "user"
+     */
+    setActingAs (id, name, type) {
+        if (type !== "business" && type !== "user") {
+            throw new Error('Type must be business or user')
+        }
+        this.state.actingAs = {
+            name, id, type
+        }
+        setCookie('actor', JSON.stringify(this.state.actingAs), null)
     }
 }
