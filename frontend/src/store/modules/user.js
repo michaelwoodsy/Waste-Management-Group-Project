@@ -1,6 +1,6 @@
 import { User } from '../../Api'
-import { getCookie, setCookie, deleteCookie } from "../../../utils/cookieJar";
-import { createRed as createAlertRed } from "@/../utils/globalAlerts"
+import { getCookie, setCookie, deleteCookie } from "../../utils/cookieJar";
+import { createRed as createAlertRed } from "@/./utils/globalAlerts"
 
 export default {
     debug: true,
