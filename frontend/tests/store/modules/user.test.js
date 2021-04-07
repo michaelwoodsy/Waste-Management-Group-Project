@@ -4,7 +4,7 @@
 
 import {beforeEach, describe, test} from "@jest/globals";
 import user from '@/store/modules/user'
-import {getCookie} from '@/utils/cookieJar'
+import {getCookie, setCookie} from '@/utils/cookieJar'
 
 // Mock the api module
 jest.mock('@/Api', () => ({
@@ -120,6 +120,23 @@ describe('store.user', () => {
         // Checks the state is set correctly
         expect(user.state.userId).toBe(res.data.userId)
         expect(user.state.loggedIn).toBeTruthy();
+    });
+
+    // Checking if user is logged in test
+    test("testing checkLoggedIn function if the correct cookies are present", async() => {
+        // Setup cookies
+        const actor = JSON.stringify({id: 2, type: "business", name: "Shop 1"});
+        setCookie("actor", actor, null);
+        setCookie("userId", 1, null);
+
+        // run checkLoggedIn function
+        await user.checkLoggedIn();
+
+        // Checks the state is set correctly
+        expect(user.state.userId).toBe("1")
+        expect(user.state.loggedIn).toBeTruthy();
+        expect(user.state.actingAs.name).toBe("Shop 1")
+        expect(user.state.actingAs.type).toBe("business")
     });
 
 })

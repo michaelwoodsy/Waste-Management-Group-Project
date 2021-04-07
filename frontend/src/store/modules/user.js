@@ -101,12 +101,11 @@ export default {
     },
 
     /**
-     * Checks if the current user is logged in, sets the app state accordingly
+     * Checks if the current user is logged in (based on cookies) and sets the app state accordingly
      */
     checkLoggedIn() {
         // Ger userId from cookies
         const userId = getCookie('userId');
-
 
         // Check if the userId was null
         if (userId == null) {
