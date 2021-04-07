@@ -108,10 +108,21 @@ public class MainApplicationRunner implements ApplicationRunner {
         //Creating a test business to be retrieved
         if (businessRepository.count() == 0) {
             logger.info("Adding sample to data to business repository");
-            Business newBusiness = new Business("Sarah's business", "Baking by Sarah", "Sarah's bakery", "Accommodation and Food Services", 1);
+            Business newBusiness = new Business("Myrtle's Motel", "Accommodation by Myrtle", "6121 Autumn Leaf Trail", "Accommodation and Food Services", 1);
             businessRepository.save(newBusiness);
 
-            logger.info(String.format("Added new business with id %d", businessRepository.findByName("Sarah's business").get(0).getId()));
+            logger.info(String.format("Added new business with id %d", businessRepository.findByName("Myrtle's Motel").get(0).getId()));
+
+
+            //TODO: The below caused infinite business->user->business->user... recursion
+            //Testing for linking to admin pages
+//            User businessAdmin2 = userRepository.getOne(2);
+//            newBusiness.addAdministrator(businessAdmin2);
+//            businessRepository.save(newBusiness);
+//            User businessAdmin3 = userRepository.getOne(3);
+//            newBusiness.addAdministrator(businessAdmin3);
+//            businessRepository.save(newBusiness);
+
         }
 
     }

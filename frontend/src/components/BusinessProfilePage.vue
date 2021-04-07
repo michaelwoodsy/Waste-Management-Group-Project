@@ -70,7 +70,7 @@
           <p>Administrators: </p>
         </div>
         <div class="col-6">
-          <p>[Links to admin profile pages here]</p>
+          <p>{{ administrators }}</p>
         </div>
       </div>
     </div>
@@ -119,7 +119,8 @@ export default {
       this.name = response.data.name
       this.description = response.data.description
       this.businessType = response.data.businessType
-      console.log(`Business name: ${name}`);
+      this.administrators = response.data.administrators
+      console.log(`Response about business: ${JSON.stringify(response)}`);
 
 
       //Need to remove the street and number part of this address, just splice from the first ','
@@ -201,7 +202,8 @@ export default {
       businessType: null,
       address: null,
       dateJoined: null,
-      dateSinceJoin: null
+      dateSinceJoin: null,
+      administrators: null,
     }
   }
 
