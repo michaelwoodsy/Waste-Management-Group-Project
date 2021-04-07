@@ -70,7 +70,7 @@
           <p>Administrators: </p>
         </div>
         <div class="col-6">
-          <p>{{ administrators }}</p>
+          <p><router-link class="nav-link d-inline" :to="primaryAdminProfileRoute">Primary Admin</router-link></p>
         </div>
       </div>
     </div>
@@ -105,6 +105,13 @@ export default {
      */
     isLoggedIn () {
       return this.$root.$data.user.state.loggedIn
+    },
+    /**
+     * Returns the primary admin profile url
+     * @returns {string}
+     */
+    primaryAdminProfileRoute () {
+      return `users/${this.primaryAdministratorId}`;
     }
   },
   components: {
@@ -116,11 +123,12 @@ export default {
      * @param response is the response from the server
      */
     profile(response) {
-      this.name = response.data.name
-      this.description = response.data.description
-      this.businessType = response.data.businessType
-      this.administrators = response.data.administrators
-      console.log(`Response about business: ${JSON.stringify(response)}`);
+      this.name = response.data.name;
+      this.description = response.data.description;
+      this.businessType = response.data.businessType;
+      this.primaryAdministratorId = response.data.primaryAdministratorId;
+      // this.administrators = response.data.administrators
+      // console.log(`Response about business: ${JSON.stringify(response)}`);
 
 
       //Need to remove the street and number part of this address, just splice from the first ','
@@ -203,6 +211,7 @@ export default {
       address: null,
       dateJoined: null,
       dateSinceJoin: null,
+      primaryAdministratorId: null,
       administrators: null,
     }
   }
