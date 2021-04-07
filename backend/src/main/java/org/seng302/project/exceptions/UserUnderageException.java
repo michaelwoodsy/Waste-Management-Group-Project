@@ -9,7 +9,7 @@ package org.seng302.project.exceptions;
 public class UserUnderageException extends RuntimeException {
 
     public UserUnderageException() {
-        super("UserUnderageException: user does not meet the required age to register account.");
+        super("UserUnderageException: user does not meet the required age to register account. Must be 13 years old.");
     }
 
 }
