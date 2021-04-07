@@ -72,6 +72,9 @@
     "coveragePathIgnorePatterns": [
       "/node_modules/"
     ],
+    "moduleNameMapper": {
+      "@/(.*)$": "<rootDir>/src/$1"
+    },
     "testResultsProcessor": "jest-sonar-reporter",
     "moduleFileExtensions": [
       "js",
