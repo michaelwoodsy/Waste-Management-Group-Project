@@ -1,4 +1,4 @@
-import { User } from '../../Api'
+import { User } from '@/Api'
 import { getCookie, setCookie, deleteCookie } from "../../utils/cookieJar";
 import { createRed as createAlertRed } from "@/./utils/globalAlerts"
 
