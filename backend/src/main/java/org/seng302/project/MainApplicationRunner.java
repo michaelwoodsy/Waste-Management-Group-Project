@@ -115,6 +115,7 @@ public class MainApplicationRunner implements ApplicationRunner {
 
 
             //TODO: The below caused infinite business->user->business->user... recursion
+            //TODO: need to save primary admin as an admin too
             //Testing for linking to admin pages
 //            User businessAdmin2 = userRepository.getOne(2);
 //            newBusiness.addAdministrator(businessAdmin2);

@@ -372,5 +372,41 @@ export const User = {
 export const Business = {
 
   getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
+  getFakeBusinessAdmins: () => {
+    return [{
+      "id": 1,
+      "firstName": "Myrtle",
+      "lastName": "Tremontana",
+      "middleName": "Frances",
+      "nickname": "Myrtleboi",
+      "bio":"I like to embrace visionary e-commerce",
+      "email": "1@gmail.com",
+      "dateOfBirth": "1977-12-13",
+      "phoneNumber": "+642690770585",
+      "homeAddress": "6121 Autumn Leaf Trail"
+    }, {
+      "id": 2,
+      "firstName": "Nathanial",
+      "lastName": "Grishaev",
+      "middleName": "Arleen",
+      "nickname": "Nathanialboi",
+      "bio":"I like to grow compelling vortals",
+      "email": "agrishaev1@usgs.gov",
+      "dateOfBirth": "1942-08-25",
+      "phoneNumber": "+649625300394",
+      "homeAddress": "93 Heath Center"
+    }, {
+      "id": 3,
+      "firstName": "Jemimah",
+      "lastName": "Betchley",
+      "middleName": "Muire",
+      "nickname": "Jemimahboi",
+      "bio": "I like to e-enable sticky eyeballs",
+      "email": "mbetchley2@reddit.com",
+      "dateOfBirth": "1969-08-21",
+      "phoneNumber": "+64947548013",
+      "homeAddress": "64587 Sachs Center"
+    }]
+  }
 
 };

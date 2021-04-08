@@ -70,7 +70,11 @@
           <p>Administrators: </p>
         </div>
         <div class="col-6">
-          <p><router-link class="nav-link d-inline" :to="primaryAdminProfileRoute">Primary Admin</router-link></p>
+          <table>
+            <tr v-for="(admin, index) in administrators" :key="index">
+              <td>{{ admin.id }}</td>
+            </tr>
+          </table>
         </div>
       </div>
     </div>
@@ -90,6 +94,9 @@ export default {
   },
   mounted() {
     Business.getBusinessData(this.businessId).then((response) => this.profile(response))
+
+    //TODO: remove this once we get admins sent from the backend
+    this.administrators = Business.getFakeBusinessAdmins();
   },
   computed: {
     /**
@@ -105,19 +112,13 @@ export default {
      */
     isLoggedIn () {
       return this.$root.$data.user.state.loggedIn
-    },
-    /**
-     * Returns the primary admin profile url
-     * @returns {string}
-     */
-    primaryAdminProfileRoute () {
-      return `users/${this.primaryAdministratorId}`;
     }
   },
   components: {
     LoginRequired
   },
   methods: {
+
     /**
      * Assigns the data from the response to the profile variables
      * @param response is the response from the server
@@ -126,9 +127,7 @@ export default {
       this.name = response.data.name;
       this.description = response.data.description;
       this.businessType = response.data.businessType;
-      this.primaryAdministratorId = response.data.primaryAdministratorId;
-      // this.administrators = response.data.administrators
-      // console.log(`Response about business: ${JSON.stringify(response)}`);
+      //TODO: this.administrators = response.data.administrators;
 
 
       //Need to remove the street and number part of this address, just splice from the first ','
@@ -211,7 +210,6 @@ export default {
       address: null,
       dateJoined: null,
       dateSinceJoin: null,
-      primaryAdministratorId: null,
       administrators: null,
     }
   }
