@@ -72,7 +72,11 @@
         <div class="col-6">
           <table>
             <tr v-for="(admin, index) in administrators" :key="index">
-              <td>{{ admin.id }}</td>
+              <td>
+                <router-link class="nav-link d-inline" :to="`/users/${admin.id}`">
+                  {{ admin.firstName }} {{ admin.lastName }}
+                </router-link>
+              </td>
             </tr>
           </table>
         </div>
