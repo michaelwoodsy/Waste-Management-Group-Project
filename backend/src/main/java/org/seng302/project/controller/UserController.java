@@ -2,6 +2,7 @@ package org.seng302.project.controller;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.exceptions.*;
+import org.seng302.project.model.Business;
 import org.seng302.project.model.LoginCredentials;
 import org.seng302.project.model.User;
 import org.seng302.project.model.UserRepository;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -148,7 +150,14 @@ public class UserController {
 
         logger.info(String.format("Request to get user %d", id));
         try {
-            return userRepository.findById(id).orElseThrow(() -> new NoUserExistsException(id));
+            User currUser = userRepository.findById(id).orElseThrow(() -> new NoUserExistsException(id));
+
+            //Do this so the return is not an infinite loop of businesses and users
+            for (Business business: currUser.getBusinessesAdministered()) {
+                business.setAdministrators(new ArrayList<>());
+            }
+
+            return currUser;
         } catch (NoUserExistsException exception) {
             logger.error(exception.getMessage());
             throw exception;
