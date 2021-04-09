@@ -41,5 +41,6 @@ const routes = [
     }
 ];
 
+const base = process.env.VUE_APP_BASE_URL || '/';
 
-Vue.use(Router, {routes});
+Vue.use(Router, {routes, base});
