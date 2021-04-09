@@ -76,7 +76,7 @@ public class BusinessTest {
         assertEquals("Retail Trade", retrievedBusiness.getBusinessType());
         assertEquals(1, retrievedBusiness.getPrimaryAdministratorId());
         assertTrue(retrievedBusiness.getCreated().isBefore(LocalDateTime.now()));
-        assertTrue(retrievedBusiness.getCreated().isAfter(LocalDateTime.now().minusSeconds(1)));
+        assertTrue(retrievedBusiness.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
         assertTrue(BusinessType.checkType(retrievedBusiness.getBusinessType()));
     }
 
