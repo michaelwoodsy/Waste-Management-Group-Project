@@ -88,8 +88,8 @@ public class BusinessTest {
         Business testBusiness = new Business("Test Business", "This business is a test.", "5 Lab Test Ave, New Zealand",
                 "Retail Trade", 1);
         businessRepository.save(testBusiness);
-        User testUser = new User("John", "Smith", "Hector", "Jonny",
-                "Likes long walks on the beach", "johnsmith99@gmail.com",
+        User testUser = new User("John", "Smith", "Josh", "Jonny",
+                "Likes long walks on the beach", "jonnyj99@gmail.com",
                 "1999-04-27", "+64 3 555 0129", "4 Rountree Street, Upper Riccarton",
                 "1337-H%nt3r2");
         userRepository.save(testUser);
