@@ -114,9 +114,28 @@ public class BusinessController {
 
         int userId = (int) json.getAsNumber("userId");
         User currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
-
-
         Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
+
+        //Checks if the user us already an administrator
+        if (currBusiness.getAdministrators().contains(currUser)) {
+            AdministratorAlreadyExistsException exception = new AdministratorAlreadyExistsException(userId, id);
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
+
+
+
+
+        System.out.println(userId + "          " + currBusiness.getPrimaryAdministratorId());
+        /*
+        if(userId != currBusiness.getPrimaryAdministratorId()) {
+            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
+            logger.error(exception.getMessage());
+            throw exception;
+        }*/
+
+
         currBusiness.addAdministrator(currUser);
 
         businessRepository.save(currBusiness);
@@ -140,7 +159,23 @@ public class BusinessController {
 
         Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
-        //TODO: Make so the primary administrator cant be removed
+        //Checks if user trying to be removed is the primary administrator
+        if (userId == currBusiness.getPrimaryAdministratorId()) {
+            CantRemoveAdministratorException exception = new CantRemoveAdministratorException(userId, id);
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
+        //Checks if the user us already an administrator
+        if (!currBusiness.getAdministrators().contains(currUser)) {
+            UserNotAdministratorException exception = new UserNotAdministratorException(userId, id);
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
+
+
+
         try {
             currBusiness.removeAdministrator(currUser);
         } catch (NoUserExistsException exception) {
