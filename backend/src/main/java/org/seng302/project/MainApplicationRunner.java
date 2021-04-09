@@ -116,10 +116,8 @@ public class MainApplicationRunner implements ApplicationRunner {
             //Testing for linking to admin pages
             User businessAdmin1 = userRepository.getOne(1);
             newBusiness.addAdministrator(businessAdmin1);
-            businessRepository.save(newBusiness);
             User businessAdmin2 = userRepository.getOne(2);
             newBusiness.addAdministrator(businessAdmin2);
-            businessRepository.save(newBusiness);
             User businessAdmin3 = userRepository.getOne(3);
             newBusiness.addAdministrator(businessAdmin3);
             businessRepository.save(newBusiness);

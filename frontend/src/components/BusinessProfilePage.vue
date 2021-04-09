@@ -129,7 +129,6 @@ export default {
       this.description = response.data.description;
       this.businessType = response.data.businessType;
       this.administrators = response.data.administrators;
-      console.log(`Response: ${JSON.stringify(response)}`)
 
 
       //Need to remove the street and number part of this address, just splice from the first ','
