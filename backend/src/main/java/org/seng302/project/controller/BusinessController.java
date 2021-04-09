@@ -109,7 +109,7 @@ public class BusinessController {
      */
     @PutMapping("/businesses/{id}/makeAdministrator")
     @ResponseStatus(HttpStatus.OK)
-    public void addNewAdministrator(@PathVariable int id, @RequestBody JSONObject json) {
+    public void addNewAdministrator(@PathVariable int id, @RequestBody JSONObject json, @CookieValue("JSESSIONID") String cookie) {
         logger.info(String.format("Request to add user with id %d as administrator for business", id));
 
         int userId = (int) json.getAsNumber("userId");
@@ -128,6 +128,9 @@ public class BusinessController {
 
 
         System.out.println(userId + "          " + currBusiness.getPrimaryAdministratorId());
+
+
+        System.out.println(cookie);
         /*
         if(userId != currBusiness.getPrimaryAdministratorId()) {
             ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
