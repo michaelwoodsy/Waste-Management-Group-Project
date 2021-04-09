@@ -97,13 +97,13 @@ public class BusinessTest {
         assertEquals(0, testBusiness.getAdministrators().size());
         assertEquals(0, testUser.getBusinessesAdministered().size());
 
-        testUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
+        testUser = userRepository.findByEmail("jonnyj99@gmail.com").get(0);
         testBusiness = businessRepository.findByName("Test Business").get(0);
 
         testBusiness.addAdministrator(testUser);
         businessRepository.save(testBusiness);
 
-        User retrievedUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
+        User retrievedUser = userRepository.findByEmail("jonnyj99@gmail.com").get(0);
         Business retrievedBusiness = businessRepository.findByName("Test Business").get(0);
 
         assertEquals(1, retrievedBusiness.getAdministrators().size());
