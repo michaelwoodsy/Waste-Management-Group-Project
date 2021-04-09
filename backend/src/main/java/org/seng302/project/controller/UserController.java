@@ -172,7 +172,7 @@ public class UserController {
             }
 
             return currUser;
-        } catch (NoUserExistsException noUserExistsException) {
+        }  catch (NoUserExistsException noUserExistsException) {
             logger.info(noUserExistsException.getMessage());
             throw noUserExistsException;
         } catch (Exception exception) {
