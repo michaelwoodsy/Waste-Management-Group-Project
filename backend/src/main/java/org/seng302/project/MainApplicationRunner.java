@@ -113,16 +113,16 @@ public class MainApplicationRunner implements ApplicationRunner {
 
             logger.info(String.format("Added new business with id %d", businessRepository.findByName("Myrtle's Motel").get(0).getId()));
 
-
-            //TODO: The below caused infinite business->user->business->user... recursion
-            //TODO: need to save primary admin as an admin too
             //Testing for linking to admin pages
-//            User businessAdmin2 = userRepository.getOne(2);
-//            newBusiness.addAdministrator(businessAdmin2);
-//            businessRepository.save(newBusiness);
-//            User businessAdmin3 = userRepository.getOne(3);
-//            newBusiness.addAdministrator(businessAdmin3);
-//            businessRepository.save(newBusiness);
+            User businessAdmin1 = userRepository.getOne(1);
+            newBusiness.addAdministrator(businessAdmin1);
+            businessRepository.save(newBusiness);
+            User businessAdmin2 = userRepository.getOne(2);
+            newBusiness.addAdministrator(businessAdmin2);
+            businessRepository.save(newBusiness);
+            User businessAdmin3 = userRepository.getOne(3);
+            newBusiness.addAdministrator(businessAdmin3);
+            businessRepository.save(newBusiness);
 
         }
 

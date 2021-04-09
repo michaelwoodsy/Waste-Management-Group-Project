@@ -98,9 +98,6 @@ export default {
   },
   mounted() {
     Business.getBusinessData(this.businessId).then((response) => this.profile(response))
-
-    //TODO: remove this once we get admins sent from the backend
-    this.administrators = Business.getFakeBusinessAdmins();
   },
   computed: {
     /**
@@ -131,7 +128,8 @@ export default {
       this.name = response.data.name;
       this.description = response.data.description;
       this.businessType = response.data.businessType;
-      //TODO: this.administrators = response.data.administrators;
+      this.administrators = response.data.administrators;
+      console.log(`Response: ${JSON.stringify(response)}`)
 
 
       //Need to remove the street and number part of this address, just splice from the first ','
