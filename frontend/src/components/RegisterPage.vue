@@ -14,7 +14,7 @@
           <div class="form-row">
               <!--    First Name    -->
               <label for="firstName" style="margin-top:20px"><b>First Name<span class="required">*</span></b></label><br/>
-              <input style="width:100%" type="text" placeholder="Enter your First Name" id="firstName" class="form-control" v-model="firstName" required><br>
+              <input style="width:100%" type="text" maxlength="100" placeholder="Enter your First Name" id="firstName" class="form-control" v-model="firstName" required><br>
             <!--    Error message for the first name input    -->
               <span class="error-msg" style="margin: 0" v-if="msg.firstName">{{msg.firstName}}</span><br><br>
           </div>
@@ -22,13 +22,13 @@
           <div class="form-row">
             <!--    Middle Name    -->
             <label for="middleName"><b>Middle Name</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Middle Name" id="middleName" class="form-control" v-model="middleName"><br><br><br>
+            <input style="width:100%" type="text" maxlength="100" placeholder="Enter your Middle Name" id="middleName" class="form-control" v-model="middleName"><br><br><br>
           </div>
 
           <div class="form-row">
             <!--    Last Name    -->
             <label for="lastName"><b>Last Name<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Last Name" id="lastName" class="form-control" v-model="lastName" required><br>
+            <input style="width:100%" type="text" maxlength="100" placeholder="Enter your Last Name" id="lastName" class="form-control" v-model="lastName" required><br>
             <!--    Error message for the last name input    -->
             <span class="error-msg" style="margin: 0" v-if="msg.lastName">{{msg.lastName}}</span><br><br>
           </div>
@@ -36,13 +36,13 @@
           <div class="form-row">
             <!--    Nickname    -->
             <label for="nickname"><b>Nickname</b></label><br/>
-            <input style="width: 100%" type="text" placeholder="Enter your Nickname" id="nickname" class="form-control" v-model="nickname"><br><br><br>
+            <input style="width: 100%" type="text" maxlength="100" placeholder="Enter your Nickname" id="nickname" class="form-control" v-model="nickname"><br><br><br>
           </div>
 
           <div class="form-row">
             <!--    Email    -->
             <label for="email"><b>Email<span class="required">*</span></b></label><br/>
-            <input style="width: 100%" type="email" placeholder="Enter your Email" id="email" class="form-control" v-model="email" required><br>
+            <input style="width: 100%" type="email" maxlength="100" placeholder="Enter your Email" id="email" class="form-control" v-model="email" required><br>
             <!--    Error message for the email input    -->
             <span class="error-msg" v-if="msg.email">{{msg.email}}</span><br><br>
           </div>
@@ -50,13 +50,13 @@
           <div class="form-row">
             <!--    bio    -->
             <label for="bio" class="bio-label"><b>Bio</b></label><br>
-            <textarea placeholder="Write a Bio" id="bio" v-model="bio" class="form-control" style="width: 100%; height: 200px;"></textarea>
+            <textarea placeholder="Write a Bio (Max 1000 characters)" id="bio" maxlength="1000" v-model="bio" class="form-control" style="width: 100%; height: 200px;"></textarea>
           </div><br>
 
           <div class="form-row">
             <!--    Date of Birth    -->
             <label for="dateOfBirth"><b>Date of Birth<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="date" id="dateOfBirth" class="form-control" v-model="dateOfBirth" required><br>
+            <input style="width:100%" type="date" maxlength="100" id="dateOfBirth" class="form-control" v-model="dateOfBirth" required><br>
             <!--    Error message for the date of birth input    -->
             <span class="error-msg" v-if="msg.dateOfBirth">{{msg.dateOfBirth}}</span><br><br>
           </div>
@@ -64,7 +64,7 @@
           <div class="form-row">
             <!--    Phone Number    -->
             <label for="phoneNumber"><b>Phone Number</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Phone Number with extension" id="phoneNumber" class="form-control" v-model="phoneNumber"><br><br><br>
+            <input style="width:100%" type="text" maxlength="100" placeholder="Enter your Phone Number with extension" id="phoneNumber" class="form-control" v-model="phoneNumber"><br><br><br>
           </div>
 
           <hr/>
@@ -77,19 +77,19 @@
           <div class="form-row">
             <!--    Home Address Street Number    -->
             <label for="homeAddressNumber"><b>Street Number</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Number" id="homeAddressNumber" class="form-control" v-model="homeAddress.streetNumber"><br>
+            <input style="width:100%" type="text" maxlength="200" placeholder="Enter your Street Number" id="homeAddressNumber" class="form-control" v-model="homeAddress.streetNumber"><br>
           </div><br>
 
           <div class="form-row">
             <!--    Home Address Street Name    -->
             <label for="homeAddressStreet"><b>Street Name</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Name" id="homeAddressStreet" class="form-control" v-model="homeAddress.streetName"><br>
+            <input style="width:100%" type="text" maxlength="200" placeholder="Enter your Street Name" id="homeAddressStreet" class="form-control" v-model="homeAddress.streetName"><br>
           </div><br>
 
           <div class="form-row">
             <!--    Home Address City    -->
             <label for="homeAddressCity"><b>City or Town</b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your City" id="homeAddressCity" class="form-control" v-model="addressCity"><br>
+            <input style="width:100%" type="search" maxlength="200" placeholder="Enter your City" id="homeAddressCity" class="form-control" v-model="addressCity"><br>
 
             <!--    Autofill City/Town    -->
             <div style="width:100%; text-align: left" v-for="city in cities" v-bind:key="city">
@@ -100,7 +100,7 @@
           <div class="form-row">
             <!--    Home Address Region    -->
             <label for="homeAddressRegion"><b>Region</b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your Region" id="homeAddressRegion" class="form-control" v-model="addressRegion"><br>
+            <input style="width:100%" type="search" maxlength="200" placeholder="Enter your Region" id="homeAddressRegion" class="form-control" v-model="addressRegion"><br>
 
             <!--    Autofill region    -->
             <div style="width:100%; text-align: left" v-for="region in regions" v-bind:key="region">
@@ -111,7 +111,7 @@
           <div class="form-row">
             <!--    Home Address Country    -->
             <label for="homeAddressCountry"><b>Country<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your Country" id="homeAddressCountry" class="form-control" v-model="addressCountry" required><br>
+            <input style="width:100%" type="search" maxlength="200" placeholder="Enter your Country" id="homeAddressCountry" class="form-control" v-model="addressCountry" required><br>
 
             <!--    Autofill country    -->
             <div style="width:100%; text-align: left" v-for="country in countries" v-bind:key="country">
@@ -127,7 +127,7 @@
           <div class="form-row">
             <!--    Home Address Post Code    -->
             <label for="homeAddressPostCode"><b>Postcode</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Postcode" id="homeAddressPostCode" class="form-control" v-model="homeAddress.postcode"><br>
+            <input style="width:100%" type="text" maxlength="200" placeholder="Enter your Postcode" id="homeAddressPostCode" class="form-control" v-model="homeAddress.postcode"><br>
           </div><br>
 
           <hr/>
@@ -135,7 +135,7 @@
           <div class="form-row">
             <!--    Password    -->
             <label for="password"><b>Password<span class="required">*</span></b></label><br>
-            <input style="width:100%" type="password" placeholder="Enter your Password" id="password" class="form-control" v-model="password"><br>
+            <input style="width:100%" type="password" maxlength="200" placeholder="Enter your Password" id="password" class="form-control" v-model="password"><br>
             <!--    Error message for the password input    -->
             <span class="error-msg" v-if="msg.password">{{msg.password}}</span><br><br><br>
           </div>
