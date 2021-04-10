@@ -92,7 +92,6 @@ task cucumber(type: Test) {
 
 // configure test task to run on JUnit 5
 test {
-    systemProperty 'logback.configurationFile', 'logback.xml'
     description = "Runs JUnit 5/Jupiter tests (unit tests)"
     testLogging.showStandardStreams = true
     useJUnitPlatform()
