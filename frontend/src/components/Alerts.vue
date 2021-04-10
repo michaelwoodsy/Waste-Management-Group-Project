@@ -16,7 +16,7 @@
 
 <script>
 import Alert from './Alert'
-import {listen} from "../../utils/globalAlerts"
+import {listen} from "../utils/globalAlerts"
 
 export default {
   name: "Alerts",
