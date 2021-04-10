@@ -64,7 +64,8 @@
           <div class="form-row">
             <!--    Phone Number    -->
             <label for="phoneNumber"><b>Phone Number</b></label><br/>
-            <input style="width:100%" type="text" maxlength="100" placeholder="Enter your Phone Number with extension" id="phoneNumber" class="form-control" v-model="phoneNumber"><br><br><br>
+            <input style="width:100%" type="text" maxlength="100" placeholder="Enter your Phone Number with extension" id="phoneNumber" class="form-control" v-model="phoneNumber"><br><br>
+            <span class="error-msg" v-if="msg.phone">{{msg.phone}}</span><br><br><br>
           </div>
 
           <hr/>
@@ -112,17 +113,13 @@
             <!--    Home Address Country    -->
             <label for="homeAddressCountry"><b>Country<span class="required">*</span></b></label><br/>
             <input style="width:100%" type="search" maxlength="200" placeholder="Enter your Country" id="homeAddressCountry" class="form-control" v-model="addressCountry" required><br>
+            <span class="error-msg" v-if="msg.country">{{msg.country}}</span><br>
 
             <!--    Autofill country    -->
             <div style="width:100%; text-align: left" v-for="country in countries" v-bind:key="country">
               <a class="address-output" @click="changeCountry(country)">{{country}}</a><br>
             </div>
           </div><br>
-
-          <!--    Error message for the country input    -->
-          <div class="form-row">
-            <span class="error-msg" v-if="msg.country">{{msg.country}}</span>
-          </div>
 
           <div class="form-row">
             <!--    Home Address Post Code    -->
@@ -208,6 +205,7 @@ export default {
         'lastName': '',
         'email': '',
         'dateOfBirth': '',
+        'phone': '',
         'country': '',
         'password': '',
         'errorChecks': null
@@ -324,7 +322,7 @@ export default {
      * Checks if the string is of an email format using regex, if not, displays a warning message
      */
     validateEmail() {
-      if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(this.email)) {
+      if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(this.email)) {
         this.msg['email'] = ''
       } else {
         this.msg['email'] = 'Invalid Email Address'
@@ -338,6 +336,16 @@ export default {
     validateDateOfBirth() {
       if (this.dateOfBirth === '') {
         this.msg['dateOfBirth'] = 'Please enter a Date of Birth'
+        this.valid = false
+      }
+      //If Date of Birth is in the future
+      else if (new Date() < new Date(this.dateOfBirth)) {
+        this.msg['dateOfBirth'] = 'Date of birth can not be in the future'
+        this.valid = false
+      }
+      //If Date of birth is more than 150 years ago
+      else if (new Date().getFullYear() - new Date(this.dateOfBirth).getFullYear() >= 150) {
+        this.msg['dateOfBirth'] = 'Date of birth is unrealistic'
         this.valid = false
       } else {
         this.msg['dateOfBirth'] = ''
@@ -363,8 +371,26 @@ export default {
       if (this.password === '') {
         this.msg['password'] = 'Please enter a Password'
         this.valid = false
-      } else {
+      } else if (this.password.length <= 4) {
+        this.msg['password'] = 'Password is too short'
+      }
+
+      else {
         this.msg['password'] = ''
+      }
+    },
+
+    validatePhoneNumber() {
+      //If no phone number is entered (which is allowed)
+      if (this.phone === '') {
+        this.msg['phone'] = ''
+      }
+      //If phone number matches phone number regex
+      else if (/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s./0-9]+$/.test(this.phoneNumber)) {
+        this.msg['phone'] = ''
+      } else {
+        this.msg['phone'] = 'Invalid Phone Number'
+        this.valid = false
       }
     },
 
@@ -376,6 +402,7 @@ export default {
       this.validateLastName();
       this.validateEmail();
       this.validateDateOfBirth();
+      this.validatePhoneNumber();
       this.validateAddress();
       this.validatePassword();
 

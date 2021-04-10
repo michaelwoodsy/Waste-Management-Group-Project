@@ -343,7 +343,7 @@ export const User = {
     return new Promise ((resolve, reject) => {
       this.getUserData(id)
           .then((res) => {
-            res.data = fakeUserResults.find(user => user.id == id);
+            res.data = fakeUserResults.find(user => user.id === id);
             resolve(res)
           })
           .catch((err) => {
@@ -366,4 +366,11 @@ export const User = {
           })
     })
   }
+};
+
+
+export const Business = {
+
+  getBusinessData: (id) => instance.get(`businesses/${id}`, {})
+
 };

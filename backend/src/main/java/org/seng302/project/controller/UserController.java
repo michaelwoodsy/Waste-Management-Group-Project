@@ -88,7 +88,7 @@ public class UserController {
         logger.info("Request to create user");
 
         try {
-            String emailRegEx = "^[\\w\\-]+(\\.[\\w\\-]+)*@\\w+(\\.\\w+)+$";
+            String emailRegEx = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
             if (!(newUser.getEmail().matches(emailRegEx))) {
                 InvalidEmailException emailException = new InvalidEmailException();
                 logger.warn(emailException.getMessage());
@@ -170,8 +170,9 @@ public class UserController {
             for (Business business: currUser.getBusinessesAdministered()) {
                 business.setAdministrators(new ArrayList<>());
             }
+
             return currUser;
-        } catch (NoUserExistsException noUserExistsException) {
+        }  catch (NoUserExistsException noUserExistsException) {
             logger.info(noUserExistsException.getMessage());
             throw noUserExistsException;
         } catch (Exception exception) {

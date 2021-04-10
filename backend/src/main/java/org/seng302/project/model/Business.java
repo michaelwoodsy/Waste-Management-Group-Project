@@ -2,6 +2,7 @@ package org.seng302.project.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.seng302.project.exceptions.NoUserExistsException;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -70,6 +71,19 @@ public class Business {
             return;
         }
         this.administrators.add(admin);
+    }
+
+    /**
+     * Removes a User to the list of administrators of a business.
+     *
+     * @param admin User to remove from list of administrators.
+     */
+    public void removeAdministrator(User admin) {
+        if (userIsAdmin(admin.getId())) {
+            this.administrators.remove(admin);
+        } else {
+            throw new NoUserExistsException(admin.getId());
+        }
     }
 
     /**
