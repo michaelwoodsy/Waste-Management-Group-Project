@@ -92,7 +92,7 @@ export default {
         {
           "id": 100,
           "administrators": [
-            null
+
           ],
           "primaryAdministratorId": 20,
           "name": "Lumbridge General Store",
@@ -124,7 +124,7 @@ export default {
 
     /** Sets the current logged in user to act as a user account **/
     actAsUser (userData) {
-      this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'business')
+      this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
     }
   }
 }
