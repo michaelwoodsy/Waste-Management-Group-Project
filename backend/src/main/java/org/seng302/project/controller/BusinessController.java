@@ -49,7 +49,16 @@ public class BusinessController {
             throw exception;
         } else {
             Optional<User> currUser = userRepository.findById(newBusiness.getPrimaryAdministratorId());
-            newBusiness.addAdministrator(currUser.get());
+            currUser.ifPresent(newBusiness::addAdministrator);
+        }
+
+        //If any of the required fields are empty
+        if (    newBusiness.getName().equals("") ||
+                newBusiness.getAddress().equals("") ||
+                newBusiness.getBusinessType().equals("")) {
+            RequiredFieldsMissingException exception = new RequiredFieldsMissingException();
+            logger.error(exception.getMessage());
+            throw exception;
         }
 
         //If business type is not one of the specified business types
@@ -58,15 +67,6 @@ public class BusinessController {
                 !newBusiness.getBusinessType().equals("Charitable organisation") &&
                 !newBusiness.getBusinessType().equals("Non-profit organisation")) {
             NoBusinessTypeExistsException exception = new NoBusinessTypeExistsException(newBusiness.getBusinessType());
-            logger.error(exception.getMessage());
-            throw exception;
-        }
-
-        //If any of the required fields are empty
-        if (    newBusiness.getName().equals("") ||
-                newBusiness.getAddress().equals("") ||
-                newBusiness.getBusinessType().equals("")) {
-            RequiredFieldsMissingException exception = new RequiredFieldsMissingException();
             logger.error(exception.getMessage());
             throw exception;
         }
@@ -109,7 +109,7 @@ public class BusinessController {
      */
     @PutMapping("/businesses/{id}/makeAdministrator")
     @ResponseStatus(HttpStatus.OK)
-    public void addNewAdministrator(@PathVariable int id, @RequestBody JSONObject json, @CookieValue("JSESSIONID") String cookie) {
+    public void addNewAdministrator(@PathVariable int id, @RequestBody JSONObject json) {
         logger.info(String.format("Request to add user with id %d as administrator for business", id));
 
         int userId = (int) json.getAsNumber("userId");
@@ -123,16 +123,13 @@ public class BusinessController {
             throw exception;
         }
 
+        //TODO: Get currently signed in user from cookie???
 
 
 
 
-        System.out.println(userId + "          " + currBusiness.getPrimaryAdministratorId());
-
-
-        System.out.println(cookie);
         /*
-        if(userId != currBusiness.getPrimaryAdministratorId()) {
+        if(currentUser.getId() != currBusiness.getPrimaryAdministratorId()) {
             ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
             logger.error(exception.getMessage());
             throw exception;
@@ -153,7 +150,7 @@ public class BusinessController {
      */
     @PutMapping("/businesses/{id}/removeAdministrator")
     @ResponseStatus(HttpStatus.OK)
-    public void removeAdministrator(@PathVariable int id, @RequestBody JSONObject json) {
+    public void removeAdministrator(@PathVariable int id, @RequestBody JSONObject json, @CookieValue("JSESSIONID") String cookie) {
         logger.info(String.format("Request to remove user with id %d as administrator for business", id));
 
         int userId = (int) json.getAsNumber("userId");
@@ -185,6 +182,17 @@ public class BusinessController {
             logger.error(exception.getMessage());
             throw exception;
         }
+
+
+        //TODO: Get currently signed in user from cookie???
+
+        System.out.println(cookie);
+        /*
+        if(currentUser.getId() != currBusiness.getPrimaryAdministratorId()) {
+            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
+            logger.error(exception.getMessage());
+            throw exception;
+        }*/
 
 
         businessRepository.save(currBusiness);
