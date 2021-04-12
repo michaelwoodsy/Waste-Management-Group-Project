@@ -341,6 +341,37 @@ public class BusinessControllerTest {
 
         String returnedExceptionString = addAdminResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new AdministratorAlreadyExistsException(retrievedUser.getId(), retrievedBusiness.getId()).getMessage(), returnedExceptionString);
+
+        //Log into the other account so we can test adding an administrator to a business when you are not the primary administrator
+        loginCredentials = new JSONObject();
+        loginCredentials.put("email", "DaveSims@gmail.com");
+        loginCredentials.put("password", "1337-H%nt3r2");
+
+        //Log into the other user account who is not the primary admin
+        mvc.perform(MockMvcRequestBuilders
+                .post("/login")
+                .content(loginCredentials.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+
+        testAdmin = new JSONObject();
+        testAdmin.put("userId", userRepository.findByEmail("jimsmith@gmail.com").get(0).getId());
+
+        addAdminRequest = MockMvcRequestBuilders
+                .put(String.format("/businesses/%d/makeAdministrator", retrievedBusiness.getId()))
+                .content(testAdmin.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("DaveSims@gmail.com", "1337-H%nt3r2"));
+
+        addAdminResponse = this.mvc.perform(addAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 400 response
+                .andReturn();
+
+        returnedExceptionString = addAdminResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new ForbiddenAdministratorActionException(retrievedBusiness.getId()).getMessage(), returnedExceptionString);
     }
 
     /**
@@ -425,5 +456,37 @@ public class BusinessControllerTest {
 
         returnedExceptionString = removeAdminResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new UserNotAdministratorException(retrievedUser.getId(), retrievedBusiness.getId()).getMessage(), returnedExceptionString);
+
+
+        //Log into the other account so we can test adding an administrator to a business when you are not the primary administrator
+        loginCredentials = new JSONObject();
+        loginCredentials.put("email", "DaveSims@gmail.com");
+        loginCredentials.put("password", "1337-H%nt3r2");
+
+        //Log into the other user account who is not the primary admin
+        mvc.perform(MockMvcRequestBuilders
+                .post("/login")
+                .content(loginCredentials.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+
+        testAdmin = new JSONObject();
+        testAdmin.put("userId", userRepository.findByEmail("jimsmith@gmail.com").get(0).getId());
+
+        removeAdminRequest = MockMvcRequestBuilders
+                .put(String.format("/businesses/%d/makeAdministrator", retrievedBusiness.getId()))
+                .content(testAdmin.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("DaveSims@gmail.com", "1337-H%nt3r2"));
+
+        removeAdminResponse = this.mvc.perform(removeAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 400 response
+                .andReturn();
+
+        returnedExceptionString = removeAdminResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new ForbiddenAdministratorActionException(retrievedBusiness.getId()).getMessage(), returnedExceptionString);
     }
 }

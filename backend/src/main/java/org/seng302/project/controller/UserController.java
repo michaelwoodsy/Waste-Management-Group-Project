@@ -64,6 +64,8 @@ public class UserController {
             JSONObject response = new JSONObject();
             response.put("userId", userId);
             logger.info("Login successful");
+            //Sets the currentley logged in user. Used when a controller needs to see who is currently logged in
+            CurrentUserController.GetInstance().setId(userRepository.findByEmail(loginCredentials.getEmail()).get(0).getId());
             return response;
         } catch (AuthenticationException authException) {
             InvalidLoginException loginException = new InvalidLoginException();
@@ -142,6 +144,8 @@ public class UserController {
             newUser.setRole("user");
             userRepository.save(newUser);
             logger.info(String.format("Successful registration of user %d", newUser.getId()));
+            //Sets the currentley logged in user. Used when a controller needs to see who is currently logged in
+            CurrentUserController.GetInstance().setId(userRepository.findByEmail(newUser.getEmail()).get(0).getId());
             return authenticate(credentials);
         } catch ( InvalidEmailException | InvalidPhoneNumberException |  ExistingRegisteredEmailException
                  | InvalidDateException | UserUnderageException | RequiredFieldsMissingException expectedException) {

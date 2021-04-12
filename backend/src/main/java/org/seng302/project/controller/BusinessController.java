@@ -116,25 +116,19 @@ public class BusinessController {
         User currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
         Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
+        //Checks if the user preforming the action is the primary administrator of the business
+        if(CurrentUserController.GetInstance().getId() != currBusiness.getPrimaryAdministratorId()) {
+            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
         //Checks if the user us already an administrator
         if (currBusiness.getAdministrators().contains(currUser)) {
             AdministratorAlreadyExistsException exception = new AdministratorAlreadyExistsException(userId, id);
             logger.error(exception.getMessage());
             throw exception;
         }
-
-        //TODO: Get currently signed in user from cookie???
-
-
-
-
-        /*
-        if(currentUser.getId() != currBusiness.getPrimaryAdministratorId()) {
-            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
-            logger.error(exception.getMessage());
-            throw exception;
-        }*/
-
 
         currBusiness.addAdministrator(currUser);
 
@@ -159,6 +153,13 @@ public class BusinessController {
 
         Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
+        //Checks if the user preforming the action is the primary administrator of the business
+        if(CurrentUserController.GetInstance().getId() != currBusiness.getPrimaryAdministratorId()) {
+            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
         //Checks if user trying to be removed is the primary administrator
         if (userId == currBusiness.getPrimaryAdministratorId()) {
             CantRemoveAdministratorException exception = new CantRemoveAdministratorException(userId, id);
@@ -173,9 +174,6 @@ public class BusinessController {
             throw exception;
         }
 
-
-
-
         try {
             currBusiness.removeAdministrator(currUser);
         } catch (NoUserExistsException exception) {
@@ -184,14 +182,7 @@ public class BusinessController {
         }
 
 
-        //TODO: Get currently signed in user from cookie???
 
-        /*
-        if(currentUser.getId() != currBusiness.getPrimaryAdministratorId()) {
-            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
-            logger.error(exception.getMessage());
-            throw exception;
-        }*/
 
 
         businessRepository.save(currBusiness);
