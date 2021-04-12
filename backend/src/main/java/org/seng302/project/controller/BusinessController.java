@@ -150,7 +150,7 @@ public class BusinessController {
      */
     @PutMapping("/businesses/{id}/removeAdministrator")
     @ResponseStatus(HttpStatus.OK)
-    public void removeAdministrator(@PathVariable int id, @RequestBody JSONObject json, @CookieValue("JSESSIONID") String cookie) {
+    public void removeAdministrator(@PathVariable int id, @RequestBody JSONObject json) {
         logger.info(String.format("Request to remove user with id %d as administrator for business", id));
 
         int userId = (int) json.getAsNumber("userId");
@@ -166,7 +166,7 @@ public class BusinessController {
             throw exception;
         }
 
-        //Checks if the user us already an administrator
+        //Checks if the user is not an administrator
         if (!currBusiness.getAdministrators().contains(currUser)) {
             UserNotAdministratorException exception = new UserNotAdministratorException(userId, id);
             logger.error(exception.getMessage());
@@ -186,7 +186,6 @@ public class BusinessController {
 
         //TODO: Get currently signed in user from cookie???
 
-        System.out.println(cookie);
         /*
         if(currentUser.getId() != currBusiness.getPrimaryAdministratorId()) {
             ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);

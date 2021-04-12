@@ -264,7 +264,6 @@ public class BusinessControllerTest {
      * Tries to add an administrator to a business by calling the /businesses/{id}/makeAdministrator endpoint
      * Checks that the user is added as an administrator
      */
-    /*
     @Test
     @Order(4)
     public void addAdministrator() throws Exception {
@@ -293,6 +292,7 @@ public class BusinessControllerTest {
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
 
         Assertions.assertEquals(1, retrievedBusiness.getAdministrators().size());
+        Assertions.assertEquals("jimsmith@gmail.com", retrievedBusiness.getAdministrators().get(0).getEmail());
 
 
         User retrievedUser = userRepository.findByEmail("DaveSims@gmail.com").get(0);
@@ -312,8 +312,6 @@ public class BusinessControllerTest {
         JSONObject testAdmin = new JSONObject();
         testAdmin.put("userId", retrievedUser.getId());
 
-        System.out.println(testAdmin);
-
         mvc.perform(MockMvcRequestBuilders
                 .put(String.format("/businesses/%d/makeAdministrator", retrievedBusiness.getId()))
                 .content(testAdmin.toString())
@@ -322,7 +320,110 @@ public class BusinessControllerTest {
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
                 .andExpect(status().isOk());
 
+        retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
+
         Assertions.assertEquals(2, retrievedBusiness.getAdministrators().size());
+        Assertions.assertEquals("jimsmith@gmail.com", retrievedBusiness.getAdministrators().get(0).getEmail());
+        Assertions.assertEquals("DaveSims@gmail.com", retrievedBusiness.getAdministrators().get(1).getEmail());
+
+
+        //Trying to add the same admin again
+        RequestBuilder addAdminRequest = MockMvcRequestBuilders
+                .put(String.format("/businesses/%d/makeAdministrator", retrievedBusiness.getId()))
+                .content(testAdmin.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult addAdminResponse = this.mvc.perform(addAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = addAdminResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new AdministratorAlreadyExistsException(retrievedUser.getId(), retrievedBusiness.getId()).getMessage(), returnedExceptionString);
     }
-*/
+
+    /**
+     * Tries to remove an administrator of a business by calling the /businesses/{id}/removeAdministrator endpoint
+     * Checks that the user is removed as an administrator
+     */
+    @Test
+    @Order(5)
+    public void removeAdministrator() throws Exception {
+        Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
+        User retrievedUser = userRepository.findByEmail("DaveSims@gmail.com").get(0);
+        User primaryAdmin = userRepository.findByEmail("jimsmith@gmail.com").get(0);
+
+        //Login to Primary admin account
+        JSONObject loginCredentials = new JSONObject();
+        loginCredentials.put("email", "jimsmith@gmail.com");
+        loginCredentials.put("password", "1337-H%nt3r2");
+
+        //Log back into the main admin account
+        mvc.perform(MockMvcRequestBuilders
+                .post("/login")
+                .content(loginCredentials.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+
+
+        //Trying to remove the primary administrator
+        JSONObject testAdmin = new JSONObject();
+        testAdmin.put("userId", primaryAdmin.getId());
+
+        RequestBuilder removeAdminRequest = MockMvcRequestBuilders
+                .put(String.format("/businesses/%d/removeAdministrator", retrievedBusiness.getId()))
+                .content(testAdmin.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult removeAdminResponse = this.mvc.perform(removeAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = removeAdminResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new CantRemoveAdministratorException(primaryAdmin.getId(), retrievedBusiness.getId()).getMessage(), returnedExceptionString);
+
+
+        //Removing an actual admin
+        testAdmin = new JSONObject();
+        testAdmin.put("userId", retrievedUser.getId());
+
+        mvc.perform(MockMvcRequestBuilders
+                .put(String.format("/businesses/%d/removeAdministrator", retrievedBusiness.getId()))
+                .content(testAdmin.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
+                .andExpect(status().isOk());
+
+        //Get the business after it has been updated
+        retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
+
+        Assertions.assertEquals(1, retrievedBusiness.getAdministrators().size());
+        Assertions.assertEquals("jimsmith@gmail.com", retrievedBusiness.getAdministrators().get(0).getEmail());
+
+
+
+        //Trying to remove a user who is not an admin (The user that was just removed as an admin)
+        testAdmin = new JSONObject();
+        testAdmin.put("userId", retrievedUser.getId());
+
+        removeAdminRequest = MockMvcRequestBuilders
+                .put(String.format("/businesses/%d/removeAdministrator", retrievedBusiness.getId()))
+                .content(testAdmin.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+
+        removeAdminResponse = this.mvc.perform(removeAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        returnedExceptionString = removeAdminResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new UserNotAdministratorException(retrievedUser.getId(), retrievedBusiness.getId()).getMessage(), returnedExceptionString);
+    }
 }
