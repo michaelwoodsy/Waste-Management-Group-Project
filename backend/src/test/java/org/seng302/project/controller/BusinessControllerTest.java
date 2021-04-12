@@ -71,7 +71,7 @@ public class BusinessControllerTest {
         JSONObject testUserJson = new JSONObject();
         testUserJson.put("firstName", "Jim");
         testUserJson.put("lastName", "Smith");
-        testUserJson.put("email", "jimsmith99@gmail.com");
+        testUserJson.put("email", "jimsmith@gmail.com");
         testUserJson.put("dateOfBirth", "1999-04-27");
         testUserJson.put("homeAddress", "4 Rountree Street, Upper Riccarton");
         testUserJson.put("password", "1337-H%nt3r2");
@@ -102,7 +102,7 @@ public class BusinessControllerTest {
 
         JSONObject testBusinessJson = createTestBusiness();
 
-        User loggedInUser = userRepository.findByEmail("jimsmith99@gmail.com").get(0);
+        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
 
         testBusinessJson.put("primaryAdministratorId", loggedInUser.getId());
 
@@ -111,7 +111,7 @@ public class BusinessControllerTest {
                         .content(testBusinessJson.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .with(httpBasic("jimsmith99@gmail.com", "1337-H%nt3r2")))
+                        .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
                         .andExpect(status().isCreated());
 
 
@@ -141,6 +141,8 @@ public class BusinessControllerTest {
     public void tryMissingRequiredFields() throws Exception {
 
         JSONObject testBusiness = createTestBusiness();
+        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
+        testBusiness.put("primaryAdministratorId", loggedInUser.getId());
 
         //Name field empty
         testBusiness.put("name", "");
@@ -149,7 +151,7 @@ public class BusinessControllerTest {
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith99@gmail.com", "1337-H%nt3r2"));
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
         MvcResult postUserResponse = this.mvc.perform(postUserRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
@@ -160,13 +162,15 @@ public class BusinessControllerTest {
 
         //address field empty
         testBusiness = createTestBusiness();
+        testBusiness.put("primaryAdministratorId", loggedInUser.getId());
+
         testBusiness.put("address", "");
         postUserRequest = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith99@gmail.com", "1337-H%nt3r2"));
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
         postUserResponse = this.mvc.perform(postUserRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
@@ -177,13 +181,15 @@ public class BusinessControllerTest {
 
         //businessType field empty
         testBusiness = createTestBusiness();
+        testBusiness.put("primaryAdministratorId", loggedInUser.getId());
+
         testBusiness.put("businessType", "");
         postUserRequest = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith99@gmail.com", "1337-H%nt3r2"));
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
         postUserResponse = this.mvc.perform(postUserRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
@@ -194,6 +200,8 @@ public class BusinessControllerTest {
 
         //All required fields empty (businessType is tested after)
         testBusiness = createTestBusiness();
+        testBusiness.put("primaryAdministratorId", loggedInUser.getId());
+
         testBusiness.put("name", "");
         testBusiness.put("address", "");
         testBusiness.put("bussinessType", "");
@@ -202,7 +210,7 @@ public class BusinessControllerTest {
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith99@gmail.com", "1337-H%nt3r2"));
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
         postUserResponse = this.mvc.perform(postUserRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
@@ -226,7 +234,7 @@ public class BusinessControllerTest {
                 .get(String.format("/businesses/%d", testBusiness.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith99@gmail.com", "1337-H%nt3r2"));
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
         MvcResult getBusinessResponse = this.mvc.perform(getBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
@@ -235,7 +243,7 @@ public class BusinessControllerTest {
         String returnedBusinessString = getBusinessResponse.getResponse().getContentAsString();
         JSONObject returnedBusiness = new JSONObject(returnedBusinessString);
 
-        User loggedInUser = userRepository.findByEmail("jimsmith99@gmail.com").get(0);
+        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
 
         Assertions.assertNotNull(returnedBusiness.getString("id"));
         Assertions.assertEquals("Lumbridge General Store", returnedBusiness.getString("name"));
@@ -279,7 +287,7 @@ public class BusinessControllerTest {
                 .content(testUserJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith99@gmail.com", "1337-H%nt3r2")))
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
                 .andExpect(status().isCreated());
 
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
@@ -290,7 +298,7 @@ public class BusinessControllerTest {
         User retrievedUser = userRepository.findByEmail("DaveSims@gmail.com").get(0);
 
         JSONObject loginCredentials = new JSONObject();
-        loginCredentials.put("email", "jimsmith99@gmail.com");
+        loginCredentials.put("email", "jimsmith@gmail.com");
         loginCredentials.put("password", "1337-H%nt3r2");
 
         //Log back into the main admin account
@@ -311,7 +319,7 @@ public class BusinessControllerTest {
                 .content(testAdmin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith99@gmail.com", "1337-H%nt3r2")))
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
                 .andExpect(status().isOk());
 
         Assertions.assertEquals(2, retrievedBusiness.getAdministrators().size());
