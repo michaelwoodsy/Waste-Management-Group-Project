@@ -21,7 +21,7 @@
                 <span class="navbar-text">
 
                   <!-- Logged in user links -->
-                  <router-link class="nav-link d-inline" :to="profileRoute">Profile</router-link>
+                  <router-link v-if="isLoggedIn" class="nav-link d-inline" :to="profileRoute">Profile</router-link>
                   <user-profile-links v-if="isLoggedIn"/>
 
                   <!-- If not logged in, Login and register link -->
