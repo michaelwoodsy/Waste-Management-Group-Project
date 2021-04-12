@@ -117,7 +117,7 @@ public class BusinessController {
         Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
         //Checks if the user preforming the action is the primary administrator of the business
-        if(CurrentUserController.GetInstance().getId() != currBusiness.getPrimaryAdministratorId()) {
+        if(CurrentUserController.GetInstance().getUser().getId() != currBusiness.getPrimaryAdministratorId()) {
             ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
             logger.error(exception.getMessage());
             throw exception;
@@ -154,7 +154,7 @@ public class BusinessController {
         Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
         //Checks if the user preforming the action is the primary administrator of the business
-        if(CurrentUserController.GetInstance().getId() != currBusiness.getPrimaryAdministratorId()) {
+        if(CurrentUserController.GetInstance().getUser().getId() != currBusiness.getPrimaryAdministratorId()) {
             ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
             logger.error(exception.getMessage());
             throw exception;
