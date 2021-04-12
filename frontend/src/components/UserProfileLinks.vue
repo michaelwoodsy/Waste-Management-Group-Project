@@ -16,7 +16,6 @@
 
     <!-- Dropdown menu when name is clicked -->
     <div class="dropdown-menu dropdown-menu-left dropdown-menu-sm-right">
-
       <!-- Change to business account menu -->
       <div v-if="businessAccounts.length > 0">
         <h6 class="dropdown-header">Businesses</h6>

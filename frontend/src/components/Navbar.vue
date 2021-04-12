@@ -21,6 +21,7 @@
                 <span class="navbar-text">
 
                   <!-- Logged in user links -->
+                  <router-link class="nav-link d-inline" :to="profileRoute">Profile</router-link>
                   <user-profile-links v-if="isLoggedIn"/>
 
                   <!-- If not logged in, Login and register link -->
@@ -53,7 +54,17 @@ import UserProfileLinks from '@/components/UserProfileLinks'
            */
           isLoggedIn () {
             return this.$root.$data.user.state.loggedIn
-          }
+          },
+          /** Returns the user's profile url if acting as user,
+           * or the business profile if acting as a business **/
+          profileRoute () {
+            if (this.$root.$data.user.state.actingAs.type === "business") {
+              return `businesses/${this.$root.$data.user.state.actingAs.id}`;
+            } else {
+              return `users/${this.$root.$data.user.state.userId}`;
+            }
+
+          },
         }
     }
 </script>
