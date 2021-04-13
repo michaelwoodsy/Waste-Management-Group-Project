@@ -3,7 +3,7 @@
 <template>
   <div class="btn-group">
     <!-- Image and name -->
-    <span class="float-right d-inline pointer"  data-toggle="dropdown">
+    <span class="nav-item"  data-toggle="dropdown">
       <!-- Profile photo -->
       <img
           class="img-fluid profile-image rounded-circle mr-1"
@@ -48,8 +48,7 @@
         <div class="dropdown-divider"/>
       </div>
 
-      <!-- Profile and logout section -->
-      <router-link class="dropdown-item" :to="userProfileRoute">My Profile</router-link>
+      <!-- Logout section -->
       <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
     </div>
 
@@ -60,11 +59,6 @@
 export default {
   name: "UserProfileLinks",
   computed: {
-    /** Returns the users profile url **/
-    userProfileRoute () {
-      return `users/${this.$root.$data.user.state.userId}`;
-    },
-
     /**
      * Current actor
      * Returns {name, id, type}
