@@ -540,7 +540,7 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(13)
-    public void removePrimartAdministrator() throws Exception {
+    public void removeAdministratorWhenNotPrimaryAdmin() throws Exception {
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
 
         //Log into the other account so we can test removing an administrator from a business when you are not the primary administrator
