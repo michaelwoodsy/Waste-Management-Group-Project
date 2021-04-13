@@ -45,7 +45,7 @@ public class Business {
     }
 
     @Id // this field (attribute) is the table primary key
-    @GeneratedValue // autoincrement the ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
     @Column(name = "business_id")
     public Integer getId() {
         return this.id;
