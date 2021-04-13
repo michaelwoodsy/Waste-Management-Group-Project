@@ -2,117 +2,85 @@
   <div>
 
     <login-required
-        page="view a users profile page"
+        page="view a business's profile page"
         v-if="!isLoggedIn"
     />
 
     <div v-else>
-
       <div class="row">
         <div class="col-12 text-center mb-2">
-          <h2>{{ firstName }} {{ lastName }}</h2>
+          <h2>{{ name }}</h2>
         </div>
       </div>
 
 
-      <!-- First Name -->
+      <!-- Name of Business -->
       <div class="row">
         <div class="col-6 text-right font-weight-bold">
-          <p>First Name: </p>
+          <p>Name of Business: </p>
         </div>
         <div class="col-6">
-          <p>{{ firstName }} </p>
+          <p>{{ name }}</p>
         </div>
       </div>
 
-      <!-- Middle Name -->
+      <!-- Description -->
       <div class="row">
         <div class="col-6 text-right font-weight-bold">
-          <p>Middle Name: </p>
+          <p>Description: </p>
         </div>
         <div class="col-6">
-          <p>{{ middleName }} </p>
+          <p>{{ description }}</p>
         </div>
       </div>
 
-      <!-- Last Name -->
+      <!-- Address-->
       <div class="row">
         <div class="col-6 text-right font-weight-bold">
-          <p>Last Name: </p>
+          <p>Address: </p>
         </div>
         <div class="col-6">
-          <p>{{ lastName }} </p>
+          <p>{{ address }}</p>
         </div>
       </div>
 
-      <!-- Nickname -->
+      <!-- Type -->
       <div class="row">
         <div class="col-6 text-right font-weight-bold">
-          <p>Nickname: </p>
+          <p>Type: </p>
         </div>
         <div class="col-6">
-          <p>{{ nickName }} </p>
+          <p>{{ businessType }}</p>
         </div>
       </div>
 
-      <!-- Bio -->
+      <!-- Date of Registration -->
       <div class="row">
         <div class="col-6 text-right font-weight-bold">
-          <p>Bio: </p>
+          <p>Date of Registration: </p>
         </div>
         <div class="col-6">
-          <p>{{ bio }} </p>
+          <p>Registered since: {{dateJoined}} ({{dateSinceJoin}})</p>
         </div>
       </div>
 
-      <!-- Email -->
+      <!-- Administrators -->
       <div class="row">
-        <div class="col-6 text-right font-weight-bold ">
-          <p>Email: </p>
+        <div class="col-6 text-right font-weight-bold">
+          <p>Administrators: </p>
         </div>
         <div class="col-6">
-          <p>{{ email }} </p>
-        </div>
-      </div>
-
-      <!-- Home Address -->
-      <div class="row">
-        <div class="col-6 text-right font-weight-bold">
-          <p>Location: </p>
-        </div>
-        <div class="col-6">
-          <p>{{ homeAddress }} </p>
-        </div>
-      </div>
-
-      <!-- Member Since -->
-      <div class="row">
-        <div class="col-6 text-right font-weight-bold">
-          <p>Member Since: </p>
-        </div>
-        <div class="col-6 ">
-          <p>{{dateJoined}} ({{dateSinceJoin}}) </p>
-        </div>
-      </div>
-
-      <!-- Primary Admin to Business links -->
-      <div class="row" v-if="isPrimaryAdmin">
-        <div class="col-6 text-right font-weight-bold">
-          <p>Primary Administrator of: </p>
-        </div>
-        <div class="col-6 ">
           <table>
-            <tr v-for="(business, index) in primaryAdminOf" :key="index">
+            <tr v-for="(admin, index) in administrators" :key="index">
               <td>
-                <router-link class="nav-link d-inline" :to="`/businesses/${business.id}`">
-                  {{ business.name }}
+                <router-link class="nav-link d-inline" :to="`/users/${admin.id}`">
+                  {{ admin.firstName }} {{ admin.lastName }}
                 </router-link>
               </td>
             </tr>
           </table>
         </div>
       </div>
-
     </div>
 
   </div>
@@ -120,24 +88,24 @@
 
 <script>
 
-import { User } from '@/Api'
+import {Business} from '@/Api';
 import LoginRequired from "./LoginRequired";
 
 export default {
-  name: "ProfilePage",
+  name: "BusinessProfilePage",
   props: {
     msg: String
   },
   mounted() {
-    User.getUserData(this.userId).then((response) => this.profile(response))
+    Business.getBusinessData(this.businessId).then((response) => this.profile(response))
   },
   computed: {
     /**
-     * Gets the users' ID
+     * Gets the business ID
      * @returns {any}
      */
-    userId () {
-      return this.$route.params.userId
+    businessId() {
+      return this.$route.params.businessId;
     },
     /**
      * Checks to see if user is logged in currently
@@ -145,50 +113,40 @@ export default {
      */
     isLoggedIn () {
       return this.$root.$data.user.state.loggedIn
-    },
-    /**
-     * Returns true if the user is primary admin of any businesses
-     * @returns {boolean|*}
-     */
-    isPrimaryAdmin () {
-      return this.primaryAdminOf.length > 0;
-    },
+    }
   },
   components: {
     LoginRequired
   },
   methods: {
+
     /**
      * Assigns the data from the response to the profile variables
      * @param response is the response from the server
      */
     profile(response) {
-      this.firstName = response.data.firstName
-      this.middleName = response.data.middleName
-      this.lastName = response.data.lastName
-      this.nickName = response.data.nickname
-      this.bio = response.data.bio
-      this.email = response.data.email
+      this.name = response.data.name;
+      this.description = response.data.description;
+      this.businessType = response.data.businessType;
+      this.administrators = response.data.administrators;
 
 
       //Need to remove the street and number part of this address, just splice from the first ','
-      if (response.data.homeAddress.indexOf(",") === -1) this.homeAddress = response.data.homeAddress
-      else this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",")+2)
+      if (response.data.address.indexOf(",") === -1) this.address = response.data.address
+      else this.address = response.data.address.slice(response.data.address.indexOf(",")+2)
 
       //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
       /*
       this.homeAddress = ''
-      if (response.data.homeAddress.city !== '') this.homeAddress += `${response.data.homeAddress.city}, `
-      if (response.data.homeAddress.region !== '') this.homeAddress += `${response.data.homeAddress.region}, `
-      this.homeAddress += response.data.homeAddress.country
-      if (response.data.homeAddress.postcode !== '') this.homeAddress += `, ${response.data.homeAddress.postcode}`
+      if (response.data.address.city !== '') this.address += `${response.data.address.city}, `
+      if (response.data.address.region !== '') this.address += `${response.data.address.region}, `
+      this.address += response.data.address.country
+      if (response.data.address.postcode !== '') this.address += `, ${response.data.address.postcode}`
       */
 
       this.dateJoined = response.data.created
       this.timeCalculator(Date.parse(this.dateJoined))
       this.dateJoined = this.dateJoined.substring(0, 10)
-      this.businessesAdministered = response.data.businessesAdministered
-      this.setPrimaryAdminList()
     },
 
     /**
@@ -241,37 +199,22 @@ export default {
           break
       }
       this.dateSinceJoin = text
-    },
-
-    /**
-     * Creates list of businesses that user is primary admin of
-     */
-    setPrimaryAdminList() {
-      for (const business of this.businessesAdministered) {
-        if (business.primaryAdministratorId === parseInt(this.$route.params.userId)) {
-          this.primaryAdminOf.push(business);
-        }
-      }
     }
-
   },
-
   data() {
 
+    // Filled with the test data taken from the swagger.io API
     return {
-      firstName: null,
-      middleName: null,
-      lastName: null,
-      nickName: null,
-      bio: null,
-      email: null,
-      homeAddress: null,
+      name: null,
+      description: null,
+      businessType: null,
+      address: null,
       dateJoined: null,
       dateSinceJoin: null,
-      businessesAdministered: [],
-      primaryAdminOf: []
+      administrators: null,
     }
   }
-}
 
+}
 </script>
+

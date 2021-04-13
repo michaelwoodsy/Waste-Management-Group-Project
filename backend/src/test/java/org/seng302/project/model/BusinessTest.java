@@ -76,7 +76,7 @@ public class BusinessTest {
         assertEquals("Retail Trade", retrievedBusiness.getBusinessType());
         assertEquals(1, retrievedBusiness.getPrimaryAdministratorId());
         assertTrue(retrievedBusiness.getCreated().isBefore(LocalDateTime.now()));
-        assertTrue(retrievedBusiness.getCreated().isAfter(LocalDateTime.now().minusSeconds(1)));
+        assertTrue(retrievedBusiness.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
         assertTrue(BusinessType.checkType(retrievedBusiness.getBusinessType()));
     }
 
@@ -88,8 +88,8 @@ public class BusinessTest {
         Business testBusiness = new Business("Test Business", "This business is a test.", "5 Lab Test Ave, New Zealand",
                 "Retail Trade", 1);
         businessRepository.save(testBusiness);
-        User testUser = new User("John", "Smith", "Hector", "Jonny",
-                "Likes long walks on the beach", "johnsmith99@gmail.com",
+        User testUser = new User("John", "Smith", "Josh", "Jonny",
+                "Likes long walks on the beach", "jonnyj99@gmail.com",
                 "1999-04-27", "+64 3 555 0129", "4 Rountree Street, Upper Riccarton",
                 "1337-H%nt3r2");
         userRepository.save(testUser);
@@ -97,13 +97,13 @@ public class BusinessTest {
         assertEquals(0, testBusiness.getAdministrators().size());
         assertEquals(0, testUser.getBusinessesAdministered().size());
 
-        testUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
+        testUser = userRepository.findByEmail("jonnyj99@gmail.com").get(0);
         testBusiness = businessRepository.findByName("Test Business").get(0);
 
         testBusiness.addAdministrator(testUser);
         businessRepository.save(testBusiness);
 
-        User retrievedUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
+        User retrievedUser = userRepository.findByEmail("jonnyj99@gmail.com").get(0);
         Business retrievedBusiness = businessRepository.findByName("Test Business").get(0);
 
         assertEquals(1, retrievedBusiness.getAdministrators().size());

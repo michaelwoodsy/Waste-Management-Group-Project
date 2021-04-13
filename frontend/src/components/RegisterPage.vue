@@ -495,7 +495,9 @@ export default {
                 this.$router.push({name: 'user'})
               })
               .catch((err) => {
-                this.msg.errorChecks = err.response.data.slice(err.response.data.indexOf(":")+2)
+                this.msg.errorChecks = err.response
+                    ? err.response.data.slice(err.response.data.indexOf(":")+2)
+                    : err
               });
     },
   }

@@ -7,6 +7,8 @@ import RegisterPage from "../components/RegisterPage";
 import LoginPage from "../components/LoginPage";
 import Home from "../components/Home";
 import ProfilePage from "../components/ProfilePage";
+import BusinessProfilePage from "@/components/BusinessProfilePage";
+import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 
 const routes = [
     {
@@ -38,8 +40,19 @@ const routes = [
         path: '/home', //TODO: change to '/' after user logged in
         name: 'user',
         component: Home
+    },
+    {
+        path: '/businesses/:businessId',
+        name: 'viewBusiness',
+        component: BusinessProfilePage
+    },
+    {
+        path: '/businesses/',
+        name: 'registerBusiness',
+        component: RegisterBusinessPage
     }
 ];
 
+const base = process.env.VUE_APP_BASE_URL || '/';
 
-Vue.use(Router, {routes});
+Vue.use(Router, {routes, base});

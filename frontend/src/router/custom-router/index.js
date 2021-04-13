@@ -12,7 +12,8 @@ export default {
         Vue.component('RouterView', Router);
         Vue.component('RouterLink', RouterLink);
 
-        let parsedRoutes = parseRouteParams([...options.routes]);
+        // Parse the routes
+        let parsedRoutes = parseRouteParams([...options.routes], options.base);
 
         // Define routes globally
         Vue.prototype.$routes = parsedRoutes;
@@ -24,7 +25,8 @@ export default {
                 } else {
                     historyPush(route.path || route)
                 }
-            }
+            },
+            base: options.base
         };
         Vue.prototype.$route = findRoute(parsedRoutes, window.location.pathname);
 
@@ -45,9 +47,9 @@ export default {
  * Parse parameters and add them in place
  * @param routes Routes object
  */
-const parseRouteParams = (routes) => {
+const parseRouteParams = (routes, base) => {
     routes.forEach(route => {
-        route.parsedRoute = new ParsedRoute(route)
+        route.parsedRoute = new ParsedRoute(route, base)
     });
     return routes
 };
