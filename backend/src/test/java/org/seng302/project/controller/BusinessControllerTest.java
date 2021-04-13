@@ -127,7 +127,7 @@ public class BusinessControllerTest {
         Assertions.assertEquals("A one-stop shop for all your adventuring needs", retrievedBusiness.getDescription());
         Assertions.assertEquals("3/24 Ilam Road, Christchurch, Canterbury, New Zealand, 90210", retrievedBusiness.getAddress());
         Assertions.assertEquals("Accommodation and Food Services", retrievedBusiness.getBusinessType());
-
+        Assertions.assertEquals("jimsmith@gmail.com", retrievedBusiness.getAdministrators().get(0).getEmail());
 
         Assertions.assertTrue(retrievedBusiness.getCreated().isBefore(LocalDateTime.now()));
         Assertions.assertTrue(retrievedBusiness.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
