@@ -4,8 +4,8 @@ sonarqubeScanner(
         serverUrl:  'https://csse-s302g2.canterbury.ac.nz/sonarqube/',
         token: "TOKEN_GENERATED_FROM_SONARQUBE",
         options : {
-            'sonar.projectKey': 'team-1100-client',
-            'sonar.projectName': 'Team 1100 - Client',
+            'sonar.projectKey': 'team-200-client',
+            'sonar.projectName': 'Team 200 - Client',
             "sonar.sourceEncoding": "UTF-8",
             'sonar.sources': 'src',
             'sonar.tests': 'src/test',
