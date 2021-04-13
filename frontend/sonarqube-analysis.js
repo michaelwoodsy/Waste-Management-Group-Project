@@ -1,7 +1,7 @@
 const sonarqubeScanner =  require('sonarqube-scanner');
 sonarqubeScanner(
     {
-        serverUrl:  'https://csse-s302g12.canterbury.ac.nz/sonarqube/',
+        serverUrl:  'https://csse-s302g2.canterbury.ac.nz/sonarqube/',
         token: "TOKEN_GENERATED_FROM_SONARQUBE",
         options : {
             'sonar.projectKey': 'team-1100-client',
