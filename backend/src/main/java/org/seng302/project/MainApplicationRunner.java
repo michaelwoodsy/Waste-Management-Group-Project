@@ -81,7 +81,7 @@ public class MainApplicationRunner implements ApplicationRunner {
         logger.info("Startup application with {}", args);
         if (Constants.DEV_MODE) {
             if (userRepository.count() == 0) {
-                logger.info("Adding sample to data to user repository");
+                logger.info("Adding sample data to user repository");
                 JSONObject data = (JSONObject) parser.parse(new FileReader("./src/main/resources/user_data.json"));
                 JSONArray dataArray = (JSONArray) data.get("data");
                 for (Object object : dataArray) {
@@ -107,7 +107,7 @@ public class MainApplicationRunner implements ApplicationRunner {
 
         //Creating a test business to be retrieved
         if (businessRepository.count() == 0) {
-            logger.info("Adding sample to data to business repository");
+            logger.info("Adding sample data to business repository");
             Business newBusiness = new Business("Myrtle's Motel", "Accommodation by Myrtle", "6121 Autumn Leaf Trail", "Accommodation and Food Services", 1);
             businessRepository.save(newBusiness);
 
