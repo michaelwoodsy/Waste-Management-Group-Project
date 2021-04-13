@@ -55,7 +55,6 @@ public class BusinessControllerTest {
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
-                .apply(sharedHttpSession()) // use this session across requests
                 .build();
     }
 

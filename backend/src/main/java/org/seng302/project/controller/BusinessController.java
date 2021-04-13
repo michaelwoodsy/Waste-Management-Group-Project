@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import java.security.Principal;
 import java.util.*;
 
 /**
@@ -119,7 +120,7 @@ public class BusinessController {
      */
     @PutMapping("/businesses/{id}/makeAdministrator")
     @ResponseStatus(HttpStatus.OK)
-    public void addNewAdministrator(@PathVariable int id, @RequestBody JSONObject json) {
+    public void addNewAdministrator(@PathVariable int id, @RequestBody JSONObject json, Principal userAuth) {
         try {
             int userId = (int) json.getAsNumber("userId");
             logger.info(String.format("Request to add user with id %d as administrator for business with id %d", userId, id));
@@ -128,7 +129,7 @@ public class BusinessController {
             Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
             //Checks if the user preforming the action is the primary administrator of the business
-            if(CurrentUserController.GetInstance().getId(RequestContextHolder.currentRequestAttributes().getSessionId()) != currBusiness.getPrimaryAdministratorId()) {
+            if(userRepository.findByEmail(userAuth.getName()).get(0).getId() != currBusiness.getPrimaryAdministratorId()) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
                 logger.error(exception.getMessage());
                 throw exception;
@@ -161,7 +162,7 @@ public class BusinessController {
      */
     @PutMapping("/businesses/{id}/removeAdministrator")
     @ResponseStatus(HttpStatus.OK)
-    public void removeAdministrator(@PathVariable int id, @RequestBody JSONObject json) {
+    public void removeAdministrator(@PathVariable int id, @RequestBody JSONObject json, Principal userAuth) {
         logger.info(String.format("Request to remove user with id %d as administrator for business", id));
 
         try {
@@ -171,7 +172,7 @@ public class BusinessController {
             Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
             //Checks if the user preforming the action is the primary administrator of the business
-            if(CurrentUserController.GetInstance().getId(RequestContextHolder.currentRequestAttributes().getSessionId()) != currBusiness.getPrimaryAdministratorId()) {
+            if(userRepository.findByEmail(userAuth.getName()).get(0).getId() != currBusiness.getPrimaryAdministratorId()) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
                 logger.error(exception.getMessage());
                 throw exception;

@@ -67,12 +67,6 @@ public class UserController {
             JSONObject response = new JSONObject();
             response.put("userId", userId);
             logger.info("Login successful");
-
-            //Sets the currentley logged in user, with cookie. Used when a controller needs to see who is currently logged in
-            CurrentUserController.GetInstance().setId(
-                    userRepository.findByEmail(loginCredentials.getEmail()).get(0).getId(),
-                    RequestContextHolder.currentRequestAttributes().getSessionId());
-
             return response;
         } catch (AuthenticationException authException) {
             InvalidLoginException loginException = new InvalidLoginException();
