@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.*;
 
@@ -110,14 +111,14 @@ public class BusinessController {
     @PutMapping("/businesses/{id}/makeAdministrator")
     @ResponseStatus(HttpStatus.OK)
     public void addNewAdministrator(@PathVariable int id, @RequestBody JSONObject json) {
-        logger.info(String.format("Request to add user with id %d as administrator for business", id));
-
         int userId = (int) json.getAsNumber("userId");
+        logger.info(String.format("Request to add user with id %d as administrator for business with id %d", userId, id));
+
         User currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
         Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
         //Checks if the user preforming the action is the primary administrator of the business
-        if(CurrentUserController.GetInstance().getUser().getId() != currBusiness.getPrimaryAdministratorId()) {
+        if(CurrentUserController.GetInstance().getId(RequestContextHolder.currentRequestAttributes().getSessionId()) != currBusiness.getPrimaryAdministratorId()) {
             ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
             logger.error(exception.getMessage());
             throw exception;
@@ -153,8 +154,9 @@ public class BusinessController {
 
         Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
+
         //Checks if the user preforming the action is the primary administrator of the business
-        if(CurrentUserController.GetInstance().getUser().getId() != currBusiness.getPrimaryAdministratorId()) {
+        if(CurrentUserController.GetInstance().getId(RequestContextHolder.currentRequestAttributes().getSessionId()) != currBusiness.getPrimaryAdministratorId()) {
             ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
             logger.error(exception.getMessage());
             throw exception;

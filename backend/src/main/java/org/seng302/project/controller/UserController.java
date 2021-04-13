@@ -18,7 +18,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.util.WebUtils;
 
+import javax.servlet.http.Cookie;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -64,10 +67,11 @@ public class UserController {
             JSONObject response = new JSONObject();
             response.put("userId", userId);
             logger.info("Login successful");
-            //Sets the currentley logged in user. Used when a controller needs to see who is currently logged in
-            CurrentUserController.GetInstance().setUser(userRepository.findByEmail(loginCredentials.getEmail()).get(0));
 
-            System.out.println(CurrentUserController.GetInstance().getUser().getId());
+            //Sets the currentley logged in user, with cookie. Used when a controller needs to see who is currently logged in
+            CurrentUserController.GetInstance().setId(
+                    userRepository.findByEmail(loginCredentials.getEmail()).get(0).getId(),
+                    RequestContextHolder.currentRequestAttributes().getSessionId());
 
             return response;
         } catch (AuthenticationException authException) {

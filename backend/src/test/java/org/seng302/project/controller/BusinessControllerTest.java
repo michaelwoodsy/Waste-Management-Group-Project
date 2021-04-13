@@ -27,6 +27,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
+
 
 /**
  * Unit tests for BusinessController
@@ -53,6 +55,7 @@ public class BusinessControllerTest {
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
+                .apply(sharedHttpSession()) // use this session across requests
                 .build();
     }
 
@@ -308,6 +311,7 @@ public class BusinessControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+
 
         JSONObject testAdmin = new JSONObject();
         testAdmin.put("userId", retrievedUser.getId());
