@@ -147,7 +147,8 @@ public class BusinessController {
             businessRepository.save(currBusiness);
 
             logger.info(String.format("Successfully added Administrator %d to business %d", currUser.getId(), currBusiness.getId()));
-        } catch (ForbiddenAdministratorActionException | AdministratorAlreadyExistsException handledException) {
+        } catch (NoUserExistsException | NoBusinessExistsException | ForbiddenAdministratorActionException |
+                AdministratorAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while adding new business administrator: %s", unhandledException.getMessage()));
@@ -203,7 +204,7 @@ public class BusinessController {
 
             logger.info(String.format("Successfully removed administrator %d from business %d", currUser.getId(), currBusiness.getId()));
 
-        } catch (ForbiddenAdministratorActionException | CantRemoveAdministratorException
+        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | CantRemoveAdministratorException
                 | UserNotAdministratorException | NoUserExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
