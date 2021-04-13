@@ -136,12 +136,12 @@ public class BusinessControllerTest {
 
 
     /**
-     * Tries creating a business with missing required fields: name, address, and businessType.
+     * Tries creating a business with missing required field: name
      * Checks that we receive a 400 response.
      */
     @Test
     @Order(2)
-    public void tryMissingRequiredFields() throws Exception {
+    public void tryNameFieldEmpty() throws Exception {
 
         JSONObject testBusiness = createTestBusiness();
         User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
@@ -162,73 +162,104 @@ public class BusinessControllerTest {
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new RequiredFieldsMissingException().getMessage(), returnedExceptionString);
+    }
 
-        //address field empty
-        testBusiness = createTestBusiness();
+
+    /**
+     * Tries creating a business with missing required field: address
+     * Checks that we receive a 400 response.
+     */
+    @Test
+    @Order(3)
+    public void tryAddressFieldEmpty() throws Exception {
+        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
+
+        JSONObject testBusiness = createTestBusiness();
         testBusiness.put("primaryAdministratorId", loggedInUser.getId());
 
         testBusiness.put("address", "");
-        postUserRequest = MockMvcRequestBuilders
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        postUserResponse = this.mvc.perform(postUserRequest)
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
-        returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new RequiredFieldsMissingException().getMessage(), returnedExceptionString);
+    }
 
-        //businessType field empty
-        testBusiness = createTestBusiness();
+
+    /**
+     * Tries creating a business with missing required field: businessType
+     * Checks that we receive a 400 response.
+     */
+    @Test
+    @Order(4)
+    public void tryTypeFieldEmpty() throws Exception {
+        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
+
+        JSONObject testBusiness = createTestBusiness();
         testBusiness.put("primaryAdministratorId", loggedInUser.getId());
 
         testBusiness.put("businessType", "");
-        postUserRequest = MockMvcRequestBuilders
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        postUserResponse = this.mvc.perform(postUserRequest)
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
-        returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new RequiredFieldsMissingException().getMessage(), returnedExceptionString);
+    }
 
-        //All required fields empty (businessType is tested after)
-        testBusiness = createTestBusiness();
+
+    /**
+     * Tries creating a business with all required fields missing: name, address, type
+     * Checks that we receive a 400 response.
+     */
+    @Test
+    @Order(5)
+    public void tryAllRequiredFieldsEmpty() throws Exception {
+        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
+
+        JSONObject testBusiness = createTestBusiness();
         testBusiness.put("primaryAdministratorId", loggedInUser.getId());
 
         testBusiness.put("name", "");
         testBusiness.put("address", "");
-        testBusiness.put("bussinessType", "");
-        postUserRequest = MockMvcRequestBuilders
+        testBusiness.put("businessType", "");
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        postUserResponse = this.mvc.perform(postUserRequest)
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
-        returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new RequiredFieldsMissingException().getMessage(), returnedExceptionString);
     }
+
 
     /**
      * Tries to get a business by calling the /businesses/{id} endpoint
      * Checks that we retrieve the correct user
      */
     @Test
-    @Order(3)
+    @Order(6)
     public void getBusiness() throws Exception {
 
         Business testBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
@@ -268,7 +299,7 @@ public class BusinessControllerTest {
      * Checks that the user is added as an administrator
      */
     @Test
-    @Order(4)
+    @Order(7)
     public void addAdministrator() throws Exception {
         //Create Test user to add as administrator
         JSONObject testUserJson = new JSONObject();
@@ -383,7 +414,7 @@ public class BusinessControllerTest {
      * Checks that the user is removed as an administrator
      */
     @Test
-    @Order(5)
+    @Order(8)
     public void removeAdministrator() throws Exception {
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
         User retrievedUser = userRepository.findByEmail("DaveSims@gmail.com").get(0);

@@ -42,38 +42,44 @@ public class BusinessController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createBusiness(@RequestBody Business newBusiness) {
         logger.info("Request to create business");
+        try {
+            //If the primary administrator id is not an id of a user
+            if(userRepository.findById(newBusiness.getPrimaryAdministratorId()).isEmpty()) {
+                NoUserExistsException exception = new NoUserExistsException(newBusiness.getPrimaryAdministratorId());
+                logger.error(exception.getMessage());
+                throw exception;
+            } else {
+                Optional<User> currUser = userRepository.findById(newBusiness.getPrimaryAdministratorId());
+                currUser.ifPresent(newBusiness::addAdministrator);
+            }
 
-        //If the primary administrator id is not an id of a user
-        if(userRepository.findById(newBusiness.getPrimaryAdministratorId()).isEmpty()) {
-            NoUserExistsException exception = new NoUserExistsException(newBusiness.getPrimaryAdministratorId());
-            logger.error(exception.getMessage());
-            throw exception;
-        } else {
-            Optional<User> currUser = userRepository.findById(newBusiness.getPrimaryAdministratorId());
-            currUser.ifPresent(newBusiness::addAdministrator);
+            //If any of the required fields are empty
+            if (    newBusiness.getName().equals("") ||
+                    newBusiness.getAddress().equals("") ||
+                    newBusiness.getBusinessType().equals("")) {
+                RequiredFieldsMissingException exception = new RequiredFieldsMissingException();
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            //If business type is not one of the specified business types
+            if(!newBusiness.getBusinessType().equals("Accommodation and Food Services") &&
+                    !newBusiness.getBusinessType().equals("Retail Trade") &&
+                    !newBusiness.getBusinessType().equals("Charitable organisation") &&
+                    !newBusiness.getBusinessType().equals("Non-profit organisation")) {
+                NoBusinessTypeExistsException exception = new NoBusinessTypeExistsException(newBusiness.getBusinessType());
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            businessRepository.save(newBusiness);
+            logger.info(String.format("Successful creation of business %d", newBusiness.getId()));
+        } catch (NoUserExistsException | RequiredFieldsMissingException | NoBusinessTypeExistsException handledException) {
+            throw handledException;
+        } catch (Exception unexpectedException) {
+            logger.error(String.format("Unexpected error while creating business: %s", unexpectedException.getMessage()));
+            throw unexpectedException;
         }
-
-        //If any of the required fields are empty
-        if (    newBusiness.getName().equals("") ||
-                newBusiness.getAddress().equals("") ||
-                newBusiness.getBusinessType().equals("")) {
-            RequiredFieldsMissingException exception = new RequiredFieldsMissingException();
-            logger.error(exception.getMessage());
-            throw exception;
-        }
-
-        //If business type is not one of the specified business types
-        if(!newBusiness.getBusinessType().equals("Accommodation and Food Services") &&
-                !newBusiness.getBusinessType().equals("Retail Trade") &&
-                !newBusiness.getBusinessType().equals("Charitable organisation") &&
-                !newBusiness.getBusinessType().equals("Non-profit organisation")) {
-            NoBusinessTypeExistsException exception = new NoBusinessTypeExistsException(newBusiness.getBusinessType());
-            logger.error(exception.getMessage());
-            throw exception;
-        }
-
-        businessRepository.save(newBusiness);
-        logger.info(String.format("Successful creation of business %d", newBusiness.getId()));
     }
 
     /**
@@ -96,8 +102,11 @@ public class BusinessController {
             }
 
             return currBusiness;
-        } catch (NoBusinessExistsException exception) {
-            logger.error(exception.getMessage());
+        } catch (NoBusinessExistsException noBusinessExistsException) {
+            logger.warn(noBusinessExistsException.getMessage());
+            throw noBusinessExistsException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while getting business: %s", exception.getMessage()));
             throw exception;
         }
     }
@@ -111,31 +120,38 @@ public class BusinessController {
     @PutMapping("/businesses/{id}/makeAdministrator")
     @ResponseStatus(HttpStatus.OK)
     public void addNewAdministrator(@PathVariable int id, @RequestBody JSONObject json) {
-        int userId = (int) json.getAsNumber("userId");
-        logger.info(String.format("Request to add user with id %d as administrator for business with id %d", userId, id));
+        try {
+            int userId = (int) json.getAsNumber("userId");
+            logger.info(String.format("Request to add user with id %d as administrator for business with id %d", userId, id));
 
-        User currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
-        Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
+            User currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
+            Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
-        //Checks if the user preforming the action is the primary administrator of the business
-        if(CurrentUserController.GetInstance().getId(RequestContextHolder.currentRequestAttributes().getSessionId()) != currBusiness.getPrimaryAdministratorId()) {
-            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
-            logger.error(exception.getMessage());
-            throw exception;
+            //Checks if the user preforming the action is the primary administrator of the business
+            if(CurrentUserController.GetInstance().getId(RequestContextHolder.currentRequestAttributes().getSessionId()) != currBusiness.getPrimaryAdministratorId()) {
+                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            //Checks if the user us already an administrator
+            if (currBusiness.getAdministrators().contains(currUser)) {
+                AdministratorAlreadyExistsException exception = new AdministratorAlreadyExistsException(userId, id);
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+
+            currBusiness.addAdministrator(currUser);
+
+            businessRepository.save(currBusiness);
+
+            logger.info(String.format("Successfully added Administrator %d to business %d", currUser.getId(), currBusiness.getId()));
+        } catch (ForbiddenAdministratorActionException | AdministratorAlreadyExistsException handledException) {
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while adding new business administrator: %s", unhandledException.getMessage()));
+            throw unhandledException;
         }
-
-        //Checks if the user us already an administrator
-        if (currBusiness.getAdministrators().contains(currUser)) {
-            AdministratorAlreadyExistsException exception = new AdministratorAlreadyExistsException(userId, id);
-            logger.error(exception.getMessage());
-            throw exception;
-        }
-
-        currBusiness.addAdministrator(currUser);
-
-        businessRepository.save(currBusiness);
-
-        logger.info(String.format("Successfully added Administrator %d to business %d", currUser.getId(), currBusiness.getId()));
     }
 
     /**
@@ -148,48 +164,51 @@ public class BusinessController {
     public void removeAdministrator(@PathVariable int id, @RequestBody JSONObject json) {
         logger.info(String.format("Request to remove user with id %d as administrator for business", id));
 
-        int userId = (int) json.getAsNumber("userId");
-        User currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
-
-
-        Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
-
-
-        //Checks if the user preforming the action is the primary administrator of the business
-        if(CurrentUserController.GetInstance().getId(RequestContextHolder.currentRequestAttributes().getSessionId()) != currBusiness.getPrimaryAdministratorId()) {
-            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
-            logger.error(exception.getMessage());
-            throw exception;
-        }
-
-        //Checks if user trying to be removed is the primary administrator
-        if (userId == currBusiness.getPrimaryAdministratorId()) {
-            CantRemoveAdministratorException exception = new CantRemoveAdministratorException(userId, id);
-            logger.error(exception.getMessage());
-            throw exception;
-        }
-
-        //Checks if the user is not an administrator
-        if (!currBusiness.getAdministrators().contains(currUser)) {
-            UserNotAdministratorException exception = new UserNotAdministratorException(userId, id);
-            logger.error(exception.getMessage());
-            throw exception;
-        }
-
         try {
-            currBusiness.removeAdministrator(currUser);
-        } catch (NoUserExistsException exception) {
-            logger.error(exception.getMessage());
-            throw exception;
+            int userId = (int) json.getAsNumber("userId");
+            User currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
+
+            Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
+
+            //Checks if the user preforming the action is the primary administrator of the business
+            if(CurrentUserController.GetInstance().getId(RequestContextHolder.currentRequestAttributes().getSessionId()) != currBusiness.getPrimaryAdministratorId()) {
+                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            //Checks if user trying to be removed is the primary administrator
+            if (userId == currBusiness.getPrimaryAdministratorId()) {
+                CantRemoveAdministratorException exception = new CantRemoveAdministratorException(userId, id);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            //Checks if the user is not an administrator
+            if (!currBusiness.getAdministrators().contains(currUser)) {
+                UserNotAdministratorException exception = new UserNotAdministratorException(userId, id);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            try {
+                currBusiness.removeAdministrator(currUser);
+            } catch (NoUserExistsException exception) {
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            businessRepository.save(currBusiness);
+
+            logger.info(String.format("Successfully removed administrator %d from business %d", currUser.getId(), currBusiness.getId()));
+
+        } catch (ForbiddenAdministratorActionException | CantRemoveAdministratorException
+                | UserNotAdministratorException | NoUserExistsException handledException) {
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while removing business administrator: %s", unhandledException.getMessage()));
+            throw unhandledException;
         }
-
-
-
-
-
-        businessRepository.save(currBusiness);
-
-        logger.info(String.format("Successfully removed Administrator %d from business %d", currUser.getId(), currBusiness.getId()));
     }
 
 }
