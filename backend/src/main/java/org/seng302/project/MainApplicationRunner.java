@@ -114,14 +114,22 @@ public class MainApplicationRunner implements ApplicationRunner {
             logger.info(String.format("Added new business with id %d", businessRepository.findByName("Myrtle's Motel").get(0).getId()));
 
             //Testing for linking to admin pages
-//            User businessAdmin1 = userRepository.getOne(1);
-//            newBusiness.addAdministrator(businessAdmin1);
-//            User businessAdmin2 = userRepository.getOne(2);
-//            newBusiness.addAdministrator(businessAdmin2);
-//            User businessAdmin3 = userRepository.getOne(3);
-//            newBusiness.addAdministrator(businessAdmin3);
-//            businessRepository.save(newBusiness);
+            User businessAdmin1 = userRepository.getOne(1);
+            newBusiness.addAdministrator(businessAdmin1);
+            User businessAdmin2 = userRepository.getOne(2);
+            newBusiness.addAdministrator(businessAdmin2);
+            User businessAdmin3 = userRepository.getOne(3);
+            newBusiness.addAdministrator(businessAdmin3);
+            businessRepository.save(newBusiness);
 
+            //Testing for linking Myrtle to businesses she is primary admin of
+            Business secondBusiness = new Business("Myrtle's Motorbikes", "Buy motorbikes from Myrtle", "6121 Autumn Leaf Trail", "Retail Trade", 1);
+            businessRepository.save(secondBusiness);
+
+            logger.info(String.format("Added new business with id %d", businessRepository.findByName("Myrtle's Motorbikes").get(0).getId()));
+            User myrtle = userRepository.getOne(1);
+            secondBusiness.addAdministrator(myrtle);
+            businessRepository.save(secondBusiness);
         }
 
     }
