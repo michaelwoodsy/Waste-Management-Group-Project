@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.seng302.project.controller.authentication.WebSecurityConfig;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,7 +17,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -36,7 +39,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Unit tests for ProductCatalogueController class.
  */
 @WebMvcTest(controllers = ProductCatalogueController.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@ContextConfiguration(classes = WebSecurityConfig.class)
+// @ContextConfiguration(classes=Application.class)
+// @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class ProductCatalogueControllerTest {
 
     // User that will own a business for tests
@@ -81,6 +86,7 @@ public class ProductCatalogueControllerTest {
         // Create the business
         Business testBusiness = new Business("Business", "A Business", "4 Rountree", "Retail",
                 testUserOwner.getId());
+        testBusiness.setId(1);
         businessId = testBusiness.getId();
 
         // Create a product
