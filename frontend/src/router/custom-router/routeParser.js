@@ -18,12 +18,19 @@ export const findRoute = (routes, routeInfo) => {
 
 
 export class ParsedRoute {
-    constructor (route) {
+    constructor (route, base) {
         this.path = route.path;
         this.query = route.query;
         this.name = route.name;
         this.component = route.component;
-        this.pathParts = this.getPathParts(route.path)
+        this.base = base
+
+        // Work out the path with the base url
+        this.pathWithBase = route.path[0] === '/'
+            ? base + route.path.slice(1)
+            : base + route.path
+
+        this.pathParts = this.getPathParts(this.pathWithBase)
     }
 
     /**

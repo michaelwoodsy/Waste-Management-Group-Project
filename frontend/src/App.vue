@@ -5,6 +5,9 @@
       <Navbar/>
     </header>
 
+    <!-- Global alert popups -->
+    <alerts/>
+
     <body>
       <div class="container-fluid">
         <div class="row">
@@ -25,10 +28,13 @@
 
 <script>
 import Navbar from "./components/Navbar"
+import Alerts from "./components/Alerts"
+
 const app = {
   name: "app",
   components: {
-    Navbar
+    Navbar,
+    Alerts
   }
 };
 

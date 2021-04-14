@@ -19,13 +19,12 @@
                     </li>
                 </ul>
                 <span class="navbar-text">
-                  <!-- Logout and profile link -->
-                    <span class="float-right d-inline" v-if="isLoggedIn">
-                        <router-link class="nav-link d-inline" @click.native="logOut()" to="/login">Logout</router-link> /
-                        <router-link class="nav-link d-inline" :to="userProfileRoute">Profile</router-link>
-                    </span>
+
+                  <!-- Logged in user links -->
+                  <user-profile-links v-if="isLoggedIn"/>
+
                   <!-- If not logged in, Login and register link -->
-                        <span class="float-right d-inline" v-else>
+                    <span class="float-right d-inline" v-else>
                         <router-link class="nav-link d-inline" to="/login">Login</router-link> /
                         <router-link class="nav-link d-inline" to="/register">Register</router-link>
                     </span>
@@ -40,8 +39,13 @@
 </template>
 
 <script>
+import UserProfileLinks from '@/components/UserProfileLinks'
+
     export default {
         name: "Navbar",
+        components: {
+          UserProfileLinks
+        },
         computed: {
           /**
            * Checks if user is logged in
@@ -49,27 +53,10 @@
            */
           isLoggedIn () {
             return this.$root.$data.user.state.loggedIn
-
-          },
-          /**
-           * Returns the users profile url
-           * @returns {string}
-           */
-          userProfileRoute () {
-            return `users/${this.$root.$data.user.state.userId}`;
-          }
-        },
-        methods: {
-          /**
-           * Logs the user out
-           */
-          logOut() {
-            this.$root.$data.user.logout();
           }
         }
     }
 </script>
 
 <style scoped>
-
 </style>

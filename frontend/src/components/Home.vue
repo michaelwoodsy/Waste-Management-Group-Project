@@ -8,7 +8,7 @@
     <div v-else>
       <div class="row">
         <div class="col-12 text-center mb-2">
-          <h2>Hello {{ firstName }}</h2>
+          <h2>Hello {{ name }}</h2>
         </div>
       </div>
       <div class="row">
@@ -43,6 +43,11 @@ export default {
      */
     isLoggedIn () {
       return this.$root.$data.user.state.loggedIn
+    },
+
+    /** Gets the current logged in users name **/
+    name () {
+      return this.$root.$data.user.state.userData.firstName
     }
   },
   components: {

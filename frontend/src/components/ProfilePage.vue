@@ -10,7 +10,7 @@
 
       <div class="row">
         <div class="col-12 text-center mb-2">
-          <h2>User Page</h2>
+          <h2>{{ firstName }} {{ lastName }}</h2>
         </div>
       </div>
 
@@ -95,6 +95,24 @@
         </div>
       </div>
 
+      <!-- Primary Admin to Business links -->
+      <div class="row" v-if="isPrimaryAdmin">
+        <div class="col-6 text-right font-weight-bold">
+          <p>Primary Administrator of: </p>
+        </div>
+        <div class="col-6 ">
+          <table>
+            <tr v-for="(business, index) in primaryAdminOf" :key="index">
+              <td>
+                <router-link class="nav-link d-inline" :to="`/businesses/${business.id}`">
+                  {{ business.name }}
+                </router-link>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -112,7 +130,6 @@ export default {
   },
   mounted() {
     User.getUserData(this.userId).then((response) => this.profile(response))
-    //User.getUserDataFake(this.userId).then((response) => this.profile(response)) // TODO: Change to real function when teamed up with backend team
   },
   computed: {
     /**
@@ -128,7 +145,14 @@ export default {
      */
     isLoggedIn () {
       return this.$root.$data.user.state.loggedIn
-    }
+    },
+    /**
+     * Returns true if the user is primary admin of any businesses
+     * @returns {boolean|*}
+     */
+    isPrimaryAdmin () {
+      return this.primaryAdminOf.length > 0;
+    },
   },
   components: {
     LoginRequired
@@ -163,6 +187,8 @@ export default {
       this.dateJoined = response.data.created
       this.timeCalculator(Date.parse(this.dateJoined))
       this.dateJoined = this.dateJoined.substring(0, 10)
+      this.businessesAdministered = response.data.businessesAdministered
+      this.setPrimaryAdminList()
     },
 
     /**
@@ -215,12 +241,23 @@ export default {
           break
       }
       this.dateSinceJoin = text
+    },
+
+    /**
+     * Creates list of businesses that user is primary admin of
+     */
+    setPrimaryAdminList() {
+      for (const business of this.businessesAdministered) {
+        if (business.primaryAdministratorId === parseInt(this.$route.params.userId)) {
+          this.primaryAdminOf.push(business);
+        }
+      }
     }
+
   },
 
   data() {
 
-    // Filled with the test data taken from the swagger.io API
     return {
       firstName: null,
       middleName: null,
@@ -230,7 +267,9 @@ export default {
       email: null,
       homeAddress: null,
       dateJoined: null,
-      dateSinceJoin: null
+      dateSinceJoin: null,
+      businessesAdministered: [],
+      primaryAdminOf: []
     }
   }
 }
