@@ -47,7 +47,7 @@ const routes = [
         component: BusinessProfilePage
     },
     {
-        path: '/businesses/',
+        path: '/businesses',
         name: 'registerBusiness',
         component: RegisterBusinessPage
     }
