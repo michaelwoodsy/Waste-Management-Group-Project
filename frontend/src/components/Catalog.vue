@@ -5,7 +5,7 @@
             <!--    Search Users Header    -->
             <div class="row">
                 <div class="col-12 text-center mb-2">
-                    <h4>Search Users</h4>
+                    <h4>Product Catalog</h4>
                 </div>
             </div>
 
@@ -33,56 +33,50 @@
                         <table class="table table-hover">
                             <thead>
                             <tr>
-                                <!--    ID    -->
-                                <th scope="col" class="pointer" @click="orderResults('id')">
-                                    <p class="d-inline">Id</p>
-                                    <p class="d-inline" v-if="orderCol === 'id'">{{ orderDirArrow }}</p>
+                                <!--    Product Code    -->
+                                <th scope="col" class="pointer" @click="orderResults('code')">
+                                    <p class="d-inline">Code</p>
+                                    <p class="d-inline" v-if="orderCol === 'code'">{{ orderDirArrow }}</p>
                                 </th>
 
-                                <!--    First Name    -->
-                                <th scope="col" class="pointer" @click="orderResults('firstName')">
-                                    <p class="d-inline">Firstname</p>
-                                    <p class="d-inline" v-if="orderCol === 'firstName'">{{ orderDirArrow }}</p>
+                                <!--    Full Name    -->
+                                <th scope="col" class="pointer" @click="orderResults('name')">
+                                    <p class="d-inline">Name</p>
+                                    <p class="d-inline" v-if="orderCol === 'name'">{{ orderDirArrow }}</p>
                                 </th>
 
-                                <!--    Middle Name    -->
-                                <th scope="col" class="pointer" @click="orderResults('middleName')">
-                                    <p class="d-inline">Middlename</p>
-                                    <p class="d-inline" v-if="orderCol === 'middleName'">{{ orderDirArrow }}</p>
+                                <!--    Manufacturer    -->
+                                <th scope="col" class="pointer" @click="orderResults('manufacturer')">
+                                    <p class="d-inline">Manufacturer</p>
+                                    <p class="d-inline" v-if="orderCol === 'manufacturer'">{{ orderDirArrow }}</p>
                                 </th>
 
-                                <!--    Last Name    -->
-                                <th scope="col"  class="pointer" @click="orderResults('lastName')">
-                                    <p class="d-inline">Lastname</p>
-                                    <p class="d-inline" v-if="orderCol === 'lastName'">{{ orderDirArrow }}</p>
+                                <!--    RRP    -->
+                                <th scope="col"  class="pointer" @click="orderResults('rrp')">
+                                    <p class="d-inline">RRP</p>
+                                    <p class="d-inline" v-if="orderCol === 'rrp'">{{ orderDirArrow }}</p>
                                 </th>
 
-                                <!--    Email    -->
-                                <th scope="col" class="pointer" @click="orderResults('email')">
-                                    <p class="d-inline">Email</p>
-                                    <p class="d-inline" v-if="orderCol === 'email'">{{ orderDirArrow }}</p>
-                                </th>
-
-                                <!--    Home Address    -->
-                                <th scope="col" class="pointer" @click="orderResults('homeAddress')">
-                                    <p class="d-inline">Address</p>
-                                    <p class="d-inline" v-if="orderCol === 'homeAddress'">{{ orderDirArrow }}</p>
+                                <!--    Date Added    -->
+                                <th scope="col" class="pointer" @click="orderResults('dateAdded')">
+                                    <p class="d-inline">Date Added</p>
+                                    <p class="d-inline" v-if="orderCol === 'dateAdded'">{{ orderDirArrow }}</p>
                                 </th>
                             </tr>
                             </thead>
-                            <!--    User Information    -->
+                            <!--    Product Information    -->
                             <tbody v-if="!loading">
-                                <tr v-bind:key="user.id"
-                                    v-for="user in paginatedProducts"
-                                    @click="viewProduct(user.id)"
+                                <tr v-bind:key="product.id"
+                                    v-for="product in paginatedProducts"
+                                    @click="viewProduct(product.id)"
                                     class="pointer"
                                 >
-                                    <th scope="row">{{ user.id }}</th>
-                                    <td>{{ nameAndNickname(user) }}</td>
-                                    <td>{{ user.middleName }}</td>
-                                    <td>{{ user.lastName }}</td>
-                                    <td>{{ user.email }}</td>
-                                    <td>{{ formattedAddress(user.homeAddress) }}</td>
+                                    <!--TODO: Change variable names to actual names when product model is made-->
+                                    <th scope="row">{{ product.id }}</th>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ product.manufacturer }}</td>
+                                    <td>{{ product.rrp }}</td>
+                                    <td>{{ product.dateAdded }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -110,7 +104,7 @@
             </div>
         </div>
 
-        <login-required v-else page="search users"/>
+        <login-required v-else page="view the catalog"/>
     </div>
 </template>
 
@@ -119,7 +113,7 @@
     import ShowingResultsText from "./ShowingResultsText";
     import Pagination from "./Pagination";
     import Alert from './Alert'
-    import {User} from "@/Api";
+    import {Business} from "@/Api";
 
     export default {
         name: "Catalog",
@@ -146,7 +140,7 @@
             this.loading = true;
             this.page = 1;
 
-            User.getUsers(this.searchTerm)
+            Business.getProducts()
                 .then((res) => {
                   this.error = null;
                   this.products = res.data;
