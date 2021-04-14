@@ -1,66 +1,65 @@
 <template>
   <div>
     <login-required
-        page="view your product"
+        page="view an individual product"
         v-if="!isLoggedIn"
     />
 
+    <admin-required
+        page="view an individual product"
+        v-else-if="!isAdminOf()"
+    />
+
     <div v-else>
-      <admin-required
-          v-if="!isAdminOf"
-      />
-      <div v-else>
-        <!-- Product Id -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Product Id: </p>
-          </div>
-          <div class="col-6">
-            <p>{{ Id }} </p>
-          </div>
+      <!-- Product Id -->
+      <div class="row">
+        <div class="col-6 text-right font-weight-bold">
+          <p>Product Id: </p>
         </div>
-
-        <!-- Name -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Name: </p>
-          </div>
-          <div class="col-6">
-            <p>{{ name }} </p>
-          </div>
-        </div>
-
-        <!-- Description -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Description: </p>
-          </div>
-          <div class="col-6">
-            <p>{{ description }} </p>
-          </div>
-        </div>
-
-        <!-- Recommended Retail Price -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Recommended Retail Price: </p>
-          </div>
-          <div class="col-6">
-            <p>{{ recommendedRetailPrice }} </p>
-          </div>
-        </div>
-
-        <!-- Created -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Created: </p>
-          </div>
-          <div class="col-6">
-            <p>{{ created }} </p>
-          </div>
+        <div class="col-6">
+          <p>{{ Id }} </p>
         </div>
       </div>
 
+      <!-- Name -->
+      <div class="row">
+        <div class="col-6 text-right font-weight-bold">
+          <p>Name: </p>
+        </div>
+        <div class="col-6">
+          <p>{{ name }} </p>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="row">
+        <div class="col-6 text-right font-weight-bold">
+          <p>Description: </p>
+        </div>
+        <div class="col-6">
+          <p>{{ description }} </p>
+        </div>
+      </div>
+
+      <!-- Recommended Retail Price -->
+      <div class="row">
+        <div class="col-6 text-right font-weight-bold">
+          <p>Recommended Retail Price: </p>
+        </div>
+        <div class="col-6">
+          <p>{{ recommendedRetailPrice }} </p>
+        </div>
+      </div>
+
+      <!-- Created -->
+      <div class="row">
+        <div class="col-6 text-right font-weight-bold">
+          <p>Created: </p>
+        </div>
+        <div class="col-6">
+          <p>{{ created }} </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -88,7 +87,7 @@ export default {
      * Checks to see if user is logged in currently
      * @returns {boolean|*}
      */
-    isLoggedIn () {
+    isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     },
 
@@ -106,36 +105,39 @@ export default {
      */
     productId() {
       return this.$route.params.productId;
+    }
+  },
+  components: {
+    LoginRequired,
+    AdminRequired
+  },
+
+  methods: {
+    /**
+     * Check if the user is an admin of the current business
+     */
+    isAdminOf() {
+      let result = false;
+      //Test admin data (Just add your userId to check it does work)
+      let admins = [53, 28]
+      if (admins.includes(parseInt(this.$root.$data.user.state.userId))) {
+        result = true
+      }
+      return result
     },
+
     /**
      * Get the list of Administrators for the business
      * @param response
      */
-    profileBusiness(response){
-      return response.data.administrators;
+    profileBusiness(response) {
+      this.administrators = response.data.administrators;
     },
-
-    isAdminOf (){
-      let result = false;
-      let admins = this.profileBusiness()
-      if (admins.includes(this.$root.$data.user.state.userId, 0)) {
-        result = true
-      }
-      return result
-    }
-  },
-  components: {
-    AdminRequired,
-    LoginRequired
-  },
-
-  methods: {
-
     /**
      * Set the variables for the current product
      * @param response
      */
-    product(response){
+    product(response) {
       this.Id = response.data.id
       this.name = response.data.name
       this.description = response.data.description
