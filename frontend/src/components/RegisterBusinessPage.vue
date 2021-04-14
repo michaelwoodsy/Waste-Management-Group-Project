@@ -104,8 +104,8 @@
               <option hidden disabled selected value>Please select one</option>
               <option>Accommodation and Food Services</option>
               <option>Retail Trade</option>
-              <option>Charitable Organisation</option>
-              <option>Non-Profit Organisation</option>
+              <option>Charitable organisation</option>
+              <option>Non-Profit organisation</option>
             </select><br>
             <!--    Error message for business name input   -->
             <span class="error-msg" style="margin: 0" v-if="msg.businessType">{{msg.businessType}}</span><br><br>
@@ -425,7 +425,7 @@ export default {
           //this.homeAddress,
           this.businessType
       ).then(() => {
-        this.$router.push({name: 'business'})
+        this.$router.push({name: 'user'})
       })
           .catch((err) => {
             this.msg.errorChecks = err.response

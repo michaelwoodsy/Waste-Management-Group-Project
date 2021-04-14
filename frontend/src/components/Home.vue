@@ -11,6 +11,11 @@
           <h2>Hello {{ firstName }}</h2>
         </div>
       </div>
+      <div class="row">
+        <div class="col-12 text-center mb-2">
+          <router-link class="nav-link d-inline" to="/registerbusiness">Create Business</router-link>
+        </div>
+      </div>
 
     </div>
   </div>
