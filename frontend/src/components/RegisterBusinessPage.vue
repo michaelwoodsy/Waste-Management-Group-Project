@@ -22,12 +22,13 @@
             <!--    Business Name    -->
             <label for="businessName" style="margin-top:20px"><b>Business Name<span class="required">*</span></b></label><br/>
             <input style="width:100%" type="text" placeholder="Enter your Business Name" id="businessName" class="form-control" v-model="businessName" required><br>
+
             <!--    Error message for business name input   -->
             <span class="error-msg" style="margin: 0" v-if="msg.businessName">{{msg.businessName}}</span><br><br>
           </div>
 
           <div class="form-row">
-            <!--    Description    -->
+            <!--    Business Description    -->
             <label for="description" class="description-label"><b>Bio</b></label><br>
             <textarea placeholder="Write a Business Description" id="description" v-model="description" class="form-control" style="width: 100%; height: 200px;"></textarea>
           </div><br>
@@ -105,9 +106,10 @@
               <option>Accommodation and Food Services</option>
               <option>Retail Trade</option>
               <option>Charitable organisation</option>
-              <option>Non-Profit organisation</option>
+              <option>Non-profit organisation</option>
             </select><br>
-            <!--    Error message for business name input   -->
+
+            <!--    Error message for business type input   -->
             <span class="error-msg" style="margin: 0" v-if="msg.businessType">{{msg.businessType}}</span><br><br>
           </div>
 
@@ -190,12 +192,12 @@ export default {
     }
   },
   /**
-   * these methods are called when the page opens
+   * These methods are called when the page opens
    * */
   computed: {
     /**
      * Checks to see if user is logged in currently
-     * @returns {boolean|*}
+     * @returns {boolean|*} true if user is logged in, otherwise false
      */
     isLoggedIn () {
       return this.$root.$data.user.state.loggedIn
@@ -309,7 +311,8 @@ export default {
     },
 
     /**
-     * Validating to check if the data entered is inputted correctly, If not displays a warning message
+     * Validating to check if the data entered is input correctly
+     * If not an error message is displayed
      */
     checkInputs() {
       this.validateBusinessName();

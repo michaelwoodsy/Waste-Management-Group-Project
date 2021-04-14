@@ -1,11 +1,12 @@
-import { Business } from '../../Api'
+import { Business } from '@/Api'
 
 
 export default {
     debug: true,
 
     /**
-     * Sets the user state as logged in, including the userId cookie.
+     * Registers a business under a given user.
+     * This user is the primary administrator.
      * @param primaryAdministrator UserId of the user that is logged in
      * @param businessName Name of the business
      * @param description Business description
