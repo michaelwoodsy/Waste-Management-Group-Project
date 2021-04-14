@@ -39,7 +39,7 @@ beforeEach(() => {
     user.state = {
         message: 'Hello!',
         loggedIn: false,
-        userId: null,
+        productId: null,
         userData: {},
         actingAs: null
     }
@@ -61,7 +61,7 @@ describe('store.user', () => {
         user.state = {
             message: 'Hello!',
             loggedIn: true,
-            userId: 1,
+            productId: 1,
             userData: {},
             actingAs: null
         }

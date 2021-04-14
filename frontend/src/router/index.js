@@ -50,6 +50,11 @@ const routes = [
         path: '/businesses/',
         name: 'registerBusiness',
         component: RegisterBusinessPage
+    },
+    {
+        path: '/businesses/:businessId/products',
+        name: 'registerBusiness',
+        component: RegisterBusinessPage
     }
 ];
 
