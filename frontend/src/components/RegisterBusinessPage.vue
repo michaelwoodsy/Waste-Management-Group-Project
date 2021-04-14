@@ -378,7 +378,7 @@ export default {
       this.addressCountry = country
       this.countries = []
       this.autofillCountry = false
-      this.prevAutofilledCountry = this.homeAddress.country
+      this.prevAutofilledCountry = this.businessAddress.country
     },
 
     /**
@@ -392,7 +392,7 @@ export default {
       this.addressRegion = region
       this.regions = []
       this.autofillRegion = false
-      this.prevAutofilledRegion = this.homeAddress.region
+      this.prevAutofilledRegion = this.businessAddress.region
     },
 
     /**
@@ -406,7 +406,7 @@ export default {
       this.addressCity = city
       this.cities = []
       this.autofillCity = false
-      this.prevAutofilledCity = this.homeAddress.city
+      this.prevAutofilledCity = this.businessAddress.city
     },
 
 

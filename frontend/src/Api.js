@@ -371,11 +371,11 @@ export const User = {
 
 export const Business = {
 
-  createNew: (primaryAdministrator,
-              businessName,
+  createNew: (primaryAdministratorId,
+              name,
               description,
-              businessAddress,
-              businessType) => instance.post('businesses', {primaryAdministrator, businessName, description, businessAddress, businessType}),
+              address,
+              businessType) => instance.post('businesses', {primaryAdministratorId, name, description, address, businessType}),
 
   getBusinessData: (id) => instance.get(`businesses/${id}`, {})
 
