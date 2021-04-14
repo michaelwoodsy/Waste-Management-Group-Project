@@ -411,11 +411,11 @@ export default {
 
     /**
      * Add the new business to the server
-     * Calls the api function createNew which sends a new user to the backend server
+     * Calls the api function createNew which sends a new business to the backend server
      * If this fails the program should set the error text to the error received from the backend server
      */
     addBusiness() {
-      this.$root.$data.user.register(
+      this.$root.$data.business.register(
           this.$root.$data.user.state.userId,
           this.businessName,
           this.description,

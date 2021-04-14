@@ -371,6 +371,11 @@ export const User = {
 
 export const Business = {
 
+  createNew: (businessName,
+              description,
+              businessAddress,
+              businessType) => instance.post('businesses', {businessName, description, businessAddress, businessType}),
+
   getBusinessData: (id) => instance.get(`businesses/${id}`, {})
 
 };
