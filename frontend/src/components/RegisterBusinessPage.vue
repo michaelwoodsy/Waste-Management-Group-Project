@@ -425,7 +425,7 @@ export default {
           //this.homeAddress,
           this.businessType
       ).then(() => {
-        this.$router.push({name: 'business'})
+        this.$router.push({name: 'user'})
       })
           .catch((err) => {
             this.msg.errorChecks = err.response
