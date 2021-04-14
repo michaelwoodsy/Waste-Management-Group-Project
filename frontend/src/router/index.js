@@ -9,6 +9,7 @@ import Home from "../components/Home";
 import ProfilePage from "../components/ProfilePage";
 import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
+import CreateProductPage from "@/components/CreateProductPage";
 
 const routes = [
     {
@@ -50,6 +51,11 @@ const routes = [
         path: '/businesses/',
         name: 'registerBusiness',
         component: RegisterBusinessPage
+    },
+    {
+        path: '/product/create', // TODO implement proper path once connected to business.
+        name: 'createProduct',
+        component: CreateProductPage
     }
 ];
 
