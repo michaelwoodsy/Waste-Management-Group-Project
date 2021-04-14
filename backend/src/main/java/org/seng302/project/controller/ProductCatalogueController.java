@@ -1,17 +1,17 @@
 package org.seng302.project.controller;
 
+import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.ForbiddenAdministratorActionException;
 import org.seng302.project.exceptions.NoBusinessExistsException;
-import org.seng302.project.exceptions.RequiredFieldsMissingException;
 import org.seng302.project.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,11 +39,11 @@ public class ProductCatalogueController {
     /**
      * Gets a list of products that belongs to a business.
      * @param businessId ID of the business to get the products of.
-     * @param userAuth UsernamePasswordAuthenticationToken from spring security
+     * @param appUser AppUserDetails from spring security
      * @return List of products that belongs to the business.
      */
     @GetMapping("/businesses/{businessId}/products")
-    public List<Product> getBusinessesProducts(@PathVariable int businessId, Principal userAuth) {
+    public List<Product> getBusinessesProducts(@PathVariable int businessId, @AuthenticationPrincipal AppUserDetails appUser) {
         // Get the business
         Optional<Business> businessResult = businessRepository.findById(businessId);
 
@@ -56,7 +56,7 @@ public class ProductCatalogueController {
         Business business = businessResult.get();
 
         // Get the logged in user from the users email
-        String userEmail = userAuth.getName();
+        String userEmail = appUser.getUsername();
         User loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
         // Check if the logged in user is the business owner / administrator
