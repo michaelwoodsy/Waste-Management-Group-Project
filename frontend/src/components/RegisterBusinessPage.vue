@@ -1,13 +1,12 @@
 <template>
   <div>
-    <!---
+
     <login-required
         page="Register a Business"
         v-if="!isLoggedIn"
     />
-    -->
 
-    <div class="container-fluid"> <!--    If Logged In    -->
+    <div v-else class="container-fluid"> <!--    If Logged In    -->
         <br><br>
 
         <div class="row">
@@ -132,7 +131,7 @@
 
 <script>
 import axios from "axios";
-//import LoginRequired from "@/components/LoginRequired";
+import LoginRequired from "@/components/LoginRequired";
 import Alert from "./Alert"
 
 /**
@@ -142,7 +141,7 @@ export default {
   name: "RegisterBusinessPage",
 
   components: {
-    //LoginRequired,
+    LoginRequired,
     Alert
   },
 
@@ -192,14 +191,16 @@ export default {
   },
   /**
    * these methods are called when the page opens
+   * */
   computed: {
+    /**
      * Checks to see if user is logged in currently
      * @returns {boolean|*}
+     */
     isLoggedIn () {
       return this.$root.$data.user.state.loggedIn
     }
   },
-  */
 
   /**
    * these methods are called when their respective input field is changed
