@@ -371,6 +371,8 @@ export const User = {
 
 export const Business = {
 
-  getBusinessData: (id) => instance.get(`businesses/${id}`, {})
+  getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
+
+  removeAdministrator: (businessId, userId) => instance.put(`/businesses/${businessId}/removeAdministrator`, {userId})
 
 };
