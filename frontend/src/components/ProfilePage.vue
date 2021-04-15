@@ -113,6 +113,13 @@
         </div>
       </div>
 
+      <!--Button to add as admin to business currentley acting as-->
+      <div class="d-flex justify-content-center" v-if="isActingAsBusiness">
+        <button class="btn btn-block btn-secondary" style="width: 40%;margin:0 20px; font-size: 14px;" v-on:click="addAsAsministrator">Add as administrator to business</button>
+
+
+      </div>
+
     </div>
 
   </div>
@@ -153,6 +160,13 @@ export default {
     isPrimaryAdmin () {
       return this.primaryAdminOf.length > 0;
     },
+    /**
+     * Returns true if the user is primary admin of any businesses
+     * @returns {boolean|*}
+     */
+    isActingAsBusiness () {
+      return this.$root.$data.user.state.actingAs.type === "business"
+    },
   },
   components: {
     LoginRequired
@@ -189,6 +203,10 @@ export default {
       this.dateJoined = this.dateJoined.substring(0, 10)
       this.businessesAdministered = response.data.businessesAdministered
       this.setPrimaryAdminList()
+    },
+
+    addAsAsministrator() {
+      console.log("Add as administrator to business " + this.$root.$data.user.state.actingAs.id)
     },
 
     /**
