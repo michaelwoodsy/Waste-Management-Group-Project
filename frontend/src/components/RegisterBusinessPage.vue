@@ -20,18 +20,32 @@
 
           <div class="form-row">
             <!--    Business Name    -->
-            <label for="businessName" style="margin-top:20px"><b>Business Name<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Business Name" id="businessName" class="form-control" v-model="businessName" required><br>
-
+            <label for="businessName" style="margin-top:20px">
+              <b>Business Name<span class="required">*</span></b>
+            </label>
+            <br/>
+            <input style="width:100%" type="text"
+                   placeholder="Enter your Business Name" id="businessName"
+                   class="form-control" v-model="businessName" required>
+            <br>
             <!--    Error message for business name input   -->
-            <span class="error-msg" style="margin: 0" v-if="msg.businessName">{{msg.businessName}}</span><br><br>
+            <span class="error-msg" style="margin: 0" v-if="msg.businessName">{{msg.businessName}}</span>
+            <br>
+            <br>
           </div>
 
           <div class="form-row">
             <!--    Business Description    -->
-            <label for="description" class="description-label"><b>Bio</b></label><br>
-            <textarea placeholder="Write a Business Description" id="description" v-model="description" class="form-control" style="width: 100%; height: 200px;"></textarea>
-          </div><br>
+            <label for="description" class="description-label">
+              <b>Bio</b>
+            </label>
+            <br>
+            <textarea placeholder="Write a Business Description" id="description"
+                      v-model="description" class="form-control" style="width: 100%; height: 200px;">
+
+            </textarea>
+          </div>
+          <br>
 
           <hr/>
 
@@ -42,31 +56,52 @@
 
           <div class="form-row">
             <!--    Business Address Street Number    -->
-            <label for="businessAddressNumber"><b>Street Number</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Number" id="businessAddressNumber" class="form-control" v-model="businessAddress.streetNumber"><br>
-          </div><br>
+            <label for="businessAddressNumber">
+              <b>Street Number</b>
+            </label><br/>
+            <input style="width:100%" type="text" placeholder="Enter your Street Number"
+                   id="businessAddressNumber" class="form-control" v-model="businessAddress.streetNumber">
+            <br>
+          </div>
+          <br>
 
           <div class="form-row">
             <!--    Business Address Street Name    -->
-            <label for="businessAddressStreet"><b>Street Name</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Name" id="businessAddressStreet" class="form-control" v-model="businessAddress.streetName"><br>
+            <label for="businessAddressStreet">
+              <b>Street Name</b>
+            </label>
+            <br/>
+            <input style="width:100%" type="text" placeholder="Enter your Street Name"
+                   id="businessAddressStreet" class="form-control" v-model="businessAddress.streetName">
+            <br>
           </div><br>
 
           <div class="form-row">
             <!--    Business Address City    -->
-            <label for="businessAddressCity"><b>City or Town</b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your City" id="businessAddressCity" class="form-control" v-model="addressCity"><br>
+            <label for="businessAddressCity">
+              <b>City or Town</b>
+            </label>
+            <br/>
+            <input style="width:100%" type="search" placeholder="Enter your City"
+                   id="businessAddressCity" class="form-control" v-model="addressCity">
+            <br>
 
             <!--    Autofill City/Town    -->
             <div style="width:100%; text-align: left" v-for="city in cities" v-bind:key="city">
-              <a class="address-output" @click="changeCity(city)">{{city}}</a><br>
+              <a class="address-output" @click="changeCity(city)">{{city}}</a>
+              <br>
             </div>
           </div><br>
 
           <div class="form-row">
             <!--    Business Address Region    -->
-            <label for="businessAddressRegion"><b>Region</b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your Region" id="businessAddressRegion" class="form-control" v-model="addressRegion"><br>
+            <label for="businessAddressRegion">
+              <b>Region</b>
+            </label>
+            <br/>
+            <input style="width:100%" type="search" placeholder="Enter your Region"
+                   id="businessAddressRegion" class="form-control" v-model="addressRegion">
+            <br>
 
             <!--    Autofill region    -->
             <div style="width:100%; text-align: left" v-for="region in regions" v-bind:key="region">
@@ -76,8 +111,13 @@
 
           <div class="form-row">
             <!--    Business Address Country    -->
-            <label for="businessAddressCountry"><b>Country<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your Country" id="businessAddressCountry" class="form-control" v-model="addressCountry" required><br>
+            <label for="businessAddressCountry">
+              <b>Country<span class="required">*</span></b>
+            </label>
+            <br/>
+            <input style="width:100%" type="search" placeholder="Enter your Country"
+                   id="businessAddressCountry" class="form-control" v-model="addressCountry" required>
+            <br>
 
             <!--    Autofill country    -->
             <div style="width:100%; text-align: left" v-for="country in countries" v-bind:key="country">
@@ -92,29 +132,44 @@
 
           <div class="form-row">
             <!--    Business Address Post Code    -->
-            <label for="businessAddressPostCode"><b>Postcode</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Postcode" id="businessAddressPostCode" class="form-control" v-model="businessAddress.postcode"><br>
+            <label for="businessAddressPostCode">
+              <b>Postcode</b>
+            </label>
+            <br/>
+            <input style="width:100%" type="text" placeholder="Enter your Postcode"
+                   id="businessAddressPostCode" class="form-control" v-model="businessAddress.postcode">
+            <br>
           </div><br>
 
           <hr/>
 
           <div class="form-row">
             <!--    Business Type    -->
-            <label for="businessType"><b>Business Type<span class="required">*</span></b></label><br/>
-            <select style="width:100%" type="text" id="businessType" class="form-control" v-model="businessType" required>
+            <label for="businessType">
+              <b>Business Type<span class="required">*</span></b>
+            </label>
+            <br/>
+            <select style="width:100%" type="text" id="businessType"
+                    class="form-control" v-model="businessType" required>
               <option hidden disabled selected value>Please select one</option>
               <option>Accommodation and Food Services</option>
               <option>Retail Trade</option>
               <option>Charitable organisation</option>
               <option>Non-profit organisation</option>
-            </select><br>
+            </select>
+            <br>
 
             <!--    Error message for business type input   -->
-            <span class="error-msg" style="margin: 0" v-if="msg.businessType">{{msg.businessType}}</span><br><br>
+            <span class="error-msg" style="margin: 0" v-if="msg.businessType">{{msg.businessType}}</span>
+            <br>
+            <br>
           </div>
 
           <div class="form-row">
-            <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" v-on:click="checkInputs">Create Business</button>
+            <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px"
+                    v-on:click="checkInputs">
+              Create Business
+            </button>
             <!--    Error message for the registering process    -->
 
             <div class="login-box" style="width: 100%; margin:20px 20px; text-align: center">
@@ -277,7 +332,7 @@ export default {
      */
     validateBusinessName() {
       if (this.businessName === '') {
-        this.msg['businessName'] = 'Please enter a First Name'
+        this.msg['businessName'] = 'Please enter a Business Name'
         this.valid = false
       } else {
         this.msg['businessName'] = ''
