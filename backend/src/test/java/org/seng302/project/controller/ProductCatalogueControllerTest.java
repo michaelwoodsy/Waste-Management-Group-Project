@@ -5,29 +5,46 @@ import org.assertj.core.api.Assertions;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.controller.authentication.WebSecurityConfig;
+import org.seng302.project.exceptions.ForbiddenAdministratorActionException;
+import org.seng302.project.exceptions.NoBusinessExistsException;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -38,78 +55,76 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Unit tests for ProductCatalogueController class.
  */
-@WebMvcTest(controllers = ProductCatalogueController.class)
-@ContextConfiguration(classes = WebSecurityConfig.class)
-// @ContextConfiguration(classes=Application.class)
-// @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@RunWith(SpringRunner.class)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
+@AutoConfigureMockMvc
+@ContextConfiguration
 public class ProductCatalogueControllerTest {
 
-    // User that will own a business for tests
-    private final String ownerEmail = "john99@gmail.com";
-    // User that won't own the business for testing
-    private final String userEmail = "jane@gmail.com";
+    private final String ownerEmail = "johnxyz@gmail.com";
+    private final String userEmail = "jane111@gmail.com";
+    private User user;
+    private User owner;
     private Integer businessId;
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private WebApplicationContext context;
-
-    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    @MockBean
+    @Autowired
+    private ProductCatalogueController productCatalogueController;
+
+    @Autowired
     private UserRepository userRepository;
 
-    @MockBean
+    @Autowired
     private BusinessRepository businessRepository;
 
-    @MockBean
+    @Autowired
     private ProductRepository productRepository;
 
-    @MockBean
-    private ProductCatalogueController productCatalogueController;
+    /**
+     * Creates the user if it's not already created.
+     * If it is already created, the user is returned.
+     * @return User
+     */
+    private User createUser(User wantedUser) {
+        if (userRepository.findByEmail(wantedUser.getEmail()).size() > 0) {
+            // Already exists, return it
+            return(userRepository.findByEmail(wantedUser.getEmail()).get(0));
+        } else {
+            // User doesn't exist, save it to repository
+            wantedUser.setPassword(passwordEncoder.encode(wantedUser.getPassword()));
+            userRepository.save(wantedUser);
+            return wantedUser;
+        }
+    }
 
     @BeforeEach
     public void initialise() {
         // Create the users
-        User testUser = new User("John", "Smith", "Hector", "Jonny",
+        user = createUser(new User("John", "Smith", "Hector", "Jonny",
                 "Likes long walks on the beach", userEmail, "1999-04-27",
-                "+64 3 555 0129", "4 Rountree Street, Upper Riccarton", "1337-H%nt3r2");
-        testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
-        User testUserOwner = new User("John", "Smith", "Hector", "Jonny",
+                "+64 3 555 0129", "4 Rountree Street, Upper Riccarton", "1337-H%nt3r2"));
+
+        owner = createUser(new User("Jane", "Smith", "Hector", "Jonny",
                 "Likes long walks on the beach", ownerEmail, "1999-04-27",
-                "+64 3 555 0129", "4 Rountree Street, Upper Riccarton", "1337-H%nt3r2");
-        testUserOwner.setPassword(passwordEncoder.encode(testUserOwner.getPassword()));
+                "+64 3 555 0120", "4 Rountree Street, Upper Riccarton", "1337-H%nt3r2"));
 
         // Create the business
         Business testBusiness = new Business("Business", "A Business", "4 Rountree", "Retail",
-                testUserOwner.getId());
-        testBusiness.setId(1);
+                owner.getId());
+        businessRepository.save(testBusiness);
         businessId = testBusiness.getId();
 
         // Create a product
         Product product = new Product("p1", "Watties Beans", "beans in a can", 2.00,
-                testBusiness.getId());
-
-        // Add the business to the user list of business
-        testUserOwner.setBusinessesAdministered(List.of(testBusiness));
-
-        // setup mocking for the repositories
-        Mockito.when(userRepository.findByEmail(userEmail))
-                .thenReturn(List.of(testUser));
-        Mockito.when(userRepository.findByEmail(ownerEmail))
-                .thenReturn(List.of(testUserOwner));
-        Mockito.when(businessRepository.findById(testBusiness.getId()))
-                .thenReturn(java.util.Optional.of(testBusiness));
-        Mockito.when(productRepository.findAllByBusinessId(testBusiness.getId()))
-                .thenReturn(List.of(product));
-
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
+                businessId);
+        productRepository.save(product);
     }
 
     /**
@@ -118,10 +133,10 @@ public class ProductCatalogueControllerTest {
      * @throws Exception
      */
     @Test
-    @WithUserDetails(userEmail)
-    void testNonAdministratorGetProductsReturns403() throws Exception {
-        mockMvc.perform(get("/business/{id}/products", businessId))
-                .andExpect(status().isForbidden());
+    void testRandomUserCantAccess() throws Exception {
+        assertThrows(ForbiddenAdministratorActionException.class, () -> {
+            productCatalogueController.getBusinessesProducts(businessId, new AppUserDetails(user));
+        });
     }
 
     /**
@@ -130,11 +145,11 @@ public class ProductCatalogueControllerTest {
      * @throws Exception
      */
     @Test
-    @WithUserDetails(ownerEmail)
-    void testAdministratorGetProductsReturns200() throws Exception {
-        mockMvc.perform(get("/business/{id}/products", businessId))
-                .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length").value(1));
+    void testAdministratorCanGetProducts() throws Exception {
+        List<Product> products =
+                productCatalogueController.getBusinessesProducts(businessId, new AppUserDetails(owner));
+        assertEquals(products.size(), 1);
+        assertEquals(products.get(0).getName(), "Watties Beans");
     }
 
     /**
@@ -143,10 +158,10 @@ public class ProductCatalogueControllerTest {
      * @throws Exception
      */
     @Test
-    @WithUserDetails(userEmail)
     void testNonExistentBusiness() throws Exception {
-        mockMvc.perform(get("/business/{id}/products", businessId))
-                .andExpect(status().isNotAcceptable());
+        assertThrows(NoBusinessExistsException.class, () -> {
+            productCatalogueController.getBusinessesProducts(1, new AppUserDetails(user));
+        });
     }
 
     /**
@@ -159,17 +174,4 @@ public class ProductCatalogueControllerTest {
         mockMvc.perform(get("/business/{id}/products", businessId))
                 .andExpect(status().isUnauthorized());
     }
-
-//    @Test
-//    @WithUserDetails(userEmail)
-//    void backup() throws Exception {
-//
-//        mockMvc.perform(get("/business/{id}/products", businessId))
-//                .andExpect(status().isForbidden());
-//
-//        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-//        Assertions.assertThat(userCaptor.getValue().getFirstName()).isEqualTo("Zaphod");
-//        Assertions.assertThat(userCaptor.getValue().getEmail()).isEqualTo("zaphod@galaxy.net");
-//    }
-
 }
