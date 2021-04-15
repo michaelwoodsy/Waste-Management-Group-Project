@@ -303,6 +303,7 @@ export default {
      * Creates list of businesses that user is primary admin of
      */
     setPrimaryAdminList() {
+      this.primaryAdminOf = []
       for (const business of this.businessesAdministered) {
         if (business.primaryAdministratorId === parseInt(this.$route.params.userId)) {
           this.primaryAdminOf.push(business);
