@@ -91,6 +91,11 @@
           <p style="color: green">{{ removedAdmin }}</p>
           <br>
         </div>
+        <div class="col-12 text-center mb-2" v-if="error">
+          <br>
+          <p style="color: red">{{ error }}</p>
+          <br>
+        </div>
       </div>
     </div>
 
@@ -184,11 +189,18 @@ export default {
     },
 
     async removeAdministrator(userId, firstName, lastName) {
-      await Business.removeAdministrator(this.$route.params.businessId, userId)
-      this.removedAdmin = `Removed ${firstName} ${lastName} from administering business`
 
-      //Reload the data
-      Business.getBusinessData(this.businessId).then((response) => this.profile(response))
+      try {
+        await Business.removeAdministrator(this.$route.params.businessId, userId)
+        this.removedAdmin = `Removed ${firstName} ${lastName} from administering business`
+        //Reload the data
+        Business.getBusinessData(this.businessId).then((response) => this.profile(response))
+      }
+      catch (err) {
+        this.error = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":")+2)
+            : err
+      }
     },
 
     /**
@@ -254,7 +266,8 @@ export default {
       dateJoined: null,
       dateSinceJoin: null,
       administrators: null,
-      removedAdmin: null
+      removedAdmin: null,
+      error:null
     }
   }
 
