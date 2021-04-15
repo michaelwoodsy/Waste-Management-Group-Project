@@ -51,6 +51,7 @@
 
       <!-- Profile and logout section -->
       <router-link class="dropdown-item" :to="userProfileRoute">My Profile</router-link>
+      <router-link class="dropdown-item" to="/registerbusiness">Create Business</router-link>
       <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
     </div>
 
