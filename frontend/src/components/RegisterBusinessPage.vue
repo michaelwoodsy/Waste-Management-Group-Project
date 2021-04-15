@@ -74,6 +74,9 @@
             <input style="width:100%" type="text" placeholder="Enter your Street Name"
                    id="businessAddressStreet" class="form-control" v-model="businessAddress.streetName">
             <br>
+
+            <!--    Error message for street name input   -->
+            <span class="error-msg" v-if="msg.streetName">{{msg.streetName}}</span>
           </div><br>
 
           <div class="form-row">
@@ -226,6 +229,7 @@ export default {
       msg: {
         'businessName': '',
         'description': '',
+        'streetName': '',
         'country': '',
         'businessType': '',
         'errorChecks': null
@@ -349,6 +353,12 @@ export default {
         this.valid = false
       } else {
         this.msg['country'] = ''
+      }
+      if (this.businessAddress.streetNumber !== '' && this.businessAddress.streetName === '') {
+        this.msg['streetName'] = 'Please enter a Street Name'
+        this.valid = false
+      } else {
+        this.msg['streetName'] = ''
       }
     },
 

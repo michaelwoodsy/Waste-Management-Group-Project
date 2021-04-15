@@ -84,6 +84,9 @@
             <!--    Home Address Street Name    -->
             <label for="homeAddressStreet"><b>Street Name</b></label><br/>
             <input style="width:100%" type="text" placeholder="Enter your Street Name" id="homeAddressStreet" class="form-control" v-model="homeAddress.streetName"><br>
+
+            <!--    Error message for street name input   -->
+            <span class="error-msg" v-if="msg.streetName">{{msg.streetName}}</span>
           </div><br>
 
           <div class="form-row">
@@ -208,6 +211,7 @@ export default {
         'lastName': '',
         'email': '',
         'dateOfBirth': '',
+        'streetName': '',
         'country': '',
         'password': '',
         'errorChecks': null
@@ -353,6 +357,12 @@ export default {
         this.valid = false
       } else {
         this.msg['country'] = ''
+      }
+      if (this.homeAddress.streetNumber !== '' && this.homeAddress.streetName === '') {
+        this.msg['streetName'] = 'Please enter a Street Name'
+        this.valid = false
+      } else {
+        this.msg['streetName'] = ''
       }
     },
     /**
