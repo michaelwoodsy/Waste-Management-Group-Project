@@ -373,6 +373,8 @@ export const Business = {
 
   getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
 
-  removeAdministrator: (businessId, userId) => instance.put(`/businesses/${businessId}/removeAdministrator`, {userId})
+  removeAdministrator: (businessId, userId) => instance.put(`/businesses/${businessId}/removeAdministrator`, {userId}),
+
+  addAdministrator: (businessId, userId) => instance.put(`/businesses/${businessId}/makeAdministrator`, {userId})
 
 };

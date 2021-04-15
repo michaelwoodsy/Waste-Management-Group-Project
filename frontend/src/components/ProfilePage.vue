@@ -113,11 +113,24 @@
         </div>
       </div>
 
-      <!--Button to add as admin to business currentley acting as-->
-      <div class="d-flex justify-content-center" v-if="isActingAsBusiness">
-        <button class="btn btn-block btn-secondary" style="width: 40%;margin:0 20px; font-size: 14px;" v-on:click="addAsAsministrator">Add as administrator to business</button>
+      <!--Button to add as admin to business currently acting as-->
+      <div class="d-flex justify-content-center" v-if="!isViewingSelf && !isAdministrator &&
+                                                        this.$root.$data.user.isActingAsBusiness() &&
+                                                        this.$root.$data.user.isPrimaryAdminOfBusiness()">
+        <button class="btn btn-block btn-secondary" style="width: 40%;margin:0 20px; font-size: 14px;" v-on:click="addAdministrator">Add as administrator to business</button>
+      </div>
 
-
+      <div class="row">
+        <div class="col-12 text-center mb-2" v-if="addedAdmin">
+          <br>
+          <p style="color: green">{{ addedAdmin }}</p>
+          <br>
+        </div>
+        <div class="col-12 text-center mb-2" v-if="error">
+          <br>
+          <p style="color: red">{{ error }}</p>
+          <br>
+        </div>
       </div>
 
     </div>
@@ -128,7 +141,8 @@
 <script>
 
 import { User } from '@/Api'
-import LoginRequired from "./LoginRequired";
+import {Business} from '@/Api'
+import LoginRequired from "./LoginRequired"
 
 export default {
   name: "ProfilePage",
@@ -161,12 +175,22 @@ export default {
       return this.primaryAdminOf.length > 0;
     },
     /**
-     * Returns true if the user is primary admin of any businesses
+     * Returns true if the user is currently viewing their profile page
      * @returns {boolean|*}
      */
-    isActingAsBusiness () {
-      return this.$root.$data.user.state.actingAs.type === "business"
+    isViewingSelf () {
+      return this.userId === this.$root.$data.user.state.userId
     },
+  /**
+   * Returns true if the user is an administrator of the curentley acting business
+   * @returns {boolean|*}
+   */
+  isAdministrator () {
+    for (let i = 0; i < this.businessesAdministered.length; i++) {
+      if (this.businessesAdministered[i].id === this.$root.$data.user.state.actingAs.id) return true
+    }
+    return false
+  }
   },
   components: {
     LoginRequired
@@ -205,8 +229,22 @@ export default {
       this.setPrimaryAdminList()
     },
 
-    addAsAsministrator() {
-      console.log("Add as administrator to business " + this.$root.$data.user.state.actingAs.id)
+    /**
+     * Function to add an administrator to the currently acting as business.
+     * uses the addAdministrator method in the Business api.js file to send a request to the backend
+     */
+    async addAdministrator() {
+      try {
+        await Business.addAdministrator(Number(this.$root.$data.user.state.actingAs.id), Number(this.$route.params.userId))
+        this.addedAdmin = `Added ${this.firstName} ${this.lastName} to administrators of business`
+        //Reload the data
+        User.getUserData(this.userId).then((response) => this.profile(response))
+      }
+      catch (err) {
+        this.error = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":")+2)
+            : err
+      }
     },
 
     /**
@@ -287,7 +325,9 @@ export default {
       dateJoined: null,
       dateSinceJoin: null,
       businessesAdministered: [],
-      primaryAdminOf: []
+      primaryAdminOf: [],
+      addedAdmin: null,
+      error:null
     }
   }
 }

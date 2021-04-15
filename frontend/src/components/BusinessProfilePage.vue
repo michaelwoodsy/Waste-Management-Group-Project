@@ -188,6 +188,13 @@ export default {
       this.dateJoined = this.dateJoined.substring(0, 10)
     },
 
+    /**
+     * Function to remove an administrator from the business.
+     * uses the removeAdministrator method in the Business api.js file to send a request to the backend
+     * @param userId id of the user removing as admin
+     * @param firstName first name of the user removing as admin
+     * @param lastName last name of the user removing as admin
+     */
     async removeAdministrator(userId, firstName, lastName) {
 
       try {
