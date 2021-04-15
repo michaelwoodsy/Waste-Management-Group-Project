@@ -44,6 +44,13 @@ public class ProductCatalogueController {
      */
     @GetMapping("/businesses/{businessId}/products")
     public List<Product> getBusinessesProducts(@PathVariable int businessId, @AuthenticationPrincipal AppUserDetails appUser) {
+
+        // Get the logged in user from the users email
+        String userEmail = appUser.getUsername();
+        User loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+        logger.info("User with user id: " + loggedInUser.getId() + " Getting business with ID: " + businessId + " products");
+
         // Get the business
         Optional<Business> businessResult = businessRepository.findById(businessId);
 
@@ -55,12 +62,8 @@ public class ProductCatalogueController {
         }
         Business business = businessResult.get();
 
-        // Get the logged in user from the users email
-        String userEmail = appUser.getUsername();
-        User loggedInUser = userRepository.findByEmail(userEmail).get(0);
-
         // Check if the logged in user is the business owner / administrator
-        if (!business.userIsAdmin(loggedInUser.getId())) {
+        if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
             ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
             logger.error(exception.getMessage());
             throw exception;
