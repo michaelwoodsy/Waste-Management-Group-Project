@@ -292,7 +292,7 @@ export default {
   },
 
   /**
-   * Methods that can be called but the program
+   * Methods that can be called by the program
    */
   methods: {
     /**
@@ -475,7 +475,7 @@ export default {
     /**
      * Add the new user to the server
      * Calls the api function createNew which sends a new user to the backend server
-     * If this fails the program should set the error text to the error recived from the backend server
+     * If this fails the program should set the error text to the error received from the backend server
      */
     addUser() {
       this.$root.$data.user.register(
