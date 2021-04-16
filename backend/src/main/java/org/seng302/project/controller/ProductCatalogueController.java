@@ -143,7 +143,6 @@ public class ProductCatalogueController {
                 throw exception;
             }
 
-            //TODO: handle these
             //These can be empty
             String description = json.getAsString("description");
             Double recommendedRetailPrice = (Double) json.getAsNumber("recommendedRetailPrice");
@@ -154,7 +153,9 @@ public class ProductCatalogueController {
                 logger.warn(exception.getMessage());
                 throw exception;
             }
-            //TODO: create Product object and save
+
+            Product product = new Product(productId, name, description, recommendedRetailPrice, businessId);
+            productRepository.save(product);
 
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
                 MissingProductNameException | ProductIdAlreadyExistsException handledException) {

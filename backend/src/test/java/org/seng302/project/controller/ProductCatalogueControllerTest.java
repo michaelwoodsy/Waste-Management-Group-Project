@@ -252,4 +252,35 @@ public class ProductCatalogueControllerTest {
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new ProductIdAlreadyExistsException().getMessage(), returnedExceptionString);
     }
+
+    /**
+     * Tests successful creation of a product through the POST method
+     */
+    @Test
+    void createAndRetrieveProduct() throws Exception {
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "S-COOKIES");
+        testProduct.put("name", "Sarah's cookies");
+        testProduct.put("description", "20pk of delicious home baked cookies");
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .post("/businesses/{businessId}/products", businessId)
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postUserResponse = this.mockMvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isCreated()) // We expect a 201 response
+                .andReturn();
+
+        Product retrievedProduct = productRepository.getOne("S-COOKIES");
+
+        Assertions.assertEquals("Sarah's cookies", retrievedProduct.getName());
+        Assertions.assertEquals("20pk of delicious home baked cookies", retrievedProduct.getDescription());
+        Assertions.assertNull(retrievedProduct.getRecommendedRetailPrice());
+        Assertions.assertEquals(businessId, retrievedProduct.getBusinessId());
+    }
 }
+
+
