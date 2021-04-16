@@ -65,7 +65,6 @@ dev-sonarqube:
    - ./gradlew sonarqube
  only:
    - dev
-   - sonarqube-setup
 
 # builds all branches, except dev and master
 branch-build:
