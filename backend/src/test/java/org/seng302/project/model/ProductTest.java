@@ -28,7 +28,7 @@ public class ProductTest {
         assertEquals("Baked Beans as they should be.", testProduct.getDescription());
         assertEquals(2.2, testProduct.getRecommendedRetailPrice());
         assertEquals(1, testProduct.getBusinessId());
-        assertTrue(testProduct.getCreated().isBefore(LocalDateTime.now()));
+        assertTrue(testProduct.getCreated().isBefore(LocalDateTime.now()) || testProduct.getCreated().isEqual(LocalDateTime.now()));
         assertTrue(testProduct.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
     }
 }

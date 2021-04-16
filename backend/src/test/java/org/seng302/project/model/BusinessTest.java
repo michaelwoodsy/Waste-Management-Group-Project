@@ -41,7 +41,7 @@ public class BusinessTest {
         assertEquals("5 Lab Test Ave, New Zealand", testBusiness.getAddress());
         assertEquals("Retail Trade", testBusiness.getBusinessType());
         assertEquals(1, testBusiness.getPrimaryAdministratorId());
-        assertTrue(testBusiness.getCreated().isBefore(LocalDateTime.now()));
+        assertTrue(testBusiness.getCreated().isBefore(LocalDateTime.now()) || testBusiness.getCreated().isEqual(LocalDateTime.now()));
         assertTrue(testBusiness.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
         assertTrue(BusinessType.checkType(testBusiness.getBusinessType()));
     }
