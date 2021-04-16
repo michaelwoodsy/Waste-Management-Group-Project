@@ -36,7 +36,12 @@ export default {
             })
             .catch((err) => {
                 // Failed to get data, alert the user
-                createAlertRed(err.response.data)
+                if (err.status.code === 401) {
+                    createAlertRed("Your session has expired! Try logging in again.")
+                } else {
+                    createAlertRed("Error: " + err.response.data.message)
+                }
+
                 this.setLoggedOut()
             })
     },
