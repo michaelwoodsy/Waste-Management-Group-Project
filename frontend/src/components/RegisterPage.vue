@@ -245,6 +245,9 @@ export default {
       regions: [],
       cities: [],
 
+      //Used to cancel previous api calls
+      cancelRequest: "",
+
       //Used to remove autofill when the user clicks an option and enabled again when the user changes the address fields again
       prevAutofilledCountry: '',
       autofillCountry: true,
@@ -272,6 +275,8 @@ export default {
         this.autofillCountry = true
       }
 
+      //Cancel Previous axios request if there are any
+      this.cancelRequest && this.cancelRequest("User entered more characters into country field")
       //Only autofill address if the number of characters typed is more than 3
       if (this.autofillCountry && this.homeAddress.country.length > 3) {
         this.countries = this.photon(value, 'place:country')
@@ -291,6 +296,8 @@ export default {
         this.autofillRegion = true
       }
 
+      //Cancel Previous axios request if there are any
+      this.cancelRequest && this.cancelRequest("User entered more characters into region field")
       //Only autofill address if the number of characters typed is more than 3
       if (this.autofillRegion && this.homeAddress.region.length > 3) {
         this.regions = this.photon(value, 'boundary:administrative')
@@ -310,6 +317,8 @@ export default {
         this.autofillCity = true
       }
 
+      //Cancel Previous axios request if there are any
+      this.cancelRequest && this.cancelRequest("User entered more characters into city field")
       //Only autofill address if the number of characters typed is more than 3
       if (this.autofillCity && this.homeAddress.city.length > 3) {
         this.cities = this.photon(value, 'place:city&osm_tag=place:town')
@@ -425,10 +434,14 @@ export default {
      * @returns [] address variables that can be autofilled
      */
     photon(textEntered, tag) {
+      let CancelToken = axios.CancelToken;
 
       let addresses = []
-      axios.get(`https://photon.komoot.io/api?q=${textEntered}&osm_tag=${tag}&limit=5`)
-          .then(function (response) {
+      axios.get(`https://photon.komoot.io/api?q=${textEntered}&osm_tag=${tag}&limit=5`, {
+        cancelToken: new CancelToken((c) => {
+          this.cancelRequest = c;
+        })
+      }).then((response) => {
             for (let i = 0; i < response.data.features.length; i++) {
               const currAddress = response.data.features[i].properties;
               let addressString = ''
@@ -449,7 +462,7 @@ export default {
             }
             return addresses
           })
-          .catch(function (error) {
+          .catch((error) => {
             console.log(error)
           });
       return addresses
