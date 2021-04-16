@@ -1,6 +1,6 @@
-import { User } from '@/Api'
-import { getCookie, setCookie, deleteCookie } from "../../utils/cookieJar";
-import { createRed as createAlertRed } from "@/./utils/globalAlerts"
+import {User} from '@/Api'
+import {deleteCookie, getCookie, setCookie} from "@/utils/cookieJar";
+import {createRed as createAlertRed} from "@/utils/globalAlerts"
 
 export default {
     debug: true,
@@ -53,7 +53,7 @@ export default {
         deleteCookie('actor');
     },
 
-    register (firstName, lastName, middleName, nickname, bio, email, dateOfBirth, phoneNumber, homeAddress, password) {
+    register(firstName, lastName, middleName, nickname, bio, email, dateOfBirth, phoneNumber, homeAddress, password) {
         // Return a promise for the api call
         return new Promise((resolve, reject) => {
             User.createNew(firstName, lastName, middleName, nickname, bio, email, dateOfBirth, phoneNumber, homeAddress, password)
@@ -76,7 +76,7 @@ export default {
      * @param password Password to send to api
      * @returns {Promise<unknown>} Axios response
      */
-    login (username, password) {
+    login(username, password) {
         // Return a promise for the api call
         return new Promise((resolve, reject) => {
             User.login(username, password)
@@ -96,8 +96,8 @@ export default {
     /**
      * Logs out the user, and updates the according loggedIn value
      */
-    logout () {
-       this.setLoggedOut()
+    logout() {
+        this.setLoggedOut()
     },
 
     /**
@@ -115,8 +115,7 @@ export default {
             try {
                 const actor = JSON.parse(getCookie('actor'));
                 this.setActingAs(actor.id, actor.name, actor.type)
-            }
-            catch(err) {
+            } catch (err) {
                 deleteCookie('actor')
             }
 
@@ -136,7 +135,7 @@ export default {
      * @param name The name of the person or business
      * @param type The type, either "business" or "user"
      */
-    setActingAs (id, name, type) {
+    setActingAs(id, name, type) {
         if (type !== "business" && type !== "user") {
             throw new Error('Type must be business or user')
         }
