@@ -34,19 +34,18 @@ import Store from './store'
 import './router'
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
+import VueLogger from 'vuejs-logger';
 
 Vue.config.productionTip = false;
 
-import VueLogger from 'vuejs-logger';
-
 const options = {
-  isEnabled: true,
-  logLevel : 'debug',
-  stringifyArguments : false,
-  showLogLevel : true,
-  showMethodName : false,
-  separator: '|',
-  showConsoleColors: true
+    isEnabled: true,
+    logLevel: 'debug',
+    stringifyArguments: false,
+    showLogLevel: true,
+    showMethodName: false,
+    separator: '|',
+    showConsoleColors: true
 };
 
 Vue.use(VueLogger, options);
@@ -56,8 +55,8 @@ Store.user.checkLoggedIn();
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  components: { App },
-  template: '<App/>',
-  data: Store
+    el: '#app',
+    components: {App},
+    template: '<App/>',
+    data: Store
 });

@@ -1,4 +1,3 @@
-
 const listeners = [];
 
 // Push function for navigating routes
