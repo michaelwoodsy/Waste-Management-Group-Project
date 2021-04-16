@@ -1,5 +1,6 @@
 package org.seng302.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +23,8 @@ public class Product {
     private Double recommendedRetailPrice;
     private LocalDateTime created = LocalDateTime.now();
     private String images; //TODO: change this to a list of image objects
-    private Integer businessId;
+    @JsonIgnore
+    private Integer businessId; // The id of the business that offers this product
 
     public Product(String id, String name, String description, Double recommendedRetailPrice, Integer businessId) {
         this.id = id;
