@@ -66,7 +66,7 @@ export default {
     },
     /** Returns the user's profile url if acting as user,
      * or the business profile if acting as a business **/
-    profileRoute () {
+    profileRoute() {
       if (this.$root.$data.user.state.actingAs.type === "business") {
         return `businesses/${this.$root.$data.user.state.actingAs.id}`;
       } else {
@@ -74,6 +74,7 @@ export default {
       }
 
     }
+  }
 }
 </script>
 
