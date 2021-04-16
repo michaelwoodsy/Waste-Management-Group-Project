@@ -120,21 +120,34 @@ public class ProductCatalogueController {
                 throw exception;
             }
 
-            String productId = json.getAsString("id");
-            String name = json.getAsString("name");
-            Double description = (Double) json.getAsNumber("recommendedRetailPrice");
-
-            if (productId.isEmpty()) {
+            try {
+                String productId = json.getAsString("id");
+                if (productId.isEmpty()) { //Empty string
+                    MissingProductIdException exception = new MissingProductIdException();
+                    logger.error(exception.getMessage());
+                    throw exception;
+                }
+            } catch (NullPointerException nullPointerException) { //Field not in json
                 MissingProductIdException exception = new MissingProductIdException();
                 logger.error(exception.getMessage());
                 throw exception;
             }
 
-            if (name.isEmpty()) {
+            try {
+                String name = json.getAsString("name");
+                if (name.isEmpty()) { //Empty string
+                    MissingProductNameException exception = new MissingProductNameException();
+                    logger.error(exception.getMessage());
+                    throw exception;
+                }
+            } catch (NullPointerException nullPointerException) { //Field not in json
                 MissingProductNameException exception = new MissingProductNameException();
                 logger.error(exception.getMessage());
                 throw exception;
             }
+
+
+            Double description = (Double) json.getAsNumber("recommendedRetailPrice");
 
             //TODO return 400 if id not unique
             //TODO: create Product object and save
