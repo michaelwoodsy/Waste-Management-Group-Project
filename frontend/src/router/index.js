@@ -9,7 +9,9 @@ import Home from "../components/Home";
 import ProfilePage from "../components/ProfilePage";
 import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
+import Catalog from "@/components/Catalog";
 import CreateProductPage from "@/components/CreateProductPage";
+import IndividualProductPage from "@/components/IndividualProductPage";
 
 const routes = [
     {
@@ -48,15 +50,26 @@ const routes = [
         component: BusinessProfilePage
     },
     {
-        path: '/registerbusiness',
+        path: '/businesses',
         name: 'registerBusiness',
         component: RegisterBusinessPage
+    },
+    {
+        path: '/businesses/:businessId/products',
+        name: 'viewCatalog',
+        component: Catalog
     },
     {
         path: '/product/create', // TODO implement proper path once connected to business.
         name: 'createProduct',
         component: CreateProductPage
+    },
+    {
+        path: '/businesses/:businessId/products/:productId',
+        name: 'individualProduct',
+        component: IndividualProductPage
     }
+
 ];
 
 const base = process.env.VUE_APP_BASE_URL || '/';

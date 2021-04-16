@@ -7,7 +7,7 @@
 
     <admin-required
         page="view an individual product"
-        v-else-if="!isAdminOf()"
+        v-else-if="!isAdminOf"
     />
 
     <div v-else>
@@ -92,6 +92,13 @@ export default {
     },
 
     /**
+     * Check if the user is an admin of the current business
+     */
+    isAdminOf() {
+      return this.$root.$data.business.state.isAdminOf
+    },
+
+    /**
      * Gets the business ID
      * @returns {any}
      */
@@ -114,25 +121,15 @@ export default {
 
   methods: {
     /**
-     * Check if the user is an admin of the current business
-     */
-    isAdminOf() {
-      let result = false;
-      //Test admin data (Just add your userId to check it does work)
-      let admins = [53, 28]
-      if (admins.includes(parseInt(this.$root.$data.user.state.userId))) {
-        result = true
-      }
-      return result
-    },
-
-    /**
      * Get the list of Administrators for the business
      * @param response
      */
     profileBusiness(response) {
-      this.administrators = response.data.administrators;
+      if(this.$root.$data.user.state.actingAs.id === response.data.id && this.$root.$data.user.state.actingAs.type === 'business'){
+        this.$root.$data.business.state.isAdminOf = true
+      }
     },
+
     /**
      * Set the variables for the current product
      * @param response

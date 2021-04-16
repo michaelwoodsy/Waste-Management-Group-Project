@@ -4,6 +4,11 @@ import { Business } from '@/Api'
 export default {
     debug: true,
 
+    /** Store state **/
+    state: {
+        isAdminOf: false,
+    },
+
     /**
      * Registers a business under a given user.
      * This user is the primary administrator.

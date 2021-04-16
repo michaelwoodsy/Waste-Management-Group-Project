@@ -382,6 +382,7 @@ export const Business = {
   /*
    * Retrieves the data for a given business
    */
-  getBusinessData: (id) => instance.get(`businesses/${id}`, {})
+  getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
 
+  getProductData: (businessId, productId) => instance.get(`business/${businessId}/products/${productId}`, {})
 };
