@@ -1,5 +1,6 @@
 package org.seng302.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.seng302.project.exceptions.NoUserExistsException;
@@ -57,6 +58,7 @@ public class Business {
             joinColumns = @JoinColumn(name = "business_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @JsonIgnoreProperties("businessesAdministered")
     public List<User> getAdministrators() {
         return this.administrators;
     }

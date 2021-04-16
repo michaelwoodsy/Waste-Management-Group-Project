@@ -130,7 +130,6 @@ export default {
       this.businessType = response.data.businessType;
       this.administrators = response.data.administrators;
 
-
       //Need to remove the street and number part of this address, just splice from the first ','
       if (response.data.address.indexOf(",") === -1) this.address = response.data.address
       else this.address = response.data.address.slice(response.data.address.indexOf(",")+2)

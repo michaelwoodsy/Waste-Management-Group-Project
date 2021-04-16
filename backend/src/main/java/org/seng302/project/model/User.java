@@ -1,5 +1,6 @@
 package org.seng302.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -69,6 +70,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "business_id")
     )
+    @JsonIgnoreProperties("administrators")
     public List<Business> getBusinessesAdministered() {
         return this.businessesAdministered;
     }
