@@ -1,6 +1,7 @@
 /** Module for creating & watching for global alerts **/
 
 import Vue from 'vue';
+
 const eventBus = new Vue();
 
 /**

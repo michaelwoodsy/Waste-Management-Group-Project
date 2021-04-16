@@ -26,20 +26,17 @@ public class Product {
     @JsonIgnore
     private Integer businessId; // The id of the business that offers this product
 
-
-    @Id // this field (attribute) is the primary key of the table
-    @Column(name = "product_id")
-    public String getId() {
-        return this.id;
-    }
-
-
-    public Product(String id, String name, String description, Double recommendedRetailPrice,
-                   Integer businessId) {
+    public Product(String id, String name, String description, Double recommendedRetailPrice, Integer businessId) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.recommendedRetailPrice = recommendedRetailPrice;
         this.businessId = businessId;
+    }
+
+    @Id // this field (attribute) is the primary key of the table
+    @Column(name = "product_id")
+    public String getId() {
+        return this.id;
     }
 }

@@ -1,8 +1,7 @@
 import Router from './Router'
 import RouterLink from './RouterLink'
-import { push as historyPush } from './history'
-import { findRoute, ParsedRoute } from "./routeParser";
-import { listen } from "./history";
+import {listen, push as historyPush} from './history'
+import {findRoute, ParsedRoute} from "./routeParser";
 
 export default {
     // called by Vue.use()
@@ -46,6 +45,7 @@ export default {
 /**
  * Parse parameters and add them in place
  * @param routes Routes object
+ * @param base base url for app
  */
 const parseRouteParams = (routes, base) => {
     routes.forEach(route => {
