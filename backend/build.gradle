@@ -82,7 +82,6 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 }
 
-
 // create a specific task to run cucumber tests
 task cucumber(type: Test) {
     description = "Runs JUnit 4 tests (cucumber tests)"

@@ -95,14 +95,7 @@ public class BusinessController {
 
         logger.info(String.format("Request to get business %d", id));
         try {
-            Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
-
-            //Do this so the return is not an infinite loop of businesses and users
-            for (User user: currBusiness.getAdministrators()) {
-                user.setBusinessesAdministered(new ArrayList<>());
-            }
-
-            return currBusiness;
+            return businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
         } catch (NoBusinessExistsException noBusinessExistsException) {
             logger.warn(noBusinessExistsException.getMessage());
             throw noBusinessExistsException;
