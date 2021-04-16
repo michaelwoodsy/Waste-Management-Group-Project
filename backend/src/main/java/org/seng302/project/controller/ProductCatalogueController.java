@@ -3,6 +3,8 @@ package org.seng302.project.controller;
 import net.minidev.json.JSONObject;
 import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.ForbiddenAdministratorActionException;
+import org.seng302.project.exceptions.MissingProductIdException;
+import org.seng302.project.exceptions.MissingProductNameException;
 import org.seng302.project.exceptions.NoBusinessExistsException;
 import org.seng302.project.model.*;
 import org.slf4j.Logger;
@@ -118,9 +120,23 @@ public class ProductCatalogueController {
                 throw exception;
             }
 
-            //TODO return 400 if id not unique, or other data provided is wrong
-            //mandatory fields: productId, name
+            String productId = json.getAsString("id");
+            String name = json.getAsString("name");
+            Double description = (Double) json.getAsNumber("recommendedRetailPrice");
 
+            if (productId.isEmpty()) {
+                MissingProductIdException exception = new MissingProductIdException();
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            if (name.isEmpty()) {
+                MissingProductNameException exception = new MissingProductNameException();
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            //TODO return 400 if id not unique
             //TODO: create Product object and save
 
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException handledException) {
