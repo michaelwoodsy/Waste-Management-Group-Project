@@ -160,7 +160,7 @@ public class ProductCatalogueControllerTest {
     @Test
     void testNonExistentBusiness() throws Exception {
         assertThrows(NoBusinessExistsException.class, () -> {
-            productCatalogueController.getBusinessesProducts(1, new AppUserDetails(user));
+            productCatalogueController.getBusinessesProducts(businessId + 999999, new AppUserDetails(user));
         });
     }
 
