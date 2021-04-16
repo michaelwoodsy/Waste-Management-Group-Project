@@ -71,9 +71,9 @@ public class SearchController {
                 result.addAll(userRepository.findAll(hasSpec));
                 result.addAll(userRepository.findAll(containsSpec));
 
-                for (User currUser: result) {
+                for (User currUser : result) {
                     //Do this so the return is not an infinite loop of businesses and users
-                    for (Business business: currUser.getBusinessesAdministered()) {
+                    for (Business business : currUser.getBusinessesAdministered()) {
                         business.setAdministrators(new ArrayList<>());
                     }
                 }

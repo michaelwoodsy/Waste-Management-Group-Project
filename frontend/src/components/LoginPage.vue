@@ -13,48 +13,52 @@
           <div class="login-box">
             <!-- Show error if something wrong -->
             <alert v-if="error">
-                {{ error }}
+              {{ error }}
             </alert>
 
           </div>
           <!-- Username -->
           <div class="form-row">
             <label for="username" style="margin-top:20px"><b>Email<span class="required">*</span></b></label><br/>
-            <input type="text"
+            <input id="username"
+                   v-model="username"
                    :class="inputClass(username)"
                    class="form-control"
-                   style="width: 100%"
-                   v-model="username"
                    placeholder="Enter Email"
-                   id="username"
-                   @keyup.enter="login"
-                   required>
-          </div><br>
+                   required
+                   style="width: 100%"
+                   type="text"
+                   @keyup.enter="login">
+          </div>
+          <br>
           <!-- Password -->
           <div class="form-row">
             <label for="password"><b>Password<span class="required">*</span></b></label><br/>
-            <input type="password"
+            <input id="password"
+                   v-model="password"
                    :class="inputClass(password)"
                    class="form-control"
-                   style="width: 100%"
-                   v-model="password"
                    placeholder="Enter Password"
-                   id="password"
-                   @keyup.enter="login"
-                   required><br/><br/>
+                   required
+                   style="width: 100%"
+                   type="password"
+                   @keyup.enter="login"><br/><br/>
           </div>
           <!-- Username error (empty) -->
           <div class="form-row">
-            <p class="red-text" v-if="isIncorrectField(username)">An email must be entered!</p>
+            <p v-if="isIncorrectField(username)" class="red-text">An email must be entered!</p>
           </div>
           <!-- Password error (empty) -->
           <div class="form-row">
-            <p class="red-text" v-if="isIncorrectField(password)">A password must be entered!</p><br><br>
+            <p v-if="isIncorrectField(password)" class="red-text">A password must be entered!</p><br><br>
           </div>
           <!-- Button for login and link to register-->
           <div class="form-row">
-            <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" @click="login">Login</button><br>
-            <p  style="width: 100%; margin:0 20px; text-align: center">Don't have an account? <router-link class="link-text" to="/register">Register here</router-link></p>
+            <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" @click="login">Login</button>
+            <br>
+            <p style="width: 100%; margin:0 20px; text-align: center">Don't have an account?
+              <router-link class="link-text" to="/register">Register here</router-link>
+            </p>
           </div>
 
 
@@ -65,86 +69,82 @@
 </template>
 
 <script>
-  import LogoutRequired from "./LogoutRequired";
-  import Alert from "./Alert"
+import LogoutRequired from "./LogoutRequired";
+import Alert from "./Alert"
 
-  const LoginPage = {
-    name: "LoginPage",
-    data () {
-      return {
-        username: '',
-        password: '',
-        error: null,
-        showMissingFields: false
-      }
-    },
-    components: {
-      LogoutRequired,
-      Alert
-    },
-    methods: {
-      /**
-       * Login logic, checks that there are no missing fields, attempts to use login endpoint otherwise
-       */
-      login () {
-        if (this.username === '' || this.password === '') {
-          this.showMissingFields = true
-        } else {
-          this.$root.$data.user.login(this.username, this.password)
-                  .then(() => {
-                    this.$router.push({name: 'user'})
-                  })
-                  .catch((err) => {
-                    this.error = err.response
-                        ? err.response.data.slice(err.response.data.indexOf(":")+2)
-                        : err
-                    this.showMissingFields = false
-                  })
-        }
-      },
-      /**
-       * Checks to see if fields are missing
-       * @param field
-       * @returns {boolean}
-       */
-      isIncorrectField (field) {
-        return this.showMissingFields && (field === null || field === '')
-      },
-      //WARNING 'input-red' never used
-      /**
-       * Checks to see if field is incorrect
-       * @param field
-       * @returns {string}
-       */
-      inputClass (field) {
-        return (this.isIncorrectField(field) ? 'input-red' : 'input')
-      }
+const LoginPage = {
+  name: "LoginPage",
+  data() {
+    return {
+      username: '',
+      password: '',
+      error: null,
+      showMissingFields: false
     }
-  };
+  },
+  components: {
+    LogoutRequired,
+    Alert
+  },
+  methods: {
+    /**
+     * Login logic, checks that there are no missing fields, attempts to use login endpoint otherwise
+     */
+    login() {
+      if (this.username === '' || this.password === '') {
+        this.showMissingFields = true
+      } else {
+        this.$root.$data.user.login(this.username, this.password)
+            .then(() => {
+              this.$router.push({name: 'user'})
+            })
+            .catch((err) => {
+              this.error = err.response
+                  ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+                  : err
+              this.showMissingFields = false
+            })
+      }
+    },
+    /**
+     * Checks to see if fields are missing
+     * @param field
+     * @returns {boolean}
+     */
+    isIncorrectField(field) {
+      return this.showMissingFields && (field === null || field === '')
+    },
+    //WARNING 'input-red' never used
+    /**
+     * Checks to see if field is incorrect
+     * @param field
+     * @returns {string}
+     */
+    inputClass(field) {
+      return (this.isIncorrectField(field) ? 'input-red' : 'input')
+    }
+  }
+};
 
-  export default LoginPage;
+export default LoginPage;
 
 </script>
 
 <style scoped>
 
-  .link-text {
-    color: blue;
-    cursor: pointer;
-    margin-right: 10px;
-  }
+.link-text {
+  color: blue;
+  cursor: pointer;
+  margin-right: 10px;
+}
 
-  .required {
-    color: red;
-    display: inline;
-  }
+.required {
+  color: red;
+  display: inline;
+}
 
-  .input-red {
-    border:1px solid #f00;
-  }
-
-  .red-text {
-    color: red;
-    margin: 0;
-  }
+.red-text {
+  color: red;
+  margin: 0;
+}
 </style>
