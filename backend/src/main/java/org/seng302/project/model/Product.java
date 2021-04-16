@@ -22,7 +22,6 @@ public class Product {
     private Double recommendedRetailPrice;
     private LocalDateTime created = LocalDateTime.now();
     private String images; //TODO: change this to a list of image objects
-    private Integer businessId; // The id of the business that offers this product
 
 
     @Id // this field (attribute) is the primary key of the table
@@ -32,12 +31,10 @@ public class Product {
     }
 
 
-    public Product(String id, String name, String description, Double recommendedRetailPrice,
-                   Integer businessId) {
+    public Product(String id, String name, String description, Double recommendedRetailPrice) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.recommendedRetailPrice = recommendedRetailPrice;
-        this.businessId = businessId;
     }
 }

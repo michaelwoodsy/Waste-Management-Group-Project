@@ -9,6 +9,7 @@ import Home from "../components/Home";
 import ProfilePage from "../components/ProfilePage";
 import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
+import IndividualProduct from "@/components/IndividualProduct";
 
 const routes = [
     {
@@ -50,6 +51,11 @@ const routes = [
         path: '/registerbusiness',
         name: 'registerBusiness',
         component: RegisterBusinessPage
+    },
+    {
+        path: '/businesses/:businessId/products/:productId',
+        name: 'individualProduct',
+        component: IndividualProduct
     }
 ];
 
