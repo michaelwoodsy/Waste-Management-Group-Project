@@ -85,7 +85,7 @@ export default {
   computed: {
     /**
      * Checks to see if user is logged in currently
-     * @returns {boolean|*}
+     * @returns {boolean/*}
      */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
@@ -121,12 +121,21 @@ export default {
 
   methods: {
     /**
-     * Get the list of Administrators for the business
+     * Get the list of Administrators for the business and checks if user is acting as business
      * @param response
      */
     profileBusiness(response) {
-      if(this.$root.$data.user.state.actingAs.id === response.data.id && this.$root.$data.user.state.actingAs.type === 'business'){
-        this.$root.$data.business.state.isAdminOf = true
+      let adminLength = response.data.administrators.length
+      let admins = []
+      for (let i = 0; i < adminLength; i++) {
+        admins.push(response.data.administrators[i].id)
+      }
+
+      if (this.$root.$data.user.state.actingAs.id === response.data.id && this.$root.$data.user.state.actingAs.type === 'business') {
+          if (admins.includes(parseInt(this.$root.$data.user.state.userId))) {
+            this.$root.$data.business.state.isAdminOf = true
+          }
+        //this.$root.$data.business.state.isAdminOf = true
       }
     },
 
