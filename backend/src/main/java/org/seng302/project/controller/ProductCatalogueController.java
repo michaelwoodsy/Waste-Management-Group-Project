@@ -45,32 +45,42 @@ public class ProductCatalogueController {
     @GetMapping("/businesses/{businessId}/products")
     public List<Product> getBusinessesProducts(@PathVariable int businessId, @AuthenticationPrincipal AppUserDetails appUser) {
 
-        // Get the logged in user from the users email
-        String userEmail = appUser.getUsername();
-        User loggedInUser = userRepository.findByEmail(userEmail).get(0);
+        try {
+            // Get the logged in user from the users email
+            String userEmail = appUser.getUsername();
+            User loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
-        logger.info("User with user id: " + loggedInUser.getId() + " Getting business with ID: " + businessId + " products");
+            logger.info("User with user id: " + loggedInUser.getId() + " Getting business with ID: " + businessId + " products");
 
-        // Get the business
-        Optional<Business> businessResult = businessRepository.findById(businessId);
+            // Get the business
+            Optional<Business> businessResult = businessRepository.findById(businessId);
 
-        // Check if the business exists
-        if (businessResult.isEmpty()) {
-            NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
-            logger.error(exception.getMessage());
-            throw exception;
+            // Check if the business exists
+            if (businessResult.isEmpty()) {
+                NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+            Business business = businessResult.get();
+
+            // Check if the logged in user is the business owner / administrator
+            if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
+                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            // Get the products for the businesses
+            return productRepository.findAllByBusinessId(businessId);
+
+        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException handledException) {
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while getting business products: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
         }
-        Business business = businessResult.get();
 
-        // Check if the logged in user is the business owner / administrator
-        if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
-            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
-            logger.error(exception.getMessage());
-            throw exception;
-        }
-
-        // Get the products for the businesses
-        return productRepository.findAllByBusinessId(businessId);
     }
 
 }

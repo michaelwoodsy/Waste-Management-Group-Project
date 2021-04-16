@@ -20,18 +20,18 @@ public class UserTest {
     @Test
     public void createTestUser() {
 
-        User testUser = new User("John", "Smith", "Hector", "Jonny",
-                "Likes long walks on the beach", "johnsmith99@gmail.com",
+        User testUser = new User("John", "Smith", "Arthur", "Jonny",
+                "Likes long walks on the beach", "johnsmith9999@gmail.com",
                 "1999-04-27", "+64 3 555 0129", "4 Rountree Street, Upper Riccarton",
                 "1337-H%nt3r2");
 
         Assertions.assertNull(testUser.getId());
         Assertions.assertEquals("John", testUser.getFirstName());
         Assertions.assertEquals("Smith", testUser.getLastName());
-        Assertions.assertEquals("Hector", testUser.getMiddleName());
+        Assertions.assertEquals("Arthur", testUser.getMiddleName());
         Assertions.assertEquals("Jonny", testUser.getNickname());
         Assertions.assertEquals("Likes long walks on the beach", testUser.getBio());
-        Assertions.assertEquals("johnsmith99@gmail.com", testUser.getEmail());
+        Assertions.assertEquals("johnsmith9999@gmail.com", testUser.getEmail());
         Assertions.assertEquals("1999-04-27", testUser.getDateOfBirth());
         Assertions.assertEquals("+64 3 555 0129", testUser.getPhoneNumber());
         Assertions.assertEquals("4 Rountree Street, Upper Riccarton", testUser.getHomeAddress());

@@ -63,8 +63,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration
 public class ProductCatalogueControllerTest {
 
-    private final String ownerEmail = "johnxyz@gmail.com";
-    private final String userEmail = "jane111@gmail.com";
     private User user;
     private User owner;
     private Integer businessId;
@@ -107,12 +105,13 @@ public class ProductCatalogueControllerTest {
     @BeforeEach
     public void initialise() {
         // Create the users
-        user = createUser(new User("John", "Smith", "Hector", "Jonny",
-                "Likes long walks on the beach", userEmail, "1999-04-27",
+
+        user = createUser(new User("John", "Smith", "Bob", "Jonny",
+                "Likes long walks on the beach", "jane111@gmail.com", "1999-04-27",
                 "+64 3 555 0129", "4 Rountree Street, Upper Riccarton", "1337-H%nt3r2"));
 
-        owner = createUser(new User("Jane", "Smith", "Hector", "Jonny",
-                "Likes long walks on the beach", ownerEmail, "1999-04-27",
+        owner = createUser(new User("Jane", "Smith", "Rose", "Jonny",
+                "Likes long walks on the beach", "johnxyz@gmail.com", "1999-04-27",
                 "+64 3 555 0120", "4 Rountree Street, Upper Riccarton", "1337-H%nt3r2"));
 
         // Create the business
@@ -130,10 +129,9 @@ public class ProductCatalogueControllerTest {
     /**
      * Tries to get the business products as a logged in normal user.
      * Expects a 403 forbidden response.
-     * @throws Exception
      */
     @Test
-    void testRandomUserCantAccess() throws Exception {
+    void testRandomUserCantAccess() {
         assertThrows(ForbiddenAdministratorActionException.class, () -> {
             productCatalogueController.getBusinessesProducts(businessId, new AppUserDetails(user));
         });
@@ -142,10 +140,9 @@ public class ProductCatalogueControllerTest {
     /**
      * Tries to get the business products as a logged in owner.
      * Expects a 200 OK response, and product present.
-     * @throws Exception
      */
     @Test
-    void testAdministratorCanGetProducts() throws Exception {
+    void testAdministratorCanGetProducts() {
         List<Product> products =
                 productCatalogueController.getBusinessesProducts(businessId, new AppUserDetails(owner));
         assertEquals(products.size(), 1);
@@ -155,10 +152,9 @@ public class ProductCatalogueControllerTest {
     /**
      * Tries to get a non existent business.
      * Expects a 406 response.
-     * @throws Exception
      */
     @Test
-    void testNonExistentBusiness() throws Exception {
+    void testNonExistentBusiness() {
         assertThrows(NoBusinessExistsException.class, () -> {
             productCatalogueController.getBusinessesProducts(businessId + 999999, new AppUserDetails(user));
         });
@@ -167,7 +163,7 @@ public class ProductCatalogueControllerTest {
     /**
      * Tries to get a non existent business.
      * Expects a 406 response.
-     * @throws Exception
+     * @throws Exception possible exception from using MockMvc
      */
     @Test
     void testUnauthorised() throws Exception {
