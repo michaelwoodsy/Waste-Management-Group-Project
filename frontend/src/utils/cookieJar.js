@@ -20,7 +20,7 @@ export function setCookie(name, value, days) {
     let d = new Date;
     let dString = "0";
     if (days !== null) {
-        d.setTime(d.getTime() + 24*60*60*1000*days);
+        d.setTime(d.getTime() + 24 * 60 * 60 * 1000 * days);
         dString = d.toGMTString()
     }
     document.cookie = name + "=" + value + ";path=/;expires=" + dString;
@@ -30,4 +30,6 @@ export function setCookie(name, value, days) {
  * Deletes a cookie
  * @param name Name of the cookie to delete
  */
-export function deleteCookie(name) { setCookie(name, '', -1); }
+export function deleteCookie(name) {
+    setCookie(name, '', -1);
+}
