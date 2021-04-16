@@ -11,10 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.Optional;
 
 /**
  * REST controller for handling requests to do with businesses.
@@ -45,7 +44,7 @@ public class BusinessController {
         logger.info("Request to create business");
         try {
             //If the primary administrator id is not an id of a user
-            if(userRepository.findById(newBusiness.getPrimaryAdministratorId()).isEmpty()) {
+            if (userRepository.findById(newBusiness.getPrimaryAdministratorId()).isEmpty()) {
                 NoUserExistsException exception = new NoUserExistsException(newBusiness.getPrimaryAdministratorId());
                 logger.error(exception.getMessage());
                 throw exception;
@@ -55,7 +54,7 @@ public class BusinessController {
             }
 
             //If any of the required fields are empty
-            if (    newBusiness.getName().equals("") ||
+            if (newBusiness.getName().equals("") ||
                     newBusiness.getAddress().equals("") ||
                     newBusiness.getBusinessType().equals("")) {
                 RequiredFieldsMissingException exception = new RequiredFieldsMissingException();
@@ -64,7 +63,7 @@ public class BusinessController {
             }
 
             //If business type is not one of the specified business types
-            if(!newBusiness.getBusinessType().equals("Accommodation and Food Services") &&
+            if (!newBusiness.getBusinessType().equals("Accommodation and Food Services") &&
                     !newBusiness.getBusinessType().equals("Retail Trade") &&
                     !newBusiness.getBusinessType().equals("Charitable organisation") &&
                     !newBusiness.getBusinessType().equals("Non-profit organisation")) {
@@ -95,14 +94,7 @@ public class BusinessController {
 
         logger.info(String.format("Request to get business %d", id));
         try {
-            Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
-
-            //Do this so the return is not an infinite loop of businesses and users
-            for (User user: currBusiness.getAdministrators()) {
-                user.setBusinessesAdministered(new ArrayList<>());
-            }
-
-            return currBusiness;
+            return businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
         } catch (NoBusinessExistsException noBusinessExistsException) {
             logger.warn(noBusinessExistsException.getMessage());
             throw noBusinessExistsException;
@@ -115,7 +107,8 @@ public class BusinessController {
     /**
      * Adds an individual as an administrator for a business
      * Handles cases that may result in an error
-     * @param id Id of the business to add an administrator to
+     *
+     * @param id   Id of the business to add an administrator to
      * @param json request body JSON. Contains the id of the user to make an administrator
      */
     @PutMapping("/businesses/{id}/makeAdministrator")
@@ -129,7 +122,7 @@ public class BusinessController {
             Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
             //Checks if the user preforming the action is the primary administrator of the business
-            if(userRepository.findByEmail(userAuth.getName()).get(0).getId() != currBusiness.getPrimaryAdministratorId()) {
+            if (!userRepository.findByEmail(userAuth.getName()).get(0).getId().equals(currBusiness.getPrimaryAdministratorId())) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
                 logger.error(exception.getMessage());
                 throw exception;
@@ -159,6 +152,7 @@ public class BusinessController {
     /**
      * Removes an individual as an administrator for a business
      * Handles cases that may result in an error
+     *
      * @param id Id of the user to remove as administrator
      */
     @PutMapping("/businesses/{id}/removeAdministrator")
@@ -173,7 +167,7 @@ public class BusinessController {
             Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
 
             //Checks if the user preforming the action is the primary administrator of the business
-            if(userRepository.findByEmail(userAuth.getName()).get(0).getId() != currBusiness.getPrimaryAdministratorId()) {
+            if (!userRepository.findByEmail(userAuth.getName()).get(0).getId().equals(currBusiness.getPrimaryAdministratorId())) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
                 logger.error(exception.getMessage());
                 throw exception;
