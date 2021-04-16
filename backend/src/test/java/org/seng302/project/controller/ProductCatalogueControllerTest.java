@@ -226,6 +226,30 @@ public class ProductCatalogueControllerTest {
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new MissingProductNameException().getMessage(), returnedExceptionString);
+    }
 
+    /**
+     * Tries creating a product with an existing product id.
+     * Expect a 400 response.
+     */
+    @Test
+    void tryCreatingProductExistingId() throws Exception {
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "p1");
+        testProduct.put("name", "My first product");
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .post("/businesses/{businessId}/products", businessId)
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postUserResponse = this.mockMvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new ProductIdAlreadyExistsException().getMessage(), returnedExceptionString);
     }
 }

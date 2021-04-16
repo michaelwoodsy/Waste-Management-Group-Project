@@ -1,9 +1,6 @@
 package org.seng302.project.controller;
 
-import org.seng302.project.exceptions.ForbiddenAdministratorActionException;
-import org.seng302.project.exceptions.MissingProductIdException;
-import org.seng302.project.exceptions.MissingProductNameException;
-import org.seng302.project.exceptions.NoBusinessExistsException;
+import org.seng302.project.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -27,7 +24,7 @@ public class ProductCatalogueControllerAdvice {
     }
 
     /**
-     * Exception thrown by the getBusinessesProducts() and newProduct() functions in BusinessController
+     * Exception thrown by the getBusinessesProducts() and newProduct() functions in ProductCatalogueController
      * when a user tries to perform a function when they are not the primary administrator.
      *
      * @return a 403 response with an appropriate message
@@ -38,7 +35,7 @@ public class ProductCatalogueControllerAdvice {
     }
 
     /**
-     * Exception thrown by the newProduct() in BusinessController
+     * Exception thrown by the newProduct() in ProductCatalogueController
      * when a user tries create a product without a product id
      *
      * @return a 400 response with an appropriate message
@@ -49,13 +46,24 @@ public class ProductCatalogueControllerAdvice {
     }
 
     /**
-     * Exception thrown by the newProduct() in BusinessController
+     * Exception thrown by the newProduct() in ProductCatalogueController
      * when a user tries create a product without a product id
      *
      * @return a 400 response with an appropriate message
      */
     @ExceptionHandler(MissingProductNameException.class)
     public ResponseEntity<String> missingProductName(MissingProductNameException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Exception thrown by the newProduct() in ProductCatalogueController
+     * when a user tries create a product without a product id
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(ProductIdAlreadyExistsException.class)
+    public ResponseEntity<String> productIdAlreadyExists(ProductIdAlreadyExistsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

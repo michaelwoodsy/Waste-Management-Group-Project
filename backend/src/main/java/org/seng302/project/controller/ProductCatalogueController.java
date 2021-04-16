@@ -2,10 +2,7 @@ package org.seng302.project.controller;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.controller.authentication.AppUserDetails;
-import org.seng302.project.exceptions.ForbiddenAdministratorActionException;
-import org.seng302.project.exceptions.MissingProductIdException;
-import org.seng302.project.exceptions.MissingProductNameException;
-import org.seng302.project.exceptions.NoBusinessExistsException;
+import org.seng302.project.exceptions.*;
 import org.seng302.project.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,8 +117,8 @@ public class ProductCatalogueController {
                 throw exception;
             }
 
+            String productId = json.getAsString("id");
             try {
-                String productId = json.getAsString("id");
                 if (productId.isEmpty()) { //Empty string
                     MissingProductIdException exception = new MissingProductIdException();
                     logger.error(exception.getMessage());
@@ -133,8 +130,8 @@ public class ProductCatalogueController {
                 throw exception;
             }
 
+            String name = json.getAsString("name");
             try {
-                String name = json.getAsString("name");
                 if (name.isEmpty()) { //Empty string
                     MissingProductNameException exception = new MissingProductNameException();
                     logger.error(exception.getMessage());
@@ -146,15 +143,21 @@ public class ProductCatalogueController {
                 throw exception;
             }
 
+            //TODO: handle these
             //These can be empty
             String description = json.getAsString("description");
             Double recommendedRetailPrice = (Double) json.getAsNumber("recommendedRetailPrice");
 
-            //TODO return 400 if id not unique
+            //Return 400 if id not unique
+            if (productRepository.findById(productId).isPresent()) {
+                ProductIdAlreadyExistsException exception = new ProductIdAlreadyExistsException();
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
             //TODO: create Product object and save
 
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
-                MissingProductNameException handledException) {
+                MissingProductNameException | ProductIdAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while adding business product: %s",
