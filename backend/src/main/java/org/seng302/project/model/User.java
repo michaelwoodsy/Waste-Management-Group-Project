@@ -73,6 +73,14 @@ public class User {
         return this.businessesAdministered;
     }
 
+    /*
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "address_id")
+    public Address getHomeAddress() {
+        return this.homeAddress;
+    }
+    */
+
     public boolean businessIsAdministered(Integer businessId) {
         for (Business business : this.businessesAdministered) {
             if (businessId.equals(business.getId())) {

@@ -84,9 +84,6 @@
             <!--    Home Address Street Name    -->
             <label for="homeAddressStreet"><b>Street Name</b></label><br/>
             <input style="width:100%" type="text" placeholder="Enter your Street Name" id="homeAddressStreet" class="form-control" v-model="homeAddress.streetName"><br>
-
-            <!--    Error message for street name input   -->
-            <span class="error-msg" v-if="msg.streetName">{{msg.streetName}}</span>
           </div><br>
 
           <div class="form-row">
@@ -211,7 +208,6 @@ export default {
         'lastName': '',
         'email': '',
         'dateOfBirth': '',
-        'streetName': '',
         'country': '',
         'password': '',
         'errorChecks': null
@@ -296,7 +292,7 @@ export default {
   },
 
   /**
-   * Methods that can be called by the program
+   * Methods that can be called but the program
    */
   methods: {
     /**
@@ -357,12 +353,6 @@ export default {
         this.valid = false
       } else {
         this.msg['country'] = ''
-      }
-      if (this.homeAddress.streetNumber !== '' && this.homeAddress.streetName === '') {
-        this.msg['streetName'] = 'Please enter a Street Name'
-        this.valid = false
-      } else {
-        this.msg['streetName'] = ''
       }
     },
     /**
@@ -485,7 +475,7 @@ export default {
     /**
      * Add the new user to the server
      * Calls the api function createNew which sends a new user to the backend server
-     * If this fails the program should set the error text to the error received from the backend server
+     * If this fails the program should set the error text to the error recived from the backend server
      */
     addUser() {
       this.$root.$data.user.register(

@@ -110,6 +110,13 @@ public class UserController {
                 logger.warn(emailException.getMessage());
                 throw emailException;
             }
+            /*
+            if (!newUser.getHomeAddress().getStreetNumber().equals("") && newUser.getHomeAddress().getStreetName().equals("")) {
+                InvalidAddressException addressException = new InvalidAddressException();
+                logger.warn(addressException.getMessage());
+                throw addressException;
+            }
+            */
 
             Date dateOfBirthDate;
             Date currentDate = new Date();

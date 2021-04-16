@@ -30,10 +30,7 @@ package org.seng302.project;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import org.seng302.project.model.Business;
-import org.seng302.project.model.BusinessRepository;
-import org.seng302.project.model.User;
-import org.seng302.project.model.UserRepository;
+import org.seng302.project.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +52,7 @@ public class MainApplicationRunner implements ApplicationRunner {
     private static final JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
+    //private final AddressRepository addressRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     /**
@@ -65,10 +63,11 @@ public class MainApplicationRunner implements ApplicationRunner {
      * @param userRepository the user repository to persist example data.
      */
     @Autowired
-    public MainApplicationRunner(UserRepository userRepository, BusinessRepository businessRepository,
+    public MainApplicationRunner(UserRepository userRepository, BusinessRepository businessRepository, AddressRepository addressRepository,
                                  BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
+        //this.addressRepository = addressRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
