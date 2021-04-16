@@ -9,7 +9,7 @@ import Home from "../components/Home";
 import ProfilePage from "../components/ProfilePage";
 import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
-import Catalog from "@/components/Catalog";
+import Catalog from "@/components/ProductCatalog";
 
 const routes = [
     {

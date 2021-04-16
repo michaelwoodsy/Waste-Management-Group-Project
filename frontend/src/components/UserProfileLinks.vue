@@ -49,8 +49,11 @@
         <div class="dropdown-divider"/>
       </div>
 
-      <!-- Profile and logout section -->
+      <!-- Profile, product catalog and logout section -->
       <router-link class="dropdown-item" :to="userProfileRoute">My Profile</router-link>
+      <div v-if="this.actor.type === 'business'">
+        <router-link class="dropdown-item" :to="productCatalogRoute">Product Catalog</router-link>
+      </div>
       <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
     </div>
 
@@ -64,6 +67,11 @@ export default {
     /** Returns the users profile url **/
     userProfileRoute () {
       return `users/${this.$root.$data.user.state.userId}`;
+    },
+
+    /** Returns the product catalog url **/
+    productCatalogRoute () {
+      return `businesses/${this.actor.id}/products`;
     },
 
     /**
@@ -126,7 +134,7 @@ export default {
     /** Sets the current logged in user to act as a user account **/
     actAsUser (userData) {
       this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
-    }
+    },
   }
 }
 </script>
