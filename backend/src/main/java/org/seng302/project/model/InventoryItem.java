@@ -3,10 +3,7 @@ package org.seng302.project.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * InventoryItem class for storing inventory items:
@@ -18,8 +15,7 @@ import javax.persistence.Id;
 public class InventoryItem {
 
     private Integer id;
-    private String product; //TODO: this will be a Product object
-    private Integer productId; //TODO: reference to Product object when Product object exists in same branch
+    private Product product;
     private Integer quantity;
     private Double pricePerItem;
     private Double totalPrice;
@@ -31,11 +27,10 @@ public class InventoryItem {
     private String expires; //required
 
 
-    public InventoryItem(String product, Integer productId, Integer quantity,
+    public InventoryItem(Product product, Integer quantity,
                          Double pricePerItem, Double totalPrice, String manufactured,
                          String sellBy, String bestBefore, String expires) {
         this.product = product;
-        this.productId = productId;
         this.quantity = quantity;
         this.pricePerItem = pricePerItem;
         this.totalPrice = totalPrice;
@@ -51,5 +46,11 @@ public class InventoryItem {
     @Column(name = "inventory_item_id")
     public Integer getId() {
         return this.id;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id")
+    public Product getProduct() {
+        return this.product;
     }
 }
