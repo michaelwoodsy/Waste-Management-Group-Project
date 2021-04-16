@@ -51,6 +51,10 @@ public class Business {
         return this.id;
     }
 
+    @OneToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="address_id")
+    private Address busAddress;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_administers_business",
@@ -60,14 +64,6 @@ public class Business {
     public List<User> getAdministrators() {
         return this.administrators;
     }
-
-    /*
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "address_id")
-    public Address getHomeAddress() {
-        return this.homeAddress;
-    }
-    */
 
     /**
      * Adds a User to the list of administrators of a business.

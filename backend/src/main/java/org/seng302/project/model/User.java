@@ -62,6 +62,10 @@ public class User {
         return this.password;
     }
 
+    @OneToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="address_id")
+    private Address address;
+
     // TODO: change this to a list of Business ids, not objects
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
@@ -73,14 +77,6 @@ public class User {
         return this.businessesAdministered;
     }
 
-    /*
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "address_id")
-    public Address getHomeAddress() {
-        return this.homeAddress;
-    }
-    */
-
     public boolean businessIsAdministered(Integer businessId) {
         for (Business business : this.businessesAdministered) {
             if (businessId.equals(business.getId())) {
@@ -89,5 +85,7 @@ public class User {
         }
         return false;
     }
+
+
 
 }
