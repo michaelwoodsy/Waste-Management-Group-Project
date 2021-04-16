@@ -48,7 +48,8 @@
         <div class="dropdown-divider"/>
       </div>
 
-      <!-- Logout section -->
+      <!-- Profile and logout section -->
+      <router-link class="dropdown-item" to="/registerbusiness">Create Business</router-link>
       <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
     </div>
 
