@@ -63,6 +63,14 @@ public class BusinessController {
                 throw exception;
             }
 
+            /*
+            if (!newUser.getHomeAddress().getStreetNumber().equals("") && newUser.getHomeAddress().getStreetName().equals("")) {
+                InvalidAddressException addressException = new InvalidAddressException();
+                logger.warn(addressException.getMessage());
+                throw addressException;
+            }
+            */
+
             //If business type is not one of the specified business types
             if(!newBusiness.getBusinessType().equals("Accommodation and Food Services") &&
                     !newBusiness.getBusinessType().equals("Retail Trade") &&

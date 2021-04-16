@@ -61,6 +61,14 @@ public class Business {
         return this.administrators;
     }
 
+    /*
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "address_id")
+    public Address getHomeAddress() {
+        return this.homeAddress;
+    }
+    */
+
     /**
      * Adds a User to the list of administrators of a business.
      *
