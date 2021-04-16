@@ -1,5 +1,7 @@
 import User from './modules/user'
+import Business from './modules/business'
 
 export default {
-    user: User
+    user: User,
+    business: Business
 }

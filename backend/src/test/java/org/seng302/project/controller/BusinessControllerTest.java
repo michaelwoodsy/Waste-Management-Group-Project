@@ -2,7 +2,6 @@ package org.seng302.project.controller;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.*;
 import org.seng302.project.exceptions.*;
 import org.seng302.project.model.Business;
@@ -26,8 +25,6 @@ import java.time.format.DateTimeFormatter;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
 
 /**
@@ -109,13 +106,12 @@ public class BusinessControllerTest {
         testBusinessJson.put("primaryAdministratorId", loggedInUser.getId());
 
         mvc.perform(MockMvcRequestBuilders
-                        .post("/businesses")
-                        .content(testBusinessJson.toString())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
-                        .andExpect(status().isCreated());
-
+                .post("/businesses")
+                .content(testBusinessJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
+                .andExpect(status().isCreated());
 
 
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);

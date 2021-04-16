@@ -3,11 +3,11 @@
 <template>
   <div class="btn-group">
     <!-- Image and name -->
-    <span class="float-right d-inline pointer"  data-toggle="dropdown">
+    <span class="float-right d-inline pointer" data-toggle="dropdown">
       <!-- Profile photo -->
       <img
-          class="img-fluid profile-image rounded-circle mr-1"
           alt="profile"
+          class="img-fluid profile-image rounded-circle mr-1"
           src="../../public/profile.png"
       >
       <!-- Users name -->
@@ -23,10 +23,10 @@
         <a
             v-for="business in businessAccounts"
             v-bind:key="business.id"
-            @click="actAsBusiness(business)"
             class="dropdown-item"
+            @click="actAsBusiness(business)"
         >
-          <img class="profile-image-sm rounded-circle mb-1" alt="profile"
+          <img alt="profile" class="profile-image-sm rounded-circle mb-1"
                src="../../public/profile.png">
           {{ business.name }}
         </a>
@@ -39,8 +39,8 @@
         <a
             v-for="user in userAccounts"
             v-bind:key="user.id"
-            @click="actAsUser(user)"
             class="dropdown-item"
+            @click="actAsUser(user)"
         >
           <img class="profile-image-sm rounded-circle mb-1" alt="profile"
                src="../../public/profile.png">
@@ -49,10 +49,12 @@
         <div class="dropdown-divider"/>
       </div>
 
-      <!-- Profile, product catalog and logout section -->
-      <router-link class="dropdown-item" :to="userProfileRoute">My Profile</router-link>
+      <!-- Profile and logout section -->
       <div v-if="this.actor.type === 'business'">
         <router-link class="dropdown-item" :to="productCatalogRoute">Product Catalog</router-link>
+      </div>
+      <div v-else>
+        <router-link class="dropdown-item" to="/registerbusiness">Create Business</router-link>
       </div>
       <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
     </div>
@@ -78,18 +80,18 @@ export default {
      * Current actor
      * Returns {name, id, type}
      **/
-    actor () {
+    actor() {
       return this.$root.$data.user.state.actingAs
     },
 
     /** Returns the current logged in users data **/
-    actorName () {
+    actorName() {
       return this.actor.name
     },
 
     /** A list of user accounts the user can change to.
      * Empty list if the user is already acting as themselves **/
-    userAccounts () {
+    userAccounts() {
       return [this.$root.$data.user.state.userData]
     },
 
@@ -134,7 +136,7 @@ export default {
     /** Sets the current logged in user to act as a user account **/
     actAsUser (userData) {
       this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
-    },
+    }
   }
 }
 </script>
