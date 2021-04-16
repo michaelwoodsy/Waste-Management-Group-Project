@@ -25,7 +25,7 @@
                   <span v-if="isLoggedIn">
                     <ul class="navbar-nav mr-auto">
                       <li class="nav-item">
-                        <router-link v-if="isLoggedIn" class="nav-link d-inline" :to="profileRoute">Profile</router-link>
+                        <router-link v-if="isLoggedIn" class="nav-link" :to="profileRoute">Profile</router-link>
                       </li>
                       <li>
                         <user-profile-links/>
