@@ -103,8 +103,7 @@ public class UserControllerTest {
         Assertions.assertEquals("user", retrievedUser.getRole());
         Assertions.assertTrue(retrievedUser.getCreated().isBefore(LocalDateTime.now()));
         Assertions.assertTrue(retrievedUser.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-        //TODO: Come back to this when we implement businesses
-        //Assertions.assertTrue(retrievedUser.getBusinessesAdministered().isEmpty());
+        Assertions.assertTrue(retrievedUser.getBusinessesAdministered().isEmpty());
     }
 
 
