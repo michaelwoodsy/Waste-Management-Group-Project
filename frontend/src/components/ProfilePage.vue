@@ -2,15 +2,15 @@
   <div>
 
     <login-required
-        page="view a users profile page"
         v-if="!isLoggedIn"
+        page="view a users profile page"
     />
 
     <div v-else>
 
       <div class="row">
         <div class="col-12 text-center mb-2">
-          <h2>User Page</h2>
+          <h2>{{ firstName }} {{ lastName }}</h2>
         </div>
       </div>
 
@@ -91,7 +91,25 @@
           <p>Member Since: </p>
         </div>
         <div class="col-6 ">
-          <p>{{dateJoined}} ({{dateSinceJoin}}) </p>
+          <p>{{ dateJoined }} ({{ dateSinceJoin }}) </p>
+        </div>
+      </div>
+
+      <!-- Primary Admin to Business links -->
+      <div v-if="isPrimaryAdmin" class="row">
+        <div class="col-6 text-right font-weight-bold">
+          <p>Primary Administrator of: </p>
+        </div>
+        <div class="col-6 ">
+          <table>
+            <tr v-for="(business, index) in primaryAdminOf" :key="index">
+              <td>
+                <router-link :to="`/businesses/${business.id}`" class="nav-link d-inline">
+                  {{ business.name }}
+                </router-link>
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
 
@@ -102,7 +120,7 @@
 
 <script>
 
-import { User } from '@/Api'
+import {User} from '@/Api'
 import LoginRequired from "./LoginRequired";
 
 export default {
@@ -112,23 +130,29 @@ export default {
   },
   mounted() {
     User.getUserData(this.userId).then((response) => this.profile(response))
-    //User.getUserDataFake(this.userId).then((response) => this.profile(response)) // TODO: Change to real function when teamed up with backend team
   },
   computed: {
     /**
      * Gets the users' ID
      * @returns {any}
      */
-    userId () {
+    userId() {
       return this.$route.params.userId
     },
     /**
      * Checks to see if user is logged in currently
      * @returns {boolean|*}
      */
-    isLoggedIn () {
+    isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
-    }
+    },
+    /**
+     * Returns true if the user is primary admin of any businesses
+     * @returns {boolean|*}
+     */
+    isPrimaryAdmin() {
+      return this.primaryAdminOf.length > 0;
+    },
   },
   components: {
     LoginRequired
@@ -149,7 +173,7 @@ export default {
 
       //Need to remove the street and number part of this address, just splice from the first ','
       if (response.data.homeAddress.indexOf(",") === -1) this.homeAddress = response.data.homeAddress
-      else this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",")+2)
+      else this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",") + 2)
 
       //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
       /*
@@ -163,6 +187,8 @@ export default {
       this.dateJoined = response.data.created
       this.timeCalculator(Date.parse(this.dateJoined))
       this.dateJoined = this.dateJoined.substring(0, 10)
+      this.businessesAdministered = response.data.businessesAdministered
+      this.setPrimaryAdminList()
     },
 
     /**
@@ -196,31 +222,49 @@ export default {
 
       //Format Text
       switch (true) {
-        case (sinceYears === 1): text = `${sinceYears} year`
+        case (sinceYears === 1):
+          text = `${sinceYears} year`
           break
-        case (sinceYears > 1): text = `${sinceYears} years`
+        case (sinceYears > 1):
+          text = `${sinceYears} years`
           break
       }
 
       switch (true) {
-        case (text === '' && sinceMonths > 1): text = `${sinceMonths} months`
+        case (text === '' && sinceMonths > 1):
+          text = `${sinceMonths} months`
           break
-        case (text === '' && sinceMonths === 1): text = `${sinceMonths} month`
+        case (text === '' && sinceMonths === 1):
+          text = `${sinceMonths} month`
           break
-        case (sinceMonths > 1): text += ` and ${sinceMonths} months`
+        case (sinceMonths > 1):
+          text += ` and ${sinceMonths} months`
           break
-        case (sinceMonths === 1): text += `and ${sinceMonths} month`
+        case (sinceMonths === 1):
+          text += `and ${sinceMonths} month`
           break
-        case (text === '' && sinceMonths === 0): text = 'Less than 1 month'
+        case (text === '' && sinceMonths === 0):
+          text = 'Less than 1 month'
           break
       }
       this.dateSinceJoin = text
+    },
+
+    /**
+     * Creates list of businesses that user is primary admin of
+     */
+    setPrimaryAdminList() {
+      for (const business of this.businessesAdministered) {
+        if (business.primaryAdministratorId === parseInt(this.$route.params.userId)) {
+          this.primaryAdminOf.push(business);
+        }
+      }
     }
+
   },
 
   data() {
 
-    // Filled with the test data taken from the swagger.io API
     return {
       firstName: null,
       middleName: null,
@@ -230,7 +274,9 @@ export default {
       email: null,
       homeAddress: null,
       dateJoined: null,
-      dateSinceJoin: null
+      dateSinceJoin: null,
+      businessesAdministered: [],
+      primaryAdminOf: []
     }
   }
 }

@@ -143,8 +143,8 @@ public class UserController {
             userRepository.save(newUser);
             logger.info(String.format("Successful registration of user %d", newUser.getId()));
             return authenticate(credentials);
-        } catch ( InvalidEmailException | InvalidPhoneNumberException |  ExistingRegisteredEmailException
-                 | InvalidDateException | UserUnderageException | RequiredFieldsMissingException expectedException) {
+        } catch (InvalidEmailException | InvalidPhoneNumberException | ExistingRegisteredEmailException
+                | InvalidDateException | UserUnderageException | RequiredFieldsMissingException expectedException) {
             throw expectedException;
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while creating user: %s", exception.getMessage()));
@@ -167,12 +167,12 @@ public class UserController {
             User currUser = userRepository.findById(id).orElseThrow(() -> new NoUserExistsException(id));
 
             //Do this so the return is not an infinite loop of businesses and users
-            for (Business business: currUser.getBusinessesAdministered()) {
+            for (Business business : currUser.getBusinessesAdministered()) {
                 business.setAdministrators(new ArrayList<>());
             }
 
             return currUser;
-        }  catch (NoUserExistsException noUserExistsException) {
+        } catch (NoUserExistsException noUserExistsException) {
             logger.info(noUserExistsException.getMessage());
             throw noUserExistsException;
         } catch (Exception exception) {
