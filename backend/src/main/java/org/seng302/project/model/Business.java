@@ -90,6 +90,7 @@ public class Business {
 
     /**
      * Checks to see if a User with a specific user ID is already managing a business.
+     *
      * @param userId user ID to search for in administrators list.
      * @return true if user already administers business, false otherwise.
      */

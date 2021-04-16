@@ -2,8 +2,8 @@
   <div>
 
     <login-required
-        page="view a users profile page"
         v-if="!isLoggedIn"
+        page="view a users profile page"
     />
 
     <div v-else>
@@ -91,12 +91,12 @@
           <p>Member Since: </p>
         </div>
         <div class="col-6 ">
-          <p>{{dateJoined}} ({{dateSinceJoin}}) </p>
+          <p>{{ dateJoined }} ({{ dateSinceJoin }}) </p>
         </div>
       </div>
 
       <!-- Primary Admin to Business links -->
-      <div class="row" v-if="isPrimaryAdmin">
+      <div v-if="isPrimaryAdmin" class="row">
         <div class="col-6 text-right font-weight-bold">
           <p>Primary Administrator of: </p>
         </div>
@@ -104,7 +104,7 @@
           <table>
             <tr v-for="(business, index) in primaryAdminOf" :key="index">
               <td>
-                <router-link class="nav-link d-inline" :to="`/businesses/${business.id}`">
+                <router-link :to="`/businesses/${business.id}`" class="nav-link d-inline">
                   {{ business.name }}
                 </router-link>
               </td>
@@ -120,7 +120,7 @@
 
 <script>
 
-import { User } from '@/Api'
+import {User} from '@/Api'
 import LoginRequired from "./LoginRequired";
 
 export default {
@@ -136,21 +136,21 @@ export default {
      * Gets the users' ID
      * @returns {any}
      */
-    userId () {
+    userId() {
       return this.$route.params.userId
     },
     /**
      * Checks to see if user is logged in currently
      * @returns {boolean|*}
      */
-    isLoggedIn () {
+    isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     },
     /**
      * Returns true if the user is primary admin of any businesses
      * @returns {boolean|*}
      */
-    isPrimaryAdmin () {
+    isPrimaryAdmin() {
       return this.primaryAdminOf.length > 0;
     },
   },
@@ -173,7 +173,7 @@ export default {
 
       //Need to remove the street and number part of this address, just splice from the first ','
       if (response.data.homeAddress.indexOf(",") === -1) this.homeAddress = response.data.homeAddress
-      else this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",")+2)
+      else this.homeAddress = response.data.homeAddress.slice(response.data.homeAddress.indexOf(",") + 2)
 
       //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
       /*
@@ -222,22 +222,29 @@ export default {
 
       //Format Text
       switch (true) {
-        case (sinceYears === 1): text = `${sinceYears} year`
+        case (sinceYears === 1):
+          text = `${sinceYears} year`
           break
-        case (sinceYears > 1): text = `${sinceYears} years`
+        case (sinceYears > 1):
+          text = `${sinceYears} years`
           break
       }
 
       switch (true) {
-        case (text === '' && sinceMonths > 1): text = `${sinceMonths} months`
+        case (text === '' && sinceMonths > 1):
+          text = `${sinceMonths} months`
           break
-        case (text === '' && sinceMonths === 1): text = `${sinceMonths} month`
+        case (text === '' && sinceMonths === 1):
+          text = `${sinceMonths} month`
           break
-        case (sinceMonths > 1): text += ` and ${sinceMonths} months`
+        case (sinceMonths > 1):
+          text += ` and ${sinceMonths} months`
           break
-        case (sinceMonths === 1): text += `and ${sinceMonths} month`
+        case (sinceMonths === 1):
+          text += `and ${sinceMonths} month`
           break
-        case (text === '' && sinceMonths === 0): text = 'Less than 1 month'
+        case (text === '' && sinceMonths === 0):
+          text = 'Less than 1 month'
           break
       }
       this.dateSinceJoin = text

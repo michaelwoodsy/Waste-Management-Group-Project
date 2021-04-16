@@ -20,7 +20,7 @@ npm-install:
       - frontend/node_modules
   script:
     - cd frontend
-    - npm install --legacy-peer-deps
+    - npm install
 
 junit:
   stage: test

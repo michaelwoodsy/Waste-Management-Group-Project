@@ -12,6 +12,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     /**
      * Gets all products for a specific business.
+     *
      * @param businessId Id of the business to filter products by.
      * @return List of products that belong to the business.
      */

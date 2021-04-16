@@ -2,8 +2,8 @@
   <div>
 
     <login-required
-        page="view a business's profile page"
         v-if="!isLoggedIn"
+        page="view a business's profile page"
     />
 
     <div v-else>
@@ -60,7 +60,7 @@
           <p>Date of Registration: </p>
         </div>
         <div class="col-6">
-          <p>Registered since: {{dateJoined}} ({{dateSinceJoin}})</p>
+          <p>Registered since: {{ dateJoined }} ({{ dateSinceJoin }})</p>
         </div>
       </div>
 
@@ -73,7 +73,7 @@
           <table>
             <tr v-for="(admin, index) in administrators" :key="index">
               <td>
-                <router-link class="nav-link d-inline" :to="`/users/${admin.id}`">
+                <router-link :to="`/users/${admin.id}`" class="nav-link d-inline">
                   {{ admin.firstName }} {{ admin.lastName }}
                 </router-link>
               </td>
@@ -111,7 +111,7 @@ export default {
      * Checks to see if user is logged in currently
      * @returns {boolean|*}
      */
-    isLoggedIn () {
+    isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     }
   },
@@ -132,7 +132,7 @@ export default {
 
       //Need to remove the street and number part of this address, just splice from the first ','
       if (response.data.address.indexOf(",") === -1) this.address = response.data.address
-      else this.address = response.data.address.slice(response.data.address.indexOf(",")+2)
+      else this.address = response.data.address.slice(response.data.address.indexOf(",") + 2)
 
       //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
       /*
@@ -179,22 +179,29 @@ export default {
 
       //Format Text
       switch (true) {
-        case (sinceYears === 1): text = `${sinceYears} year`
+        case (sinceYears === 1):
+          text = `${sinceYears} year`
           break
-        case (sinceYears > 1): text = `${sinceYears} years`
+        case (sinceYears > 1):
+          text = `${sinceYears} years`
           break
       }
 
       switch (true) {
-        case (text === '' && sinceMonths > 1): text = `${sinceMonths} months`
+        case (text === '' && sinceMonths > 1):
+          text = `${sinceMonths} months`
           break
-        case (text === '' && sinceMonths === 1): text = `${sinceMonths} month`
+        case (text === '' && sinceMonths === 1):
+          text = `${sinceMonths} month`
           break
-        case (sinceMonths > 1): text += ` and ${sinceMonths} months`
+        case (sinceMonths > 1):
+          text += ` and ${sinceMonths} months`
           break
-        case (sinceMonths === 1): text += `and ${sinceMonths} month`
+        case (sinceMonths === 1):
+          text += `and ${sinceMonths} month`
           break
-        case (text === '' && sinceMonths === 0): text = 'Less than 1 month'
+        case (text === '' && sinceMonths === 0):
+          text = 'Less than 1 month'
           break
       }
       this.dateSinceJoin = text

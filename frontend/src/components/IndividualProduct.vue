@@ -1,13 +1,13 @@
 <template>
   <div>
     <login-required
-        page="view an individual product"
         v-if="!isLoggedIn"
+        page="view an individual product"
     />
 
     <admin-required
-        page="view an individual product"
         v-else-if="!isAdminOf()"
+        page="view an individual product"
     />
 
     <div v-else>

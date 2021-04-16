@@ -1,5 +1,3 @@
-
-
 /**
  * Find a route from a list of routes
  * @param routes List of route objects
@@ -18,7 +16,7 @@ export const findRoute = (routes, routeInfo) => {
 
 
 export class ParsedRoute {
-    constructor (route, base) {
+    constructor(route, base) {
         this.path = route.path;
         this.query = route.query;
         this.name = route.name;
@@ -38,7 +36,7 @@ export class ParsedRoute {
      * @param pathStr String representation of a path
      * @returns {[]}
      */
-    getPathParts (pathStr) {
+    getPathParts(pathStr) {
         // Parse path params
         let pathParts = [];
         pathStr.split('/').forEach(part => {
@@ -64,7 +62,7 @@ export class ParsedRoute {
      * Check if a path belongs to this route
      * @param path String representation of a path or an object representation
      */
-    isSameRoute (path) {
+    isSameRoute(path) {
         if (typeof path === 'object') {
             if (typeof path.name === 'string') {
                 return path.name === this.name
@@ -90,7 +88,7 @@ export class ParsedRoute {
      * Returns a route object
      * @param path String representation of a path or an object representation
      */
-    getRouteObject (path) {
+    getRouteObject(path) {
         if (typeof path === 'object') {
             return this.buildRouteFromParams(path)
 
@@ -106,7 +104,7 @@ export class ParsedRoute {
      * @param path
      * @returns {{}}
      */
-    buildRouteFromPath (path) {
+    buildRouteFromPath(path) {
         let route = {};
         route.name = this.name;
         route.params = {};
@@ -133,7 +131,7 @@ export class ParsedRoute {
      * @param path
      * @returns {{}}
      */
-    buildRouteFromParams (path) {
+    buildRouteFromParams(path) {
         let route = {};
 
         route.name = this.name;
