@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import Alert from 'Alert'
+import Alert from './Alert'
 import {listen} from "@/utils/globalAlerts"
 
 export default {
