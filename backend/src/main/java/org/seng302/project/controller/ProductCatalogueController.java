@@ -146,13 +146,15 @@ public class ProductCatalogueController {
                 throw exception;
             }
 
-
-            Double description = (Double) json.getAsNumber("recommendedRetailPrice");
+            //These can be empty
+            String description = json.getAsString("description");
+            Double recommendedRetailPrice = (Double) json.getAsNumber("recommendedRetailPrice");
 
             //TODO return 400 if id not unique
             //TODO: create Product object and save
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException handledException) {
+        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
+                MissingProductNameException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while adding business product: %s",
