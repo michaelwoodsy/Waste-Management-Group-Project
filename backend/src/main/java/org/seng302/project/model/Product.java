@@ -20,16 +20,18 @@ public class Product {
     private String id; // Chosen by the business
     private String name;
     private String description;
+    private String manufacturer;
     private Double recommendedRetailPrice;
     private LocalDateTime created = LocalDateTime.now();
     private String images; //TODO: change this to a list of image objects
     @JsonIgnore
     private Integer businessId; // The id of the business that offers this product
 
-    public Product(String id, String name, String description, Double recommendedRetailPrice, Integer businessId) {
+    public Product(String id, String name, String description, String manufacturer, Double recommendedRetailPrice, Integer businessId) {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.manufacturer = manufacturer;
         this.recommendedRetailPrice = recommendedRetailPrice;
         this.businessId = businessId;
     }
