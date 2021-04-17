@@ -117,13 +117,12 @@ export default {
      * Check if the user is an admin of the current business
      */
     isAdminOf() {
-      let result = false;
-      //Test admin data (Just add your userId to check it does work)
-      let admins = [53, 28]
-      if (admins.includes(parseInt(this.$root.$data.user.state.userId))) {
-        result = true
+      if (this.$root.$data.user.state.actingAs.type !== "business") return false
+      const businessesAdministered = this.$root.$data.user.state.userData.businessesAdministered
+      for (let i = 0; i < businessesAdministered.length; i++) {
+        if (businessesAdministered[i].id === Number(this.businessId)) return true
       }
-      return result
+      return false
     },
 
     /**
