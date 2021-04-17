@@ -145,6 +145,7 @@ public class ProductCatalogueController {
 
             //These can be empty
             String description = json.getAsString("description");
+            String manufacturer = json.getAsString("manufacturer");
             Double recommendedRetailPrice = (Double) json.getAsNumber("recommendedRetailPrice");
 
             //Return 400 if id not unique
@@ -154,7 +155,15 @@ public class ProductCatalogueController {
                 throw exception;
             }
 
-            Product product = new Product(productId, name, description, recommendedRetailPrice, businessId);
+            //Return 400 if id contains characters other than: letters, numbers, dashes
+            String productIdRegEx = "^[a-zA-Z0-9\\-]+$";
+            if (!productId.matches(productIdRegEx)) {
+                InvalidProductIdCharactersException exception = new InvalidProductIdCharactersException();
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+
+            Product product = new Product(productId, name, description, manufacturer, recommendedRetailPrice, businessId);
             productRepository.save(product);
 
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
