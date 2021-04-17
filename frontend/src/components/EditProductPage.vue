@@ -12,9 +12,11 @@
         :page="`of the business ${this.businessId} to edit its products`"
     />
 
-    <div v-else class="text-center">
+    <div v-else>
       <!-- Title of the page -->
-      <h1>Edit Product</h1>
+      <div class="text-center mb-4">
+        <h1 class="test-center">Edit Product</h1>
+      </div>
 
       <!-- Display error message if there is one -->
       <alert v-if="errorMessage">Error: {{ errorMessage }}</alert>
@@ -25,55 +27,53 @@
       </div>
 
       <!-- Edit product div -->
-      <div v-else-if="product">
-
-        <!-- Name -->
+      <div v-else-if="product" class="container-fluid">
         <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Product Id: </p>
-          </div>
-          <div class="col-6">
-            <p>{{ Id }} </p>
-          </div>
-        </div>
+          <div class="col-12 col-sm-6 offset-sm-3">
 
-        <!-- Name -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Name: </p>
-          </div>
-          <div class="col-6">
-            <p>{{ name }} </p>
-          </div>
-        </div>
+            <form>
+              <!-- ID -->
+              <div class="form-group row">
+                <label for="id" class="col-sm-4 col-form-label">ID:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="id" v-model="newProduct.id">
+                </div>
+              </div>
 
-        <!-- Description -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Description: </p>
-          </div>
-          <div class="col-6">
-            <p>{{ description }} </p>
-          </div>
-        </div>
+              <!-- Name -->
+              <div class="form-group row">
+                <label for="name" class="col-sm-4 col-form-label">Name:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="name" v-model="newProduct.name">
+                </div>
+              </div>
 
-        <!-- Recommended Retail Price -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Recommended Retail Price: </p>
-          </div>
-          <div class="col-6">
-            <p>{{ recommendedRetailPrice }} </p>
-          </div>
-        </div>
+              <!-- Description -->
+              <div class="form-group row">
+                <label for="description" class="col-sm-4 col-form-label">Description:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="description" v-model="newProduct.description">
+                </div>
+              </div>
 
-        <!-- Created -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Created: </p>
-          </div>
-          <div class="col-6">
-            <p>{{ 1 }} </p>
+              <!-- Recommended Retail Price -->
+              <div class="form-group row">
+                <label for="rrp" class="col-sm-4 col-form-label">Recommended Retail Price:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="rrp" v-model="newProduct.recommendedRetailPrice">
+                </div>
+              </div>
+
+              <!-- Manufacturer -->
+              <div class="form-group row">
+                <label for="manufacturer" class="col-sm-4 col-form-label">Manufacturer:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="manufacturer" v-model="newProduct.manufacturer">
+                </div>
+              </div>
+
+            </form>
+
           </div>
         </div>
       </div>
@@ -98,7 +98,7 @@ export default {
       errorMessage: null,
       loading: true,
       product: null,
-      newProduct: {}
+      newProduct: null
     }
   },
   components: {
@@ -192,6 +192,7 @@ export default {
         }
       ]
       this.product = data.find(prod => prod.id === this.productId.toString())
+      this.newProduct = {...this.product}
       if (!this.product) {
         this.errorMessage = `There is no product with id ${this.productId}.`
       }
