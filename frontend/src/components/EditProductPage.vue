@@ -89,7 +89,7 @@
             </button>
 
             <!-- Save Changes button -->
-            <button type="button" class="btn btn-primary ml-1 my-1 float-right" :disabled="changesMade">
+            <button type="button" class="btn btn-primary ml-1 my-1 float-right" :disabled="!changesMade">
               Save Changes
             </button>
 
@@ -193,7 +193,7 @@ export default {
           allSame = false;
         }
       }
-      return allSame
+      return !allSame
     },
 
     /**
@@ -205,8 +205,8 @@ export default {
         "btn": true,
         "mr-1": true,
         "my-1": true,
-        "btn-danger": !this.changesMade,
-        "btn-link": this.changesMade,
+        "btn-danger": this.changesMade,
+        "btn-link": !this.changesMade,
         "float-left": true
       }
     }
