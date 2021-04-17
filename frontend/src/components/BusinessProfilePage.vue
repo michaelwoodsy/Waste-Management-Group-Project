@@ -77,8 +77,24 @@
                   {{ admin.firstName }} {{ admin.lastName }}
                 </router-link>
               </td>
+              <td v-if="isPrimaryAdmin && (primaryAdminId !== admin.id)" >
+                <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;" v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
+              </td>
             </tr>
           </table>
+        </div>
+
+      </div>
+      <div class="row">
+        <div class="col-12 text-center mb-2" v-if="removedAdmin">
+          <br>
+          <p style="color: green">{{ removedAdmin }}</p>
+          <br>
+        </div>
+        <div class="col-12 text-center mb-2" v-if="error">
+          <br>
+          <p style="color: red">{{ error }}</p>
+          <br>
         </div>
       </div>
     </div>
@@ -108,12 +124,34 @@ export default {
       return this.$route.params.businessId;
     },
     /**
+     * Gets the user ID
+     * @returns {any}
+     */
+    userId() {
+      return this.$root.$data.user.state.userId;
+    },
+    /**
+     * Gets the user ID
+     * @returns {any}
+     */
+    primaryAdminId() {
+      return this.primaryAdministratorId;
+    },
+    /**
      * Checks to see if user is logged in currently
      * @returns {boolean|*}
      */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
-    }
+    },
+
+    /**
+     * Computes if the current user is the primary admin
+     * @returns {boolean|*}
+     */
+    isPrimaryAdmin() {
+      return Number(this.$root.$data.user.state.userId) === this.primaryAdministratorId
+    },
   },
   components: {
     LoginRequired
@@ -125,6 +163,7 @@ export default {
      * @param response is the response from the server
      */
     profile(response) {
+      this.primaryAdministratorId = response.data.primaryAdministratorId
       this.name = response.data.name;
       this.description = response.data.description;
       this.businessType = response.data.businessType;
@@ -146,6 +185,28 @@ export default {
       this.dateJoined = response.data.created
       this.timeCalculator(Date.parse(this.dateJoined))
       this.dateJoined = this.dateJoined.substring(0, 10)
+    },
+
+    /**
+     * Function to remove an administrator from the business.
+     * uses the removeAdministrator method in the Business api.js file to send a request to the backend
+     * @param userId id of the user removing as admin
+     * @param firstName first name of the user removing as admin
+     * @param lastName last name of the user removing as admin
+     */
+    async removeAdministrator(userId, firstName, lastName) {
+
+      try {
+        await Business.removeAdministrator(this.$route.params.businessId, userId)
+        this.removedAdmin = `Removed ${firstName} ${lastName} from administering business`
+        //Reload the data
+        Business.getBusinessData(this.businessId).then((response) => this.profile(response))
+      }
+      catch (err) {
+        this.error = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":")+2)
+            : err
+      }
     },
 
     /**
@@ -209,8 +270,8 @@ export default {
   },
   data() {
 
-    // Filled with the test data taken from the swagger.io API
     return {
+      primaryAdministratorId: null,
       name: null,
       description: null,
       businessType: null,
@@ -218,9 +279,10 @@ export default {
       dateJoined: null,
       dateSinceJoin: null,
       administrators: null,
+      removedAdmin: null,
+      error:null
     }
   }
 
 }
 </script>
-
