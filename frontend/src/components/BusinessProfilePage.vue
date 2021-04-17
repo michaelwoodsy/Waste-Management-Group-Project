@@ -78,7 +78,7 @@
                 </router-link>
               </td>
               <td v-if="isPrimaryAdmin && (primaryAdminId !== admin.id)" >
-                <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;" v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">remove</p>
+                <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;" v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
               </td>
             </tr>
           </table>
