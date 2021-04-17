@@ -50,7 +50,6 @@
       </div>
 
       <!-- Profile and logout section -->
-      <router-link :to="userProfileRoute" class="dropdown-item">My Profile</router-link>
       <router-link class="dropdown-item" to="/registerbusiness">Create Business</router-link>
       <router-link class="dropdown-item" to="/login" @click.native="logOut()">Logout</router-link>
     </div>
@@ -62,11 +61,6 @@
 export default {
   name: "UserProfileLinks",
   computed: {
-    /** Returns the users profile url **/
-    userProfileRoute() {
-      return `users/${this.$root.$data.user.state.userId}`;
-    },
-
     /**
      * Current actor
      * Returns {name, id, type}

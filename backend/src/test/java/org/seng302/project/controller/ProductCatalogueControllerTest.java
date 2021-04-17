@@ -121,7 +121,7 @@ public class ProductCatalogueControllerTest {
         businessId = testBusiness.getId();
 
         // Create a product
-        Product product = new Product("p1", "Watties Beans", "beans in a can", 2.00,
+        Product product = new Product("p1", "Watties Beans", "beans in a can", "Watties", 2.00,
                 businessId);
         productRepository.save(product);
     }
