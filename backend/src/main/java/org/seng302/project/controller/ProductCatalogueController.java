@@ -156,7 +156,7 @@ public class ProductCatalogueController {
             }
 
             //Return 400 if id contains characters other than: letters, numbers, dashes
-            String productIdRegEx = "^[a-zA-Z0-9\\-]+$";
+            String productIdRegEx = "^[a-zA-Z0-9\\-^\\S]+$";
             if (!productId.matches(productIdRegEx)) {
                 InvalidProductIdCharactersException exception = new InvalidProductIdCharactersException();
                 logger.warn(exception.getMessage());
@@ -252,16 +252,20 @@ public class ProductCatalogueController {
                 throw exception;
             }
 
-            System.out.println(product);
-            System.out.println(originalProduct);
-
-
             //Id
             String newId = json.getAsString("id");
+            System.out.println(newId);
             if(newId != null) {
                 //Return 400 if id not unique
                 if (productRepository.findById(newId).isPresent()) {
                     ProductIdAlreadyExistsException exception = new ProductIdAlreadyExistsException();
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
+                //Return 400 if id contains characters other than: letters, numbers, dashes
+                String productIdRegEx = "^[a-zA-Z0-9\\-^\\S]+$";
+                if (!newId.matches(productIdRegEx)) {
+                    InvalidProductIdCharactersException exception = new InvalidProductIdCharactersException();
                     logger.warn(exception.getMessage());
                     throw exception;
                 }
@@ -274,7 +278,7 @@ public class ProductCatalogueController {
 
         } catch (NoBusinessExistsException | NoProductExistsException |
                 IncorrectRRPFormatException | ForbiddenAdministratorActionException |
-                ProductIdAlreadyExistsException handledException) {
+                ProductIdAlreadyExistsException | InvalidProductIdCharactersException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while adding business product: %s",
