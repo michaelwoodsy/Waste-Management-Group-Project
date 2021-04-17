@@ -50,7 +50,6 @@
       </div>
 
       <!-- Profile and logout section -->
-      <router-link :to="userProfileRoute" class="dropdown-item">My Profile</router-link>
       <router-link class="dropdown-item" to="/registerbusiness">Create Business</router-link>
       <router-link class="dropdown-item" to="/login" @click.native="logOut()">Logout</router-link>
     </div>
@@ -62,11 +61,6 @@
 export default {
   name: "UserProfileLinks",
   computed: {
-    /** Returns the users profile url **/
-    userProfileRoute() {
-      return `users/${this.$root.$data.user.state.userId}`;
-    },
-
     /**
      * Current actor
      * Returns {name, id, type}
@@ -87,27 +81,30 @@ export default {
     },
 
     /** A list of the users associated business accounts **/
-    businessAccounts() {
-      // Returns a list of fake business accounts for the time being
-      return [
-        {
-          "id": 100,
-          "administrators": [],
-          "primaryAdministratorId": 20,
-          "name": "Lumbridge General Store",
-          "description": "A one-stop shop for all your adventuring needs",
-          "address": {
-            "streetNumber": "3/24",
-            "streetName": "Ilam Road",
-            "city": "Christchurch",
-            "region": "Canterbury",
-            "country": "New Zealand",
-            "postcode": "90210"
-          },
-          "businessType": "Accommodation and Food Services",
-          "created": "2020-07-14T14:52:00Z"
-        }
-      ]
+    businessAccounts () {
+      // return [
+      //   {
+      //     "id": 100,
+      //     "administrators": [
+      //
+      //     ],
+      //     "primaryAdministratorId": 20,
+      //     "name": "Lumbridge General Store",
+      //     "description": "A one-stop shop for all your adventuring needs",
+      //     "address": {
+      //       "streetNumber": "3/24",
+      //       "streetName": "Ilam Road",
+      //       "city": "Christchurch",
+      //       "region": "Canterbury",
+      //       "country": "New Zealand",
+      //       "postcode": "90210"
+      //     },
+      //     "businessType": "Accommodation and Food Services",
+      //     "created": "2020-07-14T14:52:00Z"
+      //   }
+      // ]
+
+      return this.$root.$data.user.state.userData.businessesAdministered
     }
   },
   methods: {

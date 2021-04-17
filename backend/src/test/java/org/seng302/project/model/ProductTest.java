@@ -21,11 +21,12 @@ public class ProductTest {
     @Test
     public void createTestProduct() {
         Product testProduct = new Product("WATT-420-BEANS", "Watties Baked Beans - 420g can",
-                "Baked Beans as they should be.", 2.2, 1);
+                "Baked Beans as they should be.", "Watties", 2.2, 1);
 
         assertEquals("WATT-420-BEANS", testProduct.getId());
         assertEquals("Watties Baked Beans - 420g can", testProduct.getName());
         assertEquals("Baked Beans as they should be.", testProduct.getDescription());
+        assertEquals("Watties", testProduct.getManufacturer());
         assertEquals(2.2, testProduct.getRecommendedRetailPrice());
         assertEquals(1, testProduct.getBusinessId());
         assertTrue(testProduct.getCreated().isBefore(LocalDateTime.now()) || testProduct.getCreated().isEqual(LocalDateTime.now()));
