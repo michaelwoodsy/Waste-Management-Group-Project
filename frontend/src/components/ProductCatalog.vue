@@ -1,6 +1,16 @@
 <template>
   <div>
-    <div class="container-fluid" v-if="isLoggedIn">
+    <login-required
+        v-if="!isLoggedIn"
+        page="view an individual product"
+    />
+
+    <admin-required
+        v-else-if="!isAdminOf()"
+        page="view this businesses product catalog"
+    />
+
+    <div v-else>
 
       <!--    Search Users Header    -->
       <div class="row">
@@ -34,9 +44,9 @@
               <thead>
               <tr>
                 <!--    Product Code    -->
-                <th scope="col" class="pointer" @click="orderResults('code')">
+                <th scope="col" class="pointer" @click="orderResults('id')">
                   <p class="d-inline">Code</p>
-                  <p class="d-inline" v-if="orderCol === 'code'">{{ orderDirArrow }}</p>
+                  <p class="d-inline" v-if="orderCol === 'id'">{{ orderDirArrow }}</p>
                 </th>
 
                 <!--    Full Name    -->
@@ -52,15 +62,15 @@
                 </th>
 
                 <!--    RRP    -->
-                <th scope="col"  class="pointer" @click="orderResults('rrp')">
+                <th scope="col"  class="pointer" @click="orderResults('recommendedRetailPrice')">
                   <p class="d-inline">RRP</p>
-                  <p class="d-inline" v-if="orderCol === 'rrp'">{{ orderDirArrow }}</p>
+                  <p class="d-inline" v-if="orderCol === 'recommendedRetailPrice'">{{ orderDirArrow }}</p>
                 </th>
 
                 <!--    Date Added    -->
-                <th scope="col" class="pointer" @click="orderResults('dateAdded')">
+                <th scope="col" class="pointer" @click="orderResults('created')">
                   <p class="d-inline">Date Added</p>
-                  <p class="d-inline" v-if="orderCol === 'dateAdded'">{{ orderDirArrow }}</p>
+                  <p class="d-inline" v-if="orderCol === 'created'">{{ orderDirArrow }}</p>
                 </th>
               </tr>
               </thead>
@@ -71,12 +81,11 @@
                   @click="viewProduct(product.id)"
                   class="pointer"
               >
-                <!--TODO: Change variable names to actual names when product model is made-->
                 <th scope="row">{{ product.id }}</th>
                 <td>{{ product.name }}</td>
                 <td>{{ product.manufacturer }}</td>
                 <td>{{ product.recommendedRetailPrice }}</td>
-                <td>{{ product.created }}</td>
+                <td>{{ new Date(product.created).toDateString() }}</td>
               </tr>
               </tbody>
             </table>
@@ -103,13 +112,12 @@
         </div>
       </div>
     </div>
-
-    <login-required v-else page="view the catalog"/>
   </div>
 </template>
 
 <script>
 import LoginRequired from './LoginRequired'
+import AdminRequired from "@/components/AdminRequired";
 import ShowingResultsText from "./ShowingResultsText";
 import Pagination from "./Pagination";
 import Alert from './Alert'
@@ -118,6 +126,7 @@ export default {
   name: "Catalog",
   components: {
     LoginRequired,
+    AdminRequired,
     Alert,
     ShowingResultsText,
     Pagination
@@ -135,7 +144,6 @@ export default {
   },
   mounted() {
     this.fillTable()
-    console.log(this.$route.params.businessId)
   },
 
   computed: {
@@ -180,9 +188,9 @@ export default {
       // Order direction multiplier for sorting
       const orderDir = (this.orderDirection ? 1 : -1);
 
-      // Sort users if there are any
+      // Sort products if there are any
       if (newProducts.length > 0) {
-        // Sort users
+        // Sort products
         newProducts.sort((a, b) => {
           return orderDir * this.sortAlpha(a, b)
         });
@@ -198,7 +206,7 @@ export default {
     paginatedProducts () {
       let newProducts = this.sortedProducts;
 
-      // Sort users if there are any
+      // Sort products if there are any
       if (newProducts.length > 0) {
         // Splice the results to showing size
         const startIndex = this.resultsPerPage * (this.page - 1);
@@ -217,6 +225,17 @@ export default {
     }
   },
   methods: {
+    /**
+     * Check if the user is an admin of the current business
+     */
+    isAdminOf() {
+      if (this.$root.$data.user.state.actingAs.type !== "business") return false
+      const businessesAdministered = this.$root.$data.user.state.userData.businessesAdministered
+      for (let i = 0; i < businessesAdministered.length; i++) {
+        if (businessesAdministered[i].id === Number(this.businessId)) return true
+      }
+      return false
+    },
 
     /**
      * Updates order direction
@@ -249,7 +268,7 @@ export default {
      * @param id of the product
      */
     viewProduct(id) {
-      this.$router.push({name: 'viewProduct', params: {productId: id}})
+      this.$router.push({name: 'individualProduct', params: {businessId:this.businessId ,productId: id}})
     },
 
     /**
@@ -286,6 +305,7 @@ export default {
           "id": "WATT-420-BEANS",
           "name": "Watties Baked Beans - 420g can",
           "description": "Baked Beans as they should be.",
+          "manufacturer": "Watties",
           "recommendedRetailPrice": 2.2,
           "created": "2021-04-16T04:34:55.931Z",
           "images": []
@@ -294,6 +314,7 @@ export default {
           "id": "DORITO-300-CHEESE",
           "name": "Doritos Nacho Cheese - 300g",
           "description": "Gamer Fuel",
+          "manufacturer": "Doritoes inc.",
           "recommendedRetailPrice": 3.5,
           "created": "2021-04-16T04:35:43.931Z",
           "images": []

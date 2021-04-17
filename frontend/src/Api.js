@@ -401,5 +401,5 @@ export const Business = {
      */
     getBusinessData: (id) => instance.get(`businesses/${id}`, {})
 
-    //getProductData: (businessId, productId) => instance.get(`business/${businessId}/products/${productId}`, {})
+    //getProductData: (businessId, productId) => instance.get(`businesses/${businessId}/products/${productId}`, {})
 };
