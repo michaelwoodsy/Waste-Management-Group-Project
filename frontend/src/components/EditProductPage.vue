@@ -31,7 +31,7 @@
 
         <!-- Row for edit form -->
         <div class="row">
-          <div class="col-12 col-sm-6 offset-sm-3">
+          <div class="col-12 col-sm-8 offset-sm-2">
 
             <form>
               <!-- ID -->
@@ -54,7 +54,7 @@
               <div class="form-group row">
                 <label for="description" class="col-sm-4 col-form-label">Description:</label>
                 <div class="col-sm-8">
-                  <input type="text" class="form-control" id="description" v-model="newProduct.description">
+                  <textarea type="text" class="form-control" id="description" rows="3" v-model="newProduct.description"></textarea>
                 </div>
               </div>
 
@@ -81,7 +81,7 @@
 
         <!-- Row for submit / cancel buttons -->
         <div class="row text-center mt-3">
-          <div class="col-12 col-sm-6 offset-sm-3">
+          <div class="col-12 col-sm-8 offset-sm-2">
 
             <!-- Cancel button when changes are made -->
             <button type="button" :class="cancelBtnClass">
@@ -89,7 +89,7 @@
             </button>
 
             <!-- Save Changes button -->
-            <button type="button" class="btn btn-primary m-1 float-right" :disabled="changesMade">
+            <button type="button" class="btn btn-primary ml-1 my-1 float-right" :disabled="changesMade">
               Save Changes
             </button>
 
@@ -203,7 +203,8 @@ export default {
     cancelBtnClass() {
       return {
         "btn": true,
-        "m-1": true,
+        "mr-1": true,
+        "my-1": true,
         "btn-danger": !this.changesMade,
         "btn-link": this.changesMade,
         "float-left": true
