@@ -58,7 +58,7 @@ public class ProductCatalogueControllerAdvice {
 
     /**
      * Exception thrown by the newProduct() in ProductCatalogueController
-     * when a user tries create a product without a product id
+     * when a user tries create a product without a product name
      *
      * @return a 400 response with an appropriate message
      */
@@ -68,8 +68,8 @@ public class ProductCatalogueControllerAdvice {
     }
 
     /**
-     * Exception thrown by the newProduct() and editProduct() in ProductCatalogueController
-     * when a user tries to create or edit a product with an already existing product id
+     * Exception thrown by newProduct() and editProduct() in ProductCatalogueController
+     * when a user tries create a product with an existing product id
      *
      * @return a 400 response with an appropriate message
      */
@@ -86,6 +86,17 @@ public class ProductCatalogueControllerAdvice {
      */
     @ExceptionHandler(IncorrectRRPFormatException.class)
     public ResponseEntity<String> productIdAlreadyExists(IncorrectRRPFormatException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Exception thrown by the newProduct() in ProductCatalogueController
+     * when a user tries to use a product id with invalid characters
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(InvalidProductIdCharactersException.class)
+    public ResponseEntity<String> invalidProductIdCharacters(InvalidProductIdCharactersException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

@@ -43,6 +43,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -254,6 +255,31 @@ public class ProductCatalogueControllerTest {
     }
 
     /**
+     * Tries creating a product where the product id has invalid characters.
+     * Expect a 400 response.
+     */
+    @Test
+    void tryCreatingInvalidProductId() throws Exception {
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "Sarah's Cookies");
+        testProduct.put("name", "Sarah's Cookies");
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .post("/businesses/{businessId}/products", businessId)
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postUserResponse = this.mockMvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new InvalidProductIdCharactersException().getMessage(), returnedExceptionString);
+    }
+
+    /**
      * Tests successful creation of a product through the POST method
      */
     @Test
@@ -262,6 +288,7 @@ public class ProductCatalogueControllerTest {
         testProduct.put("id", "S-COOKIES");
         testProduct.put("name", "Sarah's cookies");
         testProduct.put("description", "20pk of delicious home baked cookies");
+        testProduct.put("manufacturer", "Sarah");
 
         RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/products", businessId)
@@ -274,10 +301,14 @@ public class ProductCatalogueControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isCreated()) // We expect a 201 response
                 .andReturn();
 
-        Product retrievedProduct = productRepository.getOne("S-COOKIES");
+        Optional<Product> retrievedProductOptions = productRepository.findById("S-COOKIES");
+        Assertions.assertTrue(retrievedProductOptions.isPresent());
+
+        Product retrievedProduct = retrievedProductOptions.get();
 
         Assertions.assertEquals("Sarah's cookies", retrievedProduct.getName());
         Assertions.assertEquals("20pk of delicious home baked cookies", retrievedProduct.getDescription());
+        Assertions.assertEquals("Sarah", retrievedProduct.getManufacturer());
         Assertions.assertNull(retrievedProduct.getRecommendedRetailPrice());
         Assertions.assertEquals(businessId, retrievedProduct.getBusinessId());
     }
