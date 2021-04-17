@@ -156,7 +156,7 @@ public class ProductCatalogueController {
             }
 
             //Return 400 if id contains characters other than: letters, numbers, dashes
-            String productIdRegEx = "^[a-zA-Z0-9\\-]+$";
+            String productIdRegEx = "^[a-zA-Z0-9\\-^\\S]+$";
             if (!productId.matches(productIdRegEx)) {
                 InvalidProductIdCharactersException exception = new InvalidProductIdCharactersException();
                 logger.warn(exception.getMessage());
