@@ -28,6 +28,8 @@
 
       <!-- Edit product div -->
       <div v-else-if="product" class="container-fluid">
+
+        <!-- Row for edit form -->
         <div class="row">
           <div class="col-12 col-sm-6 offset-sm-3">
 
@@ -60,7 +62,7 @@
               <div class="form-group row">
                 <label for="rrp" class="col-sm-4 col-form-label">Recommended Retail Price:</label>
                 <div class="col-sm-8">
-                  <input type="text" class="form-control" id="rrp" v-model="newProduct.recommendedRetailPrice">
+                  <input type="text" class="form-control" id="rrp" v-model.number="newProduct.recommendedRetailPrice">
                 </div>
               </div>
 
@@ -76,6 +78,26 @@
 
           </div>
         </div>
+
+        <!-- Row for submit / cancel buttons -->
+        <div class="row text-center mt-3">
+          <div class="col-12 col-sm-6 offset-sm-3">
+
+            <!-- Cancel button when changes are made -->
+            <button type="button" :class="cancelBtnClass">
+              Cancel
+            </button>
+
+            <!-- Save Changes button -->
+            <button type="button" class="btn btn-primary m-1 float-right" :disabled="changesMade">
+              Save Changes
+            </button>
+
+          </div>
+
+
+        </div>
+
       </div>
 
     </div>
@@ -154,6 +176,38 @@ export default {
         }
       })
       return isAdmin
+    },
+
+    /**
+     * Returns true if changes have been made to the product
+     * @returns {boolean}
+     */
+    changesMade() {
+      if (!this.product) { return false }
+      let allSame = true;
+      for (const [key, val] of Object.entries(this.product)) {
+        if (this.newProduct[key] !== val && typeof val !== 'object') {
+          console.log(val)
+          console.log(this.newProduct[key])
+          console.log(typeof val)
+          allSame = false;
+        }
+      }
+      return allSame
+    },
+
+    /**
+     * Defines the css classes used by the cancel button
+     * @returns {{"m-1": boolean, "btn-danger": boolean, "btn-primary": boolean, btn: boolean}}
+     */
+    cancelBtnClass() {
+      return {
+        "btn": true,
+        "m-1": true,
+        "btn-danger": !this.changesMade,
+        "btn-link": this.changesMade,
+        "float-left": true
+      }
     }
   },
   methods: {
@@ -203,5 +257,7 @@ export default {
 </script>
 
 <style scoped>
-
+.btn {
+  transition-duration: 0.1s;
+}
 </style>
