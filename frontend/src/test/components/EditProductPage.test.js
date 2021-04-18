@@ -20,7 +20,10 @@ let computed = {
     productId() { return productId },
     businessesAdministered() { return [{id: 2}] },
     isAdminOfBusiness() { return businessId === 2 },
-    changesMade() { return false }
+    changesMade() { return false },
+    nameValid() { return true },
+    priceValid() { return true },
+    idValid() { return true }
 }
 
 // Mock the business api module, once implemented
@@ -119,5 +122,37 @@ describe('EditProductPage Component Tests', () => {
         expect(EditProductPage.computed.priceValid.call(fakePrice(""))).toBeTruthy()
         expect(EditProductPage.computed.priceValid.call(fakePrice("a"))).toBeFalsy()
         expect(EditProductPage.computed.priceValid.call(fakePrice(" "))).toBeFalsy()
+    })
+
+    // Check a message is shown when a field isn't valid
+    test("a message is shown when the input fields aren't valid", async() => {
+        // Setup with idValid, nameValid, priceValid set to false
+        wrapper = await VueTestUtils.shallowMount(EditProductPage, {
+            stubs: ['router-link', 'router-view', "login-required", "admin-required"],
+            computed: {...computed, idValid: false, nameValid: false, priceValid: false}
+        })
+        await wrapper.setData({nameBlur: true, priceBlur: true, idBlur: true}) // Set the elements as being blurred
+
+        // Find the form group divs
+        const foundFormGroupDivs = wrapper.findAll("div.form-group");
+
+        // Find and test the Id input
+        const idDiv = foundFormGroupDivs.filter(div => div.find('label').text() === 'ID*')
+        const idInput = idDiv.at(0).find('input')
+        // Expect the 'is-invalid' class is set on the input element, this will display the fixes message
+        expect(idInput.classes().find(el => el === 'is-invalid')).toBeDefined()
+
+        // Find and test the name input
+        const nameDiv = foundFormGroupDivs.filter(div => div.find('label').text() === 'Name*')
+        const nameInput = nameDiv.at(0).find('input')
+        // Expect the 'is-invalid' class is set on the input element, this will display the fixes message
+        expect(nameInput.classes().find(el => el === 'is-invalid')).toBeDefined()
+
+        // Find and test the price input
+        const priceDiv = foundFormGroupDivs.filter(div => div.find('label').text() === 'Recommended Retail Price')
+        const priceInput = priceDiv.at(0).find('input')
+        // Expect the 'is-invalid' class is set on the input element, this will display the fixes message
+        expect(priceInput.classes().find(el => el === 'is-invalid')).toBeDefined()
+
     })
 })
