@@ -20,17 +20,7 @@ let computed = {
     productId() { return productId },
     businessesAdministered() { return [{id: 2}] },
     isAdminOfBusiness() { return businessId === 2 },
-    changesMade() { return false },
-    cancelBtnClass() {
-        return {
-            "btn": true,
-            "mr-1": true,
-            "my-1": true,
-            "btn-danger": this.changesMade,
-            "btn-link": !this.changesMade,
-            "float-left": true
-        }
-    }
+    changesMade() { return false }
 }
 
 // Mock the business api module, once implemented
@@ -101,5 +91,14 @@ describe('EditProductPage Component Tests', () => {
         const alertComponent = wrapper.findComponent({ name: 'alert' })
         expect(alertComponent.exists()).toBeTruthy()
         expect(alertComponent.text()).toContain("no product")
+    })
+
+    // Check the idValid computed field
+    test("testing idField computed property", async() => {
+        const fakeId = (id) => {return { newProduct: {id: id }}}
+        expect(EditProductPage.computed.idValid.call(fakeId("Baked Beans"))).toBeFalsy()
+        expect(EditProductPage.computed.idValid.call(fakeId(""))).toBeFalsy()
+        expect(EditProductPage.computed.idValid.call(fakeId("Baked"))).toBeTruthy()
+        expect(EditProductPage.computed.idValid.call(fakeId("Baked-beans123-"))).toBeTruthy()
     })
 })
