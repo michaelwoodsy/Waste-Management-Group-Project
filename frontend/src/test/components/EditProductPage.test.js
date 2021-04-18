@@ -101,4 +101,23 @@ describe('EditProductPage Component Tests', () => {
         expect(EditProductPage.computed.idValid.call(fakeId("Baked"))).toBeTruthy()
         expect(EditProductPage.computed.idValid.call(fakeId("Baked-beans123-"))).toBeTruthy()
     })
+
+    // Check the nameValid computed field
+    test("testing nameValid computed property", async() => {
+        const fakeName = (name) => {return { newProduct: {name: name }}}
+        expect(EditProductPage.computed.nameValid.call(fakeName("Myrtle's Motorcycles"))).toBeTruthy()
+        expect(EditProductPage.computed.nameValid.call(fakeName(""))).toBeFalsy()
+    })
+
+    // Check the priceValid computed field
+    test("testing priceValid computed property", async() => {
+        const fakePrice = (price) => {return { newProduct: {recommendedRetailPrice: price }}}
+        expect(EditProductPage.computed.priceValid.call(fakePrice(1.22))).toBeTruthy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice(1))).toBeTruthy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice(1.00))).toBeTruthy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice(1.555))).toBeFalsy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice(""))).toBeTruthy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice("a"))).toBeFalsy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice(" "))).toBeFalsy()
+    })
 })
