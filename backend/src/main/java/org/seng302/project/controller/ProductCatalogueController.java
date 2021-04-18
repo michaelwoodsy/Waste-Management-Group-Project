@@ -149,7 +149,7 @@ public class ProductCatalogueController {
             Double recommendedRetailPrice = (Double) json.getAsNumber("recommendedRetailPrice");
 
             //Return 400 if id not unique
-            if (productRepository.findById(productId).isPresent()) {
+            if (productRepository.findByIdAndBusinessId(productId, businessId).isPresent()) {
                 ProductIdAlreadyExistsException exception = new ProductIdAlreadyExistsException();
                 logger.warn(exception.getMessage());
                 throw exception;

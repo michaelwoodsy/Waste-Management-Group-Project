@@ -306,7 +306,7 @@ public class ProductCatalogueControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isCreated()) // We expect a 201 response
                 .andReturn();
 
-        Optional<Product> retrievedProductOptions = productRepository.findById("S-COOKIES");
+        Optional<Product> retrievedProductOptions = productRepository.findByIdAndBusinessId("S-COOKIES", businessId);
         Assertions.assertTrue(retrievedProductOptions.isPresent());
 
         Product retrievedProduct = retrievedProductOptions.get();
