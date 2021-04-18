@@ -8,10 +8,11 @@ import java.util.List;
 /**
  * Repository for interfacing with products in the database.
  */
-public interface ProductRepository extends JpaRepository<Product, Integer> {
+public interface ProductRepository extends JpaRepository<Product, String> {
 
     /**
      * Gets all products for a specific business.
+     *
      * @param businessId Id of the business to filter products by.
      * @return List of products that belong to the business.
      */

@@ -3,11 +3,11 @@
 <template>
   <div class="btn-group">
     <!-- Image and name -->
-    <span class="float-right d-inline pointer"  data-toggle="dropdown">
+    <span class="float-right d-inline pointer" data-toggle="dropdown">
       <!-- Profile photo -->
       <img
-          class="img-fluid profile-image rounded-circle mr-1"
           alt="profile"
+          class="img-fluid profile-image rounded-circle mr-1"
           src="../../public/profile.png"
       >
       <!-- Users name -->
@@ -23,10 +23,10 @@
         <a
             v-for="business in businessAccounts"
             v-bind:key="business.id"
-            @click="actAsBusiness(business)"
             class="dropdown-item"
+            @click="actAsBusiness(business)"
         >
-          <img class="profile-image-sm rounded-circle mb-1" alt="profile"
+          <img alt="profile" class="profile-image-sm rounded-circle mb-1"
                src="../../public/profile.png">
           {{ business.name }}
         </a>
@@ -39,8 +39,8 @@
         <a
             v-for="user in userAccounts"
             v-bind:key="user.id"
-            @click="actAsUser(user)"
             class="dropdown-item"
+            @click="actAsUser(user)"
         >
           <img class="profile-image-sm rounded-circle mb-1" alt="profile"
                src="../../public/profile.png">
@@ -50,8 +50,12 @@
       </div>
 
       <!-- Profile and logout section -->
-      <router-link class="dropdown-item" :to="userProfileRoute">My Profile</router-link>
-      <router-link class="dropdown-item" to="/registerbusiness">Create Business</router-link>
+      <div v-if="this.actor.type === 'business'">
+        <router-link class="dropdown-item" :to="productCatalogueRoute">Product Catalogue</router-link>
+      </div>
+      <div v-else>
+        <router-link class="dropdown-item" to="/business">Create Business</router-link>
+      </div>
       <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
     </div>
 
@@ -67,49 +71,55 @@ export default {
       return `users/${this.$root.$data.user.state.userId}`;
     },
 
+    /** Returns the product catalogue url **/
+    productCatalogueRoute () {
+      return `businesses/${this.actor.id}/products`;
+    },
+
     /**
      * Current actor
      * Returns {name, id, type}
      **/
-    actor () {
+    actor() {
       return this.$root.$data.user.state.actingAs
     },
 
     /** Returns the current logged in users data **/
-    actorName () {
+    actorName() {
       return this.actor.name
     },
 
     /** A list of user accounts the user can change to.
      * Empty list if the user is already acting as themselves **/
-    userAccounts () {
+    userAccounts() {
       return [this.$root.$data.user.state.userData]
     },
 
     /** A list of the users associated business accounts **/
     businessAccounts () {
-      // Returns a list of fake business accounts for the time being
-      return [
-        {
-          "id": 100,
-          "administrators": [
+      // return [
+      //   {
+      //     "id": 100,
+      //     "administrators": [
+      //
+      //     ],
+      //     "primaryAdministratorId": 20,
+      //     "name": "Lumbridge General Store",
+      //     "description": "A one-stop shop for all your adventuring needs",
+      //     "address": {
+      //       "streetNumber": "3/24",
+      //       "streetName": "Ilam Road",
+      //       "city": "Christchurch",
+      //       "region": "Canterbury",
+      //       "country": "New Zealand",
+      //       "postcode": "90210"
+      //     },
+      //     "businessType": "Accommodation and Food Services",
+      //     "created": "2020-07-14T14:52:00Z"
+      //   }
+      // ]
 
-          ],
-          "primaryAdministratorId": 20,
-          "name": "Lumbridge General Store",
-          "description": "A one-stop shop for all your adventuring needs",
-          "address": {
-            "streetNumber": "3/24",
-            "streetName": "Ilam Road",
-            "city": "Christchurch",
-            "region": "Canterbury",
-            "country": "New Zealand",
-            "postcode": "90210"
-          },
-          "businessType": "Accommodation and Food Services",
-          "created": "2020-07-14T14:52:00Z"
-        }
-      ]
+      return this.$root.$data.user.state.userData.businessesAdministered
     }
   },
   methods: {
