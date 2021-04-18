@@ -55,7 +55,7 @@
           <div class="form-row">
             <!--    bio    -->
             <label class="bio-label" for="bio"><b>Bio</b></label><br>
-            <textarea id="bio" maxlength="1000" v-model="bio" class="form-control" placeholder="Write a Bio"
+            <textarea id="bio" maxlength="255" v-model="bio" class="form-control" placeholder="Write a Bio (Max length 255 characters)"
                       style="width: 100%; height: 200px;"></textarea>
           </div>
           <br>
@@ -73,7 +73,9 @@
             <!--    Phone Number    -->
             <label for="phoneNumber"><b>Phone Number</b></label><br/>
             <input id="phoneNumber" maxlength="30" v-model="phone" class="form-control"
-                   placeholder="Enter your Phone Number with extension" style="width:100%" type="text"><br><br><br>
+                   placeholder="Enter your Phone Number with extension" style="width:100%" type="text"><br>
+            <!--    Error message for the phone input    -->
+            <span v-if="msg.phone" class="error-msg">{{ msg.phone }}</span><br><br>
           </div>
 
           <hr/>
@@ -86,7 +88,7 @@
           <div class="form-row">
             <!--    Home Address Street Number    -->
             <label for="homeAddressNumber"><b>Street Number</b></label><br/>
-            <input id="homeAddressNumber" maxlength="100" v-model="homeAddress.streetNumber" class="form-control"
+            <input id="homeAddressNumber" maxlength="20" v-model="homeAddress.streetNumber" class="form-control"
                    placeholder="Enter your Street Number" style="width:100%" type="text"><br>
           </div>
           <br>
@@ -94,7 +96,7 @@
           <div class="form-row">
             <!--    Home Address Street Name    -->
             <label for="homeAddressStreet"><b>Street Name</b></label><br/>
-            <input id="homeAddressStreet" maxlength="100" v-model="homeAddress.streetName" class="form-control"
+            <input id="homeAddressStreet" maxlength="50" v-model="homeAddress.streetName" class="form-control"
                    placeholder="Enter your Street Name" style="width:100%" type="text"><br>
           </div>
           <br>
@@ -102,7 +104,7 @@
           <div class="form-row">
             <!--    Home Address City    -->
             <label for="homeAddressCity"><b>City or Town</b></label><br/>
-            <input id="homeAddressCity" maxlength="100" v-model="addressCity" class="form-control"
+            <input id="homeAddressCity" maxlength="50" v-model="addressCity" class="form-control"
                    placeholder="Enter your City" style="width:100%" type="search"><br>
 
             <!--    Autofill City/Town    -->
@@ -115,7 +117,7 @@
           <div class="form-row">
             <!--    Home Address Region    -->
             <label for="homeAddressRegion"><b>Region</b></label><br/>
-            <input id="homeAddressRegion" maxlength="100" v-model="addressRegion" class="form-control"
+            <input id="homeAddressRegion" maxlength="50" v-model="addressRegion" class="form-control"
                    placeholder="Enter your Region" style="width:100%" type="search"><br>
 
             <!--    Autofill region    -->
@@ -128,7 +130,7 @@
           <div class="form-row">
             <!--    Home Address Country    -->
             <label for="homeAddressCountry"><b>Country<span class="required">*</span></b></label><br/>
-            <input id="homeAddressCountry" maxlength="100" v-model="addressCountry" class="form-control"
+            <input id="homeAddressCountry" maxlength="30" v-model="addressCountry" class="form-control"
                    placeholder="Enter your Country" required style="width:100%" type="search"><br>
 
             <!--    Autofill country    -->
@@ -146,7 +148,7 @@
           <div class="form-row">
             <!--    Home Address Post Code    -->
             <label for="homeAddressPostCode"><b>Postcode</b></label><br/>
-            <input id="homeAddressPostCode" maxlength="100" v-model="homeAddress.postcode" class="form-control"
+            <input id="homeAddressPostCode" maxlength="30" v-model="homeAddress.postcode" class="form-control"
                    placeholder="Enter your Postcode" style="width:100%" type="text"><br>
           </div>
           <br>
@@ -236,7 +238,8 @@ export default {
         'dateOfBirth': '',
         'country': '',
         'password': '',
-        'errorChecks': null
+        'errorChecks': null,
+        'phone': ''
       },
       valid: true,
 

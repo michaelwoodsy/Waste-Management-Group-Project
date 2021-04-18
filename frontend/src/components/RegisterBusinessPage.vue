@@ -24,7 +24,7 @@
               <b>Business Name<span class="required">*</span></b>
             </label>
             <br/>
-            <input id="businessName" v-model="businessName"
+            <input id="businessName" maxlength="200" v-model="businessName"
                    class="form-control" placeholder="Enter your Business Name"
                    required style="width:100%" type="text">
             <br>
@@ -40,8 +40,8 @@
               <b>Bio</b>
             </label>
             <br>
-            <textarea id="description" v-model="description"
-                      class="form-control" placeholder="Write a Business Description" style="width: 100%; height: 200px;">
+            <textarea id="description" maxlength="255" v-model="description"
+                      class="form-control" placeholder="Write a Business Description (Max length 255 characters)" style="width: 100%; height: 200px;">
 
             </textarea>
           </div>
@@ -59,7 +59,7 @@
             <label for="businessAddressNumber">
               <b>Street Number</b>
             </label><br/>
-            <input id="businessAddressNumber" v-model="businessAddress.streetNumber" class="form-control"
+            <input id="businessAddressNumber" maxlength="20" v-model="businessAddress.streetNumber" class="form-control"
                    placeholder="Enter your Street Number" style="width:100%" type="text">
             <br>
           </div>
@@ -71,7 +71,7 @@
               <b>Street Name</b>
             </label>
             <br/>
-            <input id="businessAddressStreet" v-model="businessAddress.streetName" class="form-control"
+            <input id="businessAddressStreet" maxlength="50" v-model="businessAddress.streetName" class="form-control"
                    placeholder="Enter your Street Name" style="width:100%" type="text">
             <br>
           </div>
@@ -83,7 +83,7 @@
               <b>City or Town</b>
             </label>
             <br/>
-            <input id="businessAddressCity" v-model="addressCity" class="form-control"
+            <input id="businessAddressCity" maxlength="50" v-model="addressCity" class="form-control"
                    placeholder="Enter your City" style="width:100%" type="search">
             <br>
 
@@ -101,7 +101,7 @@
               <b>Region</b>
             </label>
             <br/>
-            <input id="businessAddressRegion" v-model="addressRegion" class="form-control"
+            <input id="businessAddressRegion" maxlength="50" v-model="addressRegion" class="form-control"
                    placeholder="Enter your Region" style="width:100%" type="search">
             <br>
 
@@ -118,7 +118,7 @@
               <b>Country<span class="required">*</span></b>
             </label>
             <br/>
-            <input id="businessAddressCountry" v-model="addressCountry" class="form-control"
+            <input id="businessAddressCountry" maxlength="30" v-model="addressCountry" class="form-control"
                    placeholder="Enter your Country" required style="width:100%" type="search">
             <br>
 
@@ -140,7 +140,7 @@
               <b>Postcode</b>
             </label>
             <br/>
-            <input id="businessAddressPostCode" v-model="businessAddress.postcode" class="form-control"
+            <input id="businessAddressPostCode" maxlength="30" v-model="businessAddress.postcode" class="form-control"
                    placeholder="Enter your Postcode" style="width:100%" type="text">
             <br>
           </div>
