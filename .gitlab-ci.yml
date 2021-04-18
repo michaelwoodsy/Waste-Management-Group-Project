@@ -44,6 +44,7 @@ jest:
    key: node-modules
    paths:
      - frontend/node_modules
+     - frontend/coverage
    policy: pull
  script:
    - cd frontend
