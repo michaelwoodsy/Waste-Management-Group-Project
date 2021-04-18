@@ -54,16 +54,16 @@ jest:
 dev-sonarqube:
  stage: sonarqube
  cache:
-   key: node-modules
+   key: sonarqube-cache
    paths:
      - frontend/node_modules
+     - frontend/coverage
+     - backend/build/jacoco
    policy: pull
  script:
    - cd frontend
-   - npm run test
    - npm run sonarqube
    - cd ../backend
-   - ./gradlew test
    - ./gradlew sonarqube
  only:
    - dev
