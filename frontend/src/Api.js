@@ -409,7 +409,10 @@ export const Business = {
     /*
      *  Adds a user with id userId to administrators of the business with id businessId
      */
-    addAdministrator: (businessId, userId) => instance.put(`/businesses/${businessId}/makeAdministrator`, {userId})
+    addAdministrator: (businessId, userId) => instance.put(`/businesses/${businessId}/makeAdministrator`, {userId}),
 
-    //getProductData: (businessId, productId) => instance.get(`business/${businessId}/products/${productId}`, {})
+    /*
+     * Gets all the products in a business's catalogue
+     */
+    getProducts: (businessId) => instance.get(`businesses/${businessId}/products`, {})
 };
