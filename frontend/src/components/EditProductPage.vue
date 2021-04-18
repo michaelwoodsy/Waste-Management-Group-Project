@@ -38,7 +38,7 @@
               <div class="form-group row">
                 <label for="id" class="col-sm-4 col-form-label">ID:</label>
                 <div class="col-sm-8">
-                  <input type="text" class="form-control" id="id" v-model="newProduct.id">
+                  <input type="text" maxlength="255" class="form-control" id="id" v-model="newProduct.id">
                 </div>
               </div>
 
@@ -46,7 +46,7 @@
               <div class="form-group row">
                 <label for="name" class="col-sm-4 col-form-label">Name:</label>
                 <div class="col-sm-8">
-                  <input type="text" class="form-control" id="name" v-model="newProduct.name">
+                  <input type="text" maxlength="255" class="form-control" id="name" v-model="newProduct.name">
                 </div>
               </div>
 
@@ -54,7 +54,7 @@
               <div class="form-group row">
                 <label for="description" class="col-sm-4 col-form-label">Description:</label>
                 <div class="col-sm-8">
-                  <textarea type="text" class="form-control" id="description" rows="3" v-model="newProduct.description"></textarea>
+                  <textarea type="text" maxlength="255" class="form-control" id="description" rows="3" v-model="newProduct.description"></textarea>
                 </div>
               </div>
 
@@ -62,7 +62,7 @@
               <div class="form-group row">
                 <label for="rrp" class="col-sm-4 col-form-label">Recommended Retail Price:</label>
                 <div class="col-sm-8">
-                  <input type="text" class="form-control" id="rrp" v-model.number="newProduct.recommendedRetailPrice">
+                  <input type="text" maxlength="255" class="form-control" id="rrp" v-model.number="newProduct.recommendedRetailPrice">
                 </div>
               </div>
 
@@ -70,7 +70,7 @@
               <div class="form-group row">
                 <label for="manufacturer" class="col-sm-4 col-form-label">Manufacturer:</label>
                 <div class="col-sm-8">
-                  <input type="text" class="form-control" id="manufacturer" v-model="newProduct.manufacturer">
+                  <input type="text" maxlength="255" class="form-control" id="manufacturer" v-model="newProduct.manufacturer">
                 </div>
               </div>
 
