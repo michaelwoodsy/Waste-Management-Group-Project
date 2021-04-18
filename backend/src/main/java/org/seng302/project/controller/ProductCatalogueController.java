@@ -213,7 +213,7 @@ public class ProductCatalogueController {
             }
 
             // Get the product
-            Optional<Product> productResult = productRepository.findById(productId);
+            Optional<Product> productResult = productRepository.findByIdAndBusinessId(productId, businessId);
 
             // Check if the product exists
             if (productResult.isEmpty()) {
@@ -256,7 +256,7 @@ public class ProductCatalogueController {
             String newId = json.getAsString("id");
             if(newId != null) {
                 //Return 400 if id not unique
-                if (productRepository.findById(newId).isPresent()) {
+                if (productRepository.findByIdAndBusinessId(newId, businessId).isPresent()) {
                     ProductIdAlreadyExistsException exception = new ProductIdAlreadyExistsException();
                     logger.warn(exception.getMessage());
                     throw exception;

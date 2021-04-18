@@ -324,7 +324,7 @@ public class ProductCatalogueControllerTest {
     @Test
     void editProductInvalidId() throws Exception {
 
-        Optional<Product> retrievedProductOptions = productRepository.findById("p2");
+        Optional<Product> retrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
         Assertions.assertTrue(retrievedProductOptions.isPresent());
 
         Product retrievedProduct = retrievedProductOptions.get();
@@ -355,7 +355,7 @@ public class ProductCatalogueControllerTest {
     @Test
     void editProductNoChanges() throws Exception {
 
-        Optional<Product> retrievedProductOptions = productRepository.findById("p2");
+        Optional<Product> retrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
         Assertions.assertTrue(retrievedProductOptions.isPresent());
 
         Product retrievedProduct = retrievedProductOptions.get();
@@ -375,7 +375,7 @@ public class ProductCatalogueControllerTest {
                 .andReturn();
 
         //Get edited product
-        Optional<Product> newRetrievedProductOptions = productRepository.findById("p2");
+        Optional<Product> newRetrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
         Assertions.assertTrue(newRetrievedProductOptions.isPresent());
 
         Product newRetrievedProduct = newRetrievedProductOptions.get();
@@ -395,7 +395,7 @@ public class ProductCatalogueControllerTest {
     @Test
     void editProduct() throws Exception {
 
-        Optional<Product> retrievedProductOptions = productRepository.findById("p2");
+        Optional<Product> retrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
         Assertions.assertTrue(retrievedProductOptions.isPresent());
 
         Product retrievedProduct = retrievedProductOptions.get();
@@ -419,7 +419,7 @@ public class ProductCatalogueControllerTest {
                 .andReturn();
 
         //Get edited product
-        Optional<Product> newRetrievedProductOptions = productRepository.findById("p2");
+        Optional<Product> newRetrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
         Assertions.assertTrue(newRetrievedProductOptions.isPresent());
 
 
@@ -440,7 +440,7 @@ public class ProductCatalogueControllerTest {
     @Test
     void editProductAndId() throws Exception {
 
-        Optional<Product> retrievedProductOptions = productRepository.findById("p2");
+        Optional<Product> retrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
         Assertions.assertTrue(retrievedProductOptions.isPresent());
 
         Product retrievedProduct = retrievedProductOptions.get();
@@ -465,11 +465,11 @@ public class ProductCatalogueControllerTest {
                 .andReturn();
 
         //Check if old product is removed (Because Id changed, original product has to be removed)
-        Optional<Product> newRetrievedProductOptions = productRepository.findById("p2");
+        Optional<Product> newRetrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
         Assertions.assertTrue(newRetrievedProductOptions.isEmpty());
 
         //Get edited product
-        newRetrievedProductOptions = productRepository.findById("Sprite-1.5L");
+        newRetrievedProductOptions = productRepository.findByIdAndBusinessId("Sprite-1.5L", businessId);
         Assertions.assertTrue(newRetrievedProductOptions.isPresent());
 
 
