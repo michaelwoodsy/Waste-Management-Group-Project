@@ -6,13 +6,13 @@ import io.cucumber.java.en.When;
 
 public class UserLoginFeature {
     @Given("An account exists with the email {string}")
-    public void an_account_exists_with_the_email(String string) {
+    public void an_account_exists_with_the_email(String email) {
         // Write code here that turns the phrase above into concrete actions
         throw new io.cucumber.java.PendingException();
     }
 
     @When("I try to register with the email {string}")
-    public void i_try_to_register_with_the_email(String string) {
+    public void i_try_to_register_with_the_email(String email) {
         // Write code here that turns the phrase above into concrete actions
         throw new io.cucumber.java.PendingException();
     }
