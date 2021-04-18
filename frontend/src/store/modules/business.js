@@ -1,6 +1,5 @@
 import {Business} from '@/Api'
 
-
 export default {
     debug: true,
 
@@ -26,4 +25,17 @@ export default {
                 })
         })
     },
+
+    createProduct(businessId, id, name, description, recommendedRetailPrice) {
+        // Return a promise for the api call
+        return new Promise(((resolve, reject) => {
+            Business.createProduct(businessId, id, name, description, recommendedRetailPrice)
+                .then((res) => {
+                    resolve(res);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        }));
+    }
 }

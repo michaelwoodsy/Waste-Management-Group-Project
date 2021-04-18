@@ -60,14 +60,14 @@ const routes = [
         component: Catalogue
     },
     {
+        path: '/businesses/:businessId/products/create',
+        name: 'createProduct',
+        component: CreateProductPage
+    },
+    {
         path: '/businesses/:businessId/products/:productId',
         name: 'individualProduct',
         component: IndividualProduct
-    },
-    {
-        path: '/product/create', // TODO implement proper path once connected to business.
-        name: 'createProduct',
-        component: CreateProductPage
     }
 ];
 
