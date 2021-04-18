@@ -381,7 +381,6 @@ export const User = {
 
 
 export const Business = {
-
     /*
      * Creates a new business under a given user.
      */
@@ -396,10 +395,24 @@ export const Business = {
         address,
         businessType
     }),
+
     /*
      * Retrieves the data for a given business
      */
-    getBusinessData: (id) => instance.get(`businesses/${id}`, {})
+    getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
+    
+    /*
+     *  Removes a user with id userId from administering the business with id businessId
+     */
+    removeAdministrator: (businessId, userId) => instance.put(`/businesses/${businessId}/removeAdministrator`, {userId}),
 
-    //getProductData: (businessId, productId) => instance.get(`business/${businessId}/products/${productId}`, {})
+    /*
+     *  Adds a user with id userId to administrators of the business with id businessId
+     */
+    addAdministrator: (businessId, userId) => instance.put(`/businesses/${businessId}/makeAdministrator`, {userId}),
+
+    /*
+     * Gets all the products in a business's catalogue
+     */
+    getProducts: (businessId) => instance.get(`businesses/${businessId}/products`, {})
 };

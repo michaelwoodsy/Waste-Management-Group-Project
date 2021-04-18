@@ -42,7 +42,7 @@
             class="dropdown-item"
             @click="actAsUser(user)"
         >
-          <img alt="profile" class="profile-image-sm rounded-circle mb-1"
+          <img class="profile-image-sm rounded-circle mb-1" alt="profile"
                src="../../public/profile.png">
           {{ user.firstName }} {{ user.lastName }}
         </a>
@@ -50,8 +50,13 @@
       </div>
 
       <!-- Profile and logout section -->
-      <router-link class="dropdown-item" to="/registerbusiness">Create Business</router-link>
-      <router-link class="dropdown-item" to="/login" @click.native="logOut()">Logout</router-link>
+      <div v-if="this.actor.type === 'business'">
+        <router-link class="dropdown-item" :to="productCatalogueRoute">Product Catalogue</router-link>
+      </div>
+      <div v-else>
+        <router-link class="dropdown-item" to="/registerbusiness">Create Business</router-link>
+      </div>
+      <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
     </div>
 
   </div>
@@ -61,6 +66,16 @@
 export default {
   name: "UserProfileLinks",
   computed: {
+    /** Returns the users profile url **/
+    userProfileRoute () {
+      return `users/${this.$root.$data.user.state.userId}`;
+    },
+
+    /** Returns the product catalogue url **/
+    productCatalogueRoute () {
+      return `businesses/${this.actor.id}/products`;
+    },
+
     /**
      * Current actor
      * Returns {name, id, type}
@@ -114,12 +129,12 @@ export default {
     },
 
     /** Sets the current logged in user to act as a business account **/
-    actAsBusiness(business) {
+    actAsBusiness (business) {
       this.$root.$data.user.setActingAs(business.id, business.name, 'business')
     },
 
     /** Sets the current logged in user to act as a user account **/
-    actAsUser(userData) {
+    actAsUser (userData) {
       this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
     }
   }
