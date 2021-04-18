@@ -1,18 +1,16 @@
 <template>
   <div>
-    <!--TODO: test login/admin stuff here -->
-<!--    <login-required-->
-<!--        v-if="!isLoggedIn"-->
-<!--        page="view an inventory"-->
-<!--    />-->
+    <login-required
+        v-if="!isLoggedIn"
+        page="view an inventory"
+    />
 
-<!--    <admin-required-->
-<!--        v-else-if="!isAdminOf()"-->
-<!--        page="view this business's product catalogue"-->
-<!--    />-->
+    <admin-required
+        v-else-if="!isAdminOf()"
+        page="view this business's product catalogue"
+    />
 
-<!--    <div v-else>-->
-    <div>
+    <div v-else>
 
       <!--    Inventory Header    -->
       <div class="row">
@@ -56,28 +54,40 @@
                   <p class="d-inline" v-if="orderCol === 'productId'">{{ orderDirArrow }}</p>
                 </th>
 
-                <!--    Name    -->
-                <th scope="col" class="pointer" @click="orderResults('name')">
-                  <p class="d-inline">Name</p>
-                  <p class="d-inline" v-if="orderCol === 'name'">{{ orderDirArrow }}</p>
+                <!--    Quantity    -->
+                <th scope="col" class="pointer" @click="orderResults('quantity')">
+                  <p class="d-inline">Quantity</p>
+                  <p class="d-inline" v-if="orderCol === 'quantity'">{{ orderDirArrow }}</p>
                 </th>
 
-                <!--    Description    -->
-                <th scope="col" class="pointer" @click="orderResults('description')">
-                  <p class="d-inline">Description</p>
-                  <p class="d-inline" v-if="orderCol === 'description'">{{ orderDirArrow }}</p>
+                <!--    Price per Item    -->
+                <th scope="col" class="pointer" @click="orderResults('pricePerItem')">
+                  <p class="d-inline">Price per Item</p>
+                  <p class="d-inline" v-if="orderCol === 'pricePerItem'">{{ orderDirArrow }}</p>
                 </th>
 
-                <!--    Manufacturer    -->
-                <th scope="col" class="pointer" @click="orderResults('manufacturer')">
-                  <p class="d-inline">Manufacturer</p>
-                  <p class="d-inline" v-if="orderCol === 'manufacturer'">{{ orderDirArrow }}</p>
+                <!--    Total Price    -->
+                <th scope="col" class="pointer" @click="orderResults('totalPrice')">
+                  <p class="d-inline">Total Price</p>
+                  <p class="d-inline" v-if="orderCol === 'totalPrice'">{{ orderDirArrow }}</p>
                 </th>
 
-                <!--    RRP    -->
-                <th scope="col"  class="pointer" @click="orderResults('recommendedRetailPrice')">
-                  <p class="d-inline">RRP</p>
-                  <p class="d-inline" v-if="orderCol === 'recommendedRetailPrice'">{{ orderDirArrow }}</p>
+                <!--   Manufactured date    -->
+                <th scope="col"  class="pointer" @click="orderResults('manufactured')">
+                  <p class="d-inline">Manufactured Date</p>
+                  <p class="d-inline" v-if="orderCol === 'manufactured'">{{ orderDirArrow }}</p>
+                </th>
+
+                <!--   Sell By date    -->
+                <th scope="col"  class="pointer" @click="orderResults('sellBy')">
+                  <p class="d-inline">Sell By Date</p>
+                  <p class="d-inline" v-if="orderCol === 'sellBy'">{{ orderDirArrow }}</p>
+                </th>
+
+                <!--   Best Before date    -->
+                <th scope="col"  class="pointer" @click="orderResults('bestBefore')">
+                  <p class="d-inline">Best Before Date</p>
+                  <p class="d-inline" v-if="orderCol === 'bestBefore'">{{ orderDirArrow }}</p>
                 </th>
 
                 <!--   Expiry date    -->
@@ -97,11 +107,13 @@
               >
                 <th scope="row">{{ item.id }}</th>
                 <td>{{ item.product.id }}</td>
-                <td>{{ item.product.name }}</td>
-                <td>{{ item.product.description }}</td>
-                <td>{{ item.product.manufacturer }}</td>
-                <td>{{ item.product.recommendedRetailPrice }}</td>
-                <td>{{ new Date(item.expires).toDateString() }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.pricePerItem }}</td>
+                <td>{{ item.totalPrice }}</td>
+                <td>{{ formatDate(item.manufactured)}}</td>
+                <td>{{ formatDate(item.sellBy)}}</td>
+                <td>{{ formatDate(item.bestBefore)}}</td>
+                <td>{{ formatDate(item.expires)}}</td>
               </tr>
               </tbody>
             </table>
@@ -132,9 +144,8 @@
 </template>
 
 <script>
-//TODO: uncomment these
-// import LoginRequired from "@/components/LoginRequired";
-// import AdminRequired from "@/components/AdminRequired";
+import LoginRequired from "@/components/LoginRequired";
+import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
@@ -143,9 +154,8 @@ import Pagination from "@/components/Pagination";
 export default {
   name: "InventoryPage",
   components: {
-    //TODO: uncomment these
-    // LoginRequired,
-    // AdminRequired,
+    LoginRequired,
+    AdminRequired,
     Alert,
     ShowingResultsText,
     Pagination
@@ -248,9 +258,8 @@ export default {
      * Check if the user is an admin of the business and is acting as that business
      */
     isAdminOf() {
-      return true;
-      // if (this.$root.$data.user.state.actingAs.type !== "business") return false
-      // return this.$root.$data.user.state.actingAs.id === parseInt(this.$route.params.businessId);
+      if (this.$root.$data.user.state.actingAs.type !== "business") return false
+      return this.$root.$data.user.state.actingAs.id === parseInt(this.$route.params.businessId);
     },
 
     /**
@@ -278,6 +287,17 @@ export default {
       if(a[this.orderCol] < b[[this.orderCol]]) { return 1; }
       if(a[this.orderCol] > b[[this.orderCol]]) { return -1; }
       return 0;
+    },
+
+    /**
+     * Function for formatting inventory item dates
+     */
+    formatDate(dateString) {
+      if (dateString === "") {
+        return "";
+      } else {
+        return new Date(dateString).toDateString();
+      }
     },
 
     /**
