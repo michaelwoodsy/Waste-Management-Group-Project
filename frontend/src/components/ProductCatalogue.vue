@@ -2,7 +2,7 @@
   <div>
     <login-required
         v-if="!isLoggedIn"
-        page="view an individual product"
+        page= "view this business's Product Catalogue"
     />
 
     <admin-required
@@ -55,6 +55,12 @@
                   <p class="d-inline" v-if="orderCol === 'name'">{{ orderDirArrow }}</p>
                 </th>
 
+                <!--    Description    -->
+                <th scope="col" class="pointer" @click="orderResults('description')">
+                  <p class="d-inline">Description</p>
+                  <p class="d-inline" v-if="orderCol === 'description'">{{ orderDirArrow }}</p>
+                </th>
+
                 <!--    Manufacturer    -->
                 <th scope="col" class="pointer" @click="orderResults('manufacturer')">
                   <p class="d-inline">Manufacturer</p>
@@ -72,20 +78,26 @@
                   <p class="d-inline">Date Added</p>
                   <p class="d-inline" v-if="orderCol === 'created'">{{ orderDirArrow }}</p>
                 </th>
+
+                <!--    Edit button column    -->
+                <th scope="col"> </th>
               </tr>
               </thead>
               <!--    Product Information    -->
               <tbody v-if="!loading">
               <tr v-bind:key="product.id"
                   v-for="product in paginatedProducts"
-                  @click="viewProduct(product.id)"
-                  class="pointer"
               >
                 <th scope="row">{{ product.id }}</th>
                 <td>{{ product.name }}</td>
+                <td style="word-wrap: break-word; width: 40%">{{ product.description }}</td>
                 <td>{{ product.manufacturer }}</td>
                 <td>{{ product.recommendedRetailPrice }}</td>
                 <td>{{ new Date(product.created).toDateString() }}</td>
+                <td style="color: blue; cursor: pointer;"
+                    @click="editProduct(product.id)">
+                  Edit
+                </td>
               </tr>
               </tbody>
             </table>
@@ -261,11 +273,11 @@ export default {
       return 0;
     },
     /**
-     * routes to the individual product page
+     * routes to the edit product page
      * @param id of the product
      */
-    viewProduct(id) {
-      this.$router.push({name: 'individualProduct', params: {businessId:this.businessId ,productId: id}})
+    editProduct(id) {
+      this.$router.push({name: 'editProduct', params: {businessId:this.businessId ,productId: id}})
     },
 
     /**
