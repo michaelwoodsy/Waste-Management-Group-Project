@@ -221,18 +221,6 @@ export default {
       return !allSame
     },
 
-    /** Defines the css classes used by the cancel button **/
-    cancelBtnClass() {
-      return {
-        "btn": true,
-        "mr-1": true,
-        "my-1": true,
-        "btn-danger": this.changesMade,
-        "btn-link": !this.changesMade,
-        "float-left": true
-      }
-    },
-
     /** True if the inputted id is valid **/
     idValid() {
       // Regex for numbers, hyphens and letters
