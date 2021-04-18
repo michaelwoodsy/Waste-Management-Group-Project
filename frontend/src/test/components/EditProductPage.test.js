@@ -90,7 +90,7 @@ describe('EditProductPage Component Tests', () => {
     })
 
     // Check an error message is displayed if the product doesn't exist
-    test("a message is shown when the user isn't an admin of the business", async() => {
+    test("a message is shown when the product doesn't exist", async() => {
         productId = "Non existant";
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required", "alert"],
