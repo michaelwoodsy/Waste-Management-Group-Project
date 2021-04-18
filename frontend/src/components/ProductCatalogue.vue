@@ -276,9 +276,6 @@ export default {
       this.loading = true;
       this.page = 1;
 
-
-      this.loading = false
-
       Business.getProducts(this.$route.params.businessId)
           .then((res) => {
             this.error = null;
