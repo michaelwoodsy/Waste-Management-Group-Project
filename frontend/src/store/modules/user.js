@@ -148,5 +148,31 @@ export default {
             name, id, type
         }
         setCookie('actor', JSON.stringify(this.state.actingAs), null)
-    }
+    },
+
+    /**
+     * Returns true if the user is acting as a business
+     * @returns {boolean|*}
+     */
+    isActingAsBusiness () {
+        return this.state.actingAs.type === "business"
+    },
+
+    /**
+     * Returns true if the user is primary admin of the business they are acting as
+     * @returns {boolean|*}
+     */
+    isPrimaryAdminOfBusiness () {
+        if (this.state.actingAs.type !== "business") return false
+
+        //Looks through the users businessesAdministered, finds the business acting as and then checks to see if the current user is the primary admin of that business
+        //Used to show the Add Administrator button on a users profile page
+        for (let i = 0; i < this.state.userData.businessesAdministered.length; i++) {
+            let business = this.state.userData.businessesAdministered[i]
+            if (business.id === this.state.actingAs.id && business.primaryAdministratorId === this.state.userData.id) {
+                return true
+            }
+        }
+        return false
+    },
 }
