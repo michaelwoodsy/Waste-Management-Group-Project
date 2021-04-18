@@ -60,8 +60,10 @@ dev-sonarqube:
    policy: pull
  script:
    - cd frontend
+   - npm run test
    - npm run sonarqube
    - cd ../backend
+   - ./gradlew test
    - ./gradlew sonarqube
  only:
    - dev
