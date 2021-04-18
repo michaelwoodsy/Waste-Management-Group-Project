@@ -128,6 +128,11 @@ public class ProductCatalogueControllerTest {
         Product product = new Product("p1", "Watties Beans", "beans in a can", "Watties", 2.00,
                 businessId);
         productRepository.save(product);
+
+        // Create another product
+        Product product2 = new Product("p2", "Fresh Water", "Water straight from a spring", "Rutgers", 10.00,
+                businessId);
+        productRepository.save(product2);
     }
 
     /**
@@ -149,7 +154,7 @@ public class ProductCatalogueControllerTest {
     void testAdministratorCanGetProducts() {
         List<Product> products =
                 productCatalogueController.getBusinessesProducts(businessId, new AppUserDetails(owner));
-        assertEquals(products.size(), 1);
+        assertEquals(products.size(), 2);
         assertEquals(products.get(0).getName(), "Watties Beans");
     }
 
@@ -311,6 +316,172 @@ public class ProductCatalogueControllerTest {
         Assertions.assertEquals("Sarah", retrievedProduct.getManufacturer());
         Assertions.assertNull(retrievedProduct.getRecommendedRetailPrice());
         Assertions.assertEquals(businessId, retrievedProduct.getBusinessId());
+    }
+
+    /**
+     * Tests editing a product and giving it an invalid id
+     */
+    @Test
+    void editProductInvalidId() throws Exception {
+
+        Optional<Product> retrievedProductOptions = productRepository.findById("p2");
+        Assertions.assertTrue(retrievedProductOptions.isPresent());
+
+        Product retrievedProduct = retrievedProductOptions.get();
+
+
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "invalid id+/");
+        testProduct.put("name", "Not Fresh Water");
+
+        RequestBuilder putProductRequest = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}", businessId, retrievedProduct.getId())
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult putProductResponse = this.mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = putProductResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new InvalidProductIdCharactersException().getMessage(), returnedExceptionString);
+    }
+
+    /**
+     * Tests editing a product and giving it nothing to change
+     */
+    @Test
+    void editProductNoChanges() throws Exception {
+
+        Optional<Product> retrievedProductOptions = productRepository.findById("p2");
+        Assertions.assertTrue(retrievedProductOptions.isPresent());
+
+        Product retrievedProduct = retrievedProductOptions.get();
+
+
+        JSONObject testProduct = new JSONObject();
+
+        RequestBuilder putProductRequest = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}", businessId, retrievedProduct.getId())
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        this.mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
+                .andReturn();
+
+        //Get edited product
+        Optional<Product> newRetrievedProductOptions = productRepository.findById("p2");
+        Assertions.assertTrue(newRetrievedProductOptions.isPresent());
+
+        Product newRetrievedProduct = newRetrievedProductOptions.get();
+
+        System.out.println(newRetrievedProduct);
+
+        Assertions.assertEquals("p2", newRetrievedProduct.getId());
+        Assertions.assertEquals("Fresh Water", newRetrievedProduct.getName());
+        Assertions.assertEquals("Water straight from a spring", newRetrievedProduct.getDescription());
+        Assertions.assertEquals("Rutgers", newRetrievedProduct.getManufacturer());
+        Assertions.assertEquals(10.00, newRetrievedProduct.getRecommendedRetailPrice());
+    }
+
+    /**
+     * Tests editing a product, without editing its id
+     */
+    @Test
+    void editProduct() throws Exception {
+
+        Optional<Product> retrievedProductOptions = productRepository.findById("p2");
+        Assertions.assertTrue(retrievedProductOptions.isPresent());
+
+        Product retrievedProduct = retrievedProductOptions.get();
+
+
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("name", "Different Kind of Water");
+        testProduct.put("description", "Water from your local sewer");
+        testProduct.put("manufacturer", "Sewerage department");
+        testProduct.put("recommendedRetailPrice", 3.00);
+
+        RequestBuilder putProductRequest = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}", businessId, retrievedProduct.getId())
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        this.mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
+                .andReturn();
+
+        //Get edited product
+        Optional<Product> newRetrievedProductOptions = productRepository.findById("p2");
+        Assertions.assertTrue(newRetrievedProductOptions.isPresent());
+
+
+        Product newRetrievedProduct = newRetrievedProductOptions.get();
+
+        System.out.println(newRetrievedProduct);
+
+        Assertions.assertEquals("p2", newRetrievedProduct.getId());
+        Assertions.assertEquals("Different Kind of Water", newRetrievedProduct.getName());
+        Assertions.assertEquals("Water from your local sewer", newRetrievedProduct.getDescription());
+        Assertions.assertEquals("Sewerage department", newRetrievedProduct.getManufacturer());
+        Assertions.assertEquals(3.00, newRetrievedProduct.getRecommendedRetailPrice());
+    }
+
+    /**
+     * Tests editing a product, also its Id
+     */
+    @Test
+    void editProductAndId() throws Exception {
+
+        Optional<Product> retrievedProductOptions = productRepository.findById("p2");
+        Assertions.assertTrue(retrievedProductOptions.isPresent());
+
+        Product retrievedProduct = retrievedProductOptions.get();
+
+
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "Sprite-1.5L");
+        testProduct.put("name", "Sprite Lemon flavour - 1.5L");
+        testProduct.put("description", "Your favourite beverage in lemon");
+        testProduct.put("manufacturer", "Coca Cola");
+        testProduct.put("recommendedRetailPrice", 0.99);
+
+        RequestBuilder putProductRequest = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}", businessId, retrievedProduct.getId())
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        this.mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
+                .andReturn();
+
+        //Check if old product is removed (Because Id changed, original product has to be removed)
+        Optional<Product> newRetrievedProductOptions = productRepository.findById("p2");
+        Assertions.assertTrue(newRetrievedProductOptions.isEmpty());
+
+        //Get edited product
+        newRetrievedProductOptions = productRepository.findById("Sprite-1.5L");
+        Assertions.assertTrue(newRetrievedProductOptions.isPresent());
+
+
+        Product newRetrievedProduct = newRetrievedProductOptions.get();
+
+        System.out.println(newRetrievedProduct);
+
+        Assertions.assertEquals("Sprite-1.5L", newRetrievedProduct.getId());
+        Assertions.assertEquals("Sprite Lemon flavour - 1.5L", newRetrievedProduct.getName());
+        Assertions.assertEquals("Your favourite beverage in lemon", newRetrievedProduct.getDescription());
+        Assertions.assertEquals("Coca Cola", newRetrievedProduct.getManufacturer());
+        Assertions.assertEquals(0.99, newRetrievedProduct.getRecommendedRetailPrice());
     }
 }
 

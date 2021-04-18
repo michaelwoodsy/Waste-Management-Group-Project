@@ -254,7 +254,6 @@ public class ProductCatalogueController {
 
             //Id
             String newId = json.getAsString("id");
-            System.out.println(newId);
             if(newId != null) {
                 //Return 400 if id not unique
                 if (productRepository.findById(newId).isPresent()) {
@@ -269,6 +268,7 @@ public class ProductCatalogueController {
                     logger.warn(exception.getMessage());
                     throw exception;
                 }
+                //Need to remove original product as you cant change the id
                 productRepository.delete(originalProduct);
                 product.setId(newId);
             }
