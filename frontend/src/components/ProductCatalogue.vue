@@ -7,15 +7,15 @@
 
     <admin-required
         v-else-if="!isAdminOf()"
-        page="view this businesses product catalog"
+        page="view this business's product catalogue"
     />
 
     <div v-else>
 
-      <!--    Search Users Header    -->
+      <!--    Product Catalogue Header    -->
       <div class="row">
         <div class="col-12 text-center mb-2">
-          <h4>Product Catalog</h4>
+          <h4>Product Catalogue</h4>
         </div>
       </div>
 
@@ -121,9 +121,10 @@ import AdminRequired from "@/components/AdminRequired";
 import ShowingResultsText from "./ShowingResultsText";
 import Pagination from "./Pagination";
 import Alert from './Alert'
+import {Business} from '@/Api';
 
 export default {
-  name: "Catalog",
+  name: "Catalogue",
   components: {
     LoginRequired,
     AdminRequired,
@@ -226,15 +227,11 @@ export default {
   },
   methods: {
     /**
-     * Check if the user is an admin of the current business
+     * Check if the user is an admin of the business and is acting as that business
      */
     isAdminOf() {
       if (this.$root.$data.user.state.actingAs.type !== "business") return false
-      const businessesAdministered = this.$root.$data.user.state.userData.businessesAdministered
-      for (let i = 0; i < businessesAdministered.length; i++) {
-        if (businessesAdministered[i].id === Number(this.businessId)) return true
-      }
-      return false
+      return this.$root.$data.user.state.actingAs.id === parseInt(this.$route.params.businessId);
     },
 
     /**
@@ -279,11 +276,9 @@ export default {
       this.loading = true;
       this.page = 1;
 
-      this.products = this.fakeData()
-      this.loading = false
-      //TODO: Uncomment this when getProducts endpoint is implemented
 
-      /*
+      this.loading = false
+
       Business.getProducts(this.$route.params.businessId)
           .then((res) => {
             this.error = null;
@@ -294,33 +289,7 @@ export default {
             this.error = err;
             this.loading = false;
           })
-       */
-    },
-    /**
-     * Fills the table with fake data for now
-     */
-    fakeData() {
-      return [
-        {
-          "id": "WATT-420-BEANS",
-          "name": "Watties Baked Beans - 420g can",
-          "description": "Baked Beans as they should be.",
-          "manufacturer": "Watties",
-          "recommendedRetailPrice": 2.2,
-          "created": "2021-04-16T04:34:55.931Z",
-          "images": []
-        },
-        {
-          "id": "DORITO-300-CHEESE",
-          "name": "Doritos Nacho Cheese - 300g",
-          "description": "Gamer Fuel",
-          "manufacturer": "Doritoes inc.",
-          "recommendedRetailPrice": 3.5,
-          "created": "2021-04-16T04:35:43.931Z",
-          "images": []
-        },
-      ]
-    },
+    }
   }
 }
 </script>

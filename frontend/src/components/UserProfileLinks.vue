@@ -51,7 +51,7 @@
 
       <!-- Profile and logout section -->
       <div v-if="this.actor.type === 'business'">
-        <router-link class="dropdown-item" :to="productCatalogRoute">Product Catalog</router-link>
+        <router-link class="dropdown-item" :to="productCatalogueRoute">Product Catalogue</router-link>
       </div>
       <div v-else>
         <router-link class="dropdown-item" to="/registerbusiness">Create Business</router-link>
@@ -71,8 +71,8 @@ export default {
       return `users/${this.$root.$data.user.state.userId}`;
     },
 
-    /** Returns the product catalog url **/
-    productCatalogRoute () {
+    /** Returns the product catalogue url **/
+    productCatalogueRoute () {
       return `businesses/${this.actor.id}/products`;
     },
 

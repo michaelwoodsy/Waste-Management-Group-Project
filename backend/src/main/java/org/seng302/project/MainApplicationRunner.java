@@ -30,10 +30,7 @@ package org.seng302.project;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import org.seng302.project.model.Business;
-import org.seng302.project.model.BusinessRepository;
-import org.seng302.project.model.User;
-import org.seng302.project.model.UserRepository;
+import org.seng302.project.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +52,7 @@ public class MainApplicationRunner implements ApplicationRunner {
     private static final JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
+    private final ProductRepository productRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     /**
@@ -66,9 +64,10 @@ public class MainApplicationRunner implements ApplicationRunner {
      */
     @Autowired
     public MainApplicationRunner(UserRepository userRepository, BusinessRepository businessRepository,
-                                 BCryptPasswordEncoder passwordEncoder) {
+                                 ProductRepository productRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
+        this.productRepository = productRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -130,6 +129,20 @@ public class MainApplicationRunner implements ApplicationRunner {
             User myrtle = userRepository.getOne(1);
             secondBusiness.addAdministrator(myrtle);
             businessRepository.save(secondBusiness);
+        }
+
+        if (productRepository.count() == 0) {
+            Product testProduct1 = new Product("WATT-420g-BEANS", "Watties Baked Beans - 420g can",
+                    "Baked Beans as they should be.", "Watties", 2.2,
+                    businessRepository.findByName("Myrtle's Motel").get(0).getId());
+            productRepository.save(testProduct1);
+
+            Product testProduct2 = new Product("DORITO-300-CHEESE", "Doritos Nacho Cheese - 300g",
+                    "Gamer Fuel", "Doritoes inc.", 3.5,
+                    businessRepository.findByName("Myrtle's Motel").get(0).getId());
+            productRepository.save(testProduct2);
+
+            logger.info(String.format("Added products to catalogue of business with id %d", businessRepository.findByName("Myrtle's Motel").get(0).getId()));
         }
 
     }

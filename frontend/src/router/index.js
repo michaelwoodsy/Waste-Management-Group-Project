@@ -9,7 +9,7 @@ import Home from "../components/Home";
 import ProfilePage from "../components/ProfilePage";
 import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
-import Catalog from "@/components/ProductCatalog";
+import Catalogue from "@/components/ProductCatalogue";
 import IndividualProduct from "@/components/IndividualProduct";
 
 const routes = [
@@ -55,8 +55,8 @@ const routes = [
     },
     {
         path: '/businesses/:businessId/products',
-        name: 'viewCatalog',
-        component: Catalog
+        name: 'viewCatalogue',
+        component: Catalogue
     },
     {
         path: '/businesses/:businessId/products/:productId',
