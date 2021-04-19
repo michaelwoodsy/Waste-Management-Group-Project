@@ -200,7 +200,7 @@ export default {
       idBlur: false, // True when the user has clicked on then off the input field
       priceBlur: false,
       nameBlur: false,
-      showModal: false
+      showModal: false // Whether or not to show the cancel modal
     }
   },
   components: {
@@ -295,6 +295,10 @@ export default {
       }
     },
 
+    /**
+     * Cancels the product edit.
+     * Will confirm with the user if they want to lose there changes, if they made any.
+     */
     cancel () {
       // Check if changes are made and the modal isn't shown
       if (this.changesMade && !this.showModal) {
