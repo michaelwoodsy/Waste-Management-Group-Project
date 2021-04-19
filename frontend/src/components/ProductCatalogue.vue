@@ -287,8 +287,12 @@ export default {
     async getCurrency() {
 
       //Change country to businesses address country when implemented
-      const country = "netherlands"
-      this.currency = await this.$root.$data.product.getCurrency(country)
+      const country = "hgello"
+      try {
+        this.currency = await this.$root.$data.product.getCurrency(country)
+      } catch (e) {
+        console.log("Businesses Country is invalid")
+      }
       console.log(this.currency.code)
       console.log(this.currency.symbol)
     },
