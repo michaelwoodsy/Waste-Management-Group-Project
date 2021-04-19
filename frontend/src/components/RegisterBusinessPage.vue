@@ -349,19 +349,19 @@ export default {
      * Checks if the variables are empty, if so displays a warning message
      */
     async validateBusinessAddress() {
-      if (this.businessAddress.country === '') {
-        this.msg['country'] = 'Please enter a Country'
-        this.valid = false
-      } else {
-        this.msg['country'] = ''
-      }
-
       //Check if country is valid and has a currency (for products and inventory items price)
       try {
         await this.$root.$data.product.getCurrency(this.businessAddress.country)
       } catch (e) {
         this.msg['country'] = 'Please enter a valid Country'
         this.valid = false
+      }
+
+      if (this.businessAddress.country === '') {
+        this.msg['country'] = 'Please enter a Country'
+        this.valid = false
+      } else {
+        this.msg['country'] = ''
       }
     },
 
