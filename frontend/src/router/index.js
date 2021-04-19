@@ -10,7 +10,7 @@ import ProfilePage from "../components/ProfilePage";
 import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 import Catalogue from "@/components/ProductCatalogue";
-import IndividualProductPage from "@/components/IndividualProduct";
+import IndividualProductPage from "@/components/IndividualProductPage";
 import EditProductPage from "@/components/EditProductPage";
 
 const routes = [
