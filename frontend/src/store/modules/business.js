@@ -26,10 +26,10 @@ export default {
         })
     },
 
-    createProduct(businessId, id, name, description, recommendedRetailPrice) {
+    createProduct(businessId, data) {
         // Return a promise for the api call
         return new Promise(((resolve, reject) => {
-            Business.createProduct(businessId, id, name, description, recommendedRetailPrice)
+            Business.createProduct(businessId, data)
                 .then((res) => {
                     resolve(res);
                 })
