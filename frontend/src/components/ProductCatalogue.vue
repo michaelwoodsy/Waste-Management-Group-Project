@@ -147,6 +147,7 @@ export default {
   data () {
     return {
       products: [],
+      currency: null,
       error: null,
       orderCol: null,
       orderDirection: false, // False -> Ascending
@@ -156,6 +157,7 @@ export default {
     }
   },
   mounted() {
+    this.getCurrency()
     this.fillTable()
   },
 
@@ -278,6 +280,17 @@ export default {
      */
     editProduct(id) {
       this.$router.push({name: 'editProduct', params: {businessId:this.businessId ,productId: id}})
+    },
+    /**
+     * Uses the getCurrencey in the product.js module to get the currency of the business
+     */
+    async getCurrency() {
+
+      //Change country to businesses address country when implemented
+      const country = "netherlands"
+      this.currency = await this.$root.$data.product.getCurrency(country)
+      console.log(this.currency.code)
+      console.log(this.currency.symbol)
     },
 
     /**
