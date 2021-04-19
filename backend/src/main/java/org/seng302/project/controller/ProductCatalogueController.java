@@ -146,7 +146,7 @@ public class ProductCatalogueController {
             //These can be empty
             String description = json.getAsString("description");
             String manufacturer = json.getAsString("manufacturer");
-            Double recommendedRetailPrice = (Double) json.getAsNumber("recommendedRetailPrice");
+            Double recommendedRetailPrice = json.getAsNumber("recommendedRetailPrice").doubleValue();
 
             //Return 400 if id not unique
             if (productRepository.findByIdAndBusinessId(productId, businessId).isPresent()) {

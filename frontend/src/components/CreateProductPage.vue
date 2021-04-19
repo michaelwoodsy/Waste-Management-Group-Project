@@ -12,60 +12,65 @@
     />
 
     <div v-else class="container-fluid">
-      <div class="row">
+
+      <!-- Page title. -->
+      <div class="row mb-4">
         <div class="col text-center">
           <h2>Create a new Product</h2>
         </div>
       </div>
 
-      <div class="row justify-content-center" style="margin-top: 20px">
+      <!-- Form fields. -->
+      <div class="row justify-content-center">
         <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
 
-          <div class="form-row" style="margin-bottom: 20px">
-            <!-- ID -->
+          <!-- ID -->
+          <div class="form-group row">
             <label for="id"><b>Product ID<span class="required">*</span></b></label>
-            <span v-if="msg.id" class="error-msg" style="margin-left: 10px">{{ msg.id }}</span>
-            <input id="id" v-model="id" class="form-control" maxlength="255" placeholder="Enter a product ID"
-                   type="text">
+            <input id="id" v-model="id" :class="{'form-control': true, 'is-invalid': msg.id}" maxlength="255"
+                   placeholder="Enter a product ID" type="text">
+            <div class="invalid-feedback">{{ msg.id }}</div>
           </div>
 
-          <div class="form-row" style="margin-bottom: 20px">
-            <!-- Name -->
+          <!-- Name -->
+          <div class="form-group row">
             <label for="name"><b>Product Name<span class="required">*</span></b></label>
-            <span v-if="msg.name" class="error-msg" style="margin-left: 10px">{{ msg.name }}</span>
-            <input id="name" v-model="name" class="form-control" maxlength="255" placeholder="Enter a product name"
+            <input id="name" v-model="name" :class="{'form-control': true, 'is-invalid': msg.name}" maxlength="255"
+                   placeholder="Enter a product name"
                    required
                    type="text">
+            <div class="invalid-feedback">{{ msg.name }}</div>
           </div>
 
-          <div class="form-row" style="margin-bottom: 20px">
-            <!-- Description -->
+          <!-- Description -->
+          <div class="form-group row">
             <label for="description"><b>Product Description</b></label>
-            <input id="description" v-model="description" class="form-control" maxlength="255"
-                   placeholder="Enter a product description" type="text">
+            <textarea id="description" v-model="description" class="form-control" maxlength="255"
+                      placeholder="Enter a product description" type="text"/>
           </div>
 
-          <div class="form-row" style="margin-bottom: 20px">
-            <!-- RRP -->
+          <!-- RRP -->
+          <div class="form-group row">
             <label for="rrp"><b>Recommended Retail Price</b></label>
-            <span v-if="msg.rrp" class="error-msg" style="margin-left: 10px">{{ msg.rrp }}</span>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text">$</span>
               </div>
-              <input id="rrp" v-model="recommendedRetailPrice" class="form-control" placeholder="Enter product RRP"
-                     type="text">
+              <input id="rrp" v-model="recommendedRetailPrice" :class="{'form-control': true, 'is-invalid': msg.rrp}"
+                     maxlength="255"
+                     placeholder="Enter product RRP" type="text">
             </div>
+            <div class="invalid-feedback">{{ msg.rrp }}</div>
           </div>
 
-          <div class="form-row" style="margin-bottom: 20px">
-            <!-- Create Product button -->
+          <!-- Create Product button -->
+          <div class="form-group row">
             <div class="btn-group" style="width: 100%">
-              <button class="btn btn-primary" v-on:click="checkInputs">Create Product</button>
-              <button class="btn btn-secondary" v-on:click="cancel">Cancel</button>
+              <button class="btn btn-secondary col-4" v-on:click="cancel">Cancel</button>
+              <button class="btn btn-primary col-8" v-on:click="checkInputs">Create Product</button>
             </div>
             <!-- Show an error if required fields are missing -->
-            <div class="login-box" style="width: 100%; margin: 20px; text-align: center">
+            <div class="error-box">
               <alert v-if="msg.errorChecks">{{ msg.errorChecks }}</alert>
             </div>
           </div>
@@ -88,14 +93,14 @@ export default {
   components: {AdminRequired, LoginRequired, Alert},
   data() {
     return {
-      id: '',
+      id: '', // Required
       name: '', // Required
       description: '',
       recommendedRetailPrice: '',
       msg: {
-        id: '',
-        name: '',
-        rrp: '',
+        id: null,
+        name: null,
+        rrp: null,
         errorChecks: null
       },
       valid: true
@@ -124,11 +129,11 @@ export default {
      * Validate product ID field.
      */
     validateId() {
-      if (!/[a-zA-Z0-9-]+/.test(this.id)) {
+      if (!/^[a-zA-Z0-9-]+$/.test(this.id)) {
         this.msg.id = 'Please enter a valid product ID';
         this.valid = false;
       } else {
-        this.msg.id = '';
+        this.msg.id = null;
       }
     },
     /**
@@ -139,7 +144,7 @@ export default {
         this.msg.name = 'Please enter a product name';
         this.valid = false;
       } else {
-        this.msg.name = '';
+        this.msg.name = null;
       }
     },
     /**
@@ -151,7 +156,7 @@ export default {
         this.msg.rrp = 'Please enter a valid price';
         this.valid = false;
       } else {
-        this.msg.rrp = '';
+        this.msg.rrp = null;
       }
     },
     /**
@@ -204,12 +209,18 @@ export default {
 
 <style scoped>
 
-.error-msg {
+.required {
   color: red;
 }
 
-.required {
-  color: red;
+.form-group {
+  margin-bottom: 30px;
+}
+
+.error-box {
+  width: 100%;
+  margin: 20px;
+  text-align: center;
 }
 
 </style>

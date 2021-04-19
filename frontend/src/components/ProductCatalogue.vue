@@ -101,7 +101,7 @@
                     <td>{{ product.name }}</td>
                     <td style="word-wrap: break-word; width: 40%">{{ product.description }}</td>
                     <td>{{ product.manufacturer }}</td>
-                    <td>{{ product.recommendedRetailPrice }}</td>
+                    <td>{{ product.recommendedRetailPrice.toFixed(2) }}</td>
                     <td>{{ new Date(product.created).toDateString() }}</td>
                     <td style="color: blue; cursor: pointer;"
                         @click="editProduct(product.id)">
