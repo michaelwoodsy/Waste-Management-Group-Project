@@ -10,7 +10,7 @@ import ProfilePage from "../components/ProfilePage";
 import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 import Catalogue from "@/components/ProductCatalogue";
-import IndividualProduct from "@/components/IndividualProduct";
+import IndividualProductPage from "@/components/IndividualProduct";
 import EditProductPage from "@/components/EditProductPage";
 
 const routes = [
@@ -61,8 +61,8 @@ const routes = [
     },
     {
         path: '/businesses/:businessId/products/:productId',
-        name: 'individualProduct',
-        component: IndividualProduct
+        name: 'individualProductPage',
+        component: IndividualProductPage
     },
     {
         path: '/businesses/:businessId/products/:productId/edit',

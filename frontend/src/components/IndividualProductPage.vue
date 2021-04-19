@@ -125,17 +125,17 @@ export default {
      * @param response
      */
     profileBusiness(response) {
+      //Get list of admin ids
       let adminLength = response.data.administrators.length
       let admins = []
       for (let i = 0; i < adminLength; i++) {
         admins.push(response.data.administrators[i].id)
       }
-
+      //Check user is acting as a business and as correct business id, check that the user is also an admin
       if (this.$root.$data.user.state.actingAs.id === response.data.id && this.$root.$data.user.state.actingAs.type === 'business') {
           if (admins.includes(parseInt(this.$root.$data.user.state.userId))) {
             this.$root.$data.business.state.isAdminOf = true
           }
-        //this.$root.$data.business.state.isAdminOf = true
       }
     },
 
