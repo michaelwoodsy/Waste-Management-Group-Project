@@ -11,7 +11,7 @@ import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 import Catalogue from "@/components/ProductCatalogue";
 import IndividualProduct from "@/components/IndividualProduct";
-import CreateProductPage from "@/components/CreateProductPage";
+import EditProductPage from "@/components/EditProductPage";
 
 const routes = [
     {
@@ -60,14 +60,14 @@ const routes = [
         component: Catalogue
     },
     {
-        path: '/businesses/:businessId/products/create',
-        name: 'createProduct',
-        component: CreateProductPage
-    },
-    {
         path: '/businesses/:businessId/products/:productId',
         name: 'individualProduct',
         component: IndividualProduct
+    },
+    {
+        path: '/businesses/:businessId/products/:productId/edit',
+        name: 'editProduct',
+        component: EditProductPage
     }
 ];
 
