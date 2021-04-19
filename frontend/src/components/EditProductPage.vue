@@ -166,8 +166,8 @@
 
                   <!-- Modal Footer -->
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @click="showModal = false">No</button>
-                    <button type="button" class="btn btn-primary" @click="cancel">Yes</button>
+                    <button type="button" class="btn btn-danger" @click="cancel">Discard Changes</button>
+                    <button type="button" class="btn btn-primary" @click="showModal = false">Continue Editing</button>
                   </div>
                 </div>
               </div>
