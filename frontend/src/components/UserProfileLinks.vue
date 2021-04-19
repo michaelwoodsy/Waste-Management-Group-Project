@@ -54,7 +54,7 @@
         <router-link class="dropdown-item" :to="productCatalogueRoute">Product Catalogue</router-link>
       </div>
       <div v-else>
-        <router-link class="dropdown-item" to="/business">Create Business</router-link>
+        <router-link class="dropdown-item" to="/businesses">Create Business</router-link>
       </div>
       <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
     </div>
