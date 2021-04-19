@@ -3,11 +3,11 @@
 <template>
   <div class="btn-group">
     <!-- Image and name -->
-    <span class="nav-item"  data-toggle="dropdown">
+    <span class="float-right d-inline pointer" data-toggle="dropdown">
       <!-- Profile photo -->
       <img
-          class="img-fluid profile-image rounded-circle mr-1"
           alt="profile"
+          class="img-fluid profile-image rounded-circle mr-1"
           src="../../public/profile.png"
       >
       <!-- Users name -->
@@ -16,16 +16,17 @@
 
     <!-- Dropdown menu when name is clicked -->
     <div class="dropdown-menu dropdown-menu-left dropdown-menu-sm-right">
+
       <!-- Change to business account menu -->
       <div v-if="businessAccounts.length > 0">
         <h6 class="dropdown-header">Businesses</h6>
         <a
             v-for="business in businessAccounts"
             v-bind:key="business.id"
-            @click="actAsBusiness(business)"
             class="dropdown-item"
+            @click="actAsBusiness(business)"
         >
-          <img class="profile-image-sm rounded-circle mb-1" alt="profile"
+          <img alt="profile" class="profile-image-sm rounded-circle mb-1"
                src="../../public/profile.png">
           {{ business.name }}
         </a>
@@ -38,8 +39,8 @@
         <a
             v-for="user in userAccounts"
             v-bind:key="user.id"
-            @click="actAsUser(user)"
             class="dropdown-item"
+            @click="actAsUser(user)"
         >
           <img class="profile-image-sm rounded-circle mb-1" alt="profile"
                src="../../public/profile.png">
@@ -48,7 +49,13 @@
         <div class="dropdown-divider"/>
       </div>
 
-      <!-- Logout section -->
+      <!-- Profile and logout section -->
+      <div v-if="this.actor.type === 'business'">
+        <router-link class="dropdown-item" :to="productCatalogueRoute">Product Catalogue</router-link>
+      </div>
+      <div v-else>
+        <router-link class="dropdown-item" to="/business">Create Business</router-link>
+      </div>
       <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
     </div>
 
@@ -59,22 +66,32 @@
 export default {
   name: "UserProfileLinks",
   computed: {
+    /** Returns the users profile url **/
+    userProfileRoute () {
+      return `users/${this.$root.$data.user.state.userId}`;
+    },
+
+    /** Returns the product catalogue url **/
+    productCatalogueRoute () {
+      return `businesses/${this.actor.id}/products`;
+    },
+
     /**
      * Current actor
      * Returns {name, id, type}
      **/
-    actor () {
+    actor() {
       return this.$root.$data.user.state.actingAs
     },
 
     /** Returns the current logged in users data **/
-    actorName () {
+    actorName() {
       return this.actor.name
     },
 
     /** A list of user accounts the user can change to.
      * Empty list if the user is already acting as themselves **/
-    userAccounts () {
+    userAccounts() {
       return [this.$root.$data.user.state.userData]
     },
 

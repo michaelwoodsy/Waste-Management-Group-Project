@@ -1,8 +1,8 @@
 <template>
   <div>
     <login-required
-            page="view your profile page"
-            v-if="!isLoggedIn"
+        v-if="!isLoggedIn"
+        page="view your profile page"
     />
     <!-- Greeting User -->
     <div v-else>
@@ -18,7 +18,7 @@
 
 <script>
 
-import { User } from '@/Api'
+import {User} from '@/Api'
 import LoginRequired from "./LoginRequired";
 
 export default {
@@ -36,12 +36,12 @@ export default {
      * Check if user is logged in
      * @returns {boolean|*}
      */
-    isLoggedIn () {
+    isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     },
 
     /** Gets the current logged in users name **/
-    name () {
+    name() {
       return this.$root.$data.user.state.userData.firstName
     }
   },
@@ -101,23 +101,30 @@ export default {
 
       //Format Text
       switch (true) {
-        case (sinceYears === 1): text = `${sinceYears} year`
-              break
-        case (sinceYears > 1): text = `${sinceYears} years`
-              break
+        case (sinceYears === 1):
+          text = `${sinceYears} year`
+          break
+        case (sinceYears > 1):
+          text = `${sinceYears} years`
+          break
       }
 
       switch (true) {
-        case (text === '' && sinceMonths > 1): text = `${sinceMonths} months`
-              break
-        case (text === '' && sinceMonths === 1): text = `${sinceMonths} month`
-              break
-        case (sinceMonths > 1): text += ` and ${sinceMonths} months`
-              break
-        case (sinceMonths === 1): text += `and ${sinceMonths} month`
-              break
-        case (text === '' && sinceMonths === 0): text = 'Less than 1 month'
-              break
+        case (text === '' && sinceMonths > 1):
+          text = `${sinceMonths} months`
+          break
+        case (text === '' && sinceMonths === 1):
+          text = `${sinceMonths} month`
+          break
+        case (sinceMonths > 1):
+          text += ` and ${sinceMonths} months`
+          break
+        case (sinceMonths === 1):
+          text += `and ${sinceMonths} month`
+          break
+        case (text === '' && sinceMonths === 0):
+          text = 'Less than 1 month'
+          break
       }
       this.dateSinceJoin = text
     }

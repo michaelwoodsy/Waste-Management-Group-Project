@@ -1,12 +1,12 @@
 <template>
   <div>
     <alert
-        class="alert-danger alert-fixed alert-dismissible fade show shadow"
         v-if="alert"
+        class="alert-danger alert-fixed alert-dismissible fade show shadow"
     >
       {{ alert }}
       <!-- Button to close alert -->
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close" @click="clear">
+      <button aria-label="Close" class="close" data-dismiss="alert" type="button" @click="clear">
         <span aria-hidden="true">&times;</span>
       </button>
     </alert>
@@ -16,11 +16,11 @@
 
 <script>
 import Alert from './Alert'
-import {listen} from "../utils/globalAlerts"
+import {listen} from "@/utils/globalAlerts"
 
 export default {
   name: "Alerts",
-  data () {
+  data() {
     return {
       alert: null
     }
@@ -28,7 +28,7 @@ export default {
   components: {
     Alert
   },
-  created () {
+  created() {
     // Create a listener for new alerts to display
     listen(this.pushAlert)
   },
@@ -37,14 +37,14 @@ export default {
      * Set the current alert message
      * @param message
      */
-    pushAlert (message) {
+    pushAlert(message) {
       this.alert = message
     },
 
     /**
      * Clears the current alert
      */
-    clear () {
+    clear() {
       this.alert = null
     }
   }
@@ -53,11 +53,11 @@ export default {
 
 <style scoped>
 .alert-fixed {
-  position:fixed;
+  position: fixed;
   top: 50px;
   left: 50%;
   transform: translateX(-50%);
   width: 60%;
-  z-index:9999;
+  z-index: 9999;
 }
 </style>
