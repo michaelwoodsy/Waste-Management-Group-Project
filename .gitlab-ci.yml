@@ -20,13 +20,16 @@ npm-install:
       - frontend/node_modules
   script:
     - cd frontend
-    - npm install
+    - npm install --legacy-peer-deps
 
 junit:
   stage: test
   script:
     - cd backend
     - ./gradlew test
+  artifacts:
+    paths:
+      - backend/build/jacoco
 
 # Run acceptance (cucumber) tests
 # Uncomment after ATDD workshop (at the latest)
@@ -38,33 +41,36 @@ junit:
 
 # Run Jest (Javascript) tests
 # Uncomment after Jest workshop (at the latest)
-# jest:
-#   stage: test
-#   cache:
-#     key: node-modules
-#     paths:
-#       - frontend/node_modules
-#     policy: pull
-#   script:
-#     - cd frontend
-#     - npm run test
+jest:
+ stage: test
+ cache:
+   key: node-modules
+   paths:
+     - frontend/node_modules
+   policy: pull
+ script:
+   - cd frontend
+   - npm run test
+ artifacts:
+   paths:
+     - frontend/coverage
 
 # Export sonarqube (static code analysis) reports
 # Uncomment after ATDD workshop (at the latest)
-# dev-sonarqube:
-#   stage: sonarqube
-#   cache:
-#     key: node-modules
-#     paths:
-#       - frontend/node_modules
-#     policy: pull
-#   script:
-#     - cd frontend
-#     - npm run sonarqube
-#     - cd ../backend
-#     - ./gradlew sonarqube
-#   only:
-#     - dev
+dev-sonarqube:
+ stage: sonarqube
+ cache:
+   key: node-modules
+   paths:
+     - frontend/node_modules
+   policy: pull
+ script:
+   - cd frontend
+   - npm run sonarqube
+   - cd ../backend
+   - ./gradlew sonarqube
+ only:
+   - dev
 
 # builds all branches, except dev and master
 branch-build:
@@ -97,6 +103,10 @@ deploy-staging-backend:
     - mkdir /home/gitlab-runner/staging-backend/
     - cp -r ./build/libs /home/gitlab-runner/staging-backend
     - cp ../runner/staging-backend.sh /home/gitlab-runner/staging-backend.sh
+    - rm -f /home/gitlab-runner/staging-backend/vars.txt || true
+    - echo "export DB_URL=${DB_URL}" > /home/gitlab-runner/staging-backend/vars.txt
+    - echo "export DB_USERNAME=${DB_USERNAME}" >> /home/gitlab-runner/staging-backend/vars.txt
+    - echo "export DB_PASSWORD=${DB_PASSWORD}" >> /home/gitlab-runner/staging-backend/vars.txt
     - chmod u+x /home/gitlab-runner/staging-backend.sh
     - sudo systemctl restart seng302-staging-backend
   artifacts:
@@ -136,6 +146,10 @@ deploy-production-backend:
     - mkdir /home/gitlab-runner/production-backend/
     - cp -r ./build/libs /home/gitlab-runner/production-backend
     - cp ../runner/production-backend.sh /home/gitlab-runner/production-backend.sh
+    - rm -f /home/gitlab-runner/production-backend/vars.txt || true
+    - echo "export DB_URL=${DB_URL}" > /home/gitlab-runner/production-backend/vars.txt
+    - echo "export DB_USERNAME=${DB_USERNAME}" >> /home/gitlab-runner/production-backend/vars.txt
+    - echo "export DB_PASSWORD=${DB_PASSWORD}" >> /home/gitlab-runner/production-backend/vars.txt
     - chmod u+x /home/gitlab-runner/production-backend.sh
     - sudo systemctl restart seng302-production-backend
   artifacts:

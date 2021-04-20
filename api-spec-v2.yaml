@@ -2,11 +2,11 @@ openapi: 3.0.0
 servers:
   # Added by API Auto Mocking Plugin
   - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/matthewminish/seng302-2021-api-spec/2.0.0
+    url: https://virtserver.swaggerhub.com/matthewminish/seng302-2021-api-spec/2.2.1
     
 info:
   description: API specification for the SENG302 2021 project
-  version: 2.0.0
+  version: 2.2.1
   title: Wasteless
   contact:
     email: seng302@canterbury.ac.nz
@@ -29,6 +29,9 @@ tags:
   - name: 'U15: Product Catalogue'
   - name: 'U16: Product Images'
   - name: 'U17: Modify catalogue entries'
+  - name: 'U19: Create inventory'
+  - name: 'U20: Modify inventory entries'
+  - name: 'U22: List sale'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -36,6 +39,10 @@ tags:
     description: 'Grouping of endpoints related to Business Accounts'
   - name: 'Catalogue / Products'
     description: 'Grouping of endpoints related to Product entities'
+  - name: 'Inventory'
+    description: 'Grouping of endpoints related to business inventories'
+  - name: 'Listings / sales'
+    description: 'Grouping of endpoints related to listings of items and the sales of these listings'
   
 security: 
   - CookieAuth: 
@@ -156,7 +163,7 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       
-  '/users/{id}/makeAdmin':
+  '/users/{id}/makeadmin':
     put:
       tags:
         - 'U4: Default Global Application Admin (DGAA)'
@@ -182,7 +189,7 @@ paths:
         '406': 
           $ref: '#/components/responses/NotAcceptableError'
           
-  '/users/{id}/revokeAdmin':
+  '/users/{id}/revokeadmin':
     put:
       tags:
         - 'U4: Default Global Application Admin (DGAA)'
@@ -262,7 +269,87 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '406': 
           $ref: '#/components/responses/NotAcceptableError'
+
+  '/businesses/{id}/makeAdministrator':
+    put:
+      tags:
+        - 'U5: Creating Business Accounts'
+        - 'Business Accounts'
+      summary: Add an individual as an administrator for a business
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  description: The ID of the user to add as a business administrator
+                  example: 100
+      responses:
+        '200':
+          description: Individual added as an administrator successfully
+        '400':
+          description: The individual could not be added as an administrator, perhaps because it does not exist or is already an administrator.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: "Forbidden: Returned when the user making the request is not the primary administrator of the business AND is not a global application admin."
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
           
+  '/businesses/{id}/removeAdministrator':
+    put:
+      tags:
+        - 'U5: Creating Business Accounts'
+        - 'Business Accounts'
+      summary: Remove an individual from administering a business
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  description: The ID of the user to remove as a business administrator
+                  example: 100
+      responses:
+        '200':
+          description: Inidividual removed from administering successfully
+        '400':
+          description: The individual could not be removed from administering the business, perhaps because it does not exist, was not an administrator of the business, or is the primary administrator of the business.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: "Forbidden: Returned when the user making the request is not the primary administrator of the business AND is not a global application admin."
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+
   '/businesses/{id}/products':
     get:
       tags:
@@ -327,79 +414,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Product'
-              
-  '/businesses/{businessId}/products/{productId}':
-    get:
-      tags:
-        - 'U15: Product Catalogue'
-        - 'Catalogue / Products'
-      summary: Retrieve a specific product from a business's catalogue
-      security: 
-        - CookieAuth:
-          - user
-          - globalApplicationAdmin
-          - defaultGlobalApplicationAdmin
-      parameters:
-        - name: businessId
-          in: path
-          description: ID of business to search catalogue of
-          required: true
-          schema:
-            type: integer
-        - name: productId
-          in: path
-          description: ID (Product Code) of product to try to find in catalogue
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Product retrieved successfully from business catalogue
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          description: 'Forbidden: Returned when a user tries to retrieve a product from catalogue of a business they do not administer AND the user is not a global application admin'
-        '406': 
-          $ref: '#/components/responses/NotAcceptableError'
-    put:
-      tags:
-        - 'U17: Modify catalogue entries'
-        - 'Catalogue / Products'
-      summary: Modify an existing catalogue item
-      security: 
-        - CookieAuth:
-          - user
-          - globalApplicationAdmin
-          - defaultGlobalApplicationAdmin
-      parameters:
-        - name: businessId
-          in: path
-          description: ID of business to search catalogue of
-          required: true
-          schema:
-            type: integer
-        - name: productId
-          in: path
-          description: ID (Product Code) of product to try to find in catalogue
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
-      responses:
-        '200':
-          description: Product updated successfully
-        '400': 
-          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
-        '403':
-          description: 'Forbidden: Returned when a user tries to update a product for a business they do not administer AND the user is not a global application admin'
           
   '/businesses/{businessId}/products/{productId}/images':
     post:
@@ -427,26 +441,18 @@ paths:
             type: string
       requestBody:
         content:
-          image/png:
+          multipart/form-data:
             schema:
-              type: string
-              format: binary
-          image/jpeg:
-            schema:
-              type: string
-              format: binary
+              type: object
+              properties:
+                filename:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
       responses:
         '201':
           description: Image successfully created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  imageId:
-                    type: integer
-                    description: The ID of the image that was just created
-                    example: 6543
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -487,7 +493,7 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
+        '200':
           description: Image deleted successfully
         '401':
             $ref: '#/components/responses/UnauthorizedError'
@@ -496,7 +502,7 @@ paths:
         '406': 
           $ref: '#/components/responses/NotAcceptableError'
           
-  '/businesses/{businessId}/products/{productId}/images/{imageId}/makePrimary':
+  '/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary':
     put:
       tags:
         - 'U16: Product Images'
@@ -535,7 +541,210 @@ paths:
           description: 'Forbidden: Returned when a user tries to update the primary image for a product that it is in a catalogue for a business they do not administer AND the user is not a global application admin'
         '406': 
           $ref: '#/components/responses/NotAcceptableError'
- 
+          
+  '/businesses/{businessId}/products/{productId}':
+    put:
+      tags:
+        - 'U17: Modify catalogue entries'
+        - 'Catalogue / Products'
+      summary: Modify an existing catalogue item
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: ID of business to search catalogue of
+          required: true
+          schema:
+            type: integer
+        - name: productId
+          in: path
+          description: ID (Product Code) of product to try to find in catalogue
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Product updated successfully
+        '400': 
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+        '403':
+          description: 'Forbidden: Returned when a user tries to update a product for a business they do not administer AND the user is not a global application admin'
+          
+  '/businesses/{id}/inventory/':
+    get:
+      tags:
+        - 'U19: Create inventory'
+        - 'Business Accounts'
+        - 'Inventory'
+      summary: "Retrieve a business's product inventory"
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Inventory retrieved successfully. This could be an empty array.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/InventoryItem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'The account performing the request is neither an administrator of the business, nor a global application admin.'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+    post:
+      tags:
+        - 'U19: Create inventory'
+        - 'Business Accounts'
+        - 'Inventory'
+      summary: "Add a new inventory item to a business's inventory"
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Inventory item created successfully
+        '400': 
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+        '403':
+          description: 'Forbidden: Returned when a user tries to add an inventory item to the inventory of a business they do not administer AND the user is not a global application admin'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItem'
+           
+  '/businesses/{businessId}/inventory/{inventoryItemId}':
+    put:
+      tags:
+        - 'U20: Modify inventory entries'
+        - 'Business Accounts'
+        - 'Inventory'
+      summary: Modify an existing inventory item
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: ID of business to search catalogue of
+          required: true
+          schema:
+            type: integer
+        - name: inventoryItemId
+          in: path
+          description: ID of inventory item to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItem'
+      responses:
+        '200':
+          description: Inventory item updated successfully
+        '400': 
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+        '403':
+          description: 'Forbidden: Returned when a user tries to update an inventory item for a business they do not administer AND the user is not a global application admin'
+          
+  '/businesses/{id}/listings':
+    get:
+      tags:
+        - 'U22: List sale'
+        - 'Business Accounts'
+        - 'Listings / sales'
+      summary: "Retrieve a business's listings"
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Listings retrieved successfully. This could be an empty array.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Listing'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+    post:
+      tags:
+        - 'U22: List sale'
+        - 'Business Accounts'
+        - 'Listings / sales'
+      summary: "Add a new listing for some inventory item of a business"
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: Business ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Listing created successfully
+        '400': 
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+        '403':
+          description: 'Forbidden: Returned when a user tries to add listing for a business they do not administer AND the user is not a global application admin'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Listing'
+              
 components:
   securitySchemes:
     CookieAuth:
@@ -565,7 +774,6 @@ components:
                 type: integer
                 description: The ID of the user that has just been authenticated
                 example: 100
-        
       headers: 
         Set-Cookie:
           schema: 
@@ -573,6 +781,103 @@ components:
             example: JSESSIONID=abcde12345; Path=/; HttpOnly
 
   schemas:
+    Listing:
+      type: object
+      description: A listing for the sale of some product from a business's inventory
+      required:
+        - inventoryItemId
+        - quantity
+        - price
+      properties:
+        id:
+          type: integer
+          example: 57
+          readOnly: true
+          description: A unique (within the business) identifer for this listing - autogenerated by the system
+        inventoryItem:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/InventoryItem'
+        inventoryItemId:
+          writeOnly: true
+        quantity:
+          type: integer
+          example: 3
+          description: Must be greater than zero, and less than or equal to the quantity of the correpsonding inventory entry
+        price:
+          type: number
+          format: double
+          description: Price of the listing
+          example: 17.99
+        moreInfo:
+          type: string
+          example: 'Seller may be willing to consider near offers'
+          description: An optional field for further information about the listing
+        created:
+          type: string
+          format: date-time
+          example: '2021-07-14T11:44:00Z'
+          readOnly: true
+          description: Date and time when the listing was created
+        closes:
+          type: string
+          format: date-time
+          example: '2021-07-21T23:59:00Z'
+          description: Date and time when the listing closes (defaults to expiry date of related inventory item)
+  
+    InventoryItem:
+      type: object
+      description: Entity representing an instance of a stock of some product
+      required:
+        - productId
+        - quantity
+        - expires
+      properties:
+        id:
+          type: integer
+          example: 101
+          readOnly: true
+          description: A unique (within the inventory) identifer for this item - autogenerated by the system
+        product:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/Product'
+        productId:
+          writeOnly: true
+          type: string
+          example: "WATT-420-BEANS"
+          description: Product Code of corresponding product in business's catalogue. Notice that the ID is given when writing, but the full object is returned when reading
+        quantity:
+          type: integer
+          example: 4
+          description: How many items of stock are present
+        pricePerItem:
+          type: number
+          format: double
+          description: Price to purchase a single item of the product
+          example: 6.50
+        totalPrice:
+          type: number
+          format: double
+          description: Price for purchasing the entire stock of the product
+          example: 21.99
+        manufactured:
+          type: string
+          format: date
+          description: The date on which the product was prepared / manufactured
+        sellBy:
+          type: string
+          format: date
+          description: The date by which the product ought to be sold
+        bestBefore:
+          type: string
+          format: date
+          description: 'The "best before" date of the product'
+        expires:
+          type: string
+          format: date
+          description: The expiry date of the product
+  
     Image:
       type: object
       description: Entity representing an image stored on the server
@@ -618,6 +923,10 @@ components:
           type: string
           description: A desription of the product
           example: "Baked Beans as they should be."
+        manufacturer:
+          type: string
+          description: The manufacturer of the product
+          example: "Heinz Wattie's Limited"
         recommendedRetailPrice:
           type: number
           format: double
@@ -653,6 +962,10 @@ components:
           items: 
             $ref: '#/components/schemas/User'
           readOnly: true
+        primaryAdministratorId:
+          type: integer
+          example: 20
+          description: "The ID of the 'primary' administrator of the business. This is automatically given to the creator of the business."
         name:
           type: string
           example: 'Lumbridge General Store'
@@ -767,7 +1080,6 @@ components:
         businessesAdministered:
           type: array
           readOnly: true
-          description: '(Implemented in U6): A list of IDs of business accounts for which the user is an administrator'
-          example: [12,42,99]
+          description: '(Implemented in U6): A list of businesses for which the user is an administrator'
           items:
-            type: integer
+            $ref: '#/components/schemas/Business'

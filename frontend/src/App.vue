@@ -5,30 +5,36 @@
       <Navbar/>
     </header>
 
+    <!-- Global alert popups -->
+    <alerts/>
+
     <body>
-      <div class="container-fluid">
-        <div class="row">
-          <div class="d-none d-sm-block col-sm-1"></div>
-          <div class="col-12 col-sm-10">
-            <router-view/>
-          </div>
-          <div class="d-none d-sm-block col-sm-1"></div>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="d-none d-sm-block col-sm-1"></div>
+        <div class="col-12 col-sm-10">
+          <router-view/>
         </div>
+        <div class="d-none d-sm-block col-sm-1"></div>
       </div>
+    </div>
     </body>
 
     <footer class="text-center">
-      <p class="text-muted">SENG302 Team 10</p>
+      <p class="text-muted">SENG302 Team 200</p>
     </footer>
   </div>
 </template>
 
 <script>
 import Navbar from "./components/Navbar"
+import Alerts from "./components/Alerts"
+
 const app = {
   name: "app",
   components: {
-    Navbar
+    Navbar,
+    Alerts
   }
 };
 
