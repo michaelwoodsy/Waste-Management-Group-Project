@@ -39,6 +39,8 @@
           <!--    Result Information    -->
           <div class="row">
             <div class="col">
+
+              <!-- Displays number of results -->
               <div class="text-center">
                 <showing-results-text
                     :items-per-page="resultsPerPage"
@@ -88,32 +90,32 @@
                       <p v-if="orderCol === 'created'" class="d-inline">{{ orderDirArrow }}</p>
                     </th>
 
-                <!--    Edit button column    -->
-                <th scope="col"></th>
-              </tr>
-              </thead>
-              <!--    Product Information    -->
-              <tbody v-if="!loading">
-              <tr v-for="product in paginatedProducts"
-                  v-bind:key="product.id"
-              >
-                <th scope="row">{{ product.id }}</th>
-                <td>{{ product.name }}</td>
-                <td style="word-wrap: break-word; width: 40%">{{ product.description }}</td>
-                <td>{{ product.manufacturer }}</td>
-                <td>{{ formatPrice(product.recommendedRetailPrice) }}</td>
-                <td>{{ new Date(product.created).toDateString() }}</td>
-                <td style="color: blue; cursor: pointer;"
-                    @click="editProduct(product.id)">
-                  Edit
-                </td>
-              </tr>
-              </tbody>
-            </table>
+                    <!--    Edit button column    -->
+                    <th scope="col"></th>
+                  </tr>
+                  </thead>
+
+                  <!--    Product Information    -->
+                  <tbody v-if="!loading">
+                  <tr v-for="product in paginatedProducts"
+                      v-bind:key="product.id"
+                  >
+                    <th scope="row">{{ product.id }}</th>
+                    <td>{{ product.name }}</td>
+                    <td style="word-wrap: break-word; width: 40%">{{ product.description }}</td>
+                    <td>{{ product.manufacturer }}</td>
+                    <td>{{ formatPrice(product.recommendedRetailPrice) }}</td>
+                    <td>{{ new Date(product.created).toDateString() }}</td>
+                    <td style="color: blue; cursor: pointer;"
+                        @click="editProduct(product.id)">
+                      Edit
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="d-none d-lg-block col-lg-1"/>
-      </div>
 
           <div v-if="loading" class="row">
             <div class="col text-center">
