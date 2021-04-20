@@ -55,11 +55,14 @@
               <label for="rrp"><b>Recommended Retail Price</b></label>
               <div :class="{'input-group': true, 'is-invalid': msg.rrp}">
                 <div class="input-group-prepend">
-                  <span class="input-group-text">$</span>
+                  <span class="input-group-text">{{ this.currency.symbol }}</span>
                 </div>
                 <input id="rrp" v-model="recommendedRetailPrice" :class="{'form-control': true, 'is-invalid': msg.rrp}"
                        maxlength="255"
                        placeholder="Enter product RRP" type="text">
+                <div class="input-group-append">
+                  <span class="input-group-text">{{ this.currency.code }}</span>
+                </div>
               </div>
               <span class="invalid-feedback">{{ msg.rrp }}</span>
             </div>
@@ -98,6 +101,7 @@ export default {
       name: '', // Required
       description: '',
       recommendedRetailPrice: '',
+      currency: null,
       msg: {
         id: null,
         name: null,
@@ -106,6 +110,9 @@ export default {
       },
       valid: true
     };
+  },
+  mounted() {
+    this.getCurrency();
   },
   computed: {
     /**
@@ -206,6 +213,10 @@ export default {
      */
     cancel() {
       this.$router.push({name: "viewCatalogue", params: {businessId: this.$root.$data.user.state.actingAs.id}});
+    },
+    async getCurrency() {
+      const country = 'New Zealand'
+      this.currency = await this.$root.$data.product.getCurrency(country)
     }
   }
 }
