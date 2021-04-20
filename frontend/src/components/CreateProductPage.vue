@@ -214,7 +214,13 @@ export default {
     cancel() {
       this.$router.push({name: "viewCatalogue", params: {businessId: this.$root.$data.user.state.actingAs.id}});
     },
+    /**
+     * Uses the getCurrency in the product.js module to get the currency of the business
+     */
     async getCurrency() {
+      //Change country to businesses address country when implemented
+      //The country variable  will always be an actual country as it is a requirement when creating a business
+      //This is consistent with the country in product catalog
       const country = 'New Zealand'
       this.currency = await this.$root.$data.product.getCurrency(country)
     }

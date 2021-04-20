@@ -312,7 +312,8 @@ export default {
       this.loading = true
       //Change country to businesses address country when implemented
       //The country variable  will always be an actual country as it is a requirement when creating a business
-      const country = "Netherlands"
+      //This is consistent with the country in create product page
+      const country = "New Zealand"
 
       this.currency = await this.$root.$data.product.getCurrency(country)
 
