@@ -101,7 +101,7 @@
                     <td>{{ product.name }}</td>
                     <td style="word-wrap: break-word; width: 40%">{{ product.description }}</td>
                     <td>{{ product.manufacturer }}</td>
-                    <td>{{ product.recommendedRetailPrice.toFixed(2) }}</td>
+                    <td>{{ product.recommendedRetailPrice ? product.recommendedRetailPrice.toFixed(2) : null }}</td>
                     <td>{{ new Date(product.created).toDateString() }}</td>
                     <td style="color: blue; cursor: pointer;"
                         @click="editProduct(product.id)">
@@ -324,6 +324,16 @@ export default {
      */
     newProduct() {
       this.$router.push({name: 'createProduct', params: {businessId: this.businessId}})
+    },
+    /**
+     * Display RRP to 2dp.
+     */
+    displayRRP(rrp) {
+      if (rrp) {
+        return rrp.toFixed(2);
+      } else {
+        return rrp
+      }
     }
   }
 }

@@ -37,8 +37,9 @@ public class ProductCatalogueController {
 
     /**
      * Gets a list of products that belongs to a business.
+     *
      * @param businessId ID of the business to get the products of.
-     * @param appUser AppUserDetails from spring security
+     * @param appUser    AppUserDetails from spring security
      * @return List of products that belongs to the business.
      */
     @GetMapping("/businesses/{businessId}/products")
@@ -83,10 +84,9 @@ public class ProductCatalogueController {
 
 
     /**
-     *
      * @param businessId ID of the business to add product to.
-     * @param appUser AppUserDetails of current user
-     * @param json The fields of the new product
+     * @param appUser    AppUserDetails of current user
+     * @param json       The fields of the new product
      */
     @PostMapping("/businesses/{businessId}/products")
     @ResponseStatus(HttpStatus.CREATED)
@@ -146,7 +146,10 @@ public class ProductCatalogueController {
             //These can be empty
             String description = json.getAsString("description");
             String manufacturer = json.getAsString("manufacturer");
-            Double recommendedRetailPrice = json.getAsNumber("recommendedRetailPrice").doubleValue();
+            Double recommendedRetailPrice = null;
+            if (json.getAsNumber("recommendedRetailPrice") != null) {
+                recommendedRetailPrice = json.getAsNumber("recommendedRetailPrice").doubleValue();
+            }
 
             //Return 400 if id not unique
             if (productRepository.findByIdAndBusinessId(productId, businessId).isPresent()) {

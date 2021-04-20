@@ -1,83 +1,84 @@
 <template>
   <div>
 
+    <!-- Displayed if not logged in -->
     <login-required
         v-if="!isLoggedIn"
         page="create a new product for this business"
     />
 
+    <!-- Displayed if not admin of business -->
     <admin-required
         v-else-if="!isAdminOf"
         page="create a new product for this business"
     />
 
+    <!-- Page content -->
     <div v-else class="container-fluid">
-
-      <!-- Page title. -->
-      <div class="row mb-4">
-        <div class="col text-center">
-          <h2>Create a new Product</h2>
-        </div>
-      </div>
-
-      <!-- Form fields. -->
       <div class="row justify-content-center">
-        <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+        <div class="col-10 col-md-8 col-lg-6 col-xl-5">
 
-          <!-- ID -->
-          <div class="form-group row">
-            <label for="id"><b>Product ID<span class="required">*</span></b></label>
-            <input id="id" v-model="id" :class="{'form-control': true, 'is-invalid': msg.id}" maxlength="255"
-                   placeholder="Enter a product ID" type="text">
-            <div class="invalid-feedback">{{ msg.id }}</div>
+          <!-- Page title -->
+          <div class="row mb-4">
+            <div class="col text-center">
+              <h2>Create a new Product</h2>
+            </div>
           </div>
 
-          <!-- Name -->
-          <div class="form-group row">
-            <label for="name"><b>Product Name<span class="required">*</span></b></label>
-            <input id="name" v-model="name" :class="{'form-control': true, 'is-invalid': msg.name}" maxlength="255"
-                   placeholder="Enter a product name"
-                   required
-                   type="text">
-            <div class="invalid-feedback">{{ msg.name }}</div>
-          </div>
+          <!-- Form fields -->
+          <div>
+            <!-- ID -->
+            <div class="form-group row">
+              <label for="id"><b>Product ID<span class="required">*</span></b></label>
+              <input id="id" v-model="id" :class="{'form-control': true, 'is-invalid': msg.id}" maxlength="255"
+                     placeholder="Enter a product ID" required type="text">
+              <span class="invalid-feedback">{{ msg.id }}</span>
+            </div>
 
-          <!-- Description -->
-          <div class="form-group row">
-            <label for="description"><b>Product Description</b></label>
-            <textarea id="description" v-model="description" class="form-control" maxlength="255"
-                      placeholder="Enter a product description" type="text"/>
-          </div>
+            <!-- Name -->
+            <div class="form-group row">
+              <label for="name"><b>Product Name<span class="required">*</span></b></label>
+              <input id="name" v-model="name" :class="{'form-control': true, 'is-invalid': msg.name}" maxlength="255"
+                     placeholder="Enter a product name" required type="text">
+              <span class="invalid-feedback">{{ msg.name }}</span>
+            </div>
 
-          <!-- RRP -->
-          <div class="form-group row">
-            <label for="rrp"><b>Recommended Retail Price</b></label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text">$</span>
+            <!-- Description -->
+            <div class="form-group row">
+              <label for="description"><b>Product Description</b></label>
+              <textarea id="description" v-model="description" class="form-control" maxlength="255"
+                        placeholder="Enter a product description" type="text"/>
+            </div>
+
+            <!-- RRP -->
+            <div class="form-group row">
+              <label for="rrp"><b>Recommended Retail Price</b></label>
+              <div :class="{'input-group': true, 'is-invalid': msg.rrp}">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">$</span>
+                </div>
+                <input id="rrp" v-model="recommendedRetailPrice" :class="{'form-control': true, 'is-invalid': msg.rrp}"
+                       maxlength="255"
+                       placeholder="Enter product RRP" type="text">
               </div>
-              <input id="rrp" v-model="recommendedRetailPrice" :class="{'form-control': true, 'is-invalid': msg.rrp}"
-                     maxlength="255"
-                     placeholder="Enter product RRP" type="text">
+              <span class="invalid-feedback">{{ msg.rrp }}</span>
             </div>
-            <div class="invalid-feedback">{{ msg.rrp }}</div>
-          </div>
 
-          <!-- Create Product button -->
-          <div class="form-group row">
-            <div class="btn-group" style="width: 100%">
-              <button class="btn btn-secondary col-4" v-on:click="cancel">Cancel</button>
-              <button class="btn btn-primary col-8" v-on:click="checkInputs">Create Product</button>
-            </div>
-            <!-- Show an error if required fields are missing -->
-            <div class="error-box">
-              <alert v-if="msg.errorChecks">{{ msg.errorChecks }}</alert>
+            <!-- Create Product button -->
+            <div class="form-group row">
+              <div class="btn-group" style="width: 100%">
+                <button class="btn btn-secondary col-4" v-on:click="cancel">Cancel</button>
+                <button class="btn btn-primary col-8" v-on:click="checkInputs">Create Product</button>
+              </div>
+              <!-- Show an error if required fields are missing -->
+              <div class="error-box">
+                <alert v-if="msg.errorChecks">{{ msg.errorChecks }}</alert>
+              </div>
             </div>
           </div>
 
         </div>
       </div>
-
     </div>
 
   </div>
@@ -122,11 +123,14 @@ export default {
     }
   },
   methods: {
+    /**
+     * Rounds the RRP to 2dp
+     */
     roundRRP(rrp) {
       return (Math.round(rrp * 100)) / 100;
     },
     /**
-     * Validate product ID field.
+     * Validate product ID field
      */
     validateId() {
       if (!/^[a-zA-Z0-9-]+$/.test(this.id)) {
@@ -137,7 +141,7 @@ export default {
       }
     },
     /**
-     * Validate product name field.
+     * Validate product name field
      */
     validateName() {
       if (this.name === '') {
@@ -148,7 +152,7 @@ export default {
       }
     },
     /**
-     * Validate the product RRP field.
+     * Validate the product RRP field
      */
     validateRRP() {
       console.log(this.recommendedRetailPrice);
@@ -160,7 +164,7 @@ export default {
       }
     },
     /**
-     * Checks all inputs are valid.
+     * Checks all inputs are valid
      */
     checkInputs() {
       this.validateId();
@@ -178,7 +182,7 @@ export default {
       }
     },
     /**
-     * Add a new product to the business's product catalogue.
+     * Add a new product to the business's product catalogue
      */
     addProduct() {
       const rrp = Number(this.recommendedRetailPrice)
@@ -198,7 +202,7 @@ export default {
       });
     },
     /**
-     * Cancel creating a new product and go back to product catalogue.
+     * Cancel creating a new product and go back to product catalogue
      */
     cancel() {
       this.$router.push({name: "viewCatalogue", params: {businessId: this.$root.$data.user.state.actingAs.id}});
