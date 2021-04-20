@@ -1,9 +1,5 @@
-import User from './modules/user'
-import Business from './modules/business'
-import Product from './modules/product'
+import User from './User'
 
 export default {
-    user: User,
-    business: Business,
-    product: Product
+    user: User
 }

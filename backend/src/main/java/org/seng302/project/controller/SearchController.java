@@ -1,12 +1,11 @@
 package org.seng302.project.controller;
 
 
-import org.seng302.project.model.Business;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.seng302.project.model.User;
 import org.seng302.project.model.UserRepository;
 import org.seng302.project.model.UserSpecifications;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -27,7 +26,7 @@ import java.util.Set;
 @RestController
 public class SearchController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SearchController.class.getName());
+    private static final Logger logger = LogManager.getLogger(SearchController.class.getName());
     private final UserRepository userRepository;
 
     @Autowired
@@ -48,45 +47,29 @@ public class SearchController {
     @GetMapping("/users/search")
     @ResponseStatus(HttpStatus.OK)
     public List<User> searchUsers(@RequestParam("searchQuery") String searchQuery) {
-
         logger.info(String.format("Request to search users with query: %s", searchQuery));
+        Set<User> result = new LinkedHashSet<>();
 
-        try {
-            Set<User> result = new LinkedHashSet<>();
+        searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
+        String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
-            searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
-            String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
+        for (String conjunction : conjunctions) {
+            Specification<User> hasSpec = Specification.where(null);
+            Specification<User> containsSpec = Specification.where(null);
+            String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
 
-            for (String conjunction : conjunctions) {
-                Specification<User> hasSpec = Specification.where(null);
-                Specification<User> containsSpec = Specification.where(null);
-                String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
-
-                for (String name : names) {
-                    name = name.replaceAll("\"", "");
-                    hasSpec = hasSpec.and(UserSpecifications.hasName(name));
-                    containsSpec = containsSpec.and(UserSpecifications.containsName(name));
-                }
-
-                result.addAll(userRepository.findAll(hasSpec));
-                result.addAll(userRepository.findAll(containsSpec));
-
-                for (User currUser : result) {
-                    //Do this so the return is not an infinite loop of businesses and users
-                    for (Business business : currUser.getBusinessesAdministered()) {
-                        business.setAdministrators(new ArrayList<>());
-                    }
-                }
+            for (String name : names) {
+                name = name.replaceAll("\"", "");
+                hasSpec = hasSpec.and(UserSpecifications.hasName(name));
+                containsSpec = containsSpec.and(UserSpecifications.containsName(name));
             }
 
-            logger.info(String.format("Retrieved %d users", result.size()));
-            return new ArrayList<>(result);
-
-        } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while searching users: %s", exception.getMessage()));
-            throw exception;
+            result.addAll(userRepository.findAll(hasSpec));
+            result.addAll(userRepository.findAll(containsSpec));
         }
 
+        logger.info(String.format("Retrieved %d users", result.size()));
+        return new ArrayList<>(result);
     }
 
 }
