@@ -1,7 +1,8 @@
 import Router from './Router'
 import RouterLink from './RouterLink'
-import {listen, push as historyPush} from './history'
-import {findRoute, ParsedRoute} from "./routeParser";
+import { push as historyPush } from './history'
+import { findRoute, ParsedRoute } from "./routeParser";
+import { listen } from "./history";
 
 export default {
     // called by Vue.use()
@@ -11,8 +12,7 @@ export default {
         Vue.component('RouterView', Router);
         Vue.component('RouterLink', RouterLink);
 
-        // Parse the routes
-        let parsedRoutes = parseRouteParams([...options.routes], options.base);
+        let parsedRoutes = parseRouteParams([...options.routes]);
 
         // Define routes globally
         Vue.prototype.$routes = parsedRoutes;
@@ -24,8 +24,7 @@ export default {
                 } else {
                     historyPush(route.path || route)
                 }
-            },
-            base: options.base
+            }
         };
         Vue.prototype.$route = findRoute(parsedRoutes, window.location.pathname);
 
@@ -45,11 +44,10 @@ export default {
 /**
  * Parse parameters and add them in place
  * @param routes Routes object
- * @param base base url for app
  */
-const parseRouteParams = (routes, base) => {
+const parseRouteParams = (routes) => {
     routes.forEach(route => {
-        route.parsedRoute = new ParsedRoute(route, base)
+        route.parsedRoute = new ParsedRoute(route)
     });
     return routes
 };

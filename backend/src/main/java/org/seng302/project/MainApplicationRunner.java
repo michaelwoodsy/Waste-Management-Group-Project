@@ -30,9 +30,10 @@ package org.seng302.project;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import org.seng302.project.model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.seng302.project.model.User;
+import org.seng302.project.model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -48,11 +49,9 @@ import java.io.FileReader;
 @Component
 public class MainApplicationRunner implements ApplicationRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(MainApplicationRunner.class.getName());
+    private static final Logger logger = LogManager.getLogger(MainApplicationRunner.class.getName());
     private static final JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
     private final UserRepository userRepository;
-    private final BusinessRepository businessRepository;
-    private final ProductRepository productRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     /**
@@ -63,11 +62,9 @@ public class MainApplicationRunner implements ApplicationRunner {
      * @param userRepository the user repository to persist example data.
      */
     @Autowired
-    public MainApplicationRunner(UserRepository userRepository, BusinessRepository businessRepository,
-                                 ProductRepository productRepository, BCryptPasswordEncoder passwordEncoder) {
+    public MainApplicationRunner(UserRepository userRepository,
+                                 BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.businessRepository = businessRepository;
-        this.productRepository = productRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -78,9 +75,9 @@ public class MainApplicationRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         logger.info("Startup application with {}", args);
-        if (Constants.TEST_DATA) {
+        if (Constants.DEV_MODE) {
             if (userRepository.count() == 0) {
-                logger.info("Adding sample data to user repository");
+                logger.info("Adding sample to data to user repository");
                 JSONObject data = (JSONObject) parser.parse(new FileReader("./src/main/resources/user_data.json"));
                 JSONArray dataArray = (JSONArray) data.get("data");
                 for (Object object : dataArray) {
@@ -101,46 +98,6 @@ public class MainApplicationRunner implements ApplicationRunner {
                 }
                 logger.info("Finished adding sample data to user repository");
                 logger.info(String.format("Added %d entries to repository", userRepository.count()));
-            }
-            //Creating a test business to be retrieved
-            if (businessRepository.count() == 0) {
-                logger.info("Adding sample data to business repository");
-                Business newBusiness = new Business("Myrtle's Motel", "Accommodation by Myrtle", "6121 Autumn Leaf Trail", "Accommodation and Food Services", 1);
-                businessRepository.save(newBusiness);
-
-                logger.info(String.format("Added new business with id %d", businessRepository.findByName("Myrtle's Motel").get(0).getId()));
-
-                //Testing for linking to admin pages
-                User businessAdmin1 = userRepository.getOne(1);
-                newBusiness.addAdministrator(businessAdmin1);
-                User businessAdmin2 = userRepository.getOne(2);
-                newBusiness.addAdministrator(businessAdmin2);
-                User businessAdmin3 = userRepository.getOne(3);
-                newBusiness.addAdministrator(businessAdmin3);
-                businessRepository.save(newBusiness);
-
-                //Testing for linking Myrtle to businesses she is primary admin of
-                Business secondBusiness = new Business("Myrtle's Motorbikes", "Buy motorbikes from Myrtle", "6121 Autumn Leaf Trail", "Retail Trade", 1);
-                businessRepository.save(secondBusiness);
-
-                logger.info(String.format("Added new business with id %d", businessRepository.findByName("Myrtle's Motorbikes").get(0).getId()));
-                User myrtle = userRepository.getOne(1);
-                secondBusiness.addAdministrator(myrtle);
-                businessRepository.save(secondBusiness);
-            }
-
-            if (productRepository.count() == 0) {
-                Product testProduct1 = new Product("WATT-420g-BEANS", "Watties Baked Beans - 420g can",
-                        "Baked Beans as they should be.", "Watties", 2.2,
-                        businessRepository.findByName("Myrtle's Motel").get(0).getId());
-                productRepository.save(testProduct1);
-
-                Product testProduct2 = new Product("DORITO-300-CHEESE", "Doritos Nacho Cheese - 300g",
-                        "Gamer Fuel", "Doritoes inc.", 3.5,
-                        businessRepository.findByName("Myrtle's Motel").get(0).getId());
-                productRepository.save(testProduct2);
-
-                logger.info(String.format("Added products to catalogue of business with id %d", businessRepository.findByName("Myrtle's Motel").get(0).getId()));
             }
         }
     }

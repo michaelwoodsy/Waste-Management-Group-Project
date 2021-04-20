@@ -1,14 +1,13 @@
 package org.seng302.project.controller;
 
 import net.minidev.json.JSONObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.seng302.project.exceptions.*;
-import org.seng302.project.model.Business;
 import org.seng302.project.model.LoginCredentials;
 import org.seng302.project.model.User;
 import org.seng302.project.model.UserRepository;
 import org.seng302.project.util.DateArithmetic;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -30,7 +28,7 @@ import java.util.Date;
 @RestController
 public class UserController {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class.getName());
+    private static final Logger logger = LogManager.getLogger(UserController.class.getName());
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
@@ -65,13 +63,10 @@ public class UserController {
             response.put("userId", userId);
             logger.info("Login successful");
             return response;
-        } catch (AuthenticationException authException) {
+        } catch (AuthenticationException exception) {
             InvalidLoginException loginException = new InvalidLoginException();
-            logger.info(loginException.getMessage());
+            logger.error(loginException.getMessage());
             throw loginException;
-        } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while authenticating user: %s", exception.getMessage()));
-            throw exception;
         }
     }
 
@@ -87,69 +82,58 @@ public class UserController {
     public JSONObject createUser(@RequestBody User newUser) {
         logger.info("Request to create user");
 
-        try {
-            String emailRegEx = "^[\\w\\-]+(\\.[\\w\\-]+)*@\\w+(\\.\\w+)+$";
-            if (!(newUser.getEmail().matches(emailRegEx))) {
-                InvalidEmailException emailException = new InvalidEmailException();
-                logger.warn(emailException.getMessage());
-                throw emailException;
-            }
-
-            String phoneRegEx = "^\\+[1-9]\\d{1,14}$";
-            if (!newUser.getPhoneNumber().equals("") && !(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
-                InvalidPhoneNumberException phoneNumberException = new InvalidPhoneNumberException();
-                logger.warn(phoneNumberException.getMessage());
-                throw phoneNumberException;
-            }
-
-            if (!userRepository.findByEmail(newUser.getEmail()).isEmpty()) {
-                ExistingRegisteredEmailException emailException = new ExistingRegisteredEmailException();
-                logger.warn(emailException.getMessage());
-                throw emailException;
-            }
-
-            Date dateOfBirthDate;
-            Date currentDate = new Date();
-            try {
-                dateOfBirthDate = new SimpleDateFormat("yyyy-MM-dd").parse(newUser.getDateOfBirth());
-            } catch (ParseException parseException) {
-                InvalidDateException invalidDateException = new InvalidDateException();
-                logger.warn(invalidDateException.getMessage());
-                throw invalidDateException;
-            } catch (Exception exception) {
-                logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
-                throw exception;
-            }
-
-            if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) < 13) {
-                UserUnderageException underageException = new UserUnderageException();
-                logger.warn(underageException.getMessage());
-                throw underageException;
-            }
-
-            if (newUser.getFirstName().equals("") ||
-                    newUser.getLastName().equals("") ||
-                    newUser.getEmail().equals("") ||
-                    newUser.getDateOfBirth().equals("") ||
-                    newUser.getHomeAddress().equals("")) {
-                RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
-                logger.warn(requiredFieldsMissingException.getMessage());
-                throw requiredFieldsMissingException;
-            }
-
-            LoginCredentials credentials = new LoginCredentials(newUser.getEmail(), newUser.getPassword());
-            newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-            newUser.setRole("user");
-            userRepository.save(newUser);
-            logger.info(String.format("Successful registration of user %d", newUser.getId()));
-            return authenticate(credentials);
-        } catch (InvalidEmailException | InvalidPhoneNumberException | ExistingRegisteredEmailException
-                | InvalidDateException | UserUnderageException | RequiredFieldsMissingException expectedException) {
-            throw expectedException;
-        } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while creating user: %s", exception.getMessage()));
+        String emailRegEx = "^[\\w\\-]+(\\.[\\w\\-]+)*@\\w+(\\.\\w+)+$";
+        if (!(newUser.getEmail().matches(emailRegEx))) {
+            InvalidEmailException exception = new InvalidEmailException();
+            logger.error(exception.getMessage());
             throw exception;
         }
+
+        String phoneRegEx = "^\\+[1-9]\\d{1,14}$";
+        if (!(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
+            InvalidPhoneNumberException exception = new InvalidPhoneNumberException();
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
+        if (!userRepository.findByEmail(newUser.getEmail()).isEmpty()) {
+            ExistingRegisteredEmailException exception = new ExistingRegisteredEmailException();
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
+        Date dateOfBirthDate;
+        Date currentDate = new Date();
+        try {
+            dateOfBirthDate = new SimpleDateFormat("yyyy-MM-dd").parse(newUser.getDateOfBirth());
+        } catch (ParseException ex) {
+            InvalidDateException exception = new InvalidDateException();
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
+        if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) < 13) {
+            UserUnderageException exception = new UserUnderageException();
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
+        if (newUser.getFirstName().equals("") ||
+                newUser.getLastName().equals("") ||
+                newUser.getEmail().equals("") ||
+                newUser.getDateOfBirth().equals("") ||
+                newUser.getHomeAddress().equals("")) {
+            RequiredFieldsMissingException exception = new RequiredFieldsMissingException();
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
+        LoginCredentials credentials = new LoginCredentials(newUser.getEmail(), newUser.getPassword());
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        newUser.setRole("user");
+        userRepository.save(newUser);
+        logger.info(String.format("Successful registration of user %d", newUser.getId()));
+        return authenticate(credentials);
     }
 
     /**
@@ -164,19 +148,9 @@ public class UserController {
 
         logger.info(String.format("Request to get user %d", id));
         try {
-            User currUser = userRepository.findById(id).orElseThrow(() -> new NoUserExistsException(id));
-
-            //Do this so the return is not an infinite loop of businesses and users
-            for (Business business : currUser.getBusinessesAdministered()) {
-                business.setAdministrators(new ArrayList<>());
-            }
-
-            return currUser;
-        } catch (NoUserExistsException noUserExistsException) {
-            logger.info(noUserExistsException.getMessage());
-            throw noUserExistsException;
-        } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while getting user: %s", exception.getMessage()));
+            return userRepository.findById(id).orElseThrow(() -> new NoUserExistsException(id));
+        } catch (NoUserExistsException exception) {
+            logger.error(exception.getMessage());
             throw exception;
         }
     }
