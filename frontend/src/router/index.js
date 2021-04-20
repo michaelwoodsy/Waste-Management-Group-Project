@@ -10,7 +10,8 @@ import ProfilePage from "../components/ProfilePage";
 import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 import Catalogue from "@/components/ProductCatalogue";
-import IndividualProduct from "@/components/IndividualProduct";
+import EditProductPage from "@/components/EditProductPage";
+import CreateProductPage from "@/components/CreateProductPage";
 
 const routes = [
     {
@@ -59,9 +60,14 @@ const routes = [
         component: Catalogue
     },
     {
+        path: '/businesses/:businessId/products/create',
+        name: 'createProduct',
+        component: CreateProductPage
+    },
+    {
         path: '/businesses/:businessId/products/:productId',
-        name: 'individualProduct',
-        component: IndividualProduct
+        name: 'editProduct',
+        component: EditProductPage
     }
 ];
 
