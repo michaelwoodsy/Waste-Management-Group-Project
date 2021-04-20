@@ -21,16 +21,9 @@ let computed = {
     businessesAdministered() { return [{id: 2}] },
     isAdminOfBusiness() { return businessId === 2 },
     changesMade() { return false },
-    cancelBtnClass() {
-        return {
-            "btn": true,
-            "mr-1": true,
-            "my-1": true,
-            "btn-danger": this.changesMade,
-            "btn-link": !this.changesMade,
-            "float-left": true
-        }
-    }
+    nameValid() { return true },
+    priceValid() { return true },
+    idValid() { return true }
 }
 
 // Mock the business api module, once implemented
@@ -101,5 +94,65 @@ describe('EditProductPage Component Tests', () => {
         const alertComponent = wrapper.findComponent({ name: 'alert' })
         expect(alertComponent.exists()).toBeTruthy()
         expect(alertComponent.text()).toContain("no product")
+    })
+
+    // Check the idValid computed field
+    test("testing idField computed property", async() => {
+        const fakeId = (id) => {return { newProduct: {id: id }}}
+        expect(EditProductPage.computed.idValid.call(fakeId("Baked Beans"))).toBeFalsy()
+        expect(EditProductPage.computed.idValid.call(fakeId(""))).toBeFalsy()
+        expect(EditProductPage.computed.idValid.call(fakeId("Baked"))).toBeTruthy()
+        expect(EditProductPage.computed.idValid.call(fakeId("Baked-beans123-"))).toBeTruthy()
+    })
+
+    // Check the nameValid computed field
+    test("testing nameValid computed property", async() => {
+        const fakeName = (name) => {return { newProduct: {name: name }}}
+        expect(EditProductPage.computed.nameValid.call(fakeName("Myrtle's Motorcycles"))).toBeTruthy()
+        expect(EditProductPage.computed.nameValid.call(fakeName(""))).toBeFalsy()
+    })
+
+    // Check the priceValid computed field
+    test("testing priceValid computed property", async() => {
+        const fakePrice = (price) => {return { newProduct: {recommendedRetailPrice: price }}}
+        expect(EditProductPage.computed.priceValid.call(fakePrice(1.22))).toBeTruthy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice(1))).toBeTruthy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice(1.00))).toBeTruthy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice(1.555))).toBeFalsy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice(""))).toBeTruthy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice("a"))).toBeFalsy()
+        expect(EditProductPage.computed.priceValid.call(fakePrice(" "))).toBeFalsy()
+    })
+
+    // Check a message is shown when a field isn't valid
+    test("a message is shown when the input fields aren't valid", async() => {
+        // Setup with idValid, nameValid, priceValid set to false
+        wrapper = await VueTestUtils.shallowMount(EditProductPage, {
+            stubs: ['router-link', 'router-view', "login-required", "admin-required"],
+            computed: {...computed, idValid: false, nameValid: false, priceValid: false}
+        })
+        await wrapper.setData({nameBlur: true, priceBlur: true, idBlur: true}) // Set the elements as being blurred
+
+        // Find the form group divs
+        const foundFormGroupDivs = wrapper.findAll("div.form-group");
+
+        // Find and test the Id input
+        const idDiv = foundFormGroupDivs.filter(div => div.find('label').text() === 'ID*')
+        const idInput = idDiv.at(0).find('input')
+        // Expect the 'is-invalid' class is set on the input element, this will display the fixes message
+        expect(idInput.classes().find(el => el === 'is-invalid')).toBeDefined()
+
+        // Find and test the name input
+        const nameDiv = foundFormGroupDivs.filter(div => div.find('label').text() === 'Name*')
+        const nameInput = nameDiv.at(0).find('input')
+        // Expect the 'is-invalid' class is set on the input element, this will display the fixes message
+        expect(nameInput.classes().find(el => el === 'is-invalid')).toBeDefined()
+
+        // Find and test the price input
+        const priceDiv = foundFormGroupDivs.filter(div => div.find('label').text() === 'Recommended Retail Price')
+        const priceInput = priceDiv.at(0).find('input')
+        // Expect the 'is-invalid' class is set on the input element, this will display the fixes message
+        expect(priceInput.classes().find(el => el === 'is-invalid')).toBeDefined()
+
     })
 })
