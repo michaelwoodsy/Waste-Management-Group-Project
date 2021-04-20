@@ -49,7 +49,10 @@ public class InventoryItem {
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id")
+    @JoinColumns({
+            @JoinColumn(name = "product_id"),
+            @JoinColumn(name = "business_id")
+    })
     public Product getProduct() {
         return this.product;
     }
