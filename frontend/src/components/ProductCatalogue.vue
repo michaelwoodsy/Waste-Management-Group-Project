@@ -92,7 +92,7 @@
                 <td>{{ product.name }}</td>
                 <td style="word-wrap: break-word; width: 40%">{{ product.description }}</td>
                 <td>{{ product.manufacturer }}</td>
-                <td>{{ product.recommendedRetailPrice }}</td>
+                <td>{{ formatPrice(product.recommendedRetailPrice) }}</td>
                 <td>{{ new Date(product.created).toDateString() }}</td>
                 <td style="color: blue; cursor: pointer;"
                     @click="editProduct(product.id)">
@@ -157,8 +157,7 @@ export default {
     }
   },
   mounted() {
-    this.getCurrency()
-    this.fillTable()
+    this.getCurrencyAndFillTable()
   },
 
   computed: {
@@ -281,20 +280,27 @@ export default {
     editProduct(id) {
       this.$router.push({name: 'editProduct', params: {businessId:this.businessId ,productId: id}})
     },
-    /**
-     * Uses the getCurrencey in the product.js module to get the currency of the business
-     */
-    async getCurrency() {
 
+    /**
+     * Uses the getCurrency in the product.js module to get the currency of the business,
+     * and then call the fill table method
+     */
+    async getCurrencyAndFillTable() {
+      this.loading = true
       //Change country to businesses address country when implemented
-      const country = "hgello"
-      try {
-        this.currency = await this.$root.$data.product.getCurrency(country)
-      } catch (e) {
-        console.log("Businesses Country is invalid")
-      }
-      console.log(this.currency.code)
-      console.log(this.currency.symbol)
+      //The country variable  will always be an actual country as it is a requirement when creating a business
+      const country = "Netherlands"
+
+      this.currency = await this.$root.$data.product.getCurrency(country)
+
+      this.fillTable()
+    },
+
+    /**
+     * calls the formatPrice method in the product module to format the products recommended retail price
+     */
+    formatPrice(price) {
+      return this.$root.$data.product.formatPrice(this.currency, price)
     },
 
     /**

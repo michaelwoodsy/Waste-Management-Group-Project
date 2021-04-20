@@ -2,7 +2,6 @@ import axios from "axios";
 
 export default {
     debug: true,
-    //Currencies that have been retrieved in the past
 
     /**
      * Gets the correct currency from restcountries and returns it. correct currency is retrieved from the country field
@@ -10,13 +9,16 @@ export default {
      * @returns json filled with the currencies code and symbol
      */
     async getCurrency(country) {
+        //This should always get a currency as the country with its currency being retrieved properly
+        // is a requirement for creating a business
         const promise = await new Promise((resolve, reject) => {
             axios.get(`https://restcountries.eu/rest/v2/name/${country}`)
                 .then((response) => {
                     if (response.status === 404) {
                         console.log(`No country found with name '${country}'`)
+                        reject(promise)
                     }
-                    if (response.data.length === 1) {
+                    if (response.data.length >= 1) {
                         resolve(response)
                     } else {
                         reject(response)
