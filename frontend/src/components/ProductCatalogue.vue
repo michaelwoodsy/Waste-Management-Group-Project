@@ -88,31 +88,32 @@
                       <p v-if="orderCol === 'created'" class="d-inline">{{ orderDirArrow }}</p>
                     </th>
 
-                    <!--    Edit button column    -->
-                    <th scope="col"></th>
-                  </tr>
-                  </thead>
-                  <!--    Product Information    -->
-                  <tbody v-if="!loading">
-                  <tr v-for="product in paginatedProducts"
-                      v-bind:key="product.id"
-                  >
-                    <th scope="row">{{ product.id }}</th>
-                    <td>{{ product.name }}</td>
-                    <td style="word-wrap: break-word; width: 40%">{{ product.description }}</td>
-                    <td>{{ product.manufacturer }}</td>
-                    <td>{{ product.recommendedRetailPrice ? product.recommendedRetailPrice.toFixed(2) : null }}</td>
-                    <td>{{ new Date(product.created).toDateString() }}</td>
-                    <td style="color: blue; cursor: pointer;"
-                        @click="editProduct(product.id)">
-                      Edit
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                <!--    Edit button column    -->
+                <th scope="col"></th>
+              </tr>
+              </thead>
+              <!--    Product Information    -->
+              <tbody v-if="!loading">
+              <tr v-for="product in paginatedProducts"
+                  v-bind:key="product.id"
+              >
+                <th scope="row">{{ product.id }}</th>
+                <td>{{ product.name }}</td>
+                <td style="word-wrap: break-word; width: 40%">{{ product.description }}</td>
+                <td>{{ product.manufacturer }}</td>
+                <td>{{ formatPrice(product.recommendedRetailPrice) }}</td>
+                <td>{{ new Date(product.created).toDateString() }}</td>
+                <td style="color: blue; cursor: pointer;"
+                    @click="editProduct(product.id)">
+                  Edit
+                </td>
+              </tr>
+              </tbody>
+            </table>
           </div>
+        </div>
+        <div class="d-none d-lg-block col-lg-1"/>
+      </div>
 
           <div v-if="loading" class="row">
             <div class="col text-center">
@@ -159,6 +160,7 @@ export default {
   data() {
     return {
       products: [],
+      currency: null,
       error: null,
       orderCol: null,
       orderDirection: false, // False -> Ascending
@@ -168,7 +170,7 @@ export default {
     }
   },
   mounted() {
-    this.fillTable()
+    this.getCurrencyAndFillTable()
   },
 
   computed: {
@@ -301,6 +303,28 @@ export default {
     },
 
     /**
+     * Uses the getCurrency in the product.js module to get the currency of the business,
+     * and then call the fill table method
+     */
+    async getCurrencyAndFillTable() {
+      this.loading = true
+      //Change country to businesses address country when implemented
+      //The country variable  will always be an actual country as it is a requirement when creating a business
+      const country = "Netherlands"
+
+      this.currency = await this.$root.$data.product.getCurrency(country)
+
+      this.fillTable()
+    },
+
+    /**
+     * calls the formatPrice method in the product module to format the products recommended retail price
+     */
+    formatPrice(price) {
+      return this.$root.$data.product.formatPrice(this.currency, price)
+    },
+
+    /**
      * Fills the table with Product data
      */
     fillTable() {
@@ -324,16 +348,6 @@ export default {
      */
     newProduct() {
       this.$router.push({name: 'createProduct', params: {businessId: this.businessId}})
-    },
-    /**
-     * Display RRP to 2dp.
-     */
-    displayRRP(rrp) {
-      if (rrp) {
-        return rrp.toFixed(2);
-      } else {
-        return rrp
-      }
     }
   }
 }
