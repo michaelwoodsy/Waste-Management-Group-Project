@@ -1,4 +1,4 @@
-import { Business } from '@/Api'
+import {Business} from '@/Api'
 
 
 export default {
@@ -14,7 +14,7 @@ export default {
      * @param businessType Type of business (e.g. Accommodation or Food Services)
      * @returns {Promise<unknown>} Axios response
      */
-    register (primaryAdministrator, businessName, description, businessAddress, businessType) {
+    register(primaryAdministrator, businessName, description, businessAddress, businessType) {
         // Return a promise for the api call
         return new Promise((resolve, reject) => {
             Business.createNew(primaryAdministrator, businessName, description, businessAddress, businessType)

@@ -9,6 +9,8 @@ import Home from "../components/Home";
 import ProfilePage from "../components/ProfilePage";
 import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
+import Catalogue from "@/components/ProductCatalogue";
+import EditProductPage from "@/components/EditProductPage";
 
 const routes = [
     {
@@ -47,9 +49,19 @@ const routes = [
         component: BusinessProfilePage
     },
     {
-        path: '/registerbusiness',
+        path: '/businesses',
         name: 'registerBusiness',
         component: RegisterBusinessPage
+    },
+    {
+        path: '/businesses/:businessId/products',
+        name: 'viewCatalogue',
+        component: Catalogue
+    },
+    {
+        path: '/businesses/:businessId/products/:productId',
+        name: 'editProduct',
+        component: EditProductPage
     }
 ];
 

@@ -2,18 +2,18 @@
   <div>
 
     <login-required
-        page="Register a Business"
         v-if="!isLoggedIn"
+        page="Register a Business"
     />
 
     <div v-else class="container-fluid"> <!--    If Logged In    -->
-        <br><br>
+      <br><br>
 
-        <div class="row">
-          <div class="col-12 text-center mb-2">
-            <h2>Register a Business</h2>
-          </div>
+      <div class="row">
+        <div class="col-12 text-center mb-2">
+          <h2>Register a Business</h2>
         </div>
+      </div>
       <div class="row">
 
         <div class="col-12 col-sm-8 col-lg-6 col-xl-4 offset-sm-2 offset-lg-3 offset-xl-4 text-center mb-2">
@@ -24,24 +24,24 @@
               <b>Business Name<span class="required">*</span></b>
             </label>
             <br/>
-            <input style="width:100%" type="text"
-                   placeholder="Enter your Business Name" id="businessName"
-                   class="form-control" v-model="businessName" required>
+            <input id="businessName" v-model="businessName"
+                   class="form-control" placeholder="Enter your Business Name"
+                   required style="width:100%" type="text">
             <br>
             <!--    Error message for business name input   -->
-            <span class="error-msg" style="margin: 0" v-if="msg.businessName">{{msg.businessName}}</span>
+            <span v-if="msg.businessName" class="error-msg" style="margin: 0">{{ msg.businessName }}</span>
             <br>
             <br>
           </div>
 
           <div class="form-row">
             <!--    Business Description    -->
-            <label for="description" class="description-label">
+            <label class="description-label" for="description">
               <b>Bio</b>
             </label>
             <br>
-            <textarea placeholder="Write a Business Description" id="description"
-                      v-model="description" class="form-control" style="width: 100%; height: 200px;">
+            <textarea id="description" v-model="description"
+                      class="form-control" placeholder="Write a Business Description" style="width: 100%; height: 200px;">
 
             </textarea>
           </div>
@@ -59,8 +59,8 @@
             <label for="businessAddressNumber">
               <b>Street Number</b>
             </label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Number"
-                   id="businessAddressNumber" class="form-control" v-model="businessAddress.streetNumber">
+            <input id="businessAddressNumber" v-model="businessAddress.streetNumber" class="form-control"
+                   placeholder="Enter your Street Number" style="width:100%" type="text">
             <br>
           </div>
           <br>
@@ -71,13 +71,14 @@
               <b>Street Name</b>
             </label>
             <br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Name"
-                   id="businessAddressStreet" class="form-control" v-model="businessAddress.streetName">
+            <input id="businessAddressStreet" v-model="businessAddress.streetName" class="form-control"
+                   placeholder="Enter your Street Name" style="width:100%" type="text">
             <br>
 
             <!--    Error message for street name input   -->
             <span class="error-msg" v-if="msg.streetName">{{msg.streetName}}</span>
-          </div><br>
+          </div>
+          <br>
 
           <div class="form-row">
             <!--    Business Address City    -->
@@ -85,16 +86,17 @@
               <b>City or Town</b>
             </label>
             <br/>
-            <input style="width:100%" type="search" placeholder="Enter your City"
-                   id="businessAddressCity" class="form-control" v-model="addressCity">
+            <input id="businessAddressCity" v-model="addressCity" class="form-control"
+                   placeholder="Enter your City" style="width:100%" type="search">
             <br>
 
             <!--    Autofill City/Town    -->
-            <div style="width:100%; text-align: left" v-for="city in cities" v-bind:key="city">
-              <a class="address-output" @click="changeCity(city)">{{city}}</a>
+            <div v-for="city in cities" v-bind:key="city" style="width:100%; text-align: left">
+              <a class="address-output" @click="changeCity(city)">{{ city }}</a>
               <br>
             </div>
-          </div><br>
+          </div>
+          <br>
 
           <div class="form-row">
             <!--    Business Address Region    -->
@@ -102,15 +104,16 @@
               <b>Region</b>
             </label>
             <br/>
-            <input style="width:100%" type="search" placeholder="Enter your Region"
-                   id="businessAddressRegion" class="form-control" v-model="addressRegion">
+            <input id="businessAddressRegion" v-model="addressRegion" class="form-control"
+                   placeholder="Enter your Region" style="width:100%" type="search">
             <br>
 
             <!--    Autofill region    -->
-            <div style="width:100%; text-align: left" v-for="region in regions" v-bind:key="region">
-              <a class="address-output" @click="changeRegion(region)">{{region}}</a><br>
+            <div v-for="region in regions" v-bind:key="region" style="width:100%; text-align: left">
+              <a class="address-output" @click="changeRegion(region)">{{ region }}</a><br>
             </div>
-          </div><br>
+          </div>
+          <br>
 
           <div class="form-row">
             <!--    Business Address Country    -->
@@ -118,19 +121,20 @@
               <b>Country<span class="required">*</span></b>
             </label>
             <br/>
-            <input style="width:100%" type="search" placeholder="Enter your Country"
-                   id="businessAddressCountry" class="form-control" v-model="addressCountry" required>
+            <input id="businessAddressCountry" v-model="addressCountry" class="form-control"
+                   placeholder="Enter your Country" required style="width:100%" type="search">
             <br>
 
             <!--    Autofill country    -->
-            <div style="width:100%; text-align: left" v-for="country in countries" v-bind:key="country">
-              <a class="address-output" @click="changeCountry(country)">{{country}}</a><br>
+            <div v-for="country in countries" v-bind:key="country" style="width:100%; text-align: left">
+              <a class="address-output" @click="changeCountry(country)">{{ country }}</a><br>
             </div>
-          </div><br>
+          </div>
+          <br>
 
           <!--    Error message for the country input    -->
           <div class="form-row">
-            <span class="error-msg" v-if="msg.country">{{msg.country}}</span>
+            <span v-if="msg.country" class="error-msg">{{ msg.country }}</span>
           </div>
 
           <div class="form-row">
@@ -139,10 +143,11 @@
               <b>Postcode</b>
             </label>
             <br/>
-            <input style="width:100%" type="text" placeholder="Enter your Postcode"
-                   id="businessAddressPostCode" class="form-control" v-model="businessAddress.postcode">
+            <input id="businessAddressPostCode" v-model="businessAddress.postcode" class="form-control"
+                   placeholder="Enter your Postcode" style="width:100%" type="text">
             <br>
-          </div><br>
+          </div>
+          <br>
 
           <hr/>
 
@@ -152,9 +157,9 @@
               <b>Business Type<span class="required">*</span></b>
             </label>
             <br/>
-            <select style="width:100%" type="text" id="businessType"
-                    class="form-control" v-model="businessType" required>
-              <option hidden disabled selected value>Please select one</option>
+            <select id="businessType" v-model="businessType" class="form-control"
+                    required style="width:100%" type="text">
+              <option disabled hidden selected value>Please select one</option>
               <option>Accommodation and Food Services</option>
               <option>Retail Trade</option>
               <option>Charitable organisation</option>
@@ -163,7 +168,7 @@
             <br>
 
             <!--    Error message for business type input   -->
-            <span class="error-msg" style="margin: 0" v-if="msg.businessType">{{msg.businessType}}</span>
+            <span v-if="msg.businessType" class="error-msg" style="margin: 0">{{ msg.businessType }}</span>
             <br>
             <br>
           </div>
@@ -258,7 +263,7 @@ export default {
      * Checks to see if user is logged in currently
      * @returns {boolean|*} true if user is logged in, otherwise false
      */
-    isLoggedIn () {
+    isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     }
   },
@@ -408,7 +413,7 @@ export default {
 
       let addresses = []
       axios.get(`https://photon.komoot.io/api?q=${textEntered}&osm_tag=${tag}&limit=5`)
-          .then(function(response) {
+          .then(function (response) {
             for (let i = 0; i < response.data.features.length; i++) {
               const currAddress = response.data.features[i].properties;
               let addressString = ''
@@ -429,7 +434,7 @@ export default {
             }
             return addresses
           })
-          .catch(function(error){
+          .catch(function (error) {
             console.log(error)
           });
       return addresses
@@ -497,7 +502,7 @@ export default {
       })
           .catch((err) => {
             this.msg.errorChecks = err.response
-                ? err.response.data.slice(err.response.data.indexOf(":")+2)
+                ? err.response.data.slice(err.response.data.indexOf(":") + 2)
                 : err
           });
     },

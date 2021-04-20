@@ -12,59 +12,68 @@
         <div class="col-12 col-sm-8 col-lg-6 col-xl-4 offset-sm-2 offset-lg-3 offset-xl-4 text-center mb-2">
 
           <div class="form-row">
-              <!--    First Name    -->
-              <label for="firstName" style="margin-top:20px"><b>First Name<span class="required">*</span></b></label><br/>
-              <input style="width:100%" type="text" placeholder="Enter your First Name" id="firstName" class="form-control" v-model="firstName" required><br>
+            <!--    First Name    -->
+            <label for="firstName" style="margin-top:20px"><b>First Name<span class="required">*</span></b></label><br/>
+            <input id="firstName" v-model="firstName" class="form-control" placeholder="Enter your First Name"
+                   required style="width:100%" type="text"><br>
             <!--    Error message for the first name input    -->
-              <span class="error-msg" style="margin: 0" v-if="msg.firstName">{{msg.firstName}}</span><br><br>
+            <span v-if="msg.firstName" class="error-msg" style="margin: 0">{{ msg.firstName }}</span><br><br>
           </div>
 
           <div class="form-row">
             <!--    Middle Name    -->
             <label for="middleName"><b>Middle Name</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Middle Name" id="middleName" class="form-control" v-model="middleName"><br><br><br>
+            <input id="middleName" v-model="middleName" class="form-control" placeholder="Enter your Middle Name"
+                   style="width:100%" type="text"><br><br><br>
           </div>
 
           <div class="form-row">
             <!--    Last Name    -->
             <label for="lastName"><b>Last Name<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Last Name" id="lastName" class="form-control" v-model="lastName" required><br>
+            <input id="lastName" v-model="lastName" class="form-control" placeholder="Enter your Last Name" required
+                   style="width:100%" type="text"><br>
             <!--    Error message for the last name input    -->
-            <span class="error-msg" style="margin: 0" v-if="msg.lastName">{{msg.lastName}}</span><br><br>
+            <span v-if="msg.lastName" class="error-msg" style="margin: 0">{{ msg.lastName }}</span><br><br>
           </div>
 
           <div class="form-row">
             <!--    Nickname    -->
             <label for="nickname"><b>Nickname</b></label><br/>
-            <input style="width: 100%" type="text" placeholder="Enter your Nickname" id="nickname" class="form-control" v-model="nickname"><br><br><br>
+            <input id="nickname" v-model="nickname" class="form-control" placeholder="Enter your Nickname" style="width: 100%"
+                   type="text"><br><br><br>
           </div>
 
           <div class="form-row">
             <!--    Email    -->
             <label for="email"><b>Email<span class="required">*</span></b></label><br/>
-            <input style="width: 100%" type="email" placeholder="Enter your Email" id="email" class="form-control" v-model="email" required><br>
+            <input id="email" v-model="email" class="form-control" placeholder="Enter your Email" required
+                   style="width: 100%" type="email"><br>
             <!--    Error message for the email input    -->
-            <span class="error-msg" v-if="msg.email">{{msg.email}}</span><br><br>
+            <span v-if="msg.email" class="error-msg">{{ msg.email }}</span><br><br>
           </div>
 
           <div class="form-row">
             <!--    bio    -->
-            <label for="bio" class="bio-label"><b>Bio</b></label><br>
-            <textarea placeholder="Write a Bio" id="bio" v-model="bio" class="form-control" style="width: 100%; height: 200px;"></textarea>
-          </div><br>
+            <label class="bio-label" for="bio"><b>Bio</b></label><br>
+            <textarea id="bio" v-model="bio" class="form-control" placeholder="Write a Bio"
+                      style="width: 100%; height: 200px;"></textarea>
+          </div>
+          <br>
 
           <div class="form-row">
             <!--    Date of Birth    -->
             <label for="dateOfBirth"><b>Date of Birth<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="date" id="dateOfBirth" class="form-control" v-model="dateOfBirth" required><br>
+            <input id="dateOfBirth" v-model="dateOfBirth" class="form-control" required style="width:100%"
+                   type="date"><br>
             <!--    Error message for the date of birth input    -->
-            <span class="error-msg" v-if="msg.dateOfBirth">{{msg.dateOfBirth}}</span><br><br>
+            <span v-if="msg.dateOfBirth" class="error-msg">{{ msg.dateOfBirth }}</span><br><br>
           </div>
 
           <div class="form-row">
             <!--    Phone Number    -->
             <label for="phoneNumber"><b>Phone Number</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Phone Number with extension" id="phoneNumber" class="form-control" v-model="phoneNumber"><br><br><br>
+            <input id="phoneNumber" v-model="phoneNumber" class="form-control" placeholder="Enter your Phone Number with extension"
+                   style="width:100%" type="text"><br><br><br>
           </div>
 
           <hr/>
@@ -77,8 +86,10 @@
           <div class="form-row">
             <!--    Home Address Street Number    -->
             <label for="homeAddressNumber"><b>Street Number</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Number" id="homeAddressNumber" class="form-control" v-model="homeAddress.streetNumber"><br>
-          </div><br>
+            <input id="homeAddressNumber" v-model="homeAddress.streetNumber" class="form-control" placeholder="Enter your Street Number"
+                   style="width:100%" type="text"><br>
+          </div>
+          <br>
 
           <div class="form-row">
             <!--    Home Address Street Name    -->
@@ -87,64 +98,76 @@
 
             <!--    Error message for street name input   -->
             <span class="error-msg" v-if="msg.streetName">{{msg.streetName}}</span>
-          </div><br>
+          </div>
+          <br>
 
           <div class="form-row">
             <!--    Home Address City    -->
             <label for="homeAddressCity"><b>City or Town</b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your City" id="homeAddressCity" class="form-control" v-model="addressCity"><br>
+            <input id="homeAddressCity" v-model="addressCity" class="form-control" placeholder="Enter your City"
+                   style="width:100%" type="search"><br>
 
             <!--    Autofill City/Town    -->
-            <div style="width:100%; text-align: left" v-for="city in cities" v-bind:key="city">
-              <a class="address-output" @click="changeCity(city)">{{city}}</a><br>
+            <div v-for="city in cities" v-bind:key="city" style="width:100%; text-align: left">
+              <a class="address-output" @click="changeCity(city)">{{ city }}</a><br>
             </div>
-          </div><br>
+          </div>
+          <br>
 
           <div class="form-row">
             <!--    Home Address Region    -->
             <label for="homeAddressRegion"><b>Region</b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your Region" id="homeAddressRegion" class="form-control" v-model="addressRegion"><br>
+            <input id="homeAddressRegion" v-model="addressRegion" class="form-control" placeholder="Enter your Region"
+                   style="width:100%" type="search"><br>
 
             <!--    Autofill region    -->
-            <div style="width:100%; text-align: left" v-for="region in regions" v-bind:key="region">
-              <a class="address-output" @click="changeRegion(region)">{{region}}</a><br>
+            <div v-for="region in regions" v-bind:key="region" style="width:100%; text-align: left">
+              <a class="address-output" @click="changeRegion(region)">{{ region }}</a><br>
             </div>
-          </div><br>
+          </div>
+          <br>
 
           <div class="form-row">
             <!--    Home Address Country    -->
             <label for="homeAddressCountry"><b>Country<span class="required">*</span></b></label><br/>
-            <input style="width:100%" type="search" placeholder="Enter your Country" id="homeAddressCountry" class="form-control" v-model="addressCountry" required><br>
+            <input id="homeAddressCountry" v-model="addressCountry" class="form-control" placeholder="Enter your Country"
+                   required style="width:100%" type="search"><br>
 
             <!--    Autofill country    -->
-            <div style="width:100%; text-align: left" v-for="country in countries" v-bind:key="country">
-              <a class="address-output" @click="changeCountry(country)">{{country}}</a><br>
+            <div v-for="country in countries" v-bind:key="country" style="width:100%; text-align: left">
+              <a class="address-output" @click="changeCountry(country)">{{ country }}</a><br>
             </div>
-          </div><br>
+          </div>
+          <br>
 
           <!--    Error message for the country input    -->
           <div class="form-row">
-            <span class="error-msg" v-if="msg.country">{{msg.country}}</span>
+            <span v-if="msg.country" class="error-msg">{{ msg.country }}</span>
           </div>
 
           <div class="form-row">
             <!--    Home Address Post Code    -->
             <label for="homeAddressPostCode"><b>Postcode</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Postcode" id="homeAddressPostCode" class="form-control" v-model="homeAddress.postcode"><br>
-          </div><br>
+            <input id="homeAddressPostCode" v-model="homeAddress.postcode" class="form-control" placeholder="Enter your Postcode"
+                   style="width:100%" type="text"><br>
+          </div>
+          <br>
 
           <hr/>
 
           <div class="form-row">
             <!--    Password    -->
             <label for="password"><b>Password<span class="required">*</span></b></label><br>
-            <input style="width:100%" type="password" placeholder="Enter your Password" id="password" class="form-control" v-model="password"><br>
+            <input id="password" v-model="password" class="form-control" placeholder="Enter your Password"
+                   style="width:100%" type="password"><br>
             <!--    Error message for the password input    -->
-            <span class="error-msg" v-if="msg.password">{{msg.password}}</span><br><br><br>
+            <span v-if="msg.password" class="error-msg">{{ msg.password }}</span><br><br><br>
           </div>
 
           <div class="form-row">
-            <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" v-on:click="checkInputs">Create Account</button>
+            <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" v-on:click="checkInputs">Create
+              Account
+            </button>
             <!--    Error message for the registering process    -->
 
             <div class="login-box" style="width: 100%; margin:20px 20px; text-align: center">
@@ -155,8 +178,10 @@
 
             </div>
 
-            <p  style="width: 100%; margin:0 20px; text-align: center">Already have an account?
-              <router-link class="link-text" to="/login">Login here</router-link></p><br><br>
+            <p style="width: 100%; margin:0 20px; text-align: center">Already have an account?
+              <router-link class="link-text" to="/login">Login here</router-link>
+            </p>
+            <br><br>
           </div>
         </div>
       </div>
@@ -328,7 +353,7 @@ export default {
      * Checks if the string is of an email format using regex, if not, displays a warning message
      */
     validateEmail() {
-      if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(this.email)) {
+      if (/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(this.email)) {
         this.msg['email'] = ''
       } else {
         this.msg['email'] = 'Invalid Email Address'
@@ -412,7 +437,7 @@ export default {
 
       let addresses = []
       axios.get(`https://photon.komoot.io/api?q=${textEntered}&osm_tag=${tag}&limit=5`)
-          .then(function(response) {
+          .then(function (response) {
             for (let i = 0; i < response.data.features.length; i++) {
               const currAddress = response.data.features[i].properties;
               let addressString = ''
@@ -420,8 +445,8 @@ export default {
               if (tag === 'place:country') addressString = `${currAddress.name}`
               //Is Region
               else if (tag === "boundary:administrative") addressString = `${currAddress.name}`
-              //Is City
-                  //tag is like this so you can get a town or a city
+                  //Is City
+              //tag is like this so you can get a town or a city
               else if (tag === "place:city&osm_tag=place:town") addressString = `${currAddress.name}`
 
 
@@ -433,7 +458,7 @@ export default {
             }
             return addresses
           })
-          .catch(function(error){
+          .catch(function (error) {
             console.log(error)
           });
       return addresses
@@ -502,13 +527,13 @@ export default {
           //this.homeAddress,
           this.password
       ).then(() => {
-                this.$router.push({name: 'user'})
-              })
-              .catch((err) => {
-                this.msg.errorChecks = err.response
-                    ? err.response.data.slice(err.response.data.indexOf(":")+2)
-                    : err
-              });
+        this.$router.push({name: 'user'})
+      })
+          .catch((err) => {
+            this.msg.errorChecks = err.response
+                ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+                : err
+          });
     },
   }
 };

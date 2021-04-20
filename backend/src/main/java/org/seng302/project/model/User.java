@@ -1,5 +1,6 @@
 package org.seng302.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -51,7 +52,7 @@ public class User {
     }
 
     @Id // this field (attribute) is the primary key of the table
-    @GeneratedValue // autoincrement the ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
     @Column(name = "user_id")
     public Integer getId() {
         return this.id;
@@ -73,6 +74,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "business_id")
     )
+    @JsonIgnoreProperties("administrators")
     public List<Business> getBusinessesAdministered() {
         return this.businessesAdministered;
     }
