@@ -1,5 +1,6 @@
 package org.seng302.project.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,15 +25,15 @@ public class Address {
     /**
      * Constructor for creating a new Address object.
      *
-     * @param streetNumber  The Address' street number
-     * @param streetName    The Address' street name
-     * @param city          The Address' city
-     * @param region        The Address' region
-     * @param country       The Address' country
-     * @param postcode      The Address' postcode
+     * @param streetNumber The Address' street number
+     * @param streetName   The Address' street name
+     * @param city         The Address' city
+     * @param region       The Address' region
+     * @param country      The Address' country
+     * @param postcode     The Address' postcode
      */
     public Address(String streetNumber, String streetName, String city, String region,
-                    String country, String postcode) {
+                   String country, String postcode) {
         this.streetNumber = streetNumber;
         this.streetName = streetName;
         this.city = city;
@@ -42,9 +43,11 @@ public class Address {
     }
 
     @Id // this field (attribute) is the table primary key
-    @GeneratedValue // autoincrement the ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
     @Column(name = "address_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public Integer getId() {
         return this.id;
     }
+
 }

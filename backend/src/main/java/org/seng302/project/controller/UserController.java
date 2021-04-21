@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 /**
  * REST controller for handling requests to do with users.
@@ -88,7 +89,8 @@ public class UserController {
         logger.info("Request to create user");
 
         try {
-            String emailRegEx = "^[\\w\\-]+(\\.[\\w\\-]+)*@\\w+(\\.\\w+)+$";
+            String emailRegEx = "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@" +
+                    "((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
             if (!(newUser.getEmail().matches(emailRegEx))) {
                 InvalidEmailException emailException = new InvalidEmailException();
                 logger.warn(emailException.getMessage());
@@ -138,7 +140,7 @@ public class UserController {
                     newUser.getLastName().equals("") ||
                     newUser.getEmail().equals("") ||
                     newUser.getDateOfBirth().equals("") ||
-                    newUser.getHomeAddress().equals("")) {
+                    newUser.getHomeAddress().getCountry().equals("")) {
                 RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
                 logger.warn(requiredFieldsMissingException.getMessage());
                 throw requiredFieldsMissingException;
