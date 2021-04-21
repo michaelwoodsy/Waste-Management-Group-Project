@@ -16,7 +16,7 @@ public class InventoryItemTest {
      */
     @Test
     public void createTestInventoryItem() {
-        Product testInventoryItemProduct= new Product("VALUE-420-BEANS", "Value Baked Beans - 420g can",
+        Product testInventoryItemProduct = new Product("VALUE-420-BEANS", "Value Baked Beans - 420g can",
                 "Cheap Baked Beans", "", 1.1, 1);
 
         InventoryItem testInventoryItem = new InventoryItem(testInventoryItemProduct, 4, 1.0,

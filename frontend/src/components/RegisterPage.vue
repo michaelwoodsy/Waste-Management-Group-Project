@@ -39,7 +39,8 @@
           <div class="form-row">
             <!--    Nickname    -->
             <label for="nickname"><b>Nickname</b></label><br/>
-            <input id="nickname" v-model="nickname" class="form-control" placeholder="Enter your Nickname" style="width: 100%"
+            <input id="nickname" v-model="nickname" class="form-control" placeholder="Enter your Nickname"
+                   style="width: 100%"
                    type="text"><br><br><br>
           </div>
 
@@ -72,7 +73,8 @@
           <div class="form-row">
             <!--    Phone Number    -->
             <label for="phoneNumber"><b>Phone Number</b></label><br/>
-            <input id="phoneNumber" v-model="phoneNumber" class="form-control" placeholder="Enter your Phone Number with extension"
+            <input id="phoneNumber" v-model="phoneNumber" class="form-control"
+                   placeholder="Enter your Phone Number with extension"
                    style="width:100%" type="text"><br><br><br>
           </div>
 
@@ -86,7 +88,8 @@
           <div class="form-row">
             <!--    Home Address Street Number    -->
             <label for="homeAddressNumber"><b>Street Number</b></label><br/>
-            <input id="homeAddressNumber" v-model="homeAddress.streetNumber" class="form-control" placeholder="Enter your Street Number"
+            <input id="homeAddressNumber" v-model="homeAddress.streetNumber" class="form-control"
+                   placeholder="Enter your Street Number"
                    style="width:100%" type="text"><br>
           </div>
           <br>
@@ -94,10 +97,11 @@
           <div class="form-row">
             <!--    Home Address Street Name    -->
             <label for="homeAddressStreet"><b>Street Name</b></label><br/>
-            <input style="width:100%" type="text" placeholder="Enter your Street Name" id="homeAddressStreet" class="form-control" v-model="homeAddress.streetName"><br>
+            <input id="homeAddressStreet" v-model="homeAddress.streetName" class="form-control" placeholder="Enter your Street Name"
+                   style="width:100%" type="text"><br>
 
             <!--    Error message for street name input   -->
-            <span class="error-msg" v-if="msg.streetName">{{msg.streetName}}</span>
+            <span v-if="msg.streetName" class="error-msg">{{ msg.streetName }}</span>
           </div>
           <br>
 
@@ -130,7 +134,8 @@
           <div class="form-row">
             <!--    Home Address Country    -->
             <label for="homeAddressCountry"><b>Country<span class="required">*</span></b></label><br/>
-            <input id="homeAddressCountry" v-model="addressCountry" class="form-control" placeholder="Enter your Country"
+            <input id="homeAddressCountry" v-model="addressCountry" class="form-control"
+                   placeholder="Enter your Country"
                    required style="width:100%" type="search"><br>
 
             <!--    Autofill country    -->
@@ -148,7 +153,8 @@
           <div class="form-row">
             <!--    Home Address Post Code    -->
             <label for="homeAddressPostCode"><b>Postcode</b></label><br/>
-            <input id="homeAddressPostCode" v-model="homeAddress.postcode" class="form-control" placeholder="Enter your Postcode"
+            <input id="homeAddressPostCode" v-model="homeAddress.postcode" class="form-control"
+                   placeholder="Enter your Postcode"
                    style="width:100%" type="text"><br>
           </div>
           <br>
@@ -522,9 +528,7 @@ export default {
           this.email,
           this.dateOfBirth,
           this.phoneNumber,
-          //For now address is string. Will be changed when the database accepts the address object. Remove the following line when addresses are an object and uncomment the line below
-          `${this.homeAddress.streetNumber} ${this.homeAddress.streetName}, ${this.homeAddress.city}, ${this.homeAddress.region}, ${this.homeAddress.country}, ${this.homeAddress.postcode}`,
-          //this.homeAddress,
+          this.homeAddress,
           this.password
       ).then(() => {
         this.$router.push({name: 'user'})

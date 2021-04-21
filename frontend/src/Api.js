@@ -104,7 +104,7 @@ export const Business = {
      * Retrieves the data for a given business
      */
     getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
-    
+
     /*
      *  Removes a user with id userId from administering the business with id businessId
      */

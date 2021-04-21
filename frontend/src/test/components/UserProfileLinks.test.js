@@ -1,9 +1,9 @@
 import {afterEach, beforeEach, describe, test} from "@jest/globals";
+import UserProfileLinks from '@/components/UserProfileLinks';
 
 require('jsdom-global')()
 
 const VueTestUtils = require('@vue/test-utils')
-import UserProfileLinks from '@/components/UserProfileLinks';
 
 let wrapper;
 
@@ -12,22 +12,21 @@ beforeEach(() => {
     wrapper = VueTestUtils.shallowMount(UserProfileLinks, {
         stubs: ['router-link', 'router-view'],
         computed: {
-            userProfileRoute () {
+            userProfileRoute() {
                 return `users/1`;
             },
-            actor () {
+            actor() {
                 return "Tom"
             },
-            actorName () {
+            actorName() {
                 return "Tom"
             },
-            userAccounts () {
+            userAccounts() {
                 return [{"firstName": "Tom", "lastName": "Rizzi", "id": 1}]
             },
-            businessAccounts () {
+            businessAccounts() {
                 // Returns a list of fake business accounts for the time being
-                return [
-                ]
+                return []
             }
         }
     })

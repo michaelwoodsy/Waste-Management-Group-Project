@@ -2,10 +2,7 @@ package org.seng302.project.controller;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.exceptions.*;
-import org.seng302.project.model.Business;
-import org.seng302.project.model.LoginCredentials;
-import org.seng302.project.model.User;
-import org.seng302.project.model.UserRepository;
+import org.seng302.project.model.*;
 import org.seng302.project.util.DateArithmetic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +20,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Pattern;
 
 /**
  * REST controller for handling requests to do with users.
@@ -34,14 +30,17 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class.getName());
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
     private final AuthenticationManager authenticationManager;
 
     @Autowired
     public UserController(BCryptPasswordEncoder passwordEncoder,
                           UserRepository userRepository,
+                          AddressRepository addressRepository,
                           AuthenticationManager authenticationManager) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
+        this.addressRepository = addressRepository;
         this.authenticationManager = authenticationManager;
     }
 
@@ -103,19 +102,16 @@ public class UserController {
                 logger.warn(phoneNumberException.getMessage());
                 throw phoneNumberException;
             }
-
             if (!userRepository.findByEmail(newUser.getEmail()).isEmpty()) {
                 ExistingRegisteredEmailException emailException = new ExistingRegisteredEmailException();
                 logger.warn(emailException.getMessage());
                 throw emailException;
             }
-            /*
-            if (!newUser.getHomeAddress().getStreetNumber().equals("") && newUser.getHomeAddress().getStreetName().equals("")) {
+            /*if (!newUser.getHomeAddress().getStreetNumber().equals("") && newUser.getHomeAddress().getStreetName().equals("")) {
                 InvalidAddressException addressException = new InvalidAddressException();
                 logger.warn(addressException.getMessage());
                 throw addressException;
-            }
-            */
+            }*/
 
             Date dateOfBirthDate;
             Date currentDate = new Date();
@@ -149,6 +145,7 @@ public class UserController {
             LoginCredentials credentials = new LoginCredentials(newUser.getEmail(), newUser.getPassword());
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
             newUser.setRole("user");
+            addressRepository.save(newUser.getHomeAddress());
             userRepository.save(newUser);
             logger.info(String.format("Successful registration of user %d", newUser.getId()));
             return authenticate(credentials);

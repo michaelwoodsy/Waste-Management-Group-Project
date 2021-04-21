@@ -41,7 +41,8 @@
             </label>
             <br>
             <textarea id="description" v-model="description"
-                      class="form-control" placeholder="Write a Business Description" style="width: 100%; height: 200px;">
+                      class="form-control" placeholder="Write a Business Description"
+                      style="width: 100%; height: 200px;">
 
             </textarea>
           </div>
@@ -59,7 +60,7 @@
             <label for="businessAddressNumber">
               <b>Street Number</b>
             </label><br/>
-            <input id="businessAddressNumber" v-model="businessAddress.streetNumber" class="form-control"
+            <input id="businessAddressNumber" v-model="address.streetNumber" class="form-control"
                    placeholder="Enter your Street Number" style="width:100%" type="text">
             <br>
           </div>
@@ -71,12 +72,12 @@
               <b>Street Name</b>
             </label>
             <br/>
-            <input id="businessAddressStreet" v-model="businessAddress.streetName" class="form-control"
+            <input id="businessAddressStreet" v-model="address.streetName" class="form-control"
                    placeholder="Enter your Street Name" style="width:100%" type="text">
             <br>
 
             <!--    Error message for street name input   -->
-            <span class="error-msg" v-if="msg.streetName">{{msg.streetName}}</span>
+            <span v-if="msg.streetName" class="error-msg">{{ msg.streetName }}</span>
           </div>
           <br>
 
@@ -143,7 +144,7 @@
               <b>Postcode</b>
             </label>
             <br/>
-            <input id="businessAddressPostCode" v-model="businessAddress.postcode" class="form-control"
+            <input id="businessAddressPostCode" v-model="address.postcode" class="form-control"
                    placeholder="Enter your Postcode" style="width:100%" type="text">
             <br>
           </div>
@@ -215,7 +216,7 @@ export default {
       //Sets text boxes to empty at start
       businessName: '',    //Required
       description: '',
-      businessAddress: {  //Required
+      address: {  //Required
         streetNumber: '',
         streetName: '',
         city: '',
@@ -278,15 +279,15 @@ export default {
      * Checks if the country can be autofilled, and if so, calls the proton function which returns autofill candidates
      */
     addressCountry(value) {
-      this.businessAddress.country = value
+      this.address.country = value
       //re enable autofill
-      if (!this.autofillCountry && this.businessAddress.country !== this.prevAutofilledCountry) {
+      if (!this.autofillCountry && this.address.country !== this.prevAutofilledCountry) {
         this.prevAutofilledCountry = ''
         this.autofillCountry = true
       }
 
       //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCountry && this.businessAddress.country.length > 3) {
+      if (this.autofillCountry && this.address.country.length > 3) {
         this.countries = this.photon(value, 'place:country')
       }
     },
@@ -297,15 +298,15 @@ export default {
      * Checks if the region can be autofilled, and if so, calls the proton function which returns autofill candidates
      */
     addressRegion(value) {
-      this.businessAddress.region = value
+      this.address.region = value
       //re enable autofill
-      if (!this.autofillRegion && this.businessAddress.region !== this.prevAutofilledRegion) {
+      if (!this.autofillRegion && this.address.region !== this.prevAutofilledRegion) {
         this.prevAutofilledRegion = ''
         this.autofillRegion = true
       }
 
       //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillRegion && this.businessAddress.region.length > 3) {
+      if (this.autofillRegion && this.address.region.length > 3) {
         this.regions = this.photon(value, 'boundary:administrative')
       }
     },
@@ -316,15 +317,15 @@ export default {
      * Checks if the city can be autofilled, and if so, calls the proton function which returns autofill candidates
      */
     addressCity(value) {
-      this.businessAddress.city = value
+      this.address.city = value
       //re enable autofill
-      if (!this.autofillCity && this.businessAddress.city !== this.prevAutofilledCity) {
+      if (!this.autofillCity && this.address.city !== this.prevAutofilledCity) {
         this.prevAutofilledCity = ''
         this.autofillCity = true
       }
 
       //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCity && this.businessAddress.city.length > 3) {
+      if (this.autofillCity && this.address.city.length > 3) {
         this.cities = this.photon(value, 'place:city&osm_tag=place:town')
       }
     },
@@ -355,19 +356,19 @@ export default {
     async validateBusinessAddress() {
       //Check if country is valid and has a currency (for products and inventory items price)
       try {
-        await this.$root.$data.product.getCurrency(this.businessAddress.country)
+        await this.$root.$data.product.getCurrency(this.address.country)
       } catch (e) {
         this.msg['country'] = 'Please enter a valid Country'
         this.valid = false
       }
 
-      if (this.businessAddress.country === '') {
+      if (this.address.country === '') {
         this.msg['country'] = 'Please enter a Country'
         this.valid = false
       } else {
         this.msg['country'] = ''
       }
-      if (this.businessAddress.streetNumber !== '' && this.businessAddress.streetName === '') {
+      if (this.address.streetNumber !== '' && this.address.streetName === '') {
         this.msg['streetName'] = 'Please enter a Street Name'
         this.valid = false
       } else {
@@ -455,11 +456,11 @@ export default {
      */
     changeCountry(country) {
       //Changes the address input to the selected autofill address
-      this.businessAddress.country = country
+      this.address.country = country
       this.addressCountry = country
       this.countries = []
       this.autofillCountry = false
-      this.prevAutofilledCountry = this.businessAddress.country
+      this.prevAutofilledCountry = this.address.country
     },
 
     /**
@@ -469,11 +470,11 @@ export default {
      */
     changeRegion(region) {
       //Changes the address input to the selected autofill address
-      this.businessAddress.region = region
+      this.address.region = region
       this.addressRegion = region
       this.regions = []
       this.autofillRegion = false
-      this.prevAutofilledRegion = this.businessAddress.region
+      this.prevAutofilledRegion = this.address.region
     },
 
     /**
@@ -483,11 +484,11 @@ export default {
      */
     changeCity(city) {
       //Changes the address input to the selected autofill address
-      this.businessAddress.city = city
+      this.address.city = city
       this.addressCity = city
       this.cities = []
       this.autofillCity = false
-      this.prevAutofilledCity = this.businessAddress.city
+      this.prevAutofilledCity = this.address.city
     },
 
 
@@ -501,9 +502,7 @@ export default {
           this.$root.$data.user.state.userId,
           this.businessName,
           this.description,
-          //For now address is string. Will be changed when the database accepts the address object. Remove the following line when addresses are an object and uncomment the line below
-          `${this.businessAddress.streetNumber} ${this.businessAddress.streetName}, ${this.businessAddress.city}, ${this.businessAddress.region}, ${this.businessAddress.country}, ${this.businessAddress.postcode}`,
-          //this.homeAddress,
+          this.address,
           this.businessType
       ).then(() => {
         this.$router.push({name: 'user'})

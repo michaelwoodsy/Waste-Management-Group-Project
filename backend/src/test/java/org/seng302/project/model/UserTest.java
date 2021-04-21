@@ -19,10 +19,10 @@ public class UserTest {
      */
     @Test
     public void createTestUser() {
-
+//        Address testAddress = new Address("5", "Rountree Street", "Christchurch", "Canterbury", "New Zealand", "8042");
         User testUser = new User("John", "Smith", "Arthur", "Jonny",
                 "Likes long walks on the beach", "johnsmith9999@gmail.com",
-                "1999-04-27", "+64 3 555 0129", "4 Rountree Street, Upper Riccarton",
+                "1999-04-27", "+64 3 555 0129", null,
                 "1337-H%nt3r2");
 
         Assertions.assertNull(testUser.getId());
@@ -34,7 +34,7 @@ public class UserTest {
         Assertions.assertEquals("johnsmith9999@gmail.com", testUser.getEmail());
         Assertions.assertEquals("1999-04-27", testUser.getDateOfBirth());
         Assertions.assertEquals("+64 3 555 0129", testUser.getPhoneNumber());
-        Assertions.assertEquals("4 Rountree Street, Upper Riccarton", testUser.getHomeAddress());
+        Assertions.assertNull(testUser.getHomeAddress());
         Assertions.assertEquals("1337-H%nt3r2", testUser.getPassword());
         Assertions.assertEquals("user", testUser.getRole());
         Assertions.assertTrue(testUser.getCreated().isBefore(LocalDateTime.now()) || testUser.getCreated().isEqual(LocalDateTime.now()));

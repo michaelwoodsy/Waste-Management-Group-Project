@@ -85,11 +85,17 @@ public class MainApplicationRunner implements ApplicationRunner {
         if (Constants.TEST_DATA) {
             JSONObject data = (JSONObject) parser.parse(new FileReader("./src/main/resources/test_data.json"));
             // Insert test user data.
-            insertTestUsers((JSONArray) data.get("users"));
+            if (userRepository.count() == 0) {
+                insertTestUsers((JSONArray) data.get("users"));
+            }
             // Insert test business data.
-            insertTestBusinesses((JSONArray) data.get("businesses"));
+            if (businessRepository.count() == 0) {
+                insertTestBusinesses((JSONArray) data.get("businesses"));
+            }
             // Insert test product data.
-            insertTestProducts((JSONArray) data.get("products"));
+            if (productRepository.count() == 0) {
+                insertTestProducts((JSONArray) data.get("products"));
+            }
         }
     }
 
@@ -103,7 +109,7 @@ public class MainApplicationRunner implements ApplicationRunner {
         for (Object object : userData) {
             JSONObject jsonUser = (JSONObject) object;
             JSONObject jsonAddress = (JSONObject) jsonUser.get("homeAddress");
-            Address address = new Address (
+            Address address = new Address(
                     jsonAddress.getAsString("streetNumber"),
                     jsonAddress.getAsString("streetName"),
                     jsonAddress.getAsString("city"),
@@ -140,7 +146,7 @@ public class MainApplicationRunner implements ApplicationRunner {
         for (Object object : businessData) {
             JSONObject jsonBusiness = (JSONObject) object;
             JSONObject jsonAddress = (JSONObject) jsonBusiness.get("address");
-            Address address = new Address (
+            Address address = new Address(
                     jsonAddress.getAsString("streetNumber"),
                     jsonAddress.getAsString("streetName"),
                     jsonAddress.getAsString("city"),
@@ -173,19 +179,6 @@ public class MainApplicationRunner implements ApplicationRunner {
      */
     public void insertTestProducts(JSONArray productData) {
         logger.info("Adding sample data to product repository");
-        /*
-        Product testProduct1 = new Product("WATT-420g-BEANS", "Watties Baked Beans - 420g can",
-                "Baked Beans as they should be.", "Watties", 2.2,
-                businessRepository.findByName("Myrtle's Motel").get(0).getId());
-        productRepository.save(testProduct1);
-
-        Product testProduct2 = new Product("DORITO-300-CHEESE", "Doritos Nacho Cheese - 300g",
-                "Gamer Fuel", "Doritoes inc.", 3.5,
-                businessRepository.findByName("Myrtle's Motel").get(0).getId());
-        productRepository.save(testProduct2);
-
-        logger.info(String.format("Added products to catalogue of business with id %d", businessRepository.findByName("Myrtle's Motel").get(0).getId()));
-*/
         for (Object object : productData) {
             JSONObject jsonProduct = (JSONObject) object;
             Product testProduct = new Product(
