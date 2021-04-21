@@ -90,7 +90,7 @@
         <div class="col-6 text-right font-weight-bold">
           <p>Member Since: </p>
         </div>
-        <div class="col-6 ">
+        <div class="col-6">
           <p>{{ dateJoined }} ({{ dateSinceJoin }}) </p>
         </div>
       </div>
@@ -100,7 +100,7 @@
         <div class="col-6 text-right font-weight-bold">
           <p>Primary Administrator of: </p>
         </div>
-        <div class="col-6 ">
+        <div class="col-6">
           <table>
             <tr v-for="(business, index) in primaryAdminOf" :key="index">
               <td>
@@ -114,19 +114,22 @@
       </div>
 
       <!--Button to add as admin to business currently acting as-->
-      <div class="d-flex justify-content-center" v-if="!isViewingSelf && !isAdministrator &&
+      <div v-if="!isViewingSelf && !isAdministrator &&
                                                         this.$root.$data.user.isActingAsBusiness() &&
-                                                        this.$root.$data.user.isPrimaryAdminOfBusiness()">
-        <button class="btn btn-block btn-secondary" style="width: 40%;margin:0 20px; font-size: 14px;" v-on:click="addAdministrator">Add as administrator to business</button>
+                                                        this.$root.$data.user.isPrimaryAdminOfBusiness()"
+           class="d-flex justify-content-center">
+        <button class="btn btn-block btn-secondary" style="width: 40%;margin:0 20px; font-size: 14px;"
+                v-on:click="addAdministrator">Add as administrator to business
+        </button>
       </div>
 
       <div class="row">
-        <div class="col-12 text-center mb-2" v-if="addedAdmin">
+        <div v-if="addedAdmin" class="col-12 text-center mb-2">
           <br>
           <p style="color: green">{{ addedAdmin }}</p>
           <br>
         </div>
-        <div class="col-12 text-center mb-2" v-if="error">
+        <div v-if="error" class="col-12 text-center mb-2">
           <br>
           <p style="color: red">{{ error }}</p>
           <br>
@@ -140,8 +143,7 @@
 
 <script>
 
-import { User } from '@/Api'
-import {Business} from '@/Api'
+import {Business, User} from '@/Api'
 import LoginRequired from "./LoginRequired"
 
 export default {
@@ -178,19 +180,19 @@ export default {
      * Returns true if the user is currently viewing their profile page
      * @returns {boolean|*}
      */
-    isViewingSelf () {
+    isViewingSelf() {
       return this.userId === this.$root.$data.user.state.userId
     },
-  /**
-   * Returns true if the user is an administrator of the curentley acting business
-   * @returns {boolean|*}
-   */
-  isAdministrator () {
-    for (let i = 0; i < this.businessesAdministered.length; i++) {
-      if (this.businessesAdministered[i].id === this.$root.$data.user.state.actingAs.id) return true
+    /**
+     * Returns true if the user is an administrator of the curentley acting business
+     * @returns {boolean|*}
+     */
+    isAdministrator() {
+      for (let i = 0; i < this.businessesAdministered.length; i++) {
+        if (this.businessesAdministered[i].id === this.$root.$data.user.state.actingAs.id) return true
+      }
+      return false
     }
-    return false
-  }
   },
   components: {
     LoginRequired
@@ -239,10 +241,9 @@ export default {
         this.addedAdmin = `Added ${this.firstName} ${this.lastName} to administrators of business`
         //Reload the data
         User.getUserData(this.userId).then((response) => this.profile(response))
-      }
-      catch (err) {
+      } catch (err) {
         this.error = err.response
-            ? err.response.data.slice(err.response.data.indexOf(":")+2)
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
             : err
       }
     },
@@ -335,7 +336,7 @@ export default {
       businessesAdministered: [],
       primaryAdminOf: [],
       addedAdmin: null,
-      error:null
+      error: null
     }
   }
 }

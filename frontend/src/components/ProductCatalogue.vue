@@ -1,8 +1,9 @@
 <template>
   <div>
+
     <login-required
         v-if="!isLoggedIn"
-        page= "view this business's Product Catalogue"
+        page="view this business's Product Catalogue"
     />
 
     <admin-required
@@ -10,120 +11,134 @@
         page="view this business's product catalogue"
     />
 
-    <div v-else>
+    <div v-else class="container-fluid">
+      <div class="row justify-content-center">
+        <!-- Page Content -->
+        <div class="col-12 col-xl-10">
 
-      <!--    Product Catalogue Header    -->
-      <div class="row">
-        <div class="col-12 text-center mb-2">
-          <h4>Product Catalogue</h4>
-        </div>
-      </div>
-
-      <!--    Error Alert    -->
-      <div v-if="error" class="row">
-        <div class="col-8 offset-2 text-center mb-2">
-          <alert>{{ error }}</alert>
-        </div>
-      </div>
-
-      <!--    Result Information    -->
-      <div class="row">
-        <div class="d-none d-lg-block col-lg-1"/>
-        <div class="col-12 col-lg-10">
-          <div class="text-center">
-            <showing-results-text
-                :items-per-page="resultsPerPage"
-                :page="page"
-                :total-count="totalCount"
-            />
+          <!--    Product Catalogue Header    -->
+          <div class="row">
+            <div class="col"/>
+            <div class="col text-center">
+              <h4>Product Catalogue</h4>
+            </div>
+            <div class="col text-right">
+              <button class="btn btn-primary" v-on:click="newProduct">
+                New Product
+              </button>
+            </div>
           </div>
 
-          <!--    Order By   -->
-          <div class="overflow-auto">
-            <table class="table table-hover">
-              <thead>
-              <tr>
-                <!--    Product Code    -->
-                <th scope="col" class="pointer" @click="orderResults('id')">
-                  <p class="d-inline">Code</p>
-                  <p class="d-inline" v-if="orderCol === 'id'">{{ orderDirArrow }}</p>
-                </th>
-
-                <!--    Full Name    -->
-                <th scope="col" class="pointer" @click="orderResults('name')">
-                  <p class="d-inline">Name</p>
-                  <p class="d-inline" v-if="orderCol === 'name'">{{ orderDirArrow }}</p>
-                </th>
-
-                <!--    Description    -->
-                <th scope="col" class="pointer" @click="orderResults('description')">
-                  <p class="d-inline">Description</p>
-                  <p class="d-inline" v-if="orderCol === 'description'">{{ orderDirArrow }}</p>
-                </th>
-
-                <!--    Manufacturer    -->
-                <th scope="col" class="pointer" @click="orderResults('manufacturer')">
-                  <p class="d-inline">Manufacturer</p>
-                  <p class="d-inline" v-if="orderCol === 'manufacturer'">{{ orderDirArrow }}</p>
-                </th>
-
-                <!--    RRP    -->
-                <th scope="col"  class="pointer" @click="orderResults('recommendedRetailPrice')">
-                  <p class="d-inline">RRP</p>
-                  <p class="d-inline" v-if="orderCol === 'recommendedRetailPrice'">{{ orderDirArrow }}</p>
-                </th>
-
-                <!--    Date Added    -->
-                <th scope="col" class="pointer" @click="orderResults('created')">
-                  <p class="d-inline">Date Added</p>
-                  <p class="d-inline" v-if="orderCol === 'created'">{{ orderDirArrow }}</p>
-                </th>
-
-                <!--    Edit button column    -->
-                <th scope="col"> </th>
-              </tr>
-              </thead>
-              <!--    Product Information    -->
-              <tbody v-if="!loading">
-              <tr v-bind:key="product.id"
-                  v-for="product in paginatedProducts"
-              >
-                <th scope="row">{{ product.id }}</th>
-                <td>{{ product.name }}</td>
-                <td style="word-wrap: break-word; width: 40%">{{ product.description }}</td>
-                <td>{{ product.manufacturer }}</td>
-                <td>{{ product.recommendedRetailPrice }}</td>
-                <td>{{ new Date(product.created).toDateString() }}</td>
-                <td style="color: blue; cursor: pointer;"
-                    @click="editProduct(product.id)">
-                  Edit
-                </td>
-              </tr>
-              </tbody>
-            </table>
+          <!--    Error Alert    -->
+          <div v-if="error" class="row">
+            <div class="col text-center">
+              <alert>{{ error }}</alert>
+            </div>
           </div>
-        </div>
-        <div class="d-none d-lg-block col-lg-1"/>
-      </div>
 
-      <div class="row" v-if="loading">
-        <div class="col-12 text-center">
-          <p class="text-muted">Loading...</p>
-        </div>
-      </div>
+          <!--    Result Information    -->
+          <div class="row">
+            <div class="col">
 
-      <!--    Result Information    -->
-      <div class="row">
-        <div class="col-12">
-          <pagination
-              :total-items="totalCount"
-              :current-page.sync="page"
-              :items-per-page="resultsPerPage"
-              class="mx-auto"
-          />
+              <!-- Displays number of results -->
+              <div class="text-center">
+                <showing-results-text
+                    :items-per-page="resultsPerPage"
+                    :page="page"
+                    :total-count="totalCount"
+                />
+              </div>
+
+              <!--    Order By   -->
+              <div class="overflow-auto">
+                <table class="table table-hover">
+                  <thead>
+                  <tr>
+                    <!--    Product Code    -->
+                    <th class="pointer" scope="col" @click="orderResults('id')">
+                      <p class="d-inline">Code</p>
+                      <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
+                    </th>
+
+                    <!--    Full Name    -->
+                    <th class="pointer" scope="col" @click="orderResults('name')">
+                      <p class="d-inline">Name</p>
+                      <p v-if="orderCol === 'name'" class="d-inline">{{ orderDirArrow }}</p>
+                    </th>
+
+                    <!--    Description    -->
+                    <th class="pointer" scope="col" @click="orderResults('description')">
+                      <p class="d-inline">Description</p>
+                      <p v-if="orderCol === 'description'" class="d-inline">{{ orderDirArrow }}</p>
+                    </th>
+
+                    <!--    Manufacturer    -->
+                    <th class="pointer" scope="col" @click="orderResults('manufacturer')">
+                      <p class="d-inline">Manufacturer</p>
+                      <p v-if="orderCol === 'manufacturer'" class="d-inline">{{ orderDirArrow }}</p>
+                    </th>
+
+                    <!--    RRP    -->
+                    <th class="pointer" scope="col" @click="orderResults('recommendedRetailPrice')">
+                      <p class="d-inline">RRP</p>
+                      <p v-if="orderCol === 'recommendedRetailPrice'" class="d-inline">{{ orderDirArrow }}</p>
+                    </th>
+
+                    <!--    Date Added    -->
+                    <th class="pointer" scope="col" @click="orderResults('created')">
+                      <p class="d-inline">Date Added</p>
+                      <p v-if="orderCol === 'created'" class="d-inline">{{ orderDirArrow }}</p>
+                    </th>
+
+                    <!--    Edit button column    -->
+                    <th scope="col"></th>
+                  </tr>
+                  </thead>
+
+                  <!--    Product Information    -->
+                  <tbody v-if="!loading">
+                  <tr v-for="product in paginatedProducts"
+                      v-bind:key="product.id"
+                  >
+                    <th scope="row">{{ product.id }}</th>
+                    <td>{{ product.name }}</td>
+                    <td style="word-wrap: break-word; width: 40%">{{ product.description }}</td>
+                    <td>{{ product.manufacturer }}</td>
+                    <td>{{ formatPrice(product.recommendedRetailPrice) }}</td>
+                    <td>{{ new Date(product.created).toDateString() }}</td>
+                    <td style="color: blue; cursor: pointer;"
+                        @click="editProduct(product.id)">
+                      Edit
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="loading" class="row">
+            <div class="col text-center">
+              <p class="text-muted">Loading...</p>
+            </div>
+          </div>
+
+          <!--    Result Information    -->
+          <div class="row">
+            <div class="col">
+              <pagination
+                  :current-page.sync="page"
+                  :items-per-page="resultsPerPage"
+                  :total-items="totalCount"
+                  class="mx-auto"
+              />
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -144,9 +159,10 @@ export default {
     ShowingResultsText,
     Pagination
   },
-  data () {
+  data() {
     return {
       products: [],
+      currency: null,
       error: null,
       orderCol: null,
       orderDirection: false, // False -> Ascending
@@ -156,7 +172,7 @@ export default {
     }
   },
   mounted() {
-    this.fillTable()
+    this.getCurrencyAndFillTable()
   },
 
   computed: {
@@ -172,7 +188,7 @@ export default {
      * Checks to see if user is logged in currently
      * @returns {boolean|*}
      */
-    isLoggedIn () {
+    isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     },
 
@@ -180,7 +196,7 @@ export default {
      * Checks which direction (ascending or descending) the order by should be
      * @returns {string}
      */
-    orderDirArrow () {
+    orderDirArrow() {
       if (this.orderDirection) {
         return '↓'
       }
@@ -191,7 +207,7 @@ export default {
      * Sort Products Logic
      * @returns {[]|*[]}
      */
-    sortedProducts () {
+    sortedProducts() {
       if (this.orderCol === null) {
         return this.products
       }
@@ -216,7 +232,7 @@ export default {
      * Paginate the products
      * @returns {*[]|*[]}
      */
-    paginatedProducts () {
+    paginatedProducts() {
       let newProducts = this.sortedProducts;
 
       // Sort products if there are any
@@ -233,7 +249,7 @@ export default {
      * Calculates the number of results in products array
      * @returns {number}
      */
-    totalCount () {
+    totalCount() {
       return this.products.length
     }
   },
@@ -250,7 +266,7 @@ export default {
      * Updates order direction
      * @param col column to be ordered
      */
-    orderResults (col) {
+    orderResults(col) {
       // Remove the ordering if the column is clicked and the arrow is down
       if (this.orderCol === col && this.orderDirection) {
         this.orderCol = null;
@@ -265,11 +281,19 @@ export default {
     /**
      * Function for sorting a list by orderCol alphabetically
      */
-    sortAlpha (a, b) {
-      if(a[this.orderCol] === null) { return -1 }
-      if(b[this.orderCol] === null) { return 1 }
-      if(a[this.orderCol] < b[[this.orderCol]]) { return 1; }
-      if(a[this.orderCol] > b[[this.orderCol]]) { return -1; }
+    sortAlpha(a, b) {
+      if (a[this.orderCol] === null) {
+        return -1
+      }
+      if (b[this.orderCol] === null) {
+        return 1
+      }
+      if (a[this.orderCol] < b[[this.orderCol]]) {
+        return 1;
+      }
+      if (a[this.orderCol] > b[[this.orderCol]]) {
+        return -1;
+      }
       return 0;
     },
     /**
@@ -277,7 +301,29 @@ export default {
      * @param id of the product
      */
     editProduct(id) {
-      this.$router.push({name: 'editProduct', params: {businessId:this.businessId ,productId: id}})
+      this.$router.push({name: 'editProduct', params: {businessId: this.businessId, productId: id}})
+    },
+
+    /**
+     * Uses the getCurrency in the product.js module to get the currency of the business,
+     * and then call the fill table method
+     */
+    async getCurrencyAndFillTable() {
+      this.loading = true
+      //Change country to businesses address country when implemented
+      //The country variable  will always be an actual country as it is a requirement when creating a business
+      const country = "Netherlands"
+
+      this.currency = await this.$root.$data.product.getCurrency(country)
+
+      this.fillTable()
+    },
+
+    /**
+     * calls the formatPrice method in the product module to format the products recommended retail price
+     */
+    formatPrice(price) {
+      return this.$root.$data.product.formatPrice(this.currency, price)
     },
 
     /**
@@ -298,6 +344,12 @@ export default {
             this.error = err;
             this.loading = false;
           })
+    },
+    /**
+     * Takes user to page to create new product.
+     */
+    newProduct() {
+      this.$router.push({name: 'createProduct', params: {businessId: this.businessId}})
     }
   }
 }

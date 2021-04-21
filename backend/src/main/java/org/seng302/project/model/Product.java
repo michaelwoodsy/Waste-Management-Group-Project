@@ -1,10 +1,9 @@
 package org.seng302.project.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -27,7 +26,7 @@ public class Product {
     private Double recommendedRetailPrice;
     private LocalDateTime created = LocalDateTime.now();
     private String images; //TODO: change this to a list of image objects
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Id
     private Integer businessId; // The id of the business that offers this product
 
