@@ -118,13 +118,13 @@ export const Business = {
     /*
      * Gets all the products in a business's catalogue
      */
-    getProducts: (businessId) => instance.get(`businesses/${businessId}/products`, {})
+    getProducts: (businessId) => instance.get(`businesses/${businessId}/products`, {}),
 
     /*
      * Gets all the items in a business's inventory
      */
     // TODO: uncomment when this is implemented on backend
-    // getInventory: (businessId) => instance.get(`businesses/${businessId}/inventory`, {})
+    // getInventory: (businessId) => instance.get(`businesses/${businessId}/inventory`, {}),
 
     /**
      * Creates a new product in the product catalogue
