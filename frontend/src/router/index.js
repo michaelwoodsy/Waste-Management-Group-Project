@@ -12,6 +12,7 @@ import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 import Catalogue from "@/components/ProductCatalogue";
 import EditProductPage from "@/components/EditProductPage";
 import InventoryPage from "@/components/InventoryPage";
+import CreateInventoryItemPage from "@/components/CreateInventoryItemPage";
 
 const routes = [
     {
@@ -68,6 +69,11 @@ const routes = [
         path: '/businesses/:businessId/inventory',
         name: 'InventoryPage',
         component: InventoryPage
+    },
+    {
+        path: '/businesses/:businessId/inventory/create',
+        name: 'CreateInventoryItemPage',
+        component: CreateInventoryItemPage
     }
 
 ];
