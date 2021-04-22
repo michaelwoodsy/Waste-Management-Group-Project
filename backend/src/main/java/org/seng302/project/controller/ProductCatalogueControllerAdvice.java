@@ -14,7 +14,7 @@ public class ProductCatalogueControllerAdvice {
 
     /**
      * Exception thrown by the getBusinessesProducts() and newProduct() functions
-     * in ProductCatalogueController when a there is no matching business.
+     * in ProductCatalogueController when there is no matching business.
      *
      * @return a 406 response with an appropriate message
      */
