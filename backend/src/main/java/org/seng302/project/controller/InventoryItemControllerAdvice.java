@@ -25,7 +25,7 @@ public class InventoryItemControllerAdvice {
 
     /**
      * Exception thrown by the newInventoryItem() function in InventoryItemController
-     * when a user tries to perform a function when they are not the primary administrator.
+     * when a user tries to perform a function when they are not an administrator.
      *
      * @return a 403 response with an appropriate message
      */
