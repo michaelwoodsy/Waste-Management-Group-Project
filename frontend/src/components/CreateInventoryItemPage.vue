@@ -30,8 +30,11 @@
             <!-- Product Code -->
             <div class="form-group row">
               <label for="productCode"><b>Product Code<span class="required">*</span></b></label>
-              <input id="productCode" v-model="productCode" :class="{'form-control': true, 'is-invalid': msg.productCode}" maxlength="255"
-                     placeholder="Enter a product code" required type="text">
+              <select id="productCode" v-model="productCode" :class="{'form-control': true, 'is-invalid': msg.productCode}">
+                <option v-for="code in productCodes" v-bind:key="code.id">
+                  {{code.id}}
+                </option>
+              </select>
               <span class="invalid-feedback">{{ msg.productCode }}</span>
             </div>
 
@@ -46,15 +49,27 @@
             <!-- Price Per Item -->
             <div class="form-group row">
               <label for="pricePerItem"><b>Price Per Item</b></label>
-              <textarea id="pricePerItem" v-model="pricePerItem" class="form-control" maxlength="255"
-                        placeholder="Enter the price per item" type="text"/>
+              <div :class="{'input-group': true, 'is-invalid': msg.pricePerItem}">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">{{ this.currency.symbol }}</span>
+                </div>
+                <input id="pricePerItem" v-model="pricePerItem" :class="{'form-control': true, 'is-invalid': msg.pricePerItem}"
+                       maxlength="255"
+                       placeholder="Price Per Item" type="text">
+                <div class="input-group-append">
+                  <span class="input-group-text">{{ this.currency.code }}</span>
+                </div>
+              </div>
+              <span class="invalid-feedback">{{ msg.pricePerItem }}</span>
             </div>
 
             <!-- Total Price -->
             <div class="form-group row">
-              <label for="totalPrice"><b>Price Per Item</b></label>
-              <textarea id="totalPrice" v-model="totalPrice" class="form-control" maxlength="255"
-                        placeholder="Enter the total price" type="text"/>
+              <label for="totalPrice"><b>Total Price </b></label>
+              <div :class="{'input-group': true, 'is-invalid': msg.pricePerItem}">
+                <span id="totalPrice">{{ this.currency.symbol }}{{totalPrice}} {{ this.currency.code }}</span>
+              </div>
+
             </div>
 
             <!-- Manufactured -->
@@ -115,6 +130,7 @@
 </template>
 
 <script>
+import {Business} from '@/Api'
 import Alert from "@/components/Alert";
 import LoginRequired from "@/components/LoginRequired";
 import AdminRequired from "@/components/AdminRequired";
@@ -124,10 +140,10 @@ export default {
   components: {AdminRequired, LoginRequired, Alert},
   data() {
     return {
+      productCodes: [],
       productCode: '', // Required
       quantity: '', // Required
       pricePerItem: '',
-      totalPrice: '',
       manufactured: '',
       sellBy: '',
       bestBefore: '',
@@ -136,6 +152,7 @@ export default {
       msg: {
         productCode: null,
         quantity: null,
+        price: null,
         manufactured: null,
         sellBy: null,
         bestBefore: null,
@@ -146,6 +163,7 @@ export default {
     };
   },
   mounted() {
+    Business.getProducts(this.$route.params.businessId).then((response) => this.getProductIds(response))
     this.getCurrency();
   },
   computed: {
@@ -161,9 +179,25 @@ export default {
     isAdminOf() {
       if (this.$root.$data.user.state.actingAs.type !== 'business') return false;
       return this.$root.$data.user.state.actingAs.id === parseInt(this.$route.params.businessId);
+    },
+
+    totalPrice: function() {
+      return (Math.round(this.quantity * this.pricePerItem* 100)) / 100
     }
   },
   methods: {
+    /**
+     * Get all product IDs for the current Business
+     */
+    getProductIds(response){
+      let ids = []
+      let n = response.data.length
+      for (let i = 0; i < n; i++){
+        ids.push({id: response.data[i].id})
+      }
+      this.productCodes = ids
+      this.calculateTotalPrice()
+    },
     /**
      * Rounds the Price to 2dp
      */
@@ -173,7 +207,7 @@ export default {
     /**
      * Validate product ID field
      */
-    validateId() {
+    validateProductCode() {
       if (!/^[a-zA-Z0-9-]+$/.test(this.id)) {
         this.msg.id = 'Please enter a valid product ID';
         this.valid = false;
@@ -182,23 +216,11 @@ export default {
       }
     },
     /**
-     * Validate product name field
+     * Validate the product Price Per Item field
      */
-    validateName() {
-      if (this.name === '') {
-        this.msg.name = 'Please enter a product name';
-        this.valid = false;
-      } else {
-        this.msg.name = null;
-      }
-    },
-    /**
-     * Validate the product RRP field
-     */
-    validateRRP() {
-      console.log(this.recommendedRetailPrice);
-      if (Number.isNaN(Number(this.recommendedRetailPrice))) {
-        this.msg.rrp = 'Please enter a valid price';
+    validatePricePerItem() {
+      if (Number.isNaN(Number(this.pricePerItem))) {
+        this.msg.pricePerItem = 'Please enter a valid price';
         this.valid = false;
       } else {
         this.msg.rrp = null;
@@ -209,8 +231,10 @@ export default {
      */
     checkInputs() {
       this.validateProductCode();
-      this.validateQuantity();
-      this.validateDate();
+      this.validatePricePerItem()
+      //this.validateTotalPrice(this.totalPrice)
+      //this.validateQuantity();
+      //this.validateDate();
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';

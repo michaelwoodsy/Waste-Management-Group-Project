@@ -123,16 +123,7 @@ export const Business = {
     /**
      * Creates a new product in the product catalogue
      */
-    createProduct: (businessId,
-                    id,
-                    name,
-                    description,
-                    recommendedRetailPrice) => instance.post(`businesses/${businessId}/products`, {
-        id,
-        name,
-        description,
-        recommendedRetailPrice
-    }),
+    createProduct: (businessId, data) => instance.post(`businesses/${businessId}/products`, data)
 
     /*
      * Gets all the items in a business's inventory
