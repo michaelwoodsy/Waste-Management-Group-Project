@@ -42,14 +42,17 @@ public class InventoryItem {
 
 
     @Id // this field (attribute) is the primary key of the table
-    @GeneratedValue // autoincrement the ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
     @Column(name = "inventory_item_id")
     public Integer getId() {
         return this.id;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id")
+    @JoinColumns({
+            @JoinColumn(name = "product_id"),
+            @JoinColumn(name = "business_id")
+    })
     public Product getProduct() {
         return this.product;
     }
