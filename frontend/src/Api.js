@@ -120,6 +120,12 @@ export const Business = {
      */
     getProducts: (businessId) => instance.get(`businesses/${businessId}/products`, {}),
 
+    /*
+     * Gets all the items in a business's inventory
+     */
+    // TODO: uncomment when this is implemented on backend
+    // getInventory: (businessId) => instance.get(`businesses/${businessId}/inventory`, {}),
+
     /**
      * Creates a new product in the product catalogue
      */
