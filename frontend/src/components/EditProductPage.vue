@@ -26,12 +26,54 @@
       </div>
 
       <!-- Display when the product is loading -->
-      <div v-if="loading">
+      <div v-if="loading" class="text-center">
         <p class="text-muted">Loading...</p>
+      </div>
+
+      <!-- Div to display when the changes are successful -->
+      <div v-else-if="success" class="container-fluid">
+
+        <!-- Row for success message -->
+        <div class="row">
+          <div class="col-12 col-sm-8 offset-sm-2">
+            <div class="alert alert-success">Successfully saved changes!</div>
+
+            <!-- Make more changes button -->
+            <button
+                type="button"
+                class="btn btn-secondary float-left"
+                @click="resetPage"
+            >
+              Edit Again
+            </button>
+
+            <!-- Product catalogue button -->
+            <router-link
+                type="button"
+                :to="{name: 'viewCatalogue', params: {businessId: this.businessId}}"
+                class="btn btn-primary float-right"
+            >
+              Product Catalogue
+            </router-link>
+
+          </div>
+        </div>
       </div>
 
       <!-- Edit product div -->
       <div v-else-if="product" class="container-fluid">
+
+        <!-- Row for submit error message -->
+        <div class="row" v-if="submitError">
+          <div class="col-12 col-sm-8 offset-sm-2">
+            <alert>An error occurred when submitting your changes: {{ submitError }}</alert>
+          </div>
+        </div>
+
+        <!-- Display when the product is loading -->
+        <div v-if="submitting">
+          <div class="alert alert-info col-12 col-sm-8 offset-sm-2">Submitting changes...</div>
+        </div>
 
         <!-- Row for edit form -->
         <div class="row">
@@ -193,6 +235,9 @@ export default {
   data () {
     return {
       errorMessage: null,
+      submitting: false, // True when the changes are being submitted to the api
+      success: false, // True when the edits were successful
+      submitError: null, // Contains the error message if the submit failed
       showFixesMessage: false,
       loading: true,
       product: null,
@@ -287,12 +332,29 @@ export default {
      * Validates the users inputs, then sends the data to the api.
      */
     submit () {
-      console.log('Submitting')
+      // Check all fields are valid first
       this.showFixesMessage = false
       if (!this.nameValid || !this.idValid || !this.priceValid) {
         this.showFixesMessage = true
         return
       }
+
+      // Submit changes to api
+      this.submitting = true;
+      Business.editProduct(this.businessId, this.productId, this.newProduct)
+          .then(() => {
+            this.submitError = null
+            this.success = true
+            this.submitting = false
+          })
+          .catch((err) => {
+            // Display the response error message if there is one
+            this.submitError = err.response
+                ? err.response.data.message
+                : err
+            this.submitting = false
+          })
+
     },
 
     /**
@@ -322,9 +384,27 @@ export default {
             this.loading = false
           })
           .catch((err) => {
-            this.errorMessage = err.response.data.message;
+            this.errorMessage = err.response.data.message || err;
             this.loading = false
           })
+    },
+
+    /**
+     * Resets the page after submitting changes, so the user can make more changes.
+     */
+    resetPage () {
+      // Reset data
+      this.submitError = null
+      this.success = false
+      this.product = null
+      this.newProduct = null
+      this.idBlur = false
+      this.nameBlur = false
+      this.priceBlur = false
+      this.loading = true
+
+      // Reload product
+      this.loadProduct()
     }
   }
 }
