@@ -88,15 +88,27 @@ public class UserController {
         logger.info("Request to create user");
 
         try {
-            String emailRegEx = "^[\\w\\-]+(\\.[\\w\\-]+)*@\\w+(\\.\\w+)+$";
-            if (!(newUser.getEmail().matches(emailRegEx))) {
+            if (newUser.getFirstName() == null || newUser.getFirstName().equals("") ||
+                    newUser.getLastName() == null || newUser.getLastName().equals("") ||
+                    newUser.getEmail() == null || newUser.getEmail().equals("") ||
+                    newUser.getDateOfBirth() == null || newUser.getDateOfBirth().equals("") ||
+                    newUser.getHomeAddress() == null || newUser.getHomeAddress().equals("")) { // TODO change to address class once implemented.
+                RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
+                logger.warn(requiredFieldsMissingException.getMessage());
+                throw requiredFieldsMissingException;
+            }
+
+            String emailRegEx = "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@" +
+                    "((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
+            if (!newUser.getEmail().matches(emailRegEx)) {
                 InvalidEmailException emailException = new InvalidEmailException();
                 logger.warn(emailException.getMessage());
                 throw emailException;
             }
 
-            String phoneRegEx = "^\\+[1-9]\\d{1,14}$";
-            if (!newUser.getPhoneNumber().equals("") && !(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
+            String phoneRegEx = "^\\+?\\d{1,15}$";
+            if ((newUser.getPhoneNumber() != null && !newUser.getPhoneNumber().equals(""))
+                    && !(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
                 InvalidPhoneNumberException phoneNumberException = new InvalidPhoneNumberException();
                 logger.warn(phoneNumberException.getMessage());
                 throw phoneNumberException;
@@ -125,16 +137,6 @@ public class UserController {
                 UserUnderageException underageException = new UserUnderageException();
                 logger.warn(underageException.getMessage());
                 throw underageException;
-            }
-
-            if (newUser.getFirstName().equals("") ||
-                    newUser.getLastName().equals("") ||
-                    newUser.getEmail().equals("") ||
-                    newUser.getDateOfBirth().equals("") ||
-                    newUser.getHomeAddress().equals("")) {
-                RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
-                logger.warn(requiredFieldsMissingException.getMessage());
-                throw requiredFieldsMissingException;
             }
 
             LoginCredentials credentials = new LoginCredentials(newUser.getEmail(), newUser.getPassword());
