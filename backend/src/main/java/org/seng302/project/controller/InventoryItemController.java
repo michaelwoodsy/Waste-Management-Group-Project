@@ -4,7 +4,6 @@ import net.minidev.json.JSONObject;
 import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.*;
 import org.seng302.project.model.*;
-import org.seng302.project.util.DateArithmetic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -122,7 +120,6 @@ public class InventoryItemController {
             Date currentDate = new Date();
             try {
                 String expiryDateString = json.getAsString("expires");
-                System.out.println(expiryDateString);
                 if (expiryDateString == null || expiryDateString.equals("")) {
                     MissingInventoryItemExpiryException exception = new MissingInventoryItemExpiryException();
                     logger.warn(exception.getMessage());
