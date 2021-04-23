@@ -49,18 +49,18 @@
             <!-- Price Per Item -->
             <div class="form-group row">
               <label for="pricePerItem"><b>Price Per Item</b></label>
-              <div :class="{'input-group': true, 'is-invalid': msg.pricePerItem}">
+              <div :class="{'input-group': true, 'is-invalid': msg.price}">
                 <div class="input-group-prepend">
                   <span class="input-group-text">{{ this.currency.symbol }}</span>
                 </div>
-                <input id="pricePerItem" v-model="pricePerItem" :class="{'form-control': true, 'is-invalid': msg.pricePerItem}"
+                <input id="pricePerItem" v-model="pricePerItem" :class="{'form-control': true, 'is-invalid': msg.price}"
                        maxlength="255"
                        placeholder="Price Per Item" type="text">
                 <div class="input-group-append">
                   <span class="input-group-text">{{ this.currency.code }}</span>
                 </div>
               </div>
-              <span class="invalid-feedback">{{ msg.pricePerItem }}</span>
+              <span class="invalid-feedback">{{ msg.price }}</span>
             </div>
 
             <!-- Total Price -->
@@ -75,37 +75,37 @@
             <!-- Manufactured -->
             <div class="form-row">
               <label for="manufactured"><b>Manufactured Date</b></label><br/>
-              <input id="manufactured" v-model="manufactured" class="form-control" required style="width:100%"
+              <input id="manufactured" v-model="manufactured" :class="{'form-control': true, 'is-invalid': msg.manufactured}" required style="width:100%"
                      type="date"><br>
               <!--    Error message for the date input    -->
-              <span v-if="msg.manufactured" class="error-msg">{{ msg.manufactured }}</span><br><br>
+              <span class="invalid-feedback">{{ msg.manufactured }}</span><br><br>
             </div>
 
             <!-- Sell By -->
             <div class="form-row">
               <label for="sellBy"><b>Sell By Date</b></label><br/>
-              <input id="sellBy" v-model="sellBy" class="form-control" required style="width:100%"
+              <input id="sellBy" v-model="sellBy" :class="{'form-control': true, 'is-invalid': msg.sellBy}" required style="width:100%"
                      type="date"><br>
               <!--    Error message for the date input    -->
-              <span v-if="msg.sellBy" class="error-msg">{{ msg.sellBy }}</span><br><br>
+              <span class="invalid-feedback">{{ msg.sellBy }}</span><br><br>
             </div>
 
             <!-- Best Before -->
             <div class="form-row">
               <label for="bestBefore"><b>Best Before Date</b></label><br/>
-              <input id="bestBefore" v-model="bestBefore" class="form-control" required style="width:100%"
+              <input id="bestBefore" v-model="bestBefore" :class="{'form-control': true, 'is-invalid': msg.bestBefore}" required style="width:100%"
                      type="date"><br>
               <!--    Error message for the date input    -->
-              <span v-if="msg.bestBefore" class="error-msg">{{ msg.bestBefore }}</span><br><br>
+              <span class="invalid-feedback">{{ msg.bestBefore }}</span><br><br>
             </div>
 
             <!-- Expires -->
             <div class="form-row">
-              <label for="expires"><b>Expires Date<span class="required">*</span></b></label><br/>
-              <input id="expires" v-model="expires" class="form-control" required style="width:100%"
+              <label for="expires"><b>Expiry Date<span class="required">*</span></b></label><br/>
+              <input id="expires" v-model="expires" :class="{'form-control': true, 'is-invalid': msg.expires}" required style="width:100%"
                      type="date"><br>
               <!--    Error message for the date input    -->
-              <span v-if="msg.expires" class="error-msg">{{ msg.expires }}</span><br><br>
+              <span class="invalid-feedback">{{ msg.expires }}</span><br><br>
             </div>
 
 
@@ -196,7 +196,6 @@ export default {
         ids.push({id: response.data[i].id})
       }
       this.productCodes = ids
-      this.calculateTotalPrice()
     },
     /**
      * Rounds the Price to 2dp
@@ -205,36 +204,129 @@ export default {
       return (Math.round(price* 100)) / 100;
     },
     /**
-     * Validate product ID field
+     * Validate product Code field
      */
     validateProductCode() {
-      if (!/^[a-zA-Z0-9-]+$/.test(this.id)) {
-        this.msg.id = 'Please enter a valid product ID';
+      if (!/^[a-zA-Z0-9-]+$/.test(this.productCode)) {
+        this.msg.productCode = 'Please enter a valid product ID';
         this.valid = false;
       } else {
-        this.msg.id = null;
+        this.msg.productCode = null;
       }
     },
     /**
      * Validate the product Price Per Item field
      */
-    validatePricePerItem() {
-      if (Number.isNaN(Number(this.pricePerItem))) {
-        this.msg.pricePerItem = 'Please enter a valid price';
-        this.valid = false;
+    validatePrice() {
+      let isNotNumber = Number.isNaN(Number(this.pricePerItem))
+
+      if (this.pricePerItem !== ''){
+        if (isNotNumber) {
+          this.msg.price= 'Please enter a valid price';
+          this.valid = false;
+        } else if (Number(this.pricePerItem) < 0) {
+          this.msg.price= 'Please enter a non negative price'
+          this.valid = false
+        }
       } else {
-        this.msg.rrp = null;
+        this.msg.price = null;
       }
     },
+    /**
+     * Validate the product Quantity field
+     */
+    validateQuantity() {
+      let isNotNumber = Number.isNaN(Number(this.quantity))
+      if (isNotNumber || this.quantity === '') {
+        this.msg.quantity= 'Please enter a valid quantity';
+        this.valid = false;
+      } else if (Number(this.quantity) < 0) {
+        this.msg.quantity= 'Please enter a non negative quantity'
+        this.valid = false
+      } else {
+        this.msg.quantity = null;
+      }
+    },
+    /**
+     * Validate the product Manufactured field
+     */
+    validateDateManufactured() {
+      if (this.manufactured !== ''){
+        let dateNow = new Date()
+        let dateGiven = new Date(this.manufactured)
+
+        if ((dateGiven - dateNow <= 0)){
+          this.msg.manufactured = 'Please enter a date in the future'
+          this.valid = false
+        } else {
+          this.msg.manufactured = null
+        }
+      }
+    },
+    /**
+     * Validate the product Sell By field
+     */
+    validateDateSellBy() {
+      if (this.sellBy !== ''){
+        let dateNow = new Date()
+        let dateGiven = new Date(this.sellBy)
+
+        if ((dateGiven - dateNow <= 0)){
+          this.msg.sellBy = 'Please enter a date in the future'
+          this.valid = false
+        } else {
+          this.msg.sellBy = null
+        }
+      }
+    },
+    /**
+     * Validate the product Best Before field
+     */
+    validateDateBestBefore() {
+      if (this.bestBefore !== ''){
+        let dateNow = new Date()
+        let dateGiven = new Date(this.bestBefore)
+
+        if ((dateGiven - dateNow <= 0)){
+          this.msg.bestBefore = 'Please enter a date in the future'
+          this.valid = false
+        } else {
+          this.msg.bestBefore = null
+        }
+      }
+    },
+    /**
+     * Validate the product Expiry field
+     */
+    validateDateExpires(){
+      if (this.expires !== ''){
+        let dateNow = new Date()
+        let dateGiven = new Date(this.expires)
+
+        if ((dateGiven - dateNow <= 0)){
+          this.msg.expires = 'Please enter a date in the future'
+          this.valid = false
+        } else {
+          this.msg.expires = null
+        }
+      } else {
+        this.msg.expires = 'Please enter a date'
+        this.valid = false
+      }
+
+    },
+
     /**
      * Checks all inputs are valid
      */
     checkInputs() {
       this.validateProductCode();
-      this.validatePricePerItem()
-      //this.validateTotalPrice(this.totalPrice)
-      //this.validateQuantity();
-      //this.validateDate();
+      this.validatePrice()
+      this.validateQuantity();
+      this.validateDateManufactured()
+      this.validateDateSellBy()
+      this.validateDateBestBefore()
+      this.validateDateExpires();
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
