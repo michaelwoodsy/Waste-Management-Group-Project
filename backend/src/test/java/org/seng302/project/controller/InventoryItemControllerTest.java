@@ -21,6 +21,9 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,6 +109,73 @@ public class InventoryItemControllerTest {
         Product product = new Product("p1", "Watties Beans", "beans in a can", "Watties", 2.00,
                 businessId);
         productRepository.save(product);
+    }
+
+
+
+    /**
+     * Tries creating a inventory item when not an admin.
+     * Expect a 400 response.
+     */
+    @Test
+    void tryCreatingItemWithoutAdmin() throws Exception {
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.DATE, 7);//Date always in the future
+
+        JSONObject testItem = new JSONObject();
+        testItem.put("productId", "p1");
+        testItem.put("quantity", 6);
+        testItem.put("expires", dateFormatter.format(c.getTime()));
+
+        RequestBuilder postInventoryRequest = MockMvcRequestBuilders
+                .post("/businesses/{businessId}/inventory", businessId)
+                .content(testItem.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("jane111@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postInventoryResponse = this.mockMvc.perform(postInventoryRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 403 response
+                .andReturn();
+
+        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new ForbiddenAdministratorActionException(businessId).getMessage(), returnedExceptionString);
+    }
+
+
+
+    /**
+     * Tries creating a inventory item without a product id.
+     * Expect a 400 response.
+     */
+    @Test
+    void tryCreatingItemWithoutProductId() throws Exception {
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.DATE, 7);
+
+        JSONObject testItem = new JSONObject();
+        testItem.put("quantity", 6);
+        testItem.put("expires", dateFormatter.format(c.getTime()));
+
+        RequestBuilder postInventoryRequest = MockMvcRequestBuilders
+                .post("/businesses/{businessId}/inventory", businessId)
+                .content(testItem.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postInventoryResponse = this.mockMvc.perform(postInventoryRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new MissingProductIdException().getMessage(), returnedExceptionString);
     }
 }
 

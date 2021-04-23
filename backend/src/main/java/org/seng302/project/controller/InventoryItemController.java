@@ -116,17 +116,22 @@ public class InventoryItemController {
             }
 
             Date expiryDate;
-            Date manufactureDate = null;
-            Date sellByDate = null;
-            Date bestBeforeDate = null;
+            String manufactureDateString = json.getAsString("manufactured");
+            String sellByDateString = json.getAsString("sellBy");
+            String bestBeforeDateString = json.getAsString("bestBefore");
             Date currentDate = new Date();
             try {
                 String expiryDateString = json.getAsString("expires");
+                System.out.println(expiryDateString);
+                if (expiryDateString == null || expiryDateString.equals("")) {
+                    MissingInventoryItemExpiryException exception = new MissingInventoryItemExpiryException();
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
                 expiryDate = new SimpleDateFormat("yyyy-MM-dd").parse(expiryDateString);
 
-                String manufactureDateString = json.getAsString("manufactured");
-                if (!manufactureDateString.equals("")) {
-                    manufactureDate = new SimpleDateFormat("yyyy-MM-dd").parse(manufactureDateString);
+                if (manufactureDateString != null && !manufactureDateString.equals("")) {
+                    Date manufactureDate = new SimpleDateFormat("yyyy-MM-dd").parse(manufactureDateString);
 
                     //Check if manufacture date is in the past
                     if (currentDate.before(manufactureDate)) {
@@ -134,11 +139,12 @@ public class InventoryItemController {
                         logger.warn(exception.getMessage());
                         throw exception;
                     }
+                } else {
+                    manufactureDateString = null;
                 }
 
-                String sellByDateString = json.getAsString("sellBy");
-                if (!sellByDateString.equals("")) {
-                    sellByDate = new SimpleDateFormat("yyyy-MM-dd").parse(sellByDateString);
+                if (sellByDateString != null && !sellByDateString.equals("")) {
+                    Date sellByDate = new SimpleDateFormat("yyyy-MM-dd").parse(sellByDateString);
 
                     //Check if sell by date is in the future
                     if (currentDate.after(sellByDate)) {
@@ -146,11 +152,12 @@ public class InventoryItemController {
                         logger.warn(exception.getMessage());
                         throw exception;
                     }
+                } else {
+                    sellByDateString = null;
                 }
 
-                String bestBeforeDateString = json.getAsString("bestBefore");
-                if (!bestBeforeDateString.equals("")) {
-                    bestBeforeDate = new SimpleDateFormat("yyyy-MM-dd").parse(bestBeforeDateString);
+                if (bestBeforeDateString != null && !bestBeforeDateString.equals("")) {
+                    Date bestBeforeDate = new SimpleDateFormat("yyyy-MM-dd").parse(bestBeforeDateString);
 
                     //Check if best before date is in the future
                     if (currentDate.after(bestBeforeDate)) {
@@ -158,6 +165,8 @@ public class InventoryItemController {
                         logger.warn(exception.getMessage());
                         throw exception;
                     }
+                } else {
+                    bestBeforeDateString = null;
                 }
 
             } catch (ParseException parseException) {
@@ -165,7 +174,7 @@ public class InventoryItemController {
                 logger.warn(invalidDateException.getMessage());
                 throw invalidDateException;
             } catch (InvalidManufactureDateException | InvalidSellByDateException |
-                    InvalidBestBeforeDateException handledException) {
+                    InvalidBestBeforeDateException | MissingInventoryItemExpiryException handledException) {
                 throw handledException;
             } catch (Exception exception) {
                 logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
@@ -187,14 +196,18 @@ public class InventoryItemController {
                 totalPrice = json.getAsNumber("totalPrice").doubleValue();
             }
 
+            System.out.println(manufactureDateString);
+            System.out.println(sellByDateString);
+            System.out.println(bestBeforeDateString);
+
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             InventoryItem inventoryItem = new InventoryItem(product, quantity, pricePerItem, totalPrice,
-                    formatter.format(manufactureDate), formatter.format(sellByDate), formatter.format(bestBeforeDate),
+                    manufactureDateString, sellByDateString, bestBeforeDateString,
                     formatter.format(expiryDate));
 
             inventoryItemRepository.save(inventoryItem);
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
-                MissingProductNameException | ProductIdAlreadyExistsException | NoProductExistsException |
+                NoProductExistsException | MissingInventoryItemExpiryException |
                 MissingInventoryItemQuantityException | ItemExpiredException | InvalidDateException |
                 InvalidManufactureDateException | InvalidSellByDateException |
                 InvalidBestBeforeDateException handledException) {

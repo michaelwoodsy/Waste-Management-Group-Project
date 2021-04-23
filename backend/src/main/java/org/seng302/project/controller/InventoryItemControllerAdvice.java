@@ -47,6 +47,17 @@ public class InventoryItemControllerAdvice {
 
     /**
      * Exception thrown by the newInventoryItem() function in InventoryItemController
+     * when a user tries create a inventory item without a expiry date
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(MissingInventoryItemExpiryException.class)
+    public ResponseEntity<String> missingInvenotryItemExpiry(MissingInventoryItemExpiryException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Exception thrown by the newInventoryItem() function in InventoryItemController
      * when the supplied product id does does not reference a product
      *
      * @return a 400 response with an appropriate message
