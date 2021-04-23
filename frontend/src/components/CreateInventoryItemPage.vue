@@ -49,27 +49,35 @@
             <!-- Price Per Item -->
             <div class="form-group row">
               <label for="pricePerItem"><b>Price Per Item</b></label>
-              <div :class="{'input-group': true, 'is-invalid': msg.price}">
+              <div :class="{'input-group': true, 'is-invalid': msg.pricePerItem}">
                 <div class="input-group-prepend">
                   <span class="input-group-text">{{ this.currency.symbol }}</span>
                 </div>
-                <input id="pricePerItem" v-model="pricePerItem" :class="{'form-control': true, 'is-invalid': msg.price}"
+                <input id="pricePerItem" v-model="pricePerItem" :class="{'form-control': true, 'is-invalid': msg.pricePerItem}"
                        maxlength="255"
                        placeholder="Price Per Item" type="text">
                 <div class="input-group-append">
                   <span class="input-group-text">{{ this.currency.code }}</span>
                 </div>
               </div>
-              <span class="invalid-feedback">{{ msg.price }}</span>
+              <span class="invalid-feedback">{{ msg.pricePerItem }}</span>
             </div>
 
             <!-- Total Price -->
             <div class="form-group row">
-              <label for="totalPrice"><b>Total Price </b></label>
-              <div :class="{'input-group': true, 'is-invalid': msg.pricePerItem}">
-                <span id="totalPrice">{{ this.currency.symbol }}{{totalPrice}} {{ this.currency.code }}</span>
+              <label for="totalPrice"><b>Total Price</b></label>
+              <div :class="{'input-group': true, 'is-invalid': msg.totalPrice}">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">{{ this.currency.symbol }}</span>
+                </div>
+                <input id="totalPrice" v-model="totalPrice" :class="{'form-control': true, 'is-invalid': msg.totalPrice}"
+                       maxlength="255"
+                       placeholder="Total Price" type="text">
+                <div class="input-group-append">
+                  <span class="input-group-text">{{ this.currency.code }}</span>
+                </div>
               </div>
-
+              <span class="invalid-feedback">{{ msg.totalPrice }}</span>
             </div>
 
             <!-- Manufactured -->
@@ -144,6 +152,7 @@ export default {
       productCode: '', // Required
       quantity: '', // Required
       pricePerItem: '',
+      totalPrice: '',
       manufactured: '',
       sellBy: '',
       bestBefore: '',
@@ -152,7 +161,8 @@ export default {
       msg: {
         productCode: null,
         quantity: null,
-        price: null,
+        pricePerItem: null,
+        totalPrice: null,
         manufactured: null,
         sellBy: null,
         bestBefore: null,
@@ -179,10 +189,6 @@ export default {
     isAdminOf() {
       if (this.$root.$data.user.state.actingAs.type !== 'business') return false;
       return this.$root.$data.user.state.actingAs.id === parseInt(this.$route.params.businessId);
-    },
-
-    totalPrice: function() {
-      return (Math.round(this.quantity * this.pricePerItem* 100)) / 100
     }
   },
   methods: {
@@ -217,21 +223,40 @@ export default {
     /**
      * Validate the product Price Per Item field
      */
-    validatePrice() {
+    validatePricePerItem() {
       let isNotNumber = Number.isNaN(Number(this.pricePerItem))
 
       if (this.pricePerItem !== ''){
         if (isNotNumber) {
-          this.msg.price= 'Please enter a valid price';
+          this.msg.pricePerItem= 'Please enter a valid price';
           this.valid = false;
         } else if (Number(this.pricePerItem) < 0) {
-          this.msg.price= 'Please enter a non negative price'
+          this.msg.pricePerItem= 'Please enter a non negative price'
           this.valid = false
         }
       } else {
-        this.msg.price = null;
+        this.msg.pricePerItem = null;
       }
     },
+    /**
+     * Validate the product Total Price field
+     */
+    validateTotalPrice() {
+      let isNotNumber = Number.isNaN(Number(this.totalPrice))
+
+      if (this.totalPrice !== ''){
+        if (isNotNumber) {
+          this.msg.totalPrice= 'Please enter a valid price';
+          this.valid = false;
+        } else if (Number(this.totalPrice) < 0) {
+          this.msg.totalPrice= 'Please enter a non negative price'
+          this.valid = false
+        }
+      } else {
+        this.msg.totalPrice = null;
+      }
+    },
+
     /**
      * Validate the product Quantity field
      */
@@ -321,7 +346,8 @@ export default {
      */
     checkInputs() {
       this.validateProductCode();
-      this.validatePrice()
+      this.validatePricePerItem()
+      this.validateTotalPrice()
       this.validateQuantity();
       this.validateDateManufactured()
       this.validateDateSellBy()
@@ -342,16 +368,22 @@ export default {
      * Add a new product to the business's product catalogue
      */
     addItem() {
-      const rrp = Number(this.recommendedRetailPrice)
-      this.$root.$data.business.createProduct(
+      //const rrp = Number(this.recommendedRetailPrice)
+      const ppi = Number(this.pricePerItem)
+      const tp = Number(this.totalPrice)
+      this.$root.$data.business.createItem(
           this.$root.$data.user.state.actingAs.id, {
-            "id": this.id,
-            "name": this.name,
-            "description": this.description,
-            "recommendedRetailPrice": this.recommendedRetailPrice !== '' ? this.roundRRP(rrp) : null
+            "productID": this.productID,
+            "quantity": this.quantity,
+            "pricePerItem": this.pricePerItem !== '' ? this.roundPrice(ppi) : null,
+            "totalPrice": this.totalPrice !== '' ? this.roundPrice(tp) : null,
+            "manufactured": this.manufactured,
+            "sellBy": this.sellBy,
+            "bestBefore": this.bestBefore,
+            "expires": this.expires
           }
       ).then(() => {
-        this.$router.push({name: "viewCatalogue", params: {businessId: this.$root.$data.user.state.actingAs.id}});
+        this.$router.push({name: "InventoryPage", params: {businessId: this.$root.$data.user.state.actingAs.id}});
       }).catch((err) => {
         this.msg.errorChecks = err.response ?
             err.response.data.slice(err.response.data.indexOf(':') + 2) :
@@ -359,10 +391,10 @@ export default {
       });
     },
     /**
-     * Cancel creating a new product and go back to product catalogue
+     * Cancel creating a new item and go back to inventory
      */
     cancel() {
-      this.$router.push({name: "viewCatalogue", params: {businessId: this.$root.$data.user.state.actingAs.id}});
+      this.$router.push({name: "InventoryPage", params: {businessId: this.$root.$data.user.state.actingAs.id}});
     },
     async getCurrency() {
       const country = 'New Zealand'
