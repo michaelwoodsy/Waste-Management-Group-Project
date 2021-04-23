@@ -132,4 +132,15 @@ public class InventoryItemControllerAdvice {
     public ResponseEntity<String> invalidBestBeforeDate(InvalidBestBeforeDateException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    /**
+     * Exception thrown by the newInventoryItem() function in InventoryItemController
+     * when a number field does not have a number in it.
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(InvalidNumberFormatException.class)
+    public ResponseEntity<String> invalidNumberFormat(InvalidNumberFormatException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }

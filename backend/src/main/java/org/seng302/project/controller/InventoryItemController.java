@@ -50,6 +50,8 @@ public class InventoryItemController {
     public void newInventoryItem(@PathVariable int businessId, @RequestBody JSONObject json, @AuthenticationPrincipal AppUserDetails appUser) {
 
         try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
             // Get the logged in user from the user's email
             String userEmail = appUser.getUsername();
             User loggedInUser = userRepository.findByEmail(userEmail).get(0);
@@ -74,6 +76,7 @@ public class InventoryItemController {
                 throw exception;
             }
 
+            //Get product id
             String productId = json.getAsString("productId");
             try {
                 if (productId.isEmpty()) { //Empty string
@@ -96,12 +99,12 @@ public class InventoryItemController {
             }
             Product product = retrievedProductOptions.get();
 
+            //Get quantity
             Integer quantity = null;
-            if (json.getAsNumber("quantity") != null) {
-                quantity = json.getAsNumber("quantity").intValue();
-            }
-
             try {
+                if (json.getAsNumber("quantity") != null) {
+                    quantity = json.getAsNumber("quantity").intValue();
+                }
                 if (quantity == null) { //Empty string
                     MissingInventoryItemQuantityException exception = new MissingInventoryItemQuantityException();
                     logger.error(exception.getMessage());
@@ -111,8 +114,13 @@ public class InventoryItemController {
                 MissingProductIdException exception = new MissingProductIdException();
                 logger.error(exception.getMessage());
                 throw exception;
+            } catch (NumberFormatException numberFormatException) { //Field is not a number
+                InvalidNumberFormatException exception = new InvalidNumberFormatException("quantity");
+                logger.error(exception.getMessage());
+                throw exception;
             }
 
+            //Get dates
             Date expiryDate;
             String manufactureDateString = json.getAsString("manufactured");
             String sellByDateString = json.getAsString("sellBy");
@@ -125,10 +133,10 @@ public class InventoryItemController {
                     logger.warn(exception.getMessage());
                     throw exception;
                 }
-                expiryDate = new SimpleDateFormat("yyyy-MM-dd").parse(expiryDateString);
+                expiryDate = formatter.parse(expiryDateString);
 
                 if (manufactureDateString != null && !manufactureDateString.equals("")) {
-                    Date manufactureDate = new SimpleDateFormat("yyyy-MM-dd").parse(manufactureDateString);
+                    Date manufactureDate = formatter.parse(manufactureDateString);
 
                     //Check if manufacture date is in the past
                     if (currentDate.before(manufactureDate)) {
@@ -141,7 +149,7 @@ public class InventoryItemController {
                 }
 
                 if (sellByDateString != null && !sellByDateString.equals("")) {
-                    Date sellByDate = new SimpleDateFormat("yyyy-MM-dd").parse(sellByDateString);
+                    Date sellByDate = formatter.parse(sellByDateString);
 
                     //Check if sell by date is in the future
                     if (currentDate.after(sellByDate)) {
@@ -154,7 +162,7 @@ public class InventoryItemController {
                 }
 
                 if (bestBeforeDateString != null && !bestBeforeDateString.equals("")) {
-                    Date bestBeforeDate = new SimpleDateFormat("yyyy-MM-dd").parse(bestBeforeDateString);
+                    Date bestBeforeDate = formatter.parse(bestBeforeDateString);
 
                     //Check if best before date is in the future
                     if (currentDate.after(bestBeforeDate)) {
@@ -165,7 +173,6 @@ public class InventoryItemController {
                 } else {
                     bestBeforeDateString = null;
                 }
-
             } catch (ParseException parseException) {
                 InvalidDateException invalidDateException = new InvalidDateException();
                 logger.warn(invalidDateException.getMessage());
@@ -183,21 +190,30 @@ public class InventoryItemController {
                 throw exception;
             }
 
+            //Get price per item if it exists
             Double pricePerItem = null;
-            if (json.getAsNumber("pricePerItem") != null) {
-                pricePerItem = json.getAsNumber("pricePerItem").doubleValue();
+            try {
+                if (json.getAsNumber("pricePerItem") != null) {
+                    pricePerItem = json.getAsNumber("pricePerItem").doubleValue();
+                }
+            } catch (NumberFormatException numberFormatException) { //Field is not a number
+                InvalidNumberFormatException exception = new InvalidNumberFormatException("price per item");
+                logger.error(exception.getMessage());
+                throw exception;
             }
 
+            //Get total price if it exists
             Double totalPrice = null;
-            if (json.getAsNumber("totalPrice") != null) {
-                totalPrice = json.getAsNumber("totalPrice").doubleValue();
+            try {
+                if (json.getAsNumber("totalPrice") != null) {
+                    totalPrice = json.getAsNumber("totalPrice").doubleValue();
+                }
+            } catch (NumberFormatException numberFormatException) { //Field is not a number
+                InvalidNumberFormatException exception = new InvalidNumberFormatException("total price");
+                logger.error(exception.getMessage());
+                throw exception;
             }
 
-            System.out.println(manufactureDateString);
-            System.out.println(sellByDateString);
-            System.out.println(bestBeforeDateString);
-
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             InventoryItem inventoryItem = new InventoryItem(product, quantity, pricePerItem, totalPrice,
                     manufactureDateString, sellByDateString, bestBeforeDateString,
                     formatter.format(expiryDate));
@@ -206,7 +222,7 @@ public class InventoryItemController {
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
                 NoProductExistsException | MissingInventoryItemExpiryException |
                 MissingInventoryItemQuantityException | ItemExpiredException | InvalidDateException |
-                InvalidManufactureDateException | InvalidSellByDateException |
+                InvalidManufactureDateException | InvalidSellByDateException | NumberFormatException |
                 InvalidBestBeforeDateException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
