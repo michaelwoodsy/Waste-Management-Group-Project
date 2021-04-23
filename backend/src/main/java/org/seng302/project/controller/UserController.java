@@ -88,7 +88,7 @@ public class UserController {
         logger.info("Request to create user");
 
         try {
-            String emailRegEx = "^[\\w\\-]+(\\.[\\w\\-]+)*@\\w+(\\.\\w+)+$";
+            String emailRegEx = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
             if (!(newUser.getEmail().matches(emailRegEx))) {
                 InvalidEmailException emailException = new InvalidEmailException();
                 logger.warn(emailException.getMessage());
