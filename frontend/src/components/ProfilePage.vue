@@ -194,6 +194,14 @@ export default {
       return false
     }
   },
+  watch: {
+    /**
+     * Called when the userId is changed, this occurs when the path variable for the user id is updated
+     */
+    userId(value) {
+      User.getUserData(value).then((response) => this.profile(response))
+    }
+  },
   components: {
     LoginRequired
   },
