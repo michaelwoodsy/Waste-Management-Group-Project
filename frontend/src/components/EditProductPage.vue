@@ -323,6 +323,7 @@ export default {
     /** True if the inputted price is valid **/
     priceValid() {
       // Regex valid for any number with a max of 2 dp, or empty
+      if (this.newProduct.recommendedRetailPrice == null) {return true}
       return /^([0-9]+(.[0-9]{0,2})?)?$/.test(this.newProduct.recommendedRetailPrice)
     },
 
@@ -348,6 +349,11 @@ export default {
       if (!this.nameValid || !this.idValid || !this.priceValid) {
         this.showFixesMessage = true
         return
+      }
+
+      // Set the rrp to null if its an empty string
+      if (this.newProduct.recommendedRetailPrice === '') {
+        this.newProduct.recommendedRetailPrice = null
       }
 
       // Submit changes to api
