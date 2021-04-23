@@ -8,74 +8,78 @@
       </div>
     </div>
     <logout-required>
-      <div class="row">
-        <div class="col-12 col-sm-8 col-lg-6 col-xl-4 offset-sm-2 offset-lg-3 offset-xl-4 text-center mb-2">
+      <div class="row justify-content-center">
+        <div class="col-12 col-sm-8 col-lg-6 col-xl-5 mb-2">
 
           <div class="form-row">
             <!--    First Name    -->
-            <label for="firstName" style="margin-top:20px"><b>First Name<span class="required">*</span></b></label><br/>
-            <input id="firstName" maxlength="100" v-model="firstName" class="form-control"
-                   placeholder="Enter your First Name" required style="width:100%" type="text"><br>
+            <label for="firstName" style="margin-top:20px"><b>First Name<span class="required">*</span></b></label>
+            <input id="firstName" v-model="firstName" :class="{'form-control': true, 'is-invalid': msg.firstName}"
+                   maxlength="100"
+                   placeholder="Enter your First Name" required style="width:100%" type="text">
             <!--    Error message for the first name input    -->
-            <span v-if="msg.firstName" class="error-msg" style="margin: 0">{{ msg.firstName }}</span><br><br>
+            <span class="invalid-feedback">{{ msg.firstName }}</span>
           </div>
 
           <div class="form-row">
             <!--    Middle Name    -->
-            <label for="middleName"><b>Middle Name</b></label><br/>
-            <input id="middleName" maxlength="100" v-model="middleName" class="form-control"
-                   placeholder="Enter your Middle Name" style="width:100%" type="text"><br><br><br>
+            <label for="middleName"><b>Middle Name</b></label>
+            <input id="middleName" v-model="middleName" class="form-control" maxlength="100"
+                   placeholder="Enter your Middle Name" style="width:100%" type="text">
           </div>
 
           <div class="form-row">
             <!--    Last Name    -->
-            <label for="lastName"><b>Last Name<span class="required">*</span></b></label><br/>
-            <input id="lastName" maxlength="100" v-model="lastName" class="form-control"
-                   placeholder="Enter your Last Name" required style="width:100%" type="text"><br>
+            <label for="lastName"><b>Last Name<span class="required">*</span></b></label>
+            <input id="lastName" v-model="lastName" :class="{'form-control': true, 'is-invalid': msg.lastName}"
+                   maxlength="100"
+                   placeholder="Enter your Last Name" required style="width:100%" type="text">
             <!--    Error message for the last name input    -->
-            <span v-if="msg.lastName" class="error-msg" style="margin: 0">{{ msg.lastName }}</span><br><br>
+            <span class="invalid-feedback" style="margin: 0">{{ msg.lastName }}</span>
           </div>
 
           <div class="form-row">
             <!--    Nickname    -->
-            <label for="nickname"><b>Nickname</b></label><br/>
-            <input id="nickname" maxlength="100" v-model="nickname" class="form-control"
-                   placeholder="Enter your Nickname" style="width: 100%" type="text"><br><br><br>
+            <label for="nickname"><b>Nickname</b></label>
+            <input id="nickname" v-model="nickname" class="form-control" maxlength="100"
+                   placeholder="Enter your Nickname" style="width: 100%" type="text">
           </div>
 
           <div class="form-row">
             <!--    Email    -->
-            <label for="email"><b>Email<span class="required">*</span></b></label><br/>
-            <input id="email" maxlength="100" v-model="email" class="form-control" placeholder="Enter your Email"
-                   required style="width: 100%" type="email"><br>
+            <label for="email"><b>Email<span class="required">*</span></b></label>
+            <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}" maxlength="100"
+                   placeholder="Enter your Email"
+                   required style="width: 100%" type="email">
             <!--    Error message for the email input    -->
-            <span v-if="msg.email" class="error-msg">{{ msg.email }}</span><br><br>
+            <span class="invalid-feedback">{{ msg.email }}</span>
           </div>
 
           <div class="form-row">
             <!--    bio    -->
-            <label class="bio-label" for="bio"><b>Bio</b></label><br>
-            <textarea id="bio" maxlength="255" v-model="bio" class="form-control" placeholder="Write a Bio (Max length 255 characters)"
+            <label class="bio-label" for="bio"><b>Bio</b></label>
+            <textarea id="bio" v-model="bio" class="form-control" maxlength="255"
+                      placeholder="Write a Bio (Max length 255 characters)"
                       style="width: 100%; height: 200px;"></textarea>
           </div>
-          <br>
 
           <div class="form-row">
             <!--    Date of Birth    -->
-            <label for="dateOfBirth"><b>Date of Birth<span class="required">*</span></b></label><br/>
-            <input id="dateOfBirth" maxlength="100" v-model="dateOfBirth" class="form-control" required
-                   style="width:100%" type="date"><br>
+            <label for="dateOfBirth"><b>Date of Birth<span class="required">*</span></b></label>
+            <input id="dateOfBirth" v-model="dateOfBirth" :class="{'form-control': true, 'is-invalid': msg.dateOfBirth}"
+                   maxlength="100" required
+                   style="width:100%" type="date">
             <!--    Error message for the date of birth input    -->
-            <span v-if="msg.dateOfBirth" class="error-msg">{{ msg.dateOfBirth }}</span><br><br>
+            <span class="invalid-feedback">{{ msg.dateOfBirth }}</span>
           </div>
 
           <div class="form-row">
             <!--    Phone Number    -->
-            <label for="phoneNumber"><b>Phone Number</b></label><br/>
-            <input id="phoneNumber" maxlength="30" v-model="phone" class="form-control"
-                   placeholder="Enter your Phone Number with extension" style="width:100%" type="text"><br>
+            <label for="phoneNumber"><b>Phone Number</b></label>
+            <input id="phoneNumber" v-model="phone" class="form-control" maxlength="30"
+                   placeholder="Enter your Phone Number with extension" style="width:100%" type="text">
             <!--    Error message for the phone input    -->
-            <span v-if="msg.phone" class="error-msg">{{ msg.phone }}</span><br><br>
+            <span v-if="msg.phone" class="error-msg">{{ msg.phone }}</span>
           </div>
 
           <hr/>
@@ -87,81 +91,76 @@
 
           <div class="form-row">
             <!--    Home Address Street Number    -->
-            <label for="homeAddressNumber"><b>Street Number</b></label><br/>
-            <input id="homeAddressNumber" maxlength="20" v-model="homeAddress.streetNumber" class="form-control"
-                   placeholder="Enter your Street Number" style="width:100%" type="text"><br>
+            <label for="homeAddressNumber"><b>Street Number</b></label>
+            <input id="homeAddressNumber" v-model="homeAddress.streetNumber" class="form-control" maxlength="20"
+                   placeholder="Enter your Street Number" style="width:100%" type="text">
           </div>
-          <br>
 
           <div class="form-row">
             <!--    Home Address Street Name    -->
-            <label for="homeAddressStreet"><b>Street Name</b></label><br/>
-            <input id="homeAddressStreet" maxlength="50" v-model="homeAddress.streetName" class="form-control"
-                   placeholder="Enter your Street Name" style="width:100%" type="text"><br>
+            <label for="homeAddressStreet"><b>Street Name</b></label>
+            <input id="homeAddressStreet" v-model="homeAddress.streetName" class="form-control" maxlength="50"
+                   placeholder="Enter your Street Name" style="width:100%" type="text">
           </div>
-          <br>
 
           <div class="form-row">
             <!--    Home Address City    -->
-            <label for="homeAddressCity"><b>City or Town</b></label><br/>
-            <input id="homeAddressCity" maxlength="50" v-model="addressCity" class="form-control"
-                   placeholder="Enter your City" style="width:100%" type="search"><br>
+            <label for="homeAddressCity"><b>City or Town</b></label>
+            <input id="homeAddressCity" v-model="addressCity" class="form-control" maxlength="50"
+                   placeholder="Enter your City" style="width:100%" type="search">
 
             <!--    Autofill City/Town    -->
             <div v-for="city in cities" v-bind:key="city" style="width:100%; text-align: left">
-              <a class="address-output" @click="changeCity(city)">{{ city }}</a><br>
+              <a class="address-output" @click="changeCity(city)">{{ city }}</a>
             </div>
           </div>
-          <br>
 
           <div class="form-row">
             <!--    Home Address Region    -->
-            <label for="homeAddressRegion"><b>Region</b></label><br/>
-            <input id="homeAddressRegion" maxlength="50" v-model="addressRegion" class="form-control"
-                   placeholder="Enter your Region" style="width:100%" type="search"><br>
+            <label for="homeAddressRegion"><b>Region</b></label>
+            <input id="homeAddressRegion" v-model="addressRegion" class="form-control" maxlength="50"
+                   placeholder="Enter your Region" style="width:100%" type="search">
 
             <!--    Autofill region    -->
             <div v-for="region in regions" v-bind:key="region" style="width:100%; text-align: left">
-              <a class="address-output" @click="changeRegion(region)">{{ region }}</a><br>
+              <a class="address-output" @click="changeRegion(region)">{{ region }}</a>
             </div>
           </div>
-          <br>
 
           <div class="form-row">
             <!--    Home Address Country    -->
-            <label for="homeAddressCountry"><b>Country<span class="required">*</span></b></label><br/>
-            <input id="homeAddressCountry" maxlength="30" v-model="addressCountry" class="form-control"
-                   placeholder="Enter your Country" required style="width:100%" type="search"><br>
+            <label for="homeAddressCountry"><b>Country<span class="required">*</span></b></label>
+            <input id="homeAddressCountry" v-model="addressCountry"
+                   :class="{'form-control': true, 'is-invalid': msg.country}" maxlength="30"
+                   placeholder="Enter your Country" required style="width:100%" type="search">
+            <!--    Error message for the country input    -->
+            <span class="invalid-feedback">{{ msg.country }}</span>
 
             <!--    Autofill country    -->
             <div v-for="country in countries" v-bind:key="country" style="width:100%; text-align: left">
-              <a class="address-output" @click="changeCountry(country)">{{ country }}</a><br>
+              <a class="address-output" @click="changeCountry(country)">{{ country }}</a>
             </div>
-          </div>
-          <br>
-
-          <!--    Error message for the country input    -->
-          <div class="form-row">
-            <span v-if="msg.country" class="error-msg">{{ msg.country }}</span>
           </div>
 
           <div class="form-row">
             <!--    Home Address Post Code    -->
-            <label for="homeAddressPostCode"><b>Postcode</b></label><br/>
-            <input id="homeAddressPostCode" maxlength="30" v-model="homeAddress.postcode" class="form-control"
-                   placeholder="Enter your Postcode" style="width:100%" type="text"><br>
+            <label for="homeAddressPostCode"><b>Postcode</b></label>
+            <input id="homeAddressPostCode" v-model="homeAddress.postcode" class="form-control" maxlength="30"
+                   placeholder="Enter your Postcode" style="width:100%" type="text">
           </div>
-          <br>
 
           <hr/>
 
           <div class="form-row">
             <!--    Password    -->
-            <label for="password"><b>Password<span class="required">*</span></b></label><br>
-            <input id="password" maxlength="200" v-model="password" class="form-control"
-                   placeholder="Enter your Password (At least 5 characters)" style="width:100%" type="password"><br>
+            <label for="password"><b>Password<span class="required">*</span></b></label>
+            <input id="password" v-model="password" :class="{'form-control': true, 'is-invalid': msg.password}"
+                   maxlength="200"
+                   placeholder="Enter your Password" style="width:100%" type="password"><br>
             <!--    Error message for the password input    -->
-            <span v-if="msg.password" class="error-msg">{{ msg.password }}</span><br><br><br>
+            <span class="invalid-feedback">{{ msg.password }}</span>
+            <p style="font-size: small">Password must be a combination of lowercase and uppercase letters, numbers, and
+              be at least 8 characters long</p>
           </div>
 
           <div class="form-row">
@@ -232,14 +231,14 @@ export default {
 
       password: '',
       msg: {
-        'firstName': '',
-        'lastName': '',
-        'email': '',
-        'dateOfBirth': '',
-        'country': '',
-        'password': '',
-        'errorChecks': null,
-        'phone': ''
+        'firstName': null,
+        'lastName': null,
+        'email': null,
+        'dateOfBirth': null,
+        'country': null,
+        'password': null,
+        'phone': null,
+        'errorChecks': null
       },
       valid: true,
 
@@ -339,10 +338,10 @@ export default {
      */
     validateFirstName() {
       if (this.firstName === '') {
-        this.msg['firstName'] = 'Please enter a First Name'
+        this.msg['firstName'] = 'Please enter a first name'
         this.valid = false
       } else {
-        this.msg['firstName'] = ''
+        this.msg['firstName'] = null
       }
     },
     /**
@@ -351,10 +350,10 @@ export default {
      */
     validateLastName() {
       if (this.lastName === '') {
-        this.msg['lastName'] = 'Please enter a Last Name'
+        this.msg['lastName'] = 'Please enter a last name'
         this.valid = false
       } else {
-        this.msg['lastName'] = ''
+        this.msg['lastName'] = null
       }
     },
     /**
@@ -362,11 +361,14 @@ export default {
      * Checks if the string is of an email format using regex, if not, displays a warning message
      */
     validateEmail() {
-      if (/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(this.email)) {
-        this.msg['email'] = ''
-      } else {
-        this.msg['email'] = 'Invalid Email Address'
+      if (this.email === '') {
+        this.msg['email'] = 'Please enter an email address'
         this.valid = false
+      } else if (!/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(this.email)) {
+        this.msg['email'] = 'Invalid email address'
+        this.valid = false
+      } else {
+        this.msg['email'] = null
       }
     },
     /**
@@ -375,7 +377,7 @@ export default {
      */
     validateDateOfBirth() {
       if (this.dateOfBirth === '') {
-        this.msg['dateOfBirth'] = 'Please enter a Date of Birth'
+        this.msg['dateOfBirth'] = 'Please enter a date of birth'
         this.valid = false
       }
       //If Date of Birth is in the future
@@ -388,7 +390,7 @@ export default {
         this.msg['dateOfBirth'] = 'Date of birth is unrealistic'
         this.valid = false
       } else {
-        this.msg['dateOfBirth'] = ''
+        this.msg['dateOfBirth'] = null
       }
     },
     /**
@@ -397,10 +399,10 @@ export default {
      */
     validateAddress() {
       if (this.homeAddress.country === '') {
-        this.msg['country'] = 'Please enter a Country'
+        this.msg['country'] = 'Please enter a country'
         this.valid = false
       } else {
-        this.msg['country'] = ''
+        this.msg['country'] = null
       }
     },
     /**
@@ -409,12 +411,13 @@ export default {
      */
     validatePassword() {
       if (this.password === '') {
-        this.msg['password'] = 'Please enter a Password'
-        this.valid = false
-      } else if (this.password.length <= 4) {
-        this.msg['password'] = 'Password is too short'
+        this.msg['password'] = 'Please enter a password';
+        this.valid = false;
+      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}/.test(this.password)) {
+        this.msg['password'] = 'Password does not meet the requirements';
+        this.valid = false;
       } else {
-        this.msg['password'] = ''
+        this.msg['password'] = null;
       }
     },
     /**
@@ -424,18 +427,16 @@ export default {
     validatePhoneNumber() {
       //If no phone number is entered (which is allowed)
       if (this.phone === '') {
-        this.msg['phone'] = ''
+        this.msg['phone'] = null
       }
       //If phone number matches phone number regex
-      else if (/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s./0-9]+$/.test(this.phoneNumber)) {
-        this.msg['phone'] = ''
+      else if (/^\+(\(\d{1,4}\)|\d{1,4})\d+([-\s./]\d+)*$/.test(this.phoneNumber)) {
+        this.msg['phone'] = null
       } else {
-        this.msg['phone'] = 'Invalid Phone Number'
+        this.msg['phone'] = 'Invalid phone number'
         this.valid = false
       }
     },
-
-
 
     /**
      * Validating to check if the data entered is inputted correctly, If not displays a warning message
@@ -477,26 +478,26 @@ export default {
           this.cancelRequest = c;
         })
       }).then((response) => {
-            for (let i = 0; i < response.data.features.length; i++) {
-              const currAddress = response.data.features[i].properties;
-              let addressString = ''
-              //Is Country
-              if (tag === 'place:country') addressString = `${currAddress.name}`
-              //Is Region
-              else if (tag === "boundary:administrative") addressString = `${currAddress.name}`
-                  //Is City
-              //tag is like this so you can get a town or a city
-              else if (tag === "place:city&osm_tag=place:town") addressString = `${currAddress.name}`
+        for (let i = 0; i < response.data.features.length; i++) {
+          const currAddress = response.data.features[i].properties;
+          let addressString = ''
+          //Is Country
+          if (tag === 'place:country') addressString = `${currAddress.name}`
+          //Is Region
+          else if (tag === "boundary:administrative") addressString = `${currAddress.name}`
+              //Is City
+          //tag is like this so you can get a town or a city
+          else if (tag === "place:city&osm_tag=place:town") addressString = `${currAddress.name}`
 
 
-              //Making sure to not add duplicate addresses as sometimes there is more than one region in the world with the same name
-              if (addressString !== '' && addresses.indexOf(addressString) === -1) {
-                addresses.push(addressString);
-              }
+          //Making sure to not add duplicate addresses as sometimes there is more than one region in the world with the same name
+          if (addressString !== '' && addresses.indexOf(addressString) === -1) {
+            addresses.push(addressString);
+          }
 
-            }
-            return addresses
-          })
+        }
+        return addresses
+      })
           .catch(function (error) {
             console.log(error)
           });
@@ -603,6 +604,10 @@ export default {
 .required {
   color: red;
   display: inline;
+}
+
+.form-row {
+  margin-bottom: 30px;
 }
 
 </style>
