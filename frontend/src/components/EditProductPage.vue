@@ -66,7 +66,8 @@
         <!-- Row for submit error message -->
         <div class="row" v-if="submitError">
           <div class="col-12 col-sm-8 offset-sm-2">
-            <alert>An error occurred when submitting your changes: {{ submitError }}</alert>
+            <alert>An error occurred when submitting your changes:
+              {{ submitError.slice(submitError.indexOf(':') + 2) }}</alert>
           </div>
         </div>
 
@@ -91,8 +92,9 @@
                       v-model="newProduct.id"
                       @blur="idBlur = true"
                   >
-                  <div class="invalid-feedback">The ID can only contain letters, numbers, hyphens
-                    and must be at least 1 character</div>
+                  <div class="invalid-feedback" v-if="idNotUnique">The ID must be unique</div>
+                  <div class="invalid-feedback" v-else>The ID must be unique, and can only contain letters, numbers, hyphens
+                    and must be at least 1 character long.</div>
                 </div>
               </div>
 
@@ -301,10 +303,16 @@ export default {
       return !allSame
     },
 
+    /** True if the product id is not unique after submitting **/
+    idNotUnique() {
+      const errMsg = this.submitError || ''
+      return errMsg.includes('ProductIdAlreadyExistsException')
+    },
+
     /** True if the inputted id is valid **/
     idValid() {
       // Regex for numbers, hyphens and letters
-      return /^[a-zA-Z0-9-]+$/.test(this.newProduct.id)
+      return /^[a-zA-Z0-9-]+$/.test(this.newProduct.id) && !this.idNotUnique
     },
 
     /** True if the inputted name is valid **/
@@ -332,6 +340,9 @@ export default {
      * Validates the users inputs, then sends the data to the api.
      */
     submit () {
+      // Set id as blurred in case the id was not unique
+      this.idBlur = true
+
       // Check all fields are valid first
       this.showFixesMessage = false
       if (!this.nameValid || !this.idValid || !this.priceValid) {
@@ -350,11 +361,10 @@ export default {
           .catch((err) => {
             // Display the response error message if there is one
             this.submitError = err.response.data
-                ? err.response.data.message
+                ? err.response.data
                 : err
             this.submitting = false
           })
-
     },
 
     /**
