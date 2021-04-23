@@ -96,14 +96,15 @@
                   <p class="d-inline" v-if="orderCol === 'expires'">{{ orderDirArrow }}</p>
                 </th>
 
+                <!--    Edit button column    -->
+                <th scope="col"></th>
 
               </tr>
               </thead>
-              <!--    Product Information    -->
+              <!--    Inventory item Information    -->
               <tbody v-if="!loading">
               <tr v-bind:key="item.id"
                   v-for="item in paginatedInventoryItems"
-                  class="pointer"
               >
                 <th scope="row">{{ item.id }}</th>
                 <td>{{ item.product.id }}</td>
@@ -114,6 +115,10 @@
                 <td>{{ formatDate(item.sellBy)}}</td>
                 <td>{{ formatDate(item.bestBefore)}}</td>
                 <td>{{ formatDate(item.expires)}}</td>
+                <td style="color: blue; cursor: pointer;"
+                    @click="editProduct(item.id)">
+                  Edit
+                </td>
               </tr>
               </tbody>
             </table>
@@ -287,6 +292,14 @@ export default {
       if(a[this.orderCol] < b[[this.orderCol]]) { return 1; }
       if(a[this.orderCol] > b[[this.orderCol]]) { return -1; }
       return 0;
+    },
+
+    /**
+     * routes to the edit inventory item page
+     * @param id of the inventory item
+     */
+    editProduct(id) {
+      this.$router.push({name: 'editInventoryItem', params: {businessId: this.businessId, inventoryItemId: id}})
     },
 
     /**
