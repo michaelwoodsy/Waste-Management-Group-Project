@@ -242,10 +242,15 @@ public class ProductCatalogueController {
             }
             //Recommended Retail Price
             try {
-                Number newRRP = json.getAsNumber("recommendedRetailPrice");
-                if(newRRP != null) {
-                    product.setRecommendedRetailPrice(newRRP.doubleValue());
+                if (json.containsKey("recommendedRetailPrice")) {
+                    Number newRRP = json.getAsNumber("recommendedRetailPrice");
+                    if (newRRP == null) {
+                        product.setRecommendedRetailPrice(null);
+                    } else {
+                        product.setRecommendedRetailPrice(newRRP.doubleValue());
+                    }
                 }
+
             } catch(NumberFormatException e) {
                 IncorrectRRPFormatException exception = new IncorrectRRPFormatException();
                 logger.error(exception.getMessage());
