@@ -226,18 +226,23 @@ public class ProductCatalogueController {
 
             //Edit fields if they are sent
             //Name
-            String newName = json.getAsString("name");
-            if(newName != null) {
+            if(json.containsKey("name")) {
+                String newName = json.getAsString("name");
+                if (newName == null || newName.equals("")) {
+                    MissingProductNameException exception = new MissingProductNameException();
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
                 product.setName(newName);
             }
             //Description
-            String newDescription = json.getAsString("description");
-            if(newDescription != null) {
+            if(json.containsKey("description")) {
+                String newDescription = json.getAsString("description");
                 product.setDescription(newDescription);
             }
             //Manufacturer
-            String newManufacturer = json.getAsString("manufacturer");
-            if(newManufacturer != null) {
+            if(json.containsKey("manufacturer")) {
+                String newManufacturer = json.getAsString("manufacturer");
                 product.setManufacturer(newManufacturer);
             }
             //Recommended Retail Price
@@ -258,8 +263,13 @@ public class ProductCatalogueController {
             }
 
             //Id
-            String newId = json.getAsString("id");
-            if(newId != null) {
+            if(json.containsKey("id")) {
+                String newId = json.getAsString("id");
+                if (newId == null || newId.equals("")) {
+                    MissingProductIdException exception = new MissingProductIdException();
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
                 //Return 400 if id not unique
                 if (productRepository.findByIdAndBusinessId(newId, businessId).isPresent()) {
                     ProductIdAlreadyExistsException exception = new ProductIdAlreadyExistsException();
@@ -281,8 +291,8 @@ public class ProductCatalogueController {
             //Save edited product
             productRepository.save(product);
 
-        } catch (NoBusinessExistsException | NoProductExistsException |
-                IncorrectRRPFormatException | ForbiddenAdministratorActionException |
+        } catch (NoBusinessExistsException | NoProductExistsException | MissingProductIdException |
+                MissingProductNameException | IncorrectRRPFormatException | ForbiddenAdministratorActionException |
                 ProductIdAlreadyExistsException | InvalidProductIdCharactersException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
