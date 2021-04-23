@@ -11,6 +11,8 @@ import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 import Catalogue from "@/components/ProductCatalogue";
 import EditProductPage from "@/components/EditProductPage";
+import InventoryPage from "@/components/InventoryPage";
+import CreateProductPage from "@/components/CreateProductPage";
 
 const routes = [
     {
@@ -39,7 +41,7 @@ const routes = [
         component: LoginPage
     },
     {
-        path: '/home', //TODO: change to '/' after user logged in
+        path: '/home', //TODO: change to '/' after user logged in?
         name: 'user',
         component: Home
     },
@@ -59,9 +61,19 @@ const routes = [
         component: Catalogue
     },
     {
+        path: '/businesses/:businessId/products/create',
+        name: 'createProduct',
+        component: CreateProductPage
+    },
+    {
         path: '/businesses/:businessId/products/:productId',
         name: 'editProduct',
         component: EditProductPage
+    },
+    {
+        path: '/businesses/:businessId/inventory',
+        name: 'InventoryPage',
+        component: InventoryPage
     }
 ];
 
