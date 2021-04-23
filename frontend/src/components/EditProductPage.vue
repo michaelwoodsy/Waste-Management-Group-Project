@@ -349,7 +349,7 @@ export default {
           })
           .catch((err) => {
             // Display the response error message if there is one
-            this.submitError = err.response
+            this.submitError = err.response.data
                 ? err.response.data.message
                 : err
             this.submitting = false
@@ -393,6 +393,10 @@ export default {
      * Resets the page after submitting changes, so the user can make more changes.
      */
     resetPage () {
+      if (this.productId !== this.newProduct.id) {
+        this.$router.push(`/businesses/${this.businessId}/products/${this.newProduct.id}`)
+      }
+
       // Reset data
       this.submitError = null
       this.success = false
