@@ -64,7 +64,7 @@
       <div v-else-if="product" class="container-fluid">
 
         <!-- Row for submit error message -->
-        <div class="row" v-if="submitError">
+        <div class="row" v-if="submitError && !(submitError || '').includes('ProductIdAlreadyExistsException')">
           <div class="col-12 col-sm-8 offset-sm-2">
             <alert>An error occurred when submitting your changes:
               {{ submitError.slice(submitError.indexOf(':') + 2) }}</alert>
@@ -92,7 +92,7 @@
                       v-model="newProduct.id"
                       @blur="idBlur = true"
                   >
-                  <div class="invalid-feedback" v-if="idNotUnique">The ID must be unique</div>
+                  <div class="invalid-feedback" v-if="idTaken">The ID must be unique</div>
                   <div class="invalid-feedback" v-else>The ID must be unique, and can only contain letters, numbers, hyphens
                     and must be at least 1 character long.</div>
                 </div>
@@ -247,7 +247,8 @@ export default {
       idBlur: false, // True when the user has clicked on then off the input field
       priceBlur: false,
       nameBlur: false,
-      showModal: false // Whether or not to show the cancel modal
+      showModal: false, // Whether or not to show the cancel modal
+      triedIds: [] // List of ids tested for uniqueness
     }
   },
   components: {
@@ -303,16 +304,15 @@ export default {
       return !allSame
     },
 
-    /** True if the product id is not unique after submitting **/
-    idNotUnique() {
-      const errMsg = this.submitError || ''
-      return errMsg.includes('ProductIdAlreadyExistsException')
+    /** True if the current ID is taken **/
+    idTaken() {
+      return this.triedIds.includes(this.newProduct.id)
     },
 
     /** True if the inputted id is valid **/
     idValid() {
       // Regex for numbers, hyphens and letters
-      return /^[a-zA-Z0-9-]+$/.test(this.newProduct.id) && !this.idNotUnique
+      return /^[a-zA-Z0-9-]+$/.test(this.newProduct.id) && !this.idTaken
     },
 
     /** True if the inputted name is valid **/
@@ -363,6 +363,10 @@ export default {
             this.submitError = err.response.data
                 ? err.response.data
                 : err
+            // Check if the id is taken
+            if ((this.submitError || '').includes('ProductIdAlreadyExistsException')) {
+              this.triedIds.push(this.newProduct.id)
+            }
             this.submitting = false
           })
     },
