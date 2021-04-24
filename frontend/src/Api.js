@@ -120,6 +120,13 @@ export const Business = {
      */
     getProducts: (businessId) => instance.get(`businesses/${businessId}/products`, {}),
 
+    /*
+     * Sends an edit product request to the backend
+     */
+    editProduct: (businessId, productId, newProductData) => instance.put(
+        `businesses/${businessId}/products/${productId}`,
+        newProductData),
+
     /**
      * Creates a new product in the product catalogue
      */

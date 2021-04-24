@@ -21,7 +21,7 @@
           <p>First Name: </p>
         </div>
         <div class="col-6">
-          <p>{{ firstName }} </p>
+          <p  style="word-wrap: break-word; max-width: 70%">{{ firstName }} </p>
         </div>
       </div>
 
@@ -31,7 +31,7 @@
           <p>Middle Name: </p>
         </div>
         <div class="col-6">
-          <p>{{ middleName }} </p>
+          <p  style="word-wrap: break-word; max-width: 70%">{{ middleName }} </p>
         </div>
       </div>
 
@@ -41,7 +41,7 @@
           <p>Last Name: </p>
         </div>
         <div class="col-6">
-          <p>{{ lastName }} </p>
+          <p  style="word-wrap: break-word; max-width: 70%">{{ lastName }} </p>
         </div>
       </div>
 
@@ -51,7 +51,7 @@
           <p>Nickname: </p>
         </div>
         <div class="col-6">
-          <p>{{ nickName }} </p>
+          <p style="word-wrap: break-word; max-width: 70%">{{ nickName }} </p>
         </div>
       </div>
 
@@ -61,7 +61,7 @@
           <p>Bio: </p>
         </div>
         <div class="col-6">
-          <p>{{ bio }} </p>
+          <p style="word-wrap: break-word; max-width: 70%">{{ bio }} </p>
         </div>
       </div>
 
@@ -71,7 +71,7 @@
           <p>Email: </p>
         </div>
         <div class="col-6">
-          <p>{{ email }} </p>
+          <p style="word-wrap: break-word; max-width: 70%">{{ email }} </p>
         </div>
       </div>
 
@@ -81,7 +81,7 @@
           <p>Location: </p>
         </div>
         <div class="col-6">
-          <p>{{ homeAddress }} </p>
+          <p style="word-wrap: break-word; max-width: 70%">{{ homeAddress }} </p>
         </div>
       </div>
 
@@ -192,6 +192,14 @@ export default {
         if (this.businessesAdministered[i].id === this.$root.$data.user.state.actingAs.id) return true
       }
       return false
+    }
+  },
+  watch: {
+    /**
+     * Called when the userId is changed, this occurs when the path variable for the user id is updated
+     */
+    userId(value) {
+      User.getUserData(value).then((response) => this.profile(response))
     }
   },
   components: {

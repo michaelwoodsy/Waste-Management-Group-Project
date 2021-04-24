@@ -20,7 +20,7 @@
           <p>Name of Business: </p>
         </div>
         <div class="col-6">
-          <p>{{ name }}</p>
+          <p style="word-wrap: break-word; max-width: 70%">{{ name }}</p>
         </div>
       </div>
 
@@ -30,7 +30,7 @@
           <p>Description: </p>
         </div>
         <div class="col-6">
-          <p>{{ description }}</p>
+          <p style="word-wrap: break-word; max-width: 70%">{{ description }}</p>
         </div>
       </div>
 
@@ -40,7 +40,7 @@
           <p>Address: </p>
         </div>
         <div class="col-6">
-          <p>{{ address }}</p>
+          <p style="word-wrap: break-word; max-width: 70%">{{ address }}</p>
         </div>
       </div>
 
@@ -152,6 +152,14 @@ export default {
     isPrimaryAdmin() {
       return Number(this.$root.$data.user.state.userId) === this.primaryAdministratorId
     },
+  },
+  watch: {
+    /**
+     * Called when the businessId is changed, this occurs when the path variable for the business id is updated
+     */
+    businessId(value) {
+      Business.getBusinessData(value).then((response) => this.profile(response))
+    }
   },
   components: {
     LoginRequired

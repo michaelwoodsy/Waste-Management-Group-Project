@@ -31,7 +31,7 @@
             <div class="form-group row">
               <label for="id"><b>Product ID<span class="required">*</span></b></label>
               <input id="id" v-model="id" :class="{'form-control': true, 'is-invalid': msg.id}" maxlength="255"
-                     placeholder="Enter a product ID" required type="text">
+                     placeholder="Enter a product ID (Only letters, numbers and hyphens allowed)" required type="text">
               <span class="invalid-feedback">{{ msg.id }}</span>
             </div>
 
@@ -55,13 +55,13 @@
               <label for="rrp"><b>Recommended Retail Price</b></label>
               <div :class="{'input-group': true, 'is-invalid': msg.rrp}">
                 <div class="input-group-prepend">
-                  <span class="input-group-text">{{ this.currency.symbol }}</span>
+                  <span class="input-group-text">{{ this.currencySymbol }}</span>
                 </div>
                 <input id="rrp" v-model="recommendedRetailPrice" :class="{'form-control': true, 'is-invalid': msg.rrp}"
                        maxlength="255"
                        placeholder="Enter product RRP" type="text">
                 <div class="input-group-append">
-                  <span class="input-group-text">{{ this.currency.code }}</span>
+                  <span class="input-group-text">{{ this.currencyCode }}</span>
                 </div>
               </div>
               <span class="invalid-feedback">{{ msg.rrp }}</span>
@@ -101,7 +101,8 @@ export default {
       name: '', // Required
       description: '',
       recommendedRetailPrice: '',
-      currency: null,
+      currencySymbol: "",
+      currencyCode: "",
       msg: {
         id: null,
         name: null,
@@ -216,7 +217,9 @@ export default {
     },
     async getCurrency() {
       const country = 'New Zealand'
-      this.currency = await this.$root.$data.product.getCurrency(country)
+      const currency = await this.$root.$data.product.getCurrency(country)
+      this.currencySymbol = currency.symbol
+      this.currencyCode = currency.code
     }
   }
 }
