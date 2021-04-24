@@ -78,7 +78,7 @@ const routes = [
     },
     {
         path: '/businesses/:businessId/inventory/create',
-        name: 'CreateInventoryItemPage',
+        name: 'CreateInventoryItem',
         component: CreateInventoryItemPage
     }
 
