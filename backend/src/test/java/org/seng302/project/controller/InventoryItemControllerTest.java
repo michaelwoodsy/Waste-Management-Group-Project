@@ -1,5 +1,6 @@
 package org.seng302.project.controller;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,6 +85,12 @@ public class InventoryItemControllerTest {
             userRepository.save(wantedUser);
             return wantedUser;
         }
+    }
+
+    private void createInventoryItem(Product product) {
+        InventoryItem item = new InventoryItem(product, 2, 2.00, 1.80,
+                "2021-04-20", null, null, "2021-05-20");
+        inventoryItemRepository.save(item);
     }
 
     @BeforeEach
@@ -428,6 +435,76 @@ public class InventoryItemControllerTest {
         Assertions.assertEquals(bestBeforeString, retrievedItem.getBestBefore());
         Assertions.assertEquals(manufacturedString, retrievedItem.getManufactured());
     }
+
+    /**
+     * Tests that a 401 is returned if trying to get when not logged in.
+     */
+    @Test
+    public void tryGetInventoryNotLoggedIn() throws Exception {
+        Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
+        createInventoryItem(product);
+
+        RequestBuilder getInventoryRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/inventory", businessId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        this.mockMvc.perform(getInventoryRequest)
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+                .andReturn();
+    }
+
+    /**
+     * Tests that a 403 is returned when trying to get inventory when not admin.
+     */
+    @Test
+    public void tryGettingInventoryNotAdmin() throws Exception {
+        Product product = productRepository.findById(new ProductId("p1", 1)).orElseThrow();
+        createInventoryItem(product);
+
+        RequestBuilder getInventoryRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/inventory", businessId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("jane111@gmail.com", "1337-H%nt3r2"));
+
+        this.mockMvc.perform(getInventoryRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden())
+                .andReturn();
+    }
+
+    /**
+     * Tests that the inventory is successfully returned when admin sends get request.
+     */
+    @Test
+    public void tryGettingInventory() throws Exception {
+        Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
+        createInventoryItem(product);
+
+        RequestBuilder getInventoryRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/inventory", businessId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult mvcResult = this.mockMvc.perform(getInventoryRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        JSONArray result = new JSONArray(mvcResult.getResponse().getContentAsString());
+        JSONObject inventoryItem = result.getJSONObject(0);
+
+        Assertions.assertNotNull(inventoryItem.getString("id"));
+        Assertions.assertEquals("p1", inventoryItem.getJSONObject("product").getString("id"));
+        Assertions.assertEquals(2, inventoryItem.getInt("quantity"));
+        Assertions.assertEquals(2.00, inventoryItem.getDouble("pricePerItem"));
+        Assertions.assertEquals(1.80, inventoryItem.getDouble("totalPrice"));
+        Assertions.assertEquals("2021-04-20", inventoryItem.getString("manufactured"));
+        Assertions.assertNull(inventoryItem.getString("sellBy"));
+        Assertions.assertNull(inventoryItem.getString("bestBefore"));
+        Assertions.assertEquals("2021-05-20", inventoryItem.getString("expires"));
+    }
+
 }
 
 
