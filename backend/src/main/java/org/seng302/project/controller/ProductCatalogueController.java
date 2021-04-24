@@ -274,7 +274,7 @@ public class ProductCatalogueController {
                     throw exception;
                 }
                 //Return 400 if id not unique
-                if (productRepository.findByIdAndBusinessId(newId, businessId).isPresent()) {
+                if (!(originalProduct.getId().equals(newId)) && productRepository.findByIdAndBusinessId(newId, businessId).isPresent()) {
                     ProductIdAlreadyExistsException exception = new ProductIdAlreadyExistsException();
                     logger.warn(exception.getMessage());
                     throw exception;
