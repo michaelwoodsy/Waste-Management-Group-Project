@@ -1,18 +1,18 @@
 <!-- User thumbnail and name for choosing who to act as in navbar -->
 
 <template>
-  <div class="btn-group">
+  <div class="nav-item">
     <!-- Image and name -->
-    <span class="float-right d-inline pointer" data-toggle="dropdown">
+    <div class="nav-link pointer" data-toggle="dropdown">
       <!-- Profile photo -->
       <img
           alt="profile"
-          class="img-fluid profile-image rounded-circle mr-1"
+          class="profile-image rounded-circle"
           src="../../public/profile.png"
-      >
+      />
       <!-- Users name -->
       {{ actorName }}
-    </span>
+    </div>
 
     <!-- Dropdown menu when name is clicked -->
     <div class="dropdown-menu dropdown-menu-left dropdown-menu-sm-right">
@@ -23,10 +23,10 @@
         <a
             v-for="business in businessAccounts"
             v-bind:key="business.id"
-            class="dropdown-item"
+            class="dropdown-item pointer"
             @click="actAsBusiness(business)"
         >
-          <img alt="profile" class="profile-image-sm rounded-circle mb-1"
+          <img alt="profile" class="profile-image-sm rounded-circle"
                src="../../public/profile.png">
           {{ business.name }}
         </a>
@@ -39,10 +39,10 @@
         <a
             v-for="user in userAccounts"
             v-bind:key="user.id"
-            class="dropdown-item"
+            class="dropdown-item pointer"
             @click="actAsUser(user)"
         >
-          <img class="profile-image-sm rounded-circle mb-1" alt="profile"
+          <img alt="profile" class="profile-image-sm rounded-circle"
                src="../../public/profile.png">
           {{ user.firstName }} {{ user.lastName }}
         </a>
@@ -52,10 +52,12 @@
       <!-- Profile and logout section -->
       <div v-if="this.actor.type === 'business'">
         <router-link class="dropdown-item" :to="productCatalogueRoute">Product Catalogue</router-link>
+        <router-link class="dropdown-item" :to="inventoryRoute">Inventory</router-link>
       </div>
       <div v-else>
-        <router-link class="dropdown-item" to="/business">Create Business</router-link>
+        <router-link class="dropdown-item" to="/businesses">Create Business</router-link>
       </div>
+      <div class="dropdown-divider"/>
       <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
     </div>
 
@@ -67,13 +69,18 @@ export default {
   name: "UserProfileLinks",
   computed: {
     /** Returns the users profile url **/
-    userProfileRoute () {
+    userProfileRoute() {
       return `users/${this.$root.$data.user.state.userId}`;
     },
 
     /** Returns the product catalogue url **/
-    productCatalogueRoute () {
+    productCatalogueRoute() {
       return `businesses/${this.actor.id}/products`;
+    },
+
+    /** Returns the inventory url **/
+    inventoryRoute () {
+      return `businesses/${this.actor.id}/inventory`;
     },
 
     /**
@@ -96,29 +103,7 @@ export default {
     },
 
     /** A list of the users associated business accounts **/
-    businessAccounts () {
-      // return [
-      //   {
-      //     "id": 100,
-      //     "administrators": [
-      //
-      //     ],
-      //     "primaryAdministratorId": 20,
-      //     "name": "Lumbridge General Store",
-      //     "description": "A one-stop shop for all your adventuring needs",
-      //     "address": {
-      //       "streetNumber": "3/24",
-      //       "streetName": "Ilam Road",
-      //       "city": "Christchurch",
-      //       "region": "Canterbury",
-      //       "country": "New Zealand",
-      //       "postcode": "90210"
-      //     },
-      //     "businessType": "Accommodation and Food Services",
-      //     "created": "2020-07-14T14:52:00Z"
-      //   }
-      // ]
-
+    businessAccounts() {
       return this.$root.$data.user.state.userData.businessesAdministered
     }
   },
@@ -129,12 +114,12 @@ export default {
     },
 
     /** Sets the current logged in user to act as a business account **/
-    actAsBusiness (business) {
+    actAsBusiness(business) {
       this.$root.$data.user.setActingAs(business.id, business.name, 'business')
     },
 
     /** Sets the current logged in user to act as a user account **/
-    actAsUser (userData) {
+    actAsUser(userData) {
       this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
     }
   }
@@ -142,11 +127,20 @@ export default {
 </script>
 
 <style scoped>
+
 .profile-image {
   height: 35px;
+  margin-right: 5px;
 }
 
 .profile-image-sm {
   height: 20px;
+  margin-right: 5px;
 }
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+}
+
 </style>

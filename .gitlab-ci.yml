@@ -27,6 +27,9 @@ junit:
   script:
     - cd backend
     - ./gradlew test
+  artifacts:
+    paths:
+      - backend/build/jacoco
 
 # Run acceptance (cucumber) tests
 # Uncomment after ATDD workshop (at the latest)
@@ -44,11 +47,13 @@ jest:
    key: node-modules
    paths:
      - frontend/node_modules
-     - frontend/coverage
    policy: pull
  script:
    - cd frontend
    - npm run test
+ artifacts:
+   paths:
+     - frontend/coverage
 
 # Export sonarqube (static code analysis) reports
 # Uncomment after ATDD workshop (at the latest)
@@ -58,7 +63,6 @@ dev-sonarqube:
    key: node-modules
    paths:
      - frontend/node_modules
-     - frontend/coverage
    policy: pull
  script:
    - cd frontend
