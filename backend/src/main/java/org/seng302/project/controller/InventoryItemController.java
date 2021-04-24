@@ -104,9 +104,15 @@ public class InventoryItemController {
             try {
                 if (json.getAsNumber("quantity") != null) {
                     quantity = json.getAsNumber("quantity").intValue();
+                    //If quantity is at or below 0
+                    if (quantity <= 0) {
+                        InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
+                        logger.error(exception.getMessage());
+                        throw exception;
+                    }
                 }
                 if (quantity == null) { //Empty string
-                    MissingInventoryItemQuantityException exception = new MissingInventoryItemQuantityException();
+                    InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
                     logger.error(exception.getMessage());
                     throw exception;
                 }
@@ -195,6 +201,12 @@ public class InventoryItemController {
             try {
                 if (json.getAsNumber("pricePerItem") != null) {
                     pricePerItem = json.getAsNumber("pricePerItem").doubleValue();
+                    //If price per item is below 0
+                    if (pricePerItem < 0) {
+                        InvalidPriceException exception = new InvalidPriceException("price per item");
+                        logger.error(exception.getMessage());
+                        throw exception;
+                    }
                 }
             } catch (NumberFormatException numberFormatException) { //Field is not a number
                 InvalidNumberFormatException exception = new InvalidNumberFormatException("price per item");
@@ -207,6 +219,12 @@ public class InventoryItemController {
             try {
                 if (json.getAsNumber("totalPrice") != null) {
                     totalPrice = json.getAsNumber("totalPrice").doubleValue();
+                    //If total price is below 0
+                    if (totalPrice < 0) {
+                        InvalidPriceException exception = new InvalidPriceException("total price");
+                        logger.error(exception.getMessage());
+                        throw exception;
+                    }
                 }
             } catch (NumberFormatException numberFormatException) { //Field is not a number
                 InvalidNumberFormatException exception = new InvalidNumberFormatException("total price");
@@ -221,7 +239,7 @@ public class InventoryItemController {
             inventoryItemRepository.save(inventoryItem);
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
                 NoProductExistsException | MissingInventoryItemExpiryException |
-                MissingInventoryItemQuantityException | ItemExpiredException | InvalidDateException |
+                InvalidInventoryItemQuantityException | ItemExpiredException | InvalidDateException |
                 InvalidManufactureDateException | InvalidSellByDateException | NumberFormatException |
                 InvalidBestBeforeDateException handledException) {
             throw handledException;

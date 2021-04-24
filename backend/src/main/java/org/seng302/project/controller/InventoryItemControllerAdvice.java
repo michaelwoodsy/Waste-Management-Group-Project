@@ -73,8 +73,8 @@ public class InventoryItemControllerAdvice {
      *
      * @return a 400 response with an appropriate message
      */
-    @ExceptionHandler(MissingInventoryItemQuantityException.class)
-    public ResponseEntity<String> missingQuantity(MissingInventoryItemQuantityException ex) {
+    @ExceptionHandler(InvalidInventoryItemQuantityException.class)
+    public ResponseEntity<String> missingQuantity(InvalidInventoryItemQuantityException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
@@ -141,6 +141,17 @@ public class InventoryItemControllerAdvice {
      */
     @ExceptionHandler(InvalidNumberFormatException.class)
     public ResponseEntity<String> invalidNumberFormat(InvalidNumberFormatException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Exception thrown by the newInventoryItem() function in InventoryItemController
+     * when a price field has a negative number in it.
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(InvalidPriceException.class)
+    public ResponseEntity<String> invalidPrice(InvalidPriceException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
