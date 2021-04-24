@@ -120,6 +120,7 @@
             <!-- Cancel button when changes are made -->
             <button
                 type="button"
+                @click="cancel"
                 :class="{'btn': true, 'mr-1': true, 'my-1': true, 'btn-danger': this.changesMade,
               'btn-secondary': !this.changesMade, 'float-left': true}"
             >
@@ -138,10 +139,43 @@
 
           </div>
         </div>
-
       </div>
 
     </div>
+
+    <!-- Cancel Modal -->
+    <transition name="fade">
+      <div v-if="showModal">
+          <div class="modal-mask">
+            <div class="modal-wrapper">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h5 class="modal-title">Cancel Edit?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true" @click="showModal = false">&times;</span>
+                    </button>
+                  </div>
+
+                  <!-- Modal Body -->
+                  <div class="modal-body">
+                    <p>Do you really want to cancel? Your changes will be lost.</p>
+                  </div>
+
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" @click="cancel">Discard Changes</button>
+                    <button type="button" class="btn btn-primary" @click="showModal = false">Continue Editing</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </transition>
+
   </div>
 </template>
 
@@ -163,9 +197,10 @@ export default {
       loading: true,
       product: null,
       newProduct: null,
-      idBlur: false,
+      idBlur: false, // True when the user has clicked on then off the input field
       priceBlur: false,
-      nameBlur: false
+      nameBlur: false,
+      showModal: false // Whether or not to show the cancel modal
     }
   },
   components: {
@@ -261,6 +296,19 @@ export default {
     },
 
     /**
+     * Cancels the product edit.
+     * Will confirm with the user if they want to lose there changes, if they made any.
+     */
+    cancel () {
+      // Check if changes are made and the modal isn't shown
+      if (this.changesMade && !this.showModal) {
+        this.showModal = true
+        return
+      }
+      this.$router.push({name: 'viewCatalogue', params: {businessId: this.businessId}})
+    },
+
+    /**
      * Loads the product data into this.product and this.newProduct
      */
     loadProduct () {
@@ -285,5 +333,29 @@ export default {
 <style scoped>
 .btn {
   transition-duration: 0.1s;
+}
+
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .5);
+  display: table;
+  transition: opacity .3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .3s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>

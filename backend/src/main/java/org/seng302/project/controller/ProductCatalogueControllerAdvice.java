@@ -24,6 +24,17 @@ public class ProductCatalogueControllerAdvice {
     }
 
     /**
+     * Exception thrown by the editProduct() function
+     * in ProductCatalogueController when a there is no matching product.
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(NoProductExistsException.class)
+    public ResponseEntity<String> productDoesNotExist(NoProductExistsException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
      * Exception thrown by the getBusinessesProducts() and newProduct() functions in ProductCatalogueController
      * when a user tries to perform a function when they are not an administrator.
      *
@@ -57,7 +68,7 @@ public class ProductCatalogueControllerAdvice {
     }
 
     /**
-     * Exception thrown by the newProduct() in ProductCatalogueController
+     * Exception thrown by newProduct() and editProduct() in ProductCatalogueController
      * when a user tries create a product with an existing product id
      *
      * @return a 400 response with an appropriate message
@@ -68,7 +79,18 @@ public class ProductCatalogueControllerAdvice {
     }
 
     /**
-     * Exception thrown by the newProduct() in ProductCatalogueController
+     * Exception thrown by the editProduct() in ProductCatalogueController
+     * when a user tries to edit a product with a rrp that is not a number
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(IncorrectRRPFormatException.class)
+    public ResponseEntity<String> productIdAlreadyExists(IncorrectRRPFormatException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Exception thrown by newProduct() and editProduct() in ProductCatalogueController
      * when a user tries to use a product id with invalid characters
      *
      * @return a 400 response with an appropriate message
