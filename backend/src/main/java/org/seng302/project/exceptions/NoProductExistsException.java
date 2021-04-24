@@ -7,8 +7,8 @@ package org.seng302.project.exceptions;
  */
 public class NoProductExistsException extends RuntimeException {
 
-    public NoProductExistsException(String id, Integer businessId) {
-        super(String.format("NoProductExistsException: no product with id %s exists in business with id %d.", id, businessId));
+    public NoProductExistsException(String productId, Integer businessId) {
+        super(String.format("NoProductExistsException: no product with id '%s' exists in business with id %d.", productId, businessId));
     }
 
 }

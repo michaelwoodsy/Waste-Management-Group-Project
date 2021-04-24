@@ -179,4 +179,130 @@ public class ProductCatalogueController {
         }
     }
 
+
+    /**
+     * Edits product with id productId
+     * @param businessId ID of the business the product is under.
+     * @param productId ID of the product
+     * @param appUser AppUserDetails of current user
+     * @param json The fields of the product to edit
+     */
+    @PutMapping("/businesses/{businessId}/products/{productId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void editProduct(@PathVariable int businessId, @PathVariable String productId, @RequestBody JSONObject json, @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+            // Get the logged in user from the user's email
+            String userEmail = appUser.getUsername();
+            User loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+            logger.info("User with user id: " + loggedInUser.getId() + " Editing product with id '" + productId + "' from business with id " + businessId);
+
+            // Get the business
+            Optional<Business> businessResult = businessRepository.findById(businessId);
+
+            // Check if the business exists
+            if (businessResult.isEmpty()) {
+                NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+            Business business = businessResult.get();
+
+            // Check if the logged in user is the business owner / administrator
+            if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
+                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            // Get the product
+            Optional<Product> productResult = productRepository.findByIdAndBusinessId(productId, businessId);
+
+            // Check if the product exists
+            if (productResult.isEmpty()) {
+                NoProductExistsException exception = new NoProductExistsException(productId, businessId);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+            Product product = productResult.get();
+            Product originalProduct = productResult.get();
+
+            //Edit fields if they are sent
+            //Name
+            if(json.containsKey("name")) {
+                String newName = json.getAsString("name");
+                if (newName == null || newName.equals("")) {
+                    MissingProductNameException exception = new MissingProductNameException();
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
+                product.setName(newName);
+            }
+            //Description
+            if(json.containsKey("description")) {
+                String newDescription = json.getAsString("description");
+                product.setDescription(newDescription);
+            }
+            //Manufacturer
+            if(json.containsKey("manufacturer")) {
+                String newManufacturer = json.getAsString("manufacturer");
+                product.setManufacturer(newManufacturer);
+            }
+            //Recommended Retail Price
+            try {
+                if (json.containsKey("recommendedRetailPrice")) {
+                    Number newRRP = json.getAsNumber("recommendedRetailPrice");
+                    if (newRRP == null) {
+                        product.setRecommendedRetailPrice(null);
+                    } else {
+                        product.setRecommendedRetailPrice(newRRP.doubleValue());
+                    }
+                }
+
+            } catch(NumberFormatException e) {
+                IncorrectRRPFormatException exception = new IncorrectRRPFormatException();
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            //Id
+            if(json.containsKey("id")) {
+                String newId = json.getAsString("id");
+                if (newId == null || newId.equals("")) {
+                    MissingProductIdException exception = new MissingProductIdException();
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
+                //Return 400 if id not unique
+                if (!(originalProduct.getId().equals(newId)) && productRepository.findByIdAndBusinessId(newId, businessId).isPresent()) {
+                    ProductIdAlreadyExistsException exception = new ProductIdAlreadyExistsException();
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
+                //Return 400 if id contains characters other than: letters, numbers, dashes
+                String productIdRegEx = "^[a-zA-Z0-9\\-^\\S]+$";
+                if (!newId.matches(productIdRegEx)) {
+                    InvalidProductIdCharactersException exception = new InvalidProductIdCharactersException();
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
+                //Need to remove original product as you cant change the id
+                productRepository.delete(originalProduct);
+                product.setId(newId);
+            }
+
+            //Save edited product
+            productRepository.save(product);
+
+        } catch (NoBusinessExistsException | NoProductExistsException | MissingProductIdException |
+                MissingProductNameException | IncorrectRRPFormatException | ForbiddenAdministratorActionException |
+                ProductIdAlreadyExistsException | InvalidProductIdCharactersException handledException) {
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while adding business product: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
+
 }
