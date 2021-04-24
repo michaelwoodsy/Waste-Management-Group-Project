@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -38,6 +39,43 @@ public class InventoryItemController {
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.userRepository = userRepository;
+    }
+
+    /**
+     * REST Request to retrieve a business' inventory.
+     *
+     * @param businessId The ID of the business to get the inventory of.
+     * @param appUser The currently logged in user.
+     * @return The inventory of the business in list form.
+     */
+    @GetMapping("/businesses/{businessId}/inventory")
+    @ResponseStatus(HttpStatus.OK)
+    public List<InventoryItem> getInventory(@PathVariable Integer businessId, @AuthenticationPrincipal AppUserDetails appUser) {
+
+        try {
+            Business business = businessRepository.findById(businessId).orElse(null);
+            User loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
+
+            if (business == null) {
+                NoBusinessExistsException noBusinessException = new NoBusinessExistsException(businessId);
+                logger.warn(noBusinessException.getMessage());
+                throw noBusinessException;
+            } else if (!business.userIsAdmin(loggedInUser.getId())) {
+                ForbiddenAdministratorActionException notAdminException = new ForbiddenAdministratorActionException(businessId);
+                logger.warn(notAdminException.getMessage());
+                throw notAdminException;
+            }
+
+            return inventoryItemRepository.findAllByBusinessId(businessId);
+
+        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException exception) {
+            throw exception;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while adding business inventory item: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+
     }
 
     /**

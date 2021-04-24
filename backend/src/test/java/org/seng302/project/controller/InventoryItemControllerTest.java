@@ -112,6 +112,8 @@ public class InventoryItemControllerTest {
                 owner.getId());
 
         businessRepository.save(testBusiness);
+        testBusiness.addAdministrator(owner);
+        businessRepository.save(testBusiness);
         businessId = testBusiness.getId();
 
         // Create a product
@@ -455,6 +457,26 @@ public class InventoryItemControllerTest {
     }
 
     /**
+     * Tests getting the inventory for a business that does not exist.
+     */
+    @Test
+    public void tryGetInventoryNoBusiness() throws Exception {
+        if (businessRepository.findById(237).isPresent()) {
+            businessRepository.deleteById(237);
+        }
+
+        RequestBuilder getInventoryRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/inventory", 237)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        this.mockMvc.perform(getInventoryRequest)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable())
+                .andReturn();
+    }
+
+    /**
      * Tests that a 403 is returned when trying to get inventory when not admin.
      */
     @Test
@@ -494,14 +516,14 @@ public class InventoryItemControllerTest {
         JSONArray result = new JSONArray(mvcResult.getResponse().getContentAsString());
         JSONObject inventoryItem = result.getJSONObject(0);
 
-        Assertions.assertNotNull(inventoryItem.getString("id"));
+        Assertions.assertNotNull(inventoryItem.get("id"));
         Assertions.assertEquals("p1", inventoryItem.getJSONObject("product").getString("id"));
         Assertions.assertEquals(2, inventoryItem.getInt("quantity"));
         Assertions.assertEquals(2.00, inventoryItem.getDouble("pricePerItem"));
         Assertions.assertEquals(1.80, inventoryItem.getDouble("totalPrice"));
         Assertions.assertEquals("2021-04-20", inventoryItem.getString("manufactured"));
-        Assertions.assertNull(inventoryItem.getString("sellBy"));
-        Assertions.assertNull(inventoryItem.getString("bestBefore"));
+        Assertions.assertEquals("null", String.valueOf(inventoryItem.get("sellBy")));
+        Assertions.assertEquals("null", String.valueOf(inventoryItem.get("bestBefore")));
         Assertions.assertEquals("2021-05-20", inventoryItem.getString("expires"));
     }
 
