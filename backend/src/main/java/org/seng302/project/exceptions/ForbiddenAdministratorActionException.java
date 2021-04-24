@@ -8,7 +8,7 @@ package org.seng302.project.exceptions;
 public class ForbiddenAdministratorActionException extends RuntimeException {
 
     public ForbiddenAdministratorActionException(Integer id) {
-        super(String.format("ForbiddenAdministratorActionException: You can not perform this action as you are not the primary administrator of business with id %d.", id));
+        super(String.format("ForbiddenAdministratorActionException: You can not perform this action as you are not an administrator of business with id %d.", id));
     }
 
 }

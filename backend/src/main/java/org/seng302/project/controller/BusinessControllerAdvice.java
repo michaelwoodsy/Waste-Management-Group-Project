@@ -73,8 +73,8 @@ public class BusinessControllerAdvice {
      *
      * @return a 403 response with an appropriate message
      */
-    @ExceptionHandler(ForbiddenAdministratorActionException.class)
-    public ResponseEntity<String> forbiddenAdministratorAction(ForbiddenAdministratorActionException ex) {
+    @ExceptionHandler(ForbiddenPrimaryAdministratorActionException.class)
+    public ResponseEntity<String> forbiddenPrimaryAdministratorAction(ForbiddenPrimaryAdministratorActionException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 

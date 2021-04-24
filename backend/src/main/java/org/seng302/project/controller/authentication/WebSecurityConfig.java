@@ -103,7 +103,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK));
-        http.httpBasic();
+        http.httpBasic().authenticationEntryPoint(new NoPopupBasicAuthenticationEntryPoint());
         http.formLogin().disable();
     }
 

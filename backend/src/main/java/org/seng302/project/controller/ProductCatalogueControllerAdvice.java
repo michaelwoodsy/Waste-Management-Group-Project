@@ -14,7 +14,7 @@ public class ProductCatalogueControllerAdvice {
 
     /**
      * Exception thrown by the getBusinessesProducts() and newProduct() functions
-     * in ProductCatalogueController when a there is no matching business.
+     * in ProductCatalogueController when there is no matching business.
      *
      * @return a 406 response with an appropriate message
      */
@@ -36,7 +36,7 @@ public class ProductCatalogueControllerAdvice {
 
     /**
      * Exception thrown by the getBusinessesProducts() and newProduct() functions in ProductCatalogueController
-     * when a user tries to perform a function when they are not the primary administrator.
+     * when a user tries to perform a function when they are not an administrator.
      *
      * @return a 403 response with an appropriate message
      */

@@ -1,8 +1,12 @@
 import {Business} from '@/Api'
 
-
 export default {
     debug: true,
+
+    /** Store state **/
+    state: {
+        isAdminOf: false,
+    },
 
     /**
      * Registers a business under a given user.
@@ -26,4 +30,17 @@ export default {
                 })
         })
     },
+
+    createProduct(businessId, data) {
+        // Return a promise for the api call
+        return new Promise(((resolve, reject) => {
+            Business.createProduct(businessId, data)
+                .then((res) => {
+                    resolve(res);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        }));
+    }
 }
