@@ -123,7 +123,7 @@ public class BusinessController {
 
             //Checks if the user preforming the action is the primary administrator of the business
             if (!userRepository.findByEmail(userAuth.getName()).get(0).getId().equals(currBusiness.getPrimaryAdministratorId())) {
-                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
+                ForbiddenPrimaryAdministratorActionException exception = new ForbiddenPrimaryAdministratorActionException(id);
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -140,7 +140,7 @@ public class BusinessController {
             businessRepository.save(currBusiness);
 
             logger.info(String.format("Successfully added Administrator %d to business %d", currUser.getId(), currBusiness.getId()));
-        } catch (NoUserExistsException | NoBusinessExistsException | ForbiddenAdministratorActionException |
+        } catch (NoUserExistsException | NoBusinessExistsException | ForbiddenPrimaryAdministratorActionException |
                 AdministratorAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
@@ -168,7 +168,7 @@ public class BusinessController {
 
             //Checks if the user preforming the action is the primary administrator of the business
             if (!userRepository.findByEmail(userAuth.getName()).get(0).getId().equals(currBusiness.getPrimaryAdministratorId())) {
-                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(id);
+                ForbiddenPrimaryAdministratorActionException exception = new ForbiddenPrimaryAdministratorActionException(id);
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -198,7 +198,7 @@ public class BusinessController {
 
             logger.info(String.format("Successfully removed administrator %d from business %d", currUser.getId(), currBusiness.getId()));
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | CantRemoveAdministratorException
+        } catch (NoBusinessExistsException | ForbiddenPrimaryAdministratorActionException | CantRemoveAdministratorException
                 | UserNotAdministratorException | NoUserExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
