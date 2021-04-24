@@ -51,13 +51,13 @@
               <label for="pricePerItem"><b>Price Per Item</b></label>
               <div :class="{'input-group': true, 'is-invalid': msg.pricePerItem}">
                 <div class="input-group-prepend">
-                  <span class="input-group-text">{{ this.currency.symbol }}</span>
+                  <span class="input-group-text">{{ this.currencySymbol }}</span>
                 </div>
                 <input id="pricePerItem" v-model="pricePerItem" :class="{'form-control': true, 'is-invalid': msg.pricePerItem}"
                        maxlength="255"
                        placeholder="Price Per Item" type="text">
                 <div class="input-group-append">
-                  <span class="input-group-text">{{ this.currency.code }}</span>
+                  <span class="input-group-text">{{ this.currencyCode }}</span>
                 </div>
               </div>
               <span class="invalid-feedback">{{ msg.pricePerItem }}</span>
@@ -68,13 +68,13 @@
               <label for="totalPrice"><b>Total Price</b></label>
               <div :class="{'input-group': true, 'is-invalid': msg.totalPrice}">
                 <div class="input-group-prepend">
-                  <span class="input-group-text">{{ this.currency.symbol }}</span>
+                  <span class="input-group-text">{{ this.currencySymbol }}</span>
                 </div>
                 <input id="totalPrice" v-model="totalPrice" :class="{'form-control': true, 'is-invalid': msg.totalPrice}"
                        maxlength="255"
                        placeholder="Total Price" type="text">
                 <div class="input-group-append">
-                  <span class="input-group-text">{{ this.currency.code }}</span>
+                  <span class="input-group-text">{{ this.currencyCode }}</span>
                 </div>
               </div>
               <span class="invalid-feedback">{{ msg.totalPrice }}</span>
@@ -157,7 +157,8 @@ export default {
       sellBy: '',
       bestBefore: '',
       expires: '', // Required
-      currency: null,
+      currencySymbol: "",
+      currencyCode: "",
       msg: {
         productCode: null,
         quantity: null,
@@ -173,8 +174,8 @@ export default {
     };
   },
   mounted() {
+    this.getCurrency()
     Business.getProducts(this.$route.params.businessId).then((response) => this.getProductIds(response))
-    this.getCurrency();
   },
   computed: {
     /**
@@ -398,7 +399,9 @@ export default {
     },
     async getCurrency() {
       const country = 'New Zealand'
-      this.currency = await this.$root.$data.product.getCurrency(country)
+      const currency = await this.$root.$data.product.getCurrency(country)
+      this.currencySymbol = currency.symbol
+      this.currencyCode = currency.code
     }
   }
 }
