@@ -260,7 +260,7 @@ export default {
       if (!this.product) { return false }
       let allSame = true;
       for (const [key, val] of Object.entries(this.product)) {
-        if (this.newProduct[key] !== val && typeof val !== 'object') {
+        if (this.newProduct[key] !== val) {
           allSame = false;
         }
       }
