@@ -27,7 +27,16 @@ export default {
             },
             base: options.base
         };
-        Vue.prototype.$route = findRoute(parsedRoutes, window.location.pathname);
+        // Set current route as an observable
+        let route = Vue.observable({cur: findRoute(parsedRoutes, window.location.pathname)})
+        Object.defineProperty(Vue.prototype, '$route', {
+            get () {
+                return route.cur
+            },
+            set (value) {
+                route.cur = value
+            }
+        })
 
         // Create listeners to update $route parameter on update
         listen((newRoute) => {
