@@ -149,6 +149,12 @@ public class ProductCatalogueController {
             Double recommendedRetailPrice = null;
             if (json.getAsNumber("recommendedRetailPrice") != null) {
                 recommendedRetailPrice = json.getAsNumber("recommendedRetailPrice").doubleValue();
+                //If Recommended Retail Price is below 0
+                if (recommendedRetailPrice < 0) {
+                    InvalidPriceException exception = new InvalidPriceException("recommended retail price");
+                    logger.error(exception.getMessage());
+                    throw exception;
+                }
             }
 
             //Return 400 if id not unique
@@ -255,6 +261,12 @@ public class ProductCatalogueController {
                     if (newRRP == null) {
                         product.setRecommendedRetailPrice(null);
                     } else {
+                        //If Recommended Retail Price is below 0
+                        if (newRRP.doubleValue() < 0) {
+                            InvalidPriceException exception = new InvalidPriceException("recommended retail price");
+                            logger.error(exception.getMessage());
+                            throw exception;
+                        }
                         product.setRecommendedRetailPrice(newRRP.doubleValue());
                     }
                 }
