@@ -114,10 +114,11 @@ public class UserController {
                 throw phoneNumberException;
             }
 
-            if (!userRepository.findByEmail(newUser.getEmail()).isEmpty()) {
-                ExistingRegisteredEmailException emailException = new ExistingRegisteredEmailException();
-                logger.warn(emailException.getMessage());
-                throw emailException;
+            String passwordRegEx = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}";
+            if (!newUser.getPassword().matches(passwordRegEx)) {
+                InvalidPasswordException passwordException = new InvalidPasswordException();
+                logger.warn(passwordException.getMessage());
+                throw passwordException;
             }
 
             Date dateOfBirthDate;
@@ -137,6 +138,12 @@ public class UserController {
                 UserUnderageException underageException = new UserUnderageException();
                 logger.warn(underageException.getMessage());
                 throw underageException;
+            }
+
+            if (!userRepository.findByEmail(newUser.getEmail()).isEmpty()) {
+                ExistingRegisteredEmailException emailException = new ExistingRegisteredEmailException();
+                logger.warn(emailException.getMessage());
+                throw emailException;
             }
 
             LoginCredentials credentials = new LoginCredentials(newUser.getEmail(), newUser.getPassword());

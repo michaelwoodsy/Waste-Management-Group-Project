@@ -99,4 +99,10 @@ public class UserControllerAdvice {
     public ResponseEntity<String> userDoesNotExist(NoUserExistsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<String> invalidPassword(InvalidPasswordException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 }
