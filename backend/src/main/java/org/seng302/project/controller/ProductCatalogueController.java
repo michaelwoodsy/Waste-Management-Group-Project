@@ -233,6 +233,7 @@ public class ProductCatalogueController {
                 logger.error(exception.getMessage());
                 throw exception;
             }
+
             Product product = productResult.get();
             Product originalProduct = productResult.get();
 
