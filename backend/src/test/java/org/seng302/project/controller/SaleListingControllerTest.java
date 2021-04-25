@@ -1,17 +1,18 @@
 package org.seng302.project.controller;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.runner.RunWith;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-@RunWith(SpringRunner.class)
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ContextConfiguration
@@ -39,9 +40,6 @@ public class SaleListingControllerTest {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-
-    @Autowired
-    private InventoryItemController inventoryItemController;
 
     @Autowired
     private UserRepository userRepository;
@@ -90,8 +88,21 @@ public class SaleListingControllerTest {
         businessRepository.save(business);
 
         // Create a product
-        Product product = new Product("p1", "Watties Beans", "beans in a can", "Watties", 2.00,
+        product = new Product("p1", "Watties Beans", "beans in a can", "Watties", 2.00,
                 business.getId());
         productRepository.save(product);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        productRepository.delete(product);
+        businessRepository.delete(business);
+        userRepository.delete(user);
+        userRepository.delete(owner);
+    }
+
+    @Test
+    public void sanityCheck() {
+        assertNotNull("hi");
     }
 }
