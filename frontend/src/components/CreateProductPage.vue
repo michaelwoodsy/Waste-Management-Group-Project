@@ -149,8 +149,11 @@ export default {
      * Validate product ID field
      */
     validateId() {
-      if (!/^[a-zA-Z0-9-]+$/.test(this.id)) {
-        this.msg.id = 'Please enter a valid product ID';
+      if (this.id === '') {
+        this.msg.id = 'Please enter a product ID';
+        this.valid = false;
+      } else if (!/^[a-zA-Z0-9-]+$/.test(this.id)) {
+        this.msg.id = 'Product ID must consist of letters, numbers, and hyphens';
         this.valid = false;
       } else {
         this.msg.id = null;

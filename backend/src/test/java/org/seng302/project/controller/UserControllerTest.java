@@ -208,7 +208,7 @@ public class UserControllerTest {
         testUserJson.put("lastName", "Smith");
         testUserJson.put("email", "john@gmail.com");
         testUserJson.put("dateOfBirth", "1999-04-27");
-        testUserJson.put("phoneNumber", "03555");
+        testUserJson.put("phoneNumber", "hello");
 
         RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .post("/users")
