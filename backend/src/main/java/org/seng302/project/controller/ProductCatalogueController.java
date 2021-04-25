@@ -23,15 +23,18 @@ public class ProductCatalogueController {
     private static final Logger logger = LoggerFactory.getLogger(ProductCatalogueController.class.getName());
     private final BusinessRepository businessRepository;
     private final ProductRepository productRepository;
+    private final InventoryItemRepository inventoryItemRepository;
     private final UserRepository userRepository;
 
     @Autowired
     public ProductCatalogueController(
             BusinessRepository businessRepository,
             ProductRepository productRepository,
+            InventoryItemRepository inventoryItemRepository,
             UserRepository userRepository) {
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
         this.userRepository = userRepository;
     }
 
@@ -233,10 +236,17 @@ public class ProductCatalogueController {
             Product product = productResult.get();
             Product originalProduct = productResult.get();
 
+            String newName = json.getAsString("name");
+            String newDescription = json.getAsString("description");
+            String newManufacturer = json.getAsString("manufacturer");
+            Number newNumberRRP = json.getAsNumber("recommendedRetailPrice");
+            Double newRRP = originalProduct.getRecommendedRetailPrice();
+            String newId = json.getAsString("id");
+
             //Edit fields if they are sent
+
             //Name
-            if(json.containsKey("name")) {
-                String newName = json.getAsString("name");
+            if(json.containsKey("name") && !originalProduct.getName().equals(newName)) {
                 if (newName == null || newName.equals("")) {
                     MissingProductNameException exception = new MissingProductNameException();
                     logger.warn(exception.getMessage());
@@ -244,30 +254,33 @@ public class ProductCatalogueController {
                 }
                 product.setName(newName);
             }
+
             //Description
-            if(json.containsKey("description")) {
-                String newDescription = json.getAsString("description");
+            if(json.containsKey("description") && !originalProduct.getDescription().equals(newDescription)) {
                 product.setDescription(newDescription);
             }
+
             //Manufacturer
-            if(json.containsKey("manufacturer")) {
-                String newManufacturer = json.getAsString("manufacturer");
+            if(json.containsKey("manufacturer") && !originalProduct.getManufacturer().equals(newManufacturer)) {
                 product.setManufacturer(newManufacturer);
             }
+
             //Recommended Retail Price
             try {
                 if (json.containsKey("recommendedRetailPrice")) {
-                    Number newRRP = json.getAsNumber("recommendedRetailPrice");
-                    if (newRRP == null) {
+                    if (newNumberRRP == null) {
                         product.setRecommendedRetailPrice(null);
-                    } else {
+                        newRRP = null;
+                    } else if (originalProduct.getRecommendedRetailPrice() == null ||
+                            originalProduct.getRecommendedRetailPrice() != newNumberRRP.doubleValue()) {
+                        newRRP = json.getAsNumber("recommendedRetailPrice").doubleValue();
                         //If Recommended Retail Price is below 0
-                        if (newRRP.doubleValue() < 0) {
+                        if (newRRP < 0) {
                             InvalidPriceException exception = new InvalidPriceException("recommended retail price");
                             logger.error(exception.getMessage());
                             throw exception;
                         }
-                        product.setRecommendedRetailPrice(newRRP.doubleValue());
+                        product.setRecommendedRetailPrice(newRRP);
                     }
                 }
 
@@ -278,15 +291,15 @@ public class ProductCatalogueController {
             }
 
             //Id
-            if(json.containsKey("id")) {
-                String newId = json.getAsString("id");
+            if(json.containsKey("id") && !originalProduct.getId().equals(newId)) {
                 if (newId == null || newId.equals("")) {
                     MissingProductIdException exception = new MissingProductIdException();
                     logger.warn(exception.getMessage());
                     throw exception;
                 }
                 //Return 400 if id not unique
-                if (!(originalProduct.getId().equals(newId)) && productRepository.findByIdAndBusinessId(newId, businessId).isPresent()) {
+                if (newId.equals(originalProduct.getId()) || !(originalProduct.getId().equals(newId)) &&
+                        productRepository.findByIdAndBusinessId(newId, businessId).isPresent()) {
                     ProductIdAlreadyExistsException exception = new ProductIdAlreadyExistsException();
                     logger.warn(exception.getMessage());
                     throw exception;
@@ -298,13 +311,28 @@ public class ProductCatalogueController {
                     logger.warn(exception.getMessage());
                     throw exception;
                 }
-                //Need to remove original product as you cant change the id
+                //Create new product
+                Product newProduct = new Product(newId, newName, newDescription, newManufacturer, newRRP, businessId);
+                //Save new product
+                productRepository.save(newProduct);
+
+                // Get inventory items
+                List<InventoryItem> inventoryItems = inventoryItemRepository.findAllByBusinessId(businessId);
+                //Loop through businesses inventory items and change product of inventory item if it is the one that needs to be changed
+                for (InventoryItem item: inventoryItems) {
+                    //If item has old product
+                    if (item.getProduct().getId().equals(originalProduct.getId())) {
+                        item.setProduct(newProduct);
+                        inventoryItemRepository.save(item);
+                    }
+                }
+                //Need to remove original product as it has been replaced fully in the database
                 productRepository.delete(originalProduct);
                 product.setId(newId);
+            } else {
+                //Save edited product
+                productRepository.save(product);
             }
-
-            //Save edited product
-            productRepository.save(product);
 
         } catch (NoBusinessExistsException | NoProductExistsException | MissingProductIdException |
                 MissingProductNameException | IncorrectRRPFormatException | ForbiddenAdministratorActionException |

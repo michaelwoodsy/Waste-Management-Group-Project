@@ -494,7 +494,7 @@ public class InventoryItemController {
                     logger.warn(exception.getMessage());
                     throw exception;
                 }
-                // Get the business
+                // Get the product
                 Optional<Product> productResult = productRepository.findByIdAndBusinessId(newProductId, businessId);
 
                 // Check if the product exists
