@@ -48,7 +48,7 @@ describe('UserProfileLinks', () => {
 
     // Check the current actor name is displayed
     test('displayed actor name is correct', () => {
-        expect(wrapper.find('span').text()).toBe('Tom')
+        expect(wrapper.find('div.nav-link').text()).toBe('Tom')
     });
 
     // Check clicking on a different actor will update the actor

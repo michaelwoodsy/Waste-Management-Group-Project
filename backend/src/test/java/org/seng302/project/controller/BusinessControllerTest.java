@@ -390,7 +390,7 @@ public class BusinessControllerTest {
 
     /**
      * Tries to add an administrator to a business when the user issuing the request is not a primary administrator
-     * Checks that a ForbiddenAdministratorActionException is sent, a 403 response
+     * Checks that a ForbiddenPrimaryAdministratorActionException is sent, a 403 response
      */
     @Test
     @Order(9)
@@ -424,7 +424,7 @@ public class BusinessControllerTest {
                 .andReturn();
 
         String returnedExceptionString = addAdminResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new ForbiddenAdministratorActionException(retrievedBusiness.getId()).getMessage(), returnedExceptionString);
+        Assertions.assertEquals(new ForbiddenPrimaryAdministratorActionException(retrievedBusiness.getId()).getMessage(), returnedExceptionString);
     }
 
 
@@ -567,6 +567,6 @@ public class BusinessControllerTest {
                 .andReturn();
 
         String returnedExceptionString = removeAdminResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new ForbiddenAdministratorActionException(retrievedBusiness.getId()).getMessage(), returnedExceptionString);
+        Assertions.assertEquals(new ForbiddenPrimaryAdministratorActionException(retrievedBusiness.getId()).getMessage(), returnedExceptionString);
     }
 }

@@ -120,14 +120,23 @@ export const Business = {
      */
     getProducts: (businessId) => instance.get(`businesses/${businessId}/products`, {}),
 
-    /**
-     * Creates a new product in the product catalogue
+    /*
+     * Sends an edit product request to the backend
      */
-    createProduct: (businessId, data) => instance.post(`businesses/${businessId}/products`, data)
+    editProduct: (businessId, productId, newProductData) => instance.put(
+        `businesses/${businessId}/products/${productId}`,
+        newProductData),
 
     /*
      * Gets all the items in a business's inventory
      */
     // TODO: uncomment when this is implemented on backend
-    // getInventory: (businessId) => instance.get(`businesses/${businessId}/inventory`, {})
+    // getInventory: (businessId) => instance.get(`businesses/${businessId}/inventory`, {}),
+
+    /**
+     * Creates a new product in the product catalogue
+     */
+    createProduct: (businessId, data) => instance.post(`businesses/${businessId}/products`, data)
+
+
 };
