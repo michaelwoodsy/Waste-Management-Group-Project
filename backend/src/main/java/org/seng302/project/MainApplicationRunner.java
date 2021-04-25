@@ -53,6 +53,7 @@ public class MainApplicationRunner implements ApplicationRunner {
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
     private final ProductRepository productRepository;
+    private final InventoryItemRepository inventoryItemRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     /**
@@ -64,10 +65,12 @@ public class MainApplicationRunner implements ApplicationRunner {
      */
     @Autowired
     public MainApplicationRunner(UserRepository userRepository, BusinessRepository businessRepository,
-                                 ProductRepository productRepository, BCryptPasswordEncoder passwordEncoder) {
+                                 ProductRepository productRepository, InventoryItemRepository inventoryItemRepository,
+                                 BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -141,6 +144,21 @@ public class MainApplicationRunner implements ApplicationRunner {
                 productRepository.save(testProduct2);
 
                 logger.info(String.format("Added products to catalogue of business with id %d", businessRepository.findByName("Myrtle's Motel").get(0).getId()));
+
+
+
+
+                //Add inventory items
+                InventoryItem testInventoryItem1 = new InventoryItem(testProduct1, 4, 2.20, 8.00, "2021-04-20", null, null, "2022-01-29");
+                inventoryItemRepository.save(testInventoryItem1);
+
+                InventoryItem testInventoryItem2 = new InventoryItem(testProduct1, 10, 2.20, 15.00, "2021-02-01", null, null, "2022-01-01");
+                inventoryItemRepository.save(testInventoryItem2);
+
+                InventoryItem testInventoryItem3 = new InventoryItem(testProduct2, 40, 3.5, 115.50, "2021-04-20", "2022-02-01", "2022-02-01", "2022-02-01");
+                inventoryItemRepository.save(testInventoryItem3);
+
+                logger.info(String.format("Added items to inventory of business with id %d", businessRepository.findByName("Myrtle's Motel").get(0).getId()));
             }
         }
     }
