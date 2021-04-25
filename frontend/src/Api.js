@@ -135,8 +135,10 @@ export const Business = {
     /*
      * Gets all the items in a business's inventory
      */
-    // TODO: uncomment when this is implemented on backend
-    // getInventory: (businessId) => instance.get(`businesses/${businessId}/inventory`, {})
+    getInventory: (businessId) => instance.get(`businesses/${businessId}/inventory`, {}),
 
+    /**
+     * Creates a new item in the inventory
+     */
     createItem: (businessId, data) => instance.post(`businesses/${businessId}/inventory`, data)
 };

@@ -44,6 +44,9 @@ export default {
         }));
     },
 
+    /**
+     * Creates a new item in the inventory
+     */
     createItem(businessId, data) {
         //Return a promise for the api call
         return new Promise((resolve, reject) => {
