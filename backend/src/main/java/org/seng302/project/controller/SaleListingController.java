@@ -1,6 +1,7 @@
 package org.seng302.project.controller;
 
 import org.seng302.project.model.BusinessRepository;
+import org.seng302.project.model.InventoryItemRepository;
 import org.seng302.project.model.ProductRepository;
 import org.seng302.project.model.UserRepository;
 import org.slf4j.Logger;
@@ -16,16 +17,16 @@ public class SaleListingController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductCatalogueController.class.getName());
     private final BusinessRepository businessRepository;
-    private final ProductRepository productRepository;
+    private final InventoryItemRepository inventoryItemRepository;
     private final UserRepository userRepository;
 
     @Autowired
     public SaleListingController(
             BusinessRepository businessRepository,
-            ProductRepository productRepository,
+            InventoryItemRepository inventoryItemRepository,
             UserRepository userRepository) {
         this.businessRepository = businessRepository;
-        this.productRepository = productRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
         this.userRepository = userRepository;
     }
 
