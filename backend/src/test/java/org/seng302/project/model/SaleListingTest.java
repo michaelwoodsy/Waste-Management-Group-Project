@@ -18,12 +18,12 @@ public class SaleListingTest {
     @Test
     public void testCreateListing() {
         LocalDateTime now = LocalDateTime.now();
-        SaleListing listing = new SaleListing(1, "1", 3.99,
+        SaleListing listing = new SaleListing(1, 1, 3.99,
                 "no", now, 1);
 
         // Check fields
         assertEquals(listing.getBusinessId(), 1);
-        assertEquals(listing.getInventoryItemId(), "1");
+        assertEquals(listing.getInventoryItemId(), 1);
         assertEquals(listing.getPrice(), 3.99);
         assertEquals(listing.getMoreInfo(), "no");
         assertEquals(listing.getCloses(), now);

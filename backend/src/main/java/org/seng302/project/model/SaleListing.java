@@ -25,7 +25,7 @@ public class SaleListing {
     private Integer id;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "sale_inventory_item_id")
-    private String inventoryItemId;
+    private Integer inventoryItemId;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "inventory_item_id")
     private InventoryItem inventoryItem;
@@ -35,7 +35,7 @@ public class SaleListing {
     private LocalDateTime created = LocalDateTime.now();
     private Integer quantity;
 
-    public SaleListing(Integer businessId, String inventoryItemId, Double price, String moreInfo,
+    public SaleListing(Integer businessId, Integer inventoryItemId, Double price, String moreInfo,
                        LocalDateTime closes, Integer quantity) {
         this.businessId = businessId;
         this.inventoryItemId = inventoryItemId;
