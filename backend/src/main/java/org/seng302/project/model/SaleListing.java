@@ -24,8 +24,10 @@ public class SaleListing {
     @Column(name = "listing_id")
     private Integer id;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Column(name = "inventory_")
+    @Column(name = "sale_inventory_item_id")
     private String inventoryItemId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "inventory_item_id")
     private InventoryItem inventoryItem;
     private Double price;
     private String moreInfo;
@@ -41,11 +43,5 @@ public class SaleListing {
         this.moreInfo = moreInfo;
         this.closes = closes;
         this.quantity = quantity;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inventory_item_id")
-    public InventoryItem getInventoryItem() {
-        return this.inventoryItem;
     }
 }
