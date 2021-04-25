@@ -374,7 +374,7 @@ export default {
       const tp = Number(this.totalPrice)
       this.$root.$data.business.createItem(
           this.$root.$data.user.state.actingAs.id, {
-            "productID": this.productID,
+            "productId": this.productCode,
             "quantity": this.quantity,
             "pricePerItem": this.pricePerItem !== '' ? this.roundPrice(ppi) : null,
             "totalPrice": this.totalPrice !== '' ? this.roundPrice(tp) : null,

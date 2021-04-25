@@ -42,5 +42,18 @@ export default {
                     reject(err);
                 });
         }));
+    },
+
+    createItem(businessId, data) {
+        //Return a promise for the api call
+        return new Promise((resolve, reject) => {
+            Business.createItem(businessId, data)
+                .then((res) => {
+                    resolve(res)
+                })
+                .catch((err) => {
+                    reject(err)
+                })
+        })
     }
 }
