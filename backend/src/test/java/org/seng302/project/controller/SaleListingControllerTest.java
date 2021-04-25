@@ -1,0 +1,97 @@
+package org.seng302.project.controller;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.runner.RunWith;
+import org.seng302.project.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@ContextConfiguration
+public class SaleListingControllerTest {
+
+    // Test users
+    private User user;
+    private String userEmail = "basicUser@gmail.com";
+    private String userPassword = "123";
+    private User owner;
+    private String ownerEmail = "ownerUser@gmail.com";
+    private String ownerPassword = "123";
+
+    // Test business
+    private Business business;
+
+    // Test product
+    private Product product;
+
+    // Test inventory
+    private InventoryItem inventoryItem;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private InventoryItemController inventoryItemController;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BusinessRepository businessRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private InventoryItemRepository inventoryItemRepository;
+
+    /**
+     * Creates the user if it's not already created.
+     * If it is already created, the user is returned.
+     * @return User
+     */
+    private User createUser(User wantedUser) {
+        if (userRepository.findByEmail(wantedUser.getEmail()).size() > 0) {
+            // Already exists, return it
+            return(userRepository.findByEmail(wantedUser.getEmail()).get(0));
+        } else {
+            // User doesn't exist, save it to repository
+            wantedUser.setPassword(passwordEncoder.encode(wantedUser.getPassword()));
+            userRepository.save(wantedUser);
+            return wantedUser;
+        }
+    }
+
+    @BeforeEach
+    public void initialise() {
+        inventoryItemRepository.deleteAll();
+
+        // Create the users
+        user = createUser(new User("John", "Smith", "Bob", "Jonny",
+                "Likes long walks on the beach", userEmail, "1999-04-27",
+                "+64 3 555 0129", "4 Rountree Street, Upper Riccarton", userPassword));
+        owner = createUser(new User("Jane", "Smith", "Rose", "Jonny",
+                "Likes long walks on the beach", ownerEmail, "1999-04-27",
+                "+64 3 555 0120", "4 Rountree Street, Upper Riccarton", ownerPassword));
+
+        // Create the business
+        business = new Business("Business", "A Business", "4 Rountree", "Retail",
+                owner.getId());
+        businessRepository.save(business);
+
+        // Create a product
+        Product product = new Product("p1", "Watties Beans", "beans in a can", "Watties", 2.00,
+                business.getId());
+        productRepository.save(product);
+    }
+}
