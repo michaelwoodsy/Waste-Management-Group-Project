@@ -50,6 +50,13 @@
                         placeholder="Enter a product description" type="text"/>
             </div>
 
+            <!-- Manufacturer -->
+            <div class="form-group row">
+              <label for="manufacturer"><b>Manufacturer</b></label>
+              <input id="manufacturer" v-model="manufacturer" class="form-control" maxlength="255"
+                     placeholder="Enter a manufacturer" required type="text">
+            </div>
+
             <!-- RRP -->
             <div class="form-group row">
               <label for="rrp"><b>Recommended Retail Price</b></label>
@@ -100,6 +107,7 @@ export default {
       id: '', // Required
       name: '', // Required
       description: '',
+      manufacturer: '',
       recommendedRetailPrice: '',
       currencySymbol: "",
       currencyCode: "",
@@ -199,6 +207,7 @@ export default {
             "id": this.id,
             "name": this.name,
             "description": this.description,
+            "manufacturer": this.manufacturer,
             "recommendedRetailPrice": this.recommendedRetailPrice !== '' ? this.roundRRP(rrp) : null
           }
       ).then(() => {
