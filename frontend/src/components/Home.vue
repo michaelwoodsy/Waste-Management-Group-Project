@@ -50,7 +50,7 @@ export default {
     },
 
     /** Returns the product catalogue url **/
-    productCatalogueRoute () {
+    productCatalogueRoute() {
       return `businesses/${this.actor.id}/products`;
     },
 
