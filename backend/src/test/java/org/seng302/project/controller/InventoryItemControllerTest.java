@@ -488,7 +488,7 @@ public class InventoryItemControllerTest {
      */
     @Test
     public void tryGettingInventoryNotAdmin() throws Exception {
-        Product product = productRepository.findById(new ProductId("p1", 1)).orElseThrow();
+        Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
         createInventoryItem(product);
 
         RequestBuilder getInventoryRequest = MockMvcRequestBuilders
