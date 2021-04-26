@@ -14,6 +14,7 @@ import EditProductPage from "@/components/EditProductPage";
 import InventoryPage from "@/components/InventoryPage";
 import CreateProductPage from "@/components/CreateProductPage";
 import SaleListings from "@/components/SaleListings";
+import Default from "@/components/Default";
 
 const routes = [
     {
@@ -75,6 +76,11 @@ const routes = [
         path: '/businesses/:businessId/inventory',
         name: 'InventoryPage',
         component: InventoryPage
+    },
+    {
+        path: '/businesses/:businessId/inventory/:inventoryItemId',
+        name: 'editInventoryItem',
+        component: Default//TODO: Change this to the EditInventoryItemPage
     },
     {
         path: '/businesses/:businessId/listings',
