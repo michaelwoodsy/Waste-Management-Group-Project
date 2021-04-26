@@ -92,7 +92,7 @@ public class UserController {
                     newUser.getLastName() == null || newUser.getLastName().equals("") ||
                     newUser.getEmail() == null || newUser.getEmail().equals("") ||
                     newUser.getDateOfBirth() == null || newUser.getDateOfBirth().equals("") ||
-                    newUser.getHomeAddress() == null || newUser.getHomeAddress().equals("")) { // TODO change to address class once implemented.
+                    newUser.getHomeAddress() == null || newUser.getHomeAddress().getCountry().equals("")) {
                 RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
                 logger.warn(requiredFieldsMissingException.getMessage());
                 throw requiredFieldsMissingException;
@@ -119,13 +119,13 @@ public class UserController {
                 throw emailException;
             }
 
-            /*
-            if (!newUser.getHomeAddress().getStreetNumber().equals("") && newUser.getHomeAddress().getStreetName().equals("")) {
+            //Check if address has a street number with no street name
+            if (    (newUser.getHomeAddress().getStreetName() == null || newUser.getHomeAddress().getStreetName().equals("")) &&
+                    (newUser.getHomeAddress().getStreetNumber() != null && !newUser.getHomeAddress().getStreetNumber().equals(""))) {
                 InvalidAddressException addressException = new InvalidAddressException();
                 logger.error(addressException.getMessage());
                 throw addressException;
             }
-            */
 
             Date dateOfBirthDate;
             Date currentDate = new Date();

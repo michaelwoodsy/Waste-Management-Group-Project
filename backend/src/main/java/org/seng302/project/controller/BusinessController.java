@@ -63,13 +63,13 @@ public class BusinessController {
                 throw exception;
             }
 
-            /*
-            if (!newBusiness.getAddress().getStreetNumber().equals("") && newBusiness.getAddress().getStreetName().equals("")) {
+            //Check if address has a street number with no street name
+            if (    (newBusiness.getAddress().getStreetName() == null || newBusiness.getAddress().getStreetName().equals("")) &&
+                    (newBusiness.getAddress().getStreetNumber() != null && !newBusiness.getAddress().getStreetNumber().equals(""))) {
                 InvalidAddressException addressException = new InvalidAddressException();
                 logger.error(addressException.getMessage());
                 throw addressException;
             }
-            */
 
             // If business type is not one of the specified business types
             if (!newBusiness.getBusinessType().equals("Accommodation and Food Services") &&
