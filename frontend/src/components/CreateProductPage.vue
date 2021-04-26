@@ -98,6 +98,7 @@
 import Alert from "@/components/Alert";
 import LoginRequired from "@/components/LoginRequired";
 import AdminRequired from "@/components/AdminRequired";
+import {Business} from "@/Api";
 
 export default {
   name: "CreateProductPage",
@@ -234,7 +235,7 @@ export default {
       this.$router.push({name: "viewCatalogue", params: {businessId: this.businessId}});
     },
     async getCurrency() {
-      const country = 'New Zealand'
+      const country = (await Business.getBusinessData(this.businessId)).data.address.country;
       const currency = await this.$root.$data.product.getCurrency(country)
       this.currencySymbol = currency.symbol
       this.currencyCode = currency.code

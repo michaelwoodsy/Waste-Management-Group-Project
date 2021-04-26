@@ -8,7 +8,7 @@
 
     <div v-else class="container-fluid">
       <div class="row justify-content-center">
-        <div class="col col-xl-10">
+        <div class="col">
 
           <!-- Sale Listings Header -->
           <div class="row">
@@ -16,7 +16,11 @@
             <div class="col text-center">
               <h4>Sale Listings</h4>
             </div>
-            <div class="col"/>
+            <div class="col text-right">
+              <button class="btn btn-primary">
+                New Listing
+              </button>
+            </div>
           </div>
 
           <!-- Error Alert -->
@@ -43,40 +47,43 @@
               <table class="table table-hover">
                 <thead>
                 <tr>
-                  <!-- Listing ID -->
-                  <th class="pointer">
-                    <p>ID</p>
-                  </th>
                   <!-- Product code -->
-                  <th class="pointer">
-                    <p>Product Code</p>
+                  <th class="pointer" scope="col" @click="orderResults('name')">
+                    <p class="d-inline">Product Info</p>
+                    <p v-if="orderCol === 'name'" class="d-inline">{{ orderDirArrow }}</p>
                   </th>
                   <!-- Quantity of product being sold -->
-                  <th class="pointer">
-                    <p>Quantity</p>
+                  <th class="pointer" scope="col" @click="orderResults('quantity')">
+                    <p class="d-inline">Quantity</p>
+                    <p v-if="orderCol === 'quantity'" class="d-inline">{{ orderDirArrow }}</p>
                   </th>
                   <!-- Price of listing -->
-                  <th class="pointer">
-                    <p>Price</p>
+                  <th class="pointer" scope="col" @click="orderResults('price')">
+                    <p class="d-inline">Price</p>
+                    <p v-if="orderCol === 'price'" class="d-inline">{{ orderDirArrow }}</p>
                   </th>
                   <!-- Date listing was created -->
-                  <th class="pointer">
-                    <p>Created</p>
+                  <th class="pointer" scope="col" @click="orderResults('created')">
+                    <p class="d-inline">Created</p>
+                    <p v-if="orderCol === 'created'" class="d-inline">{{ orderDirArrow }}</p>
                   </th>
                   <!-- Date listing closes -->
-                  <th class="pointer">
-                    <p>Closes</p>
+                  <th class="pointer" scope="col" @click="orderResults('closes')">
+                    <p class="d-inline">Closes</p>
+                    <p v-if="orderCol === 'closes'" class="d-inline">{{ orderDirArrow }}</p>
                   </th>
                 </tr>
                 </thead>
                 <tbody v-if="!loading">
-                <tr>
-                  <td rowspan="2">1</td>
-                  <td>NEW-1</td>
-                  <td>2</td>
-                  <td>$2.99</td>
-                  <td>2021-04-26</td>
-                  <td>2021-05-26</td>
+                <tr v-for="item in paginatedListings" v-bind:key="item.id">
+                  <td style="word-break: break-word; width: 50%">
+                    {{ item.inventoryItem.product.name }}
+                    <span v-if="item.moreInfo" style="font-size: small"><br/>{{ item.moreInfo }}</span>
+                  </td>
+                  <td>{{ item.quantity }}</td>
+                  <td>{{ formatPrice(item.price) }}</td>
+                  <td>{{ formatDate(item.created) }}</td>
+                  <td>{{ formatDate(item.closes) }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -84,6 +91,21 @@
 
           </div>
 
+          <!-- Show loading text until results are obtained -->
+          <div v-if="loading" class="row">
+            <span class="col text-center text-muted">Loading...</span>
+          </div>
+
+          <!--    Result Information    -->
+          <div class="row">
+            <div class="col">
+              <pagination
+                  :current-page.sync="page"
+                  :items-per-page="resultsPerPage"
+                  :total-items="totalCount"
+              />
+            </div>
+          </div>
 
         </div>
       </div>
@@ -96,13 +118,16 @@
 import LoginRequired from "@/components/LoginRequired";
 import Alert from "@/components/Alert";
 import ShowingResultsText from "@/components/ShowingResultsText";
+import Pagination from "@/components/Pagination";
+import {Business} from "@/Api";
 
 export default {
   name: "SaleListings",
   components: {
     ShowingResultsText,
     LoginRequired,
-    Alert
+    Alert,
+    Pagination
   },
   data() {
     return {
@@ -116,6 +141,10 @@ export default {
       loading: false
     }
   },
+  mounted() {
+    this.getCurrency();
+    this.fillTable();
+  },
   computed: {
     /**
      * Gets the business ID
@@ -124,6 +153,9 @@ export default {
     businessId() {
       return this.$route.params.businessId;
     },
+    /**
+     * Returns whether or not the user is logged in.
+     */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn;
     },
@@ -154,11 +186,85 @@ export default {
       }
       return newListings;
     },
+    /**
+     * Returns paginated sale listings.
+     */
+    paginatedListings() {
+      let newListings = this.sortedListings;
+      if (newListings.length > 0) {
+        const startIndex = this.resultsPerPage * (this.page - 1);
+        const endIndex = this.resultsPerPage * this.page;
+        newListings = newListings.slice(startIndex, endIndex);
+      }
+      return newListings;
+    },
+    /**
+     * The total number of listings.
+     */
     totalCount() {
       return this.listings.length;
+    },
+    fakeData() { // TODO delete once using real data.
+      return [
+        {
+          "id": 1,
+          "inventoryItem": {
+            "id": 1,
+            "product": {
+              "id": "WATT-420g-BEANS",
+              "name": "Watties Baked Beans - 420g can",
+              "description": "Baked Beans as they should be.",
+              "manufacturer": "Watties",
+              "recommendedRetailPrice": 2.2,
+              "created": "2021-04-16T04:34:55.931Z"
+            },
+            "quantity": 4,
+            "pricePerItem": 2.2,
+            "totalPrice": 8.8,
+            "manufactured": "",
+            "sellBy": "",
+            "bestBefore": "",
+            "expires": "2021-05-16T04:34:55.931Z"
+          },
+          "quantity": 2,
+          "price": 2.99,
+          "moreInfo": "A listing yay!",
+          "created": "2021-05-16T04:34:55.931Z",
+          "closes": "2021-06-16T04:34:55.931Z"
+        },
+        {
+          "id": 2,
+          "inventoryItem": {
+            "id": 1,
+            "product": {
+              "id": "WATT-420g-BEANS",
+              "name": "Zeds Baked Beans - 420g can",
+              "description": "Baked Beans as they should be.",
+              "manufacturer": "Watties",
+              "recommendedRetailPrice": 2.2,
+              "created": "2021-04-16T04:34:55.931Z"
+            },
+            "quantity": 4,
+            "pricePerItem": 2.2,
+            "totalPrice": 8.8,
+            "manufactured": "",
+            "sellBy": "",
+            "bestBefore": "",
+            "expires": "2021-05-16T04:34:55.931Z"
+          },
+          "quantity": 3,
+          "price": 6.99,
+          "moreInfo": null,
+          "created": "2021-05-16T04:34:55.931Z",
+          "closes": "2021-06-23T04:34:55.931Z"
+        }
+      ]
     }
   },
   methods: {
+    /**
+     * Method which sets the column and direction to order by.
+     */
     orderResults(col) {
       if (this.orderCol === col && this.orderDirection) {
         this.orderCol = null;
@@ -170,25 +276,79 @@ export default {
       this.orderCol = col;
     },
     /**
+     * Function which returns the value of a specified column. Used for sorting.
+     * @param item the item to get field from.
+     * @returns value of the specified column.
+     */
+    getCol(item) {
+      switch (this.orderCol) {
+        case 'name':
+          return item.inventoryItem.product.name;
+        case 'quantity':
+          return item.quantity;
+        case 'price':
+          return item.price;
+        case 'created':
+          return item.created;
+        case 'closes':
+          return item.closes;
+        default:
+          return item.id;
+      }
+    },
+    /**
      * Function that sorts alphabetically by orderCol.
-     * @param a first item to compare.
-     * @param b second item to compare.
-     * @returns {number} number representing which item should come first.
      */
     sortAlpha(a, b) {
-      if (a[this.orderCol] === null) {
+      if (this.getCol(a) === null) {
         return -1
       }
-      if (b[this.orderCol] === null) {
+      if (this.getCol(b) === null) {
         return 1
       }
-      if (a[this.orderCol] < b[[this.orderCol]]) {
+      if (this.getCol(a) < this.getCol(b)) {
         return 1;
       }
-      if (a[this.orderCol] > b[[this.orderCol]]) {
+      if (this.getCol(a) > this.getCol(b)) {
         return -1;
       }
       return 0;
+    },
+    /**
+     * Formats the date fields.
+     * @param string string representation of the date.
+     * @returns {string} the formated date.
+     */
+    formatDate(string) {
+      if (string === '') {
+        return '';
+      } else {
+        return new Date(string).toDateString();
+      }
+    },
+    /**
+     * Formats the price to correct currency.
+     */
+    formatPrice(price) {
+      return this.$root.$data.product.formatPrice(this.currency, price);
+    },
+    /**
+     * Gets the currency to use for a particualr business.
+     */
+    async getCurrency() {
+      const country = (await Business.getBusinessData(this.businessId)).data.address.country;
+      this.currency = await this.$root.$data.product.getCurrency(country);
+    },
+    /**
+     * Fills the table with a business's sale listings.
+     */
+    fillTable() {
+      this.inventoryItems = [];
+      this.loading = true;
+      this.page = 1;
+
+      this.listings = this.fakeData; // TODO get data from backend once implemented.
+      this.loading = false;
     }
   }
 }
