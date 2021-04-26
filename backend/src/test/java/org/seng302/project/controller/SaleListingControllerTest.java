@@ -1,5 +1,6 @@
 package org.seng302.project.controller;
 
+import org.apache.tomcat.jni.Address;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,9 @@ public class SaleListingControllerTest {
 
     private SaleListing listing;
 
+    // Test address
+    private Address testAddress1;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -61,6 +65,8 @@ public class SaleListingControllerTest {
     private InventoryItemRepository inventoryItemRepository;
     @Autowired
     private SaleListingRepository saleListingRepository;
+    @Autowired
+    private AddressRepository addressRepository;
 
     /**
      * Creates the user if it's not already created.
@@ -83,16 +89,20 @@ public class SaleListingControllerTest {
     public void initialise() {
         inventoryItemRepository.deleteAll();
 
+        // Create address
+        testAddress1 = new Address();
+        addressRepository.save(testAddress1);
+
         // Create the users
         user = createUser(new User("John", "Smith", "Bob", "Jonny",
                 "Likes long walks on the beach", userEmail, "1999-04-27",
-                "+64 3 555 0129", "4 Rountree Street, Upper Riccarton", userPassword));
+                "+64 3 555 0129", testAddress1, userPassword));
         owner = createUser(new User("Jane", "Smith", "Rose", "Jonny",
                 "Likes long walks on the beach", ownerEmail, "1999-04-27",
-                "+64 3 555 0120", "4 Rountree Street, Upper Riccarton", ownerPassword));
+                "+64 3 555 0120", testAddress1, ownerPassword));
 
         // Create the business
-        business = new Business("Business", "A Business", "4 Rountree", "Retail",
+        business = new Business("Business", "A Business", testAddress1, "Retail",
                 owner.getId());
         businessRepository.save(business);
 
@@ -119,11 +129,9 @@ public class SaleListingControllerTest {
         businessRepository.delete(business);
         userRepository.delete(user);
         userRepository.delete(owner);
+        addressRepository.delete(testAddress1);
     }
 
-    /**
-     * Check unauthenticated get requests respond with 401.
-     */
     @Test
     public void checkUnauthenticatedRequest() throws Exception {
         mockMvc.perform(get("/businesses/{id}/listings", business.getId()))

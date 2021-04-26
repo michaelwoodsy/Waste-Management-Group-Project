@@ -2,10 +2,7 @@ package org.seng302.project.controller;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.exceptions.*;
-import org.seng302.project.model.Business;
-import org.seng302.project.model.BusinessRepository;
-import org.seng302.project.model.User;
-import org.seng302.project.model.UserRepository;
+import org.seng302.project.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +20,15 @@ public class BusinessController {
 
     private static final Logger logger = LoggerFactory.getLogger(BusinessController.class.getName());
     private final BusinessRepository businessRepository;
+    private final AddressRepository addressRepository;
     private final UserRepository userRepository;
 
     @Autowired
-    public BusinessController(BusinessRepository businessRepository, UserRepository userRepository) {
+    public BusinessController(BusinessRepository businessRepository,
+                              AddressRepository addressRepository,
+                              UserRepository userRepository) {
         this.businessRepository = businessRepository;
+        this.addressRepository = addressRepository;
         this.userRepository = userRepository;
     }
 
@@ -55,14 +56,19 @@ public class BusinessController {
 
             //If any of the required fields are empty
             if (newBusiness.getName().equals("") ||
-                    newBusiness.getAddress().equals("") ||
+                    newBusiness.getAddress().getCountry().equals("") ||
                     newBusiness.getBusinessType().equals("")) {
                 RequiredFieldsMissingException exception = new RequiredFieldsMissingException();
                 logger.error(exception.getMessage());
                 throw exception;
             }
+            /*if (!newBusiness.getAddress().getStreetNumber().equals("") && newBusiness.getAddress().getStreetName().equals("")) {
+                InvalidAddressException addressException = new InvalidAddressException();
+                logger.warn(addressException.getMessage());
+                throw addressException;
+            }*/
 
-            //If business type is not one of the specified business types
+            // If business type is not one of the specified business types
             if (!newBusiness.getBusinessType().equals("Accommodation and Food Services") &&
                     !newBusiness.getBusinessType().equals("Retail Trade") &&
                     !newBusiness.getBusinessType().equals("Charitable organisation") &&
@@ -71,7 +77,7 @@ public class BusinessController {
                 logger.error(exception.getMessage());
                 throw exception;
             }
-
+            addressRepository.save(newBusiness.getAddress());
             businessRepository.save(newBusiness);
             logger.info(String.format("Successful creation of business %d", newBusiness.getId()));
         } catch (NoUserExistsException | RequiredFieldsMissingException | NoBusinessTypeExistsException handledException) {

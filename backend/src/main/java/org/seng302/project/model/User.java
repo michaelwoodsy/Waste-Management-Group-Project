@@ -28,7 +28,7 @@ public class User {
     private String email;
     private String dateOfBirth;
     private String phoneNumber;
-    private String homeAddress;
+    private Address homeAddress;
     private String password;
     // One of [ user, globalApplicationAdmin, defaultGlobalApplicationAdmin ]
     private String role; // This property should only be shown to Global org.seng302.project.controller.Application Admins
@@ -37,7 +37,7 @@ public class User {
 
     public User(String firstName, String lastName, String middleName,
                 String nickname, String bio, String email, String dateOfBirth,
-                String phoneNumber, String homeAddress, String password) {
+                String phoneNumber, Address homeAddress, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
@@ -63,6 +63,12 @@ public class User {
         return this.password;
     }
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "address_id")
+    public Address getHomeAddress() {
+        return this.homeAddress;
+    }
+
     // TODO: change this to a list of Business ids, not objects
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
@@ -83,5 +89,6 @@ public class User {
         }
         return false;
     }
+
 
 }

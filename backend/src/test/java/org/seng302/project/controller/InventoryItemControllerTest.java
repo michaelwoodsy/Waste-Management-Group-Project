@@ -66,6 +66,9 @@ public class InventoryItemControllerTest {
     @Autowired
     private InventoryItemRepository inventoryItemRepository;
 
+    @Autowired
+    private AddressRepository addressRepository;
+
     /**
      * Creates the user if it's not already created.
      * If it is already created, the user is returned.
@@ -87,18 +90,25 @@ public class InventoryItemControllerTest {
     public void initialise() {
         inventoryItemRepository.deleteAll();
 
-        // Create the users
+        // Create user addresses
+        Address testAddress1 = new Address();
+        Address testAddress2 = new Address();
+        Address testAddress3 = new Address();
+        addressRepository.save(testAddress1);
+        addressRepository.save(testAddress2);
+        addressRepository.save(testAddress3);
 
+        // Create the users
         user = createUser(new User("John", "Smith", "Bob", "Jonny",
                 "Likes long walks on the beach", "jane111@gmail.com", "1999-04-27",
-                "+64 3 555 0129", "4 Rountree Street, Upper Riccarton", "1337-H%nt3r2"));
+                "+64 3 555 0129", testAddress1, "1337-H%nt3r2"));
 
         owner = createUser(new User("Jane", "Smith", "Rose", "Jonny",
                 "Likes long walks on the beach", "johnxyz@gmail.com", "1999-04-27",
-                "+64 3 555 0120", "4 Rountree Street, Upper Riccarton", "1337-H%nt3r2"));
+                "+64 3 555 0120", testAddress2, "1337-H%nt3r2"));
 
         // Create the business
-        Business testBusiness = new Business("Business", "A Business", "4 Rountree", "Retail",
+        Business testBusiness = new Business("Business", "A Business", testAddress3, "Retail",
                 owner.getId());
 
         businessRepository.save(testBusiness);

@@ -21,7 +21,8 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     /**
      * Gets a single product based on the id and business id.
-     * @param id Product id
+     *
+     * @param id         Product id
      * @param businessId Business id
      * @return The product with the matching id and business id.
      */

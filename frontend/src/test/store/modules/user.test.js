@@ -9,7 +9,7 @@ import {getCookie, setCookie} from '@/utils/cookieJar'
 // Mock the api module
 jest.mock('@/Api', () => ({
     'User': {
-        getUserData (id) {
+        getUserData(id) {
             return new Promise((resolve) => {
                 resolve({
                     data: {
@@ -19,15 +19,20 @@ jest.mock('@/Api', () => ({
                         "email": "johnsmith99@gmail.com"
                     }
                 })
-        })},
+            })
+        },
 
-        createNew () {
-            return new Promise((resolve) => {resolve({data: {userId: 1}})})
+        createNew() {
+            return new Promise((resolve) => {
+                resolve({data: {userId: 1}})
+            })
         },
 
         // eslint-disable-next-line no-unused-vars
-        login (username, password) {
-            return new Promise((resolve) => {resolve({data: {userId: 1}})})
+        login(username, password) {
+            return new Promise((resolve) => {
+                resolve({data: {userId: 1}})
+            })
         }
     },
 }));
@@ -49,7 +54,7 @@ beforeEach(() => {
 describe('store.user', () => {
 
     // Logging in
-    test('logging in', async() => {
+    test('logging in', async () => {
         expect(user.state.loggedIn).toBeFalsy();
         await user.login("username", "pword")
         expect(user.state.loggedIn).toBeTruthy();
@@ -57,7 +62,7 @@ describe('store.user', () => {
     });
 
     // Logging out
-    test('logging out', async() => {
+    test('logging out', async () => {
         user.state = {
             message: 'Hello!',
             loggedIn: true,
@@ -72,7 +77,7 @@ describe('store.user', () => {
     });
 
     // check acting as a business sets the correct state
-    test('store state set when setActingAs is run', async() => {
+    test('store state set when setActingAs is run', async () => {
         // Test business
         const business = {
             name: "Store",
@@ -91,7 +96,7 @@ describe('store.user', () => {
     });
 
     // check acting as a business sets cookies
-    test('actor cookie gets set when setActingAs is run', async() => {
+    test('actor cookie gets set when setActingAs is run', async () => {
         // Test business
         const business = {
             name: "Store",
@@ -111,7 +116,7 @@ describe('store.user', () => {
     });
 
     // Check registering
-    test('registering logs the user in', async() => {
+    test('registering logs the user in', async () => {
         expect(user.state.loggedIn).toBeFalsy();
 
         // Try to register
@@ -123,7 +128,7 @@ describe('store.user', () => {
     });
 
     // Checking if user is logged in test
-    test("testing checkLoggedIn function if the correct cookies are present", async() => {
+    test("testing checkLoggedIn function if the correct cookies are present", async () => {
         // Setup cookies
         const actor = JSON.stringify({id: 2, type: "business", name: "Shop 1"});
         setCookie("actor", actor, null);
