@@ -232,7 +232,7 @@
         "postcode": "8022"
       },
       "businessType": "Accommodation and Food Services",
-      "primaryAdministratorId": 3
+      "primaryAdministratorId": 1
     }
   ],
   "products": [
@@ -265,7 +265,7 @@
       "name": "Choc-chip muffins",
       "description": "Soft vanilla muffins with chocolate chips.",
       "manufacturer": "Myrtle",
-      "recommendedRetailPrice": 2.99,
+      "recommendedRetailPrice": 2.89,
       "businessId": 3
     },
     {
@@ -281,18 +281,18 @@
     {
       "productId": "CHOC-CHIP",
       "quantity": 4,
-      "pricePerItem": 2.2,
-      "totalPrice": 8.8,
+      "pricePerItem": 2.1,
+      "totalPrice": 8.4,
       "manufactured": "2021-05-10T04:34:55.931Z",
       "sellBy": "2021-05-15T04:34:55.931Z",
       "bestBefore": "2021-05-15T04:34:55.931Z",
       "expires": "2021-05-17T04:34:55.931Z"
     },
     {
-      "productId": "CHOC-CHIP",
-      "quantity": 4,
+      "productId": "BANANA",
+      "quantity": 3,
       "pricePerItem": 2.2,
-      "totalPrice": 8.8,
+      "totalPrice": 6.6,
       "manufactured": "2021-05-09T04:34:55.931Z",
       "sellBy": "2021-05-14T04:34:55.931Z",
       "bestBefore": "2021-05-14T04:34:55.931Z",

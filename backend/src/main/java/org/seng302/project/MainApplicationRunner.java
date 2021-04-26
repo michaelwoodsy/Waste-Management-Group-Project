@@ -42,6 +42,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Optional;
 
 /**
  * This spring component runs at application startup to do some initialisation
@@ -212,9 +213,25 @@ public class MainApplicationRunner implements ApplicationRunner {
         logger.info("Adding sample data to inventory item repository");
         for (Object object : inventoryData) {
             JSONObject jsonInventoryItem = (JSONObject) object;
-            //TODO
-//            InventoryItem testInventoryItem = new InventoryItem();
-//            inventoryItemRepository.save(testInventoryItem);
+            Optional<Product> testProductOptions = productRepository.findByIdAndBusinessId(
+                    jsonInventoryItem.getAsString("productId"),3);
+            if (testProductOptions.isPresent()) {
+                Product testProduct = testProductOptions.get();
+            InventoryItem testInventoryItem = new InventoryItem(
+                    testProduct,
+                    jsonInventoryItem.getAsNumber("quantity").intValue(),
+                    jsonInventoryItem.getAsNumber("pricePerItem") != null ?
+                            jsonInventoryItem.getAsNumber("pricePerItem").doubleValue(): null,
+                    jsonInventoryItem.getAsNumber("totalPrice")!= null ?
+                            jsonInventoryItem.getAsNumber("totalPrice").doubleValue(): null,
+                    jsonInventoryItem.getAsString("manufactured"),
+                    jsonInventoryItem.getAsString("sellBy"),
+                    jsonInventoryItem.getAsString("bestBefore"),
+                    jsonInventoryItem.getAsString("expires")
+                    );
+            inventoryItemRepository.save(testInventoryItem);
+            }
+
         }
         logger.info("Finished adding sample data to inventory item repository");
         logger.info(String.format("Added %d entries to inventory item repository", inventoryItemRepository.count()));
