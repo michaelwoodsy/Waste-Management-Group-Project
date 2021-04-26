@@ -1,11 +1,9 @@
 package org.seng302.project.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -21,6 +19,7 @@ public class ProductId implements Serializable {
 
     /**
      * Gets a hashcode for the ProductId
+     *
      * @return the product ids hashcode
      */
     @Override
@@ -34,6 +33,7 @@ public class ProductId implements Serializable {
 
     /**
      * Returns true if the two product ids have the same id and businessId
+     *
      * @param other Other id to compare
      * @return boolean, true if they are the same
      */

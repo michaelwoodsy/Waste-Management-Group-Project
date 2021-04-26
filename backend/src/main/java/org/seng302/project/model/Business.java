@@ -21,7 +21,7 @@ public class Business {
     private Integer id; // automatically generated and assigned by database connection.
     private String name;
     private String description;
-    private String address; // TODO Use Address class once implemented.
+    private Address address; // TODO Use Address class once implemented.
     private String businessType;
     private Integer primaryAdministratorId;
     private List<User> administrators = new ArrayList<>();
@@ -36,7 +36,7 @@ public class Business {
      * @param businessType           Type of the business. Valid types defined in BusinessType.
      * @param primaryAdministratorId ID of the User who creates the Business.
      */
-    public Business(String name, String description, String address, String businessType,
+    public Business(String name, String description, Address address, String businessType,
                     Integer primaryAdministratorId) {
         this.name = name;
         this.description = description;
@@ -50,6 +50,12 @@ public class Business {
     @Column(name = "business_id")
     public Integer getId() {
         return this.id;
+    }
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "address_id")
+    public Address getAddress() {
+        return this.address;
     }
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

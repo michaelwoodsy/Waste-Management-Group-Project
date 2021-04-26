@@ -9,7 +9,7 @@ import java.util.Optional;
 /**
  * Repository for interfacing with products in the database.
  */
-public interface ProductRepository extends JpaRepository<Product, String> {
+public interface ProductRepository extends JpaRepository<Product, ProductId> {
 
     /**
      * Gets all products for a specific business.
@@ -21,7 +21,8 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     /**
      * Gets a single product based on the id and business id.
-     * @param id Product id
+     *
+     * @param id         Product id
      * @param businessId Business id
      * @return The product with the matching id and business id.
      */

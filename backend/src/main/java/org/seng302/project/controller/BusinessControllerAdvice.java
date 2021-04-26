@@ -47,6 +47,17 @@ public class BusinessControllerAdvice {
 
     /**
      * Exception thrown by the createBusiness() function in BusinessController
+     * when a user tries to register with an invalid address.
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(InvalidAddressException.class)
+    public ResponseEntity<String> invalidAddress(InvalidAddressException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Exception thrown by the createBusiness() function in BusinessController
      * when a user tries to create a business with a business type that is not valid.
      *
      * @return a 400 response with an appropriate message
