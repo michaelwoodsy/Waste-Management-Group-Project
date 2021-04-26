@@ -13,11 +13,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,6 +42,8 @@ public class SaleListingControllerTest {
 
     // Test inventory
     private InventoryItem inventoryItem;
+
+    private SaleListing listing;
 
     @Autowired
     private MockMvc mockMvc;
@@ -104,12 +105,15 @@ public class SaleListingControllerTest {
         inventoryItem = new InventoryItem(product, 20,
                 10.99, 219.8, "2021-04-25",
                 "2021-04-25", "2021-04-25", "2021-04-25");
-        inventoryItemRepository.save(inventoryItem);
+        inventoryItem = inventoryItemRepository.save(inventoryItem);
 
     }
 
     @AfterEach
     public void tearDown() {
+        if (listing != null) {
+            saleListingRepository.delete(listing);
+        }
         inventoryItemRepository.delete(inventoryItem);
         productRepository.delete(product);
         businessRepository.delete(business);
@@ -163,9 +167,9 @@ public class SaleListingControllerTest {
     @Test
     public void testSaleListingsAreReturned() throws Exception {
         // Create new sale listing
-        SaleListing listing = new SaleListing(business.getId(), inventoryItem.getId(), 15.00, null,
+        listing = new SaleListing(business.getId(), inventoryItem, 15.00, null,
                 LocalDateTime.now(), 1);
-        saleListingRepository.save(listing);
+        listing = saleListingRepository.save(listing);
 
         MvcResult returnedListingResult = mockMvc.perform(get("/businesses/{businessId}/listings", business.getId())
                 .with(httpBasic(ownerEmail, ownerPassword)))
@@ -175,11 +179,32 @@ public class SaleListingControllerTest {
         String returnedListingString = returnedListingResult.getResponse().getContentAsString();
         JSONArray returnedArray = new JSONArray(returnedListingString);
 
+        // Check 1 item is in the array
         assertEquals(1, returnedArray.length());
 
+        // Check the item has the correct values
         JSONObject returnedListing = returnedArray.getJSONObject(0);
-
         assertEquals(listing.getId(), returnedListing.get("id"));
+        assertEquals(listing.getQuantity(), returnedListing.get("quantity"));
+        assertEquals(listing.getPrice(), returnedListing.get("price"));
+        assertNotNull(returnedListing.get("closes"));
+        assertNotNull(returnedListing.get("created"));
+
+        // Check the embedded inventory item
+        JSONObject returnedItem = returnedListing.getJSONObject("inventoryItem");
+        assertNotNull(returnedItem);
+        assertEquals(inventoryItem.getId(), returnedItem.get("id"));
+        JSONObject returnedProduct = returnedItem.getJSONObject("product");
+        assertNotNull(returnedProduct);
+
+        // Check embedded product
+        assertEquals(product.getId(), returnedProduct.get("id"));
+        assertEquals(product.getName(), returnedProduct.get("name"));
+        assertEquals(product.getDescription(), returnedProduct.get("description"));
+        assertEquals(product.getManufacturer(), returnedProduct.get("manufacturer"));
+        assertEquals(product.getRecommendedRetailPrice(), returnedProduct.get("recommendedRetailPrice"));
+        assertNotNull(product.getCreated());
+        assertTrue(returnedProduct.has("images"));
     }
 
 }
