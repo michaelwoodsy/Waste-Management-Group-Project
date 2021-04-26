@@ -325,10 +325,10 @@ public class InventoryItemController {
                 throw exception;
             }
 
-            // Get the product
+            // Get the item
             Optional<InventoryItem> itemResult = inventoryItemRepository.findById(inventoryItemId);
 
-            // Check if the product exists
+            // Check if the item exists
             if (itemResult.isEmpty()) {
                 NoInventoryItemExistsException exception = new NoInventoryItemExistsException(inventoryItemId, businessId);
                 logger.error(exception.getMessage());
@@ -347,8 +347,7 @@ public class InventoryItemController {
                         logger.error(exception.getMessage());
                         throw exception;
                     } else if (originalItem.getQuantity() != newQuantity.doubleValue()) {
-                        System.out.println("Editing Quantity");
-                        //If Quantity is below 0
+                        //If Quantity is at or below 0
                         if (newQuantity.intValue() <= 0) {
                             InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
                             logger.error(exception.getMessage());
@@ -367,11 +366,9 @@ public class InventoryItemController {
                 if (json.containsKey("pricePerItem")) {
                     Number newPPI = json.getAsNumber("pricePerItem");
                     if (newPPI == null) {
-                        System.out.println("Editing PPI");
                         item.setPricePerItem(null);
                     } else if (originalItem.getPricePerItem() == null ||
                             originalItem.getPricePerItem() != newPPI.doubleValue()) {
-                        System.out.println("Editing PPI");
                         //If Price per item is below 0
                         if (newPPI.doubleValue() < 0) {
                             InvalidPriceException exception = new InvalidPriceException("price per item");
@@ -392,10 +389,8 @@ public class InventoryItemController {
                     Number newTotalPrice = json.getAsNumber("totalPrice");
                     if (newTotalPrice == null) {
                         item.setPricePerItem(null);
-                        System.out.println("Editing Total Price");
                     } else if (originalItem.getTotalPrice() == null ||
                             originalItem.getTotalPrice() != newTotalPrice.doubleValue()) {
-                        System.out.println("Editing Total Price");
                         //If Total price is below 0
                         if (newTotalPrice.doubleValue() < 0) {
                             InvalidPriceException exception = new InvalidPriceException("total price");
@@ -411,23 +406,16 @@ public class InventoryItemController {
                 throw exception;
             }
 
-
-
-
-
             //Dates
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             Date currentDate = new Date();
-
             try {
                 //Manufacture date
                 if (json.containsKey("manufactured")) {
                     String manufactureDateString = json.getAsString("manufactured");
                     if (manufactureDateString == null) {
                         item.setManufactured(null);
-                        System.out.println("Editing Manufacture Date");
                     } else if (originalItem.getManufactured() == null || !originalItem.getManufactured().equals(manufactureDateString)) {
-                        System.out.println("Editing Manufacture Date");
                         Date manufactureDate = formatter.parse(manufactureDateString);
 
                         //Check if manufacture date is in the past
@@ -444,9 +432,7 @@ public class InventoryItemController {
                     String sellByDateString = json.getAsString("sellBy");
                     if (sellByDateString == null) {
                         item.setSellBy(null);
-                        System.out.println("Editing Sell By Date");
                     } else if (originalItem.getSellBy() == null || !originalItem.getSellBy().equals(sellByDateString)) {
-                        System.out.println("Editing Sell by Date");
                         Date sellByDate = formatter.parse(sellByDateString);
 
                         //Check if sell by date is in the future
@@ -463,9 +449,7 @@ public class InventoryItemController {
                     String bestBeforeDateString = json.getAsString("bestBefore");
                     if (bestBeforeDateString == null) {
                         item.setBestBefore(null);
-                        System.out.println("Editing Best Before Date");
                     } else if (originalItem.getBestBefore() == null || !originalItem.getBestBefore().equals(bestBeforeDateString)) {
-                        System.out.println("Editing Best Before Date");
                         Date bestBeforeDate = formatter.parse(bestBeforeDateString);
 
                         //Check if best before date is in the future
@@ -480,13 +464,11 @@ public class InventoryItemController {
                 //Expiry date
                 String expiryDateString = json.getAsString("expires");
                 if (json.containsKey("expires")  && !originalItem.getExpires().equals(expiryDateString)) {
-                    System.out.println("Editing Expiry Date");
                     if (expiryDateString == null) {
                         MissingInventoryItemExpiryException exception = new MissingInventoryItemExpiryException();
                         logger.warn(exception.getMessage());
                         throw exception;
                     } else if (!originalItem.getExpires().equals(expiryDateString)) {
-                        System.out.println("Editing Expiry Date");
                         Date expiryDate = formatter.parse(expiryDateString);
                         if (currentDate.after(expiryDate)) {
                             ItemExpiredException exception = new ItemExpiredException();
@@ -512,7 +494,6 @@ public class InventoryItemController {
             //ProductId
             String newProductId = json.getAsString("productId");
             if(json.containsKey("productId")  && !originalItem.getProduct().getId().equals(newProductId)) {
-                System.out.println("Editing Product");
                 if (newProductId == null || newProductId.equals("")) {
                     MissingProductIdException exception = new MissingProductIdException();
                     logger.warn(exception.getMessage());
