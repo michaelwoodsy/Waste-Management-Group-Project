@@ -13,6 +13,7 @@ import Catalogue from "@/components/ProductCatalogue";
 import EditProductPage from "@/components/EditProductPage";
 import InventoryPage from "@/components/InventoryPage";
 import CreateProductPage from "@/components/CreateProductPage";
+import SaleListings from "@/components/SaleListings";
 
 const routes = [
     {
@@ -74,6 +75,11 @@ const routes = [
         path: '/businesses/:businessId/inventory',
         name: 'InventoryPage',
         component: InventoryPage
+    },
+    {
+        path: '/businesses/:businessId/listings',
+        name: 'listings',
+        component: SaleListings
     }
 ];
 
