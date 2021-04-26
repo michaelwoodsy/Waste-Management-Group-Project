@@ -31,7 +31,7 @@
             <div class="form-group row">
               <label for="id"><b>Product ID<span class="required">*</span></b></label>
               <input id="id" v-model="id" :class="{'form-control': true, 'is-invalid': msg.id}" maxlength="255"
-                     placeholder="Enter a product ID" required type="text">
+                     placeholder="Enter a product ID (Only letters, numbers and hyphens allowed)" required type="text">
               <span class="invalid-feedback">{{ msg.id }}</span>
             </div>
 
@@ -50,18 +50,25 @@
                         placeholder="Enter a product description" type="text"/>
             </div>
 
+            <!-- Manufacturer -->
+            <div class="form-group row">
+              <label for="manufacturer"><b>Manufacturer</b></label>
+              <input id="manufacturer" v-model="manufacturer" class="form-control" maxlength="255"
+                     placeholder="Enter a manufacturer" required type="text">
+            </div>
+
             <!-- RRP -->
             <div class="form-group row">
               <label for="rrp"><b>Recommended Retail Price</b></label>
               <div :class="{'input-group': true, 'is-invalid': msg.rrp}">
                 <div class="input-group-prepend">
-                  <span class="input-group-text">{{ this.currency.symbol }}</span>
+                  <span class="input-group-text">{{ this.currencySymbol }}</span>
                 </div>
                 <input id="rrp" v-model="recommendedRetailPrice" :class="{'form-control': true, 'is-invalid': msg.rrp}"
                        maxlength="255"
                        placeholder="Enter product RRP" type="text">
                 <div class="input-group-append">
-                  <span class="input-group-text">{{ this.currency.code }}</span>
+                  <span class="input-group-text">{{ this.currencyCode }}</span>
                 </div>
               </div>
               <span class="invalid-feedback">{{ msg.rrp }}</span>
@@ -100,8 +107,10 @@ export default {
       id: '', // Required
       name: '', // Required
       description: '',
+      manufacturer: '',
       recommendedRetailPrice: '',
-      currency: null,
+      currencySymbol: "",
+      currencyCode: "",
       msg: {
         id: null,
         name: null,
@@ -140,8 +149,11 @@ export default {
      * Validate product ID field
      */
     validateId() {
-      if (!/^[a-zA-Z0-9-]+$/.test(this.id)) {
-        this.msg.id = 'Please enter a valid product ID';
+      if (this.id === '') {
+        this.msg.id = 'Please enter a product ID';
+        this.valid = false;
+      } else if (!/^[a-zA-Z0-9-]+$/.test(this.id)) {
+        this.msg.id = 'Product ID must consist of letters, numbers, and hyphens';
         this.valid = false;
       } else {
         this.msg.id = null;
@@ -198,6 +210,7 @@ export default {
             "id": this.id,
             "name": this.name,
             "description": this.description,
+            "manufacturer": this.manufacturer,
             "recommendedRetailPrice": this.recommendedRetailPrice !== '' ? this.roundRRP(rrp) : null
           }
       ).then(() => {
@@ -216,7 +229,9 @@ export default {
     },
     async getCurrency() {
       const country = 'New Zealand'
-      this.currency = await this.$root.$data.product.getCurrency(country)
+      const currency = await this.$root.$data.product.getCurrency(country)
+      this.currencySymbol = currency.symbol
+      this.currencyCode = currency.code
     }
   }
 }

@@ -253,6 +253,14 @@ export default {
       return this.products.length
     }
   },
+  watch: {
+    /**
+     * Called when the businessId is changed, this occurs when the path variable for the business id is updated
+     */
+    businessId() {
+      this.getCurrencyAndFillTable()
+    }
+  },
   methods: {
     /**
      * Check if the user is an admin of the business and is acting as that business

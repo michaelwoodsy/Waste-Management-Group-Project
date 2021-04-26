@@ -42,7 +42,7 @@ public class InventoryItem {
 
 
     @Id // this field (attribute) is the primary key of the table
-    @GeneratedValue // autoincrement the ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
     @Column(name = "inventory_item_id")
     public Integer getId() {
         return this.id;
