@@ -253,6 +253,14 @@ export default {
       return this.products.length
     }
   },
+  watch: {
+    /**
+     * Called when the businessId is changed, this occurs when the path variable for the business id is updated
+     */
+    businessId() {
+      this.getCurrencyAndFillTable()
+    }
+  },
   methods: {
     /**
      * Check if the user is an admin of the business and is acting as that business
@@ -311,9 +319,10 @@ export default {
      */
     async getCurrencyAndFillTable() {
       this.loading = true
-      //Change country to businesses address country when implemented
+
       //The country variable  will always be an actual country as it is a requirement when creating a business
-      const country = "Netherlands"
+      //Get Businesses country
+      const country = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
 
       this.currency = await this.$root.$data.product.getCurrency(country)
 

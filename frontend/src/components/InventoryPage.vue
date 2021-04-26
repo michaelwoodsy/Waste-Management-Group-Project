@@ -109,8 +109,8 @@
                 <th scope="row">{{ item.id }}</th>
                 <td>{{ item.product.id }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>{{ item.pricePerItem }}</td>
-                <td>{{ item.totalPrice }}</td>
+                <td>{{ formatPrice(item.pricePerItem) }}</td>
+                <td>{{ formatPrice(item.totalPrice) }}</td>
                 <td>{{ formatDate(item.manufactured)}}</td>
                 <td>{{ formatDate(item.sellBy)}}</td>
                 <td>{{ formatDate(item.bestBefore)}}</td>
@@ -154,7 +154,7 @@ import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
-//import {Business} from "@/Api";
+import {Business} from "@/Api";
 
 export default {
   name: "InventoryPage",
@@ -177,7 +177,7 @@ export default {
     }
   },
   mounted() {
-    this.fillTable()
+    this.getCurrencyAndFillTable()
   },
 
   computed: {
@@ -258,6 +258,14 @@ export default {
       return this.inventoryItems.length
     }
   },
+  watch: {
+    /**
+     * Called when the businessId is changed, this occurs when the path variable for the business id is updated
+     */
+    businessId() {
+      this.fillTable()
+    }
+  },
   methods: {
     /**
      * Check if the user is an admin of the business and is acting as that business
@@ -300,6 +308,29 @@ export default {
      */
     editProduct(id) {
       this.$router.push({name: 'editInventoryItem', params: {businessId: this.businessId, inventoryItemId: id}})
+    },
+
+    /**
+     * Uses the getCurrency in the product.js module to get the currency of the business,
+     * and then call the fill table method
+     */
+    async getCurrencyAndFillTable() {
+      this.loading = true
+      //Change country to businesses address country when implemented
+      //The country variable  will always be an actual country as it is a requirement when creating a business
+      //Get Businesses country
+      const country = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
+
+      this.currency = await this.$root.$data.product.getCurrency(country)
+
+      this.fillTable()
+    },
+
+    /**
+     * calls the formatPrice method in the product module to format the products recommended retail price
+     */
+    formatPrice(price) {
+      return this.$root.$data.product.formatPrice(this.currency, price)
     },
 
     /**

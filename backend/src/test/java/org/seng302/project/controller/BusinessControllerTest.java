@@ -56,23 +56,27 @@ public class BusinessControllerTest {
     }
 
     private JSONObject createTestBusiness() throws JSONException {
+        JSONObject testAddress = new JSONObject();
+        testAddress.put("country", "New Zealand");
         JSONObject testBusinessJson = new JSONObject();
         testBusinessJson.put("primaryAdministratorId", 20);
         testBusinessJson.put("name", "Lumbridge General Store");
         testBusinessJson.put("description", "A one-stop shop for all your adventuring needs");
-        testBusinessJson.put("address", "3/24 Ilam Road, Christchurch, Canterbury, New Zealand, 90210");
+        testBusinessJson.put("address", testAddress);
         testBusinessJson.put("businessType", "Accommodation and Food Services");
 
         return testBusinessJson;
     }
 
     private void createLoggedInUser() throws Exception {
+        JSONObject testAddress = new JSONObject();
+        testAddress.put("country", "New Zealand");
         JSONObject testUserJson = new JSONObject();
         testUserJson.put("firstName", "Jim");
         testUserJson.put("lastName", "Smith");
         testUserJson.put("email", "jimsmith@gmail.com");
         testUserJson.put("dateOfBirth", "1999-04-27");
-        testUserJson.put("homeAddress", "4 Rountree Street, Upper Riccarton");
+        testUserJson.put("homeAddress", testAddress);
         testUserJson.put("password", "1337-H%nt3r2");
 
         testUserJson.put("middleName", "");
@@ -121,7 +125,7 @@ public class BusinessControllerTest {
         Assertions.assertEquals(loggedInUser.getId(), retrievedBusiness.getAdministrators().get(0).getId());
         Assertions.assertEquals("Lumbridge General Store", retrievedBusiness.getName());
         Assertions.assertEquals("A one-stop shop for all your adventuring needs", retrievedBusiness.getDescription());
-        Assertions.assertEquals("3/24 Ilam Road, Christchurch, Canterbury, New Zealand, 90210", retrievedBusiness.getAddress());
+        Assertions.assertEquals("New Zealand", retrievedBusiness.getAddress().getCountry());
         Assertions.assertEquals("Accommodation and Food Services", retrievedBusiness.getBusinessType());
         Assertions.assertEquals("jimsmith@gmail.com", retrievedBusiness.getAdministrators().get(0).getEmail());
 
@@ -169,10 +173,11 @@ public class BusinessControllerTest {
     public void tryAddressFieldEmpty() throws Exception {
         User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
 
+        JSONObject testAddress = new JSONObject();
+        testAddress.put("country", "");
         JSONObject testBusiness = createTestBusiness();
         testBusiness.put("primaryAdministratorId", loggedInUser.getId());
-
-        testBusiness.put("address", "");
+        testBusiness.put("address", testAddress);
         RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusiness.toString())
@@ -227,12 +232,14 @@ public class BusinessControllerTest {
     public void tryAllRequiredFieldsEmpty() throws Exception {
         User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
 
+        JSONObject testAddress = new JSONObject();
+        testAddress.put("country", "");
         JSONObject testBusiness = createTestBusiness();
         testBusiness.put("primaryAdministratorId", loggedInUser.getId());
-
         testBusiness.put("name", "");
-        testBusiness.put("address", "");
+        testBusiness.put("address", testAddress);
         testBusiness.put("businessType", "");
+
         RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusiness.toString())
@@ -278,7 +285,7 @@ public class BusinessControllerTest {
         Assertions.assertEquals("Lumbridge General Store", returnedBusiness.getString("name"));
         Assertions.assertEquals(loggedInUser.getId().toString(), returnedBusiness.getString("primaryAdministratorId"));
         Assertions.assertEquals("A one-stop shop for all your adventuring needs", returnedBusiness.getString("description"));
-        Assertions.assertEquals("3/24 Ilam Road, Christchurch, Canterbury, New Zealand, 90210", returnedBusiness.getString("address"));
+        Assertions.assertEquals("New Zealand", returnedBusiness.getJSONObject("address").getString("country"));
         Assertions.assertEquals("Accommodation and Food Services", returnedBusiness.getString("businessType"));
 
 
@@ -297,12 +304,14 @@ public class BusinessControllerTest {
     @Order(7)
     public void addAdministrator() throws Exception {
         //Create Test user to add as administrator
+        JSONObject testAddress = new JSONObject();
+        testAddress.put("country", "New Zealand");
         JSONObject testUserJson = new JSONObject();
         testUserJson.put("firstName", "Dave");
         testUserJson.put("lastName", "Sims");
         testUserJson.put("email", "DaveSims@gmail.com");
         testUserJson.put("dateOfBirth", "1998-04-27");
-        testUserJson.put("homeAddress", "6 Rountree Street, Upper Riccarton");
+        testUserJson.put("homeAddress", testAddress);
         testUserJson.put("password", "1337-H%nt3r2");
 
         testUserJson.put("middleName", "");
@@ -390,7 +399,7 @@ public class BusinessControllerTest {
 
     /**
      * Tries to add an administrator to a business when the user issuing the request is not a primary administrator
-     * Checks that a ForbiddenAdministratorActionException is sent, a 403 response
+     * Checks that a ForbiddenPrimaryAdministratorActionException is sent, a 403 response
      */
     @Test
     @Order(9)
@@ -424,7 +433,7 @@ public class BusinessControllerTest {
                 .andReturn();
 
         String returnedExceptionString = addAdminResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new ForbiddenAdministratorActionException(retrievedBusiness.getId()).getMessage(), returnedExceptionString);
+        Assertions.assertEquals(new ForbiddenPrimaryAdministratorActionException(retrievedBusiness.getId()).getMessage(), returnedExceptionString);
     }
 
 
@@ -567,6 +576,6 @@ public class BusinessControllerTest {
                 .andReturn();
 
         String returnedExceptionString = removeAdminResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new ForbiddenAdministratorActionException(retrievedBusiness.getId()).getMessage(), returnedExceptionString);
+        Assertions.assertEquals(new ForbiddenPrimaryAdministratorActionException(retrievedBusiness.getId()).getMessage(), returnedExceptionString);
     }
 }

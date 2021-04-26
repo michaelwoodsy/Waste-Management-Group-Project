@@ -104,7 +104,7 @@ export const Business = {
      * Retrieves the data for a given business
      */
     getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
-    
+
     /*
      *  Removes a user with id userId from administering the business with id businessId
      */
@@ -121,6 +121,13 @@ export const Business = {
     getProducts: (businessId) => instance.get(`businesses/${businessId}/products`, {}),
 
     /*
+     * Sends an edit product request to the backend
+     */
+    editProduct: (businessId, productId, newProductData) => instance.put(
+        `businesses/${businessId}/products/${productId}`,
+        newProductData),
+
+    /*
      * Gets all the items in a business's inventory
      */
     // TODO: uncomment when this is implemented on backend
@@ -130,4 +137,6 @@ export const Business = {
      * Creates a new product in the product catalogue
      */
     createProduct: (businessId, data) => instance.post(`businesses/${businessId}/products`, data)
+
+
 };
