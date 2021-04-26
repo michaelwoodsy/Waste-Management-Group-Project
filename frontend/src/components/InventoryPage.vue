@@ -7,7 +7,7 @@
 
     <admin-required
         v-else-if="!isAdminOf()"
-        page="view this business's product catalogue"
+        page="view this business's inventory"
     />
 
     <div v-else>
@@ -290,10 +290,20 @@ export default {
      * Function for sorting a list by orderCol alphabetically
      */
     sortAlpha (a, b) {
-      if(a[this.orderCol] === null) { return -1 }
-      if(b[this.orderCol] === null) { return 1 }
-      if(a[this.orderCol] < b[[this.orderCol]]) { return 1; }
-      if(a[this.orderCol] > b[[this.orderCol]]) { return -1; }
+
+      let sortVariable = this.orderCol
+
+      //Sorts by product id
+      if (this.orderCol === 'productId') {
+        a = a['product']
+        b = b['product']
+        sortVariable = 'id'
+      }
+
+      if(a[sortVariable] === null) { return -1 }
+      if(b[sortVariable] === null) { return 1 }
+      if(a[sortVariable] < b[[sortVariable]]) { return 1; }
+      if(a[sortVariable] > b[[sortVariable]]) { return -1; }
       return 0;
     },
 
