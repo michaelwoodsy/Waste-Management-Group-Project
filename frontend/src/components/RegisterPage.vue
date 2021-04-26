@@ -11,7 +11,7 @@
       <div class="row justify-content-center">
         <div class="col-12 col-sm-8 col-lg-6 col-xl-5 mb-2">
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    First Name    -->
             <label for="firstName" style="margin-top:20px"><b>First Name<span class="required">*</span></b></label>
             <input id="firstName" v-model="firstName" :class="{'form-control': true, 'is-invalid': msg.firstName}"
@@ -21,14 +21,14 @@
             <span class="invalid-feedback">{{ msg.firstName }}</span>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Middle Name    -->
             <label for="middleName"><b>Middle Name</b></label>
             <input id="middleName" v-model="middleName" class="form-control" maxlength="100"
                    placeholder="Enter your Middle Name" style="width:100%" type="text">
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Last Name    -->
             <label for="lastName"><b>Last Name<span class="required">*</span></b></label>
             <input id="lastName" v-model="lastName" :class="{'form-control': true, 'is-invalid': msg.lastName}"
@@ -38,7 +38,7 @@
             <span class="invalid-feedback" style="margin: 0">{{ msg.lastName }}</span>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Nickname    -->
             <label for="nickname"><b>Nickname</b></label>
             <input id="nickname" v-model="nickname" class="form-control" maxlength="100"
@@ -46,7 +46,7 @@
                    style="width: 100%" type="text">
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Email    -->
             <label for="email"><b>Email<span class="required">*</span></b></label>
             <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}" maxlength="100"
@@ -56,7 +56,7 @@
             <span class="invalid-feedback">{{ msg.email }}</span>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    bio    -->
             <label class="bio-label" for="bio"><b>Bio</b></label>
             <textarea id="bio" v-model="bio" class="form-control" maxlength="255"
@@ -64,7 +64,7 @@
                       style="width: 100%; height: 200px;"></textarea>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Date of Birth    -->
             <label for="dateOfBirth"><b>Date of Birth<span class="required">*</span></b></label>
             <input id="dateOfBirth" v-model="dateOfBirth" :class="{'form-control': true, 'is-invalid': msg.dateOfBirth}"
@@ -74,7 +74,7 @@
             <span class="invalid-feedback">{{ msg.dateOfBirth }}</span>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Phone Number    -->
             <label for="phoneNumber"><b>Phone Number</b></label>
             <input id="phoneNumber" v-model="phone" class="form-control"
@@ -87,11 +87,11 @@
           <hr/>
 
           <!--    Title for Address inputs    -->
-          <div class="form-row">
+          <div class="form-row mb-3">
             <span class="addressText"><b>Address</b></span>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Home Address Street Number    -->
             <label for="homeAddressNumber"><b>Street Number</b></label>
             <input id="homeAddressNumber" v-model="homeAddress.streetNumber" class="form-control"
@@ -99,7 +99,7 @@
                    placeholder="Enter your Street Number" style="width:100%" type="text">
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Home Address Street Name    -->
             <label for="homeAddressStreet"><b>Street Name</b></label><br/>
             <input id="homeAddressStreet" v-model="homeAddress.streetName" class="form-control" placeholder="Enter your Street Name"
@@ -109,7 +109,7 @@
             <span v-if="msg.streetName" class="error-msg">{{ msg.streetName }}</span>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Home Address City    -->
             <label for="homeAddressCity"><b>City or Town</b></label>
             <input id="homeAddressCity" v-model="addressCity" class="form-control" maxlength="50"
@@ -121,7 +121,7 @@
             </div>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Home Address Region    -->
             <label for="homeAddressRegion"><b>Region</b></label>
             <input id="homeAddressRegion" v-model="addressRegion" class="form-control" maxlength="50"
@@ -133,7 +133,7 @@
             </div>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Home Address Country    -->
             <label for="homeAddressCountry"><b>Country<span class="required">*</span></b></label>
             <input id="homeAddressCountry" v-model="addressCountry"
@@ -148,7 +148,7 @@
             </div>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Home Address Post Code    -->
             <label for="homeAddressPostCode"><b>Postcode</b></label>
             <input id="homeAddressPostCode" v-model="homeAddress.postcode" class="form-control"
@@ -158,7 +158,7 @@
 
           <hr/>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Password    -->
             <label for="password"><b>Password<span class="required">*</span></b></label>
             <input id="password" v-model="password" :class="{'form-control': true, 'is-invalid': msg.password}"
@@ -170,7 +170,7 @@
               be at least 8 characters long</p>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" v-on:click="checkInputs">Create
               Account
             </button>
