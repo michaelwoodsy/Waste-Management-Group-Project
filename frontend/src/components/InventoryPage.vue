@@ -149,7 +149,7 @@ import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
-//import {Business} from "@/Api";
+import {Business} from "@/Api";
 
 export default {
   name: "InventoryPage",
@@ -305,7 +305,8 @@ export default {
       this.loading = true
       //Change country to businesses address country when implemented
       //The country variable  will always be an actual country as it is a requirement when creating a business
-      const country = "New Zealand"
+      //Get Businesses country
+      const country = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
 
       this.currency = await this.$root.$data.product.getCurrency(country)
 
