@@ -28,7 +28,32 @@ let computed = {
 
 // Mock the business api module, once implemented
 jest.mock('@/Api', () => ({
-    'Business': {}
+    'Business': {
+        // Mock fake product data
+        getProducts() {
+            return new Promise((resolve) => {
+                resolve ({
+                    data: [
+                    {
+                        "id": "WATT-420-BEANS",
+                        "name": "Watties Baked Beans - 420g can",
+                        "description": "Baked Beans as they should be.",
+                        "manufacturer": "Heinz Wattie's Limited",
+                        "recommendedRetailPrice": 2.2,
+                        "created": "2021-04-16T23:08:48.584Z",
+                        "images": [
+                            {
+                                "id": 1234,
+                                "filename": "/media/images/23987192387509-123908794328.png",
+                                "thumbnailFilename": "/media/images/23987192387509-123908794328_thumbnail.png"
+                            }
+                        ]
+                    }
+
+                ]})
+            })
+        }
+    }
 }));
 
 // Setup before each test
@@ -129,7 +154,8 @@ describe('EditProductPage Component Tests', () => {
         // Setup with idValid, nameValid, priceValid set to false
         wrapper = await VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-            computed: {...computed, idValid: false, nameValid: false, priceValid: false}
+            computed: {...computed, idValid() {return false}, nameValid() {return false},
+                priceValid() {return false}}
         })
         await wrapper.setData({nameBlur: true, priceBlur: true, idBlur: true}) // Set the elements as being blurred
 

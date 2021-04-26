@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.*;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +25,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Unit tests for ProductCatalogueController class.
@@ -217,7 +214,7 @@ public class InventoryItemControllerTest {
                 .andReturn();
 
         String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new MissingInventoryItemQuantityException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals(new InvalidInventoryItemQuantityException().getMessage(), returnedExceptionString);
     }
 
     /**

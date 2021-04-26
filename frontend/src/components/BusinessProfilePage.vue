@@ -153,6 +153,14 @@ export default {
       return Number(this.$root.$data.user.state.userId) === this.primaryAdministratorId
     },
   },
+  watch: {
+    /**
+     * Called when the businessId is changed, this occurs when the path variable for the business id is updated
+     */
+    businessId(value) {
+      Business.getBusinessData(value).then((response) => this.profile(response))
+    }
+  },
   components: {
     LoginRequired
   },
