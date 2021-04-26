@@ -304,6 +304,7 @@ export default {
       }
       return 0;
     },
+
     /**
      * routes to the edit product page
      * @param id of the product
