@@ -12,6 +12,7 @@ import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 import Catalogue from "@/components/ProductCatalogue";
 import EditProductPage from "@/components/EditProductPage";
 import CreateProductPage from "@/components/CreateProductPage";
+import Default from "@/components/Default";
 import InventoryPage from "@/components/InventoryPage";
 import CreateInventoryItemPage from "@/components/CreateInventoryItemPage";
 
@@ -75,6 +76,12 @@ const routes = [
         path: '/businesses/:businessId/inventory',
         name: 'InventoryPage',
         component: InventoryPage
+    },
+    {
+        path: '/businesses/:businessId/inventory/:inventoryItemId',
+        name: 'editInventoryItem',
+        component: Default//TODO: Change this to the EditInventoryItemPage
+    },
     },
     {
         path: '/businesses/:businessId/inventory/create',

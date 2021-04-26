@@ -154,7 +154,7 @@ export default {
      * Returns true if the user is acting as a business
      * @returns {boolean|*}
      */
-    isActingAsBusiness () {
+    isActingAsBusiness() {
         return this.state.actingAs.type === "business"
     },
 
@@ -162,7 +162,7 @@ export default {
      * Returns true if the user is primary admin of the business they are acting as
      * @returns {boolean|*}
      */
-    isPrimaryAdminOfBusiness () {
+    isPrimaryAdminOfBusiness() {
         if (this.state.actingAs.type !== "business") return false
 
         //Looks through the users businessesAdministered, finds the business acting as and then checks to see if the current user is the primary admin of that business

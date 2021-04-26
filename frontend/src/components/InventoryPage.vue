@@ -7,7 +7,7 @@
 
     <admin-required
         v-else-if="!isAdminOf()"
-        page="view this business's product catalogue"
+        page="view this business's inventory"
     />
 
     <div v-else class="container-fluid">
@@ -106,31 +106,36 @@
                       <p class="d-inline" v-if="orderCol === 'expires'">{{ orderDirArrow }}</p>
                     </th>
 
+                <!--    Edit button column    -->
+                <th scope="col"></th>
 
-                  </tr>
-                  </thead>
-                  <!--    Product Information    -->
-                  <tbody v-if="!loading">
-                  <tr v-bind:key="item.id"
-                      v-for="item in paginatedInventoryItems"
-                      class="pointer"
-                  >
-                    <th scope="row">{{ item.id }}</th>
-                    <td>{{ item.product.id }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.pricePerItem }}</td>
-                    <td>{{ item.totalPrice }}</td>
-                    <td>{{ formatDate(item.manufactured)}}</td>
-                    <td>{{ formatDate(item.sellBy)}}</td>
-                    <td>{{ formatDate(item.bestBefore)}}</td>
-                    <td>{{ formatDate(item.expires)}}</td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="d-none d-lg-block col-lg-1"/>
+              </tr>
+              </thead>
+              <!--    Inventory item Information    -->
+              <tbody v-if="!loading">
+              <tr v-bind:key="item.id"
+                  v-for="item in paginatedInventoryItems"
+              >
+                <th scope="row">{{ item.id }}</th>
+                <td>{{ item.product.id }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ formatPrice(item.pricePerItem) }}</td>
+                <td>{{ formatPrice(item.totalPrice) }}</td>
+                <td>{{ formatDate(item.manufactured)}}</td>
+                <td>{{ formatDate(item.sellBy)}}</td>
+                <td>{{ formatDate(item.bestBefore)}}</td>
+                <td>{{ formatDate(item.expires)}}</td>
+                <td style="color: blue; cursor: pointer;"
+                    @click="editProduct(item.id)">
+                  Edit
+                </td>
+              </tr>
+              </tbody>
+            </table>
           </div>
+        </div>
+        <div class="d-none d-lg-block col-lg-1"/>
+      </div>
 
           <div class="row" v-if="loading">
             <div class="col-12 text-center">
@@ -184,7 +189,7 @@ export default {
     }
   },
   mounted() {
-    this.fillTable()
+    this.getCurrencyAndFillTable()
   },
 
   computed: {
@@ -302,11 +307,52 @@ export default {
      * Function for sorting a list by orderCol alphabetically
      */
     sortAlpha (a, b) {
-      if(a[this.orderCol] === null) { return -1 }
-      if(b[this.orderCol] === null) { return 1 }
-      if(a[this.orderCol] < b[[this.orderCol]]) { return 1; }
-      if(a[this.orderCol] > b[[this.orderCol]]) { return -1; }
+
+      let sortVariable = this.orderCol
+
+      //Sorts by product id
+      if (this.orderCol === 'productId') {
+        a = a['product']
+        b = b['product']
+        sortVariable = 'id'
+      }
+
+      if(a[sortVariable] === null) { return -1 }
+      if(b[sortVariable] === null) { return 1 }
+      if(a[sortVariable] < b[[sortVariable]]) { return 1; }
+      if(a[sortVariable] > b[[sortVariable]]) { return -1; }
       return 0;
+    },
+
+    /**
+     * routes to the edit inventory item page
+     * @param id of the inventory item
+     */
+    editProduct(id) {
+      this.$router.push({name: 'editInventoryItem', params: {businessId: this.businessId, inventoryItemId: id}})
+    },
+
+    /**
+     * Uses the getCurrency in the product.js module to get the currency of the business,
+     * and then call the fill table method
+     */
+    async getCurrencyAndFillTable() {
+      this.loading = true
+      //Change country to businesses address country when implemented
+      //The country variable  will always be an actual country as it is a requirement when creating a business
+      //Get Businesses country
+      const country = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
+
+      this.currency = await this.$root.$data.product.getCurrency(country)
+
+      this.fillTable()
+    },
+
+    /**
+     * calls the formatPrice method in the product module to format the products recommended retail price
+     */
+    formatPrice(price) {
+      return this.$root.$data.product.formatPrice(this.currency, price)
     },
 
     /**
@@ -335,8 +381,6 @@ export default {
       this.loading = true;
       this.page = 1;
 
-
-      // TODO: uncomment when GET inventory implemented on backend
       Business.getInventory(this.$route.params.businessId)
           .then((res) => {
             this.error = null;
