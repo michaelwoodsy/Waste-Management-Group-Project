@@ -42,6 +42,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Optional;
 
 /**
  * This spring component runs at application startup to do some initialisation
@@ -56,6 +57,7 @@ public class MainApplicationRunner implements ApplicationRunner {
     private final BusinessRepository businessRepository;
     private final AddressRepository addressRepository;
     private final ProductRepository productRepository;
+    private final InventoryItemRepository inventoryItemRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     /**
@@ -67,10 +69,12 @@ public class MainApplicationRunner implements ApplicationRunner {
      */
     @Autowired
     public MainApplicationRunner(UserRepository userRepository, BusinessRepository businessRepository, AddressRepository addressRepository,
-                                 ProductRepository productRepository, BCryptPasswordEncoder passwordEncoder) {
+                                 ProductRepository productRepository, InventoryItemRepository inventoryItemRepository,
+                                 BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
         this.addressRepository = addressRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -95,6 +99,10 @@ public class MainApplicationRunner implements ApplicationRunner {
             // Insert test product data.
             if (productRepository.count() == 0) {
                 insertTestProducts((JSONArray) data.get("products"));
+            }
+            // Insert test inventoryItem data.
+            if (inventoryItemRepository.count() == 0) {
+                insertTestInventoryItems((JSONArray) data.get("inventoryItems"));
             }
         }
     }
@@ -194,6 +202,39 @@ public class MainApplicationRunner implements ApplicationRunner {
         }
         logger.info("Finished adding sample data to product repository");
         logger.info(String.format("Added %d entries to product repository", productRepository.count()));
+    }
+
+    /**
+     * Inserts test product data to the database.
+     *
+     * @param inventoryData JSONArray of inventory data.
+     */
+    public void insertTestInventoryItems(JSONArray inventoryData) {
+        logger.info("Adding sample data to inventory item repository");
+        for (Object object : inventoryData) {
+            JSONObject jsonInventoryItem = (JSONObject) object;
+            Optional<Product> testProductOptions = productRepository.findByIdAndBusinessId(
+                    jsonInventoryItem.getAsString("productId"),3);
+            if (testProductOptions.isPresent()) {
+                Product testProduct = testProductOptions.get();
+            InventoryItem testInventoryItem = new InventoryItem(
+                    testProduct,
+                    jsonInventoryItem.getAsNumber("quantity").intValue(),
+                    jsonInventoryItem.getAsNumber("pricePerItem") != null ?
+                            jsonInventoryItem.getAsNumber("pricePerItem").doubleValue(): null,
+                    jsonInventoryItem.getAsNumber("totalPrice")!= null ?
+                            jsonInventoryItem.getAsNumber("totalPrice").doubleValue(): null,
+                    jsonInventoryItem.getAsString("manufactured"),
+                    jsonInventoryItem.getAsString("sellBy"),
+                    jsonInventoryItem.getAsString("bestBefore"),
+                    jsonInventoryItem.getAsString("expires")
+                    );
+            inventoryItemRepository.save(testInventoryItem);
+            }
+
+        }
+        logger.info("Finished adding sample data to inventory item repository");
+        logger.info(String.format("Added %d entries to inventory item repository", inventoryItemRepository.count()));
     }
 
 }

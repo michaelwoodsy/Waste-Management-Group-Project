@@ -7,7 +7,7 @@
 
     <admin-required
         v-else-if="!isAdminOf()"
-        page="view this business's product catalogue"
+        page="view this business's inventory"
     />
 
     <div v-else>
@@ -295,10 +295,20 @@ export default {
      * Function for sorting a list by orderCol alphabetically
      */
     sortAlpha (a, b) {
-      if(a[this.orderCol] === null) { return -1 }
-      if(b[this.orderCol] === null) { return 1 }
-      if(a[this.orderCol] < b[[this.orderCol]]) { return 1; }
-      if(a[this.orderCol] > b[[this.orderCol]]) { return -1; }
+
+      let sortVariable = this.orderCol
+
+      //Sorts by product id
+      if (this.orderCol === 'productId') {
+        a = a['product']
+        b = b['product']
+        sortVariable = 'id'
+      }
+
+      if(a[sortVariable] === null) { return -1 }
+      if(b[sortVariable] === null) { return 1 }
+      if(a[sortVariable] < b[[sortVariable]]) { return 1; }
+      if(a[sortVariable] > b[[sortVariable]]) { return -1; }
       return 0;
     },
 
@@ -352,59 +362,18 @@ export default {
       this.loading = true;
       this.page = 1;
 
-      this.inventoryItems = this.fakeData()
       this.loading = false
 
-      // TODO: uncomment when GET inventory implemented on backend
-      // Business.getInventory(this.$route.params.businessId)
-      //     .then((res) => {
-      //       this.error = null;
-      //       this.inventoryItems = res.data;
-      //       this.loading = false;
-      //     })
-      //     .catch((err) => {
-      //       this.error = err;
-      //       this.loading = false;
-      //     })
-    },
-    fakeData () {
-      return [
-        {
-          "id": 101,
-          "product": {
-            "id": "WATT-420g-BEANS",
-            "name": "Watties Baked Beans - 420g can",
-            "description": "Baked Beans as they should be.",
-            "manufacturer": "Watties",
-            "recommendedRetailPrice": 2.2,
-            "created": "2021-04-16T04:34:55.931Z"
-          },
-          "quantity": 4,
-          "pricePerItem": 2.2,
-          "totalPrice": 8.8,
-          "manufactured": "",
-          "sellBy": "",
-          "bestBefore": "",
-          "expires": "2021-05-16T04:34:55.931Z"
-        }, {
-          "id": 102,
-          "product": {
-            "id": "DORITO-300-CHEESE",
-            "name": "Doritos Nacho Cheese - 300g",
-            "description": "Gamer Fuel",
-            "manufacturer": "Doritoes inc.",
-            "recommendedRetailPrice": 3.5,
-            "created": "2021-04-16T04:34:55.931Z"
-          },
-          "quantity": 5,
-          "pricePerItem": 3,
-          "totalPrice": 15,
-          "manufactured": "",
-          "sellBy": "",
-          "bestBefore": "",
-          "expires": "2021-05-16T04:37:55.931Z"
-        }
-      ]
+      Business.getInventory(this.$route.params.businessId)
+          .then((res) => {
+            this.error = null;
+            this.inventoryItems = res.data;
+            this.loading = false;
+          })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
     }
   }
 }
