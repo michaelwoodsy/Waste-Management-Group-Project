@@ -82,7 +82,6 @@ const routes = [
         name: 'editInventoryItem',
         component: Default//TODO: Change this to the EditInventoryItemPage
     },
-    },
     {
         path: '/businesses/:businessId/inventory/create',
         name: 'CreateInventoryItem',
