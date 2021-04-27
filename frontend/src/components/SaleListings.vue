@@ -132,7 +132,9 @@ export default {
   data() {
     return {
       listings: [],
-      currency: null,
+      currency: {
+        symbol: "",
+        code: ""},
       error: null,
       orderCol: null,
       orderDirection: false, // False = Ascending
@@ -204,62 +206,6 @@ export default {
     totalCount() {
       return this.listings.length;
     },
-    fakeData() { // TODO delete once using real data.
-      return [
-        {
-          "id": 1,
-          "inventoryItem": {
-            "id": 1,
-            "product": {
-              "id": "WATT-420g-BEANS",
-              "name": "Watties Baked Beans - 420g can",
-              "description": "Baked Beans as they should be.",
-              "manufacturer": "Watties",
-              "recommendedRetailPrice": 2.2,
-              "created": "2021-04-16T04:34:55.931Z"
-            },
-            "quantity": 4,
-            "pricePerItem": 2.2,
-            "totalPrice": 8.8,
-            "manufactured": "",
-            "sellBy": "",
-            "bestBefore": "",
-            "expires": "2021-05-16T04:34:55.931Z"
-          },
-          "quantity": 2,
-          "price": 2.99,
-          "moreInfo": "A listing yay!",
-          "created": "2021-05-16T04:34:55.931Z",
-          "closes": "2021-06-16T04:34:55.931Z"
-        },
-        {
-          "id": 2,
-          "inventoryItem": {
-            "id": 1,
-            "product": {
-              "id": "WATT-420g-BEANS",
-              "name": "Zeds Baked Beans - 420g can",
-              "description": "Baked Beans as they should be.",
-              "manufacturer": "Watties",
-              "recommendedRetailPrice": 2.2,
-              "created": "2021-04-16T04:34:55.931Z"
-            },
-            "quantity": 4,
-            "pricePerItem": 2.2,
-            "totalPrice": 8.8,
-            "manufactured": "",
-            "sellBy": "",
-            "bestBefore": "",
-            "expires": "2021-05-16T04:34:55.931Z"
-          },
-          "quantity": 3,
-          "price": 6.99,
-          "moreInfo": null,
-          "created": "2021-05-16T04:34:55.931Z",
-          "closes": "2021-06-23T04:34:55.931Z"
-        }
-      ]
-    }
   },
   methods: {
     /**
@@ -343,12 +289,20 @@ export default {
      * Fills the table with a business's sale listings.
      */
     fillTable() {
-      this.inventoryItems = [];
+      this.listings = [];
       this.loading = true;
       this.page = 1;
 
-      this.listings = this.fakeData; // TODO get data from backend once implemented.
-      this.loading = false;
+      Business.getListings(this.$route.params.businessId)
+          .then((res) => {
+            this.error = null;
+            this.listings = res.data;
+            this.loading = false;
+          })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
     }
   }
 }
