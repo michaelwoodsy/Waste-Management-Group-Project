@@ -23,10 +23,7 @@ public class SaleListing {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "listing_id")
     private Integer id;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Column(name = "sale_inventory_item_id")
-    private Integer inventoryItemId;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "inventory_item_id")
     private InventoryItem inventoryItem;
     private Double price;
@@ -35,10 +32,10 @@ public class SaleListing {
     private LocalDateTime created = LocalDateTime.now();
     private Integer quantity;
 
-    public SaleListing(Integer businessId, Integer inventoryItemId, Double price, String moreInfo,
+    public SaleListing(Integer businessId, InventoryItem inventoryItem, Double price, String moreInfo,
                        LocalDateTime closes, Integer quantity) {
         this.businessId = businessId;
-        this.inventoryItemId = inventoryItemId;
+        this.inventoryItem = inventoryItem;
         this.price = price;
         this.moreInfo = moreInfo;
         this.closes = closes;

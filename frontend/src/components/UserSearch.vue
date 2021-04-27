@@ -293,15 +293,7 @@ export default {
      * @returns {string}
      */
     formattedAddress(address) {
-      let addressString = ''
-      if (address.city !== null && address.city !== "") addressString += `${address.city}, `
-      if (address.region !== null && address.region !== "") addressString += `${address.region}, `
-      if (address.country !== null && address.country !== "") addressString += `${address.country}, `
-      if (address.postcode !== null && address.postcode !== "") addressString += `${address.postcode}`
-
-      //Remove trailing ', ' if there is one
-      if (addressString.slice(-2) === ", ") addressString = addressString.slice(0, -2)
-      return addressString
+      return this.$root.$data.address.formatAddress(address)
     },
     /**
      * Router link to the clicked users profile page

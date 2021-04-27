@@ -159,7 +159,9 @@ export default {
      * Called when the businessId is changed, this occurs when the path variable for the business id is updated
      */
     businessId(value) {
-      Business.getBusinessData(value).then((response) => this.profile(response))
+      if (value !== undefined) {
+        Business.getBusinessData(value).then((response) => this.profile(response))
+      }
     }
   },
   components: {
@@ -179,11 +181,7 @@ export default {
       this.administrators = response.data.administrators;
 
       //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
-      this.address = ''
-      if (response.data.address.city !== '') this.address += `${response.data.address.city}, `
-      if (response.data.address.region !== '') this.address += `${response.data.address.region}, `
-      this.address += response.data.address.country
-      if (response.data.address.postcode !== '') this.address += `, ${response.data.address.postcode}`
+      this.address = this.$root.$data.address.formatAddress(response.data.address)
 
       this.dateJoined = response.data.created
       this.timeCalculator(Date.parse(this.dateJoined))
