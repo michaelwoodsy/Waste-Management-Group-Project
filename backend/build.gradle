@@ -42,6 +42,9 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    cucumberRuntime { // From SENG301 Lab
+        extendsFrom testImplementation
+    }
 }
 
 repositories {
@@ -65,7 +68,7 @@ dependencies {
 
     // use spring boot mocking test framework
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    // Cucumber dependencies
+    // Cucumber dependencies (we need all three)
     testImplementation 'io.cucumber:cucumber-java:6.9.1'
     testImplementation 'io.cucumber:cucumber-junit:6.9.1'
     testImplementation 'io.cucumber:cucumber-spring:6.9.1'
@@ -87,6 +90,18 @@ task cucumber(type: Test) {
     description = "Runs JUnit 4 tests (cucumber tests)"
     testLogging.showStandardStreams = true
     useJUnit()
+
+    //Below added from SENG301 lab
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'pretty', '--glue', 'gradle.cucumber', 'src/test/resources']
+        }
+    }
+
+
 }
 
 // configure test task to run on JUnit 5
