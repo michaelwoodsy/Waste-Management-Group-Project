@@ -61,6 +61,9 @@ public class InventoryItemControllerTest {
     private InventoryItemRepository inventoryItemRepository;
 
     @Autowired
+    private SaleListingRepository saleListingRepository;
+
+    @Autowired
     private AddressRepository addressRepository;
 
     /**
@@ -88,6 +91,7 @@ public class InventoryItemControllerTest {
 
     @BeforeEach
     public void initialise() {
+        saleListingRepository.deleteAll();
         inventoryItemRepository.deleteAll();
 
         // Create user addresses
