@@ -14,6 +14,7 @@ import EditProductPage from "@/components/EditProductPage";
 import InventoryPage from "@/components/InventoryPage";
 import CreateProductPage from "@/components/CreateProductPage";
 import Default from "@/components/Default";
+import ListItemPage from "@/components/ListItemPage";
 
 const routes = [
     {
@@ -81,6 +82,11 @@ const routes = [
         name: 'editInventoryItem',
         component: Default//TODO: Change this to the EditInventoryItemPage
     },
+    {
+        path: '/businesses/:businessId/listings/add',
+        name: 'listItem',
+        component: ListItemPage
+    }
 ];
 
 const base = process.env.VUE_APP_BASE_URL || '/';
