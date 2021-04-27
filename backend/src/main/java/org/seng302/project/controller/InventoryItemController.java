@@ -144,18 +144,17 @@ public class InventoryItemController {
                     quantity = json.getAsNumber("quantity").intValue();
                     //If quantity is at or below 0
                     if (quantity <= 0) {
-                        InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
+                        InvalidQuantityException exception = new InvalidQuantityException();
                         logger.error(exception.getMessage());
                         throw exception;
                     }
-                }
-                if (quantity == null) { //Empty string
-                    InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
+                } else {
+                    InvalidQuantityException exception = new InvalidQuantityException();
                     logger.error(exception.getMessage());
                     throw exception;
                 }
             } catch (NullPointerException nullPointerException) { //Field not in json
-                MissingProductIdException exception = new MissingProductIdException();
+                InvalidQuantityException exception = new InvalidQuantityException();
                 logger.error(exception.getMessage());
                 throw exception;
             } catch (NumberFormatException numberFormatException) { //Field is not a number
@@ -277,7 +276,7 @@ public class InventoryItemController {
             inventoryItemRepository.save(inventoryItem);
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
                 NoProductExistsException | MissingInventoryItemExpiryException |
-                InvalidInventoryItemQuantityException | ItemExpiredException | InvalidDateException |
+                InvalidQuantityException | ItemExpiredException | InvalidDateException |
                 InvalidManufactureDateException | InvalidSellByDateException | NumberFormatException |
                 InvalidBestBeforeDateException handledException) {
             throw handledException;

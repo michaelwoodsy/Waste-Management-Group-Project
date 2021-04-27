@@ -1,18 +1,20 @@
 package org.seng302.project.controller;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.controller.authentication.AppUserDetails;
-import org.seng302.project.exceptions.ForbiddenAdministratorActionException;
-import org.seng302.project.exceptions.NoBusinessExistsException;
-import org.seng302.project.exceptions.UserNotAdministratorException;
+import org.seng302.project.exceptions.*;
 import org.seng302.project.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,15 +28,18 @@ public class SaleListingController {
     private final BusinessRepository businessRepository;
     private final SaleListingRepository saleListingRepository;
     private final UserRepository userRepository;
+    private final InventoryItemRepository inventoryItemRepository;
 
     @Autowired
     public SaleListingController(
             BusinessRepository businessRepository,
             SaleListingRepository saleListingRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            InventoryItemRepository inventoryItemRepository) {
         this.businessRepository = businessRepository;
         this.saleListingRepository = saleListingRepository;
         this.userRepository = userRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
     }
 
     /**
@@ -93,21 +98,160 @@ public class SaleListingController {
     public List<SaleListing> getBusinessesListings(
             @PathVariable int businessId,
             @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+            // Get the user that made the request
+            User user = getLoggedInUser(appUser);
 
-        // Get the user that made the request
-        User user = getLoggedInUser(appUser);
+            logger.info("User with id " + user.getId() +
+                    " trying to get sale listings of business with id " + businessId  + ".");
 
-        logger.info("User with id " + user.getId() +
-                " trying to get sale listings of business with id " + businessId  + ".");
+            // Get the business of the request
+            Business business = getBusiness(businessId);
 
-        // Get the business of the request
-        Business business = getBusiness(businessId);
+            // Check the user is an admin of the business
+            checkUserIsAdminOfBusiness(user, business);
 
-        // Check the user is an admin of the business
-        checkUserIsAdminOfBusiness(user, business);
+            // Get the sale listings of the business
+            return saleListingRepository.findAllByBusinessId(businessId);
+        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException exception) {
+            throw exception;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while getting business sale listings: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
 
-        // Get the sale listings of the business
-        return saleListingRepository.findAllByBusinessId(businessId);
+    /**
+     * Adds a new sale listing to a business.
+     * @param businessId Business to get the sale listings from.
+     * @param appUser The user that made the request.
+     */
+    @PostMapping("/businesses/{businessId}/listings")
+    public void newBusinessesListing(
+            @PathVariable int businessId, @RequestBody JSONObject json,
+            @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+
+            // Get the user that made the request
+            User user = getLoggedInUser(appUser);
+
+            logger.info("User with id " + user.getId() +
+                    " trying to get sale listings of business with id " + businessId  + ".");
+
+            // Get the business of the request
+            Business business = getBusiness(businessId);
+
+            // Check the user is an admin of the business
+            checkUserIsAdminOfBusiness(user, business);
+
+            //Inventory item
+            if (json.getAsNumber("inventoryItemId") == null) { //Not supplied
+                MissingInventoryItemIdException exception = new MissingInventoryItemIdException();
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+            Integer inventoryItemId = json.getAsNumber("inventoryItemId").intValue();
+            //Check if inventory item exists in businesses inventory items
+            Optional<InventoryItem> retrievedItemOptions = inventoryItemRepository.findById(inventoryItemId);
+            if (retrievedItemOptions.isEmpty()) {
+                NoInventoryItemExistsException exception = new NoInventoryItemExistsException(inventoryItemId, businessId);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+            InventoryItem item = retrievedItemOptions.get();
+
+            //Quantity
+            Integer quantity = null;
+            try {
+                if (json.getAsNumber("quantity") != null) {
+                    quantity = json.getAsNumber("quantity").intValue();
+                    //If quantity is at or below 0
+                    if (quantity <= 0) {
+                        InvalidQuantityException exception = new InvalidQuantityException();
+                        logger.error(exception.getMessage());
+                        throw exception;
+                    }
+                } else {
+                    InvalidQuantityException exception = new InvalidQuantityException();
+                    logger.error(exception.getMessage());
+                    throw exception;
+                }
+                //Check if there is enough of the inventory item
+                if (quantity > item.getQuantity()) {
+                    NotEnoughOfInventoryItemException exception = new NotEnoughOfInventoryItemException(inventoryItemId, item.getQuantity());
+                    logger.error(exception.getMessage());
+                    throw exception;
+                }
+
+            } catch (NullPointerException nullPointerException) { //Field not in json
+                InvalidQuantityException exception = new InvalidQuantityException();
+                logger.error(exception.getMessage());
+                throw exception;
+            } catch (NumberFormatException numberFormatException) { //Field is not a number
+                InvalidNumberFormatException exception = new InvalidNumberFormatException("quantity");
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            //Price
+            Double price = null;
+            try {
+                if (json.getAsNumber("price") != null) {
+                    price = json.getAsNumber("price").doubleValue();
+                    //If price per item is below 0
+                    if (price < 0) {
+                        InvalidPriceException exception = new InvalidPriceException("price");
+                        logger.error(exception.getMessage());
+                        throw exception;
+                    }
+                }
+            } catch (NumberFormatException numberFormatException) { //Field is not a number
+                InvalidNumberFormatException exception = new InvalidNumberFormatException("price");
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            //More Info
+            String moreInfo = json.getAsString("moreInfo");
+
+            //Closes
+            String closesDateString = json.getAsString("closes");
+            LocalDateTime closesDate;
+            try {
+                if (closesDateString != null && !closesDateString.equals("")) {
+                    closesDate = LocalDateTime.parse(closesDateString);
+
+                    //Check if closes date is in the past
+                    if ((LocalDateTime.now()).isAfter(closesDate)) {
+                        InvalidManufactureDateException exception = new InvalidManufactureDateException();
+                        logger.warn(exception.getMessage());
+                        throw exception;
+                    }
+                } else {
+                    closesDate = LocalDateTime.parse(item.getExpires());
+                }
+            } catch (DateTimeParseException dateTimeParseException) {
+                InvalidDateException invalidDateException = new InvalidDateException();
+                logger.warn(invalidDateException.getMessage());
+                throw invalidDateException;
+            } catch (InvalidClosesDateException handledException) {
+                throw handledException;
+            } catch (Exception exception) {
+                logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
+                throw exception;
+            }
+            SaleListing saleListing = new SaleListing(businessId, item, price, moreInfo, closesDate, quantity);
+
+        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException |
+                MissingInventoryItemIdException | NoInventoryItemExistsException |
+                InvalidQuantityException | InvalidNumberFormatException | InvalidPriceException exception) {
+            throw exception;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while getting business sale listings: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
     }
 
 }
