@@ -1,12 +1,12 @@
 package org.seng302.project.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import java.time.LocalDateTime;
 
 /**
@@ -15,8 +15,10 @@ import java.time.LocalDateTime;
 @Data // generate setters and getters for all fields (lombok pre-processor)
 @NoArgsConstructor // generate a no-args constructor needed by JPA (lombok pre-processor)
 @Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
+@IdClass(ProductId.class) // class for the id of the product
 public class Product {
 
+    @Id
     private String id; // Chosen by the business
     private String name;
     private String description;
@@ -24,7 +26,8 @@ public class Product {
     private Double recommendedRetailPrice;
     private LocalDateTime created = LocalDateTime.now();
     private String images; //TODO: change this to a list of image objects
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Id
     private Integer businessId; // The id of the business that offers this product
 
     public Product(String id, String name, String description, String manufacturer, Double recommendedRetailPrice, Integer businessId) {
@@ -34,11 +37,5 @@ public class Product {
         this.manufacturer = manufacturer;
         this.recommendedRetailPrice = recommendedRetailPrice;
         this.businessId = businessId;
-    }
-
-    @Id // this field (attribute) is the primary key of the table
-    @Column(name = "product_id")
-    public String getId() {
-        return this.id;
     }
 }

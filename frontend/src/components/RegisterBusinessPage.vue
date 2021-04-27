@@ -24,7 +24,7 @@
               <b>Business Name<span class="required">*</span></b>
             </label>
             <br/>
-            <input id="businessName" v-model="businessName"
+            <input id="businessName" maxlength="200" v-model="businessName"
                    class="form-control" placeholder="Enter your Business Name"
                    required style="width:100%" type="text">
             <br>
@@ -40,8 +40,9 @@
               <b>Bio</b>
             </label>
             <br>
-            <textarea id="description" v-model="description"
-                      class="form-control" placeholder="Write a Business Description" style="width: 100%; height: 200px;">
+            <textarea id="description" maxlength="255" v-model="description"
+                      class="form-control" placeholder="Write a Business Description (Max length 255 characters)"
+                      style="width: 100%; height: 200px;">
 
             </textarea>
           </div>
@@ -59,7 +60,7 @@
             <label for="businessAddressNumber">
               <b>Street Number</b>
             </label><br/>
-            <input id="businessAddressNumber" v-model="businessAddress.streetNumber" class="form-control"
+            <input id="businessAddressNumber" maxlength="20" v-model="address.streetNumber" class="form-control"
                    placeholder="Enter your Street Number" style="width:100%" type="text">
             <br>
           </div>
@@ -71,9 +72,12 @@
               <b>Street Name</b>
             </label>
             <br/>
-            <input id="businessAddressStreet" v-model="businessAddress.streetName" class="form-control"
+            <input id="businessAddressStreet" maxlength="50" v-model="address.streetName" class="form-control"
                    placeholder="Enter your Street Name" style="width:100%" type="text">
             <br>
+
+            <!--    Error message for street name input   -->
+            <span v-if="msg.streetName" class="error-msg">{{ msg.streetName }}</span>
           </div>
           <br>
 
@@ -83,7 +87,7 @@
               <b>City or Town</b>
             </label>
             <br/>
-            <input id="businessAddressCity" v-model="addressCity" class="form-control"
+            <input id="businessAddressCity" maxlength="50" v-model="addressCity" class="form-control"
                    placeholder="Enter your City" style="width:100%" type="search">
             <br>
 
@@ -101,7 +105,7 @@
               <b>Region</b>
             </label>
             <br/>
-            <input id="businessAddressRegion" v-model="addressRegion" class="form-control"
+            <input id="businessAddressRegion" maxlength="50" v-model="addressRegion" class="form-control"
                    placeholder="Enter your Region" style="width:100%" type="search">
             <br>
 
@@ -118,7 +122,7 @@
               <b>Country<span class="required">*</span></b>
             </label>
             <br/>
-            <input id="businessAddressCountry" v-model="addressCountry" class="form-control"
+            <input id="businessAddressCountry" maxlength="30" v-model="addressCountry" class="form-control"
                    placeholder="Enter your Country" required style="width:100%" type="search">
             <br>
 
@@ -140,7 +144,7 @@
               <b>Postcode</b>
             </label>
             <br/>
-            <input id="businessAddressPostCode" v-model="businessAddress.postcode" class="form-control"
+            <input id="businessAddressPostCode" maxlength="30" v-model="address.postcode" class="form-control"
                    placeholder="Enter your Postcode" style="width:100%" type="text">
             <br>
           </div>
@@ -212,7 +216,7 @@ export default {
       //Sets text boxes to empty at start
       businessName: '',    //Required
       description: '',
-      businessAddress: {  //Required
+      address: {  //Required
         streetNumber: '',
         streetName: '',
         city: '',
@@ -231,6 +235,7 @@ export default {
       msg: {
         'businessName': '',
         'description': '',
+        'streetName': '',
         'country': '',
         'businessType': '',
         'errorChecks': null
@@ -241,6 +246,9 @@ export default {
       countries: [],
       regions: [],
       cities: [],
+
+      //Used to cancel previous api calls
+      cancelRequest: "",
 
       //Used to remove autofill when the user clicks an option and enabled again when the user changes the address fields again
       prevAutofilledCountry: '',
@@ -274,15 +282,17 @@ export default {
      * Checks if the country can be autofilled, and if so, calls the proton function which returns autofill candidates
      */
     addressCountry(value) {
-      this.businessAddress.country = value
+      this.address.country = value
       //re enable autofill
-      if (!this.autofillCountry && this.businessAddress.country !== this.prevAutofilledCountry) {
+      if (!this.autofillCountry && this.address.country !== this.prevAutofilledCountry) {
         this.prevAutofilledCountry = ''
         this.autofillCountry = true
       }
 
+      //Cancel Previous axios request if there are any
+      this.cancelRequest && this.cancelRequest("User entered more characters into country field")
       //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCountry && this.businessAddress.country.length > 3) {
+      if (this.autofillCountry && this.address.country.length > 3) {
         this.countries = this.photon(value, 'place:country')
       }
     },
@@ -293,15 +303,17 @@ export default {
      * Checks if the region can be autofilled, and if so, calls the proton function which returns autofill candidates
      */
     addressRegion(value) {
-      this.businessAddress.region = value
+      this.address.region = value
       //re enable autofill
-      if (!this.autofillRegion && this.businessAddress.region !== this.prevAutofilledRegion) {
+      if (!this.autofillRegion && this.address.region !== this.prevAutofilledRegion) {
         this.prevAutofilledRegion = ''
         this.autofillRegion = true
       }
 
+      //Cancel Previous axios request if there are any
+      this.cancelRequest && this.cancelRequest("User entered more characters into region field")
       //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillRegion && this.businessAddress.region.length > 3) {
+      if (this.autofillRegion && this.address.region.length > 3) {
         this.regions = this.photon(value, 'boundary:administrative')
       }
     },
@@ -312,15 +324,16 @@ export default {
      * Checks if the city can be autofilled, and if so, calls the proton function which returns autofill candidates
      */
     addressCity(value) {
-      this.businessAddress.city = value
+      this.address.city = value
       //re enable autofill
-      if (!this.autofillCity && this.businessAddress.city !== this.prevAutofilledCity) {
+      if (!this.autofillCity && this.address.city !== this.prevAutofilledCity) {
         this.prevAutofilledCity = ''
         this.autofillCity = true
       }
-
+      //Cancel Previous axios request if there are any
+      this.cancelRequest && this.cancelRequest("User entered more characters into city field")
       //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCity && this.businessAddress.city.length > 3) {
+      if (this.autofillCity && this.address.city.length > 3) {
         this.cities = this.photon(value, 'place:city&osm_tag=place:town')
       }
     },
@@ -348,12 +361,26 @@ export default {
      * Validates the address variables
      * Checks if the variables are empty, if so displays a warning message
      */
-    validateBusinessAddress() {
-      if (this.businessAddress.country === '') {
+    async validateBusinessAddress() {
+      //Check if country is valid and has a currency (for products and inventory items price)
+      try {
+        await this.$root.$data.product.getCurrency(this.address.country)
+      } catch (e) {
+        this.msg['country'] = 'Please enter a valid Country'
+        this.valid = false
+      }
+
+      if (this.address.country === '') {
         this.msg['country'] = 'Please enter a Country'
         this.valid = false
       } else {
         this.msg['country'] = ''
+      }
+      if (this.address.streetNumber !== '' && this.address.streetName === '') {
+        this.msg['streetName'] = 'Please enter a Street Name'
+        this.valid = false
+      } else {
+        this.msg['streetName'] = ''
       }
     },
 
@@ -374,9 +401,9 @@ export default {
      * Validating to check if the data entered is input correctly
      * If not an error message is displayed
      */
-    checkInputs() {
+    async checkInputs() {
       this.validateBusinessName();
-      this.validateBusinessAddress();
+      await this.validateBusinessAddress();
       this.validateBusinessType();
 
 
@@ -400,31 +427,35 @@ export default {
      * @returns [] address variables that can be autofilled
      */
     photon(textEntered, tag) {
+      let CancelToken = axios.CancelToken;
 
       let addresses = []
-      axios.get(`https://photon.komoot.io/api?q=${textEntered}&osm_tag=${tag}&limit=5`)
-          .then(function (response) {
-            for (let i = 0; i < response.data.features.length; i++) {
-              const currAddress = response.data.features[i].properties;
-              let addressString = ''
-              //Is Country
-              if (tag === 'place:country') addressString = `${currAddress.name}`
-              //Is Region
-              else if (tag === "boundary:administrative") addressString = `${currAddress.name}`
-                  //Is City
-              //tag is like this so you can get a town or a city
-              else if (tag === "place:city&osm_tag=place:town") addressString = `${currAddress.name}`
+      axios.get(`https://photon.komoot.io/api?q=${textEntered}&osm_tag=${tag}&limit=5`, {
+        cancelToken: new CancelToken((c) => {
+          this.cancelRequest = c;
+        })
+      }).then((response) => {
+        for (let i = 0; i < response.data.features.length; i++) {
+          const currAddress = response.data.features[i].properties;
+          let addressString = ''
+          //Is Country
+          if (tag === 'place:country') addressString = `${currAddress.name}`
+          //Is Region
+          else if (tag === "boundary:administrative") addressString = `${currAddress.name}`
+              //Is City
+          //tag is like this so you can get a town or a city
+          else if (tag === "place:city&osm_tag=place:town") addressString = `${currAddress.name}`
 
 
-              //Making sure to not add duplicate addresses as sometimes there is more than one region in the world with the same name
-              if (addressString !== '' && addresses.indexOf(addressString) === -1) {
-                addresses.push(addressString);
-              }
+          //Making sure to not add duplicate addresses as sometimes there is more than one region in the world with the same name
+          if (addressString !== '' && addresses.indexOf(addressString) === -1) {
+            addresses.push(addressString);
+          }
 
-            }
-            return addresses
-          })
-          .catch(function (error) {
+        }
+        return addresses
+      })
+          .catch((error) => {
             console.log(error)
           });
       return addresses
@@ -437,11 +468,11 @@ export default {
      */
     changeCountry(country) {
       //Changes the address input to the selected autofill address
-      this.businessAddress.country = country
+      this.address.country = country
       this.addressCountry = country
       this.countries = []
       this.autofillCountry = false
-      this.prevAutofilledCountry = this.businessAddress.country
+      this.prevAutofilledCountry = this.address.country
     },
 
     /**
@@ -451,11 +482,11 @@ export default {
      */
     changeRegion(region) {
       //Changes the address input to the selected autofill address
-      this.businessAddress.region = region
+      this.address.region = region
       this.addressRegion = region
       this.regions = []
       this.autofillRegion = false
-      this.prevAutofilledRegion = this.businessAddress.region
+      this.prevAutofilledRegion = this.address.region
     },
 
     /**
@@ -465,11 +496,11 @@ export default {
      */
     changeCity(city) {
       //Changes the address input to the selected autofill address
-      this.businessAddress.city = city
+      this.address.city = city
       this.addressCity = city
       this.cities = []
       this.autofillCity = false
-      this.prevAutofilledCity = this.businessAddress.city
+      this.prevAutofilledCity = this.address.city
     },
 
 
@@ -483,9 +514,7 @@ export default {
           this.$root.$data.user.state.userId,
           this.businessName,
           this.description,
-          //For now address is string. Will be changed when the database accepts the address object. Remove the following line when addresses are an object and uncomment the line below
-          `${this.businessAddress.streetNumber} ${this.businessAddress.streetName}, ${this.businessAddress.city}, ${this.businessAddress.region}, ${this.businessAddress.country}, ${this.businessAddress.postcode}`,
-          //this.homeAddress,
+          this.address,
           this.businessType
       ).then(() => {
         this.$router.push({name: 'user'})

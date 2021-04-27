@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 
 /**
@@ -60,16 +61,24 @@ public class SearchController {
             for (String conjunction : conjunctions) {
                 Specification<User> hasSpec = Specification.where(null);
                 Specification<User> containsSpec = Specification.where(null);
+                boolean searchContains = false;
                 String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
 
                 for (String name : names) {
-                    name = name.replaceAll("\"", "");
-                    hasSpec = hasSpec.and(UserSpecifications.hasName(name));
-                    containsSpec = containsSpec.and(UserSpecifications.containsName(name));
+                    if (Pattern.matches("^\".*\"$", name)) {
+                        name = name.replaceAll("\"", "");
+                        hasSpec = hasSpec.and(UserSpecifications.hasName(name));
+                    } else {
+                        hasSpec = hasSpec.and(UserSpecifications.hasName(name));
+                        containsSpec = containsSpec.and(UserSpecifications.containsName(name));
+                        searchContains = true;
+                    }
                 }
 
                 result.addAll(userRepository.findAll(hasSpec));
-                result.addAll(userRepository.findAll(containsSpec));
+                if (searchContains) {
+                    result.addAll(userRepository.findAll(containsSpec));
+                }
 
                 for (User currUser : result) {
                     //Do this so the return is not an infinite loop of businesses and users

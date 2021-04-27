@@ -36,7 +36,12 @@ export default {
             })
             .catch((err) => {
                 // Failed to get data, alert the user
-                createAlertRed(err.response.data)
+                if (err.status.code === 401) {
+                    createAlertRed("Your session has expired! Try logging in again.")
+                } else {
+                    createAlertRed("Error: " + err.response.data.message)
+                }
+
                 this.setLoggedOut()
             })
     },
@@ -149,7 +154,7 @@ export default {
      * Returns true if the user is acting as a business
      * @returns {boolean|*}
      */
-    isActingAsBusiness () {
+    isActingAsBusiness() {
         return this.state.actingAs.type === "business"
     },
 
@@ -157,7 +162,7 @@ export default {
      * Returns true if the user is primary admin of the business they are acting as
      * @returns {boolean|*}
      */
-    isPrimaryAdminOfBusiness () {
+    isPrimaryAdminOfBusiness() {
         if (this.state.actingAs.type !== "business") return false
 
         //Looks through the users businessesAdministered, finds the business acting as and then checks to see if the current user is the primary admin of that business

@@ -27,6 +27,9 @@ junit:
   script:
     - cd backend
     - ./gradlew test
+  artifacts:
+    paths:
+      - backend/build/jacoco
 
 # Run acceptance (cucumber) tests
 # Uncomment after ATDD workshop (at the latest)
@@ -48,6 +51,9 @@ jest:
  script:
    - cd frontend
    - npm run test
+ artifacts:
+   paths:
+     - frontend/coverage
 
 # Export sonarqube (static code analysis) reports
 # Uncomment after ATDD workshop (at the latest)

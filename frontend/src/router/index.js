@@ -10,7 +10,10 @@ import ProfilePage from "../components/ProfilePage";
 import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 import Catalogue from "@/components/ProductCatalogue";
-import IndividualProduct from "@/components/IndividualProduct";
+import EditProductPage from "@/components/EditProductPage";
+import InventoryPage from "@/components/InventoryPage";
+import CreateProductPage from "@/components/CreateProductPage";
+import Default from "@/components/Default";
 
 const routes = [
     {
@@ -39,7 +42,7 @@ const routes = [
         component: LoginPage
     },
     {
-        path: '/home', //TODO: change to '/' after user logged in
+        path: '/home', //TODO: change to '/' after user logged in?
         name: 'user',
         component: Home
     },
@@ -49,7 +52,7 @@ const routes = [
         component: BusinessProfilePage
     },
     {
-        path: '/registerbusiness',
+        path: '/businesses',
         name: 'registerBusiness',
         component: RegisterBusinessPage
     },
@@ -59,10 +62,25 @@ const routes = [
         component: Catalogue
     },
     {
+        path: '/businesses/:businessId/products/create',
+        name: 'createProduct',
+        component: CreateProductPage
+    },
+    {
         path: '/businesses/:businessId/products/:productId',
-        name: 'individualProduct',
-        component: IndividualProduct
-    }
+        name: 'editProduct',
+        component: EditProductPage
+    },
+    {
+        path: '/businesses/:businessId/inventory',
+        name: 'InventoryPage',
+        component: InventoryPage
+    },
+    {
+        path: '/businesses/:businessId/inventory/:inventoryItemId',
+        name: 'editInventoryItem',
+        component: Default//TODO: Change this to the EditInventoryItemPage
+    },
 ];
 
 const base = process.env.VUE_APP_BASE_URL || '/';

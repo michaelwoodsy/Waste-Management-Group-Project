@@ -4,14 +4,23 @@
         v-if="!isLoggedIn"
         page="view your profile page"
     />
+
     <!-- Greeting User -->
     <div v-else>
       <div class="row">
         <div class="col-12 text-center mb-2">
-          <h2>Hello {{ name }}</h2>
+          <h2>Hello {{ actorName }}</h2>
         </div>
       </div>
+    </div>
 
+    <!-- Greeting User -->
+    <div v-if="this.actor.type === 'business'">
+      <div class="row">
+        <div class="col-12 text-center mb-2">
+          <router-link :to="productCatalogueRoute">Product Catalogue</router-link>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -40,10 +49,24 @@ export default {
       return this.$root.$data.user.state.loggedIn
     },
 
-    /** Gets the current logged in users name **/
-    name() {
-      return this.$root.$data.user.state.userData.firstName
-    }
+    /** Returns the product catalogue url **/
+    productCatalogueRoute() {
+      return `businesses/${this.actor.id}/products`;
+    },
+
+    /**
+     * Current actor
+     * Returns {name, id, type}
+     **/
+    actor() {
+      return this.$root.$data.user.state.actingAs
+    },
+
+    /** Returns the current logged in users data **/
+    actorName() {
+      return this.actor.name
+    },
+
   },
   components: {
     LoginRequired

@@ -8,161 +8,169 @@
       </div>
     </div>
     <logout-required>
-      <div class="row">
-        <div class="col-12 col-sm-8 col-lg-6 col-xl-4 offset-sm-2 offset-lg-3 offset-xl-4 text-center mb-2">
+      <div class="row justify-content-center">
+        <div class="col-12 col-sm-8 col-lg-6 col-xl-5 mb-2">
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    First Name    -->
-            <label for="firstName" style="margin-top:20px"><b>First Name<span class="required">*</span></b></label><br/>
-            <input id="firstName" v-model="firstName" class="form-control" placeholder="Enter your First Name"
-                   required style="width:100%" type="text"><br>
+            <label for="firstName" style="margin-top:20px"><b>First Name<span class="required">*</span></b></label>
+            <input id="firstName" v-model="firstName" :class="{'form-control': true, 'is-invalid': msg.firstName}"
+                   maxlength="100"
+                   placeholder="Enter your First Name" required style="width:100%" type="text">
             <!--    Error message for the first name input    -->
-            <span v-if="msg.firstName" class="error-msg" style="margin: 0">{{ msg.firstName }}</span><br><br>
+            <span class="invalid-feedback">{{ msg.firstName }}</span>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Middle Name    -->
-            <label for="middleName"><b>Middle Name</b></label><br/>
-            <input id="middleName" v-model="middleName" class="form-control" placeholder="Enter your Middle Name"
-                   style="width:100%" type="text"><br><br><br>
+            <label for="middleName"><b>Middle Name</b></label>
+            <input id="middleName" v-model="middleName" class="form-control" maxlength="100"
+                   placeholder="Enter your Middle Name" style="width:100%" type="text">
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Last Name    -->
-            <label for="lastName"><b>Last Name<span class="required">*</span></b></label><br/>
-            <input id="lastName" v-model="lastName" class="form-control" placeholder="Enter your Last Name" required
-                   style="width:100%" type="text"><br>
+            <label for="lastName"><b>Last Name<span class="required">*</span></b></label>
+            <input id="lastName" v-model="lastName" :class="{'form-control': true, 'is-invalid': msg.lastName}"
+                   maxlength="100"
+                   placeholder="Enter your Last Name" required style="width:100%" type="text">
             <!--    Error message for the last name input    -->
-            <span v-if="msg.lastName" class="error-msg" style="margin: 0">{{ msg.lastName }}</span><br><br>
+            <span class="invalid-feedback" style="margin: 0">{{ msg.lastName }}</span>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Nickname    -->
-            <label for="nickname"><b>Nickname</b></label><br/>
-            <input id="nickname" v-model="nickname" class="form-control" placeholder="Enter your Nickname" style="width: 100%"
-                   type="text"><br><br><br>
+            <label for="nickname"><b>Nickname</b></label>
+            <input id="nickname" v-model="nickname" class="form-control" maxlength="100"
+                   placeholder="Enter your Nickname"
+                   style="width: 100%" type="text">
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Email    -->
-            <label for="email"><b>Email<span class="required">*</span></b></label><br/>
-            <input id="email" v-model="email" class="form-control" placeholder="Enter your Email" required
-                   style="width: 100%" type="email"><br>
+            <label for="email"><b>Email<span class="required">*</span></b></label>
+            <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}" maxlength="100"
+                   placeholder="Enter your Email"
+                   required style="width: 100%" type="email">
             <!--    Error message for the email input    -->
-            <span v-if="msg.email" class="error-msg">{{ msg.email }}</span><br><br>
+            <span class="invalid-feedback">{{ msg.email }}</span>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    bio    -->
-            <label class="bio-label" for="bio"><b>Bio</b></label><br>
-            <textarea id="bio" v-model="bio" class="form-control" placeholder="Write a Bio"
+            <label class="bio-label" for="bio"><b>Bio</b></label>
+            <textarea id="bio" v-model="bio" class="form-control" maxlength="255"
+                      placeholder="Write a Bio (Max length 255 characters)"
                       style="width: 100%; height: 200px;"></textarea>
           </div>
-          <br>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Date of Birth    -->
-            <label for="dateOfBirth"><b>Date of Birth<span class="required">*</span></b></label><br/>
-            <input id="dateOfBirth" v-model="dateOfBirth" class="form-control" required style="width:100%"
-                   type="date"><br>
+            <label for="dateOfBirth"><b>Date of Birth<span class="required">*</span></b></label>
+            <input id="dateOfBirth" v-model="dateOfBirth" :class="{'form-control': true, 'is-invalid': msg.dateOfBirth}"
+                   maxlength="100" required
+                   style="width:100%" type="date">
             <!--    Error message for the date of birth input    -->
-            <span v-if="msg.dateOfBirth" class="error-msg">{{ msg.dateOfBirth }}</span><br><br>
+            <span class="invalid-feedback">{{ msg.dateOfBirth }}</span>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Phone Number    -->
-            <label for="phoneNumber"><b>Phone Number</b></label><br/>
-            <input id="phoneNumber" v-model="phoneNumber" class="form-control" placeholder="Enter your Phone Number with extension"
-                   style="width:100%" type="text"><br><br><br>
+            <label for="phoneNumber"><b>Phone Number</b></label>
+            <input id="phoneNumber" v-model="phone" class="form-control"
+                  maxlength="30"
+                   placeholder="Enter your Phone Number with extension" style="width:100%" type="text">
+            <!--    Error message for the phone input    -->
+            <span v-if="msg.phone" class="error-msg">{{ msg.phone }}</span>
           </div>
 
           <hr/>
 
           <!--    Title for Address inputs    -->
-          <div class="form-row">
+          <div class="form-row mb-3">
             <span class="addressText"><b>Address</b></span>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Home Address Street Number    -->
-            <label for="homeAddressNumber"><b>Street Number</b></label><br/>
-            <input id="homeAddressNumber" v-model="homeAddress.streetNumber" class="form-control" placeholder="Enter your Street Number"
-                   style="width:100%" type="text"><br>
+            <label for="homeAddressNumber"><b>Street Number</b></label>
+            <input id="homeAddressNumber" v-model="homeAddress.streetNumber" class="form-control"
+                  maxlength="20"
+                   placeholder="Enter your Street Number" style="width:100%" type="text">
           </div>
-          <br>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Home Address Street Name    -->
             <label for="homeAddressStreet"><b>Street Name</b></label><br/>
             <input id="homeAddressStreet" v-model="homeAddress.streetName" class="form-control" placeholder="Enter your Street Name"
                    style="width:100%" type="text"><br>
-          </div>
-          <br>
 
-          <div class="form-row">
+            <!--    Error message for street name input   -->
+            <span v-if="msg.streetName" class="error-msg">{{ msg.streetName }}</span>
+          </div>
+
+          <div class="form-row mb-3">
             <!--    Home Address City    -->
-            <label for="homeAddressCity"><b>City or Town</b></label><br/>
-            <input id="homeAddressCity" v-model="addressCity" class="form-control" placeholder="Enter your City"
-                   style="width:100%" type="search"><br>
+            <label for="homeAddressCity"><b>City or Town</b></label>
+            <input id="homeAddressCity" v-model="addressCity" class="form-control" maxlength="50"
+                   placeholder="Enter your City" style="width:100%" type="search">
 
             <!--    Autofill City/Town    -->
             <div v-for="city in cities" v-bind:key="city" style="width:100%; text-align: left">
-              <a class="address-output" @click="changeCity(city)">{{ city }}</a><br>
+              <a class="address-output" @click="changeCity(city)">{{ city }}</a>
             </div>
           </div>
-          <br>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Home Address Region    -->
-            <label for="homeAddressRegion"><b>Region</b></label><br/>
-            <input id="homeAddressRegion" v-model="addressRegion" class="form-control" placeholder="Enter your Region"
-                   style="width:100%" type="search"><br>
+            <label for="homeAddressRegion"><b>Region</b></label>
+            <input id="homeAddressRegion" v-model="addressRegion" class="form-control" maxlength="50"
+                   placeholder="Enter your Region" style="width:100%" type="search">
 
             <!--    Autofill region    -->
             <div v-for="region in regions" v-bind:key="region" style="width:100%; text-align: left">
-              <a class="address-output" @click="changeRegion(region)">{{ region }}</a><br>
+              <a class="address-output" @click="changeRegion(region)">{{ region }}</a>
             </div>
           </div>
-          <br>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Home Address Country    -->
-            <label for="homeAddressCountry"><b>Country<span class="required">*</span></b></label><br/>
-            <input id="homeAddressCountry" v-model="addressCountry" class="form-control" placeholder="Enter your Country"
-                   required style="width:100%" type="search"><br>
+            <label for="homeAddressCountry"><b>Country<span class="required">*</span></b></label>
+            <input id="homeAddressCountry" v-model="addressCountry"
+                   :class="{'form-control': true, 'is-invalid': msg.country}" maxlength="30"
+                   placeholder="Enter your Country" required style="width:100%" type="search">
+            <!--    Error message for the country input    -->
+            <span class="invalid-feedback">{{ msg.country }}</span>
 
             <!--    Autofill country    -->
             <div v-for="country in countries" v-bind:key="country" style="width:100%; text-align: left">
-              <a class="address-output" @click="changeCountry(country)">{{ country }}</a><br>
+              <a class="address-output" @click="changeCountry(country)">{{ country }}</a>
             </div>
           </div>
-          <br>
 
-          <!--    Error message for the country input    -->
-          <div class="form-row">
-            <span v-if="msg.country" class="error-msg">{{ msg.country }}</span>
-          </div>
-
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Home Address Post Code    -->
-            <label for="homeAddressPostCode"><b>Postcode</b></label><br/>
-            <input id="homeAddressPostCode" v-model="homeAddress.postcode" class="form-control" placeholder="Enter your Postcode"
-                   style="width:100%" type="text"><br>
+            <label for="homeAddressPostCode"><b>Postcode</b></label>
+            <input id="homeAddressPostCode" v-model="homeAddress.postcode" class="form-control"
+                  maxlength="30"
+                   placeholder="Enter your Postcode" style="width:100%" type="text">
           </div>
-          <br>
 
           <hr/>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <!--    Password    -->
-            <label for="password"><b>Password<span class="required">*</span></b></label><br>
-            <input id="password" v-model="password" class="form-control" placeholder="Enter your Password"
-                   style="width:100%" type="password"><br>
+            <label for="password"><b>Password<span class="required">*</span></b></label>
+            <input id="password" v-model="password" :class="{'form-control': true, 'is-invalid': msg.password}"
+                   maxlength="200"
+                   placeholder="Enter your Password" style="width:100%" type="password"><br>
             <!--    Error message for the password input    -->
-            <span v-if="msg.password" class="error-msg">{{ msg.password }}</span><br><br><br>
+            <span class="invalid-feedback">{{ msg.password }}</span>
+            <p style="font-size: small">Password must be a combination of lowercase and uppercase letters, numbers, and
+              be at least 8 characters long</p>
           </div>
 
-          <div class="form-row">
+          <div class="form-row mb-3">
             <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" v-on:click="checkInputs">Create
               Account
             </button>
@@ -212,7 +220,7 @@ export default {
       bio: '',
       email: '',        //Required
       dateOfBirth: '',  //Required
-      phoneNumber: '',
+      phone: '',
 
       //Need these to be able to use the watcher methods
       addressCountry: '',
@@ -230,12 +238,14 @@ export default {
 
       password: '',
       msg: {
-        'firstName': '',
-        'lastName': '',
-        'email': '',
-        'dateOfBirth': '',
-        'country': '',
-        'password': '',
+        'firstName': null,
+        'lastName': null,
+        'email': null,
+        'dateOfBirth': null,
+        'streetName': '',
+        'country': null,
+        'password': null,
+        'phone': null,
         'errorChecks': null
       },
       valid: true,
@@ -244,6 +254,9 @@ export default {
       countries: [],
       regions: [],
       cities: [],
+
+      //Used to cancel previous api calls
+      cancelRequest: "",
 
       //Used to remove autofill when the user clicks an option and enabled again when the user changes the address fields again
       prevAutofilledCountry: '',
@@ -272,6 +285,8 @@ export default {
         this.autofillCountry = true
       }
 
+      //Cancel Previous axios request if there are any
+      this.cancelRequest && this.cancelRequest("User entered more characters into country field")
       //Only autofill address if the number of characters typed is more than 3
       if (this.autofillCountry && this.homeAddress.country.length > 3) {
         this.countries = this.photon(value, 'place:country')
@@ -291,6 +306,8 @@ export default {
         this.autofillRegion = true
       }
 
+      //Cancel Previous axios request if there are any
+      this.cancelRequest && this.cancelRequest("User entered more characters into region field")
       //Only autofill address if the number of characters typed is more than 3
       if (this.autofillRegion && this.homeAddress.region.length > 3) {
         this.regions = this.photon(value, 'boundary:administrative')
@@ -310,6 +327,8 @@ export default {
         this.autofillCity = true
       }
 
+      //Cancel Previous axios request if there are any
+      this.cancelRequest && this.cancelRequest("User entered more characters into city field")
       //Only autofill address if the number of characters typed is more than 3
       if (this.autofillCity && this.homeAddress.city.length > 3) {
         this.cities = this.photon(value, 'place:city&osm_tag=place:town')
@@ -327,10 +346,10 @@ export default {
      */
     validateFirstName() {
       if (this.firstName === '') {
-        this.msg['firstName'] = 'Please enter a First Name'
+        this.msg['firstName'] = 'Please enter a first name'
         this.valid = false
       } else {
-        this.msg['firstName'] = ''
+        this.msg['firstName'] = null
       }
     },
     /**
@@ -339,10 +358,10 @@ export default {
      */
     validateLastName() {
       if (this.lastName === '') {
-        this.msg['lastName'] = 'Please enter a Last Name'
+        this.msg['lastName'] = 'Please enter a last name'
         this.valid = false
       } else {
-        this.msg['lastName'] = ''
+        this.msg['lastName'] = null
       }
     },
     /**
@@ -350,11 +369,14 @@ export default {
      * Checks if the string is of an email format using regex, if not, displays a warning message
      */
     validateEmail() {
-      if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(this.email)) {
-        this.msg['email'] = ''
-      } else {
-        this.msg['email'] = 'Invalid Email Address'
+      if (this.email === '') {
+        this.msg['email'] = 'Please enter an email address'
         this.valid = false
+      } else if (!/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(this.email)) {
+        this.msg['email'] = 'Invalid email address'
+        this.valid = false
+      } else {
+        this.msg['email'] = null
       }
     },
     /**
@@ -363,10 +385,20 @@ export default {
      */
     validateDateOfBirth() {
       if (this.dateOfBirth === '') {
-        this.msg['dateOfBirth'] = 'Please enter a Date of Birth'
+        this.msg['dateOfBirth'] = 'Please enter a date of birth'
+        this.valid = false
+      }
+      //If Date of Birth is in the future
+      else if (new Date() < new Date(this.dateOfBirth)) {
+        this.msg['dateOfBirth'] = 'Date of birth can not be in the future'
+        this.valid = false
+      }
+      //If Date of birth is more than 150 years ago
+      else if (new Date().getFullYear() - new Date(this.dateOfBirth).getFullYear() >= 150) {
+        this.msg['dateOfBirth'] = 'Date of birth is unrealistic'
         this.valid = false
       } else {
-        this.msg['dateOfBirth'] = ''
+        this.msg['dateOfBirth'] = null
       }
     },
     /**
@@ -375,10 +407,16 @@ export default {
      */
     validateAddress() {
       if (this.homeAddress.country === '') {
-        this.msg['country'] = 'Please enter a Country'
+        this.msg['country'] = 'Please enter a country'
         this.valid = false
       } else {
-        this.msg['country'] = ''
+        this.msg['country'] = null
+      }
+      if (this.homeAddress.streetNumber !== '' && this.homeAddress.streetName === '') {
+        this.msg['streetName'] = 'Please enter a Street Name'
+        this.valid = false
+      } else {
+        this.msg['streetName'] = ''
       }
     },
     /**
@@ -387,10 +425,30 @@ export default {
      */
     validatePassword() {
       if (this.password === '') {
-        this.msg['password'] = 'Please enter a Password'
-        this.valid = false
+        this.msg['password'] = 'Please enter a password';
+        this.valid = false;
+      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}/.test(this.password)) {
+        this.msg['password'] = 'Password does not meet the requirements';
+        this.valid = false;
       } else {
-        this.msg['password'] = ''
+        this.msg['password'] = null;
+      }
+    },
+    /**
+     * Validates the phone variable
+     * Checks if the string is empty, or if it is in an incorrect format
+     */
+    validatePhoneNumber() {
+      //If no phone number is entered (which is allowed)
+      if (this.phone === '') {
+        this.msg['phone'] = null
+      }
+      //If phone number matches phone number regex
+      else if (/^\+(\(\d{1,4}\)|\d{1,4})\d+([-\s./]\d+)*$/.test(this.phoneNumber)) {
+        this.msg['phone'] = null
+      } else {
+        this.msg['phone'] = 'Invalid phone number'
+        this.valid = false
       }
     },
 
@@ -402,6 +460,7 @@ export default {
       this.validateLastName();
       this.validateEmail();
       this.validateDateOfBirth();
+      this.validatePhoneNumber();
       this.validateAddress();
       this.validatePassword();
 
@@ -425,30 +484,34 @@ export default {
      * @returns [] address variables that can be autofilled
      */
     photon(textEntered, tag) {
+      let CancelToken = axios.CancelToken;
 
       let addresses = []
-      axios.get(`https://photon.komoot.io/api?q=${textEntered}&osm_tag=${tag}&limit=5`)
-          .then(function (response) {
-            for (let i = 0; i < response.data.features.length; i++) {
-              const currAddress = response.data.features[i].properties;
-              let addressString = ''
-              //Is Country
-              if (tag === 'place:country') addressString = `${currAddress.name}`
-              //Is Region
-              else if (tag === "boundary:administrative") addressString = `${currAddress.name}`
-                  //Is City
-              //tag is like this so you can get a town or a city
-              else if (tag === "place:city&osm_tag=place:town") addressString = `${currAddress.name}`
+      axios.get(`https://photon.komoot.io/api?q=${textEntered}&osm_tag=${tag}&limit=5`, {
+        cancelToken: new CancelToken((c) => {
+          this.cancelRequest = c;
+        })
+      }).then((response) => {
+        for (let i = 0; i < response.data.features.length; i++) {
+          const currAddress = response.data.features[i].properties;
+          let addressString = ''
+          //Is Country
+          if (tag === 'place:country') addressString = `${currAddress.name}`
+          //Is Region
+          else if (tag === "boundary:administrative") addressString = `${currAddress.name}`
+              //Is City
+          //tag is like this so you can get a town or a city
+          else if (tag === "place:city&osm_tag=place:town") addressString = `${currAddress.name}`
 
 
-              //Making sure to not add duplicate addresses as sometimes there is more than one region in the world with the same name
-              if (addressString !== '' && addresses.indexOf(addressString) === -1) {
-                addresses.push(addressString);
-              }
+          //Making sure to not add duplicate addresses as sometimes there is more than one region in the world with the same name
+          if (addressString !== '' && addresses.indexOf(addressString) === -1) {
+            addresses.push(addressString);
+          }
 
-            }
-            return addresses
-          })
+        }
+        return addresses
+      })
           .catch(function (error) {
             console.log(error)
           });
@@ -512,10 +575,8 @@ export default {
           this.bio,
           this.email,
           this.dateOfBirth,
-          this.phoneNumber,
-          //For now address is string. Will be changed when the database accepts the address object. Remove the following line when addresses are an object and uncomment the line below
-          `${this.homeAddress.streetNumber} ${this.homeAddress.streetName}, ${this.homeAddress.city}, ${this.homeAddress.region}, ${this.homeAddress.country}, ${this.homeAddress.postcode}`,
-          //this.homeAddress,
+          this.phone,
+          this.homeAddress,
           this.password
       ).then(() => {
         this.$router.push({name: 'user'})

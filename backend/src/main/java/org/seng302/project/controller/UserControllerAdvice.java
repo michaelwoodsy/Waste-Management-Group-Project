@@ -58,6 +58,17 @@ public class UserControllerAdvice {
 
     /**
      * Exception thrown by the createUser() function in UserController
+     * when a user tries to register with an invalid address.
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(InvalidAddressException.class)
+    public ResponseEntity<String> invalidAddress(InvalidAddressException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Exception thrown by the createUser() function in UserController
      * when a user tries to register with a birth date less than 13 years ago.
      *
      * @return a 400 response with an appropriate message
@@ -99,4 +110,10 @@ public class UserControllerAdvice {
     public ResponseEntity<String> userDoesNotExist(NoUserExistsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<String> invalidPassword(InvalidPasswordException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 }

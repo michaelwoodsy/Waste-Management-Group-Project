@@ -2,10 +2,7 @@ package org.seng302.project.controller;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.exceptions.*;
-import org.seng302.project.model.Business;
-import org.seng302.project.model.LoginCredentials;
-import org.seng302.project.model.User;
-import org.seng302.project.model.UserRepository;
+import org.seng302.project.model.*;
 import org.seng302.project.util.DateArithmetic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,14 +30,17 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class.getName());
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
     private final AuthenticationManager authenticationManager;
 
     @Autowired
     public UserController(BCryptPasswordEncoder passwordEncoder,
                           UserRepository userRepository,
+                          AddressRepository addressRepository,
                           AuthenticationManager authenticationManager) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
+        this.addressRepository = addressRepository;
         this.authenticationManager = authenticationManager;
     }
 
@@ -88,25 +88,41 @@ public class UserController {
         logger.info("Request to create user");
 
         try {
-            String emailRegEx = "^[\\w\\-]+(\\.[\\w\\-]+)*@\\w+(\\.\\w+)+$";
-            if (!(newUser.getEmail().matches(emailRegEx))) {
+            if (newUser.getFirstName() == null || newUser.getFirstName().equals("") ||
+                    newUser.getLastName() == null || newUser.getLastName().equals("") ||
+                    newUser.getEmail() == null || newUser.getEmail().equals("") ||
+                    newUser.getDateOfBirth() == null || newUser.getDateOfBirth().equals("") ||
+                    newUser.getHomeAddress() == null || newUser.getHomeAddress().equals("")) { // TODO change to address class once implemented.
+                RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
+                logger.warn(requiredFieldsMissingException.getMessage());
+                throw requiredFieldsMissingException;
+            }
+
+            String emailRegEx = "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@" +
+                    "((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
+            if (!newUser.getEmail().matches(emailRegEx)) {
                 InvalidEmailException emailException = new InvalidEmailException();
                 logger.warn(emailException.getMessage());
                 throw emailException;
             }
 
-            String phoneRegEx = "^\\+[1-9]\\d{1,14}$";
-            if (!newUser.getPhoneNumber().equals("") && !(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
+            String phoneRegEx = "^\\+?\\d{1,15}$";
+            if ((newUser.getPhoneNumber() != null && !newUser.getPhoneNumber().equals(""))
+                    && !(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
                 InvalidPhoneNumberException phoneNumberException = new InvalidPhoneNumberException();
                 logger.warn(phoneNumberException.getMessage());
                 throw phoneNumberException;
             }
-
             if (!userRepository.findByEmail(newUser.getEmail()).isEmpty()) {
                 ExistingRegisteredEmailException emailException = new ExistingRegisteredEmailException();
                 logger.warn(emailException.getMessage());
                 throw emailException;
             }
+            /*if (!newUser.getHomeAddress().getStreetNumber().equals("") && newUser.getHomeAddress().getStreetName().equals("")) {
+                InvalidAddressException addressException = new InvalidAddressException();
+                logger.warn(addressException.getMessage());
+                throw addressException;
+            }*/
 
             Date dateOfBirthDate;
             Date currentDate = new Date();
@@ -131,7 +147,7 @@ public class UserController {
                     newUser.getLastName().equals("") ||
                     newUser.getEmail().equals("") ||
                     newUser.getDateOfBirth().equals("") ||
-                    newUser.getHomeAddress().equals("")) {
+                    newUser.getHomeAddress().getCountry().equals("")) {
                 RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
                 logger.warn(requiredFieldsMissingException.getMessage());
                 throw requiredFieldsMissingException;
@@ -140,6 +156,7 @@ public class UserController {
             LoginCredentials credentials = new LoginCredentials(newUser.getEmail(), newUser.getPassword());
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
             newUser.setRole("user");
+            addressRepository.save(newUser.getHomeAddress());
             userRepository.save(newUser);
             logger.info(String.format("Successful registration of user %d", newUser.getId()));
             return authenticate(credentials);
