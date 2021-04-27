@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -89,7 +90,7 @@ public class InventoryItemControllerTest {
 
     private void createInventoryItem(Product product) {
         InventoryItem item = new InventoryItem(product, 2, 2.00, 1.80,
-                "2021-04-20", null, null, "2021-05-20");
+                "2021-04-20", null, null, "2023-05-20");
         inventoryItemRepository.save(item);
     }
 
@@ -531,7 +532,162 @@ public class InventoryItemControllerTest {
         Assertions.assertEquals("2021-04-20", inventoryItem.getString("manufactured"));
         Assertions.assertEquals("null", String.valueOf(inventoryItem.get("sellBy")));
         Assertions.assertEquals("null", String.valueOf(inventoryItem.get("bestBefore")));
-        Assertions.assertEquals("2021-05-20", inventoryItem.getString("expires"));
+        Assertions.assertEquals("2023-05-20", inventoryItem.getString("expires"));
+    }
+
+    /**
+     * Tests editing a inventory item and giving it a productId that doesn't exist
+     */
+    @Test
+    void editItemInvalidProductId() throws Exception {
+        Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
+        InventoryItem item = new InventoryItem(product, 2, 2.00, 1.80,
+                "2021-04-20", null, null, "2023-05-20");
+        inventoryItemRepository.save(item);
+
+
+
+        JSONObject testItem = new JSONObject();
+        testItem.put("productId", "NotInProducts");
+
+        RequestBuilder postInventoryRequest = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/inventory/{inventoryItemId}", businessId, item.getId())
+                .content(testItem.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postInventoryResponse = this.mockMvc.perform(postInventoryRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new NoProductExistsException("NotInProducts", businessId).getMessage(), returnedExceptionString);
+    }
+
+    /**
+     * Tests editing a inventory item and giving it a productId that is ""
+     */
+    @Test
+    void editItemMissingProductId() throws Exception {
+
+        Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
+        InventoryItem item = new InventoryItem(product, 2, 2.00, 1.80,
+                "2021-04-20", null, null, "2023-05-20");
+        inventoryItemRepository.save(item);
+
+        JSONObject testItem = new JSONObject();
+        testItem.put("productId", "");
+
+        RequestBuilder postInventoryRequest = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/inventory/{inventoryItemId}", businessId, item.getId())
+                .content(testItem.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postInventoryResponse = this.mockMvc.perform(postInventoryRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new MissingProductIdException().getMessage(), returnedExceptionString);
+    }
+
+    /**
+     * Tests editing a inventory item and giving it a quantity that is invalid
+     */
+    @Test
+    void editItemInvalidQuantity() throws Exception {
+        Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
+        InventoryItem item = new InventoryItem(product, 2, 2.00, 1.80,
+                "2021-04-20", null, null, "2023-05-20");
+        inventoryItemRepository.save(item);
+
+
+
+        JSONObject testItem = new JSONObject();
+        testItem.put("quantity", 0);
+
+        RequestBuilder postInventoryRequest = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/inventory/{inventoryItemId}", businessId, item.getId())
+                .content(testItem.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postInventoryResponse = this.mockMvc.perform(postInventoryRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new InvalidInventoryItemQuantityException().getMessage(), returnedExceptionString);
+    }
+
+    /**
+     * Tests editing a inventory item and giving it a price per item that is invalid
+     */
+    @Test
+    void editItemInvalidPrice() throws Exception {
+        Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
+        InventoryItem item = new InventoryItem(product, 2, 2.00, 1.80,
+                "2021-04-20", null, null, "2023-05-20");
+        inventoryItemRepository.save(item);
+
+
+
+        JSONObject testItem = new JSONObject();
+        testItem.put("pricePerItem", -1);
+
+        RequestBuilder postInventoryRequest = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/inventory/{inventoryItemId}", businessId, item.getId())
+                .content(testItem.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postInventoryResponse = this.mockMvc.perform(postInventoryRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new InvalidPriceException("price per item").getMessage(), returnedExceptionString);
+    }
+
+    /**
+     * Tests editing a inventory item and giving it a manufacture date that is in the future
+     */
+    @Test
+    void editItemFutureManufacture() throws Exception {
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+
+        Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
+        InventoryItem item = new InventoryItem(product, 2, 2.00, 1.80,
+                "2021-04-20", null, null, "2023-05-20");
+        inventoryItemRepository.save(item);
+
+
+
+        JSONObject testItem = new JSONObject();
+        c.setTime(new Date());
+        c.add(Calendar.DATE, 1);
+        String expiryString = dateFormatter.format(c.getTime());
+        testItem.put("manufactured", expiryString);
+
+        RequestBuilder postInventoryRequest = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/inventory/{inventoryItemId}", businessId, item.getId())
+                .content(testItem.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postInventoryResponse = this.mockMvc.perform(postInventoryRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new InvalidManufactureDateException().getMessage(), returnedExceptionString);
     }
 
 }
