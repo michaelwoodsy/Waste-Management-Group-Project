@@ -199,7 +199,9 @@ export default {
      * Called when the userId is changed, this occurs when the path variable for the user id is updated
      */
     userId(value) {
-      User.getUserData(value).then((response) => this.profile(response))
+      if (value !== undefined) {
+        User.getUserData(value).then((response) => this.profile(response))
+      }
     }
   },
   components: {
@@ -219,11 +221,7 @@ export default {
       this.email = response.data.email
 
       //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
-      this.homeAddress = ''
-      if (response.data.homeAddress.city !== '') this.homeAddress += `${response.data.homeAddress.city}, `
-      if (response.data.homeAddress.region !== '') this.homeAddress += `${response.data.homeAddress.region}, `
-      this.homeAddress += response.data.homeAddress.country
-      if (response.data.homeAddress.postcode !== '') this.homeAddress += `, ${response.data.homeAddress.postcode}`
+      this.homeAddress = this.$root.$data.address.formatAddress(response.data.homeAddress)
 
       this.dateJoined = response.data.created
       this.timeCalculator(Date.parse(this.dateJoined))
