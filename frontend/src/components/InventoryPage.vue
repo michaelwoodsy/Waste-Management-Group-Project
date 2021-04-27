@@ -118,8 +118,8 @@
                     <th scope="row">{{ item.id }}</th>
                     <td>{{ item.product.id }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>{{ item.pricePerItem }}</td>
-                    <td>{{ item.totalPrice }}</td>
+                    <td>{{ formatPrice(item.pricePerItem) }}</td>
+                    <td>{{ formatPrice(item.totalPrice) }}</td>
                     <td>{{ formatDate(item.manufactured)}}</td>
                     <td>{{ formatDate(item.sellBy)}}</td>
                     <td>{{ formatDate(item.bestBefore)}}</td>
@@ -175,6 +175,7 @@ export default {
   data () {
     return {
       inventoryItems: [],
+      currency: null,
       error: null,
       orderCol: null,
       orderDirection: false, // False -> Ascending
@@ -185,6 +186,7 @@ export default {
   },
   mounted() {
     this.fillTable()
+    this.getCurrency()
   },
 
   computed: {
@@ -321,10 +323,28 @@ export default {
     },
 
     /**
+     * calls the formatPrice method in the product module to format the products recommended retail price
+     */
+    formatPrice(price) {
+      return this.$root.$data.product.formatPrice(this.currency, price)
+    },
+
+    /**
      * Takes user to page to create new product.
      */
     newInventoryItem() {
       this.$router.push({name: 'CreateInventoryItem', params: {businessId: this.businessId}})
+    },
+
+    /**
+     * Uses the getCurrency in the product.js module to get the currency of the business
+     */
+    async getCurrency() {
+      //Change country to businesses address country when implemented
+      //The country variable  will always be an actual country as it is a requirement when creating a business
+      const country = "Netherlands"
+
+      this.currency = await this.$root.$data.product.getCurrency(country)
     },
 
     /**
@@ -334,7 +354,6 @@ export default {
       this.inventoryItems = [];
       this.loading = true;
       this.page = 1;
-
 
       // TODO: uncomment when GET inventory implemented on backend
       Business.getInventory(this.$route.params.businessId)
