@@ -42,6 +42,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 /**
@@ -58,6 +60,7 @@ public class MainApplicationRunner implements ApplicationRunner {
     private final AddressRepository addressRepository;
     private final ProductRepository productRepository;
     private final InventoryItemRepository inventoryItemRepository;
+    private final SaleListingRepository saleListingRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     /**
@@ -70,12 +73,13 @@ public class MainApplicationRunner implements ApplicationRunner {
     @Autowired
     public MainApplicationRunner(UserRepository userRepository, BusinessRepository businessRepository, AddressRepository addressRepository,
                                  ProductRepository productRepository, InventoryItemRepository inventoryItemRepository,
-                                 BCryptPasswordEncoder passwordEncoder) {
+                                 SaleListingRepository saleListingRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.addressRepository = addressRepository;
+        this.saleListingRepository = saleListingRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -103,6 +107,10 @@ public class MainApplicationRunner implements ApplicationRunner {
             // Insert test inventoryItem data.
             if (inventoryItemRepository.count() == 0) {
                 insertTestInventoryItems((JSONArray) data.get("inventoryItems"));
+            }
+            // Insert test saleListing data.
+            if (saleListingRepository.count() == 0) {
+                insertTestSaleListings((JSONArray) data.get("saleListings"));
             }
         }
     }
@@ -237,4 +245,31 @@ public class MainApplicationRunner implements ApplicationRunner {
         logger.info(String.format("Added %d entries to inventory item repository", inventoryItemRepository.count()));
     }
 
+    /**
+     * Inserts test sale listing data to the database.
+     *
+     * @param saleData JSONArray of sale listing data.
+     */
+    public void insertTestSaleListings(JSONArray saleData) {
+        logger.info("Adding sample data to sale listing repository");
+        for (Object object : saleData) {
+            JSONObject jsonSaleListing = (JSONObject) object;
+            Optional<InventoryItem> testItemOptions = inventoryItemRepository.findById(jsonSaleListing.getAsNumber("inventoryItemId").intValue());
+            if (testItemOptions.isPresent()) {
+                InventoryItem testItem = testItemOptions.get();
+                SaleListing testListing = new SaleListing(
+                        3,
+                        testItem,
+                        jsonSaleListing.getAsNumber("price").doubleValue(),
+                        jsonSaleListing.getAsString("moreInfo"),
+                        LocalDateTime.parse(jsonSaleListing.getAsString("closes"), DateTimeFormatter.ISO_DATE_TIME),
+                        jsonSaleListing.getAsNumber("quantity").intValue()
+                );
+                saleListingRepository.save(testListing);
+            }
+
+        }
+        logger.info("Finished adding sample data to sale listing repository");
+        logger.info(String.format("Added %d entries to sale listing repository", saleListingRepository.count()));
+    }
 }
