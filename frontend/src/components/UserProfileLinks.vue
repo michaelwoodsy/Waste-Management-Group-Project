@@ -51,14 +51,15 @@
 
       <!-- Profile and logout section -->
       <div v-if="this.actor.type === 'business'">
-        <router-link class="dropdown-item" :to="productCatalogueRoute">Product Catalogue</router-link>
-        <router-link class="dropdown-item" :to="inventoryRoute">Inventory</router-link>
+        <router-link :to="productCatalogueRoute" class="dropdown-item">Product Catalogue</router-link>
+        <router-link :to="inventoryRoute" class="dropdown-item">Inventory</router-link>
+        <router-link :to="listingsRoute" class="dropdown-item">Listings</router-link>
       </div>
       <div v-else>
         <router-link class="dropdown-item" to="/businesses">Create Business</router-link>
       </div>
       <div class="dropdown-divider"/>
-      <router-link class="dropdown-item" @click.native="logOut()" to="/login">Logout</router-link>
+      <router-link class="dropdown-item" to="/login" @click.native="logOut()">Logout</router-link>
     </div>
 
   </div>
@@ -79,8 +80,13 @@ export default {
     },
 
     /** Returns the inventory url **/
-    inventoryRoute () {
+    inventoryRoute() {
       return `businesses/${this.actor.id}/inventory`;
+    },
+
+    /** Returns the listing url **/
+    listingsRoute() {
+      return `businesses/${this.actor.id}/listings`
     },
 
     /**

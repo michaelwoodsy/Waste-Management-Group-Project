@@ -135,7 +135,12 @@ export const Business = {
     /**
      * Creates a new product in the product catalogue
      */
-    createProduct: (businessId, data) => instance.post(`businesses/${businessId}/products`, data)
+    createProduct: (businessId, data) => instance.post(`businesses/${businessId}/products`, data),
+
+    /*
+     * Gets all the sale listings for a business
+     */
+    getListings: (businessId) => instance.get(`businesses/${businessId}/listings`, {}),
 
 
 };
