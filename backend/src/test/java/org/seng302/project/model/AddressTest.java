@@ -17,7 +17,7 @@ public class AddressTest {
     private AddressRepository addressRepository;
 
     /**
-     * Basic test to check Address class functionality.
+     * Basic test to check Address class functionality. Also checks for a null address.
      */
     @Test
     @Order(1)
@@ -50,7 +50,7 @@ public class AddressTest {
     }
 
     /**
-     * Test to save Address to repository and then retrieve
+     * Test to save Address to repository and then retrieve.
      */
     @Test
     @Order(2)

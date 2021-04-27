@@ -88,6 +88,7 @@ public class UserController {
         logger.info("Request to create user");
 
         try {
+            //If any of the required fields are empty
             if (newUser.getFirstName() == null || newUser.getFirstName().equals("") ||
                     newUser.getLastName() == null || newUser.getLastName().equals("") ||
                     newUser.getEmail() == null || newUser.getEmail().equals("") ||
@@ -98,6 +99,7 @@ public class UserController {
                 throw requiredFieldsMissingException;
             }
 
+            //If email is in incorrect format
             String emailRegEx = "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@" +
                     "((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
             if (!newUser.getEmail().matches(emailRegEx)) {
@@ -106,6 +108,7 @@ public class UserController {
                 throw emailException;
             }
 
+            //If phone number is in incorrect format or empty
             String phoneRegEx = "^\\+?\\d{1,15}$";
             if ((newUser.getPhoneNumber() != null && !newUser.getPhoneNumber().equals(""))
                     && !(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
@@ -113,6 +116,8 @@ public class UserController {
                 logger.warn(phoneNumberException.getMessage());
                 throw phoneNumberException;
             }
+
+            //If email address is empty
             if (!userRepository.findByEmail(newUser.getEmail()).isEmpty()) {
                 ExistingRegisteredEmailException emailException = new ExistingRegisteredEmailException();
                 logger.warn(emailException.getMessage());
