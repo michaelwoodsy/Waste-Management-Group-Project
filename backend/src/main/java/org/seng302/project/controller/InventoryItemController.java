@@ -379,7 +379,7 @@ public class InventoryItemController {
                     }
                 }
             } catch(NumberFormatException e) {
-                IncorrectRRPFormatException exception = new IncorrectRRPFormatException();
+                InvalidPriceException exception = new InvalidPriceException("price per item");
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -388,7 +388,7 @@ public class InventoryItemController {
                 if (json.containsKey("totalPrice")) {
                     Number newTotalPrice = json.getAsNumber("totalPrice");
                     if (newTotalPrice == null) {
-                        item.setPricePerItem(null);
+                        item.setTotalPrice(null);
                     } else if (originalItem.getTotalPrice() == null ||
                             originalItem.getTotalPrice() != newTotalPrice.doubleValue()) {
                         //If Total price is below 0
@@ -401,7 +401,7 @@ public class InventoryItemController {
                     }
                 }
             } catch(NumberFormatException e) {
-                IncorrectRRPFormatException exception = new IncorrectRRPFormatException();
+                InvalidPriceException exception = new InvalidPriceException("total price");
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -489,8 +489,6 @@ public class InventoryItemController {
                 logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
                 throw exception;
             }
-
-
             //ProductId
             String newProductId = json.getAsString("productId");
             if(json.containsKey("productId")  && !originalItem.getProduct().getId().equals(newProductId)) {
@@ -509,15 +507,11 @@ public class InventoryItemController {
                     throw exception;
                 }
                 Product product = productResult.get();
-
                 item.setProduct(product);
             }
-
             inventoryItemRepository.save(item);
-
         } catch (NoBusinessExistsException | NoProductExistsException | MissingProductIdException |
-                MissingProductNameException | IncorrectRRPFormatException | ForbiddenAdministratorActionException |
-                ProductIdAlreadyExistsException | InvalidProductIdCharactersException | InvalidManufactureDateException |
+                ForbiddenAdministratorActionException | InvalidPriceException | InvalidManufactureDateException |
                 InvalidSellByDateException | ItemExpiredException | InvalidBestBeforeDateException |
                 MissingInventoryItemExpiryException | InvalidInventoryItemQuantityException handledException) {
             throw handledException;
