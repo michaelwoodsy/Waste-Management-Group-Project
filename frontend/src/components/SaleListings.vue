@@ -207,6 +207,14 @@ export default {
       return this.listings.length;
     },
   },
+  watch: {
+    /**
+     * Called when the businessId is changed, this occurs when the path variable for the business id is updated
+     */
+    businessId() {
+      this.fillTable()
+    }
+  },
   methods: {
     /**
      * Method which sets the column and direction to order by.
