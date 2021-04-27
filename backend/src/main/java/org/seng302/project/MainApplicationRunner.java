@@ -225,19 +225,19 @@ public class MainApplicationRunner implements ApplicationRunner {
                     jsonInventoryItem.getAsString("productId"),3);
             if (testProductOptions.isPresent()) {
                 Product testProduct = testProductOptions.get();
-            InventoryItem testInventoryItem = new InventoryItem(
-                    testProduct,
-                    jsonInventoryItem.getAsNumber("quantity").intValue(),
-                    jsonInventoryItem.getAsNumber("pricePerItem") != null ?
-                            jsonInventoryItem.getAsNumber("pricePerItem").doubleValue(): null,
-                    jsonInventoryItem.getAsNumber("totalPrice")!= null ?
-                            jsonInventoryItem.getAsNumber("totalPrice").doubleValue(): null,
-                    jsonInventoryItem.getAsString("manufactured"),
-                    jsonInventoryItem.getAsString("sellBy"),
-                    jsonInventoryItem.getAsString("bestBefore"),
-                    jsonInventoryItem.getAsString("expires")
-                    );
-            inventoryItemRepository.save(testInventoryItem);
+                InventoryItem testInventoryItem = new InventoryItem(
+                        testProduct,
+                        jsonInventoryItem.getAsNumber("quantity").intValue(),
+                        jsonInventoryItem.getAsNumber("pricePerItem") != null ?
+                                jsonInventoryItem.getAsNumber("pricePerItem").doubleValue(): null,
+                        jsonInventoryItem.getAsNumber("totalPrice")!= null ?
+                                jsonInventoryItem.getAsNumber("totalPrice").doubleValue(): null,
+                        jsonInventoryItem.getAsString("manufactured"),
+                        jsonInventoryItem.getAsString("sellBy"),
+                        jsonInventoryItem.getAsString("bestBefore"),
+                        jsonInventoryItem.getAsString("expires")
+                );
+                inventoryItemRepository.save(testInventoryItem);
             }
 
         }

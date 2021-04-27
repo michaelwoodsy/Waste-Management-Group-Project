@@ -103,9 +103,6 @@ public class SaleListingController {
         // Get the business of the request
         Business business = getBusiness(businessId);
 
-        // Check the user is an admin of the business
-        checkUserIsAdminOfBusiness(user, business);
-
         // Get the sale listings of the business
         return saleListingRepository.findAllByBusinessId(businessId);
     }

@@ -86,6 +86,7 @@ public class SaleListingControllerTest {
 
     @BeforeEach
     public void initialise() {
+        saleListingRepository.deleteAll();
         inventoryItemRepository.deleteAll();
 
         // Create address
@@ -135,16 +136,6 @@ public class SaleListingControllerTest {
     public void checkUnauthenticatedRequest() throws Exception {
         mockMvc.perform(get("/businesses/{id}/listings", business.getId()))
                 .andExpect(status().isUnauthorized());
-    }
-
-    /**
-     * Check a user that isn't an administrator gets a 403.
-     */
-    @Test
-    public void testRandomUserCantAccess() throws Exception {
-        mockMvc.perform(get("/businesses/{businessId}/listings", business.getId())
-                .with(httpBasic(userEmail, userPassword)))
-                .andExpect(status().isForbidden());
     }
 
     /**
