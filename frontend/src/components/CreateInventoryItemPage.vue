@@ -42,7 +42,7 @@
             <div class="form-group row">
               <label for="quantity"><b>Product Quantity<span class="required">*</span></b></label>
               <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}" maxlength="255"
-                     placeholder="Enter the quantity" required type="text">
+                     placeholder="Enter the quantity" required type="number">
               <span class="invalid-feedback">{{ msg.quantity }}</span>
             </div>
 
@@ -55,7 +55,7 @@
                 </div>
                 <input id="pricePerItem" v-model="pricePerItem" :class="{'form-control': true, 'is-invalid': msg.pricePerItem}"
                        maxlength="255"
-                       placeholder="Price Per Item" type="text">
+                       placeholder="Price Per Item"  type="number">
                 <div class="input-group-append">
                   <span class="input-group-text">{{ this.currencyCode }}</span>
                 </div>
@@ -72,7 +72,7 @@
                 </div>
                 <input id="totalPrice" v-model="totalPrice" :class="{'form-control': true, 'is-invalid': msg.totalPrice}"
                        maxlength="255"
-                       placeholder="Total Price" type="text">
+                       placeholder="Total Price" type="number">
                 <div class="input-group-append">
                   <span class="input-group-text">{{ this.currencyCode }}</span>
                 </div>
@@ -266,8 +266,8 @@ export default {
       if (isNotNumber || this.quantity === '') {
         this.msg.quantity= 'Please enter a valid quantity';
         this.valid = false;
-      } else if (Number(this.quantity) < 0) {
-        this.msg.quantity= 'Please enter a non negative quantity'
+      } else if (Number(this.quantity) <= 0) {
+        this.msg.quantity= 'Please enter a quantity above 0'
         this.valid = false
       } else {
         this.msg.quantity = null;
@@ -281,8 +281,8 @@ export default {
         let dateNow = new Date()
         let dateGiven = new Date(this.manufactured)
 
-        if ((dateGiven - dateNow <= 0)){
-          this.msg.manufactured = 'Please enter a date in the future'
+        if ((dateGiven - dateNow > 0)){
+          this.msg.manufactured = 'Please enter a date in the past'
           this.valid = false
         } else {
           this.msg.manufactured = null
