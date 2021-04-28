@@ -11,10 +11,12 @@ import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 import Catalogue from "@/components/ProductCatalogue";
 import EditProductPage from "@/components/EditProductPage";
-import InventoryPage from "@/components/InventoryPage";
 import CreateProductPage from "@/components/CreateProductPage";
-import Default from "@/components/Default";
 import ListItemPage from "@/components/ListItemPage";
+import InventoryPage from "@/components/InventoryPage";
+import SaleListings from "@/components/SaleListings";
+import EditInventoryItemPage from "@/components/EditInventoryItemPage";
+import CreateInventoryItemPage from "@/components/CreateInventoryItemPage";
 
 const routes = [
     {
@@ -78,15 +80,26 @@ const routes = [
         component: InventoryPage
     },
     {
+        path: '/businesses/:businessId/inventory/create',
+        name: 'CreateInventoryItem',
+        component: CreateInventoryItemPage
+    },
+    {
         path: '/businesses/:businessId/inventory/:inventoryItemId',
         name: 'editInventoryItem',
-        component: Default//TODO: Change this to the EditInventoryItemPage
+        component: EditInventoryItemPage
     },
     {
         path: '/businesses/:businessId/listings/add',
         name: 'listItem',
         component: ListItemPage
     }
+    {
+        path: '/businesses/:businessId/listings',
+        name: 'listings',
+        component: SaleListings
+    },
+
 ];
 
 const base = process.env.VUE_APP_BASE_URL || '/';

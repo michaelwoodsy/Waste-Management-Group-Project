@@ -45,7 +45,7 @@ public class InventoryItemController {
      * REST Request to retrieve a business' inventory.
      *
      * @param businessId The ID of the business to get the inventory of.
-     * @param appUser The currently logged in user.
+     * @param appUser    The currently logged in user.
      * @return The inventory of the business in list form.
      */
     @GetMapping("/businesses/{businessId}/inventory")
@@ -102,7 +102,7 @@ public class InventoryItemController {
             // Check if the business exists
             if (businessResult.isEmpty()) {
                 NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
-                logger.error(exception.getMessage());
+                logger.warn(exception.getMessage());
                 throw exception;
             }
             Business business = businessResult.get();
@@ -110,7 +110,7 @@ public class InventoryItemController {
             // Check if the logged in user is the business owner / administrator
             if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
-                logger.error(exception.getMessage());
+                logger.warn(exception.getMessage());
                 throw exception;
             }
 
@@ -119,12 +119,12 @@ public class InventoryItemController {
             try {
                 if (productId.isEmpty()) { //Empty string
                     MissingProductIdException exception = new MissingProductIdException();
-                    logger.error(exception.getMessage());
+                    logger.warn(exception.getMessage());
                     throw exception;
                 }
             } catch (NullPointerException nullPointerException) { //Field not in json
                 MissingProductIdException exception = new MissingProductIdException();
-                logger.error(exception.getMessage());
+                logger.warn(exception.getMessage());
                 throw exception;
             }
 
@@ -132,7 +132,7 @@ public class InventoryItemController {
             Optional<Product> retrievedProductOptions = productRepository.findByIdAndBusinessId(productId, businessId);
             if (retrievedProductOptions.isEmpty()) {
                 NoProductExistsException exception = new NoProductExistsException(productId, businessId);
-                logger.error(exception.getMessage());
+                logger.warn(exception.getMessage());
                 throw exception;
             }
             Product product = retrievedProductOptions.get();
@@ -145,22 +145,22 @@ public class InventoryItemController {
                     //If quantity is at or below 0
                     if (quantity <= 0) {
                         InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
-                        logger.error(exception.getMessage());
+                        logger.warn(exception.getMessage());
                         throw exception;
                     }
                 }
                 if (quantity == null) { //Empty string
                     InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
-                    logger.error(exception.getMessage());
+                    logger.warn(exception.getMessage());
                     throw exception;
                 }
             } catch (NullPointerException nullPointerException) { //Field not in json
                 MissingProductIdException exception = new MissingProductIdException();
-                logger.error(exception.getMessage());
+                logger.warn(exception.getMessage());
                 throw exception;
             } catch (NumberFormatException numberFormatException) { //Field is not a number
                 InvalidNumberFormatException exception = new InvalidNumberFormatException("quantity");
-                logger.error(exception.getMessage());
+                logger.warn(exception.getMessage());
                 throw exception;
             }
 
@@ -242,13 +242,13 @@ public class InventoryItemController {
                     //If price per item is below 0
                     if (pricePerItem < 0) {
                         InvalidPriceException exception = new InvalidPriceException("price per item");
-                        logger.error(exception.getMessage());
+                        logger.warn(exception.getMessage());
                         throw exception;
                     }
                 }
             } catch (NumberFormatException numberFormatException) { //Field is not a number
                 InvalidNumberFormatException exception = new InvalidNumberFormatException("price per item");
-                logger.error(exception.getMessage());
+                logger.warn(exception.getMessage());
                 throw exception;
             }
 
@@ -260,13 +260,13 @@ public class InventoryItemController {
                     //If total price is below 0
                     if (totalPrice < 0) {
                         InvalidPriceException exception = new InvalidPriceException("total price");
-                        logger.error(exception.getMessage());
+                        logger.warn(exception.getMessage());
                         throw exception;
                     }
                 }
             } catch (NumberFormatException numberFormatException) { //Field is not a number
                 InvalidNumberFormatException exception = new InvalidNumberFormatException("total price");
-                logger.error(exception.getMessage());
+                logger.warn(exception.getMessage());
                 throw exception;
             }
 
@@ -289,4 +289,242 @@ public class InventoryItemController {
     }
 
 
+    /**
+     * Edits inventory item with id itemId
+     *
+     * @param businessId      ID of the business the product is under.
+     * @param inventoryItemId ID of the inventory item
+     * @param appUser         AppUserDetails of current user
+     * @param json            The fields of the product to edit
+     */
+    @PutMapping("/businesses/{businessId}/inventory/{inventoryItemId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void editInventoryItem(@PathVariable int businessId, @PathVariable int inventoryItemId,
+                                  @RequestBody JSONObject json, @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+            // Get the logged in user from the user's email
+            String userEmail = appUser.getUsername();
+            User loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+            logger.info("User with user id: " + loggedInUser.getId() + " Editing inventory item with id " +
+                    inventoryItemId + " from business with id " + businessId);
+
+            // Get the business
+            Optional<Business> businessResult = businessRepository.findById(businessId);
+
+            // Check if the business exists
+            if (businessResult.isEmpty()) {
+                NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+            Business business = businessResult.get();
+
+            // Check if the logged in user is the business owner / administrator
+            if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
+                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+
+            // Get the item
+            Optional<InventoryItem> itemResult = inventoryItemRepository.findById(inventoryItemId);
+
+            // Check if the item exists
+            if (itemResult.isEmpty()) {
+                NoInventoryItemExistsException exception = new NoInventoryItemExistsException(
+                        inventoryItemId, businessId);
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+
+            InventoryItem item = itemResult.get();
+            InventoryItem originalItem = itemResult.get();
+
+            //Quantity
+            try {
+                if (json.containsKey("quantity")) {
+                    Number newQuantity = json.getAsNumber("quantity");
+                    if (newQuantity == null) {
+                        InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
+                        logger.warn(exception.getMessage());
+                        throw exception;
+                    } else if (originalItem.getQuantity() != newQuantity.doubleValue()) {
+                        //If Quantity is at or below 0
+                        if (newQuantity.intValue() <= 0) {
+                            InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
+                            logger.warn(exception.getMessage());
+                            throw exception;
+                        }
+                        item.setQuantity(newQuantity.intValue());
+                    }
+                }
+            } catch (NumberFormatException e) {
+                InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+            //Price Per Item
+            try {
+                if (json.containsKey("pricePerItem")) {
+                    Number newPPI = json.getAsNumber("pricePerItem");
+                    if (newPPI == null) {
+                        item.setPricePerItem(null);
+                    } else if (originalItem.getPricePerItem() == null ||
+                            originalItem.getPricePerItem() != newPPI.doubleValue()) {
+                        //If Price per item is below 0
+                        if (newPPI.doubleValue() < 0) {
+                            InvalidPriceException exception = new InvalidPriceException("price per item");
+                            logger.warn(exception.getMessage());
+                            throw exception;
+                        }
+                        item.setPricePerItem(newPPI.doubleValue());
+                    }
+                }
+            } catch (NumberFormatException e) {
+                InvalidPriceException exception = new InvalidPriceException("price per item");
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+            //Total Price
+            try {
+                if (json.containsKey("totalPrice")) {
+                    Number newTotalPrice = json.getAsNumber("totalPrice");
+                    if (newTotalPrice == null) {
+                        item.setTotalPrice(null);
+                    } else if (originalItem.getTotalPrice() == null ||
+                            originalItem.getTotalPrice() != newTotalPrice.doubleValue()) {
+                        //If Total price is below 0
+                        if (newTotalPrice.doubleValue() < 0) {
+                            InvalidPriceException exception = new InvalidPriceException("total price");
+                            logger.warn(exception.getMessage());
+                            throw exception;
+                        }
+                        item.setTotalPrice(newTotalPrice.doubleValue());
+                    }
+                }
+            } catch (NumberFormatException e) {
+                InvalidPriceException exception = new InvalidPriceException("total price");
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+
+            //Dates
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            Date currentDate = new Date();
+            try {
+                //Manufacture date
+                if (json.containsKey("manufactured")) {
+                    String manufactureDateString = json.getAsString("manufactured");
+                    if (manufactureDateString == null) {
+                        item.setManufactured(null);
+                    } else if (originalItem.getManufactured() == null || !originalItem.getManufactured().equals(manufactureDateString)) {
+                        Date manufactureDate = formatter.parse(manufactureDateString);
+
+                        //Manufacture date should be in the past
+                        //Throw exception if manufacture date is in the future
+                        if (currentDate.before(manufactureDate)) {
+                            InvalidManufactureDateException exception = new InvalidManufactureDateException();
+                            logger.warn(exception.getMessage());
+                            throw exception;
+                        }
+                        item.setManufactured(formatter.format(manufactureDate));
+                    }
+                }
+                //Sell by date
+                if (json.containsKey("sellBy")) {
+                    String sellByDateString = json.getAsString("sellBy");
+                    if (sellByDateString == null) {
+                        item.setSellBy(null);
+                    } else if (originalItem.getSellBy() == null || !originalItem.getSellBy().equals(sellByDateString)) {
+                        Date sellByDate = formatter.parse(sellByDateString);
+
+                        //Sell by date should be in the future
+                        //Throw exception if sell by date is in the past
+                        if (currentDate.after(sellByDate)) {
+                            InvalidSellByDateException exception = new InvalidSellByDateException();
+                            logger.warn(exception.getMessage());
+                            throw exception;
+                        }
+                        item.setSellBy(formatter.format(sellByDate));
+                    }
+                }
+                //Best Before date
+                if (json.containsKey("bestBefore")) {
+                    String bestBeforeDateString = json.getAsString("bestBefore");
+                    if (bestBeforeDateString == null) {
+                        item.setBestBefore(null);
+                    } else if (originalItem.getBestBefore() == null || !originalItem.getBestBefore().equals(bestBeforeDateString)) {
+                        Date bestBeforeDate = formatter.parse(bestBeforeDateString);
+
+                        //Best before date should be in the future
+                        //Throw exception if best before date is in the past
+                        if (currentDate.after(bestBeforeDate)) {
+                            InvalidBestBeforeDateException exception = new InvalidBestBeforeDateException();
+                            logger.warn(exception.getMessage());
+                            throw exception;
+                        }
+                        item.setBestBefore(formatter.format(bestBeforeDate));
+                    }
+                }
+                //Expiry date
+                String expiryDateString = json.getAsString("expires");
+                if (json.containsKey("expires") && !originalItem.getExpires().equals(expiryDateString)) {
+                    if (expiryDateString == null) { //Expiry date is required
+                        MissingInventoryItemExpiryException exception = new MissingInventoryItemExpiryException();
+                        logger.warn(exception.getMessage());
+                        throw exception;
+                    } else if (!originalItem.getExpires().equals(expiryDateString)) {
+                        Date expiryDate = formatter.parse(expiryDateString);
+                        if (currentDate.after(expiryDate)) { //Expiry date should not be in the past
+                            ItemExpiredException exception = new ItemExpiredException();
+                            logger.warn(exception.getMessage());
+                            throw exception;
+                        }
+                        item.setExpires(formatter.format(expiryDate));
+                    }
+                }
+            } catch (ParseException parseException) {
+                InvalidDateException invalidDateException = new InvalidDateException();
+                logger.warn(invalidDateException.getMessage());
+                throw invalidDateException;
+            } catch (InvalidManufactureDateException | InvalidSellByDateException | ItemExpiredException |
+                    InvalidBestBeforeDateException | MissingInventoryItemExpiryException handledException) {
+                throw handledException;
+            } catch (Exception exception) {
+                logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
+                throw exception;
+            }
+            //ProductId
+            String newProductId = json.getAsString("productId");
+            if (json.containsKey("productId") && !originalItem.getProduct().getId().equals(newProductId)) {
+                if (newProductId == null || newProductId.equals("")) {
+                    MissingProductIdException exception = new MissingProductIdException();
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
+                // Get the product
+                Optional<Product> productResult = productRepository.findByIdAndBusinessId(newProductId, businessId);
+
+                // Check if the product exists
+                if (productResult.isEmpty()) {
+                    NoProductExistsException exception = new NoProductExistsException(newProductId, businessId);
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
+                Product product = productResult.get();
+                item.setProduct(product);
+            }
+            inventoryItemRepository.save(item);
+        } catch (NoBusinessExistsException | NoProductExistsException | MissingProductIdException |
+                ForbiddenAdministratorActionException | InvalidPriceException | InvalidManufactureDateException |
+                InvalidSellByDateException | ItemExpiredException | InvalidBestBeforeDateException |
+                MissingInventoryItemExpiryException | InvalidInventoryItemQuantityException handledException) {
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while editing inventory item: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
 }
