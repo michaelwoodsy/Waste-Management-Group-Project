@@ -77,8 +77,9 @@
                   {{ admin.firstName }} {{ admin.lastName }}
                 </router-link>
               </td>
-              <td v-if="isPrimaryAdmin && (primaryAdminId !== admin.id)" >
-                <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;" v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
+              <td v-if="isPrimaryAdmin && (primaryAdminId !== admin.id)">
+                <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;"
+                   v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
               </td>
             </tr>
           </table>
@@ -86,12 +87,12 @@
 
       </div>
       <div class="row">
-        <div class="col-12 text-center mb-2" v-if="removedAdmin">
+        <div v-if="removedAdmin" class="col-12 text-center mb-2">
           <br>
           <p style="color: green">{{ removedAdmin }}</p>
           <br>
         </div>
-        <div class="col-12 text-center mb-2" v-if="error">
+        <div v-if="error" class="col-12 text-center mb-2">
           <br>
           <p style="color: red">{{ error }}</p>
           <br>
@@ -158,7 +159,9 @@ export default {
      * Called when the businessId is changed, this occurs when the path variable for the business id is updated
      */
     businessId(value) {
-      Business.getBusinessData(value).then((response) => this.profile(response))
+      if (value !== undefined) {
+        Business.getBusinessData(value).then((response) => this.profile(response))
+      }
     }
   },
   components: {
@@ -177,18 +180,8 @@ export default {
       this.businessType = response.data.businessType;
       this.administrators = response.data.administrators;
 
-      //Need to remove the street and number part of this address, just splice from the first ','
-      if (response.data.address.indexOf(",") === -1) this.address = response.data.address
-      else this.address = response.data.address.slice(response.data.address.indexOf(",") + 2)
-
       //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
-      /*
-      this.homeAddress = ''
-      if (response.data.address.city !== '') this.address += `${response.data.address.city}, `
-      if (response.data.address.region !== '') this.address += `${response.data.address.region}, `
-      this.address += response.data.address.country
-      if (response.data.address.postcode !== '') this.address += `, ${response.data.address.postcode}`
-      */
+      this.address = this.$root.$data.address.formatAddress(response.data.address)
 
       this.dateJoined = response.data.created
       this.timeCalculator(Date.parse(this.dateJoined))
@@ -209,10 +202,9 @@ export default {
         this.removedAdmin = `Removed ${firstName} ${lastName} from administering business`
         //Reload the data
         Business.getBusinessData(this.businessId).then((response) => this.profile(response))
-      }
-      catch (err) {
+      } catch (err) {
         this.error = err.response
-            ? err.response.data.slice(err.response.data.indexOf(":")+2)
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
             : err
       }
     },
@@ -288,7 +280,7 @@ export default {
       dateSinceJoin: null,
       administrators: null,
       removedAdmin: null,
-      error:null
+      error: null
     }
   }
 

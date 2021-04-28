@@ -83,31 +83,32 @@
             <form>
               <!-- ID -->
               <div class="form-group row">
-                <label for="id" class="col-sm-4 col-form-label">ID<span class="text-danger">*</span></label>
+                <label class="col-sm-4 col-form-label" for="id">ID<span class="text-danger">*</span></label>
                 <div class="col-sm-8">
                   <input
-                      type="text" maxlength="255"
+                      id="id" v-model="newProduct.id"
                       :class="{'form-control': 1, 'is-invalid': !idValid && idBlur}"
-                      id="id"
-                      v-model="newProduct.id"
+                      maxlength="255"
+                      type="text"
                       @blur="idBlur = true"
                   >
                   <div class="invalid-feedback" v-if="idTaken">The ID must be unique</div>
                   <div class="invalid-feedback" v-else>The ID must be unique, and can only contain letters, numbers, hyphens
-                    and must be at least 1 character long.</div>
+                    and must be at least 1 character long.
+                  </div>
                 </div>
               </div>
 
               <!-- Name -->
               <div class="form-group row">
-                <label for="name" class="col-sm-4 col-form-label">Name<span class="text-danger">*</span></label>
+                <label class="col-sm-4 col-form-label" for="name">Name<span class="text-danger">*</span></label>
                 <div class="col-sm-8">
                   <input
-                      type="text"
-                      maxlength="255"
-                      :class="{'form-control': true, 'is-invalid': !nameValid && nameBlur}"
                       id="name"
                       v-model="newProduct.name"
+                      :class="{'form-control': true, 'is-invalid': !nameValid && nameBlur}"
+                      maxlength="255"
+                      type="text"
                       @blur="nameBlur = true"
                   >
                   <div class="invalid-feedback">A name is required</div>
@@ -116,22 +117,23 @@
 
               <!-- Description -->
               <div class="form-group row">
-                <label for="description" class="col-sm-4 col-form-label">Description</label>
+                <label class="col-sm-4 col-form-label" for="description">Description</label>
                 <div class="col-sm-8">
-                  <textarea type="text" maxlength="255" class="form-control" id="description" rows="3" v-model="newProduct.description"></textarea>
+                  <textarea id="description" v-model="newProduct.description" class="form-control" maxlength="255" rows="3"
+                            type="text"></textarea>
                 </div>
               </div>
 
               <!-- Recommended Retail Price -->
               <div class="form-group row">
-                <label for="rrp" class="col-sm-4 col-form-label">Recommended Retail Price</label>
+                <label class="col-sm-4 col-form-label" for="rrp">Recommended Retail Price</label>
                 <div class="col-sm-8">
                   <input
-                      type="text"
-                      maxlength="255"
-                      :class="{'form-control': true, 'is-invalid': !priceValid && priceBlur}"
                       id="rrp"
                       v-model.number="newProduct.recommendedRetailPrice"
+                      :class="{'form-control': true, 'is-invalid': !priceValid && priceBlur}"
+                      maxlength="255"
+                      type="text"
                       @blur="priceBlur = true"
                   >
                   <div class="invalid-feedback">The price must be a number</div>
@@ -140,9 +142,10 @@
 
               <!-- Manufacturer -->
               <div class="form-group row">
-                <label for="manufacturer" class="col-sm-4 col-form-label">Manufacturer</label>
+                <label class="col-sm-4 col-form-label" for="manufacturer">Manufacturer</label>
                 <div class="col-sm-8">
-                  <input type="text" maxlength="255" class="form-control" id="manufacturer" v-model="newProduct.manufacturer">
+                  <input id="manufacturer" v-model="newProduct.manufacturer" class="form-control" maxlength="255"
+                         type="text">
                 </div>
               </div>
 
@@ -163,6 +166,8 @@
 
             <!-- Cancel button when changes are made -->
             <button
+                :class="{'btn': true, 'mr-1': true, 'my-1': true, 'btn-danger': this.changesMade,
+              'btn-secondary': !this.changesMade, 'float-left': true}"
                 type="button"
                 @click="cancel"
                 class="btn mr-1 my-1 btn-secondary float-left"
@@ -172,9 +177,9 @@
 
             <!-- Save Changes button -->
             <button
-                type="button"
-                class="btn btn-primary ml-1 my-1 float-right"
                 :disabled="!changesMade"
+                class="btn btn-primary ml-1 my-1 float-right"
+                type="button"
                 @click="submit"
             >
               Save Changes
@@ -195,10 +200,10 @@ import {Business} from "@/Api";
 
 export default {
   name: "EditProductPage",
-  mounted () {
+  mounted() {
     this.loadProduct();
   },
-  data () {
+  data() {
     return {
       errorMessage: null,
       submitting: false, // True when the changes are being submitted to the api
@@ -257,7 +262,9 @@ export default {
 
     /** Returns true if changes have been made to the product **/
     changesMade() {
-      if (!this.product) { return false }
+      if (!this.product) {
+        return false
+      }
       let allSame = true;
       for (const [key, val] of Object.entries(this.product)) {
         if (this.newProduct[key] !== val) {
@@ -293,9 +300,15 @@ export default {
     /** Returns a string list of the fields that aren't valid **/
     fieldsNeedingFixed() {
       let fixes = []
-      if (!this.priceValid) { fixes.push('Recommended Retail Price') }
-      if (!this.nameValid) { fixes.push('Name') }
-      if (!this.idValid) { fixes.push('Id') }
+      if (!this.priceValid) {
+        fixes.push('Recommended Retail Price')
+      }
+      if (!this.nameValid) {
+        fixes.push('Name')
+      }
+      if (!this.idValid) {
+        fixes.push('Id')
+      }
       return fixes.join(', ')
     }
   },
@@ -351,7 +364,7 @@ export default {
     /**
      * Loads the product data into this.product and this.newProduct
      */
-    loadProduct () {
+    loadProduct() {
       Business.getProducts(this.businessId)
           .then((res) => {
             this.product = res.data.find(prod => prod.id === this.productId.toString())
@@ -393,14 +406,4 @@ export default {
 </script>
 
 <style scoped>
-.btn {
-  transition-duration: 0.1s;
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .3s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
-}
 </style>

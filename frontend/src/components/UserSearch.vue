@@ -255,6 +255,10 @@ export default {
     blurSearch() {
       document.getElementById('search').blur()
     },
+    /**
+     * Function to order search results by specific column
+     * @param col column to be sorted by
+     */
     orderResults(col) {
       // Remove the ordering if the column is clicked and the arrow is down
       if (this.orderCol === col && this.orderDirection) {
@@ -283,12 +287,26 @@ export default {
       }
       return 0;
     },
+    /**
+     * Formats address of user by using their home address object
+     * @param address object that stores the users home address
+     * @returns {string}
+     */
     formattedAddress(address) {
-      return address.slice(address.indexOf(',') + 2)
+      return this.$root.$data.address.formatAddress(address)
     },
+    /**
+     * Router link to the clicked users profile page
+     * @param id
+     */
     viewUser(id) {
       this.$router.push({name: 'viewUser', params: {userId: id}})
     },
+    /**
+     * concatenates the users first name and nickname (if they have one)
+     * @param user
+     * @returns {string|null|string|*}
+     */
     nameAndNickname(user) {
       if (user.nickname) {
         return `${user.firstName} (${user.nickname})`

@@ -1,7 +1,9 @@
 package org.seng302.project.model;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.seng302.project.model.types.BusinessType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,31 +16,30 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests related to the Business class.
  */
 @SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BusinessTest {
 
     @Autowired
     private BusinessRepository businessRepository;
     @Autowired
     private UserRepository userRepository;
-
-    @BeforeEach
-    public void initTest() {
-        businessRepository.deleteAll();
-        userRepository.deleteAll();
-    }
+    @Autowired
+    private AddressRepository addressRepository;
 
     /**
      * Basic test to check Business class functionality.
      */
     @Test
+    @Order(1)
     public void testCreateBusiness() {
-        Business testBusiness = new Business("Test Business", "This business is a test.", "5 Lab Test Ave, New Zealand",
+        Address testAddress = new Address("5", "Lab Test Ave", "Christchurch", null, "New Zealand", null);
+        Business testBusiness = new Business("Test Business", "This business is a test.", testAddress,
                 "Retail Trade", 1);
 
         assertNull(testBusiness.getId());
         assertEquals("Test Business", testBusiness.getName());
         assertEquals("This business is a test.", testBusiness.getDescription());
-        assertEquals("5 Lab Test Ave, New Zealand", testBusiness.getAddress());
+        assertEquals(testAddress, testBusiness.getAddress());
         assertEquals("Retail Trade", testBusiness.getBusinessType());
         assertEquals(1, testBusiness.getPrimaryAdministratorId());
         assertTrue(testBusiness.getCreated().isBefore(LocalDateTime.now()) || testBusiness.getCreated().isEqual(LocalDateTime.now()));
@@ -50,6 +51,7 @@ public class BusinessTest {
      * Test to ensure only valid business types are accepted.
      */
     @Test
+    @Order(2)
     public void testBusinessTypes() {
         assertTrue(BusinessType.checkType("Accommodation and Food Services"));
         assertTrue(BusinessType.checkType("Retail Trade"));
@@ -62,17 +64,19 @@ public class BusinessTest {
      * Test to save Business to repository and then retrieve
      */
     @Test
+    @Order(3)
     public void testBusinessRepository() {
-        Business testBusiness = new Business("Test Business", "This business is a test.", "5 Lab Test Ave, New Zealand",
+        Address testAddress = new Address("5", "Lab Test Ave", "Christchurch", null, "New Zealand", null);
+        Business testBusiness = new Business("Test Business", "This business is a test.", testAddress,
                 "Retail Trade", 1);
-
+        addressRepository.save(testAddress);
         businessRepository.save(testBusiness);
         Business retrievedBusiness = businessRepository.findByName("Test Business").get(0);
 
         assertNotNull(retrievedBusiness.getId());
         assertEquals("Test Business", retrievedBusiness.getName());
         assertEquals("This business is a test.", retrievedBusiness.getDescription());
-        assertEquals("5 Lab Test Ave, New Zealand", retrievedBusiness.getAddress());
+        assertEquals(testAddress, retrievedBusiness.getAddress());
         assertEquals("Retail Trade", retrievedBusiness.getBusinessType());
         assertEquals(1, retrievedBusiness.getPrimaryAdministratorId());
         assertTrue(retrievedBusiness.getCreated().isBefore(LocalDateTime.now()));
@@ -84,14 +88,15 @@ public class BusinessTest {
      * Tests adding a User to Business admin list
      */
     @Test
+    @Order(4)
     public void testUserBusinessRelation() {
-        Business testBusiness = new Business("Test Business", "This business is a test.", "5 Lab Test Ave, New Zealand",
-                "Retail Trade", 1);
-        businessRepository.save(testBusiness);
+        Business testBusiness = businessRepository.findByName("Test Business").get(0);
+        Address testUserAddress = new Address(null, null, null, null, "New Zealand", null);
         User testUser = new User("John", "Smith", "Josh", "Jonny",
                 "Likes long walks on the beach", "jonnyj99@gmail.com",
-                "1999-04-27", "+64 3 555 0129", "4 Rountree Street, Upper Riccarton",
+                "1999-04-27", "+64 3 555 0129", testUserAddress,
                 "1337-H%nt3r2");
+        addressRepository.save(testUserAddress);
         userRepository.save(testUser);
 
         assertEquals(0, testBusiness.getAdministrators().size());

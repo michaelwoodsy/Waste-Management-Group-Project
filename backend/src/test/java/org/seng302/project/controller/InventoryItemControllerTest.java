@@ -5,7 +5,6 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.seng302.project.exceptions.*;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +12,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -27,19 +24,15 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
  * Unit tests for ProductCatalogueController class.
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
-@ContextConfiguration
 public class InventoryItemControllerTest {
 
     private User user;
@@ -67,6 +60,12 @@ public class InventoryItemControllerTest {
     @Autowired
     private InventoryItemRepository inventoryItemRepository;
 
+    @Autowired
+    private SaleListingRepository saleListingRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
+
     /**
      * Creates the user if it's not already created.
      * If it is already created, the user is returned.
@@ -92,20 +91,28 @@ public class InventoryItemControllerTest {
 
     @BeforeEach
     public void initialise() {
+        saleListingRepository.deleteAll();
         inventoryItemRepository.deleteAll();
 
-        // Create the users
+        // Create user addresses
+        Address testAddress1 = new Address();
+        Address testAddress2 = new Address();
+        Address testAddress3 = new Address();
+        addressRepository.save(testAddress1);
+        addressRepository.save(testAddress2);
+        addressRepository.save(testAddress3);
 
+        // Create the users
         user = createUser(new User("John", "Smith", "Bob", "Jonny",
                 "Likes long walks on the beach", "jane111@gmail.com", "1999-04-27",
-                "+64 3 555 0129", "4 Rountree Street, Upper Riccarton", "1337-H%nt3r2"));
+                "+64 3 555 0129", testAddress1, "1337-H%nt3r2"));
 
         owner = createUser(new User("Jane", "Smith", "Rose", "Jonny",
                 "Likes long walks on the beach", "johnxyz@gmail.com", "1999-04-27",
-                "+64 3 555 0120", "4 Rountree Street, Upper Riccarton", "1337-H%nt3r2"));
+                "+64 3 555 0120", testAddress2, "1337-H%nt3r2"));
 
         // Create the business
-        Business testBusiness = new Business("Business", "A Business", "4 Rountree", "Retail",
+        Business testBusiness = new Business("Business", "A Business", testAddress3, "Retail",
                 owner.getId());
 
         businessRepository.save(testBusiness);
@@ -478,7 +485,7 @@ public class InventoryItemControllerTest {
      */
     @Test
     public void tryGettingInventoryNotAdmin() throws Exception {
-        Product product = productRepository.findById(new ProductId("p1", 1)).orElseThrow();
+        Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
         createInventoryItem(product);
 
         RequestBuilder getInventoryRequest = MockMvcRequestBuilders

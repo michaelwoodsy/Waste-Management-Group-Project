@@ -71,7 +71,7 @@ public class InventoryItemController {
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException exception) {
             throw exception;
         } catch (Exception unhandledException) {
-            logger.error(String.format("Unexpected error while adding business inventory item: %s",
+            logger.error(String.format("Unexpected error while getting business inventory: %s",
                     unhandledException.getMessage()));
             throw unhandledException;
         }

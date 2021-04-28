@@ -1,0 +1,84 @@
+{
+  "data": [
+    {
+      "streetNumber": "6731",
+      "streetName": "Holmberg",
+      "city": "Basel",
+      "region": "Kanton Basel-Stadt",
+      "country": "Switzerland",
+      "postcode": "4085"
+    },
+    {
+      "streetNumber": "45451",
+      "streetName": "Anzinger",
+      "city": "Jeblog Satu",
+      "region": null,
+      "country": "Indonesia",
+      "postcode": null
+    },
+    {
+      "streetNumber": "91191",
+      "streetName": "Browning",
+      "city": "Jianxin",
+      "region": null,
+      "country": "China",
+      "postcode": null
+    },
+    {
+      "streetNumber": "08",
+      "streetName": "Montana",
+      "city": "Năm Căn",
+      "region": null,
+      "country": "Vietnam",
+      "postcode": null
+    },
+    {
+      "streetNumber": "886",
+      "streetName": "Ridgeview",
+      "city": "Des Moines",
+      "region": "Iowa",
+      "country": "United States",
+      "postcode": "50981"
+    },
+    {
+      "streetNumber": "2",
+      "streetName": "Northland",
+      "city": "Arujá",
+      "region": null,
+      "country": "Brazil",
+      "postcode": "07400-000"
+    },
+    {
+      "streetNumber": "63632",
+      "streetName": "Hintze",
+      "city": "Nōgata",
+      "region": null,
+      "country": "Japan",
+      "postcode": "822-0034"
+    },
+    {
+      "streetNumber": "6",
+      "streetName": "Macpherson",
+      "city": "Yokotemachi",
+      "region": null,
+      "country": "Japan",
+      "postcode": "866-0873"
+    },
+    {
+      "streetNumber": "4474",
+      "streetName": "Marcy",
+      "city": "Novopavlovsk",
+      "region": null,
+      "country": "Russia",
+      "postcode": "357322"
+    },
+    {
+      "streetNumber": "9769",
+      "streetName": "Kensington",
+      "city": "Zhoukou",
+      "region": null,
+      "country": "China",
+      "postcode": null
+    }
+  ]
+}

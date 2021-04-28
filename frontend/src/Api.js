@@ -104,7 +104,7 @@ export const Business = {
      * Retrieves the data for a given business
      */
     getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
-    
+
     /*
      *  Removes a user with id userId from administering the business with id businessId
      */
@@ -128,17 +128,34 @@ export const Business = {
         newProductData),
 
     /**
-     * Creates a new product in the product catalogue
+     * Creates a new item in the inventory
      */
-    createProduct: (businessId, data) => instance.post(`businesses/${businessId}/products`, data),
+    createItem: (businessId, data) => instance.post(`businesses/${businessId}/inventory`, data),
 
     /*
      * Gets all the items in a business's inventory
      */
     getInventory: (businessId) => instance.get(`businesses/${businessId}/inventory`, {}),
 
-    /**
-     * Creates a new item in the inventory
+    /*
+     * Sends an edit product request to the backend
      */
-    createItem: (businessId, data) => instance.post(`businesses/${businessId}/inventory`, data)
+    editItem: (businessId, inventoryItemId, newItemData) => instance.put(
+        `businesses/${businessId}/products/${inventoryItemId}`,
+        newItemData),
+
+    /**
+     * Creates a new product in the product catalogue
+     */
+    createProduct: (businessId, data) => instance.post(`businesses/${businessId}/products`, data),
+
+
+
+
+    /*
+     * Gets all the sale listings for a business
+     */
+    getListings: (businessId) => instance.get(`businesses/${businessId}/listings`, {}),
+
+
 };
