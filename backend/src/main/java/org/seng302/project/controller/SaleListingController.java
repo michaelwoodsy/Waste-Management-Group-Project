@@ -242,6 +242,7 @@ public class SaleListingController {
             }
             SaleListing saleListing = new SaleListing(businessId, item, price, moreInfo, closesDate, quantity);
 
+            //TODO: Subtract quantity of sales listing from inventory
             saleListingRepository.save(saleListing);
 
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException |
