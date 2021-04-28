@@ -176,6 +176,15 @@
                 <span class="invalid-feedback" v-if="bestBeforeValid">Please enter a date in the future</span><br><br>
               </div>
 
+              <!-- Expiry -->
+              <div class="form-row">
+                <label for="expiry"><b>Expiry Date<span class="text-danger">*</span></b></label><br/>
+                <input id="expiry" v-model="newItem.expires" :class="{'form-control': true, 'is-invalid': !expiryValid && expiryBlur}" required style="width:100%"
+                       type="date" @blur="expiryBlur=true"><br>
+                <!--    Error message for the date input    -->
+                <span class="invalid-feedback" v-if="expiryValid">Please enter a date in the future</span><br><br>
+              </div>
+
             </form>
           </div>
         </div>
