@@ -20,7 +20,8 @@
       <div class="row">
         <div class="col text-center mb-2">
           <h2>{{ actorName }}</h2>
-          <router-link :to="productCatalogueRoute" class="btn btn-outline-primary mx-2">View Product Catalogue</router-link>
+          <router-link :to="productCatalogueRoute" class="btn btn-outline-primary mx-2">View Product Catalogue
+          </router-link>
           <router-link :to="inventoryRoute" class="btn btn-outline-primary mx-2">View Inventory</router-link>
           <router-link :to="saleListingRoute" class="btn btn-outline-primary mx-2">View Sale Listings</router-link>
         </div>
