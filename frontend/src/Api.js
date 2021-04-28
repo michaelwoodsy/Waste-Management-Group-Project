@@ -127,15 +127,30 @@ export const Business = {
         `businesses/${businessId}/products/${productId}`,
         newProductData),
 
+    /**
+     * Creates a new item in the inventory
+     */
+    createItem: (businessId, data) => instance.post(`businesses/${businessId}/inventory`, data),
+
     /*
      * Gets all the items in a business's inventory
      */
     getInventory: (businessId) => instance.get(`businesses/${businessId}/inventory`, {}),
 
+    /*
+     * Sends an edit product request to the backend
+     */
+    editItem: (businessId, inventoryItemId, newItemData) => instance.put(
+        `businesses/${businessId}/products/${inventoryItemId}`,
+        newItemData),
+
     /**
      * Creates a new product in the product catalogue
      */
     createProduct: (businessId, data) => instance.post(`businesses/${businessId}/products`, data),
+
+
+
 
     /*
      * Gets all the sale listings for a business
