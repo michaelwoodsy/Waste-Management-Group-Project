@@ -11,7 +11,7 @@
           src="../../public/profile.png"
       />
       <!-- Users name -->
-      <span>{{ actorName }}</span>
+      {{ actorName }}
     </div>
 
     <!-- Dropdown menu when name is clicked -->
