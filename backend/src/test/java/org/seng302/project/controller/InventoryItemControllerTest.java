@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -602,7 +601,6 @@ public class InventoryItemControllerTest {
         inventoryItemRepository.save(item);
 
 
-
         JSONObject testItem = new JSONObject();
         testItem.put("quantity", 0);
 
@@ -630,7 +628,6 @@ public class InventoryItemControllerTest {
         InventoryItem item = new InventoryItem(product, 2, 2.00, 1.80,
                 "2021-04-20", null, null, "2023-05-20");
         inventoryItemRepository.save(item);
-
 
 
         JSONObject testItem = new JSONObject();
@@ -665,10 +662,9 @@ public class InventoryItemControllerTest {
         inventoryItemRepository.save(item);
 
 
-
         JSONObject testItem = new JSONObject();
         c.setTime(new Date());
-        c.add(Calendar.DATE, 1);
+        c.add(Calendar.DATE, 1); //Adds one day to the current date
         String dateString = dateFormatter.format(c.getTime());
         testItem.put("manufactured", dateString);
 
@@ -697,7 +693,6 @@ public class InventoryItemControllerTest {
         inventoryItemRepository.save(item);
 
 
-
         JSONObject testItem = new JSONObject();
         testItem.put("manufactured", "A Date");
         testItem.put("sellBy", "Another Date");
@@ -723,7 +718,7 @@ public class InventoryItemControllerTest {
      * Tests editing an inventory item and then retrieving that inventory item
      */
     @Test
-    public void editAndRetriveItem() throws Exception {
+    public void editAndRetrieveItem() throws Exception {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
 
@@ -769,7 +764,7 @@ public class InventoryItemControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
                 .andReturn();
 
-        //Retrive Inventory Item
+        //Retrieve Inventory Item
         List<InventoryItem> items = inventoryItemRepository.findAllByBusinessId(businessId);
         assertEquals(items.size(), 1);
         InventoryItem retrievedItem = items.get(0);
