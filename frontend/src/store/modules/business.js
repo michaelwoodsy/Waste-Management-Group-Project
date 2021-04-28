@@ -42,21 +42,5 @@ export default {
                     reject(err);
                 });
         }));
-    },
-
-    /**
-     * Creates a new item in the inventory
-     */
-    createItem(businessId, data) {
-        //Return a promise for the api call
-        return new Promise((resolve, reject) => {
-            Business.createItem(businessId, data)
-                .then((res) => {
-                    resolve(res)
-                })
-                .catch((err) => {
-                    reject(err)
-                })
-        })
     }
 }
