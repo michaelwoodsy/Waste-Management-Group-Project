@@ -98,6 +98,7 @@
 import Alert from "@/components/Alert";
 import LoginRequired from "@/components/LoginRequired";
 import AdminRequired from "@/components/AdminRequired";
+import {Business} from "@/Api";
 
 export default {
   name: "CreateProductPage",
@@ -125,6 +126,12 @@ export default {
   },
   computed: {
     /**
+     * Returns the business ID of the business a product is being created for.
+     */
+    businessId() {
+      return this.$route.params.businessId;
+    },
+    /**
      * Checks to see if the user is logged in.
      */
     isLoggedIn() {
@@ -135,7 +142,7 @@ export default {
      */
     isAdminOf() {
       if (this.$root.$data.user.state.actingAs.type !== 'business') return false;
-      return this.$root.$data.user.state.actingAs.id === parseInt(this.$route.params.businessId);
+      return this.$root.$data.user.state.actingAs.id === parseInt(this.businessId);
     }
   },
   methods: {
@@ -206,7 +213,7 @@ export default {
     addProduct() {
       const rrp = Number(this.recommendedRetailPrice)
       this.$root.$data.business.createProduct(
-          this.$root.$data.user.state.actingAs.id, {
+          this.businessId, {
             "id": this.id,
             "name": this.name,
             "description": this.description,
@@ -214,7 +221,7 @@ export default {
             "recommendedRetailPrice": this.recommendedRetailPrice !== '' ? this.roundRRP(rrp) : null
           }
       ).then(() => {
-        this.$router.push({name: "viewCatalogue", params: {businessId: this.$root.$data.user.state.actingAs.id}});
+        this.$router.push({name: "viewCatalogue", params: {businessId: this.businessId}});
       }).catch((err) => {
         this.msg.errorChecks = err.response ?
             err.response.data.slice(err.response.data.indexOf(':') + 2) :
@@ -225,10 +232,10 @@ export default {
      * Cancel creating a new product and go back to product catalogue
      */
     cancel() {
-      this.$router.push({name: "viewCatalogue", params: {businessId: this.$root.$data.user.state.actingAs.id}});
+      this.$router.push({name: "viewCatalogue", params: {businessId: this.businessId}});
     },
     async getCurrency() {
-      const country = 'New Zealand'
+      const country = (await Business.getBusinessData(this.businessId)).data.address.country;
       const currency = await this.$root.$data.product.getCurrency(country)
       this.currencySymbol = currency.symbol
       this.currencyCode = currency.code
