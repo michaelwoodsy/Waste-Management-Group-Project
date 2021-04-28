@@ -330,7 +330,7 @@ export default {
       let isNotNumber = Number.isNaN(Number(this.newItem.quantity))
       if (isNotNumber || this.newItem.quantity === '') {
         return false
-      } else return Number(this.quantity) >= 0;
+      } else return Number(this.newItem.quantity) >= 0;
     },
 
     /**
@@ -393,18 +393,45 @@ export default {
         return false
       }
     },
+    /**
+     * Validate the product Sell By field
+     */
+    expiryValid() {
+      if (this.newItem.expires !== ''){
+        let dateNow = new Date()
+        let dateGiven = new Date(this.newItem.expires)
+        return dateGiven - dateNow > 0;
+      } else {
+        return false
+      }
+    },
 
     /** Returns a string list of the fields that aren't valid **/
     fieldsNeedingFixed() {
       let fixes = []
-      if (!this.priceValid) {
-        fixes.push('Recommended Retail Price')
+      if (!this.productCodeValid) {
+        fixes.push('Product Code')
       }
-      if (!this.nameValid) {
-        fixes.push('Name')
+      if (!this.quantityValid) {
+        fixes.push('Quantity')
       }
-      if (!this.idValid) {
-        fixes.push('Id')
+      if (!this.pricePerItemValid) {
+        fixes.push('Price Per Item')
+      }
+      if (!this.totalPriceValid) {
+        fixes.push('Total Price')
+      }
+      if (!this.manufacturedValid) {
+        fixes.push('Manufactured Date')
+      }
+      if (!this.sellByValid) {
+        fixes.push('Sell By Date')
+      }
+      if (!this.bestBeforeValid) {
+        fixes.push('Best Before Date')
+      }
+      if (!this.expiryValid) {
+        fixes.push('Expiry Date')
       }
       return fixes.join(', ')
     }
@@ -435,16 +462,13 @@ export default {
      * Validates the users inputs, then sends the data to the api.
      */
     submit () {
-      // Set id as blurred in case the id was not unique
-      this.Blur = true
-
       // Check all fields are valid first
       this.showFixesMessage = false
-      if (!this.nameValid || !this.idValid || !this.priceValid) {
+      //this.newItem.id = '2'
+      if (!this.productCodeValid || !this.quantityValid || !this.pricePerItemValid || !this.totalPriceValid || !this.manufacturedValid || !this.sellByValid || !this.bestBeforeValid  || !this.expiryValid) {
         this.showFixesMessage = true
         return
       }
-
       // Submit changes to api
       this.submitting = true;
       Business.editItem(this.businessId, this.inventoryItemId, this.newItem)
