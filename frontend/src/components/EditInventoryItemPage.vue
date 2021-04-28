@@ -95,7 +95,7 @@
                       {{code.id}}
                     </option>
                   </select>
-                  <div class="invalid-feedback" v-if="productCodeValid">The Product Code is invalid</div>
+                  <div class="invalid-feedback" v-if="!productCodeValid">The Product Code is invalid</div>
                 </div>
               </div>
 
@@ -111,7 +111,7 @@
                       type="text"
                       @blur="quantityBlur = true"
                   >
-                  <div class="invalid-feedback" v-if="quantityValid"> Please enter a valid quantity</div>
+                  <div class="invalid-feedback" v-if="!quantityValid"> Please enter a valid quantity</div>
                 </div>
               </div>
 
@@ -128,8 +128,9 @@
                   <div class="input-group-append">
                     <span class="input-group-text">{{ this.currencyCode }}</span>
                   </div>
+                  <div class="invalid-feedback" v-if= "!pricePerItemValid">Please enter a valid price</div>
                 </div>
-                <div class="invalid-feedback" v-if= "pricePerItemValid">Please enter a valid price</div>
+
               </div>
 
               <!-- Total Price -->
@@ -145,8 +146,9 @@
                   <div class="input-group-append">
                     <span class="input-group-text">{{ this.currencyCode }}</span>
                   </div>
+                  <div class="invalid-feedback" v-if= "!totalPriceValid">Please enter a valid price</div>
                 </div>
-                <div class="invalid-feedback" v-if= "totalPriceValid">Please enter a valid price</div>
+
               </div>
 
               <!-- Manufactured -->
@@ -155,7 +157,7 @@
                 <input id="manufactured" v-model="newItem.manufactured" :class="{'form-control': true, 'is-invalid': !manufacturedValid && manufacturedBlur}" required style="width:100%"
                        type="date" @blur="manufacturedBlur=true"><br>
                 <!--    Error message for the date input    -->
-                <span class="invalid-feedback" v-if="manufacturedValid">Please enter a date in the past</span><br><br>
+                <span class="invalid-feedback" v-if="!manufacturedValid">Please enter a date in the past</span><br><br>
               </div>
 
               <!-- Sell By -->
@@ -164,7 +166,7 @@
                 <input id="sellBy" v-model="newItem.sellBy" :class="{'form-control': true, 'is-invalid': !sellByValid && sellByBlur}" required style="width:100%"
                        type="date" @blur="sellByBlur=true"><br>
                 <!--    Error message for the date input    -->
-                <span class="invalid-feedback" v-if="sellByValid">Please enter a date in the future</span><br><br>
+                <span class="invalid-feedback" v-if="!sellByValid">Please enter a date in the future</span><br><br>
               </div>
 
               <!-- Best Before -->
@@ -173,7 +175,7 @@
                 <input id="bestBefore" v-model="newItem.bestBefore" :class="{'form-control': true, 'is-invalid': !bestBeforeValid && bestBeforeBlur}" required style="width:100%"
                        type="date" @blur="bestBeforeBlur=true"><br>
                 <!--    Error message for the date input    -->
-                <span class="invalid-feedback" v-if="bestBeforeValid">Please enter a date in the future</span><br><br>
+                <span class="invalid-feedback" v-if="!bestBeforeValid">Please enter a date in the future</span><br><br>
               </div>
 
               <!-- Expiry -->
@@ -182,7 +184,7 @@
                 <input id="expiry" v-model="newItem.expires" :class="{'form-control': true, 'is-invalid': !expiryValid && expiryBlur}" required style="width:100%"
                        type="date" @blur="expiryBlur=true"><br>
                 <!--    Error message for the date input    -->
-                <span class="invalid-feedback" v-if="expiryValid">Please enter a date in the future</span><br><br>
+                <span class="invalid-feedback" v-if="!expiryValid">Please enter a date in the future</span><br><br>
               </div>
 
             </form>
@@ -359,38 +361,38 @@ export default {
     /**
      * Validate the product Manufactured field
      */
-    manufacturedValid() { //TODO: Fix manufactured date in create inventory item to be in the past not future
-      if (this.newItem.manufactured !== ''){
+    manufacturedValid() {
+      if (this.newItem.manufactured !== '' && this.newItem.manufactured !== null){
         let dateNow = new Date()
         let dateGiven = new Date(this.newItem.manufactured)
 
         return (dateGiven - dateNow <= 0);
       } else {
-        return false
+        return true
       }
     },
     /**
      * Validate the product Sell By field
      */
     sellByValid() {
-      if (this.newItem.sellBy !== ''){
+      if (this.newItem.sellBy !== '' && this.newItem.sellBy !== null){
         let dateNow = new Date()
         let dateGiven = new Date(this.newItem.sellBy)
         return dateGiven - dateNow > 0;
       } else {
-        return false
+        return true
       }
     },
     /**
      * Validate the product Sell By field
      */
     bestBeforeValid() {
-      if (this.newItem.bestBefore !== ''){
+      if (this.newItem.bestBefore !== '' && this.newItem.bestBefore !== null){
         let dateNow = new Date()
         let dateGiven = new Date(this.newItem.bestBefore)
         return dateGiven - dateNow > 0;
       } else {
-        return false
+        return true
       }
     },
     /**
