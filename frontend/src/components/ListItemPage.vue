@@ -6,14 +6,21 @@
         page="Add a New Listing"
     />
 
-    <!-- Displayed if not admin of business -->
+    <!-- Check if the user is an admin of the business -->
     <admin-required
-        v-else-if="!isAdminOf"
-        page="Add a New Listing"
+        v-else-if="!isAdminOfBusiness"
+        :page="`of the business ${this.businessId} to make a listing under this business`"
     />
 
     <div v-else class="container-fluid"> <!--    If Logged In    -->
       <br><br>
+
+      <!-- Display error message if there is one -->
+      <div class="row">
+        <div class="col-12 col-sm-8 offset-sm-2">
+          <alert v-if="errorMessage">Error: {{ errorMessage }}</alert>
+        </div>
+      </div>
 
         <div class="col-12 col-sm-8 col-lg-6 col-xl-4 offset-sm-2 offset-lg-3 offset-xl-4 text-center mb-2">
 
@@ -66,17 +73,26 @@
 </template>
 
 <script>
-import AdminRequired from "@/components/AdminRequired";
 import LoginRequired from "@/components/LoginRequired";
+import AdminRequired from "@/components/AdminRequired";
+import Alert from "@/components/Alert";
+import {Business} from "@/Api";
 
 /**
  * Default starting parameters
  */
 export default {
   name: "ListItemPage",
+  mounted() {
+    this.loadItem();
+    this.getCurrency()
+    Business.getProducts(this.$route.params.businessId).then((response) => this.getProductIds(response))
+  },
+
   components: {
     AdminRequired,
-    LoginRequired
+    LoginRequired,
+    Alert
   },
 
   data() {
@@ -86,20 +102,40 @@ export default {
   },
 
   computed: {
-    /**
-     * Checks to see if user is logged in currently
-     * @returns {boolean|*}
-     */
+    /** Checks to see if user is logged in currently **/
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     },
-    /**
-     * Checks to see if the user is acting as the current business.
-     */
-    isAdminOf() {
-      if (this.$root.$data.user.state.actingAs.type !== 'business') return false;
-      return this.$root.$data.user.state.actingAs.id === parseInt(this.$route.params.businessId);
-    }
+
+    /** Gets the business ID that is in the current path **/
+    businessId() {
+      return this.$route.params.businessId;
+    },
+
+    /** Gets the inventory item ID that is in the current path **/
+    inventoryItemId() {
+      return this.$route.params.inventoryItemId;
+    },
+
+    /** A list of businesses the current user administers **/
+    businessesAdministered() {
+      if (this.isLoggedIn) {
+        return this.$root.$data.user.state.userData.businessesAdministered;
+      }
+      return []
+    },
+
+    /** Checks if the user is an admin of the business **/
+    isAdminOfBusiness() {
+      let isAdmin = false;
+      // iterate over each business they administer and check if they administer this one
+      this.businessesAdministered.forEach((business) => {
+        if (business.id.toString() === this.businessId.toString()) {
+          isAdmin = true;
+        }
+      })
+      return isAdmin
+    },
   },
 
 }

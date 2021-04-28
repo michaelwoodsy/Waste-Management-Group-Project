@@ -7,16 +7,16 @@ import RegisterPage from "../components/RegisterPage";
 import LoginPage from "../components/LoginPage";
 import Home from "../components/Home";
 import ProfilePage from "../components/ProfilePage";
-import BusinessProfilePage from "@/components/BusinessProfilePage";
-import RegisterBusinessPage from "@/components/RegisterBusinessPage";
-import Catalogue from "@/components/ProductCatalogue";
-import EditProductPage from "@/components/EditProductPage";
-import CreateProductPage from "@/components/CreateProductPage";
-import ListItemPage from "@/components/ListItemPage";
-import InventoryPage from "@/components/InventoryPage";
-import SaleListings from "@/components/SaleListings";
-import EditInventoryItemPage from "@/components/EditInventoryItemPage";
-import CreateInventoryItemPage from "@/components/CreateInventoryItemPage";
+import BusinessProfilePage from "../components/BusinessProfilePage";
+import RegisterBusinessPage from "../components/RegisterBusinessPage";
+import Catalogue from "../components/ProductCatalogue";
+import EditProductPage from "../components/EditProductPage";
+import CreateProductPage from "../components/CreateProductPage";
+import ListItemPage from "../components/ListItemPage";
+import InventoryPage from "../components/InventoryPage";
+import SaleListings from "../components/SaleListings";
+import EditInventoryItemPage from "../components/EditInventoryItemPage";
+import CreateInventoryItemPage from "../components/CreateInventoryItemPage";
 
 const routes = [
     {
@@ -93,13 +93,12 @@ const routes = [
         path: '/businesses/:businessId/listings/add',
         name: 'listItem',
         component: ListItemPage
-    }
+    },
     {
         path: '/businesses/:businessId/listings',
         name: 'listings',
         component: SaleListings
-    },
-
+    }
 ];
 
 const base = process.env.VUE_APP_BASE_URL || '/';
