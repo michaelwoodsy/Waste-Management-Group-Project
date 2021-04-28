@@ -1,4 +1,4 @@
-package gradle.cucumber;
+package gradle.cucumber.steps;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
