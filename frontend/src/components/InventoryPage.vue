@@ -21,6 +21,11 @@
               <h4>Inventory</h4>
             </div>
           </div>
+          <div class="col text-right">
+            <button class="btn btn-primary" v-on:click="newItem">
+              New Item
+            </button>
+          </div>
 
           <!--    Error Alert    -->
           <div v-if="error" class="row">
@@ -351,7 +356,7 @@ export default {
      * Function for formatting inventory item dates
      */
     formatDate(dateString) {
-      if (dateString === "") {
+      if (dateString === "" || dateString === null) {
         return "";
       } else {
         return new Date(dateString).toDateString();
@@ -366,8 +371,6 @@ export default {
       this.loading = true;
       this.page = 1;
 
-      this.loading = false
-
       Business.getInventory(this.$route.params.businessId)
           .then((res) => {
             this.error = null;
@@ -378,6 +381,12 @@ export default {
             this.error = err;
             this.loading = false;
           })
+    },
+    /**
+     * Takes user to page to create new inventory item.
+     */
+    newItem() {
+      this.$router.push({name: 'CreateInventoryItem', params: {businessId: this.businessId}})
     }
   }
 }
