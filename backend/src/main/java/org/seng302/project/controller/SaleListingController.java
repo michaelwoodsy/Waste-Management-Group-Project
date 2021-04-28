@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
@@ -108,13 +109,9 @@ public class SaleListingController {
             // Get the business of the request
             Business business = getBusiness(businessId);
 
-        // Get the sale listings of the business
-        return saleListingRepository.findAllByBusinessId(businessId);
-            // Check the user is an admin of the business
-            checkUserIsAdminOfBusiness(user, business);
-
             // Get the sale listings of the business
             return saleListingRepository.findAllByBusinessId(businessId);
+
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException exception) {
             throw exception;
         } catch (Exception unhandledException) {
@@ -222,11 +219,11 @@ public class SaleListingController {
             LocalDateTime closesDate;
             try {
                 if (closesDateString != null && !closesDateString.equals("")) {
-                    closesDate = LocalDateTime.parse(closesDateString);
+                    closesDate = LocalDateTime.parse(closesDateString, DateTimeFormatter.ISO_DATE_TIME);
 
                     //Check if closes date is in the past
                     if ((LocalDateTime.now()).isAfter(closesDate)) {
-                        InvalidManufactureDateException exception = new InvalidManufactureDateException();
+                        InvalidClosesDateException exception = new InvalidClosesDateException();
                         logger.warn(exception.getMessage());
                         throw exception;
                     }
@@ -245,9 +242,12 @@ public class SaleListingController {
             }
             SaleListing saleListing = new SaleListing(businessId, item, price, moreInfo, closesDate, quantity);
 
+            saleListingRepository.save(saleListing);
+
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException |
                 MissingInventoryItemIdException | NoInventoryItemExistsException |
-                InvalidQuantityException | InvalidNumberFormatException | InvalidPriceException exception) {
+                InvalidQuantityException | InvalidNumberFormatException | InvalidPriceException |
+                InvalidClosesDateException exception) {
             throw exception;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while getting business sale listings: %s",
