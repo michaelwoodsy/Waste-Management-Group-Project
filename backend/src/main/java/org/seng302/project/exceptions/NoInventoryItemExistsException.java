@@ -1,9 +1,9 @@
 package org.seng302.project.exceptions;
 
 /**
- * Exception triggered when business with id does not exist.
+ * Exception triggered when inventory item does not exist.
  *
- * @see org.seng302.project.controller.BusinessController
+ * @see org.seng302.project.controller.InventoryItemController
  */
 public class NoInventoryItemExistsException extends RuntimeException {
 

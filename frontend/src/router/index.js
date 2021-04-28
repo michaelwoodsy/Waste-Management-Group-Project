@@ -11,8 +11,8 @@ import BusinessProfilePage from "@/components/BusinessProfilePage";
 import RegisterBusinessPage from "@/components/RegisterBusinessPage";
 import Catalogue from "@/components/ProductCatalogue";
 import EditProductPage from "@/components/EditProductPage";
-import InventoryPage from "@/components/InventoryPage";
 import CreateProductPage from "@/components/CreateProductPage";
+import InventoryPage from "@/components/InventoryPage";
 import SaleListings from "@/components/SaleListings";
 import EditInventoryItemPage from "@/components/EditInventoryItemPage";
 import CreateInventoryItemPage from "@/components/CreateInventoryItemPage";
@@ -92,7 +92,13 @@ const routes = [
         path: '/businesses/:businessId/listings',
         name: 'listings',
         component: SaleListings
+    },
+    {
+        path: '/businesses/:businessId/inventory/create',
+        name: 'CreateInventoryItem',
+        component: CreateInventoryItemPage
     }
+
 ];
 
 const base = process.env.VUE_APP_BASE_URL || '/';

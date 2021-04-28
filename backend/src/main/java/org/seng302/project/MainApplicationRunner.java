@@ -213,7 +213,7 @@ public class MainApplicationRunner implements ApplicationRunner {
     }
 
     /**
-     * Inserts test product data to the database.
+     * Inserts test inventory item data to the database.
      *
      * @param inventoryData JSONArray of inventory data.
      */
@@ -239,7 +239,6 @@ public class MainApplicationRunner implements ApplicationRunner {
                 );
                 inventoryItemRepository.save(testInventoryItem);
             }
-
         }
         logger.info("Finished adding sample data to inventory item repository");
         logger.info(String.format("Added %d entries to inventory item repository", inventoryItemRepository.count()));
