@@ -281,8 +281,8 @@ export default {
         let dateNow = new Date()
         let dateGiven = new Date(this.manufactured)
 
-        if ((dateGiven - dateNow <= 0)){
-          this.msg.manufactured = 'Please enter a date in the future'
+        if ((dateGiven - dateNow > 0)){
+          this.msg.manufactured = 'Please enter a date in the past'
           this.valid = false
         } else {
           this.msg.manufactured = null
