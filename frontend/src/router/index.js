@@ -15,7 +15,6 @@ import InventoryPage from "@/components/InventoryPage";
 import CreateProductPage from "@/components/CreateProductPage";
 import SaleListings from "@/components/SaleListings";
 import EditInventoryItemPage from "@/components/EditInventoryItemPage";
-import CreateInventoryItemPage from "@/components/CreateInventoryItemPage";
 
 const routes = [
     {
@@ -77,11 +76,6 @@ const routes = [
         path: '/businesses/:businessId/inventory',
         name: 'InventoryPage',
         component: InventoryPage
-    },
-    {
-        path: '/businesses/:businessId/inventory/create',
-        name: 'CreateInventoryItem',
-        component: CreateInventoryItemPage
     },
     {
         path: '/businesses/:businessId/inventory/:inventoryItemId',
