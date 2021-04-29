@@ -40,7 +40,6 @@ public class UserRegisterSteps {
         String firstName = userMap.get(0).get("firstName");
         String lastName = userMap.get(0).get("lastName");
 
-        //TODO: change date in .feature file to a valid format: "yyyy-MM-dd"
         String dateOfBirth = userMap.get(0).get("dateOfBirth");
 
         //TODO: get this to use country from dataTable
