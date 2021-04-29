@@ -90,7 +90,7 @@ const routes = [
         component: EditInventoryItemPage
     },
     {
-        path: '/businesses/:businessId/listings/add',
+        path: '/businesses/:businessId/listings/create',
         name: 'listItem',
         component: ListItemPage
     },

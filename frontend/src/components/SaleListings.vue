@@ -17,7 +17,7 @@
               <h4>Sale Listings</h4>
             </div>
             <div class="col text-right">
-              <button class="btn btn-primary">
+              <button class="btn btn-primary" v-on:click="newListing">
                 New Listing
               </button>
             </div>
@@ -311,6 +311,13 @@ export default {
             this.error = err;
             this.loading = false;
           })
+    },
+
+    /**
+     * Takes user to page to add a new listing.
+     */
+    newListing() {
+      this.$router.push({name: 'listItem', params: {businessId: this.businessId}})
     }
   }
 }
