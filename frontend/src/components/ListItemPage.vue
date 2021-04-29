@@ -48,14 +48,14 @@
 
             <!-- Price -->
             <div class="form-group row">
-              <label for="price"><b>Price</b></label>
+              <label for="price"><b>Price<span class="required">*</span></b></label>
               <div :class="{'input-group': true, 'is-invalid': msg.price}">
                 <div class="input-group-prepend">
                   <span class="input-group-text">{{ this.currencySymbol }}</span>
                 </div>
                 <input id="price" v-model="price" :class="{'form-control': true, 'is-invalid': msg.price}"
                        maxlength="255"
-                       placeholder="Total Price" type="number">
+                       placeholder="Price" type="number">
                 <div class="input-group-append">
                   <span class="input-group-text">{{ this.currencyCode }}</span>
                 </div>
@@ -66,7 +66,7 @@
             <!-- More Info -->
             <div class="form-row">
               <label class="moreInfo" for="moreInfo"><b>More Info:</b></label>
-              <textarea id="moreInfo" maxlength="255" v-model="description"
+              <textarea id="moreInfo" maxlength="255" v-model="moreInfo"
                         class="form-control" placeholder="Write some additional listing information"
                         style="width: 100%; height: 200px;">
             </textarea>
@@ -115,9 +115,8 @@ export default {
   name: "ListItemPage",
 
   mounted() {
-    this.loadItem()
-    this.getCurrency()
-    Business.getProducts(this.$route.params.businessId).then((response) => this.getProductIds(response))
+    this.getCurrency();
+    this.getData();
   },
 
   components: {
@@ -128,8 +127,10 @@ export default {
 
   data() {
     return {
-      inventoryItemIds: [],
-      inventoryItemId: '', // Required
+      inventoryItems: [],
+      listings: [],
+      selectedInventoryItem: null,
+      inventoryItemId: null, // Required
       quantity: '', // Required
       price: '', // Required
       moreInfo: '',
@@ -159,20 +160,28 @@ export default {
      */
     isAdminOf() {
       if (this.$root.$data.user.state.actingAs.type !== 'business') return false;
-      return this.$root.$data.user.state.actingAs.id === parseInt(this.$route.params.businessId);
+      return this.$root.$data.user.state.actingAs.id === this.businessId;
+    },
+    /**
+     * Returns a list of all inventory items that have stock to list
+     */
+    availableInventoryItems() {
+      let items = []
+      for (const item of this.inventoryItems) {
+        if (this.getMaxQuantity(item) > 0) {
+          items.push(item);
+        }
+      }
+      return items;
     }
   },
 
   methods: {
     /**
-     * Retrieves the Business' currency
+     * Cancel creating a new item and go back to inventory
      */
-    async getCurrency() {
-        const country = 'New Zealand'
-        const currency = await this.$root.$data.product.getCurrency(country)
-        this.currencySymbol = currency.symbol
-        this.currencyCode = currency.code
-      }
+    cancel() {
+      this.$router.push({name: "listings", params: {businessId: this.businessId}});
     },
 
     /**
@@ -182,10 +191,36 @@ export default {
       this.$router.push({name: "listings", params: {businessId: this.$root.$data.user.state.actingAs.id}});
     },
 
-    /**
-     * Get all listing IDs for the current Business
-     */
-    getListingIds() {
+    updateInventoryItem() {
+      for (const item of this.inventoryItems) {
+        if (item.id === this.inventoryItemId) {
+          this.selectedInventoryItem = item;
+          this.quantity = this.getMaxQuantity(item);
+          if (this.quantity === item.quantity) {
+            this.price = item.price
+          } else {
+            this.updatePrice();
+          }
+          this.closes = new Date(item.expires).toISOString().slice(0, 10);
+          break;
+        }
+      }
+    },
+
+    updatePrice() {
+      if (this.selectedInventoryItem.pricePerItem !== null) {
+        this.price = this.quantity * this.selectedInventoryItem.pricePerItem
+      }
+    },
+
+    getMaxQuantity(item) {
+      let quantityListed = 0;
+      for (const listing of this.listings) {
+        if (listing.inventoryItem.id === item.id) {
+          quantityListed += listing.quantity;
+        }
+      }
+      return item.quantity - quantityListed;
     },
 
     /**
