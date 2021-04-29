@@ -29,10 +29,12 @@
           <div>
             <!-- Listing ID -->
             <div class="form-group row">
-              <label for="inventoryItemId"><b>Inventory Item<span class="required">*</span></b></label>
-              <select id="inventoryItemId" v-model="inventoryItemId" :class="{'form-control': true, 'is-invalid': msg.inventoryItemId}">
-                <option v-for="code in inventoryItemIds" v-bind:key="code.id">
-                  {{code.id}}
+              <label for="inventoryItem"><b>Inventory Item<span class="required">*</span></b></label>
+              <select id="inventoryItem" v-model="inventoryItemId"
+                      :class="{'form-control': true, 'is-invalid': msg.inventoryItemId}"
+                      @change="updateInventoryItem">
+                <option v-for="item in availableInventoryItems" v-bind:key="item.id" v-bind:value="item.id">
+                  {{item.product.name}} expiring on {{ item.expires }}
                 </option>
               </select>
               <span class="invalid-feedback">{{ msg.inventoryItemId }}</span>
@@ -41,8 +43,8 @@
             <!-- Quantity -->
             <div class="form-group row">
               <label for="quantity"><b>Product Quantity<span class="required">*</span></b></label>
-              <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}" maxlength="255"
-                     placeholder="Enter the quantity" required type="number">
+              <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
+                     maxlength="255" placeholder="Enter the quantity" required type="number">
               <span class="invalid-feedback">{{ msg.quantity }}</span>
             </div>
 
@@ -150,6 +152,13 @@ export default {
 
   computed: {
     /**
+     * Returns the Business ID
+     */
+    businessId() {
+      return parseInt(this.$route.params.businessId)
+    },
+
+    /**
      * Checks to see if the user is logged in.
      */
     isLoggedIn() {
@@ -185,10 +194,18 @@ export default {
     },
 
     /**
-     * Cancel creating a new item and go back to inventory
+     * Gets a business's inventory items.
      */
-    cancel() {
-      this.$router.push({name: "listings", params: {businessId: this.$root.$data.user.state.actingAs.id}});
+    getData() {
+      Business.getInventory(this.businessId)
+          .then((res) => {
+            this.inventoryItems = res.data;
+          });
+
+      Business.getListings(this.businessId)
+          .then((res) => {
+            this.listings = res.data;
+          });
     },
 
     updateInventoryItem() {
@@ -326,11 +343,20 @@ export default {
             err.response.data.slice(err.response.data.indexOf(':') + 2) :
             err
       });
+       */
+
+    },
+
+    /**
+     * Retrieves the Business' currency
+     */
+    async getCurrency() {
+      const country = (await Business.getBusinessData(this.businessId)).data.address.country;
+      const currency = await this.$root.$data.product.getCurrency(country)
+      this.currencySymbol = currency.symbol
+      this.currencyCode = currency.code
     }
   }
-
-  */
-    }
 }
 </script>
 
