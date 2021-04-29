@@ -64,7 +64,7 @@
       <div v-else-if="item" class="container-fluid">
 
         <!-- Row for submit error message -->
-        <div class="row" v-if="submitError && !(submitError || '')">
+        <div class="row" v-if="submitError">
           <div class="col-12 col-sm-8 offset-sm-2">
             <alert>An error occurred when submitting your changes:
               {{ submitError.slice(submitError.indexOf(':') + 2) }}</alert>
