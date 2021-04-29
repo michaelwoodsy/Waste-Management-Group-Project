@@ -73,8 +73,8 @@ public class InventoryItemControllerAdvice {
      *
      * @return a 400 response with an appropriate message
      */
-    @ExceptionHandler(InvalidInventoryItemQuantityException.class)
-    public ResponseEntity<String> missingQuantity(InvalidInventoryItemQuantityException ex) {
+    @ExceptionHandler(InvalidQuantityException.class)
+    public ResponseEntity<String> missingQuantity(InvalidQuantityException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
@@ -152,6 +152,17 @@ public class InventoryItemControllerAdvice {
      */
     @ExceptionHandler(InvalidPriceException.class)
     public ResponseEntity<String> invalidPrice(InvalidPriceException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Exception thrown by the editInventoryItem() function in InventoryItemController
+     * when a inventory item does not exist.
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(NoInventoryItemExistsException.class)
+    public ResponseEntity<String> invalidPrice(NoInventoryItemExistsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

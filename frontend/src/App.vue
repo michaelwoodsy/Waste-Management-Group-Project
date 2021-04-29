@@ -10,12 +10,10 @@
 
     <body>
     <div class="container-fluid">
-      <div class="row">
-        <div class="d-none d-sm-block col-sm-1"></div>
+      <div class="row justify-content-center">
         <div class="col-12 col-sm-10">
           <router-view/>
         </div>
-        <div class="d-none d-sm-block col-sm-1"></div>
       </div>
     </div>
     </body>

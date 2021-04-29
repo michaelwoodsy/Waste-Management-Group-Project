@@ -1,5 +1,6 @@
 <template>
   <div>
+
     <login-required
         v-if="!isLoggedIn"
         page="view an inventory"
@@ -10,91 +11,97 @@
         page="view this business's inventory"
     />
 
-    <div v-else>
+    <div v-else class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col">
 
-      <!--    Inventory Header    -->
-      <div class="row">
-        <div class="col-12 text-center mb-2">
-          <h4>Inventory</h4>
-        </div>
-      </div>
-
-      <!--    Error Alert    -->
-      <div v-if="error" class="row">
-        <div class="col-8 offset-2 text-center mb-2">
-          <alert>{{ error }}</alert>
-        </div>
-      </div>
-
-      <!--    Result Information    -->
-      <div class="row">
-        <div class="d-none d-lg-block col-lg-1"/>
-        <div class="col-12 col-lg-10">
-          <div class="text-center">
-            <showing-results-text
-                :items-per-page="resultsPerPage"
-                :page="page"
-                :total-count="totalCount"
-            />
+          <!--    Inventory Header    -->
+          <div class="row">
+            <div class="col text-center">
+              <h4>Inventory</h4>
+            </div>
+          </div>
+          <div class="col text-right">
+            <button class="btn btn-primary" v-on:click="newItem">
+              New Item
+            </button>
           </div>
 
-          <!--    Order By   -->
-          <div class="overflow-auto">
-            <table class="table table-hover">
-              <thead>
-              <tr>
-                <!--    Inventory Item Id    -->
-                <th scope="col" class="pointer" @click="orderResults('id')">
-                  <p class="d-inline">Id</p>
-                  <p class="d-inline" v-if="orderCol === 'id'">{{ orderDirArrow }}</p>
-                </th>
-                <!--    Product Code    -->
-                <th scope="col" class="pointer" @click="orderResults('productId')">
-                  <p class="d-inline">Product Code</p>
-                  <p class="d-inline" v-if="orderCol === 'productId'">{{ orderDirArrow }}</p>
-                </th>
+          <!--    Error Alert    -->
+          <div v-if="error" class="row">
+            <div class="col text-center">
+              <alert>{{ error }}</alert>
+            </div>
+          </div>
 
-                <!--    Quantity    -->
-                <th scope="col" class="pointer" @click="orderResults('quantity')">
-                  <p class="d-inline">Quantity</p>
-                  <p class="d-inline" v-if="orderCol === 'quantity'">{{ orderDirArrow }}</p>
-                </th>
+          <!--    Result Information    -->
+          <div>
 
-                <!--    Price per Item    -->
-                <th scope="col" class="pointer" @click="orderResults('pricePerItem')">
-                  <p class="d-inline">Price per Item</p>
-                  <p class="d-inline" v-if="orderCol === 'pricePerItem'">{{ orderDirArrow }}</p>
-                </th>
+            <div class="text-center">
+              <showing-results-text
+                  :items-per-page="resultsPerPage"
+                  :page="page"
+                  :total-count="totalCount"
+              />
+            </div>
 
-                <!--    Total Price    -->
-                <th scope="col" class="pointer" @click="orderResults('totalPrice')">
-                  <p class="d-inline">Total Price</p>
-                  <p class="d-inline" v-if="orderCol === 'totalPrice'">{{ orderDirArrow }}</p>
-                </th>
+            <!--    Order By   -->
+            <div class="overflow-auto">
+              <table class="table table-hover">
+                <thead>
+                <tr>
+                  <!--    Inventory Item Id    -->
+                  <th class="pointer" scope="col" @click="orderResults('id')">
+                    <p class="d-inline">Id</p>
+                    <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
+                  </th>
+                  <!--    Product Code    -->
+                  <th class="pointer" scope="col" @click="orderResults('productId')">
+                    <p class="d-inline">Product Code</p>
+                    <p v-if="orderCol === 'productId'" class="d-inline">{{ orderDirArrow }}</p>
+                  </th>
 
-                <!--   Manufactured date    -->
-                <th scope="col"  class="pointer" @click="orderResults('manufactured')">
-                  <p class="d-inline">Manufactured Date</p>
-                  <p class="d-inline" v-if="orderCol === 'manufactured'">{{ orderDirArrow }}</p>
-                </th>
+                  <!--    Quantity    -->
+                  <th class="pointer" scope="col" @click="orderResults('quantity')">
+                    <p class="d-inline">Quantity</p>
+                    <p v-if="orderCol === 'quantity'" class="d-inline">{{ orderDirArrow }}</p>
+                  </th>
 
-                <!--   Sell By date    -->
-                <th scope="col"  class="pointer" @click="orderResults('sellBy')">
-                  <p class="d-inline">Sell By Date</p>
-                  <p class="d-inline" v-if="orderCol === 'sellBy'">{{ orderDirArrow }}</p>
-                </th>
+                  <!--    Price per Item    -->
+                  <th class="pointer" scope="col" @click="orderResults('pricePerItem')">
+                    <p class="d-inline">Price per Item</p>
+                    <p v-if="orderCol === 'pricePerItem'" class="d-inline">{{ orderDirArrow }}</p>
+                  </th>
 
-                <!--   Best Before date    -->
-                <th scope="col"  class="pointer" @click="orderResults('bestBefore')">
-                  <p class="d-inline">Best Before Date</p>
-                  <p class="d-inline" v-if="orderCol === 'bestBefore'">{{ orderDirArrow }}</p>
-                </th>
+                  <!--    Total Price    -->
+                  <th class="pointer" scope="col" @click="orderResults('totalPrice')">
+                    <p class="d-inline">Total Price</p>
+                    <p v-if="orderCol === 'totalPrice'" class="d-inline">{{ orderDirArrow }}</p>
+                  </th>
 
-                <!--   Expiry date    -->
-                <th scope="col"  class="pointer" @click="orderResults('expires')">
-                  <p class="d-inline">Expiry Date</p>
-                  <p class="d-inline" v-if="orderCol === 'expires'">{{ orderDirArrow }}</p>
-                </th>
+                  <!--   Manufactured date    -->
+                  <th class="pointer" scope="col" @click="orderResults('manufactured')">
+                    <p class="d-inline">Manufactured Date</p>
+                    <p v-if="orderCol === 'manufactured'" class="d-inline">{{ orderDirArrow }}</p>
+                  </th>
+
+                  <!--   Sell By date    -->
+                  <th class="pointer" scope="col" @click="orderResults('sellBy')">
+                    <p class="d-inline">Sell By Date</p>
+                    <p v-if="orderCol === 'sellBy'" class="d-inline">{{ orderDirArrow }}</p>
+                  </th>
+
+                  <!--   Best Before date    -->
+                  <th class="pointer" scope="col" @click="orderResults('bestBefore')">
+                    <p class="d-inline">Best Before Date</p>
+                    <p v-if="orderCol === 'bestBefore'" class="d-inline">{{ orderDirArrow }}</p>
+                  </th>
+
+                  <!--   Expiry date    -->
+                  <th class="pointer" scope="col" @click="orderResults('expires')">
+                    <p class="d-inline">Expiry Date</p>
+                    <p v-if="orderCol === 'expires'" class="d-inline">{{ orderDirArrow }}</p>
+                  </th>
 
                 <!--    Edit button column    -->
                 <th scope="col"></th>
@@ -124,27 +131,29 @@
             </table>
           </div>
         </div>
-        <div class="d-none d-lg-block col-lg-1"/>
-      </div>
 
-      <div class="row" v-if="loading">
-        <div class="col-12 text-center">
-          <p class="text-muted">Loading...</p>
-        </div>
-      </div>
+          <div v-if="loading" class="row">
+            <div class="col-12 text-center">
+              <p class="text-muted">Loading...</p>
+            </div>
+          </div>
 
-      <!--    Result Information    -->
-      <div class="row">
-        <div class="col-12">
-          <pagination
-              :total-items="totalCount"
-              :current-page.sync="page"
-              :items-per-page="resultsPerPage"
-              class="mx-auto"
-          />
+          <!--    Result Information    -->
+          <div class="row">
+            <div class="col-12">
+              <pagination
+                  :current-page.sync="page"
+                  :items-per-page="resultsPerPage"
+                  :total-items="totalCount"
+                  class="mx-auto"
+              />
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -165,7 +174,7 @@ export default {
     ShowingResultsText,
     Pagination
   },
-  data () {
+  data() {
     return {
       inventoryItems: [],
       error: null,
@@ -193,7 +202,7 @@ export default {
      * Checks to see if user is logged in currently
      * @returns {boolean|*}
      */
-    isLoggedIn () {
+    isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     },
 
@@ -201,7 +210,7 @@ export default {
      * Checks which direction (ascending or descending) the order by should be
      * @returns {string}
      */
-    orderDirArrow () {
+    orderDirArrow() {
       if (this.orderDirection) {
         return '↓'
       }
@@ -212,7 +221,7 @@ export default {
      * Sort InventoryItems Logic
      * @returns {[]|*[]}
      */
-    sortedInventoryItems () {
+    sortedInventoryItems() {
       if (this.orderCol === null) {
         return this.inventoryItems
       }
@@ -237,7 +246,7 @@ export default {
      * Paginate the inventory items
      * @returns {*[]|*[]}
      */
-    paginatedInventoryItems () {
+    paginatedInventoryItems() {
       let newInventoryItems = this.sortedInventoryItems;
 
       // Sort inventory items if there are any
@@ -254,7 +263,7 @@ export default {
      * Calculates the number of results in inventory items array
      * @returns {number}
      */
-    totalCount () {
+    totalCount() {
       return this.inventoryItems.length
     }
   },
@@ -279,7 +288,7 @@ export default {
      * Updates order direction
      * @param col column to be ordered
      */
-    orderResults (col) {
+    orderResults(col) {
       // Remove the ordering if the column is clicked and the arrow is down
       if (this.orderCol === col && this.orderDirection) {
         this.orderCol = null;
@@ -347,7 +356,7 @@ export default {
      * Function for formatting inventory item dates
      */
     formatDate(dateString) {
-      if (dateString === "") {
+      if (dateString === "" || dateString === null) {
         return "";
       } else {
         return new Date(dateString).toDateString();
@@ -362,8 +371,6 @@ export default {
       this.loading = true;
       this.page = 1;
 
-      this.loading = false
-
       Business.getInventory(this.$route.params.businessId)
           .then((res) => {
             this.error = null;
@@ -374,6 +381,12 @@ export default {
             this.error = err;
             this.loading = false;
           })
+    },
+    /**
+     * Takes user to page to create new inventory item.
+     */
+    newItem() {
+      this.$router.push({name: 'CreateInventoryItem', params: {businessId: this.businessId}})
     }
   }
 }
