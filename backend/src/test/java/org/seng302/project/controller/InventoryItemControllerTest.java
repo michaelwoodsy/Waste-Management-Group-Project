@@ -616,7 +616,7 @@ public class InventoryItemControllerTest {
                 .andReturn();
 
         String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new InvalidInventoryItemQuantityException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals(new InvalidQuantityException().getMessage(), returnedExceptionString);
     }
 
     /**

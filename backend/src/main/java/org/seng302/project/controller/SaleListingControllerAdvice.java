@@ -77,4 +77,15 @@ public class SaleListingControllerAdvice {
     public ResponseEntity<String> pastClosingDate(InvalidClosesDateException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    /**
+     * Exception thrown by the newBusinessesListing() function in SalesListingController
+     * when a user tries to create a sales listing with a missing price
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(MissingPriceException.class)
+    public ResponseEntity<String> missingPrice(MissingPriceException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
