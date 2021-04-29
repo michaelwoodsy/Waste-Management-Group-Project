@@ -138,10 +138,10 @@ export const Business = {
     getInventory: (businessId) => instance.get(`businesses/${businessId}/inventory`, {}),
 
     /*
-     * Sends an edit product request to the backend
+     * Sends an edit item request to the backend
      */
     editItem: (businessId, inventoryItemId, newItemData) => instance.put(
-        `businesses/${businessId}/products/${inventoryItemId}`,
+        `businesses/${businessId}/inventory/${inventoryItemId}`,
         newItemData),
 
     /**

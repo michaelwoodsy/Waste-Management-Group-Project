@@ -335,7 +335,7 @@ export default {
       let isNotNumber = Number.isNaN(Number(this.newItem.quantity))
       if (isNotNumber || this.newItem.quantity === '') {
         return false
-      } else return Number(this.newItem.quantity) >= 0;
+      } else return Number(this.newItem.quantity) > 0;
     },
 
     /**
@@ -487,7 +487,20 @@ export default {
       }
       // Submit changes to api
       this.submitting = true;
-      Business.editItem(this.businessId, this.inventoryItemId, this.newItem)
+
+      let item = {
+        productId: this.newItem.product.id,
+        quantity: this.newItem.quantity,
+        pricePerItem: this.newItem.pricePerItem,
+        totalPrice: this.newItem.totalPrice,
+        manufactured: this.newItem.manufactured,
+        sellBy: this.newItem.sellBy,
+        bestBefore: this.newItem.bestBefore,
+        expires: this.newItem.expires
+      }
+
+
+      Business.editItem(this.businessId, this.inventoryItemId, item)
           .then(() => {
             this.submitError = null
             this.success = true
