@@ -87,7 +87,7 @@
                 <div class="col-sm-8">
                   <select
                       id="productCode"
-                      v-model="newItem.id"
+                      v-model="newItem.product.id"
                       :class="{'form-control': true, 'is-invalid': !productCodeValid && productCodeBlur}"
                       @blur="productCodeBlur= true"
                       >
@@ -222,7 +222,6 @@
             >
               Save Changes
             </button>
-
           </div>
         </div>
       </div>
@@ -318,13 +317,17 @@ export default {
           allSame = false;
         }
       }
+      if (this.loadedProduct !== this.newItem.product.id) {
+        this.getNewProduct(this.newItem.product.id)
+        allSame = false
+      }
       return !allSame
     },
 
     /** True if the inputted id is valid **/
     productCodeValid() {
       // Regex for numbers, hyphens and letters
-      return /^[a-zA-Z0-9-]+$/.test(this.newItem.productCode)
+      return /^[a-zA-Z0-9-]+$/.test(this.newItem.product.id)
     },
 
     /** True if the inputted quantity is valid **/
@@ -436,9 +439,21 @@ export default {
         fixes.push('Expiry Date')
       }
       return fixes.join(', ')
-    }
+    },
   },
   methods: {
+
+    getNewProduct(newProductId){
+      Business.getProducts(this.$route.params.businessId)
+          .then((res) => {
+            this.newItem.product = res.data.find(prod => prod.id === newProductId)
+            this.loadedProduct = this.newItem.product.id
+          })
+          .catch((err) => {
+            this.errorMessage = err.response.data.message || err;
+            this.loading = false
+          })
+    },
     /**
      * Get Currency data
      */
@@ -466,7 +481,6 @@ export default {
     submit () {
       // Check all fields are valid first
       this.showFixesMessage = false
-      //this.newItem.id = '2'
       if (!this.productCodeValid || !this.quantityValid || !this.pricePerItemValid || !this.totalPriceValid || !this.manufacturedValid || !this.sellByValid || !this.bestBeforeValid  || !this.expiryValid) {
         this.showFixesMessage = true
         return
@@ -507,7 +521,7 @@ export default {
               this.errorMessage = `There is no item with id ${this.inventoryItemId}.`
             }
             this.newItem = {...this.item}
-            this.newItem.id = this.item.product.id
+            this.loadedProduct = this.item.product.id
             this.loading = false
           })
           .catch((err) => {

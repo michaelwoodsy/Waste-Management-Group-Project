@@ -263,6 +263,7 @@ export default {
     /** Returns true if changes have been made to the product **/
     changesMade() {
       if (!this.product) {
+        console.log('false, no product')
         return false
       }
       let allSame = true;
@@ -271,6 +272,7 @@ export default {
           allSame = false;
         }
       }
+      console.log(allSame)
       return !allSame
     },
 
