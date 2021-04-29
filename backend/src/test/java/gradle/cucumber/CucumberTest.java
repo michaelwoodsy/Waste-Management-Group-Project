@@ -10,11 +10,6 @@ import org.junit.runner.RunWith;
  */
 
 @RunWith(Cucumber.class)
-@CucumberOptions(
-        plugin = {"pretty"},
-        glue = {"gradle.cucumber.steps"},
-        features = {"src/test/resources/"},
-        publish = true
-)
+@CucumberOptions(features = "src/test/resources")
 public class CucumberTest {
 }
