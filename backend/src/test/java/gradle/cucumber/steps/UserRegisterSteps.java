@@ -3,6 +3,7 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.Assertions;
 import org.seng302.project.controller.UserController;
 import org.seng302.project.model.Address;
 import org.seng302.project.model.AddressRepository;
@@ -23,6 +24,24 @@ public class UserRegisterSteps {
 
     @Autowired
     private AddressRepository addressRepository;
+
+    /**
+     * Creates the existing test user. Called by
+     * i_am_a_user_trying_to_register_a_new_user_with_an_already_taken_email
+     * before that function tried recreating the user
+     */
+    public void createExistingUser(String email) {
+        Address homeAddress = new Address(
+                "", "", "", "", "New Zealand", "");
+
+        addressRepository.save(homeAddress);
+
+        User existingUser = new User(
+                "Tom", "Rizzi", "", "","", email,
+                "2001-02-15", "", homeAddress, "Ab123456");
+
+        userRepository.save(existingUser);
+    }
 
     @Given("I am trying to register as a new User")
     public void i_am_trying_to_register_as_a_new_user() {
@@ -50,16 +69,49 @@ public class UserRegisterSteps {
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
 
+        //TODO: this does work and creates new user but need to assert/test this somehow,
+        // maybe in next function
         userController.createUser(createdUser);
+
     }
-    @Then("The account is created.")
-    public void the_account_is_created() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    @Then("The account with email {string} is created.")
+    public void the_account_with_email_is_created(String email) {
+        //TODO: this returns empty list
+        List<User> retrievedUsers = userRepository.findByEmail(email);
+        Assertions.assertEquals(1, retrievedUsers.size());
     }
-    @Then("The userId is returned.")
-    public void the_user_id_is_returned() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+
+
+//TODO: maybe rewrite this scenario to:
+// Given  A user already exists with the email "tom@gmail.com"
+// When  I try to register as a new user with the existing email
+// Then  An error message is returned...
+
+    @Given("I am trying to register as a new user with an already taken email:")
+    public void i_am_trying_to_register_as_a_new_user_with_an_already_taken_email(io.cucumber.datatable.DataTable dataTable) {
+        List<Map<String, String>> userMap = dataTable.asMaps(String.class, String.class);
+        // |email       | password | firstName | lastName | dateOfBirth | homeAddress
+        String email = userMap.get(0).get("email");
+        String password = userMap.get(0).get("password");
+        String firstName = userMap.get(0).get("firstName");
+        String lastName = userMap.get(0).get("lastName");
+        String dateOfBirth = userMap.get(0).get("dateOfBirth");
+
+        //TODO: get this to use country from dataTable
+        Address homeAddress = new Address(
+                "", "", "", "", "New Zealand", "");
+
+        User createdUser = new User(
+                firstName, lastName, "", "","", email,
+                dateOfBirth, "", homeAddress, password);
+
+
+        createExistingUser(email);
+
+        //TODO: this does throw
+        // ExistingRegisteredEmailException: email address is already registered.
+        // Need to catch this/assert this is thrown
+        userController.createUser(createdUser);
+
     }
 }

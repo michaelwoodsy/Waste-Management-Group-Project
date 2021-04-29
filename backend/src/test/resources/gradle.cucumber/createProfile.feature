@@ -5,11 +5,10 @@ Feature: U1 - Registering and logging into an individual account
     When I try to create the account with details:
       |email       | password | firstName | lastName | dateOfBirth | homeAddress
       |tom@gmail.com  | Ab123456 | Tom       | Rizzi    | 2001-02-15  | { country: New Zealand }
-    Then The account is created.
-    And The userId is returned.
+    Then The account with email "tom@gmail.com " is created.
 
   Scenario: AC2: The username I use to log in should be my email address that I have previously registered in the system. If I try to register an account with an email address that is already registered, the system should not create the account but let me know. Similarly, if I try to log in with an email address that has not been registered, the system should let me know.
-    Given I am a user trying to register a new User with an already taken email:
+    Given I am trying to register as a new user with an already taken email:
       |email       | password | firstName | lastName | dateOfBirth | homeAddress
       |tom@gmail.com  | Ab123456 | Tom       | Rizzi    | 2001-02-15  | { country: New Zealand }
     When I try to create an account
