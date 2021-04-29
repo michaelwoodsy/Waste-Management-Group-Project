@@ -67,7 +67,8 @@
         <div class="row" v-if="submitError">
           <div class="col-12 col-sm-8 offset-sm-2">
             <alert>An error occurred when submitting your changes:
-              {{ submitError.slice(submitError.indexOf(':') + 2) }}</alert>
+              {{ submitError.slice(submitError.indexOf(':') + 2) }}
+            </alert>
           </div>
         </div>
 
@@ -83,16 +84,16 @@
             <form>
               <!-- Product Code -->
               <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="productCode">Product Code<span class="text-danger">*</span></label>
+                <label class="col-sm-4 col-form-label" for="productCode"><b>Product Code<span class="text-danger">*</span></b></label>
                 <div class="col-sm-8">
                   <select
                       id="productCode"
                       v-model="newItem.product.id"
                       :class="{'form-control': true, 'is-invalid': !productCodeValid && productCodeBlur}"
                       @blur="productCodeBlur= true"
-                      >
+                  >
                     <option v-for="code in productCodes" v-bind:key="code.id">
-                      {{code.id}}
+                      {{ code.id }}
                     </option>
                   </select>
                   <div class="invalid-feedback" v-if="!productCodeValid">The Product Code is invalid</div>
@@ -101,13 +102,14 @@
 
               <!-- Quantity -->
               <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="quantity"><b>Product Quantity<span class="text-danger">*</span></b></label>
+                <label class="col-sm-4 col-form-label" for="quantity"><b>Product Quantity<span
+                    class="text-danger">*</span></b></label>
                 <div class="col-sm-8">
                   <input
                       id="quantity"
                       v-model="newItem.quantity"
                       :class="{'form-control': true, 'is-invalid': !quantityValid && quantityBlur}"
-                      maxlength="255"
+                      maxlength="10"
                       type="text"
                       @blur="quantityBlur = true"
                   >
@@ -118,17 +120,19 @@
               <!-- Price Per Item -->
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="pricePerItem"><b>Price Per Item</b></label>
-                <div class="col-sm-8" :class="{'input-group': true, 'is-invalid': !pricePerItemValid && pricePerItemBlur}">
+                <div class="col-sm-8"
+                     :class="{'input-group': true, 'is-invalid': !pricePerItemValid && pricePerItemBlur}">
                   <div class="input-group-prepend">
                     <span class="input-group-text">{{ this.currencySymbol }}</span>
                   </div>
-                  <input id="pricePerItem" v-model="newItem.pricePerItem" :class="{'form-control': true, 'is-invalid': !pricePerItemValid && pricePerItemBlur}"
-                         maxlength="255"
+                  <input id="pricePerItem" v-model="newItem.pricePerItem"
+                         :class="{'form-control': true, 'is-invalid': !pricePerItemValid && pricePerItemBlur}"
+                         maxlength="10"
                          placeholder="Price Per Item" type="text" @blur="pricePerItemBlur = true">
                   <div class="input-group-append">
                     <span class="input-group-text">{{ this.currencyCode }}</span>
                   </div>
-                  <div class="invalid-feedback" v-if= "!pricePerItemValid">Please enter a valid price</div>
+                  <div class="invalid-feedback" v-if="!pricePerItemValid">Please enter a valid price</div>
                 </div>
 
               </div>
@@ -140,13 +144,14 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text">{{ this.currencySymbol }}</span>
                   </div>
-                  <input id="totalPrice" v-model="newItem.totalPrice" :class="{'form-control': true, 'is-invalid': !totalPriceValid && totalPriceBlur}"
-                         maxlength="255"
+                  <input id="totalPrice" v-model="newItem.totalPrice"
+                         :class="{'form-control': true, 'is-invalid': !totalPriceValid && totalPriceBlur}"
+                         maxlength="10"
                          placeholder="Total Price" type="text" @blur="totalPriceBlur = true">
                   <div class="input-group-append">
                     <span class="input-group-text">{{ this.currencyCode }}</span>
                   </div>
-                  <div class="invalid-feedback" v-if= "!totalPriceValid">Please enter a valid price</div>
+                  <div class="invalid-feedback" v-if="!totalPriceValid">Please enter a valid price</div>
                 </div>
 
               </div>
@@ -154,7 +159,9 @@
               <!-- Manufactured -->
               <div class="form-row">
                 <label for="manufactured"><b>Manufactured Date</b></label><br/>
-                <input id="manufactured" v-model="newItem.manufactured" :class="{'form-control': true, 'is-invalid': !manufacturedValid && manufacturedBlur}" required style="width:100%"
+                <input id="manufactured" v-model="newItem.manufactured"
+                       :class="{'form-control': true, 'is-invalid': !manufacturedValid && manufacturedBlur}" required
+                       style="width:100%"
                        type="date" @blur="manufacturedBlur=true"><br>
                 <!--    Error message for the date input    -->
                 <span class="invalid-feedback" v-if="!manufacturedValid">Please enter a date in the past</span><br><br>
@@ -163,7 +170,9 @@
               <!-- Sell By -->
               <div class="form-row">
                 <label for="sellBy"><b>Sell By Date</b></label><br/>
-                <input id="sellBy" v-model="newItem.sellBy" :class="{'form-control': true, 'is-invalid': !sellByValid && sellByBlur}" required style="width:100%"
+                <input id="sellBy" v-model="newItem.sellBy"
+                       :class="{'form-control': true, 'is-invalid': !sellByValid && sellByBlur}" required
+                       style="width:100%"
                        type="date" @blur="sellByBlur=true"><br>
                 <!--    Error message for the date input    -->
                 <span class="invalid-feedback" v-if="!sellByValid">Please enter a date in the future</span><br><br>
@@ -172,7 +181,9 @@
               <!-- Best Before -->
               <div class="form-row">
                 <label for="bestBefore"><b>Best Before Date</b></label><br/>
-                <input id="bestBefore" v-model="newItem.bestBefore" :class="{'form-control': true, 'is-invalid': !bestBeforeValid && bestBeforeBlur}" required style="width:100%"
+                <input id="bestBefore" v-model="newItem.bestBefore"
+                       :class="{'form-control': true, 'is-invalid': !bestBeforeValid && bestBeforeBlur}" required
+                       style="width:100%"
                        type="date" @blur="bestBeforeBlur=true"><br>
                 <!--    Error message for the date input    -->
                 <span class="invalid-feedback" v-if="!bestBeforeValid">Please enter a date in the future</span><br><br>
@@ -181,7 +192,9 @@
               <!-- Expiry -->
               <div class="form-row">
                 <label for="expiry"><b>Expiry Date<span class="text-danger">*</span></b></label><br/>
-                <input id="expiry" v-model="newItem.expires" :class="{'form-control': true, 'is-invalid': !expiryValid && expiryBlur}" required style="width:100%"
+                <input id="expiry" v-model="newItem.expires"
+                       :class="{'form-control': true, 'is-invalid': !expiryValid && expiryBlur}" required
+                       style="width:100%"
                        type="date" @blur="expiryBlur=true"><br>
                 <!--    Error message for the date input    -->
                 <span class="invalid-feedback" v-if="!expiryValid">Please enter a date in the future</span><br><br>
@@ -312,14 +325,14 @@ export default {
         return false
       }
       let allSame = true;
+      if (this.originalProduct !== this.newItem.product.id) {
+        allSame = false
+      }
+
       for (const [key, val] of Object.entries(this.item)) {
         if (this.newItem[key] !== val) {
           allSame = false;
         }
-      }
-      if (this.loadedProduct !== this.newItem.product.id) {
-        this.getNewProduct(this.newItem.product.id)
-        allSame = false
       }
       return !allSame
     },
@@ -332,40 +345,42 @@ export default {
 
     /** True if the inputted quantity is valid **/
     quantityValid() {
-      let isNotNumber = Number.isNaN(Number(this.newItem.quantity))
-      if (isNotNumber || this.newItem.quantity === '') {
+
+      if (this.newItem.quantity === null || this.newItem.quantity === '') {
         return false
-      } else return Number(this.newItem.quantity) > 0;
+      }
+      //32 bit highest number
+      if (this.newItem.quantity > 2147483647){
+        return false
+      }
+      return /^([0-9]+([0-9]{0,2})?)?$/.test(this.newItem.quantity)
     },
 
     /**
      * Validate the product Price Per Item field
      */
     pricePerItemValid() {
-      let isNotNumber = Number.isNaN(Number(this.newItem.pricePerItem))
-      if (this.newItem.pricePerItem === ''){
+      // Regex valid for any number with a max of 2 dp, or empty
+      if (this.newItem.pricePerItem == null) {
         return true
-      } else if (isNotNumber){
-        return false
-      } else return Number(this.newItem.pricePerItem) >= 0;
+      }
+      return /^([0-9]+(.[0-9]{0,2})?)?$/.test(this.newItem.pricePerItem)
     },
     /**
      * Validate the product Price Per Item field
      */
     totalPriceValid() {
-      let isNotNumber = Number.isNaN(Number(this.newItem.totalPrice))
-      if (this.newItem.totalPrice === ''){
+      // Regex valid for any number with a max of 2 dp, or empty
+      if (this.newItem.totalPrice == null) {
         return true
-      } else if (isNotNumber){
-        return false
-      } else return Number(this.newItem.totalPrice) >= 0;
-
+      }
+      return /^([0-9]+(.[0-9]{0,2})?)?$/.test(this.newItem.totalPrice)
     },
     /**
      * Validate the product Manufactured field
      */
     manufacturedValid() {
-      if (this.newItem.manufactured !== '' && this.newItem.manufactured !== null){
+      if (this.newItem.manufactured !== '' && this.newItem.manufactured !== null) {
         let dateNow = new Date()
         let dateGiven = new Date(this.newItem.manufactured)
 
@@ -378,7 +393,7 @@ export default {
      * Validate the product Sell By field
      */
     sellByValid() {
-      if (this.newItem.sellBy !== '' && this.newItem.sellBy !== null){
+      if (this.newItem.sellBy !== '' && this.newItem.sellBy !== null) {
         let dateNow = new Date()
         let dateGiven = new Date(this.newItem.sellBy)
         return dateGiven - dateNow > 0;
@@ -390,7 +405,7 @@ export default {
      * Validate the product Sell By field
      */
     bestBeforeValid() {
-      if (this.newItem.bestBefore !== '' && this.newItem.bestBefore !== null){
+      if (this.newItem.bestBefore !== '' && this.newItem.bestBefore !== null) {
         let dateNow = new Date()
         let dateGiven = new Date(this.newItem.bestBefore)
         return dateGiven - dateNow > 0;
@@ -402,7 +417,7 @@ export default {
      * Validate the product Sell By field
      */
     expiryValid() {
-      if (this.newItem.expires !== ''){
+      if (this.newItem.expires !== '') {
         let dateNow = new Date()
         let dateGiven = new Date(this.newItem.expires)
         return dateGiven - dateNow > 0;
@@ -442,18 +457,6 @@ export default {
     },
   },
   methods: {
-
-    getNewProduct(newProductId){
-      Business.getProducts(this.$route.params.businessId)
-          .then((res) => {
-            this.newItem.product = res.data.find(prod => prod.id === newProductId)
-            this.loadedProduct = this.newItem.product.id
-          })
-          .catch((err) => {
-            this.errorMessage = err.response.data.message || err;
-            this.loading = false
-          })
-    },
     /**
      * Get Currency data
      */
@@ -466,10 +469,10 @@ export default {
     /**
      * Get all product IDs for the current Business
      */
-    getProductIds(response){
+    getProductIds(response) {
       let ids = []
       let n = response.data.length
-      for (let i = 0; i < n; i++){
+      for (let i = 0; i < n; i++) {
         ids.push({id: response.data[i].id})
       }
       this.productCodes = ids
@@ -478,21 +481,20 @@ export default {
     /**
      * Validates the users inputs, then sends the data to the api.
      */
-    submit () {
+    submit() {
       // Check all fields are valid first
       this.showFixesMessage = false
-      if (!this.productCodeValid || !this.quantityValid || !this.pricePerItemValid || !this.totalPriceValid || !this.manufacturedValid || !this.sellByValid || !this.bestBeforeValid  || !this.expiryValid) {
+      if (!this.productCodeValid || !this.quantityValid || !this.pricePerItemValid || !this.totalPriceValid || !this.manufacturedValid || !this.sellByValid || !this.bestBeforeValid || !this.expiryValid) {
         this.showFixesMessage = true
         return
       }
       // Submit changes to api
       this.submitting = true;
-
       let item = {
         productId: this.newItem.product.id,
         quantity: this.newItem.quantity,
-        pricePerItem: this.newItem.pricePerItem,
-        totalPrice: this.newItem.totalPrice,
+        pricePerItem: Number(this.newItem.pricePerItem),
+        totalPrice: Number(this.newItem.totalPrice),
         manufactured: this.newItem.manufactured,
         sellBy: this.newItem.sellBy,
         bestBefore: this.newItem.bestBefore,
@@ -519,7 +521,7 @@ export default {
      * Cancels the item edit.
      * Will confirm with the user if they want to lose there changes, if they made any.
      */
-    cancel () {
+    cancel() {
       this.$router.push({name: 'InventoryPage', params: {businessId: this.businessId}})
     },
 
@@ -534,7 +536,7 @@ export default {
               this.errorMessage = `There is no item with id ${this.inventoryItemId}.`
             }
             this.newItem = {...this.item}
-            this.loadedProduct = this.item.product.id
+            this.originalProduct = this.item.product.id
             this.loading = false
           })
           .catch((err) => {
@@ -547,7 +549,7 @@ export default {
     /**
      * Resets the page after submitting changes, so the user can make more changes.
      */
-    resetPage () {
+    resetPage() {
       if (this.inventoryItemId !== this.newItem.id) {
         this.$router.push(`/businesses/${this.businessId}/inventory/${this.newItem.id}`)
       }
@@ -564,7 +566,7 @@ export default {
       this.manufacturedBlur = false
       this.sellByBlur = false
       this.bestBeforeBlur = false
-      this.expiryBlur= false
+      this.expiryBlur = false
       this.loading = true
 
       // Reload item
