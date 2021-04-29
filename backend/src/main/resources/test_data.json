@@ -283,20 +283,20 @@
       "quantity": 4,
       "pricePerItem": 2.1,
       "totalPrice": 8.4,
-      "manufactured": "2021-05-10T04:34:55.931Z",
-      "sellBy": "2021-05-15T04:34:55.931Z",
-      "bestBefore": "2021-05-15T04:34:55.931Z",
-      "expires": "2021-05-17T04:34:55.931Z"
+      "manufactured": "2021-04-10",
+      "sellBy": "2021-05-15",
+      "bestBefore": "2021-05-15",
+      "expires": "2021-05-17"
     },
     {
       "productId": "BANANA",
       "quantity": 3,
       "pricePerItem": 2.2,
       "totalPrice": 6.6,
-      "manufactured": "2021-05-09T04:34:55.931Z",
-      "sellBy": "2021-05-14T04:34:55.931Z",
-      "bestBefore": "2021-05-14T04:34:55.931Z",
-      "expires": "2021-05-16T04:34:55.931Z"
+      "manufactured": "2021-04-09",
+      "sellBy": "2021-05-14",
+      "bestBefore": "2021-05-14",
+      "expires": "2021-05-16"
     }
   ],
   "saleListings": [
