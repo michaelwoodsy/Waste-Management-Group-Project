@@ -458,7 +458,7 @@ export default {
      * Get Currency data
      */
     async getCurrency() {
-      const country = 'New Zealand'
+      const country = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
       const currency = await this.$root.$data.product.getCurrency(country)
       this.currencySymbol = currency.symbol
       this.currencyCode = currency.code
