@@ -188,7 +188,7 @@ public class SaleListingController {
                 }
                 //Check if there is enough of the inventory item
                 if (quantity > (item.getQuantity() - quantityUsed)) {
-                    NotEnoughOfInventoryItemException exception = new NotEnoughOfInventoryItemException(inventoryItemId, item.getQuantity() - quantityUsed);
+                    NotEnoughOfInventoryItemException exception = new NotEnoughOfInventoryItemException(inventoryItemId, item.getQuantity() - quantityUsed, quantityUsed);
                     logger.warn(exception.getMessage());
                     throw exception;
                 }
@@ -204,7 +204,7 @@ public class SaleListingController {
             }
 
             //Price
-            Double price = null;
+            double price;
             try {
                 if (json.getAsNumber("price") != null) {
                     price = json.getAsNumber("price").doubleValue();

@@ -368,7 +368,7 @@ public class SaleListingControllerTest {
                 .andReturn();
 
         String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new NotEnoughOfInventoryItemException(inventoryItem.getId(), inventoryItem.getQuantity()).getMessage(), returnedExceptionString);
+        Assertions.assertEquals(new NotEnoughOfInventoryItemException(inventoryItem.getId(), inventoryItem.getQuantity(), 0).getMessage(), returnedExceptionString);
     }
 
     /**
@@ -423,6 +423,6 @@ public class SaleListingControllerTest {
                 .andReturn();
 
         String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new NotEnoughOfInventoryItemException(inventoryItem.getId(), 1).getMessage(), returnedExceptionString);
+        Assertions.assertEquals(new NotEnoughOfInventoryItemException(inventoryItem.getId(), 1, inventoryItem.getQuantity() - 1).getMessage(), returnedExceptionString);
     }
 }

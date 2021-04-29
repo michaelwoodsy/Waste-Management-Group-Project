@@ -7,8 +7,8 @@ package org.seng302.project.exceptions;
  */
 public class NotEnoughOfInventoryItemException extends RuntimeException {
 
-    public NotEnoughOfInventoryItemException(Integer itemId, Integer quantity) {
-        super(String.format("NotEnoughOfInventoryItemException: you do not have enough of item with id %d for this listing (you have %d).", itemId, quantity));
+    public NotEnoughOfInventoryItemException(Integer itemId, Integer quantity, Integer quantityUsed) {
+        super(String.format("NotEnoughOfInventoryItemException: you do not have enough of item with id %d for this listing (you have %d, with %d used in other sale listings).", itemId, quantity, quantityUsed));
     }
 
 }
