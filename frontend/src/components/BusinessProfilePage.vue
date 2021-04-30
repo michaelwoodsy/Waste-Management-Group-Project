@@ -7,97 +7,105 @@
     />
 
     <div v-else>
-      <div class="row">
-        <div class="col-12 text-center mb-2">
-          <h2>{{ name }}</h2>
+
+      <div class="row mb-3">
+        <div class="col">
+          <div class="row">
+            <div class="col-12 text-center mb-2">
+              <h2>{{ name }}</h2>
+            </div>
+          </div>
+
+          <!-- Name of Business -->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Name of Business: </p>
+            </div>
+            <div class="col-6">
+              <p style="word-wrap: break-word; max-width: 70%">{{ name }}</p>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Description: </p>
+            </div>
+            <div class="col-6">
+              <p style="word-wrap: break-word; max-width: 70%">{{ description }}</p>
+            </div>
+          </div>
+
+          <!-- Address-->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Address: </p>
+            </div>
+            <div class="col-6">
+              <p style="word-wrap: break-word; max-width: 70%">{{ address }}</p>
+            </div>
+          </div>
+
+          <!-- Type -->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Type: </p>
+            </div>
+            <div class="col-6">
+              <p>{{ businessType }}</p>
+            </div>
+          </div>
+
+          <!-- Date of Registration -->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Date of Registration: </p>
+            </div>
+            <div class="col-6">
+              <p>Registered since: {{ dateJoined }} ({{ dateSinceJoin }})</p>
+            </div>
+          </div>
+
+          <!-- Administrators -->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Administrators: </p>
+            </div>
+            <div class="col-6">
+              <table>
+                <tr v-for="(admin, index) in administrators" :key="index">
+                  <td>
+                    <router-link :to="`/users/${admin.id}`" class="nav-link p-0">
+                      {{ admin.firstName }} {{ admin.lastName }}
+                    </router-link>
+                  </td>
+                  <td v-if="isPrimaryAdmin && (primaryAdminId !== admin.id)">
+                    <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;"
+                       v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+          </div>
+
+          <div class="row">
+            <div v-if="removedAdmin" class="col text-center">
+              <p style="color: green">{{ removedAdmin }}</p>
+            </div>
+            <div v-if="error" class="col text-center">
+              <p style="color: red">{{ error }}</p>
+            </div>
+          </div>
         </div>
       </div>
 
-
-      <!-- Name of Business -->
-      <div class="row">
-        <div class="col-6 text-right font-weight-bold">
-          <p>Name of Business: </p>
-        </div>
-        <div class="col-6">
-          <p style="word-wrap: break-word; max-width: 70%">{{ name }}</p>
-        </div>
+      <div class="row justify-content-center">
+        <router-link :to="`businesses/${this.businessId}/listings`" class="btn btn-outline-primary mx-2">
+          View Business's Listings
+        </router-link>
       </div>
 
-      <!-- Description -->
-      <div class="row">
-        <div class="col-6 text-right font-weight-bold">
-          <p>Description: </p>
-        </div>
-        <div class="col-6">
-          <p style="word-wrap: break-word; max-width: 70%">{{ description }}</p>
-        </div>
-      </div>
-
-      <!-- Address-->
-      <div class="row">
-        <div class="col-6 text-right font-weight-bold">
-          <p>Address: </p>
-        </div>
-        <div class="col-6">
-          <p style="word-wrap: break-word; max-width: 70%">{{ address }}</p>
-        </div>
-      </div>
-
-      <!-- Type -->
-      <div class="row">
-        <div class="col-6 text-right font-weight-bold">
-          <p>Type: </p>
-        </div>
-        <div class="col-6">
-          <p>{{ businessType }}</p>
-        </div>
-      </div>
-
-      <!-- Date of Registration -->
-      <div class="row">
-        <div class="col-6 text-right font-weight-bold">
-          <p>Date of Registration: </p>
-        </div>
-        <div class="col-6">
-          <p>Registered since: {{ dateJoined }} ({{ dateSinceJoin }})</p>
-        </div>
-      </div>
-
-      <!-- Administrators -->
-      <div class="row">
-        <div class="col-6 text-right font-weight-bold">
-          <p>Administrators: </p>
-        </div>
-        <div class="col-6">
-          <table>
-            <tr v-for="(admin, index) in administrators" :key="index">
-              <td>
-                <router-link :to="`/users/${admin.id}`" class="nav-link d-inline">
-                  {{ admin.firstName }} {{ admin.lastName }}
-                </router-link>
-              </td>
-              <td v-if="isPrimaryAdmin && (primaryAdminId !== admin.id)">
-                <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;"
-                   v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
-              </td>
-            </tr>
-          </table>
-        </div>
-
-      </div>
-      <div class="row">
-        <div v-if="removedAdmin" class="col-12 text-center mb-2">
-          <br>
-          <p style="color: green">{{ removedAdmin }}</p>
-          <br>
-        </div>
-        <div v-if="error" class="col-12 text-center mb-2">
-          <br>
-          <p style="color: red">{{ error }}</p>
-          <br>
-        </div>
-      </div>
     </div>
 
   </div>
@@ -285,4 +293,9 @@ export default {
   }
 
 }
+
 </script>
+
+<style scoped>
+
+</style>

@@ -1,27 +1,33 @@
 <template>
   <div>
+
     <login-required
         v-if="!isLoggedIn"
         page="view your profile page"
     />
 
     <!-- Greeting User -->
-    <div v-else>
+    <div v-else-if="this.actor.type === 'user'">
       <div class="row">
-        <div class="col-12 text-center mb-2">
+        <div class="col text-center mb-2">
           <h2>Hello {{ actorName }}</h2>
         </div>
       </div>
     </div>
 
-    <!-- Greeting User -->
-    <div v-if="this.actor.type === 'business'">
+    <!-- Greeting Business -->
+    <div v-else>
       <div class="row">
-        <div class="col-12 text-center mb-2">
-          <router-link :to="productCatalogueRoute">Product Catalogue</router-link>
+        <div class="col text-center mb-2">
+          <h2>{{ actorName }}</h2>
+          <router-link :to="productCatalogueRoute" class="btn btn-outline-primary mx-2">View Product Catalogue
+          </router-link>
+          <router-link :to="inventoryRoute" class="btn btn-outline-primary mx-2">View Inventory</router-link>
+          <router-link :to="saleListingRoute" class="btn btn-outline-primary mx-2">View Sale Listings</router-link>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -52,6 +58,16 @@ export default {
     /** Returns the product catalogue url **/
     productCatalogueRoute() {
       return `businesses/${this.actor.id}/products`;
+    },
+
+    /** Returns the inventory url **/
+    inventoryRoute() {
+      return `businesses/${this.actor.id}/inventory`;
+    },
+
+    /** Returns the sale listing url **/
+    saleListingRoute() {
+      return `businesses/${this.actor.id}/listings`;
     },
 
     /**
@@ -172,3 +188,7 @@ export default {
 }
 
 </script>
+
+<style scoped>
+
+</style>
