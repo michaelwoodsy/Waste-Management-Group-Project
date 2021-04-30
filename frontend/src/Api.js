@@ -154,5 +154,7 @@ export const Business = {
      */
     getListings: (businessId) => instance.get(`businesses/${businessId}/listings`, {}),
 
+    createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data)
+
 
 };

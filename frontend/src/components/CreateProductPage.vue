@@ -65,7 +65,7 @@
         </div>
         <!-- Show an error if required fields are missing -->
         <div v-if="msg.errorChecks" class="error-box align-content-center">
-          <alert>{{ msg.errorChecks }}</alert>
+          <alert class="mb-0">{{ msg.errorChecks }}</alert>
         </div>
       </div>
     </div>
@@ -107,19 +107,6 @@ export default {
      */
     businessId() {
       return this.$route.params.businessId;
-    },
-    /**
-     * Checks to see if the user is logged in.
-     */
-    isLoggedIn() {
-      return this.$root.$data.user.state.loggedIn
-    },
-    /**
-     * Checks to see if the user is acting as the current business.
-     */
-    isAdminOf() {
-      if (this.$root.$data.user.state.actingAs.type !== 'business') return false;
-      return this.$root.$data.user.state.actingAs.id === parseInt(this.businessId);
     }
   },
   methods: {
@@ -138,6 +125,9 @@ export default {
         this.valid = false;
       } else if (!/^[a-zA-Z0-9-]+$/.test(this.id)) {
         this.msg.id = 'Product ID must consist of letters, numbers, and hyphens';
+        this.valid = false;
+      } else if (this.$parent.productIdExists(this.id)) {
+        this.msg.id = 'Product ID already exists';
         this.valid = false;
       } else {
         this.msg.id = null;

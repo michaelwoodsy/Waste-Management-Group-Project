@@ -31,10 +31,10 @@
             <div class="form-group row">
               <label for="inventoryItem"><b>Inventory Item<span class="required">*</span></b></label>
               <select id="inventoryItem" v-model="inventoryItemId"
-                      :class="{'form-control': true, 'is-invalid': msg.inventoryItemId}"
+                      :class="{'form-control': true, 'is-invalid': msg.inventoryItemId}" class="custom-select"
                       @change="updateInventoryItem">
                 <option v-for="item in availableInventoryItems" v-bind:key="item.id" v-bind:value="item.id">
-                  {{item.product.name}} expiring on {{ item.expires }}
+                  {{ item.product.name }} expiring on {{ item.expires }}
                 </option>
               </select>
               <span class="invalid-feedback">{{ msg.inventoryItemId }}</span>
@@ -43,8 +43,16 @@
             <!-- Quantity -->
             <div class="form-group row">
               <label for="quantity"><b>Product Quantity<span class="required">*</span></b></label>
-              <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
-                     maxlength="255" placeholder="Enter the quantity" required type="number">
+              <div :class="{'input-group': true, 'is-invalid': msg.quantity}">
+                <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
+                       :disabled="!selectedInventoryItem" :max="this.getMaxQuantity(this.selectedInventoryItem)" min="1"
+                       placeholder="Enter the quantity" required step="1" type="number">
+                <div v-if="this.selectedInventoryItem !== null" class="input-group-append">
+                  <span class="input-group-text">Max Quantity: {{
+                      this.getMaxQuantity(this.selectedInventoryItem)
+                    }}</span>
+                </div>
+              </div>
               <span class="invalid-feedback">{{ msg.quantity }}</span>
             </div>
 
@@ -56,8 +64,7 @@
                   <span class="input-group-text">{{ this.currencySymbol }}</span>
                 </div>
                 <input id="price" v-model="price" :class="{'form-control': true, 'is-invalid': msg.price}"
-                       maxlength="255"
-                       placeholder="Price" type="number">
+                       :disabled="!selectedInventoryItem" maxlength="255" placeholder="Price" type="number">
                 <div class="input-group-append">
                   <span class="input-group-text">{{ this.currencyCode }}</span>
                 </div>
@@ -66,21 +73,20 @@
             </div>
 
             <!-- More Info -->
-            <div class="form-row">
-              <label class="moreInfo" for="moreInfo"><b>More Info:</b></label>
-              <textarea id="moreInfo" maxlength="255" v-model="moreInfo"
-                        class="form-control" placeholder="Write some additional listing information"
-                        style="width: 100%; height: 200px;">
+            <div class="form-group row">
+              <label class="moreInfo" for="moreInfo"><b>More Info</b></label>
+              <textarea id="moreInfo" v-model="moreInfo" :disabled="!selectedInventoryItem" class="form-control"
+                        maxlength="255" placeholder="Write some additional listing information" style="width: 100%">
             </textarea>
-            </div><br>
+            </div>
 
             <!-- Closing Date -->
-            <div class="form-row">
-              <label for="closes"><b>Closing Date<span class="required">*</span></b></label><br/>
-              <input id="closes" v-model="closes" :class="{'form-control': true, 'is-invalid': msg.expires}" required style="width:100%"
-                     type="date"><br>
+            <div class="form-group row">
+              <label for="closes"><b>Closing Date<span class="required">*</span></b></label>
+              <input id="closes" v-model="closes" :class="{'form-control': true, 'is-invalid': msg.closes}"
+                     :disabled="!selectedInventoryItem" required style="width:100%" type="date">
               <!--    Error message for the date input    -->
-              <span class="invalid-feedback">{{ msg.expires }}</span><br><br>
+              <span class="invalid-feedback">{{ msg.closes }}</span>
             </div>
 
 
@@ -231,23 +237,27 @@ export default {
     },
 
     getMaxQuantity(item) {
-      let quantityListed = 0;
-      for (const listing of this.listings) {
-        if (listing.inventoryItem.id === item.id) {
-          quantityListed += listing.quantity;
+      if (!item) {
+        return 0;
+      } else {
+        let quantityListed = 0;
+        for (const listing of this.listings) {
+          if (listing.inventoryItem.id === item.id) {
+            quantityListed += listing.quantity;
+          }
         }
+        return item.quantity - quantityListed;
       }
-      return item.quantity - quantityListed;
     },
 
     /**
      * Checks all inputs are valid
      */
     checkInputs() {
-      /*
-      this.validateClosingDate();
+      this.validateInventoryItem();
       this.validateQuantity();
       this.validatePrice();
+      this.validateClosingDate();
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
@@ -258,7 +268,15 @@ export default {
         console.log('No errors');
         this.addListing();
       }
-      */
+    },
+
+    validateInventoryItem() {
+      if (!this.selectedInventoryItem) {
+        this.msg.inventoryItemId = 'Please select an inventory item'
+        this.valid = false;
+      } else {
+        this.msg.inventoryItemId = null;
+      }
     },
 
     /**
@@ -267,14 +285,12 @@ export default {
     validatePrice() {
       let isNotNumber = Number.isNaN(Number(this.price))
 
-      if (this.price !== '') {
-        if (isNotNumber) {
-          this.msg.price = 'Please enter a valid price';
-          this.valid = false;
-        } else if (Number(this.price) < 0) {
-          this.msg.price = 'Please enter a non negative price'
-          this.valid = false
-        }
+      if (isNotNumber || this.price === '') {
+        this.msg.price = 'Please enter a valid price';
+        this.valid = false;
+      } else if (Number(this.price) < 0) {
+        this.msg.price = 'Please enter a non negative price'
+        this.valid = false
       } else {
         this.msg.price = null;
       }
@@ -291,6 +307,9 @@ export default {
       } else if (Number(this.quantity) <= 0) {
         this.msg.quantity = 'Please enter a quantity above 0'
         this.valid = false
+      } else if (Number(this.quantity) > this.getMaxQuantity(this.selectedInventoryItem)) {
+        this.msg.quantity = 'Please enter a valid quantity';
+        this.valid = false;
       } else {
         this.msg.quantity = null;
       }
@@ -301,11 +320,15 @@ export default {
      */
     validateClosingDate() {
       if (this.closes !== '') {
+        let dateGiven = new Date(this.closes)
         let dateNow = new Date()
-        let dateGiven = new Date(this.expires)
+        let dateExpires = new Date(this.selectedInventoryItem.expires)
 
-        if ((dateGiven - dateNow <= 0)) {
+        if (dateGiven < dateNow) {
           this.msg.closes = 'Please enter a date in the future'
+          this.valid = false
+        } else if (dateGiven > dateExpires) {
+          this.msg.closes = 'Please enter a date before the expiry date'
           this.valid = false
         } else {
           this.msg.closes = null
@@ -321,30 +344,28 @@ export default {
      * Add a new listing to the Business' listings
      */
     addListing() {
-      /*
-      //const rrp = Number(this.recommendedRetailPrice)
-      const ppi = Number(this.pricePerItem)
-      const tp = Number(this.totalPrice)
-      this.$root.$data.business.createItem(
-          this.$root.$data.user.state.actingAs.id, {
-            "productId": this.productCode,
+      console.log('we got here')
+      const price = Number(this.price)
+      this.$root.$data.business.createListing(
+          this.businessId, {
+            "inventoryItemId": this.inventoryItemId,
             "quantity": this.quantity,
-            "pricePerItem": this.pricePerItem !== '' ? this.roundPrice(ppi) : null,
-            "totalPrice": this.totalPrice !== '' ? this.roundPrice(tp) : null,
-            "manufactured": this.manufactured,
-            "sellBy": this.sellBy,
-            "bestBefore": this.bestBefore,
-            "expires": this.expires
+            "price": this.roundPrice(price),
+            "moreInfo": this.moreInfo,
+            "closes": new Date(this.closes),
           }
       ).then(() => {
-        this.$router.push({name: "InventoryPage", params: {businessId: this.$root.$data.user.state.actingAs.id}});
+        this.$router.push({name: "listings", params: {businessId: this.businessId}});
       }).catch((err) => {
         this.msg.errorChecks = err.response ?
             err.response.data.slice(err.response.data.indexOf(':') + 2) :
             err
       });
-       */
 
+    },
+
+    roundPrice(price) {
+      return (Math.round(price * 100)) / 100;
     },
 
     /**

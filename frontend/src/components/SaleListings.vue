@@ -17,8 +17,7 @@
               <h4>Sale Listings</h4>
             </div>
             <div class="col text-right">
-              <button v-if="isAdminOf" class="btn btn-primary">
-              <button class="btn btn-primary" v-on:click="newListing">
+              <button v-if="isAdminOf" class="btn btn-primary" v-on:click="newListing">
                 New Listing
               </button>
             </div>
@@ -135,7 +134,8 @@ export default {
       listings: [],
       currency: {
         symbol: "",
-        code: ""},
+        code: ""
+      },
       error: null,
       orderCol: null,
       orderDirection: false, // False = Ascending

@@ -364,6 +364,14 @@ export default {
             this.loading = false;
           })
     },
+    productIdExists(id) {
+      for (const product of this.products) {
+        if (product.id === id) {
+          return true;
+        }
+      }
+      return false;
+    },
     /**
      * Takes user to page to create new product.
      */
