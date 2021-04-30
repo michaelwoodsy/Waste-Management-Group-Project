@@ -21,7 +21,7 @@
           <p>First Name: </p>
         </div>
         <div class="col-6">
-          <p  style="word-wrap: break-word; max-width: 70%">{{ firstName }} </p>
+          <p style="word-wrap: break-word; max-width: 70%">{{ firstName }} </p>
         </div>
       </div>
 
@@ -31,7 +31,7 @@
           <p>Middle Name: </p>
         </div>
         <div class="col-6">
-          <p  style="word-wrap: break-word; max-width: 70%">{{ middleName }} </p>
+          <p style="word-wrap: break-word; max-width: 70%">{{ middleName }} </p>
         </div>
       </div>
 
@@ -41,7 +41,7 @@
           <p>Last Name: </p>
         </div>
         <div class="col-6">
-          <p  style="word-wrap: break-word; max-width: 70%">{{ lastName }} </p>
+          <p style="word-wrap: break-word; max-width: 70%">{{ lastName }} </p>
         </div>
       </div>
 
@@ -104,7 +104,7 @@
           <table>
             <tr v-for="(business, index) in primaryAdminOf" :key="index">
               <td>
-                <router-link :to="`/businesses/${business.id}`" class="nav-link d-inline">
+                <router-link :to="`/businesses/${business.id}`" class="nav-link p-0">
                   {{ business.name }}
                 </router-link>
               </td>
@@ -114,22 +114,21 @@
       </div>
 
       <!--Button to add as admin to business currently acting as-->
-      <div v-if="!isViewingSelf && !isAdministrator &&
-                                                        this.$root.$data.user.isActingAsBusiness() &&
-                                                        this.$root.$data.user.isPrimaryAdminOfBusiness()"
-           class="d-flex justify-content-center">
+      <div
+          v-if="!isViewingSelf && !isAdministrator && this.$root.$data.user.isActingAsBusiness() && this.$root.$data.user.isPrimaryAdminOfBusiness()"
+          class="d-flex justify-content-center">
         <button class="btn btn-block btn-secondary" style="width: 40%;margin:0 20px; font-size: 14px;"
                 v-on:click="addAdministrator">Add as administrator to business
         </button>
       </div>
 
       <div class="row">
-        <div v-if="addedAdmin" class="col-12 text-center mb-2">
+        <div v-if="addedAdmin" class="col text-center mb-2">
           <br>
           <p style="color: green">{{ addedAdmin }}</p>
           <br>
         </div>
-        <div v-if="error" class="col-12 text-center mb-2">
+        <div v-if="error" class="col text-center mb-2">
           <br>
           <p style="color: red">{{ error }}</p>
           <br>
