@@ -23,7 +23,7 @@
               <h4>Product Catalogue</h4>
             </div>
             <div class="col text-right">
-              <button class="btn btn-primary" v-on:click="newProduct">
+              <button class="btn btn-primary" data-target="#createProduct" data-toggle="modal" @click="newProduct">
                 New Product
               </button>
             </div>
@@ -61,14 +61,8 @@
 
                   <!--    Full Name    -->
                   <th class="pointer" scope="col" @click="orderResults('name')">
-                    <p class="d-inline">Name</p>
+                    <p class="d-inline">Product Info</p>
                     <p v-if="orderCol === 'name'" class="d-inline">{{ orderDirArrow }}</p>
-                  </th>
-
-                  <!--    Description    -->
-                  <th class="pointer" scope="col" @click="orderResults('description')">
-                    <p class="d-inline">Description</p>
-                    <p v-if="orderCol === 'description'" class="d-inline">{{ orderDirArrow }}</p>
                   </th>
 
                   <!--    Manufacturer    -->
@@ -100,8 +94,10 @@
                     v-bind:key="product.id"
                 >
                   <th scope="row">{{ product.id }}</th>
-                  <td>{{ product.name }}</td>
-                  <td style="word-wrap: break-word; width: 40%">{{ product.description }}</td>
+                  <td style="word-break: break-word; width: 50%">
+                    {{ product.name }}
+                    <span v-if="product.description" style="font-size: small"><br/>{{ product.description }}</span>
+                  </td>
                   <td>{{ product.manufacturer }}</td>
                   <td>{{ formatPrice(product.recommendedRetailPrice) }}</td>
                   <td>{{ new Date(product.created).toDateString() }}</td>
@@ -138,6 +134,16 @@
       </div>
     </div>
 
+    <div id="createProduct" :key="this.createNewProduct" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <create-product-page @refresh-products="refreshProducts"></create-product-page>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -148,10 +154,12 @@ import ShowingResultsText from "./ShowingResultsText";
 import Pagination from "./Pagination";
 import Alert from './Alert'
 import {Business} from '@/Api';
+import CreateProductPage from "@/components/CreateProductPage";
 
 export default {
   name: "Catalogue",
   components: {
+    CreateProductPage,
     LoginRequired,
     AdminRequired,
     Alert,
@@ -167,7 +175,9 @@ export default {
       orderDirection: false, // False -> Ascending
       resultsPerPage: 10,
       page: 1,
-      loading: false
+      loading: false,
+      showCreateProduct: false,
+      createNewProduct: false
     }
   },
   mounted() {
@@ -358,7 +368,11 @@ export default {
      * Takes user to page to create new product.
      */
     newProduct() {
-      this.$router.push({name: 'createProduct', params: {businessId: this.businessId}})
+      this.createNewProduct = true;
+    },
+    refreshProducts() {
+      this.createNewProduct = false;
+      this.fillTable();
     }
   }
 }

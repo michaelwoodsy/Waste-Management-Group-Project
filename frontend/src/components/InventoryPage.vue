@@ -17,14 +17,15 @@
 
           <!--    Inventory Header    -->
           <div class="row">
+            <div class="col"/>
             <div class="col text-center">
               <h4>Inventory</h4>
             </div>
-          </div>
-          <div class="col text-right">
-            <button class="btn btn-primary" v-on:click="newItem">
-              New Item
-            </button>
+            <div class="col text-right">
+              <button class="btn btn-primary" v-on:click="newItem">
+                New Item
+              </button>
+            </div>
           </div>
 
           <!--    Error Alert    -->
@@ -50,11 +51,6 @@
               <table class="table table-hover">
                 <thead>
                 <tr>
-                  <!--    Inventory Item Id    -->
-                  <th class="pointer" scope="col" @click="orderResults('id')">
-                    <p class="d-inline">Id</p>
-                    <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
-                  </th>
                   <!--    Product Code    -->
                   <th class="pointer" scope="col" @click="orderResults('productId')">
                     <p class="d-inline">Product Code</p>
@@ -113,7 +109,6 @@
               <tr v-bind:key="item.id"
                   v-for="item in paginatedInventoryItems"
               >
-                <th scope="row">{{ item.id }}</th>
                 <td>{{ item.product.id }}</td>
                 <td>{{ item.quantity }}</td>
                 <td>{{ formatPrice(item.pricePerItem) }}</td>
