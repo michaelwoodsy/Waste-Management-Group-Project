@@ -138,7 +138,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-body">
-            <create-product-page @refresh-products="refreshProducts"></create-product-page>
+            <create-product @refresh-products="refreshProducts"></create-product>
           </div>
         </div>
       </div>
@@ -154,12 +154,12 @@ import ShowingResultsText from "./ShowingResultsText";
 import Pagination from "./Pagination";
 import Alert from './Alert'
 import {Business} from '@/Api';
-import CreateProductPage from "@/components/CreateProductPage";
+import CreateProduct from "@/components/CreateProduct";
 
 export default {
   name: "Catalogue",
   components: {
-    CreateProductPage,
+    CreateProduct,
     LoginRequired,
     AdminRequired,
     Alert,
@@ -176,7 +176,6 @@ export default {
       resultsPerPage: 10,
       page: 1,
       loading: false,
-      showCreateProduct: false,
       createNewProduct: false
     }
   },

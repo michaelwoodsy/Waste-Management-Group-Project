@@ -58,13 +58,13 @@
       </div>
 
       <!-- Create Product button -->
-      <div class="form-group row" style="margin-bottom: 0">
+      <div class="form-group row mb-0">
         <div class="btn-group" style="width: 100%">
           <button ref="close" class="btn btn-secondary col-4" data-dismiss="modal" @click="close">Cancel</button>
           <button class="btn btn-primary col-8" @click="checkInputs">Create Product</button>
         </div>
         <!-- Show an error if required fields are missing -->
-        <div v-if="msg.errorChecks" class="error-box align-content-center">
+        <div v-if="msg.errorChecks" class="error-box">
           <alert class="mb-0">{{ msg.errorChecks }}</alert>
         </div>
       </div>
@@ -78,7 +78,7 @@ import Alert from "@/components/Alert";
 import {Business} from "@/Api";
 
 export default {
-  name: "CreateProductPage",
+  name: "CreateProduct",
   components: {Alert},
   data() {
     return {

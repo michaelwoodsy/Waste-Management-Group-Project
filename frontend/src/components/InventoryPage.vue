@@ -22,7 +22,7 @@
               <h4>Inventory</h4>
             </div>
             <div class="col text-right">
-              <button class="btn btn-primary" v-on:click="newItem">
+              <button class="btn btn-primary" data-target="#createInventoryItem" data-toggle="modal" @click="newItem">
                 New Item
               </button>
             </div>
@@ -149,6 +149,16 @@
       </div>
     </div>
 
+    <div id="createInventoryItem" :key="this.createNewInventoryItem" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <create-inventory-item @refresh-inventory="refreshInventory"></create-inventory-item>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -159,10 +169,12 @@ import Alert from "@/components/Alert";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import {Business} from "@/Api";
+import CreateInventoryItem from "@/components/CreateInventoryItem";
 
 export default {
   name: "InventoryPage",
   components: {
+    CreateInventoryItem,
     LoginRequired,
     AdminRequired,
     Alert,
@@ -177,7 +189,8 @@ export default {
       orderDirection: false, // False -> Ascending
       resultsPerPage: 10,
       page: 1,
-      loading: false
+      loading: false,
+      createNewInventoryItem: false
     }
   },
   mounted() {
@@ -381,7 +394,11 @@ export default {
      * Takes user to page to create new inventory item.
      */
     newItem() {
-      this.$router.push({name: 'CreateInventoryItem', params: {businessId: this.businessId}})
+      this.createNewInventoryItem = true;
+    },
+    refreshInventory() {
+      this.createNewInventoryItem = false;
+      this.fillTable();
     }
   }
 }

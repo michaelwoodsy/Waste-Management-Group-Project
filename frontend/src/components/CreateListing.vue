@@ -1,108 +1,87 @@
 <template>
-  <div>
+  <div class="container-fluid">
 
-    <!-- Displayed if not logged in -->
-    <login-required
-        v-if="!isLoggedIn"
-        page="create a new item for this business"
-    />
+    <!-- Page title -->
+    <div class="row mb-4">
+      <div class="col text-center">
+        <h2>Create a new listing</h2>
+      </div>
+    </div>
 
-    <!-- Displayed if not admin of business -->
-    <admin-required
-        v-else-if="!isAdminOf"
-        page="create a new item for this business"
-    />
+    <!-- Form fields -->
+    <div>
+      <!-- Listing ID -->
+      <div class="form-group row">
+        <label for="inventoryItem"><b>Inventory Item<span class="required">*</span></b></label>
+        <select id="inventoryItem" v-model="inventoryItemId"
+                :class="{'form-control': true, 'custom-select': true, 'is-invalid': msg.inventoryItemId}"
+                @change="updateInventoryItem">
+          <option v-for="item in availableInventoryItems" v-bind:key="item.id" v-bind:value="item.id">
+            {{ item.product.name }} expiring on {{ item.expires }}
+          </option>
+        </select>
+        <span class="invalid-feedback">{{ msg.inventoryItemId }}</span>
+      </div>
 
-    <!-- Page content -->
-    <div v-else class="container-fluid">
-      <div class="row justify-content-center">
-        <div class="col-10 col-md-8 col-lg-6 col-xl-5">
-
-          <!-- Page title -->
-          <div class="row mb-4">
-            <div class="col text-center">
-              <h2>Create a new listing</h2>
-            </div>
-          </div>
-
-          <!-- Form fields -->
-          <div>
-            <!-- Listing ID -->
-            <div class="form-group row">
-              <label for="inventoryItem"><b>Inventory Item<span class="required">*</span></b></label>
-              <select id="inventoryItem" v-model="inventoryItemId"
-                      :class="{'form-control': true, 'is-invalid': msg.inventoryItemId}" class="custom-select"
-                      @change="updateInventoryItem">
-                <option v-for="item in availableInventoryItems" v-bind:key="item.id" v-bind:value="item.id">
-                  {{ item.product.name }} expiring on {{ item.expires }}
-                </option>
-              </select>
-              <span class="invalid-feedback">{{ msg.inventoryItemId }}</span>
-            </div>
-
-            <!-- Quantity -->
-            <div class="form-group row">
-              <label for="quantity"><b>Product Quantity<span class="required">*</span></b></label>
-              <div :class="{'input-group': true, 'is-invalid': msg.quantity}">
-                <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
-                       :disabled="!selectedInventoryItem" :max="this.getMaxQuantity(this.selectedInventoryItem)" min="1"
-                       placeholder="Enter the quantity" required step="1" type="number">
-                <div v-if="this.selectedInventoryItem !== null" class="input-group-append">
+      <!-- Quantity -->
+      <div class="form-group row">
+        <label for="quantity"><b>Product Quantity<span class="required">*</span></b></label>
+        <div :class="{'input-group': true, 'is-invalid': msg.quantity}">
+          <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
+                 :disabled="!selectedInventoryItem" :max="this.getMaxQuantity(this.selectedInventoryItem)" min="1"
+                 placeholder="Enter the quantity" required step="1" type="number">
+          <div v-if="this.selectedInventoryItem !== null" class="input-group-append">
                   <span class="input-group-text">Max Quantity: {{
                       this.getMaxQuantity(this.selectedInventoryItem)
                     }}</span>
-                </div>
-              </div>
-              <span class="invalid-feedback">{{ msg.quantity }}</span>
-            </div>
-
-            <!-- Price -->
-            <div class="form-group row">
-              <label for="price"><b>Price<span class="required">*</span></b></label>
-              <div :class="{'input-group': true, 'is-invalid': msg.price}">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">{{ this.currencySymbol }}</span>
-                </div>
-                <input id="price" v-model="price" :class="{'form-control': true, 'is-invalid': msg.price}"
-                       :disabled="!selectedInventoryItem" maxlength="255" placeholder="Price" type="number">
-                <div class="input-group-append">
-                  <span class="input-group-text">{{ this.currencyCode }}</span>
-                </div>
-              </div>
-              <span class="invalid-feedback">{{ msg.price }}</span>
-            </div>
-
-            <!-- More Info -->
-            <div class="form-group row">
-              <label class="moreInfo" for="moreInfo"><b>More Info</b></label>
-              <textarea id="moreInfo" v-model="moreInfo" :disabled="!selectedInventoryItem" class="form-control"
-                        maxlength="255" placeholder="Write some additional listing information" style="width: 100%">
-            </textarea>
-            </div>
-
-            <!-- Closing Date -->
-            <div class="form-group row">
-              <label for="closes"><b>Closing Date<span class="required">*</span></b></label>
-              <input id="closes" v-model="closes" :class="{'form-control': true, 'is-invalid': msg.closes}"
-                     :disabled="!selectedInventoryItem" required style="width:100%" type="date">
-              <!--    Error message for the date input    -->
-              <span class="invalid-feedback">{{ msg.closes }}</span>
-            </div>
-
-
-            <!-- Create Listing button -->
-            <div class="form-group row">
-              <div class="btn-group" style="width: 100%">
-                <button class="btn btn-secondary col-4" v-on:click="cancel">Cancel</button>
-                <button class="btn btn-primary col-8" v-on:click="checkInputs">Create Listing</button>
-              </div>
-              <!-- Show an error if required fields are missing -->
-              <div class="error-box">
-                <alert v-if="msg.errorChecks">{{ msg.errorChecks }}</alert>
-              </div>
-            </div>
           </div>
+        </div>
+        <span class="invalid-feedback">{{ msg.quantity }}</span>
+      </div>
 
+      <!-- Price -->
+      <div class="form-group row">
+        <label for="price"><b>Price<span class="required">*</span></b></label>
+        <div :class="{'input-group': true, 'is-invalid': msg.price}">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ this.currencySymbol }}</span>
+          </div>
+          <input id="price" v-model="price" :class="{'form-control': true, 'is-invalid': msg.price}"
+                 :disabled="!selectedInventoryItem" maxlength="255" placeholder="Price" type="number">
+          <div class="input-group-append">
+            <span class="input-group-text">{{ this.currencyCode }}</span>
+          </div>
+        </div>
+        <span class="invalid-feedback">{{ msg.price }}</span>
+      </div>
+
+      <!-- More Info -->
+      <div class="form-group row">
+        <label class="moreInfo" for="moreInfo"><b>More Info</b></label>
+        <textarea id="moreInfo" v-model="moreInfo" :disabled="!selectedInventoryItem" class="form-control"
+                  maxlength="255" placeholder="Write some additional listing information" style="width: 100%">
+            </textarea>
+      </div>
+
+      <!-- Closing Date -->
+      <div class="form-group row">
+        <label for="closes"><b>Closing Date<span class="required">*</span></b></label>
+        <input id="closes" v-model="closes" :class="{'form-control': true, 'is-invalid': msg.closes}"
+               :disabled="!selectedInventoryItem" required style="width:100%" type="date">
+        <!--    Error message for the date input    -->
+        <span class="invalid-feedback">{{ msg.closes }}</span>
+      </div>
+
+
+      <!-- Create Listing button -->
+      <div class="form-group row mb-0">
+        <div class="btn-group" style="width: 100%">
+          <button ref="close" class="btn btn-secondary col-4" data-dismiss="modal" @click="close">Cancel</button>
+          <button class="btn btn-primary col-8" v-on:click="checkInputs">Create Listing</button>
+        </div>
+        <!-- Show an error if required fields are missing -->
+        <div v-if="msg.errorChecks" class="error-box">
+          <alert class="mb-0">{{ msg.errorChecks }}</alert>
         </div>
       </div>
     </div>
@@ -111,8 +90,6 @@
 </template>
 
 <script>
-import LoginRequired from "@/components/LoginRequired";
-import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
 import {Business} from "@/Api";
 
@@ -120,7 +97,7 @@ import {Business} from "@/Api";
  * Default starting parameters
  */
 export default {
-  name: "ListItemPage",
+  name: "CreateListing",
 
   mounted() {
     this.getCurrency();
@@ -128,8 +105,6 @@ export default {
   },
 
   components: {
-    AdminRequired,
-    LoginRequired,
     Alert
   },
 
@@ -192,13 +167,6 @@ export default {
   },
 
   methods: {
-    /**
-     * Cancel creating a new item and go back to inventory
-     */
-    cancel() {
-      this.$router.push({name: "listings", params: {businessId: this.businessId}});
-    },
-
     /**
      * Gets a business's inventory items.
      */
@@ -355,7 +323,8 @@ export default {
             "closes": new Date(this.closes),
           }
       ).then(() => {
-        this.$router.push({name: "listings", params: {businessId: this.businessId}});
+        this.$refs.close.click();
+        this.close();
       }).catch((err) => {
         this.msg.errorChecks = err.response ?
             err.response.data.slice(err.response.data.indexOf(':') + 2) :
@@ -376,6 +345,12 @@ export default {
       const currency = await this.$root.$data.product.getCurrency(country)
       this.currencySymbol = currency.symbol
       this.currencyCode = currency.code
+    },
+    /**
+     * Close the create listing dialogue and refresh listings.
+     */
+    close() {
+      this.$emit('refresh-listings');
     }
   }
 }

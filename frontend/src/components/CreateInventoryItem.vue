@@ -1,142 +1,121 @@
 <template>
-  <div>
+  <div class="container-fluid">
 
-    <!-- Displayed if not logged in -->
-    <login-required
-        v-if="!isLoggedIn"
-        page="create a new item for this business"
-    />
+    <!-- Page title -->
+    <div class="row mb-4">
+      <div class="col text-center">
+        <h2>Create a new Inventory Item</h2>
+      </div>
+    </div>
 
-    <!-- Displayed if not admin of business -->
-    <admin-required
-        v-else-if="!isAdminOf"
-        page="create a new item for this business"
-    />
+    <!-- Form fields -->
+    <div>
+      <!-- Product Code -->
+      <div class="form-group row">
+        <label for="productCode"><b>Product Code<span class="required">*</span></b></label>
+        <select id="productCode" v-model="productCode"
+                :class="{'form-control': true, 'custom-select': true, 'is-invalid': msg.productCode}">
+          <option v-for="code in productCodes" v-bind:key="code.id">
+            {{ code.id }}
+          </option>
+        </select>
+        <span class="invalid-feedback">{{ msg.productCode }}</span>
+      </div>
 
-    <!-- Page content -->
-    <div v-else class="container-fluid">
-      <div class="row justify-content-center">
-        <div class="col-10 col-md-8 col-lg-6 col-xl-5">
+      <!-- Quantity -->
+      <div class="form-group row">
+        <label for="quantity"><b>Product Quantity<span class="required">*</span></b></label>
+        <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
+               min="1" placeholder="Enter the quantity"
+               required step="1" type="number">
+        <span class="invalid-feedback">{{ msg.quantity }}</span>
+      </div>
 
-          <!-- Page title -->
-          <div class="row mb-4">
-            <div class="col text-center">
-              <h2>Create a new item</h2>
-            </div>
+      <!-- Price Per Item -->
+      <div class="form-group row">
+        <label for="pricePerItem"><b>Price Per Item</b></label>
+        <div :class="{'input-group': true, 'is-invalid': msg.pricePerItem}">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ this.currencySymbol }}</span>
           </div>
-
-          <!-- Form fields -->
-          <div>
-            <!-- Product Code -->
-            <div class="form-group row">
-              <label for="productCode"><b>Product Code<span class="required">*</span></b></label>
-              <select id="productCode" v-model="productCode"
-                      :class="{'form-control': true, 'is-invalid': msg.productCode}">
-                <option v-for="code in productCodes" v-bind:key="code.id">
-                  {{ code.id }}
-                </option>
-              </select>
-              <span class="invalid-feedback">{{ msg.productCode }}</span>
-            </div>
-
-            <!-- Quantity -->
-            <div class="form-group row">
-              <label for="quantity"><b>Product Quantity<span class="required">*</span></b></label>
-              <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
-                     min="1" placeholder="Enter the quantity"
-                     required step="1" type="number">
-              <span class="invalid-feedback">{{ msg.quantity }}</span>
-            </div>
-
-            <!-- Price Per Item -->
-            <div class="form-group row">
-              <label for="pricePerItem"><b>Price Per Item</b></label>
-              <div :class="{'input-group': true, 'is-invalid': msg.pricePerItem}">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">{{ this.currencySymbol }}</span>
-                </div>
-                <input id="pricePerItem" v-model="pricePerItem"
-                       :class="{'form-control': true, 'is-invalid': msg.pricePerItem}"
-                       maxlength="255"
-                       placeholder="Price Per Item" type="number">
-                <div class="input-group-append">
-                  <span class="input-group-text">{{ this.currencyCode }}</span>
-                </div>
-              </div>
-              <span class="invalid-feedback">{{ msg.pricePerItem }}</span>
-            </div>
-
-            <!-- Total Price -->
-            <div class="form-group row">
-              <label for="totalPrice"><b>Total Price</b></label>
-              <div :class="{'input-group': true, 'is-invalid': msg.totalPrice}">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">{{ this.currencySymbol }}</span>
-                </div>
-                <input id="totalPrice" v-model="totalPrice"
-                       :class="{'form-control': true, 'is-invalid': msg.totalPrice}"
-                       maxlength="255"
-                       placeholder="Total Price" type="number">
-                <div class="input-group-append">
-                  <span class="input-group-text">{{ this.currencyCode }}</span>
-                </div>
-              </div>
-              <span class="invalid-feedback">{{ msg.totalPrice }}</span>
-            </div>
-
-            <!-- Manufactured -->
-            <div class="form-group row">
-              <label for="manufactured"><b>Manufactured Date</b></label>
-              <input id="manufactured" v-model="manufactured"
-                     :class="{'form-control': true, 'is-invalid': msg.manufactured}" required style="width:100%"
-                     type="date">
-              <!--    Error message for the date input    -->
-              <span class="invalid-feedback">{{ msg.manufactured }}</span>
-            </div>
-
-            <!-- Sell By -->
-            <div class="form-group row">
-              <label for="sellBy"><b>Sell By Date</b></label>
-              <input id="sellBy" v-model="sellBy" :class="{'form-control': true, 'is-invalid': msg.sellBy}" required
-                     style="width:100%"
-                     type="date">
-              <!--    Error message for the date input    -->
-              <span class="invalid-feedback">{{ msg.sellBy }}</span>
-            </div>
-
-            <!-- Best Before -->
-            <div class="form-group row">
-              <label for="bestBefore"><b>Best Before Date</b></label>
-              <input id="bestBefore" v-model="bestBefore" :class="{'form-control': true, 'is-invalid': msg.bestBefore}"
-                     required style="width:100%"
-                     type="date">
-              <!--    Error message for the date input    -->
-              <span class="invalid-feedback">{{ msg.bestBefore }}</span>
-            </div>
-
-            <!-- Expires -->
-            <div class="form-group row">
-              <label for="expires"><b>Expiry Date<span class="required">*</span></b></label>
-              <input id="expires" v-model="expires" :class="{'form-control': true, 'is-invalid': msg.expires}" required
-                     style="width:100%"
-                     type="date">
-              <!--    Error message for the date input    -->
-              <span class="invalid-feedback">{{ msg.expires }}</span>
-            </div>
-
-            <!-- Create Product button -->
-            <div class="form-group row">
-              <div class="btn-group" style="width: 100%">
-                <button class="btn btn-secondary col-4" v-on:click="cancel">Cancel</button>
-                <button class="btn btn-primary col-8" v-on:click="checkInputs">Create Item</button>
-              </div>
-              <!-- Show an error if required fields are missing -->
-              <div class="error-box">
-                <alert v-if="msg.errorChecks">{{ msg.errorChecks }}</alert>
-              </div>
-            </div>
+          <input id="pricePerItem" v-model="pricePerItem"
+                 :class="{'form-control': true, 'is-invalid': msg.pricePerItem}"
+                 maxlength="255"
+                 placeholder="Price Per Item" type="number">
+          <div class="input-group-append">
+            <span class="input-group-text">{{ this.currencyCode }}</span>
           </div>
+        </div>
+        <span class="invalid-feedback">{{ msg.pricePerItem }}</span>
+      </div>
 
+      <!-- Total Price -->
+      <div class="form-group row">
+        <label for="totalPrice"><b>Total Price</b></label>
+        <div :class="{'input-group': true, 'is-invalid': msg.totalPrice}">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ this.currencySymbol }}</span>
+          </div>
+          <input id="totalPrice" v-model="totalPrice"
+                 :class="{'form-control': true, 'is-invalid': msg.totalPrice}"
+                 maxlength="255"
+                 placeholder="Total Price" type="number">
+          <div class="input-group-append">
+            <span class="input-group-text">{{ this.currencyCode }}</span>
+          </div>
+        </div>
+        <span class="invalid-feedback">{{ msg.totalPrice }}</span>
+      </div>
+
+      <!-- Manufactured -->
+      <div class="form-group row">
+        <label for="manufactured"><b>Manufactured Date</b></label>
+        <input id="manufactured" v-model="manufactured"
+               :class="{'form-control': true, 'is-invalid': msg.manufactured}" required style="width:100%"
+               type="date">
+        <!--    Error message for the date input    -->
+        <span class="invalid-feedback">{{ msg.manufactured }}</span>
+      </div>
+
+      <!-- Sell By -->
+      <div class="form-group row">
+        <label for="sellBy"><b>Sell By Date</b></label>
+        <input id="sellBy" v-model="sellBy" :class="{'form-control': true, 'is-invalid': msg.sellBy}" required
+               style="width:100%"
+               type="date">
+        <!--    Error message for the date input    -->
+        <span class="invalid-feedback">{{ msg.sellBy }}</span>
+      </div>
+
+      <!-- Best Before -->
+      <div class="form-group row">
+        <label for="bestBefore"><b>Best Before Date</b></label>
+        <input id="bestBefore" v-model="bestBefore" :class="{'form-control': true, 'is-invalid': msg.bestBefore}"
+               required style="width:100%"
+               type="date">
+        <!--    Error message for the date input    -->
+        <span class="invalid-feedback">{{ msg.bestBefore }}</span>
+      </div>
+
+      <!-- Expires -->
+      <div class="form-group row">
+        <label for="expires"><b>Expiry Date<span class="required">*</span></b></label>
+        <input id="expires" v-model="expires" :class="{'form-control': true, 'is-invalid': msg.expires}" required
+               style="width:100%"
+               type="date">
+        <!--    Error message for the date input    -->
+        <span class="invalid-feedback">{{ msg.expires }}</span>
+      </div>
+
+      <!-- Create Product button -->
+      <div class="form-group row mb-0">
+        <div class="btn-group" style="width: 100%">
+          <button ref="close" class="btn btn-secondary col-4" data-dismiss="modal" @click="close">Cancel</button>
+          <button class="btn btn-primary col-8" @click="checkInputs">Create Item</button>
+        </div>
+        <!-- Show an error if required fields are missing -->
+        <div v-if="msg.errorChecks" class="error-box">
+          <alert class="mb-0">{{ msg.errorChecks }}</alert>
         </div>
       </div>
     </div>
@@ -147,12 +126,10 @@
 <script>
 import {Business} from '@/Api'
 import Alert from "@/components/Alert";
-import LoginRequired from "@/components/LoginRequired";
-import AdminRequired from "@/components/AdminRequired";
 
 export default {
-  name: "CreateInventoryItemPage",
-  components: {AdminRequired, LoginRequired, Alert},
+  name: "CreateInventoryItem",
+  components: {Alert},
   data() {
     return {
       productCodes: [],
@@ -183,21 +160,6 @@ export default {
   mounted() {
     this.getCurrency()
     Business.getProducts(this.$route.params.businessId).then((response) => this.getProductIds(response))
-  },
-  computed: {
-    /**
-     * Checks to see if the user is logged in.
-     */
-    isLoggedIn() {
-      return this.$root.$data.user.state.loggedIn
-    },
-    /**
-     * Checks to see if the user is acting as the current business.
-     */
-    isAdminOf() {
-      if (this.$root.$data.user.state.actingAs.type !== 'business') return false;
-      return this.$root.$data.user.state.actingAs.id === parseInt(this.$route.params.businessId);
-    }
   },
   methods: {
     /**
@@ -391,7 +353,8 @@ export default {
             "expires": this.expires
           }
       ).then(() => {
-        this.$router.push({name: "InventoryPage", params: {businessId: this.$root.$data.user.state.actingAs.id}});
+        this.$refs.close.click();
+        this.close();
       }).catch((err) => {
         this.msg.errorChecks = err.response ?
             err.response.data.slice(err.response.data.indexOf(':') + 2) :
@@ -401,14 +364,14 @@ export default {
     /**
      * Cancel creating a new item and go back to inventory
      */
-    cancel() {
-      this.$router.push({name: "InventoryPage", params: {businessId: this.$root.$data.user.state.actingAs.id}});
-    },
     async getCurrency() {
       const country = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
       const currency = await this.$root.$data.product.getCurrency(country)
       this.currencySymbol = currency.symbol
       this.currencyCode = currency.code
+    },
+    close() {
+      this.$emit('refresh-inventory');
     }
   }
 }

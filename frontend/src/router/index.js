@@ -11,12 +11,9 @@ import BusinessProfilePage from "../components/BusinessProfilePage";
 import RegisterBusinessPage from "../components/RegisterBusinessPage";
 import Catalogue from "../components/ProductCatalogue";
 import EditProductPage from "../components/EditProductPage";
-import CreateProductPage from "../components/CreateProductPage";
-import ListItemPage from "../components/ListItemPage";
 import InventoryPage from "../components/InventoryPage";
 import SaleListings from "../components/SaleListings";
 import EditInventoryItemPage from "../components/EditInventoryItemPage";
-import CreateInventoryItemPage from "../components/CreateInventoryItemPage";
 
 const routes = [
     {
@@ -65,11 +62,6 @@ const routes = [
         component: Catalogue
     },
     {
-        path: '/businesses/:businessId/products/create',
-        name: 'createProduct',
-        component: CreateProductPage
-    },
-    {
         path: '/businesses/:businessId/products/:productId',
         name: 'editProduct',
         component: EditProductPage
@@ -80,19 +72,9 @@ const routes = [
         component: InventoryPage
     },
     {
-        path: '/businesses/:businessId/inventory/create',
-        name: 'CreateInventoryItem',
-        component: CreateInventoryItemPage
-    },
-    {
         path: '/businesses/:businessId/inventory/:inventoryItemId',
         name: 'editInventoryItem',
         component: EditInventoryItemPage
-    },
-    {
-        path: '/businesses/:businessId/listings/create',
-        name: 'listItem',
-        component: ListItemPage
     },
     {
         path: '/businesses/:businessId/listings',

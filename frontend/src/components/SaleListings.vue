@@ -17,7 +17,7 @@
               <h4>Sale Listings</h4>
             </div>
             <div class="col text-right">
-              <button v-if="isAdminOf" class="btn btn-primary" v-on:click="newListing">
+              <button v-if="isAdminOf" class="btn btn-primary" data-target="#createListing" data-toggle="modal" @click="newListing">
                 New Listing
               </button>
             </div>
@@ -111,6 +111,16 @@
       </div>
     </div>
 
+    <div id="createListing" :key="this.createNewListing" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <create-listing @refresh-listings="refreshListings"></create-listing>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -120,10 +130,12 @@ import Alert from "@/components/Alert";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import {Business} from "@/Api";
+import CreateListing from "@/components/CreateListing";
 
 export default {
   name: "SaleListings",
   components: {
+    CreateListing,
     ShowingResultsText,
     LoginRequired,
     Alert,
@@ -141,7 +153,8 @@ export default {
       orderDirection: false, // False = Ascending
       resultsPerPage: 10,
       page: 1,
-      loading: false
+      loading: false,
+      createNewListing: false
     }
   },
   mounted() {
@@ -325,7 +338,11 @@ export default {
      * Takes user to page to add a new listing.
      */
     newListing() {
-      this.$router.push({name: 'listItem', params: {businessId: this.businessId}})
+      this.createNewListing = true;
+    },
+    refreshListings() {
+      this.createNewListing = false;
+      this.fillTable();
     }
   }
 }
