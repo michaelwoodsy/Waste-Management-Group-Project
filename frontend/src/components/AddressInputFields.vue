@@ -31,7 +31,7 @@
       >
 
       <!--    Address suggestions    -->
-      <div class="dropdown-menu mw-100 overflow-auto" id="dropdown">
+      <div class="dropdown-menu overflow-auto" id="dropdown">
 
         <!-- Error text -->
         <p class="text-danger left-padding dropdown-item mb-0 alert-danger" v-if="error">
