@@ -1,15 +1,27 @@
 <template>
   <div>
 
-    <!--    Div for displaying full address input box    -->
+    <!--    Div for displaying full address search input box    -->
     <div class="form-row mb-3 needs-validation" v-if="fullAddressMode">
-      <label for="fullAddress" class="addressText"><b>Address</b><span class="required">*</span></label>
+      <label for="fullAddress" class="addressText">
+        <b>Address</b><span class="required">*</span>
+        <!-- Loading spinning win -->
+        <transition name="fade">
+          <span class="pl-1 d-inline transition-time" v-if="loading">
+            <span class="spinner-border text-secondary spinner-border-sm" role="status">
+              <span class="sr-only">Loading...</span>
+            </span>
+          </span>
+        </transition>
+      </label>
+
       <input id="fullAddress"
              v-model="fullAddress"
              :class="{
                'form-control': true,
                'w-100': true,
-               'is-valid': locationSelected
+               'is-valid': locationSelected,
+               'is-invalid': showErrors && !locationSelected
              }"
              @keyup="addressEntered"
              maxlength="250"
@@ -19,11 +31,16 @@
       >
 
       <!--    Address suggestions    -->
-      <div class="dropdown-menu" id="dropdown">
+      <div class="dropdown-menu mw-100 overflow-auto" id="dropdown">
+
+        <!-- Error text -->
+        <p class="text-danger left-padding dropdown-item mb-0 alert-danger" v-if="error">
+          {{ error }}
+        </p>
 
         <!-- No Results text -->
         <p class="text-muted dropdown-item left-padding mb-0"
-           v-if="suggestions.length === 0 || this.fullAddress.length < 3"
+           v-else-if="suggestions.length === 0 || this.fullAddress.length < 3"
         >
           No results found.
         </p>
@@ -46,8 +63,12 @@
             <a class="text-primary pointer" @click="swapInputMode">Enter manually</a> instead.
           </small>
         </p>
-
       </div>
+
+      <!-- Error Message -->
+      <span v-if="fullAddress" class="invalid-feedback">An address must be selected</span>
+      <span v-else class="invalid-feedback">An address is required</span>
+
     </div>
 
     <!--    Div for displaying individual fields for address    -->
@@ -126,8 +147,6 @@ export default {
     return {
       fullAddress: null,
       fullAddressMode: true,
-      streetNumber: null,
-      streetName: null,
       cancelToken: null,
       suggestions: [],
       locationSelected: null,
@@ -143,9 +162,8 @@ export default {
         country: null,
         streetName: null
       },
-      addressCountry: '',
-      addressRegion: '',
-      addressCity: ''
+      error: null,
+      loading: false
     }
   },
   props: ['showErrors'],
@@ -184,9 +202,16 @@ export default {
       }
 
       // Get possible addresses from photon api
+      this.loading = true
       this.getPhotonAddress(this.fullAddress)
           .then((res) => {
+            // Reset relevant variables
             this.suggestions = []
+            console.log('Here')
+            this.loading = false
+            this.error = null
+
+            // Iterate through locations and create address objects
             res.data.features.forEach((location) => {
               const address = {
                 id: location.properties.osm_id,
@@ -205,7 +230,8 @@ export default {
         .catch((err) => {
           // Check if the error is from the request canceling
           if (err.message !== "A new request was made") {
-            throw err
+            this.error = err
+            this.loading = false
           }
         })
     },
@@ -311,8 +337,6 @@ export default {
      * Checks if the variables are empty, if so displays a warning message
      */
     validateAddress() {
-      // TODO: Check for blank when in search mode
-
       if (this.address.country === '') {
         this.msg['country'] = 'Please enter a country'
       } else {
@@ -336,5 +360,12 @@ export default {
 .required {
   color: red;
   display: inline;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>
