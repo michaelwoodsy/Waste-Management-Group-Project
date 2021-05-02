@@ -362,19 +362,18 @@ export default {
      * Checks if the variables are empty, if so displays a warning message
      */
     async validateBusinessAddress() {
-      //Check if country is valid and has a currency (for products and inventory items price)
-      try {
-        await this.$root.$data.product.getCurrency(this.address.country)
-      } catch (e) {
-        this.msg['country'] = 'Please enter a valid Country'
-        this.valid = false
-      }
-
       if (this.address.country === '') {
         this.msg['country'] = 'Please enter a Country'
         this.valid = false
       } else {
-        this.msg['country'] = ''
+        //Check if country is valid and has a currency (for products and inventory items price)
+        try {
+          await this.$root.$data.product.getCurrency(this.address.country)
+          this.msg['country'] = ''
+        } catch (e) {
+          this.msg['country'] = 'Please enter a valid Country'
+          this.valid = false
+        }
       }
       if (this.address.streetNumber !== '' && this.address.streetName === '') {
         this.msg['streetName'] = 'Please enter a Street Name'
@@ -518,6 +517,7 @@ export default {
           this.businessType
       ).then(() => {
         this.$router.push({name: 'user'})
+        this.$root.$data.user.updateData()
       })
           .catch((err) => {
             this.msg.errorChecks = err.response
