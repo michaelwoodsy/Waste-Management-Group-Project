@@ -120,7 +120,7 @@
         <!--    Home Address Country    -->
         <label for="addressCountry"><b>Country<span class="required">*</span></b></label>
         <input id="addressCountry" v-model="address.country"
-               :class="{'form-control': true, 'is-invalid': msg.country && showErrors2}" maxlength="30"
+               :class="{'form-control': true, 'is-invalid': msg.country && showErrors}" maxlength="30"
                placeholder="Enter your Country" required style="width:100%" type="search">
         <!--    Error message for the country input    -->
         <span class="invalid-feedback">{{ msg.country }}</span>
