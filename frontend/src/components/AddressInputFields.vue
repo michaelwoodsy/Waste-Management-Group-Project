@@ -24,6 +24,7 @@
                'is-invalid': showErrors && !locationSelected
              }"
              @keyup="addressEntered"
+             @keyup.tab="dropdown"
              maxlength="250"
              data-toggle="dropdown"
              placeholder="Search for your address"
@@ -39,8 +40,8 @@
         </p>
 
         <!-- No Results text -->
-        <p class="text-muted dropdown-item left-padding mb-0"
-           v-else-if="suggestions.length === 0 || this.fullAddress.length < 3"
+        <p class="text-muted dropdown-item left-padding mb-0 disabled"
+           v-else-if="suggestions.length === 0 || (this.fullAddress && this.fullAddress.length < 3)"
         >
           No results found.
         </p>
@@ -196,7 +197,7 @@ export default {
       this.locationSelected = null
 
       // Check more than 2 characters are entered
-      if (this.fullAddress.length < 3) {
+      if (!this.fullAddress || this.fullAddress.length < 3) {
         this.suggestions = []
         return
       }
@@ -207,7 +208,6 @@ export default {
           .then((res) => {
             // Reset relevant variables
             this.suggestions = []
-            console.log('Here')
             this.loading = false
             this.error = null
 
@@ -315,6 +315,7 @@ export default {
         this.fullAddressMode = false
         this.fullAddress = null
         this.locationSelected = null
+        this.suggestions = []
       } else {
         this.fullAddressMode = true
       }
@@ -328,6 +329,8 @@ export default {
       } else {
         address = this.address
       }
+      delete address.id
+
       this.$emit('setAddress', address)
       this.$emit('setAddressValid', this.valid)
     },
@@ -348,6 +351,12 @@ export default {
         this.msg['streetName'] = ''
       }
     },
+
+    /** Makes sure the suggestions dropdown is down **/
+    dropdown() {
+      let toggleBtn = document.getElementById('fullAddress');
+      toggleBtn.click();
+    }
   }
 }
 </script>
