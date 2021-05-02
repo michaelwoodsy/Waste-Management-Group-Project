@@ -31,6 +31,7 @@ export default {
       return this.$root.$data.user.state.loggedIn
     }
   },
+
   methods: {
     /**
      * Logs the user out

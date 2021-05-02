@@ -54,6 +54,7 @@ export default {
   components: {
     UserProfileLinks
   },
+
   computed: {
     /**
      * Checks if user is logged in
@@ -62,6 +63,7 @@ export default {
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     },
+
     /** Returns the user's profile url if acting as user,
      * or the business profile if acting as a business **/
     profileRoute() {

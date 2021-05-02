@@ -41,11 +41,13 @@ export default {
   props: {
     msg: String
   },
+
   mounted() {
     //the getUserData function at this moment requires a id (required for the API), this will have to be changed later
     //to be the users email not id as id will be from the database
     User.getUserData(this.$root.$data.user.state.userId).then((response) => this.profile(response))
   },
+
   computed: {
     /**
      * Check if user is logged in

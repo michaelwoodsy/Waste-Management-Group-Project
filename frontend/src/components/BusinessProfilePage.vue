@@ -132,6 +132,7 @@ export default {
     businessId() {
       return this.$route.params.businessId;
     },
+
     /**
      * Gets the user ID
      * @returns {any}
@@ -139,6 +140,7 @@ export default {
     userId() {
       return this.$root.$data.user.state.userId;
     },
+
     /**
      * Gets the user ID
      * @returns {any}
@@ -146,6 +148,7 @@ export default {
     primaryAdminId() {
       return this.primaryAdministratorId;
     },
+
     /**
      * Checks to see if user is logged in currently
      * @returns {boolean|*}
@@ -162,6 +165,7 @@ export default {
       return Number(this.$root.$data.user.state.userId) === this.primaryAdministratorId
     },
   },
+
   watch: {
     /**
      * Called when the businessId is changed, this occurs when the path variable for the business id is updated
@@ -172,6 +176,7 @@ export default {
       }
     }
   },
+
   components: {
     LoginRequired
   },

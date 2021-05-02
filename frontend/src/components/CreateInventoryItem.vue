@@ -157,10 +157,12 @@ export default {
       valid: true
     };
   },
+
   mounted() {
     this.getCurrency()
     Business.getProducts(this.$route.params.businessId).then((response) => this.getProductIds(response))
   },
+
   methods: {
     /**
      * Get all product IDs for the current Business
@@ -173,6 +175,7 @@ export default {
       }
       this.productCodes = ids
     },
+
     /**
      * Rounds the Price to 2dp
      */
@@ -190,6 +193,7 @@ export default {
         this.msg.productCode = null;
       }
     },
+
     /**
      * Validate the product Price Per Item field
      */
@@ -208,6 +212,7 @@ export default {
         this.msg.pricePerItem = null;
       }
     },
+
     /**
      * Validate the product Total Price field
      */
@@ -274,6 +279,7 @@ export default {
         }
       }
     },
+
     /**
      * Validate the product Best Before field
      */
@@ -290,6 +296,7 @@ export default {
         }
       }
     },
+
     /**
      * Validate the product Expiry field
      */
@@ -334,6 +341,7 @@ export default {
         this.addItem();
       }
     },
+
     /**
      * Add a new product to the business's product catalogue
      */
@@ -361,6 +369,7 @@ export default {
             err
       });
     },
+
     /**
      * Cancel creating a new item and go back to inventory
      */

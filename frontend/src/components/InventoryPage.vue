@@ -181,6 +181,7 @@ export default {
     ShowingResultsText,
     Pagination
   },
+
   data() {
     return {
       inventoryItems: [],
@@ -193,6 +194,7 @@ export default {
       createNewInventoryItem: false
     }
   },
+
   mounted() {
     this.getCurrencyAndFillTable()
   },
@@ -308,6 +310,7 @@ export default {
       this.orderDirection = this.orderCol === col;
       this.orderCol = col;
     },
+
     /**
      * Function for sorting a list by orderCol alphabetically
      */
@@ -396,6 +399,10 @@ export default {
     newItem() {
       this.createNewInventoryItem = true;
     },
+
+    /**
+     * Refreshes the inventory page, refilling the table.
+     */
     refreshInventory() {
       this.createNewInventoryItem = false;
       this.fillTable();

@@ -195,12 +195,20 @@ export default {
             err
       });
     },
+
+    /**
+     * Retrieves the Business' currency
+     */
     async getCurrency() {
       const country = (await Business.getBusinessData(this.businessId)).data.address.country;
       const currency = await this.$root.$data.product.getCurrency(country)
       this.currencySymbol = currency.symbol
       this.currencyCode = currency.code
     },
+
+    /**
+     * Closes the popup window to create a product
+     */
     close() {
       this.$emit('refresh-products');
     }

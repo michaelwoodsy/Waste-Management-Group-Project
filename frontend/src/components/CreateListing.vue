@@ -145,6 +145,7 @@ export default {
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     },
+
     /**
      * Checks to see if the user is acting as the current business.
      */
@@ -152,6 +153,7 @@ export default {
       if (this.$root.$data.user.state.actingAs.type !== 'business') return false;
       return this.$root.$data.user.state.actingAs.id === this.businessId;
     },
+
     /**
      * Returns a list of all inventory items that have stock to list
      */
@@ -182,6 +184,11 @@ export default {
           });
     },
 
+    /**
+     *  When an inventory item is selected in the dropdown for sale,
+     *  the inventory item's details are autofilled into the fields such as
+     *  quantity, price (if applicalble) and expiry date.
+     */
     updateInventoryItem() {
       for (const item of this.inventoryItems) {
         if (item.id === this.inventoryItemId) {
@@ -198,12 +205,20 @@ export default {
       }
     },
 
+    /**
+     * If an inventory item has a price per item, the price field
+     * in the listing is updated to the price x quantity available for sale
+     */
     updatePrice() {
       if (this.selectedInventoryItem.pricePerItem !== null) {
         this.price = this.quantity * this.selectedInventoryItem.pricePerItem
       }
     },
 
+    /**
+     * Retrieves the highest number of available items of a specific
+     * inventory item type are available to list for sale.
+     */
     getMaxQuantity(item) {
       if (!item) {
         return 0;
@@ -238,6 +253,9 @@ export default {
       }
     },
 
+    /**
+     * Checks whether an inventory item has been selected to list
+     */
     validateInventoryItem() {
       if (!this.selectedInventoryItem) {
         this.msg.inventoryItemId = 'Please select an inventory item'
@@ -333,6 +351,9 @@ export default {
 
     },
 
+    /**
+     * Rounds the listing's price
+     */
     roundPrice(price) {
       return (Math.round(price * 100)) / 100;
     },
@@ -346,6 +367,7 @@ export default {
       this.currencySymbol = currency.symbol
       this.currencyCode = currency.code
     },
+
     /**
      * Close the create listing dialogue and refresh listings.
      */

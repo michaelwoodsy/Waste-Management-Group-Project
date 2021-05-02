@@ -141,6 +141,7 @@ export default {
     Alert,
     Pagination
   },
+
   data() {
     return {
       listings: [],
@@ -157,10 +158,12 @@ export default {
       createNewListing: false
     }
   },
+
   mounted() {
     this.getCurrency();
     this.fillTable();
   },
+
   computed: {
     /**
      * Gets the business ID
@@ -169,12 +172,14 @@ export default {
     businessId() {
       return parseInt(this.$route.params.businessId);
     },
+
     /**
      * Returns whether or not the user is logged in.
      */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn;
     },
+
     /**
      * Check if the user is an admin of the business and is acting as that business
      */
@@ -182,6 +187,7 @@ export default {
       if (this.$root.$data.user.state.actingAs.type !== "business") return false
       return this.$root.$data.user.state.actingAs.id === this.businessId;
     },
+
     /**
      * Checks which direction (ascending or descending) the order by should be
      * @returns {string}
@@ -193,6 +199,7 @@ export default {
         return '↑';
       }
     },
+
     /**
      * Returns sales listings after sorting.
      */
@@ -209,6 +216,7 @@ export default {
       }
       return newListings;
     },
+
     /**
      * Returns paginated sale listings.
      */
@@ -221,6 +229,7 @@ export default {
       }
       return newListings;
     },
+
     /**
      * The total number of listings.
      */
@@ -228,6 +237,7 @@ export default {
       return this.listings.length;
     },
   },
+
   watch: {
     /**
      * Called when the businessId is changed, this occurs when the path variable for the business id is updated
@@ -236,6 +246,7 @@ export default {
       this.fillTable()
     }
   },
+
   methods: {
     /**
      * Method which sets the column and direction to order by.
@@ -250,6 +261,7 @@ export default {
       this.orderDirection = this.orderCol === col;
       this.orderCol = col;
     },
+
     /**
      * Function which returns the value of a specified column. Used for sorting.
      * @param item the item to get field from.
@@ -271,6 +283,7 @@ export default {
           return item.id;
       }
     },
+
     /**
      * Function that sorts alphabetically by orderCol.
      */
@@ -289,6 +302,7 @@ export default {
       }
       return 0;
     },
+
     /**
      * Formats the date fields.
      * @param string string representation of the date.
@@ -301,12 +315,14 @@ export default {
         return new Date(string).toDateString();
       }
     },
+
     /**
      * Formats the price to correct currency.
      */
     formatPrice(price) {
       return this.$root.$data.product.formatPrice(this.currency, price);
     },
+
     /**
      * Gets the currency to use for a particualr business.
      */
@@ -314,6 +330,7 @@ export default {
       const country = (await Business.getBusinessData(this.businessId)).data.address.country;
       this.currency = await this.$root.$data.product.getCurrency(country);
     },
+
     /**
      * Fills the table with a business's sale listings.
      */

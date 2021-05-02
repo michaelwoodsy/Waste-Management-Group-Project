@@ -261,6 +261,7 @@ export default {
       return this.products.length
     }
   },
+
   watch: {
     /**
      * Called when the businessId is changed, this occurs when the path variable for the business id is updated
@@ -269,6 +270,7 @@ export default {
       this.getCurrencyAndFillTable()
     }
   },
+
   methods: {
     /**
      * Check if the user is an admin of the business and is acting as that business
@@ -363,20 +365,17 @@ export default {
             this.loading = false;
           })
     },
-    productIdExists(id) {
-      for (const product of this.products) {
-        if (product.id === id) {
-          return true;
-        }
-      }
-      return false;
-    },
+
     /**
      * Takes user to page to create new product.
      */
     newProduct() {
       this.createNewProduct = true;
     },
+
+    /**
+     * Refreshes the product catalogue, refilling the table.
+     */
     refreshProducts() {
       this.createNewProduct = false;
       this.fillTable();

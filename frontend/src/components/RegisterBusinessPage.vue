@@ -259,6 +259,7 @@ export default {
       autofillCity: true,
     }
   },
+
   /**
    * These methods are called when the page opens
    * */
