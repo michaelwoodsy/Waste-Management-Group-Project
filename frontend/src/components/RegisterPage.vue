@@ -85,8 +85,11 @@
           </div>
 
           <hr/>
-
-            <address-input-fields @updateAddress="(newAddress) => {this.homeAddress = newAddress}"/>
+            <address-input-fields
+                :showErrors="submitClicked"
+                @setAddress="(newAddress) => {this.homeAddress = newAddress}"
+                @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
+            />
           <hr/>
 
           <div class="form-row mb-3">
@@ -142,6 +145,7 @@ export default {
     Alert,
     AddressInputFields
   },
+
   data() {
     return {
       //Sets text boxes to empty at start
@@ -154,19 +158,8 @@ export default {
       dateOfBirth: '',  //Required
       phone: '',
 
-      //Need these to be able to use the watcher methods
-      addressCountry: '',
-      addressRegion: '',
-      addressCity: '',
-
-      homeAddress: {  //Required
-        streetNumber: '',
-        streetName: '',
-        city: '',
-        region: '',
-        country: '',
-        postcode: '',
-      },
+      addressValid: false,
+      homeAddress: {},
 
       password: '',
       msg: {
@@ -181,91 +174,8 @@ export default {
         'errorChecks': null
       },
       valid: true,
-
-      //Used to autofill parts of the address
-      countries: [],
-      regions: [],
-      cities: [],
-
-      //Used to cancel previous api calls
-      cancelRequest: "",
-
-      //Used to remove autofill when the user clicks an option and enabled again when the user changes the address fields again
-      prevAutofilledCountry: '',
-      autofillCountry: true,
-      prevAutofilledRegion: '',
-      autofillRegion: true,
-      prevAutofilledCity: '',
-      autofillCity: true,
+      submitClicked: false
     }
-  },
-
-  /**
-   * these methods are called when their respective input field is changed
-   */
-  watch: {
-    /**
-     * Called when the addressCountry variable is updated.
-     * cant be when the address.country variable is updated as it cant check a variable in an object
-     * Checks if the country can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressCountry(value) {
-      this.homeAddress.country = value
-      //re enable autofill
-      if (!this.autofillCountry && this.homeAddress.country !== this.prevAutofilledCountry) {
-        this.prevAutofilledCountry = ''
-        this.autofillCountry = true
-      }
-
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into country field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCountry && this.homeAddress.country.length > 3) {
-        this.countries = this.photon(value, 'place:country')
-      }
-    },
-
-    /**
-     * Called when the addressRegion variable is updated.
-     * cant be when the address.region variable is updated as it cant check a variable in an object
-     * Checks if the region can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressRegion(value) {
-      this.homeAddress.region = value
-      //re enable autofill
-      if (!this.autofillRegion && this.homeAddress.region !== this.prevAutofilledRegion) {
-        this.prevAutofilledRegion = ''
-        this.autofillRegion = true
-      }
-
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into region field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillRegion && this.homeAddress.region.length > 3) {
-        this.regions = this.photon(value, 'boundary:administrative')
-      }
-    },
-
-    /**
-     * Called when the addressCity variable is updated.
-     * cant be when the address.city variable is updated as it cant check a variable in an object
-     * Checks if the city can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressCity(value) {
-      this.homeAddress.city = value
-      //re enable autofill
-      if (!this.autofillCity && this.homeAddress.city !== this.prevAutofilledCity) {
-        this.prevAutofilledCity = ''
-        this.autofillCity = true
-      }
-
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into city field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCity && this.homeAddress.city.length > 3) {
-        this.cities = this.photon(value, 'place:city&osm_tag=place:town')
-      }
-    },
   },
 
   /**
@@ -334,24 +244,6 @@ export default {
       }
     },
     /**
-     * Validates the address variables
-     * Checks if the variables are empty, if so displays a warning message
-     */
-    validateAddress() {
-      if (this.homeAddress.country === '') {
-        this.msg['country'] = 'Please enter a country'
-        this.valid = false
-      } else {
-        this.msg['country'] = null
-      }
-      if (this.homeAddress.streetNumber !== '' && this.homeAddress.streetName === '') {
-        this.msg['streetName'] = 'Please enter a Street Name'
-        this.valid = false
-      } else {
-        this.msg['streetName'] = ''
-      }
-    },
-    /**
      * Validates the password variable
      * Checks if the string is empty, if so displays a warning message
      */
@@ -388,6 +280,8 @@ export default {
      * Validating to check if the data entered is inputted correctly, If not displays a warning message
      */
     checkInputs() {
+      this.submitClicked = true
+
       this.validateFirstName();
       this.validateLastName();
       this.validateEmail();
@@ -408,48 +302,10 @@ export default {
       }
     },
 
-    /**
-     * Changes the address.country variable to display the new autofilled country
-     * Called when a user clicks a country to autofill
-     * @param country autofill string that was chosen
-     */
-    changeCountry(country) {
-      //Changes the address input to the selected autofill address
-      this.homeAddress.country = country
-      this.addressCountry = country
-      this.countries = []
-      this.autofillCountry = false
-      this.prevAutofilledCountry = this.homeAddress.country
+    /** Checks if the address is valid **/
+    validateAddress() {
+      return this.addressValid
     },
-
-    /**
-     * Changes the address.region variable to display the new autofilled region
-     * Called when a user clicks a region to autofill
-     * @param region autofill string that was chosen
-     */
-    changeRegion(region) {
-      //Changes the address input to the selected autofill address
-      this.homeAddress.region = region
-      this.addressRegion = region
-      this.regions = []
-      this.autofillRegion = false
-      this.prevAutofilledRegion = this.homeAddress.region
-    },
-
-    /**
-     * Changes the address.city variable to display the new autofilled city
-     * Called when a user clicks a city to autofill
-     * @param city autofill string that was chosen
-     */
-    changeCity(city) {
-      //Changes the address input to the selected autofill address
-      this.homeAddress.city = city
-      this.addressCity = city
-      this.cities = []
-      this.autofillCity = false
-      this.prevAutofilledCity = this.homeAddress.city
-    },
-
 
     /**
      * Add the new user to the server
