@@ -47,6 +47,13 @@ export default {
     },
 
     /**
+     * Updates data for user, called when a new business is created, so the new business is shown in userData
+     */
+    updateData() {
+        this.setLoggedIn(this.state.userId)
+    },
+
+    /**
      * Sets the current user as logged out.
      */
     setLoggedOut() {
