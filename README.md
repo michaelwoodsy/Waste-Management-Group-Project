@@ -23,17 +23,14 @@ A backend sub-project (business logic and persistence server):
     $ npm install
     $ npm run serve
 
-Running on: http://localhost:9500/ by default
+Running on: http://localhost:9600/ by default
 
 ### Backend / server
 
     cd backend
     ./gradlew bootRun
 
-Running on: http://localhost:9499/ by default
-
-## Todo (S2)
-- Decide on a LICENSE
+Running on: http://localhost:9599/ by default
 
 ## Contributors
 - Sarah Bealing - smb272
