@@ -17,7 +17,8 @@
               <h4>Sale Listings</h4>
             </div>
             <div class="col text-right">
-              <button v-if="isAdminOf" class="btn btn-primary" data-target="#createListing" data-toggle="modal" @click="newListing">
+              <button v-if="isAdminOf" class="btn btn-primary" data-target="#createListing" data-toggle="modal"
+                      @click="newListing">
                 New Listing
               </button>
             </div>
@@ -112,7 +113,7 @@
     </div>
 
     <div id="createListing" :key="this.createNewListing" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog">
+      <div ref="createListingWindow" class="modal-dialog modal-open">
         <div class="modal-content">
           <div class="modal-body">
             <create-listing @refresh-listings="refreshListings"></create-listing>

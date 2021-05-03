@@ -3,22 +3,27 @@
 
     <!-- Page title -->
     <div class="row mb-4">
-      <div class="col text-center">
-        <h2>Create a new Inventory Item</h2>
+      <div v-if="selectingItem" class="col-3 text-left">
+        <button class="btn btn-secondary" @click="finishSelectItem">Back</button>
       </div>
+      <div class="col text-center">
+        <h2>{{ title }}</h2>
+      </div>
+      <div v-if="selectingItem" class="col-3"/>
     </div>
 
     <!-- Form fields -->
-    <div>
+    <div v-if="!selectingItem">
       <!-- Product Code -->
       <div class="form-group row">
         <label for="productCode"><b>Product Code<span class="required">*</span></b></label>
-        <select id="productCode" v-model="productCode"
-                :class="{'form-control': true, 'custom-select': true, 'is-invalid': msg.productCode}">
-          <option v-for="code in productCodes" v-bind:key="code.id">
-            {{ code.id }}
-          </option>
-        </select>
+        <div :class="{'input-group': true, 'is-invalid': msg.productCode}">
+          <input id="productCode" v-model="productCode" :class="{'form-control': true, 'is-invalid': msg.productCode}"
+                 placeholder="Select a product from your catalogue..." readonly>
+          <div class="input-group-append">
+            <button class="btn btn-primary" @click="selectItem">Select</button>
+          </div>
+        </div>
         <span class="invalid-feedback">{{ msg.productCode }}</span>
       </div>
 
@@ -120,19 +125,22 @@
       </div>
     </div>
 
+    <catalogue-items v-if="selectingItem" :business-id="businessId" :selecting-item="true"></catalogue-items>
+
   </div>
 </template>
 
 <script>
 import {Business} from '@/Api'
 import Alert from "@/components/Alert";
+import CatalogueItems from "@/components/ProductCatalogueItems";
 
 export default {
   name: "CreateInventoryItem",
-  components: {Alert},
+  components: {CatalogueItems, Alert},
   data() {
     return {
-      productCodes: [],
+      title: 'Create a new inventory item',
       productCode: '', // Required
       quantity: '', // Required
       pricePerItem: '',
@@ -141,8 +149,8 @@ export default {
       sellBy: '',
       bestBefore: '',
       expires: '', // Required
-      currencySymbol: "",
-      currencyCode: "",
+      currencySymbol: '',
+      currencyCode: '',
       msg: {
         productCode: null,
         quantity: null,
@@ -154,28 +162,19 @@ export default {
         expires: null,
         errorChecks: null
       },
-      valid: true
+      valid: true,
+      selectingItem: false
     };
   },
-
   mounted() {
     this.getCurrency()
-    Business.getProducts(this.$route.params.businessId).then((response) => this.getProductIds(response))
   },
-
+  computed: {
+    businessId() {
+      return parseInt(this.$route.params.businessId);
+    }
+  },
   methods: {
-    /**
-     * Get all product IDs for the current Business
-     */
-    getProductIds(response) {
-      let ids = []
-      let n = response.data.length
-      for (let i = 0; i < n; i++) {
-        ids.push({id: response.data[i].id})
-      }
-      this.productCodes = ids
-    },
-
     /**
      * Rounds the Price to 2dp
      */
@@ -193,7 +192,6 @@ export default {
         this.msg.productCode = null;
       }
     },
-
     /**
      * Validate the product Price Per Item field
      */
@@ -212,7 +210,6 @@ export default {
         this.msg.pricePerItem = null;
       }
     },
-
     /**
      * Validate the product Total Price field
      */
@@ -279,7 +276,6 @@ export default {
         }
       }
     },
-
     /**
      * Validate the product Best Before field
      */
@@ -296,7 +292,6 @@ export default {
         }
       }
     },
-
     /**
      * Validate the product Expiry field
      */
@@ -341,7 +336,6 @@ export default {
         this.addItem();
       }
     },
-
     /**
      * Add a new product to the business's product catalogue
      */
@@ -369,18 +363,27 @@ export default {
             err
       });
     },
-
     /**
      * Cancel creating a new item and go back to inventory
      */
     async getCurrency() {
-      const country = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
+      const country = (await Business.getBusinessData(this.businessId)).data.address.country
       const currency = await this.$root.$data.product.getCurrency(country)
       this.currencySymbol = currency.symbol
       this.currencyCode = currency.code
     },
     close() {
       this.$emit('refresh-inventory');
+    },
+    selectItem() {
+      this.selectingItem = true;
+      this.title = 'Select a product from your catalogue'
+      this.$parent.$refs.createInventoryItemWindow.classList.add('modal-xl');
+    },
+    finishSelectItem() {
+      this.selectingItem = false;
+      this.title = 'Create a new inventory item'
+      this.$parent.$refs.createInventoryItemWindow.classList.remove('modal-xl');
     }
   }
 }

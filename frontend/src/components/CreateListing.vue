@@ -3,23 +3,27 @@
 
     <!-- Page title -->
     <div class="row mb-4">
-      <div class="col text-center">
-        <h2>Create a new listing</h2>
+      <div v-if="selectingItem" class="col-3 text-left">
+        <button class="btn btn-secondary" @click="finishSelectItem">Back</button>
       </div>
+      <div class="col text-center">
+        <h2>{{ title }}</h2>
+      </div>
+      <div v-if="selectingItem" class="col-3"/>
     </div>
 
     <!-- Form fields -->
-    <div>
+    <div v-if="!selectingItem">
       <!-- Listing ID -->
       <div class="form-group row">
         <label for="inventoryItem"><b>Inventory Item<span class="required">*</span></b></label>
-        <select id="inventoryItem" v-model="inventoryItemId"
-                :class="{'form-control': true, 'custom-select': true, 'is-invalid': msg.inventoryItemId}"
-                @change="updateInventoryItem">
-          <option v-for="item in availableInventoryItems" v-bind:key="item.id" v-bind:value="item.id">
-            {{ item.product.name }} expiring on {{ item.expires }}
-          </option>
-        </select>
+        <div :class="{'input-group': true, 'is-invalid': msg.inventoryItemId}">
+          <input id="inventoryItem" :class="{'form-control': true, 'is-invalid': msg.inventoryItemId}"
+                 :value="formatInventoryItem()" placeholder="Select a product from inventory..." readonly>
+          <div class="input-group-append">
+            <button class="btn btn-primary" @click="selectItem">Select</button>
+          </div>
+        </div>
         <span class="invalid-feedback">{{ msg.inventoryItemId }}</span>
       </div>
 
@@ -72,7 +76,6 @@
         <span class="invalid-feedback">{{ msg.closes }}</span>
       </div>
 
-
       <!-- Create Listing button -->
       <div class="form-group row mb-0">
         <div class="btn-group" style="width: 100%">
@@ -86,12 +89,15 @@
       </div>
     </div>
 
+    <inventory-items v-if="selectingItem" :business-id="this.businessId" :selecting-item="true"></inventory-items>
+
   </div>
 </template>
 
 <script>
 import Alert from "@/components/Alert";
 import {Business} from "@/Api";
+import InventoryItems from "@/components/InventoryItems";
 
 /**
  * Default starting parameters
@@ -105,11 +111,13 @@ export default {
   },
 
   components: {
+    InventoryItems,
     Alert
   },
 
   data() {
     return {
+      title: 'Create a new sale listing',
       inventoryItems: [],
       listings: [],
       selectedInventoryItem: null,
@@ -127,7 +135,8 @@ export default {
         moreInfo: null,
         closes: null,
       },
-      valid: true
+      valid: true,
+      selectingItem: false
     };
   },
 
@@ -233,6 +242,14 @@ export default {
       }
     },
 
+    formatInventoryItem() {
+      if (this.selectedInventoryItem === null) {
+        return '';
+      } else {
+        return `${this.selectedInventoryItem.product.name} expiring on ${new Date(this.selectedInventoryItem.expires).toDateString()}`;
+      }
+    },
+
     /**
      * Checks all inputs are valid
      */
@@ -330,7 +347,6 @@ export default {
      * Add a new listing to the Business' listings
      */
     addListing() {
-      console.log('we got here')
       const price = Number(this.price)
       this.$root.$data.business.createListing(
           this.businessId, {
@@ -373,6 +389,16 @@ export default {
      */
     close() {
       this.$emit('refresh-listings');
+    },
+    selectItem() {
+      this.selectingItem = true;
+      this.title = 'Select a product from your inventory'
+      this.$parent.$refs.createListingWindow.classList.add('modal-xl');
+    },
+    finishSelectItem() {
+      this.selectingItem = false;
+      this.title = 'Create a new sale listing'
+      this.$parent.$refs.createListingWindow.classList.remove('modal-xl');
     }
   }
 }
