@@ -1,6 +1,6 @@
-# Seng302 Team-200 Wasteless
+# re: sale
 
-Basic project template using `gradle`, `npm`, `Spring Boot`, `Vue.js` and `Gitlab CI`.
+SENG302 project using `gradle`, `npm`, `Spring Boot`, `Vue.js` and `Gitlab CI`.
 
 ## Basic Project Structure
 
