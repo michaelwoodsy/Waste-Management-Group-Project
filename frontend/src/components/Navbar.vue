@@ -10,6 +10,15 @@
 
       <div id="navbarText" class="collapse navbar-collapse">
         <ul class="navbar-nav align-items-baseline">
+          <!-- Profile photo -->
+          <li class="nav-item">
+            <img
+                alt="profile"
+                class="logo-image"
+                src="../../public/logo.png"
+            />
+          </li>
+
           <!-- If user is logged in -->
           <!-- Home link -->
           <li v-if="isLoggedIn" class="nav-item">
@@ -79,6 +88,11 @@ export default {
 </script>
 
 <style scoped>
+
+.logo-image {
+  height: 60px;
+  margin-right: 5px;
+}
 
 .navbar {
   justify-content: center;

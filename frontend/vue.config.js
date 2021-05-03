@@ -38,7 +38,7 @@ module.exports = {
     config
         .plugin('html')
         .tap(args => {
-          args[0].title = "Wasteless";
+          args[0].title = "re: sale";
           return args;
         })
   }

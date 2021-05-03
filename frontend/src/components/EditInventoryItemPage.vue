@@ -106,11 +106,12 @@
                     class="text-danger">*</span></b></label>
                 <div class="col-sm-8">
                   <input
+                      type="text"
                       id="quantity"
                       v-model="newItem.quantity"
                       :class="{'form-control': true, 'is-invalid': !quantityValid && quantityBlur}"
+                      required
                       maxlength="10"
-                      type="text"
                       @blur="quantityBlur = true"
                   >
                   <div class="invalid-feedback" v-if="!quantityValid"> Please enter a valid quantity</div>
@@ -119,7 +120,7 @@
 
               <!-- Price Per Item -->
               <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="pricePerItem"><b>Price Per Item</b></label>
+                <label class="col-sm-4 col-form-label" for="pricePerItem"><b>Price Per Item<span class="text-danger"></span></b></label>
                 <div class="col-sm-8"
                      :class="{'input-group': true, 'is-invalid': !pricePerItemValid && pricePerItemBlur}">
                   <div class="input-group-prepend">
@@ -127,8 +128,10 @@
                   </div>
                   <input id="pricePerItem" v-model="newItem.pricePerItem"
                          :class="{'form-control': true, 'is-invalid': !pricePerItemValid && pricePerItemBlur}"
+                         placeholder="Price Per Item"
+                         type="text"
                          maxlength="10"
-                         placeholder="Price Per Item" type="text" @blur="pricePerItemBlur = true">
+                         @blur="pricePerItemBlur = true">
                   <div class="input-group-append">
                     <span class="input-group-text">{{ this.currencyCode }}</span>
                   </div>
@@ -348,8 +351,9 @@ export default {
 
     /** True if the inputted quantity is valid **/
     quantityValid() {
-
-      if (this.newItem.quantity === null || this.newItem.quantity === '') {
+      // Regex valid for any non negative integer under 2147483647
+      let isNotANumber = Number.isNaN(Number(this.newItem.quantity))
+      if (this.newItem.quantity === null || this.newItem.quantity === '' || isNotANumber) {
         return false
       }
       //32 bit highest number
@@ -363,9 +367,13 @@ export default {
      * Validate the product Price Per Item field
      */
     pricePerItemValid() {
-      // Regex valid for any number with a max of 2 dp, or empty
-      if (this.newItem.pricePerItem == null) {
+      // Regex valid for any non negative number with a max of 2 dp, or empty
+      let isNotANumber = Number.isNaN(Number(this.newItem.pricePerItem))
+      if (this.newItem.pricePerItem === null || this.newItem.pricePerItem === '') {
         return true
+      }
+      if (isNotANumber){
+        return false
       }
       return /^([0-9]+(.[0-9]{0,2})?)?$/.test(this.newItem.pricePerItem)
     },
@@ -373,9 +381,13 @@ export default {
      * Validate the product Price Per Item field
      */
     totalPriceValid() {
-      // Regex valid for any number with a max of 2 dp, or empty
-      if (this.newItem.totalPrice == null) {
+      // Regex valid for any non negative number with a max of 2 dp, or empty
+      let isNotANumber = Number.isNaN(Number(this.newItem.totalPrice))
+      if (this.newItem.totalPrice === null || this.newItem.totalPrice === '') {
         return true
+      }
+      if (isNotANumber){
+        return false
       }
       return /^([0-9]+(.[0-9]{0,2})?)?$/.test(this.newItem.totalPrice)
     },
@@ -501,7 +513,7 @@ export default {
       this.submitting = true;
       let item = {
         productId: this.newItem.product.id,
-        quantity: this.newItem.quantity,
+        quantity: Number(this.newItem.quantity),
         pricePerItem: Number(this.newItem.pricePerItem),
         totalPrice: Number(this.newItem.totalPrice),
         manufactured: this.newItem.manufactured,
@@ -509,7 +521,6 @@ export default {
         bestBefore: this.newItem.bestBefore,
         expires: this.newItem.expires
       }
-
 
       Business.editItem(this.businessId, this.inventoryItemId, item)
           .then(() => {

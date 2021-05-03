@@ -149,7 +149,7 @@ export default {
 
   data() {
     return {
-      searchTerm: null,
+      searchTerm: "",
       users: [],
       error: null,
       orderCol: null,
@@ -242,8 +242,6 @@ export default {
       this.loading = true;
       this.page = 1;
 
-      if (this.searchTerm === null || this.searchTerm === "") this.error = "Please enter a search query"
-      else {
         User.getUsers(this.searchTerm)
             .then((res) => {
               this.error = null;
@@ -254,7 +252,6 @@ export default {
               this.error = err;
               this.loading = false;
             })
-      }
     },
 
     /**
