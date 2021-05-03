@@ -43,8 +43,8 @@
             <div class="form-group row">
               <label for="quantity"><b>Product Quantity<span class="required">*</span></b></label>
               <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
-                     min="1" placeholder="Enter the quantity"
-                     required step="1" type="number">
+                     placeholder="Enter the quantity"
+                     required maxlength="10" type="text">
               <span class="invalid-feedback">{{ msg.quantity }}</span>
             </div>
 
@@ -57,8 +57,8 @@
                 </div>
                 <input id="pricePerItem" v-model="pricePerItem"
                        :class="{'form-control': true, 'is-invalid': msg.pricePerItem}"
-                       maxlength="255"
-                       placeholder="Price Per Item" type="number">
+                       maxlength="10"
+                       placeholder="Price Per Item" type="text">
                 <div class="input-group-append">
                   <span class="input-group-text">{{ this.currencyCode }}</span>
                 </div>
@@ -75,8 +75,8 @@
                 </div>
                 <input id="totalPrice" v-model="totalPrice"
                        :class="{'form-control': true, 'is-invalid': msg.totalPrice}"
-                       maxlength="255"
-                       placeholder="Total Price" type="number">
+                       maxlength="10"
+                       placeholder="Total Price" type="text">
                 <div class="input-group-append">
                   <span class="input-group-text">{{ this.currencyCode }}</span>
                 </div>
@@ -232,17 +232,15 @@ export default {
      * Validate the product Price Per Item field
      */
     validatePricePerItem() {
+      // Regex valid for any non negative number with a max of 2 dp, or empty
       let isNotNumber = Number.isNaN(Number(this.pricePerItem))
 
-      if (this.pricePerItem !== '') {
-        if (isNotNumber) {
-          this.msg.pricePerItem = 'Please enter a valid price';
-          this.valid = false;
-        } else if (Number(this.pricePerItem) < 0) {
-          this.msg.pricePerItem = 'Please enter a non negative price'
-          this.valid = false
-        }
-      } else {
+      if (this.pricePerItem === '' || this.pricePerItem === null) {
+        this.msg.pricePerItem = null;
+      } else if (isNotNumber || !/^([0-9]+(.[0-9]{0,2})?)?$/.test(this.pricePerItem)) {
+        this.msg.pricePerItem = 'Please enter a valid price';
+        this.valid = false;
+      } else{
         this.msg.pricePerItem = null;
       }
     },
@@ -250,17 +248,15 @@ export default {
      * Validate the product Total Price field
      */
     validateTotalPrice() {
+      // Regex valid for any non negative number with a max of 2 dp, or empty
       let isNotNumber = Number.isNaN(Number(this.totalPrice))
 
-      if (this.totalPrice !== '') {
-        if (isNotNumber) {
-          this.msg.totalPrice = 'Please enter a valid price';
-          this.valid = false;
-        } else if (Number(this.totalPrice) < 0) {
-          this.msg.totalPrice = 'Please enter a non negative price'
-          this.valid = false
-        }
-      } else {
+      if (this.totalPrice === '' || this.totalPrice === null) {
+        this.msg.totalPrice = null;
+      } else if (isNotNumber || !/^([0-9]+(.[0-9]{0,2})?)?$/.test(this.totalPrice)) {
+        this.msg.totalPrice = 'Please enter a valid price';
+        this.valid = false;
+      } else{
         this.msg.totalPrice = null;
       }
     },
@@ -269,14 +265,16 @@ export default {
      * Validate the product Quantity field
      */
     validateQuantity() {
+      // Regex valid for any non negative integer under 2147483647
       let isNotNumber = Number.isNaN(Number(this.quantity))
-      if (isNotNumber || this.quantity === '') {
+
+      if (this.quantity === '' || this.quantity === null || this.quantity > 2147483647) {
         this.msg.quantity = 'Please enter a valid quantity';
         this.valid = false;
-      } else if (Number(this.quantity) <= 0) {
-        this.msg.quantity = 'Please enter a quantity above 0'
-        this.valid = false
-      } else {
+      } else if (isNotNumber || !/^([0-9]+([0-9]{0,2})?)?$/.test(this.quantity)) {
+        this.msg.quantity = 'Please enter a valid quantity';
+        this.valid = false;
+      } else{
         this.msg.quantity = null;
       }
     },
@@ -376,15 +374,12 @@ export default {
      * Add a new product to the business's product catalogue
      */
     addItem() {
-      //const rrp = Number(this.recommendedRetailPrice)
-      const ppi = Number(this.pricePerItem)
-      const tp = Number(this.totalPrice)
       this.$root.$data.business.createItem(
           this.$root.$data.user.state.actingAs.id, {
             "productId": this.productCode,
-            "quantity": this.quantity,
-            "pricePerItem": this.pricePerItem !== '' ? this.roundPrice(ppi) : null,
-            "totalPrice": this.totalPrice !== '' ? this.roundPrice(tp) : null,
+            "quantity": Number(this.quantity),
+            "pricePerItem": Number(this.pricePerItem),
+            "totalPrice": Number(this.totalPrice),
             "manufactured": this.manufactured,
             "sellBy": this.sellBy,
             "bestBefore": this.bestBefore,

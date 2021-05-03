@@ -110,7 +110,7 @@
                       id="quantity"
                       v-model="newItem.quantity"
                       :class="{'form-control': true, 'is-invalid': !quantityValid && quantityBlur}"
-                      min="1"
+                      required
                       maxlength="10"
                       @blur="quantityBlur = true"
                   >
