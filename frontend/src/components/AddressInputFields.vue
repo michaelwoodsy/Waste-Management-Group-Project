@@ -222,7 +222,7 @@ export default {
                 id: location.properties.osm_id,
                 streetNumber: location.properties.housenumber,
                 streetName: location.properties.street,
-                city: location.properties.city || location.properties.county,
+                city: location.properties.city || location.properties.district || location.properties.county,
                 region: location.properties.state,
                 country: location.properties.country,
                 postcode: location.properties.postcode
