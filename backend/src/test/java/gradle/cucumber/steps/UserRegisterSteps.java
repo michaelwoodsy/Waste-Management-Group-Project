@@ -5,6 +5,9 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.seng302.project.controller.UserController;
+import org.seng302.project.exceptions.ExistingRegisteredEmailException;
+import org.seng302.project.exceptions.InvalidEmailException;
+import org.seng302.project.exceptions.RequiredFieldsMissingException;
 import org.seng302.project.model.Address;
 import org.seng302.project.model.AddressRepository;
 import org.seng302.project.model.User;
@@ -15,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 public class UserRegisterSteps {
-
     @Autowired
     private UserRepository userRepository;
 
@@ -24,6 +26,15 @@ public class UserRegisterSteps {
 
     @Autowired
     private AddressRepository addressRepository;
+
+    @Autowired
+    private List<ExistingRegisteredEmailException> existingRegisteredEmailExceptions;
+
+    @Autowired
+    private List<RequiredFieldsMissingException> requiredFieldsMissingExceptions;
+
+    @Autowired
+    private List<InvalidEmailException> invalidEmailExceptions;
 
     /**
      * Creates the existing test user. Called by
@@ -101,12 +112,17 @@ public class UserRegisterSteps {
         User createdUser = new User(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
+
+        try {
+            userController.createUser(createdUser);
+        } catch (ExistingRegisteredEmailException e) {
+            existingRegisteredEmailExceptions.add(e);
+        }
     }
 
     @Then("An error message is returned to say the email is already taken.")
     public void an_error_message_is_returned_to_say_the_email_is_already_taken() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        Assertions.assertEquals(1, existingRegisteredEmailExceptions.size());
     }
 
     @When("I try to create an account without a password")
@@ -123,12 +139,16 @@ public class UserRegisterSteps {
         User createdUser = new User(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, "");
+        try {
+            userController.createUser(createdUser);
+        } catch (RequiredFieldsMissingException e) {
+            requiredFieldsMissingExceptions.add(e);
+        }
     }
 
     @Then("An error message is shown saying the password is required.")
     public void an_error_message_is_shown_saying_the_password_is_required() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        Assertions.assertEquals(1, requiredFieldsMissingExceptions.size());
     }
 
     @When("I try to create an account with an invalid email")
@@ -146,13 +166,18 @@ public class UserRegisterSteps {
         User createdUser = new User(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
+
+        try {
+            userController.createUser(createdUser);
+        } catch (InvalidEmailException e) {
+            invalidEmailExceptions.add(e);
+        }
     }
 
 
     @Then("An error message is shown saying the email is invalid.")
     public void an_error_message_is_shown_saying_the_email_is_invalid() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        Assertions.assertEquals(1, invalidEmailExceptions.size());
     }
 
 
