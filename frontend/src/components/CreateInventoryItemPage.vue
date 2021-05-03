@@ -212,12 +212,6 @@ export default {
       this.productCodes = ids
     },
     /**
-     * Rounds the Price to 2dp
-     */
-    roundPrice(price) {
-      return (Math.round(price * 100)) / 100;
-    },
-    /**
      * Validate product Code field
      */
     validateProductCode() {
