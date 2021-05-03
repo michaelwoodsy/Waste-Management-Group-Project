@@ -293,6 +293,7 @@ export default {
           this.businessType
       ).then(() => {
         this.$router.push({name: 'user'})
+        this.$root.$data.user.updateData()
       })
           .catch((err) => {
             this.msg.errorChecks = err.response
