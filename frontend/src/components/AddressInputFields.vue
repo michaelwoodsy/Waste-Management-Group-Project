@@ -5,6 +5,7 @@
     <div class="form-row mb-3 needs-validation" v-if="fullAddressMode">
       <label for="fullAddress" class="addressText">
         <b>Address</b><span class="required">*</span>
+
         <!-- Loading spinning win -->
         <transition name="fade">
           <span class="pl-1 d-inline transition-time" v-if="loading">
@@ -15,6 +16,7 @@
         </transition>
       </label>
 
+      <!-- Input for full address -->
       <input id="fullAddress"
              v-model="fullAddress"
              :class="{
@@ -217,7 +219,7 @@ export default {
                 id: location.properties.osm_id,
                 streetNumber: location.properties.housenumber,
                 streetName: location.properties.street,
-                city: location.properties.district,
+                city: location.properties.city || location.properties.county,
                 region: location.properties.state,
                 country: location.properties.country,
                 postcode: location.properties.postcode
@@ -272,19 +274,19 @@ export default {
       // Add the city
       if (location.city) {
         stringRep += stringRep === '' ? '' : ', '
-        stringRep += location.city
+        stringRep += location.city + (location.postcode ? ` ${location.postcode}` : '')
       }
 
       // Add the postcode
       if (location.region) {
         stringRep += stringRep === '' ? '' : ', '
-        stringRep += `${location.region} ${location.postcode}`
+        stringRep += location.region
       }
 
       // Add the postcode
       if (location.country) {
         stringRep += stringRep === '' ? '' : ', '
-        stringRep += `${location.country}`
+        stringRep += location.country
       }
 
       return stringRep
