@@ -46,6 +46,7 @@ public class UserRegisterSteps {
     @Given("I am trying to register as a new User")
     public void i_am_trying_to_register_as_a_new_user() {
         userRepository.deleteAll();
+        addressRepository.deleteAll();
     }
 
     @When("I try to create the account with details:")
@@ -69,33 +70,29 @@ public class UserRegisterSteps {
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
 
-        //TODO: this does work and creates new user but need to assert/test this somehow,
-        // maybe in next function
         userController.createUser(createdUser);
 
     }
+
     @Then("The account with email {string} is created.")
     public void the_account_with_email_is_created(String email) {
-        //TODO: this returns empty list
         List<User> retrievedUsers = userRepository.findByEmail(email);
         Assertions.assertEquals(1, retrievedUsers.size());
     }
 
+    @Given("There a user who already is registered with the email {string}")
+    public void there_a_user_who_already_is_registered_with_the_email(String email) {
+        userRepository.deleteAll();
+        addressRepository.deleteAll();
+        createExistingUser(email);
+    }
 
-//TODO: maybe rewrite this scenario to:
-// Given  A user already exists with the email "tom@gmail.com"
-// When  I try to register as a new user with the existing email
-// Then  An error message is returned...
-
-    @Given("I am trying to register as a new user with an already taken email:")
-    public void i_am_trying_to_register_as_a_new_user_with_an_already_taken_email(io.cucumber.datatable.DataTable dataTable) {
-        List<Map<String, String>> userMap = dataTable.asMaps(String.class, String.class);
-        // |email       | password | firstName | lastName | dateOfBirth | homeAddress
-        String email = userMap.get(0).get("email");
-        String password = userMap.get(0).get("password");
-        String firstName = userMap.get(0).get("firstName");
-        String lastName = userMap.get(0).get("lastName");
-        String dateOfBirth = userMap.get(0).get("dateOfBirth");
+    @When("I try to create an account with email {string}:")
+    public void i_try_to_create_an_account_with_email(String email) {
+        String password = "Password123";
+        String firstName = "Test";
+        String lastName = "User";
+        String dateOfBirth = "2001-02-15";
 
         //TODO: get this to use country from dataTable
         Address homeAddress = new Address(
@@ -104,14 +101,59 @@ public class UserRegisterSteps {
         User createdUser = new User(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
-
-
-        createExistingUser(email);
-
-        //TODO: this does throw
-        // ExistingRegisteredEmailException: email address is already registered.
-        // Need to catch this/assert this is thrown
-        userController.createUser(createdUser);
-
     }
+
+    @Then("An error message is returned to say the email is already taken.")
+    public void an_error_message_is_returned_to_say_the_email_is_already_taken() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new io.cucumber.java.PendingException();
+    }
+
+    @When("I try to create an account without a password")
+    public void i_try_to_create_an_account_without_a_password() {
+        String firstName = "Test";
+        String lastName = "User";
+        String dateOfBirth = "2001-02-15";
+        String email = "testemail@gmail.com";
+
+        //TODO: get this to use country from dataTable
+        Address homeAddress = new Address(
+                "", "", "", "", "New Zealand", "");
+
+        User createdUser = new User(
+                firstName, lastName, "", "","", email,
+                dateOfBirth, "", homeAddress, "");
+    }
+
+    @Then("An error message is shown saying the password is required.")
+    public void an_error_message_is_shown_saying_the_password_is_required() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new io.cucumber.java.PendingException();
+    }
+
+    @When("I try to create an account with an invalid email")
+    public void i_try_to_create_an_account_with_an_invalid_email() {
+        String password = "Password123";
+        String firstName = "Test";
+        String lastName = "User";
+        String dateOfBirth = "2001-02-15";
+        String email = "testemailgmail.com";
+
+        //TODO: get this to use country from dataTable
+        Address homeAddress = new Address(
+                "", "", "", "", "New Zealand", "");
+
+        User createdUser = new User(
+                firstName, lastName, "", "","", email,
+                dateOfBirth, "", homeAddress, password);
+    }
+
+
+    @Then("An error message is shown saying the email is invalid.")
+    public void an_error_message_is_shown_saying_the_email_is_invalid() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new io.cucumber.java.PendingException();
+    }
+
+
 }
