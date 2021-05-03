@@ -49,107 +49,12 @@
           <br>
 
           <hr/>
-
-          <!--    Title for Address inputs    -->
-          <div class="form-row">
-            <span class="addressText"><b>Address</b></span>
-          </div>
-
-          <div class="form-row">
-            <!--    Business Address Street Number    -->
-            <label for="businessAddressNumber">
-              <b>Street Number</b>
-            </label><br/>
-            <input id="businessAddressNumber" maxlength="20" v-model="address.streetNumber" class="form-control"
-                   placeholder="Enter your Street Number" style="width:100%" type="text">
-            <br>
-          </div>
-          <br>
-
-          <div class="form-row">
-            <!--    Business Address Street Name    -->
-            <label for="businessAddressStreet">
-              <b>Street Name</b>
-            </label>
-            <br/>
-            <input id="businessAddressStreet" maxlength="50" v-model="address.streetName" class="form-control"
-                   placeholder="Enter your Street Name" style="width:100%" type="text">
-            <br>
-
-            <!--    Error message for street name input   -->
-            <span v-if="msg.streetName" class="error-msg">{{ msg.streetName }}</span>
-          </div>
-          <br>
-
-          <div class="form-row">
-            <!--    Business Address City    -->
-            <label for="businessAddressCity">
-              <b>City or Town</b>
-            </label>
-            <br/>
-            <input id="businessAddressCity" maxlength="50" v-model="addressCity" class="form-control"
-                   placeholder="Enter your City" style="width:100%" type="search">
-            <br>
-
-            <!--    Autofill City/Town    -->
-            <div v-for="city in cities" v-bind:key="city" style="width:100%; text-align: left">
-              <a class="address-output" @click="changeCity(city)">{{ city }}</a>
-              <br>
-            </div>
-          </div>
-          <br>
-
-          <div class="form-row">
-            <!--    Business Address Region    -->
-            <label for="businessAddressRegion">
-              <b>Region</b>
-            </label>
-            <br/>
-            <input id="businessAddressRegion" maxlength="50" v-model="addressRegion" class="form-control"
-                   placeholder="Enter your Region" style="width:100%" type="search">
-            <br>
-
-            <!--    Autofill region    -->
-            <div v-for="region in regions" v-bind:key="region" style="width:100%; text-align: left">
-              <a class="address-output" @click="changeRegion(region)">{{ region }}</a><br>
-            </div>
-          </div>
-          <br>
-
-          <div class="form-row">
-            <!--    Business Address Country    -->
-            <label for="businessAddressCountry">
-              <b>Country<span class="required">*</span></b>
-            </label>
-            <br/>
-            <input id="businessAddressCountry" maxlength="30" v-model="addressCountry" class="form-control"
-                   placeholder="Enter your Country" required style="width:100%" type="search">
-            <br>
-
-            <!--    Autofill country    -->
-            <div v-for="country in countries" v-bind:key="country" style="width:100%; text-align: left">
-              <a class="address-output" @click="changeCountry(country)">{{ country }}</a><br>
-            </div>
-          </div>
-          <br>
-
-          <!--    Error message for the country input    -->
-          <div class="form-row">
-            <span v-if="msg.country" class="error-msg">{{ msg.country }}</span>
-          </div>
-
-          <div class="form-row">
-            <!--    Business Address Post Code    -->
-            <label for="businessAddressPostCode">
-              <b>Postcode</b>
-            </label>
-            <br/>
-            <input id="businessAddressPostCode" maxlength="30" v-model="address.postcode" class="form-control"
-                   placeholder="Enter your Postcode" style="width:100%" type="text">
-            <br>
-          </div>
-          <br>
-
+            <address-input-fields
+                :showErrors="submitClicked"
+                check-currency="true"
+                @setAddress="(newAddress) => {this.address = newAddress}"
+                @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
+            />
           <hr/>
 
           <div class="form-row">
@@ -196,9 +101,9 @@
 </template>
 
 <script>
-import axios from "axios";
 import LoginRequired from "@/components/LoginRequired";
 import Alert from "./Alert"
+import AddressInputFields from "@/components/AddressInputFields";
 
 /**
  * Default starting parameters
@@ -207,6 +112,7 @@ export default {
   name: "RegisterBusinessPage",
 
   components: {
+    AddressInputFields,
     LoginRequired,
     Alert
   },
@@ -224,13 +130,8 @@ export default {
         country: '',
         postcode: '',
       },
+      addressIsValid: false,
       businessType: '',    //Required
-
-      //Need these to be able to use the watcher methods
-      addressCountry: '',
-      addressRegion: '',
-      addressCity: '',
-
 
       msg: {
         'businessName': '',
@@ -241,22 +142,7 @@ export default {
         'errorChecks': null
       },
       valid: true,
-
-      //Used to autofill parts of the address
-      countries: [],
-      regions: [],
-      cities: [],
-
-      //Used to cancel previous api calls
-      cancelRequest: "",
-
-      //Used to remove autofill when the user clicks an option and enabled again when the user changes the address fields again
-      prevAutofilledCountry: '',
-      autofillCountry: true,
-      prevAutofilledRegion: '',
-      autofillRegion: true,
-      prevAutofilledCity: '',
-      autofillCity: true,
+      submitClicked: 0
     }
   },
   /**
@@ -358,32 +244,6 @@ export default {
     },
 
     /**
-     * Validates the address variables
-     * Checks if the variables are empty, if so displays a warning message
-     */
-    async validateBusinessAddress() {
-      if (this.address.country === '') {
-        this.msg['country'] = 'Please enter a Country'
-        this.valid = false
-      } else {
-        //Check if country is valid and has a currency (for products and inventory items price)
-        try {
-          await this.$root.$data.product.getCurrency(this.address.country)
-          this.msg['country'] = ''
-        } catch (e) {
-          this.msg['country'] = 'Please enter a valid Country'
-          this.valid = false
-        }
-      }
-      if (this.address.streetNumber !== '' && this.address.streetName === '') {
-        this.msg['streetName'] = 'Please enter a Street Name'
-        this.valid = false
-      } else {
-        this.msg['streetName'] = ''
-      }
-    },
-
-    /**
      * Validates the business type variable
      * Checks if the selected option is not the default, if so displays a warning message
      */
@@ -401,8 +261,9 @@ export default {
      * If not an error message is displayed
      */
     async checkInputs() {
+      this.submitClicked++;
       this.validateBusinessName();
-      await this.validateBusinessAddress();
+      if (!this.addressIsValid) {this.valid = false}
       this.validateBusinessType();
 
 
@@ -417,91 +278,6 @@ export default {
         this.addBusiness();
       }
     },
-
-    /**
-     * Function that uses the photon api to get address data.
-     * This function calls the photon api and gets valid address variables, then returns the string of these address variables
-     * @param textEntered The text entered into the autofillable text field
-     * @param tag The tag used to get a specific part of the address, e.g: Country, Region or City/Town
-     * @returns [] address variables that can be autofilled
-     */
-    photon(textEntered, tag) {
-      let CancelToken = axios.CancelToken;
-
-      let addresses = []
-      axios.get(`https://photon.komoot.io/api?q=${textEntered}&osm_tag=${tag}&limit=5`, {
-        cancelToken: new CancelToken((c) => {
-          this.cancelRequest = c;
-        })
-      }).then((response) => {
-        for (let i = 0; i < response.data.features.length; i++) {
-          const currAddress = response.data.features[i].properties;
-          let addressString = ''
-          //Is Country
-          if (tag === 'place:country') addressString = `${currAddress.name}`
-          //Is Region
-          else if (tag === "boundary:administrative") addressString = `${currAddress.name}`
-              //Is City
-          //tag is like this so you can get a town or a city
-          else if (tag === "place:city&osm_tag=place:town") addressString = `${currAddress.name}`
-
-
-          //Making sure to not add duplicate addresses as sometimes there is more than one region in the world with the same name
-          if (addressString !== '' && addresses.indexOf(addressString) === -1) {
-            addresses.push(addressString);
-          }
-
-        }
-        return addresses
-      })
-          .catch((error) => {
-            console.log(error)
-          });
-      return addresses
-    },
-
-    /**
-     * Changes the address.country variable to display the new autofilled country
-     * Called when a user clicks a country to autofill
-     * @param country autofill string that was chosen
-     */
-    changeCountry(country) {
-      //Changes the address input to the selected autofill address
-      this.address.country = country
-      this.addressCountry = country
-      this.countries = []
-      this.autofillCountry = false
-      this.prevAutofilledCountry = this.address.country
-    },
-
-    /**
-     * Changes the address.region variable to display the new autofilled region
-     * Called when a user clicks a region to autofill
-     * @param region autofill string that was chosen
-     */
-    changeRegion(region) {
-      //Changes the address input to the selected autofill address
-      this.address.region = region
-      this.addressRegion = region
-      this.regions = []
-      this.autofillRegion = false
-      this.prevAutofilledRegion = this.address.region
-    },
-
-    /**
-     * Changes the address.city variable to display the new autofilled city
-     * Called when a user clicks a city to autofill
-     * @param city autofill string that was chosen
-     */
-    changeCity(city) {
-      //Changes the address input to the selected autofill address
-      this.address.city = city
-      this.addressCity = city
-      this.cities = []
-      this.autofillCity = false
-      this.prevAutofilledCity = this.address.city
-    },
-
 
     /**
      * Add the new business to the server
