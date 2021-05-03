@@ -144,13 +144,13 @@ public class InventoryItemController {
                     quantity = json.getAsNumber("quantity").intValue();
                     //If quantity is at or below 0
                     if (quantity <= 0) {
-                        InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
+                        InvalidQuantityException exception = new InvalidQuantityException();
                         logger.warn(exception.getMessage());
                         throw exception;
                     }
                 }
                 if (quantity == null) { //Empty string
-                    InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
+                    InvalidQuantityException exception = new InvalidQuantityException();
                     logger.warn(exception.getMessage());
                     throw exception;
                 }
@@ -277,7 +277,7 @@ public class InventoryItemController {
             inventoryItemRepository.save(inventoryItem);
         } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
                 NoProductExistsException | MissingInventoryItemExpiryException |
-                InvalidInventoryItemQuantityException | ItemExpiredException | InvalidDateException |
+                InvalidQuantityException | ItemExpiredException | InvalidDateException |
                 InvalidManufactureDateException | InvalidSellByDateException | NumberFormatException |
                 InvalidBestBeforeDateException handledException) {
             throw handledException;
@@ -346,13 +346,13 @@ public class InventoryItemController {
                 if (json.containsKey("quantity")) {
                     Number newQuantity = json.getAsNumber("quantity");
                     if (newQuantity == null) {
-                        InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
+                        InvalidQuantityException exception = new InvalidQuantityException();
                         logger.warn(exception.getMessage());
                         throw exception;
                     } else if (originalItem.getQuantity() != newQuantity.doubleValue()) {
                         //If Quantity is at or below 0
                         if (newQuantity.intValue() <= 0) {
-                            InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
+                            InvalidQuantityException exception = new InvalidQuantityException();
                             logger.warn(exception.getMessage());
                             throw exception;
                         }
@@ -360,7 +360,7 @@ public class InventoryItemController {
                     }
                 }
             } catch (NumberFormatException e) {
-                InvalidInventoryItemQuantityException exception = new InvalidInventoryItemQuantityException();
+                InvalidQuantityException exception = new InvalidQuantityException();
                 logger.warn(exception.getMessage());
                 throw exception;
             }
@@ -519,7 +519,7 @@ public class InventoryItemController {
         } catch (NoBusinessExistsException | NoProductExistsException | MissingProductIdException |
                 ForbiddenAdministratorActionException | InvalidPriceException | InvalidManufactureDateException |
                 InvalidSellByDateException | ItemExpiredException | InvalidBestBeforeDateException |
-                MissingInventoryItemExpiryException | InvalidInventoryItemQuantityException handledException) {
+                MissingInventoryItemExpiryException | InvalidQuantityException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while editing inventory item: %s",

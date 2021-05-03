@@ -1,6 +1,6 @@
-# Seng302 Example Project
+# re: sale
 
-Basic project template using `gradle`, `npm`, `Spring Boot`, `Vue.js` and `Gitlab CI`.
+SENG302 project using `gradle`, `npm`, `Spring Boot`, `Vue.js` and `Gitlab CI`.
 
 ## Basic Project Structure
 
@@ -23,33 +23,23 @@ A backend sub-project (business logic and persistence server):
     $ npm install
     $ npm run serve
 
-Running on: http://localhost:9500/ by default
+Running on: http://localhost:9600/ by default
 
 ### Backend / server
 
     cd backend
     ./gradlew bootRun
 
-Running on: http://localhost:9499/ by default
-
-## Todo (S1)
-
-- Add team name into `build.gradle` and `package.json`
-- Update this README title
-- Update this README contributors
-
-## Todo (S2)
-
-- Update team name into `build.gradle` and `package.json`
-- Update this README title
-- Update this README contributors
-- Set up Gitlab CI server (refer to the student guide on learn)
-- Decide on a LICENSE
+Running on: http://localhost:9599/ by default
 
 ## Contributors
-
-- SENG302 teaching team
-
+- Sarah Bealing - smb272
+- Oliver Chaplin - ojc30
+- Lewis Marshall - lma192
+- Tom Rizzi - tcr59
+- Niels van Antwerpen - nva40
+- Rutger van Kruiningen - rva42
+- Michael Woodard - mdw85
 ## References
 
 - [Spring Boot Docs](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)

@@ -17,7 +17,7 @@
               <h4>Sale Listings</h4>
             </div>
             <div class="col text-right">
-              <button class="btn btn-primary">
+              <button v-if="isAdminOf" class="btn btn-primary">
                 New Listing
               </button>
             </div>
@@ -153,13 +153,20 @@ export default {
      * @returns {any} the business ID for which this listing page corresponds to
      */
     businessId() {
-      return this.$route.params.businessId;
+      return parseInt(this.$route.params.businessId);
     },
     /**
      * Returns whether or not the user is logged in.
      */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn;
+    },
+    /**
+     * Check if the user is an admin of the business and is acting as that business
+     */
+    isAdminOf() {
+      if (this.$root.$data.user.state.actingAs.type !== "business") return false
+      return this.$root.$data.user.state.actingAs.id === this.businessId;
     },
     /**
      * Checks which direction (ascending or descending) the order by should be

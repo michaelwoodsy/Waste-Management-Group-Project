@@ -17,14 +17,15 @@
 
           <!--    Inventory Header    -->
           <div class="row">
+            <div class="col"/>
             <div class="col text-center">
               <h4>Inventory</h4>
             </div>
-          </div>
-          <div class="col text-right">
-            <button class="btn btn-primary" v-on:click="newItem">
-              New Item
-            </button>
+            <div class="col text-right">
+              <button class="btn btn-primary" v-on:click="newItem">
+                New Item
+              </button>
+            </div>
           </div>
 
           <!--    Error Alert    -->

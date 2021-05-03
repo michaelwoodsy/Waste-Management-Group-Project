@@ -53,6 +53,12 @@ public class SearchController {
         logger.info(String.format("Request to search users with query: %s", searchQuery));
 
         try {
+            if (searchQuery.equals("")) {
+                List<User> users = userRepository.findAll();
+                logger.info(String.format("Retrieved %d users", users.size()));
+                return users;
+            }
+
             Set<User> result = new LinkedHashSet<>();
 
             searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
