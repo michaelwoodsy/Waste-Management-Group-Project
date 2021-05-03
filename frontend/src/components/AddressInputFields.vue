@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="text-left">
 
     <!--    Div for displaying full address search input box    -->
     <div class="form-row mb-3 needs-validation" v-if="fullAddressMode">
@@ -169,7 +169,7 @@ export default {
       loading: false
     }
   },
-  props: ['showErrors'],
+  props: ['showErrors', 'checkCurrency'],
   computed: {
     valid() {
       return !(this.msg.country || this.msg.streetName)
@@ -178,23 +178,28 @@ export default {
   watch: {
     /** Watcher for the manual address **/
     address: {
-      handler() {
-        this.validateAddress()
+      async handler() {
+        console.log('2')
+        await this.validateAddress()
         this.emitAddress()
       },
       deep: true
     },
     /** Validate address when show errors is set **/
-    showErrors() {
-      this.validateAddress()
-      this.emitAddress()
+    showErrors: {
+      async handler() {
+        await this.validateAddress()
+        await this.checkAddressCountry()
+        this.emitAddress()
+      },
+      deep: true
     }
   },
   methods: {
     /**
      * Function to run when the full address has been entered
      */
-    addressEntered() {
+    async addressEntered() {
       // Clear previously selected address
       this.locationSelected = null
 
@@ -206,15 +211,15 @@ export default {
 
       // Get possible addresses from photon api
       this.loading = true
-      this.getPhotonAddress(this.fullAddress)
-          .then((res) => {
+      await this.getPhotonAddress(this.fullAddress)
+          .then(async (res) => {
             // Reset relevant variables
             this.suggestions = []
             this.loading = false
             this.error = null
 
             // Iterate through locations and create address objects
-            res.data.features.forEach((location) => {
+            for (const location of res.data.features) {
               const address = {
                 id: location.properties.osm_id,
                 streetNumber: location.properties.housenumber,
@@ -224,10 +229,10 @@ export default {
                 country: location.properties.country,
                 postcode: location.properties.postcode
               }
-              if (this.addressIsValid(address)) {
+              if (await this.addressIsValid(address)) {
                 this.suggestions.push(address)
               }
-            })
+            }
           })
         .catch((err) => {
           // Check if the error is from the request canceling
@@ -305,10 +310,36 @@ export default {
     /**
      * Checks if a location object is valid
      * @param location Object to be sent to backend
+     * @returns Object Messages object with any messages for things needing fixed
+     */
+    async getAddressFixes(location) {
+      let fixMessages = {}
+
+      // Check country
+      if (location.country === '') {
+        fixMessages['country'] = 'Please enter a country'
+      } else {
+        fixMessages['country'] = null
+      }
+
+      // Check street number
+      if (location.streetNumber !== '' && location.streetName === '') {
+        fixMessages['streetName'] = 'Please enter a Street Name'
+      } else {
+        fixMessages['streetName'] = ''
+      }
+
+      return fixMessages
+    },
+
+    /**
+     * Checks if a location object is valid
+     * @param location Object to be sent to backend
      * @returns {boolean} True if the location is valid
      */
-    addressIsValid(location) {
-      return location.country
+    async addressIsValid(location) {
+      const msg = await this.getAddressFixes(location)
+      return !(msg.country || msg.streetName);
     },
 
     /** Changes input mode between manual and search. */
@@ -331,27 +362,45 @@ export default {
       } else {
         address = this.address
       }
-      delete address.id
+
+      // Delete the ID if it exists
+      if (address && address.id) {
+        delete address.id
+      }
 
       this.$emit('setAddress', address)
       this.$emit('setAddressValid', this.valid)
+    },
+
+    /** Checks if the country of the address is real using the rest api
+     * Only runs if the user is in manual address mode and the checkCurrency prop is set
+     */
+    async checkAddressCountry() {
+      // Get address to check
+      let address;
+      if (this.fullAddressMode) {
+        address = this.locationSelected
+      } else {
+        address = this.address
+      }
+
+      // Check country code with currency api
+      if (this.checkCurrency && !this.fullAddressMode) {
+        //Check if country is valid and has a currency (for products and inventory items price)
+        try {
+          await this.$root.$data.product.getCurrency(address.country)
+        } catch (e) {
+          this.msg['country'] = 'Please enter a valid Country'
+        }
+      }
     },
 
     /**
      * Validates the address variables
      * Checks if the variables are empty, if so displays a warning message
      */
-    validateAddress() {
-      if (this.address.country === '') {
-        this.msg['country'] = 'Please enter a country'
-      } else {
-        this.msg['country'] = null
-      }
-      if (this.address.streetNumber !== '' && this.address.streetName === '') {
-        this.msg['streetName'] = 'Please enter a Street Name'
-      } else {
-        this.msg['streetName'] = ''
-      }
+    async validateAddress() {
+      this.msg = await this.getAddressFixes(this.address)
     },
 
     /** Makes sure the suggestions dropdown is down **/
