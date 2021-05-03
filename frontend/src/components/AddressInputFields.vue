@@ -169,7 +169,7 @@ export default {
       loading: false
     }
   },
-  props: ['showErrors', 'checkCurrency'],
+  props: ['showErrors'],
   computed: {
     valid() {
       return !(this.msg.country || this.msg.streetName)
@@ -179,7 +179,6 @@ export default {
     /** Watcher for the manual address **/
     address: {
       async handler() {
-        console.log('2')
         await this.validateAddress()
         this.emitAddress()
       },
@@ -189,7 +188,6 @@ export default {
     showErrors: {
       async handler() {
         await this.validateAddress()
-        await this.checkAddressCountry()
         this.emitAddress()
       },
       deep: true
@@ -373,7 +371,8 @@ export default {
     },
 
     /** Checks if the country of the address is real using the rest api
-     * Only runs if the user is in manual address mode and the checkCurrency prop is set
+     * Only runs if the user is in manual address mode.
+     * Returns a bool.
      */
     async checkAddressCountry() {
       // Get address to check
@@ -385,14 +384,16 @@ export default {
       }
 
       // Check country code with currency api
-      if (this.checkCurrency && !this.fullAddressMode) {
-        //Check if country is valid and has a currency (for products and inventory items price)
+      if (!this.fullAddressMode) {
+        // Check if country is valid and has a currency (for products and inventory items price)
         try {
           await this.$root.$data.product.getCurrency(address.country)
         } catch (e) {
           this.msg['country'] = 'Please enter a valid Country'
         }
       }
+
+      return !this.msg.country
     },
 
     /**
