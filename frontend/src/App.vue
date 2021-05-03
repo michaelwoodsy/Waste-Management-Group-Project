@@ -19,7 +19,7 @@
     </body>
 
     <footer class="text-center">
-      <p class="text-muted">SENG302 Team 200</p>
+      <p class="text-muted">SENG302 Team 200 - re: sale</p>
     </footer>
   </div>
 </template>
