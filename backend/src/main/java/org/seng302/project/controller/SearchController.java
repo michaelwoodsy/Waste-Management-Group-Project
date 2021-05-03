@@ -54,7 +54,9 @@ public class SearchController {
 
         try {
             if (searchQuery.equals("")) {
-                return userRepository.findAll();
+                List<User> users = userRepository.findAll();
+                logger.info(String.format("Retrieved %d users", users.size()));
+                return users;
             }
 
             Set<User> result = new LinkedHashSet<>();
