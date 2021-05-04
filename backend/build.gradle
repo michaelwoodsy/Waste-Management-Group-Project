@@ -90,18 +90,6 @@ task cucumber(type: Test) {
     description = "Runs JUnit 4 tests (cucumber tests)"
     testLogging.showStandardStreams = true
     useJUnit()
-
-    //Below added from SENG301 lab
-    dependsOn assemble, testClasses
-    doLast {
-        javaexec {
-            main = "io.cucumber.core.cli.Main"
-            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
-            args = ['--plugin', 'pretty', '--glue', 'gradle.cucumber', 'src/test/resources']
-        }
-    }
-
-
 }
 
 // configure test task to run on JUnit 5

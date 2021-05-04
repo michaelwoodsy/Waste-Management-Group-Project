@@ -8,8 +8,12 @@ import org.junit.runner.RunWith;
 /**
  * Class that runs Cucumber tests
  */
-
 @RunWith(Cucumber.class)
-@CucumberOptions(features = "src/test/resources")
+@CucumberOptions(
+        plugin = {"pretty"},
+        features = {"src/test/resources"},
+        glue = {"gradle.cucumber.steps"},
+        publish = true
+)
 public class CucumberTest {
 }
