@@ -2,7 +2,7 @@
   <div class="container-fluid p-0">
 
     <!--    Result Information    -->
-    <div>
+    <div v-if="!this.selectingItem || (!loading && this.products.length > 0)">
 
       <!-- Displays number of results -->
       <div class="text-center">
@@ -84,6 +84,10 @@
       <div class="col text-center">
         <p class="text-muted">Loading...</p>
       </div>
+    </div>
+
+    <div v-if="!loading && this.products.length === 0 && this.selectingItem" class="text-center">
+      You have no products to create an inventory entry for...
     </div>
 
     <!--    Result Information    -->

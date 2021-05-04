@@ -2,7 +2,7 @@
   <div class="container-fluid p-0">
 
     <!--    Result Information    -->
-    <div v-if="loading || this.inventoryItems.length > 0">
+    <div v-if="!this.selectingItem || (!loading && this.inventoryItems.length > 0)">
 
       <div class="text-center">
         <showing-results-text
