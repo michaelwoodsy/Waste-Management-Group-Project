@@ -13,9 +13,5 @@ public class Constants {
      * Toggles whether repositories should be filled with test data
      */
     public static Boolean TEST_DATA = false;
-    /**
-     * Disables/enables authentication
-     */
-    public static Boolean DISABLE_AUTHENTICATION = false;
 
 }

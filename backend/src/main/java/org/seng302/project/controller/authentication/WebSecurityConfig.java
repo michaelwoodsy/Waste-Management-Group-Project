@@ -15,8 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
-import static org.seng302.project.Constants.DISABLE_AUTHENTICATION;
-
 /**
  * Class for configuring application web security.
  */
@@ -88,13 +86,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        if (DISABLE_AUTHENTICATION) {
-            http.authorizeRequests().anyRequest().permitAll();
-        } else {
-            http.authorizeRequests()
-                    .antMatchers(HttpMethod.POST, "/login", "/users").permitAll()
-                    .anyRequest().authenticated();
-        }
+        http.authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/login", "/users").permitAll()
+                .anyRequest().authenticated();
         http.requestCache().requestCache(new NullRequestCache());
         http.cors();
         http.csrf().disable();
