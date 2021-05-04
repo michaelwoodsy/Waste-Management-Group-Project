@@ -12,13 +12,15 @@ import org.seng302.project.model.LoginCredentials;
 import org.seng302.project.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
 public class LogInSteps {
 
-    @Autowired
-    private UserController userController;
-
+    private final UserController userController;
     private Integer loginExceptionCount = 0;
+
+    @Autowired
+    public LogInSteps(UserController userController) {
+        this.userController = userController;
+    }
 
     @Given("I have created an account with the username {string} and the password {string}")
     public void i_have_created_an_account_with_the_username_and_the_password(String username, String password) {

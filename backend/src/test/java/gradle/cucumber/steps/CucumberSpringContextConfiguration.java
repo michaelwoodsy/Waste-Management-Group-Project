@@ -1,4 +1,4 @@
-package gradle.cucumber;
+package gradle.cucumber.steps;
 
 
 import io.cucumber.spring.CucumberContextConfiguration;
@@ -6,12 +6,10 @@ import org.junit.Before;
 import org.seng302.project.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 
 @CucumberContextConfiguration
-@SpringBootTest(classes = Main.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = Main.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 public class CucumberSpringContextConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(CucumberSpringContextConfiguration.class.getName());

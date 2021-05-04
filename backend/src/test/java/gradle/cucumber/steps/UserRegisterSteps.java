@@ -13,25 +13,28 @@ import org.seng302.project.model.AddressRepository;
 import org.seng302.project.model.User;
 import org.seng302.project.model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 
 public class UserRegisterSteps {
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private UserController userController;
-
-    @Autowired
-    private AddressRepository addressRepository;
-
+    private final UserRepository userRepository;
+    private final UserController userController;
+    private final AddressRepository addressRepository;
     private Integer existingRegisteredEmailExceptionCount = 0;
-
     private Integer requiredFieldsMissingExceptionCount = 0;
-
     private Integer invalidEmailExceptionCount = 0;
+
+    @Autowired
+    public UserRegisterSteps(UserRepository userRepository,
+                             UserController userController,
+                             AddressRepository addressRepository) {
+        this.userRepository = userRepository;
+        this.userController = userController;
+        this.addressRepository = addressRepository;
+    }
 
     /**
      * Creates the existing test user. Called by
