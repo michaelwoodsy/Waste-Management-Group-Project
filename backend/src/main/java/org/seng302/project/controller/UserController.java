@@ -88,7 +88,7 @@ public class UserController {
         logger.info("Request to create user");
 
         try {
-            //If any of the required fields are empty
+            // If any of the required fields are empty
             if (newUser.getFirstName() == null || newUser.getFirstName().equals("") ||
                     newUser.getLastName() == null || newUser.getLastName().equals("") ||
                     newUser.getEmail() == null || newUser.getEmail().equals("") ||
@@ -101,7 +101,7 @@ public class UserController {
                 throw requiredFieldsMissingException;
             }
 
-            //If email is in incorrect format
+            // If email is in incorrect format
             String emailRegEx = "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@" +
                     "((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
             if (!newUser.getEmail().matches(emailRegEx)) {
@@ -110,7 +110,7 @@ public class UserController {
                 throw emailException;
             }
 
-            //If phone number is in incorrect format or empty
+            // If phone number is in incorrect format or empty
             String phoneRegEx = "^\\+?\\d{1,15}$";
             if ((newUser.getPhoneNumber() != null && !newUser.getPhoneNumber().equals(""))
                     && !(newUser.getPhoneNumber().replaceAll("[\\s-]", "")).matches(phoneRegEx)) {
@@ -119,21 +119,30 @@ public class UserController {
                 throw phoneNumberException;
             }
 
-            //If email address is empty
+            // If email address is empty
             if (!userRepository.findByEmail(newUser.getEmail()).isEmpty()) {
                 ExistingRegisteredEmailException emailException = new ExistingRegisteredEmailException();
                 logger.warn(emailException.getMessage());
                 throw emailException;
             }
 
-            //Check if address has a street number with no street name
-            if (    (newUser.getHomeAddress().getStreetName() == null || newUser.getHomeAddress().getStreetName().equals("")) &&
+            // Check if address has a street number with no street name
+            if ((newUser.getHomeAddress().getStreetName() == null || newUser.getHomeAddress().getStreetName().equals("")) &&
                     (newUser.getHomeAddress().getStreetNumber() != null && !newUser.getHomeAddress().getStreetNumber().equals(""))) {
                 InvalidAddressException addressException = new InvalidAddressException();
                 logger.error(addressException.getMessage());
                 throw addressException;
             }
 
+            // Check that the password meets requirements.
+            String passwordRegEx = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}";
+            if (!newUser.getPassword().matches(passwordRegEx)) {
+                InvalidPasswordException passwordException = new InvalidPasswordException();
+                logger.warn(passwordException.getMessage());
+                throw passwordException;
+            }
+
+            //
             Date dateOfBirthDate;
             Date currentDate = new Date();
             try {
@@ -147,10 +156,17 @@ public class UserController {
                 throw exception;
             }
 
+            // Check that the user is over 13 and has selected a realistic date of birth (under 200)
             if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) < 13) {
                 UserUnderageException underageException = new UserUnderageException();
                 logger.warn(underageException.getMessage());
                 throw underageException;
+            } else if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) > 200) {
+                InvalidDateException invalidDateException = new InvalidDateException(
+                        "InvalidDateException: birth date is unrealistic"
+                );
+                logger.warn(invalidDateException.getMessage());
+                throw invalidDateException;
             }
 
             LoginCredentials credentials = new LoginCredentials(newUser.getEmail(), newUser.getPassword());
