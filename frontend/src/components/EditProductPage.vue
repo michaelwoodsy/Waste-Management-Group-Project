@@ -203,6 +203,7 @@ export default {
   mounted() {
     this.loadProduct();
   },
+
   data() {
     return {
       errorMessage: null,
@@ -219,11 +220,13 @@ export default {
       triedIds: [] // List of ids tested for uniqueness
     }
   },
+
   components: {
     LoginRequired,
     AdminRequired,
     Alert
   },
+
   computed: {
     /** Checks to see if user is logged in currently **/
     isLoggedIn() {

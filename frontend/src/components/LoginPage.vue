@@ -82,10 +82,12 @@ const LoginPage = {
       showMissingFields: false
     }
   },
+
   components: {
     LogoutRequired,
     Alert
   },
+
   methods: {
     /**
      * Login logic, checks that there are no missing fields, attempts to use login endpoint otherwise
@@ -106,6 +108,7 @@ const LoginPage = {
             })
       }
     },
+
     /**
      * Checks to see if fields are missing
      * @param field
@@ -114,6 +117,7 @@ const LoginPage = {
     isIncorrectField(field) {
       return this.showMissingFields && (field === null || field === '')
     },
+
     //WARNING 'input-red' never used
     /**
      * Checks to see if field is incorrect

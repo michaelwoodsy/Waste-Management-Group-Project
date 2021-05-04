@@ -145,6 +145,7 @@ export default {
       submitClicked: 0
     }
   },
+
   /**
    * These methods are called when the page opens
    * */

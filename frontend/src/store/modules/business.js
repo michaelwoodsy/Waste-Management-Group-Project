@@ -58,6 +58,18 @@ export default {
                     reject(err)
                 })
         })
+    },
+
+    createListing(businessId, data) {
+        return new Promise(((resolve, reject) => {
+            Business.createListing(businessId, data)
+                .then((res) => {
+                    resolve(res);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        }));
     }
 
 }

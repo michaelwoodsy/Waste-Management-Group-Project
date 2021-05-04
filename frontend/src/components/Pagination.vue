@@ -29,6 +29,7 @@ export default {
       required: true
     }
   },
+
   computed: {
     // An array of page numbers
     /**
@@ -40,6 +41,7 @@ export default {
       ].map(pageNo => pageNo + 1)
     }
   },
+
   methods: {
     /**
      * Lets user to change page
@@ -49,12 +51,17 @@ export default {
       this.$emit('update:currentPage', page);
       this.scrollToTop()
     },
+
+    /**
+     * Styles the active page
+     */
     styles(page) {
       return {
         'page-item': true,
         'active': page === this.currentPage
       }
     },
+
     /**
      * Lets user to scroll to top of window
      */
