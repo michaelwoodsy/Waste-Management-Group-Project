@@ -27,6 +27,7 @@
 
 package org.seng302.project;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
@@ -40,15 +41,31 @@ import java.io.IOException;
 @Component
 public class MainCORSFilter implements Filter {
 
+    @Value("${spring.profiles.active:}")
+    private String activeProfiles;
+
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
 
+        String allowedOrigin;
+
+        switch (activeProfiles) {
+            case "staging":
+            case "production":
+                allowedOrigin = "https://csse-s302g2.canterbury.ac.nz";
+                break;
+            default:
+                allowedOrigin = "http://localhost:9600";
+                break;
+        }
+
         HttpServletResponse response = (HttpServletResponse) res;
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Origin", allowedOrigin);
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE, PATCH, HEAD");
         response.setHeader("Access-Control-Max-Age", "6000");
         response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
         chain.doFilter(req, res);
     }
 

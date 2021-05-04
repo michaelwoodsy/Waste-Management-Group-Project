@@ -10,8 +10,8 @@ public class Constants {
      */
     public static Boolean DEV_MODE = true;
     /**
-     * Disables/enables authentication
+     * Toggles whether repositories should be filled with test data
      */
-    public static Boolean DISABLE_AUTHENTICATION = false;
+    public static Boolean TEST_DATA = false;
 
 }

@@ -1,0 +1,319 @@
+{
+  "users": [
+    {
+      "firstName": "Myrtle",
+      "lastName": "Tremontana",
+      "middleName": "Frances",
+      "nickname": null,
+      "bio": "I like to embrace visionary e-commerce",
+      "email": "1@gmail.com",
+      "dateOfBirth": "1964-10-06",
+      "phoneNumber": "+64 27 998 9246",
+      "homeAddress": {
+        "streetNumber": "25",
+        "streetName": "Riccarton Road",
+        "city": "Christchurch",
+        "region": "Canterbury",
+        "country": "New Zealand",
+        "postcode": "8042"
+      },
+      "password": "1"
+    },
+    {
+      "firstName": "Auguste",
+      "middleName": null,
+      "lastName": "Cosser",
+      "nickname": "Gus",
+      "bio": "Automated bottom-line Graphical User Interface",
+      "email": "gcosser1@usa.gov",
+      "dateOfBirth": "1971-05-29",
+      "phoneNumber": "+64 22 744 8510",
+      "homeAddress": {
+        "streetNumber": "48",
+        "streetName": "Ranch Street",
+        "city": "Auckland",
+        "region": "Auckland",
+        "country": "New Zealand",
+        "postcode": "9076"
+      },
+      "password": "nrO08vH"
+    },
+    {
+      "firstName": "Dimitry",
+      "middleName": null,
+      "lastName": "Pidler",
+      "nickname": null,
+      "bio": "Reverse-engineered global parallelism",
+      "email": "apidler2@ebay.co.uk",
+      "dateOfBirth": "1959-12-03",
+      "phoneNumber": "+81 102 378 2062",
+      "homeAddress": {
+        "streetNumber": "9953",
+        "streetName": "Sachs Pass",
+        "city": "Kimitsu",
+        "region": null,
+        "country": "Japan",
+        "postcode": "704-8166"
+      },
+      "password": "EURCNGs"
+    },
+    {
+      "firstName": "Danila",
+      "middleName": null,
+      "lastName": "Rime",
+      "nickname": null,
+      "bio": "Configurable neutral Graphic Interface",
+      "email": "trime3@shinystat.com",
+      "dateOfBirth": "1952-11-28",
+      "phoneNumber": "+81 769 471 3342",
+      "homeAddress": {
+        "streetNumber": "2045",
+        "streetName": "Everett Crossing",
+        "city": "Takahashi",
+        "region": null,
+        "country": "Japan",
+        "postcode": "999-4201"
+      },
+      "password": "ui2PVMtIu5A"
+    },
+    {
+      "firstName": "Winny",
+      "middleName": null,
+      "lastName": "Shellcross",
+      "nickname": null,
+      "bio": null,
+      "email": "sshellcross4@stumbleupon.com",
+      "dateOfBirth": "1976-12-19",
+      "phoneNumber": "+1 713 284 5710",
+      "homeAddress": {
+        "streetNumber": null,
+        "streetName": null,
+        "city": null,
+        "region": null,
+        "country": "United States",
+        "postcode": null
+      },
+      "password": "0mlt6s8YqKg"
+    },
+    {
+      "firstName": "Clarissa",
+      "middleName": null,
+      "lastName": "Jahner",
+      "nickname": null,
+      "bio": "Re-engineered upward-trending customer loyalty",
+      "email": "bjahner5@artisteer.com",
+      "dateOfBirth": "1971-03-26",
+      "phoneNumber": "+7 156 263 6774",
+      "homeAddress": {
+        "streetNumber": "362",
+        "streetName": "Melby Court",
+        "city": "Rossosh’",
+        "region": null,
+        "country": "Russia",
+        "postcode": "652672"
+      },
+      "password": "NsviFIzDfaM2"
+    },
+    {
+      "firstName": "Arthur",
+      "middleName": null,
+      "lastName": "Assel",
+      "nickname": "Arty",
+      "bio": "Business-focused background hub",
+      "email": "a.assel6@yandex.ru",
+      "dateOfBirth": "1976-10-25",
+      "phoneNumber": null,
+      "homeAddress": {
+        "streetNumber": "2296",
+        "streetName": "Daystar Plaza",
+        "city": "Ishikawa",
+        "region": null,
+        "country": "Japan",
+        "postcode": "960-1476"
+      },
+      "password": "Bg12IrT166"
+    },
+    {
+      "firstName": "Genia",
+      "middleName": null,
+      "lastName": "Boncore",
+      "nickname": null,
+      "bio": "Object-based multimedia website",
+      "email": "bboncore7@123-reg.co.uk",
+      "dateOfBirth": "1961-09-22",
+      "phoneNumber": "+1 571 570 0492",
+      "homeAddress": {
+        "streetNumber": "6",
+        "streetName": "Kensington Road",
+        "city": "Springfield",
+        "region": "Virginia",
+        "country": "United States",
+        "postcode": "22156"
+      },
+      "password": "ghbcualT8Y9G"
+    },
+    {
+      "firstName": "Bradley",
+      "middleName": "Brandais",
+      "lastName": "Seel",
+      "nickname": "Brad",
+      "bio": "Re-engineered background database",
+      "email": "bseel8@mozilla.com",
+      "dateOfBirth": "1974-09-20",
+      "phoneNumber": "+7 338 875 6916",
+      "homeAddress": {
+        "streetNumber": "89",
+        "streetName": "Shopko Alley",
+        "city": "Shumikhinskiy",
+        "region": null,
+        "country": "Russia",
+        "postcode": "618283"
+      },
+      "password": "hpuszVuQ"
+    },
+    {
+      "firstName": "Fifine",
+      "middleName": "Nina",
+      "lastName": "Kestin",
+      "nickname": null,
+      "bio": "Upgradable intangible benchmark",
+      "email": "nkestin9@wufoo.com",
+      "dateOfBirth": "1951-11-10",
+      "phoneNumber": null,
+      "homeAddress": {
+        "streetNumber": "89",
+        "streetName": "Pearson Point",
+        "city": "Yakovlevo",
+        "region": null,
+        "country": "Russia",
+        "postcode": "309288"
+      },
+      "password": "j1xIdB"
+    }
+  ],
+  "businesses": [
+    {
+      "name": "Myrtle's Motorbike Parts",
+      "description": "Buy all your motorbike parts here.",
+      "address": {
+        "streetNumber": "40",
+        "streetName": "Moorhouse Ave",
+        "city": "Christchurch",
+        "region": "Canterbury",
+        "country": "New Zealand",
+        "postcode": "8022"
+      },
+      "businessType": "Retail Trade",
+      "primaryAdministratorId": 1
+    },
+    {
+      "name": "Discount Tech",
+      "description": "The cheapest tech parts around.",
+      "address": {
+        "streetNumber": "63",
+        "streetName": "Queen Street",
+        "city": "Auckland",
+        "region": "Auckland",
+        "country": "New Zealand",
+        "postcode": "9016"
+      },
+      "businessType": "Retail Trade",
+      "primaryAdministratorId": 2
+    },
+    {
+      "name": "Myrtle's Muffins",
+      "description": "Tasty muffins by Myrtle",
+      "address": {
+        "streetNumber": "40",
+        "streetName": "Moorhouse Ave",
+        "city": "Christchurch",
+        "region": "Canterbury",
+        "country": "New Zealand",
+        "postcode": "8022"
+      },
+      "businessType": "Accommodation and Food Services",
+      "primaryAdministratorId": 1
+    }
+  ],
+  "products": [
+    {
+      "id": "MX-500",
+      "name": "MotorXtreme Helmet 500",
+      "description": "High efficiency and safety.",
+      "manufacturer": "MotorXtreme",
+      "recommendedRetailPrice": 199.95,
+      "businessId": 1
+    },
+    {
+      "id": "MX-GL2-3pk",
+      "name": "MotorXtreme Safety Gloves (3 pack)",
+      "description": "A 3 pack of safety gloves.",
+      "manufacturer": "MotorXtreme",
+      "recommendedRetailPrice": 29.99,
+      "businessId": 1
+    },
+    {
+      "id": "NVIDIA-GF-RTX-1080Ti",
+      "name": "Nvidia GeForce RTX 1080Ti",
+      "description": "The best graphics card you can buy.",
+      "manufacturer": "Nvidia",
+      "recommendedRetailPrice": 595.99,
+      "businessId": 2
+    },
+    {
+      "id": "CHOC-CHIP",
+      "name": "Choc-chip muffins",
+      "description": "Soft vanilla muffins with chocolate chips.",
+      "manufacturer": "Myrtle",
+      "recommendedRetailPrice": 2.89,
+      "businessId": 3
+    },
+    {
+      "id": "BANANA",
+      "name": "Banana muffins",
+      "description": "Sweet banana muffins",
+      "manufacturer": "Myrtle",
+      "recommendedRetailPrice": 2.99,
+      "businessId": 3
+    }
+  ],
+  "inventoryItems": [
+    {
+      "productId": "CHOC-CHIP",
+      "quantity": 4,
+      "pricePerItem": 2.1,
+      "totalPrice": 8.4,
+      "manufactured": "2021-04-10",
+      "sellBy": "2021-05-15",
+      "bestBefore": "2021-05-15",
+      "expires": "2021-05-17"
+    },
+    {
+      "productId": "BANANA",
+      "quantity": 3,
+      "pricePerItem": 2.2,
+      "totalPrice": 6.6,
+      "manufactured": "2021-04-09",
+      "sellBy": "2021-05-14",
+      "bestBefore": "2021-05-14",
+      "expires": "2021-05-16"
+    }
+  ],
+  "saleListings": [
+    {
+      "inventoryItemId": 1,
+      "quantity": 2,
+      "price": 4.2,
+      "moreInfo": "Seller may be willing to consider near offers",
+      "closes": "2021-07-21T23:59:00Z"
+    },
+    {
+      "inventoryItemId": 2,
+      "quantity": 3,
+      "price": 6.6,
+      "moreInfo": "Seller may be willing to consider near offers",
+      "closes": "2021-08-21T23:59:00Z"
+    }
+
+  ]
+}
