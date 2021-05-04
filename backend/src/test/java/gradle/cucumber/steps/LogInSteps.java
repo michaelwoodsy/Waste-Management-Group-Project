@@ -10,10 +10,8 @@ import org.seng302.project.exceptions.InvalidLoginException;
 import org.seng302.project.model.Address;
 import org.seng302.project.model.LoginCredentials;
 import org.seng302.project.model.User;
-import org.seng302.project.model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
 
 public class LogInSteps {
 
