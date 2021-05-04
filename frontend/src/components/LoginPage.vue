@@ -71,7 +71,6 @@ const LoginPage = {
       username: '',
       password: '',
       error: null,
-      showMissingFields: false,
       msg: {
         'username': null,
         'password': null
@@ -111,8 +110,6 @@ const LoginPage = {
       this.checkUsername()
       this.checkPassword()
 
-
-
       if (this.valid) {
         this.$root.$data.user.login(this.username, this.password)
             .then(() => {
@@ -124,19 +121,10 @@ const LoginPage = {
                   : err
             })
       } else {
+        //Change valid back to true for when the login button is clicked again
         this.valid = true
       }
     },
-
-    //WARNING 'input-red' never used
-    /**
-     * Checks to see if field is incorrect
-     * @param field
-     * @returns {string}
-     */
-    inputClass(field) {
-      return (this.isIncorrectField(field) ? 'input-red' : 'input')
-    }
   }
 };
 
@@ -155,10 +143,5 @@ export default LoginPage;
 .required {
   color: red;
   display: inline;
-}
-
-.red-text {
-  color: red;
-  margin: 0;
 }
 </style>
