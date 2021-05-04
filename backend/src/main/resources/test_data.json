@@ -6,7 +6,7 @@
       "middleName": "Frances",
       "nickname": null,
       "bio": "I like to embrace visionary e-commerce",
-      "email": "1@gmail.com",
+      "email": "myrtle.t@gmail.com",
       "dateOfBirth": "1964-10-06",
       "phoneNumber": "+64 27 998 9246",
       "homeAddress": {
@@ -17,7 +17,7 @@
         "country": "New Zealand",
         "postcode": "8042"
       },
-      "password": "1"
+      "password": "Password123"
     },
     {
       "firstName": "Auguste",
@@ -25,201 +25,363 @@
       "lastName": "Cosser",
       "nickname": "Gus",
       "bio": "Automated bottom-line Graphical User Interface",
-      "email": "gcosser1@usa.gov",
+      "email": "g.cosser1@icloud.com",
       "dateOfBirth": "1971-05-29",
       "phoneNumber": "+64 22 744 8510",
       "homeAddress": {
         "streetNumber": "48",
         "streetName": "Ranch Street",
-        "city": "Auckland",
-        "region": "Auckland",
+        "city": "Christchurch",
+        "region": null,
         "country": "New Zealand",
-        "postcode": "9076"
+        "postcode": "8076"
       },
-      "password": "nrO08vH"
+      "password": "Hello99"
     },
     {
-      "firstName": "Dimitry",
-      "middleName": null,
-      "lastName": "Pidler",
+      "firstName": "Layla",
+      "middleName": "Camala",
+      "lastName": "Besemer",
       "nickname": null,
-      "bio": "Reverse-engineered global parallelism",
-      "email": "apidler2@ebay.co.uk",
-      "dateOfBirth": "1959-12-03",
-      "phoneNumber": "+81 102 378 2062",
+      "bio": "Implemented user-facing toolset",
+      "email": "l.jam@gmail.com",
+      "dateOfBirth": "1952-10-10",
+      "phoneNumber": null,
       "homeAddress": {
-        "streetNumber": "9953",
-        "streetName": "Sachs Pass",
-        "city": "Kimitsu",
+        "streetNumber": "63",
+        "streetName": "Esker Court",
+        "city": "Kerikeri",
         "region": null,
-        "country": "Japan",
-        "postcode": "704-8166"
+        "country": "New Zealand",
+        "postcode": "0245"
       },
-      "password": "EURCNGs"
+      "password": "Qwerty1"
     },
     {
-      "firstName": "Danila",
-      "middleName": null,
-      "lastName": "Rime",
+      "firstName": "Whitby",
+      "middleName": "Corrie",
+      "lastName": "Jindrich",
       "nickname": null,
-      "bio": "Configurable neutral Graphic Interface",
-      "email": "trime3@shinystat.com",
-      "dateOfBirth": "1952-11-28",
-      "phoneNumber": "+81 769 471 3342",
+      "bio": "Function-based 24 hour info-mediaries",
+      "email": "cjindrich1@google.ru",
+      "dateOfBirth": "1993-01-06",
+      "phoneNumber": null,
       "homeAddress": {
-        "streetNumber": "2045",
-        "streetName": "Everett Crossing",
-        "city": "Takahashi",
+        "streetNumber": "56",
+        "streetName": "Dyers Pass Road",
+        "city": "Christchurch",
         "region": null,
-        "country": "Japan",
-        "postcode": "999-4201"
+        "country": "New Zealand",
+        "postcode": "8020"
       },
-      "password": "ui2PVMtIu5A"
+      "password": "MuKJDUCvpws"
     },
     {
-      "firstName": "Winny",
+      "firstName": "Yard",
+      "middleName": "Costanza",
+      "lastName": "Schulter",
+      "nickname": null,
+      "bio": "Centralized uniform hub",
+      "email": "cschulter2@prnewswire.com",
+      "dateOfBirth": "1953-09-05",
+      "phoneNumber": null,
+      "homeAddress": {
+        "streetNumber": "157",
+        "streetName": "Lakewood Crossing",
+        "city": "Paraparaumu",
+        "region": null,
+        "country": "New Zealand",
+        "postcode": "5254"
+      },
+      "password": "VU9o42u"
+    },
+    {
+      "firstName": "Nariko",
       "middleName": null,
-      "lastName": "Shellcross",
+      "lastName": "Clapson",
       "nickname": null,
       "bio": null,
-      "email": "sshellcross4@stumbleupon.com",
-      "dateOfBirth": "1976-12-19",
-      "phoneNumber": "+1 713 284 5710",
+      "email": "hclapson3@irs.gov",
+      "dateOfBirth": "1972-03-26",
+      "phoneNumber": null,
       "homeAddress": {
         "streetNumber": null,
         "streetName": null,
         "city": null,
         "region": null,
-        "country": "United States",
+        "country": "New Zealand",
         "postcode": null
       },
-      "password": "0mlt6s8YqKg"
+      "password": "xZqXBGyHLK2"
     },
     {
-      "firstName": "Clarissa",
+      "firstName": "Debora",
       "middleName": null,
-      "lastName": "Jahner",
-      "nickname": null,
-      "bio": "Re-engineered upward-trending customer loyalty",
-      "email": "bjahner5@artisteer.com",
-      "dateOfBirth": "1971-03-26",
-      "phoneNumber": "+7 156 263 6774",
-      "homeAddress": {
-        "streetNumber": "362",
-        "streetName": "Melby Court",
-        "city": "Rossosh’",
-        "region": null,
-        "country": "Russia",
-        "postcode": "652672"
-      },
-      "password": "NsviFIzDfaM2"
-    },
-    {
-      "firstName": "Arthur",
-      "middleName": null,
-      "lastName": "Assel",
-      "nickname": "Arty",
-      "bio": "Business-focused background hub",
-      "email": "a.assel6@yandex.ru",
-      "dateOfBirth": "1976-10-25",
+      "lastName": "Hearse",
+      "nickname": "Deb",
+      "bio": null,
+      "email": "chearse5@va.gov",
+      "dateOfBirth": "1975-05-03",
       "phoneNumber": null,
       "homeAddress": {
-        "streetNumber": "2296",
-        "streetName": "Daystar Plaza",
-        "city": "Ishikawa",
+        "streetNumber": null,
+        "streetName": null,
+        "city": null,
         "region": null,
-        "country": "Japan",
-        "postcode": "960-1476"
+        "country": "New Zealand",
+        "postcode": null
       },
-      "password": "Bg12IrT166"
+      "password": "tu1WNacYI"
     },
     {
-      "firstName": "Genia",
+      "firstName": "Shirley",
+      "middleName": "Ricki",
+      "lastName": "Cowey",
+      "nickname": null,
+      "bio": "Proactive analyzing array",
+      "email": "rcowey6@pcworld.com",
+      "dateOfBirth": "1966-12-12",
+      "phoneNumber": "+61 103 954 4151",
+      "homeAddress": {
+        "streetNumber": "128",
+        "streetName": "Independence Crossing",
+        "city": "Launceston",
+        "region": "Tasmania",
+        "country": "Australia",
+        "postcode": "7904"
+      },
+      "password": "irHwIo4UGL"
+    },
+    {
+      "firstName": "Zoe",
       "middleName": null,
-      "lastName": "Boncore",
+      "lastName": "Clifton",
       "nickname": null,
-      "bio": "Object-based multimedia website",
-      "email": "bboncore7@123-reg.co.uk",
-      "dateOfBirth": "1961-09-22",
-      "phoneNumber": "+1 571 570 0492",
+      "bio": null,
+      "email": "kclifton7@boston.com",
+      "dateOfBirth": "1964-09-01",
+      "phoneNumber": "+64 672 852 6706",
       "homeAddress": {
-        "streetNumber": "6",
-        "streetName": "Kensington Road",
-        "city": "Springfield",
-        "region": "Virginia",
-        "country": "United States",
-        "postcode": "22156"
-      },
-      "password": "ghbcualT8Y9G"
-    },
-    {
-      "firstName": "Bradley",
-      "middleName": "Brandais",
-      "lastName": "Seel",
-      "nickname": "Brad",
-      "bio": "Re-engineered background database",
-      "email": "bseel8@mozilla.com",
-      "dateOfBirth": "1974-09-20",
-      "phoneNumber": "+7 338 875 6916",
-      "homeAddress": {
-        "streetNumber": "89",
-        "streetName": "Shopko Alley",
-        "city": "Shumikhinskiy",
+        "streetNumber": null,
+        "streetName": null,
+        "city": null,
         "region": null,
-        "country": "Russia",
-        "postcode": "618283"
+        "country": "New Zealand",
+        "postcode": null
       },
-      "password": "hpuszVuQ"
+      "password": "CBHq8A"
     },
     {
-      "firstName": "Fifine",
-      "middleName": "Nina",
-      "lastName": "Kestin",
-      "nickname": null,
-      "bio": "Upgradable intangible benchmark",
-      "email": "nkestin9@wufoo.com",
-      "dateOfBirth": "1951-11-10",
+      "firstName": "Lewis",
+      "middleName": "Ellynn",
+      "lastName": "De Carlo",
+      "nickname": "Lew",
+      "bio": null,
+      "email": "edecarlo8@auda.org.au",
+      "dateOfBirth": "1962-01-31",
       "phoneNumber": null,
       "homeAddress": {
-        "streetNumber": "89",
-        "streetName": "Pearson Point",
-        "city": "Yakovlevo",
+        "streetNumber": null,
+        "streetName": null,
+        "city": null,
         "region": null,
-        "country": "Russia",
-        "postcode": "309288"
+        "country": "New Zealand",
+        "postcode": null
       },
-      "password": "j1xIdB"
+      "password": "FplmxMGW"
+    },
+    {
+      "firstName": "Norine",
+      "middleName": "Massimiliano",
+      "lastName": "Ganderton",
+      "nickname": null,
+      "bio": "Managed disintermediate product",
+      "email": "mgandertona@hp.com",
+      "dateOfBirth": "1997-05-15",
+      "phoneNumber": "+64 432 564 3428",
+      "homeAddress": {
+        "streetNumber": "30",
+        "streetName": "High Crossing Trail",
+        "city": "Pukekohe East",
+        "region": null,
+        "country": "New Zealand",
+        "postcode": "2677"
+      },
+      "password": "dxyACzHsl"
+    },
+    {
+      "firstName": "Aldous",
+      "middleName": "Merilyn",
+      "lastName": "Jovis",
+      "nickname": null,
+      "bio": null,
+      "email": "mjovisb@tumblr.com",
+      "dateOfBirth": "1951-03-05",
+      "phoneNumber": null,
+      "homeAddress": {
+        "streetNumber": null,
+        "streetName": null,
+        "city": null,
+        "region": null,
+        "country": "New Zealand",
+        "postcode": null
+      },
+      "password": "SMSZ8mgCr"
+    },
+    {
+      "firstName": "Hinze",
+      "middleName": null,
+      "lastName": "Luttgert",
+      "nickname": null,
+      "bio": "Face to face intangible open system",
+      "email": "tluttgertc@over-blog.com",
+      "dateOfBirth": "1991-05-27",
+      "phoneNumber": "+64 562 851 3248",
+      "homeAddress": {
+        "streetNumber": "76",
+        "streetName": "Jana Avenue",
+        "city": "Papakura",
+        "region": null,
+        "country": "New Zealand",
+        "postcode": "2113"
+      },
+      "password": "RGiEuT6"
+    },
+    {
+      "firstName": "Lyssa",
+      "middleName": null,
+      "lastName": "Fruish",
+      "nickname": null,
+      "bio": "Sharable optimal structure",
+      "email": "cfruishd@ovh.net",
+      "dateOfBirth": "1979-10-31",
+      "phoneNumber": null,
+      "homeAddress": {
+        "streetNumber": "2291",
+        "streetName": "Londonderry Plaza",
+        "city": "Kaiapoi",
+        "region": null,
+        "country": "New Zealand",
+        "postcode": "7644"
+      },
+      "password": "OhVIU2"
+    },
+    {
+      "firstName": "Randene",
+      "middleName": null,
+      "lastName": "Bointon",
+      "nickname": null,
+      "bio": "Realigned logistical collaboration",
+      "email": "obointone@economist.com",
+      "dateOfBirth": "1964-01-07",
+      "phoneNumber": null,
+      "homeAddress": {
+        "streetNumber": "04724",
+        "streetName": "Graceland Alley",
+        "city": "Eastern Suburbs Mc",
+        "region": "New South Wales",
+        "country": "Australia",
+        "postcode": "1325"
+      },
+      "password": "7eiOA4CIyRvq"
+    },
+    {
+      "firstName": "Michele",
+      "middleName": null,
+      "lastName": "Learmonth",
+      "nickname": "Shay",
+      "bio": "Fundamental foreground strategy",
+      "email": "slearmonthf@free.fr",
+      "dateOfBirth": "1951-04-24",
+      "phoneNumber": "+64 201 579 6044",
+      "homeAddress": {
+        "streetNumber": "536",
+        "streetName": "Michigan Junction",
+        "city": "Pakuranga",
+        "region": null,
+        "country": "New Zealand",
+        "postcode": "2140"
+      },
+      "password": "3xct7JXiL"
+    },
+    {
+      "firstName": "Tami",
+      "middleName": "Hermione",
+      "lastName": "Connew",
+      "nickname": null,
+      "bio": "Front-line encompassing application",
+      "email": "hconnewg@studiopress.com",
+      "dateOfBirth": "1953-06-13",
+      "phoneNumber": "+64 333 822 9952",
+      "homeAddress": {
+        "streetNumber": "8344",
+        "streetName": "Dixon Way",
+        "city": "Waitara",
+        "region": null,
+        "country": "New Zealand",
+        "postcode": "4346"
+      },
+      "password": "nLcy14E"
+    },
+    {
+      "firstName": "Timmy",
+      "middleName": null,
+      "lastName": "Taleworth",
+      "nickname": null,
+      "bio": "Optimized 5th generation workforce",
+      "email": "staleworthh@oaic.gov.au",
+      "dateOfBirth": "1972-09-08",
+      "phoneNumber": "+64 403 773 3923",
+      "homeAddress": {
+        "streetNumber": "66",
+        "streetName": "Clemons Plaza",
+        "city": "Palmerston North",
+        "region": null,
+        "country": "New Zealand",
+        "postcode": "4820"
+      },
+      "password": "FutQ8W5qc"
+    },
+    {
+      "firstName": "Elane",
+      "middleName": null,
+      "lastName": "Hake",
+      "nickname": null,
+      "bio": "Customer-focused contextually-based workforce",
+      "email": "whakei@soundcloud.com",
+      "dateOfBirth": "1973-07-23",
+      "phoneNumber": null,
+      "homeAddress": {
+        "streetNumber": "5183",
+        "streetName": "Kinsman Drive",
+        "city": "Kaiapoi",
+        "region": null,
+        "country": "New Zealand",
+        "postcode": "7644"
+      },
+      "password": "gA60CU"
+    },
+    {
+      "firstName": "Scarlett",
+      "middleName": null,
+      "lastName": "Massingham",
+      "nickname": null,
+      "bio": "Optimized zero administration local area network",
+      "email": "tmassinghamj@tmall.com",
+      "dateOfBirth": "1978-12-24",
+      "phoneNumber": "+64 511 939 0301",
+      "homeAddress": {
+        "streetNumber": "64690",
+        "streetName": "Bunker Hill Hill",
+        "city": "Waitara",
+        "region": null,
+        "country": "New Zealand",
+        "postcode": "4346"
+      },
+      "password": "KTSlOSdaW1j"
     }
   ],
   "businesses": [
-    {
-      "name": "Myrtle's Motorbike Parts",
-      "description": "Buy all your motorbike parts here.",
-      "address": {
-        "streetNumber": "40",
-        "streetName": "Moorhouse Ave",
-        "city": "Christchurch",
-        "region": "Canterbury",
-        "country": "New Zealand",
-        "postcode": "8022"
-      },
-      "businessType": "Retail Trade",
-      "primaryAdministratorId": 1
-    },
-    {
-      "name": "Discount Tech",
-      "description": "The cheapest tech parts around.",
-      "address": {
-        "streetNumber": "63",
-        "streetName": "Queen Street",
-        "city": "Auckland",
-        "region": "Auckland",
-        "country": "New Zealand",
-        "postcode": "9016"
-      },
-      "businessType": "Retail Trade",
-      "primaryAdministratorId": 2
-    },
     {
       "name": "Myrtle's Muffins",
       "description": "Tasty muffins by Myrtle",
@@ -232,57 +394,194 @@
         "postcode": "8022"
       },
       "businessType": "Accommodation and Food Services",
-      "primaryAdministratorId": 1
+      "primaryAdministratorId": 1,
+      "admins": [4]
+    },
+    {
+      "name": "Tinned Food Mart",
+      "description": "The perfect place to purchase your non-perishables",
+      "address": {
+        "streetNumber": "231",
+        "streetName": "Colombo Street",
+        "city": "Christchurch",
+        "region": "Canterbury",
+        "country": "New Zealand",
+        "postcode": "8021"
+      },
+      "businessType": "Accommodation and Food Services",
+      "primaryAdministratorId": 2,
+      "admins": []
+    },
+    {
+      "name": "Layla's Jam & Pickles",
+      "description": "Get your indulgent fruit jams here.",
+      "address": {
+        "streetNumber": "63",
+        "streetName": "Esker Court",
+        "city": "Kerikeri",
+        "region": null,
+        "country": "New Zealand",
+        "postcode": "0245"
+      },
+      "businessType": "Retail Trade",
+      "primaryAdministratorId": 3,
+      "admins": []
     }
   ],
   "products": [
-    {
-      "id": "MX-500",
-      "name": "MotorXtreme Helmet 500",
-      "description": "High efficiency and safety.",
-      "manufacturer": "MotorXtreme",
-      "recommendedRetailPrice": 199.95,
-      "businessId": 1
-    },
-    {
-      "id": "MX-GL2-3pk",
-      "name": "MotorXtreme Safety Gloves (3 pack)",
-      "description": "A 3 pack of safety gloves.",
-      "manufacturer": "MotorXtreme",
-      "recommendedRetailPrice": 29.99,
-      "businessId": 1
-    },
-    {
-      "id": "NVIDIA-GF-RTX-1080Ti",
-      "name": "Nvidia GeForce RTX 1080Ti",
-      "description": "The best graphics card you can buy.",
-      "manufacturer": "Nvidia",
-      "recommendedRetailPrice": 595.99,
-      "businessId": 2
-    },
     {
       "id": "CHOC-CHIP",
       "name": "Choc-chip muffins",
       "description": "Soft vanilla muffins with chocolate chips.",
       "manufacturer": "Myrtle",
-      "recommendedRetailPrice": 2.89,
-      "businessId": 3
+      "recommendedRetailPrice": 3.99,
+      "businessId": 1
     },
     {
       "id": "BANANA",
       "name": "Banana muffins",
       "description": "Sweet banana muffins",
       "manufacturer": "Myrtle",
+      "recommendedRetailPrice": 2.95,
+      "businessId": 1
+    },
+    {
+      "id": "BRAN",
+      "name": "Bran muffins",
+      "description": "For a healthier option",
+      "manufacturer": "Myrtle",
+      "recommendedRetailPrice": 2.45,
+      "businessId": 1
+    },
+    {
+      "id": "WATT-250-BEANS",
+      "name": "Watties Baked Beans - 250g can",
+      "description": "Just regular old baked bean.",
+      "manufacturer": "Watties",
+      "recommendedRetailPrice": 1.99,
+      "businessId": 2
+    },
+    {
+      "id": "WATT-400-BEANS",
+      "name": "Watties Baked Beans - 400g can",
+      "description": "Just regular old baked bean.",
+      "manufacturer": "Watties",
+      "recommendedRetailPrice": 3.50,
+      "businessId": 2
+    },
+    {
+      "id": "WATT-500-BEANS",
+      "name": "Watties Baked Beans - 500g can",
+      "description": "Just regular old baked bean.",
+      "manufacturer": "Watties",
+      "recommendedRetailPrice": 3.99,
+      "businessId": 2
+    },
+    {
+      "id": "WATT-250-SPAG",
+      "name": "Watties Spaghetti - 250g can",
+      "description": "Spaghetti in a tomato sauce.",
+      "manufacturer": "Watties",
+      "recommendedRetailPrice": 1.50,
+      "businessId": 2
+    },
+    {
+      "id": "DELM-400-TOM",
+      "name": "Delmaine Italian Tomatoes - 400g can",
+      "description": "Whole peeled italian tomatoes.",
+      "manufacturer": "Delmaine",
+      "recommendedRetailPrice": 3.95,
+      "businessId": 2
+    },
+    {
+      "id": "TUNA-200g-LEMON",
+      "name": "Sealord Lemon Pepper Tuna - 200g can",
+      "description": "Tuna with lemon pepper flavour.",
+      "manufacturer": "Sealord",
+      "recommendedRetailPrice": 2.95,
+      "businessId": 2
+    },
+    {
+      "id": "TUNA-200g-BASIL",
+      "name": "Sealord Basil Tuna - 200g can",
+      "description": "Tuna with basil flavour.",
+      "manufacturer": "Sealord",
+      "recommendedRetailPrice": 2.95,
+      "businessId": 2
+    },
+    {
+      "id": "TUNA-200g-SPRW",
+      "name": "Sealord Tuna in Spring Water - 200g can",
+      "description": "Tuna in fresh spring water.",
+      "manufacturer": "Sealord",
+      "recommendedRetailPrice": 2.95,
+      "businessId": 2
+    },
+    {
+      "id": "TUNA-200g-BBQ",
+      "name": "Sealord BBQ Tuna - 200g can",
+      "description": "Tuna with BBQ flavour.",
+      "manufacturer": "Sealord",
+      "recommendedRetailPrice": 2.95,
+      "businessId": 2
+    },
+    {
+      "id": "TUNA-200g-SATAY",
+      "name": "Sealord Satay Tuna - 200g can",
+      "description": "Tuna with satay flavour.",
+      "manufacturer": "Sealord",
+      "recommendedRetailPrice": 2.95,
+      "businessId": 2
+    },
+    {
+      "id": "WATT-TOMAT-SAUCE",
+      "name": "Watties Canned Tomato Sauce",
+      "description": "Just your average tomato sauce.",
+      "manufacturer": "Watties",
+      "recommendedRetailPrice": 2.00,
+      "businessId": 2
+    },
+    {
+      "id": "DELM-350-RKBEAN",
+      "name": "Delmaine Red Kidney Beans - 350g can",
+      "description": "Red kidney beans.",
+      "manufacturer": "Delmaine",
+      "recommendedRetailPrice": 2.50,
+      "businessId": 2
+    },
+    {
+      "id": "PLUM-JAM",
+      "name": "Plum Jam",
+      "description": "Homemade plum jam.",
+      "manufacturer": "Layla",
       "recommendedRetailPrice": 2.99,
       "businessId": 3
+    },
+    {
+      "id": "STRAWBERRY-JAM",
+      "name": "Strawberry Jam",
+      "description": "Homemade strawberry jam.",
+      "manufacturer": "Layla",
+      "recommendedRetailPrice": 2.99,
+      "businessId": 3
+    },
+    {
+      "id": "GREEN-TOM-CHUTNEY",
+      "name": "Green Tomato Chutney",
+      "description": "Home chutney made with local tomatoes.",
+      "manufacturer": "Layla",
+      "recommendedRetailPrice": 3.99,
+      "businessId": 3
     }
+
   ],
   "inventoryItems": [
     {
       "productId": "CHOC-CHIP",
+      "businessId": 1,
       "quantity": 4,
-      "pricePerItem": 2.1,
-      "totalPrice": 8.4,
+      "pricePerItem": 3.49,
+      "totalPrice": 8.00,
       "manufactured": "2021-04-10",
       "sellBy": "2021-05-15",
       "bestBefore": "2021-05-15",
@@ -290,30 +589,133 @@
     },
     {
       "productId": "BANANA",
+      "businessId": 1,
       "quantity": 3,
-      "pricePerItem": 2.2,
-      "totalPrice": 6.6,
+      "pricePerItem": 2.80,
+      "totalPrice": 6.50,
       "manufactured": "2021-04-09",
       "sellBy": "2021-05-14",
       "bestBefore": "2021-05-14",
       "expires": "2021-05-16"
+    },
+    {
+      "productId": "WATT-250-BEANS",
+      "businessId": 2,
+      "quantity": 5,
+      "pricePerItem": 1.99,
+      "totalPrice": 9.50,
+      "manufactured": "2020-04-09",
+      "sellBy": "2021-11-14",
+      "bestBefore": "2021-11-14",
+      "expires": "2021-11-25"
+    },
+    {
+      "productId": "WATT-250-BEANS",
+      "businessId": 2,
+      "quantity": 4,
+      "pricePerItem": 1.99,
+      "totalPrice": 9.50,
+      "manufactured": "2021-04-09",
+      "sellBy": "2022-06-10",
+      "bestBefore": "2022-06-10",
+      "expires": "2022-06-21"
+    },
+    {
+      "productId": "DELM-400-TOM",
+      "businessId": 2,
+      "quantity": 8,
+      "pricePerItem": 3.99,
+      "totalPrice": 30.00,
+      "manufactured": "2021-04-09",
+      "sellBy": "2022-05-10",
+      "bestBefore": "2022-05-10",
+      "expires": "2022-07-21"
+    },
+    {
+      "productId": "TUNA-200g-LEMON",
+      "businessId": 2,
+      "quantity": 4,
+      "pricePerItem": 2.90,
+      "totalPrice": 10.95,
+      "manufactured": "2021-04-09",
+      "sellBy": null,
+      "bestBefore": null,
+      "expires": "2021-11-10"
+    },
+    {
+      "productId": "TUNA-200g-SATAY",
+      "businessId": 2,
+      "quantity": 4,
+      "pricePerItem": 2.90,
+      "totalPrice": 10.95,
+      "manufactured": "2021-04-09",
+      "sellBy": null,
+      "bestBefore": null,
+      "expires": "2021-11-10"
+    },
+    {
+      "productId": "TUNA-200g-SPRW",
+      "businessId": 2,
+      "quantity": 4,
+      "pricePerItem": 2.90,
+      "totalPrice": 10.95,
+      "manufactured": "2021-04-09",
+      "sellBy": null,
+      "bestBefore": null,
+      "expires": "2021-11-10"
+    },
+    {
+      "productId": "PLUM-JAM",
+      "businessId": 3,
+      "quantity": 4,
+      "pricePerItem": 2.90,
+      "totalPrice": 10.95,
+      "manufactured": "2021-04-09",
+      "sellBy": null,
+      "bestBefore": null,
+      "expires": "2022-11-10"
     }
   ],
   "saleListings": [
     {
+      "businessId": 1,
       "inventoryItemId": 1,
       "quantity": 2,
-      "price": 4.2,
+      "price": 6.98,
       "moreInfo": "Seller may be willing to consider near offers",
       "closes": "2021-07-21T23:59:00Z"
     },
     {
+      "businessId": 1,
       "inventoryItemId": 2,
       "quantity": 3,
-      "price": 6.6,
+      "price": 6.50,
       "moreInfo": "Seller may be willing to consider near offers",
       "closes": "2021-08-21T23:59:00Z"
+    },
+    {
+      "businessId": 2,
+      "inventoryItemId": 5,
+      "quantity": 4,
+      "price": 15.00,
+      "moreInfo": null,
+      "closes": "2021-08-21T23:59:00Z"
+    },
+    {
+      "businessId": 2,
+      "inventoryItemId": 5,
+      "quantity": 4,
+      "price": 15.00,
+      "moreInfo": null,
+      "closes": "2021-08-21T23:59:00Z"
+    },
+    {
+      "businessId": 3,
+      "inventoryItemId": 9,
+      "quantity": 4,
+      "price": 10.00,
+      "moreInfo": null,
+      "closes": "2021-08-21T23:59:00Z"
     }
-
   ]
 }

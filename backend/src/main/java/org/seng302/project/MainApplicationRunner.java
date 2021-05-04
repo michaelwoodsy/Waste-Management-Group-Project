@@ -180,7 +180,15 @@ public class MainApplicationRunner implements ApplicationRunner {
                     primaryAdminId
             );
             businessRepository.save(testBusiness);
+
             testBusiness.addAdministrator(userRepository.getOne(primaryAdminId));
+
+            JSONArray admins = (JSONArray) jsonBusiness.get("admins");
+            for (Object admin : admins) {
+                Integer adminId = Integer.parseInt(admin.toString());
+                testBusiness.addAdministrator(userRepository.getOne(adminId));
+            }
+
             businessRepository.save(testBusiness);
         }
 
@@ -222,16 +230,17 @@ public class MainApplicationRunner implements ApplicationRunner {
         for (Object object : inventoryData) {
             JSONObject jsonInventoryItem = (JSONObject) object;
             Optional<Product> testProductOptions = productRepository.findByIdAndBusinessId(
-                    jsonInventoryItem.getAsString("productId"),3);
+                    jsonInventoryItem.getAsString("productId"),
+                    jsonInventoryItem.getAsNumber("businessId").intValue());
             if (testProductOptions.isPresent()) {
                 Product testProduct = testProductOptions.get();
                 InventoryItem testInventoryItem = new InventoryItem(
                         testProduct,
                         jsonInventoryItem.getAsNumber("quantity").intValue(),
                         jsonInventoryItem.getAsNumber("pricePerItem") != null ?
-                                jsonInventoryItem.getAsNumber("pricePerItem").doubleValue(): null,
-                        jsonInventoryItem.getAsNumber("totalPrice")!= null ?
-                                jsonInventoryItem.getAsNumber("totalPrice").doubleValue(): null,
+                                jsonInventoryItem.getAsNumber("pricePerItem").doubleValue() : null,
+                        jsonInventoryItem.getAsNumber("totalPrice") != null ?
+                                jsonInventoryItem.getAsNumber("totalPrice").doubleValue() : null,
                         jsonInventoryItem.getAsString("manufactured"),
                         jsonInventoryItem.getAsString("sellBy"),
                         jsonInventoryItem.getAsString("bestBefore"),
@@ -257,7 +266,7 @@ public class MainApplicationRunner implements ApplicationRunner {
             if (testItemOptions.isPresent()) {
                 InventoryItem testItem = testItemOptions.get();
                 SaleListing testListing = new SaleListing(
-                        3,
+                        jsonSaleListing.getAsNumber("businessId").intValue(),
                         testItem,
                         jsonSaleListing.getAsNumber("price").doubleValue(),
                         jsonSaleListing.getAsString("moreInfo"),
