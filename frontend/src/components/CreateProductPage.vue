@@ -65,7 +65,7 @@
                   <span class="input-group-text">{{ this.currencySymbol }}</span>
                 </div>
                 <input id="rrp" v-model="recommendedRetailPrice" :class="{'form-control': true, 'is-invalid': msg.rrp}"
-                       maxlength="255"
+                       maxlength="10"
                        placeholder="Enter product RRP" type="text">
                 <div class="input-group-append">
                   <span class="input-group-text">{{ this.currencyCode }}</span>
@@ -147,12 +147,6 @@ export default {
   },
   methods: {
     /**
-     * Rounds the RRP to 2dp
-     */
-    roundRRP(rrp) {
-      return (Math.round(rrp * 100)) / 100;
-    },
-    /**
      * Validate product ID field
      */
     validateId() {
@@ -181,8 +175,8 @@ export default {
      * Validate the product RRP field
      */
     validateRRP() {
-      console.log(this.recommendedRetailPrice);
-      if (Number.isNaN(Number(this.recommendedRetailPrice))) {
+      let isNotNumber = Number.isNaN(Number(this.recommendedRetailPrice))
+      if (isNotNumber || !/^([0-9]+(.[0-9]{0,2})?)?$/.test(this.recommendedRetailPrice)) {
         this.msg.rrp = 'Please enter a valid price';
         this.valid = false;
       } else {
@@ -211,14 +205,13 @@ export default {
      * Add a new product to the business's product catalogue
      */
     addProduct() {
-      const rrp = Number(this.recommendedRetailPrice)
       this.$root.$data.business.createProduct(
           this.businessId, {
             "id": this.id,
             "name": this.name,
             "description": this.description,
             "manufacturer": this.manufacturer,
-            "recommendedRetailPrice": this.recommendedRetailPrice !== '' ? this.roundRRP(rrp) : null
+            "recommendedRetailPrice": Number(this.recommendedRetailPrice)
           }
       ).then(() => {
         this.$router.push({name: "viewCatalogue", params: {businessId: this.businessId}});

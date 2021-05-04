@@ -51,9 +51,9 @@
           <hr/>
             <address-input-fields
                 :showErrors="submitClicked"
-                check-currency="true"
                 @setAddress="(newAddress) => {this.address = newAddress}"
                 @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
+                ref="addressInput"
             />
           <hr/>
 
@@ -257,15 +257,28 @@ export default {
     },
 
     /**
+     * Validates the address
+     * Sets valid = false if the address is not valid
+     */
+    async validateAddress() {
+      if (!this.addressIsValid) {
+        this.valid = false
+        return
+      }
+      if (!await this.$refs.addressInput.checkAddressCountry()) {
+        this.valid = false
+      }
+    },
+
+    /**
      * Validating to check if the data entered is input correctly
      * If not an error message is displayed
      */
     async checkInputs() {
       this.submitClicked++;
       this.validateBusinessName();
-      if (!this.addressIsValid) {this.valid = false}
+      await this.validateAddress();
       this.validateBusinessType();
-
 
       if (!this.valid) {
         this.msg['errorChecks'] = 'Please fix the shown errors and try again';

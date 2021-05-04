@@ -130,9 +130,9 @@
                 <div class="col-sm-8">
                   <input
                       id="rrp"
-                      v-model.number="newProduct.recommendedRetailPrice"
+                      v-model="newProduct.recommendedRetailPrice"
                       :class="{'form-control': true, 'is-invalid': !priceValid && priceBlur}"
-                      maxlength="255"
+                      maxlength="10"
                       type="text"
                       @blur="priceBlur = true"
                   >
@@ -293,7 +293,12 @@ export default {
     /** True if the inputted price is valid **/
     priceValid() {
       // Regex valid for any number with a max of 2 dp, or empty
-      if (this.newProduct.recommendedRetailPrice == null) {return true}
+      let isNotNumber = Number.isNaN(Number(this.newProduct.recommendedRetailPrice))
+      if (this.newProduct.recommendedRetailPrice === null || this.newProduct.recommendedRetailPrice === '') {
+        return true
+      } else if (isNotNumber) {
+        return false
+      }
       return /^([0-9]+(.[0-9]{0,2})?)?$/.test(this.newProduct.recommendedRetailPrice)
     },
 
@@ -327,10 +332,8 @@ export default {
         return
       }
 
-      // Set the rrp to null if its an empty string
-      if (this.newProduct.recommendedRetailPrice === '') {
-        this.newProduct.recommendedRetailPrice = null
-      }
+      // Set the rrp typeof to Number even if its an empty string
+      this.newProduct.recommendedRetailPrice = Number(this.newProduct.recommendedRetailPrice)
 
       // Submit changes to api
       this.submitting = true;
