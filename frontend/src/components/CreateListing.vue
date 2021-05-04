@@ -33,7 +33,7 @@
         <div :class="{'input-group': true, 'is-invalid': msg.quantity}">
           <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
                  :disabled="!selectedInventoryItem" :max="this.getMaxQuantity(this.selectedInventoryItem)" min="1"
-                 placeholder="Enter the quantity" required step="1" type="number">
+                 placeholder="Enter the quantity" required step="1" type="number" @change="updatePrice">
           <div v-if="this.selectedInventoryItem !== null" class="input-group-append">
                   <span class="input-group-text">Max Quantity: {{
                       this.getMaxQuantity(this.selectedInventoryItem)
@@ -134,6 +134,7 @@ export default {
         price: null,
         moreInfo: null,
         closes: null,
+        errorChecks: null
       },
       valid: true,
       selectingItem: false
@@ -196,7 +197,8 @@ export default {
     /**
      *  When an inventory item is selected in the dropdown for sale,
      *  the inventory item's details are autofilled into the fields such as
-     *  quantity, price (if applicalble) and expiry date.
+     *  quantity, price (if applicable) and expiry date.
+     *  This is called in InventoryItems.vue
      */
     updateInventoryItem() {
       for (const item of this.inventoryItems) {
