@@ -55,13 +55,11 @@ public class UserControllerTest {
     }
 
     private JSONObject createTestUserBase() throws JSONException {
-        JSONObject testUserAddress = new JSONObject();
-        testUserAddress.put("country", "New Zealand");
         JSONObject testUserJson = new JSONObject();
         testUserJson.put("middleName", "James");
         testUserJson.put("nickname", "Jonny");
         testUserJson.put("bio", "Likes long walks on the beach");
-        testUserJson.put("homeAddress", testUserAddress);
+        testUserJson.put("homeAddress", "4 Rountree Street, Upper Riccarton");
         testUserJson.put("password", "1337-H%nt3r2");
 
         return testUserJson;
@@ -100,7 +98,7 @@ public class UserControllerTest {
         Assertions.assertEquals("johnsmith99@gmail.com", retrievedUser.getEmail());
         Assertions.assertEquals("1999-04-27", retrievedUser.getDateOfBirth());
         Assertions.assertEquals("+64 3 555 0129", retrievedUser.getPhoneNumber());
-        Assertions.assertEquals("New Zealand", retrievedUser.getHomeAddress().getCountry());
+        Assertions.assertEquals("4 Rountree Street, Upper Riccarton", retrievedUser.getHomeAddress());
         Assertions.assertTrue(passwordEncoder.matches("1337-H%nt3r2", retrievedUser.getPassword()));
         Assertions.assertEquals("user", retrievedUser.getRole());
         Assertions.assertTrue(retrievedUser.getCreated().isBefore(LocalDateTime.now()));
@@ -125,6 +123,7 @@ public class UserControllerTest {
         newTestUserJson.put("email", "johnsmith99@gmail.com");
         newTestUserJson.put("dateOfBirth", "1999-04-27");
         newTestUserJson.put("phoneNumber", "+64 3 555 0129");
+        newTestUserJson.put("homeAddress", "4 Rountree Street, Upper Riccarton");
         newTestUserJson.put("password", "1337-H%nt3r2");
 
         RequestBuilder postUserRequest = MockMvcRequestBuilders
@@ -210,7 +209,7 @@ public class UserControllerTest {
         testUserJson.put("lastName", "Smith");
         testUserJson.put("email", "john@gmail.com");
         testUserJson.put("dateOfBirth", "1999-04-27");
-        testUserJson.put("phoneNumber", "hello");
+        testUserJson.put("phoneNumber", "03555");
 
         RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .post("/users")
@@ -313,7 +312,7 @@ public class UserControllerTest {
         Assertions.assertEquals("johnsmith99@gmail.com", returnedUser.getString("email"));
         Assertions.assertEquals("1999-04-27", returnedUser.getString("dateOfBirth"));
         Assertions.assertEquals("+64 3 555 0129", returnedUser.getString("phoneNumber"));
-        Assertions.assertEquals("New Zealand", returnedUser.getJSONObject("homeAddress").getString("country"));
+        Assertions.assertEquals("4 Rountree Street, Upper Riccarton", returnedUser.getString("homeAddress"));
         Assertions.assertEquals("user", returnedUser.getString("role"));
 
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;

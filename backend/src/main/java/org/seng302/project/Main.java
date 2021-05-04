@@ -27,9 +27,8 @@
 
 package org.seng302.project;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -46,7 +45,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SpringBootApplication
 public class Main {
 
-    private static final Logger logger = LoggerFactory.getLogger(Main.class.getName());
+    private static final Logger logger = LogManager.getLogger(Main.class.getName());
 
     /**
      * Main method. Startup the Spring application with given args
@@ -73,8 +72,7 @@ public class Main {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**").allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                        .allowedOrigins("http://localhost:9600", "https://csse-s302g2.canterbury.ac.nz")
-                        .allowCredentials(true);
+                        .allowedOrigins("http://localhost:9500", "https://csse-s302g12.canterbury.ac.nz");
             }
         };
     }

@@ -4,8 +4,6 @@ import org.json.JSONArray;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.seng302.project.model.Address;
-import org.seng302.project.model.AddressRepository;
 import org.seng302.project.model.User;
 import org.seng302.project.model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +36,6 @@ public class SearchControllerTest {
     private UserRepository userRepository;
 
     @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     private MockMvc mvc;
@@ -61,48 +56,38 @@ public class SearchControllerTest {
         ArrayList<Integer> testUserIds = new ArrayList<>();
 
         //Populate database with test users
-        Address testAddress1 = new Address();
         User testUser1 = new User("John", "Smith", "Hector", "Jonny",
                 "Likes long walks on the beach", "john99@gmail.com", "1999-04-27",
-                "+64 3 555 0129", testAddress1, "1337-H%nt3r2");
+                "+64 3 555 0129", "4 Rountree Street, Upper Riccarton", "1337-H%nt3r2");
         testUser1.setPassword(passwordEncoder.encode(testUser1.getPassword()));
-        addressRepository.save(testAddress1);
         userRepository.save(testUser1);
         testUserIds.add(testUser1.getId());
 
-        Address testAddress2 = new Address();
         User testUser2 = new User("Hector", "Jones", "Micheal", "",
                 "Likes swimming with dolphins", "hectordolphin77@gmail.com", "2000-04-24",
-                "+64 3 123 1234", testAddress2, "%3ll1Ng");
+                "+64 3 123 1234", "18 Riccarton Road, Riccarton", "%3ll1Ng");
         testUser2.setPassword(passwordEncoder.encode(testUser2.getPassword()));
-        addressRepository.save(testAddress2);
         userRepository.save(testUser2);
         testUserIds.add(testUser2.getId());
 
-        Address testAddress3 = new Address();
         User testUser3 = new User("Joshua", "Hector", "James", "Josh",
                 "Likes eating cake", "cakeman44@gmail.com", "2000-03-16",
-                "+64 3 321 1234", testAddress3, "637*hng%#");
+                "+64 3 321 1234", "22 Riccarton Road, Riccarton", "637*hng%#");
         testUser3.setPassword(passwordEncoder.encode(testUser3.getPassword()));
-        addressRepository.save(testAddress3);
         userRepository.save(testUser3);
         testUserIds.add(testUser3.getId());
 
-        Address testAddress4 = new Address();
         User testUser4 = new User("Hector-Anne", "Berry", "Rose", "Hector",
                 "Likes riding horses", "horsechick72@gmail.com", "2000-06-26",
-                "+64 3 321 4321", testAddress4, "#2564nhgr");
+                "+64 3 321 4321", "14 Riccarton Road, Riccarton", "#2564nhgr");
         testUser4.setPassword(passwordEncoder.encode(testUser4.getPassword()));
-        addressRepository.save(testAddress4);
         userRepository.save(testUser4);
         testUserIds.add(testUser4.getId());
 
-        Address testAddress5 = new Address();
         User testUser5 = new User("Sarah", "Bealing", "Maynita", "Chester",
                 "Likes SENG302", "smb272@gmail.com", "2000-05-21",
-                "+64 3 012 3456", testAddress5, "&@%^mnhde");
+                "+64 3 012 3456", "14 Creyke Road, Ilam", "&@%^mnhde");
         testUser5.setPassword(passwordEncoder.encode(testUser5.getPassword()));
-        addressRepository.save(testAddress5);
         userRepository.save(testUser5);
         testUserIds.add(testUser5.getId());
 

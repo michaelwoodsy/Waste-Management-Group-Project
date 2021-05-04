@@ -23,7 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class AuthenticationTest {
 
-    private final JSONObject testAddress = new JSONObject();
     private final JSONObject testUser = new JSONObject();
     private final JSONObject testIncorrectLogin = new JSONObject();
     private final JSONObject testCorrectLogin = new JSONObject();
@@ -36,13 +35,12 @@ public class AuthenticationTest {
     @BeforeEach
     public void initialise() throws JSONException {
         userRepository.deleteAll();
-        testAddress.put("country", "New Zealand");
         testUser.put("firstName", "Jane");
         testUser.put("lastName", "Doe");
         testUser.put("email", "janedoe95@gmail.com");
         testUser.put("dateOfBirth", "1995-06-20");
         testUser.put("phoneNumber", "+64 3 545 2896");
-        testUser.put("homeAddress", testAddress);
+        testUser.put("homeAddress", "7 Waimairi Road, Riccarton");
         testUser.put("password", "1357-H%nt3r2");
         testIncorrectLogin.put("email", "janedoe95@gmail.com");
         testIncorrectLogin.put("password", "1357-H%nt3r4");

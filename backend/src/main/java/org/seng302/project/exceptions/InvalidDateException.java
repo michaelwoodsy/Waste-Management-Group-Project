@@ -11,8 +11,4 @@ public class InvalidDateException extends RuntimeException {
         super("InvalidDateException: date format is incorrect.");
     }
 
-    public InvalidDateException(String message) {
-        super(message);
-    }
-
 }

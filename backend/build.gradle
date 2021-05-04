@@ -42,9 +42,6 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
-    cucumberRuntime { // From SENG301 Lab
-        extendsFrom testImplementation
-    }
 }
 
 repositories {
@@ -68,7 +65,7 @@ dependencies {
 
     // use spring boot mocking test framework
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    // Cucumber dependencies (we need all three)
+    // Cucumber dependencies
     testImplementation 'io.cucumber:cucumber-java:6.9.1'
     testImplementation 'io.cucumber:cucumber-junit:6.9.1'
     testImplementation 'io.cucumber:cucumber-spring:6.9.1'

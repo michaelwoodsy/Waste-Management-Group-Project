@@ -1,88 +1,45 @@
 import Vue from 'vue'
 import Router from './custom-router'
 
-import Landing from '../components/Landing'
+import Home from '../components/Home'
 import UserSearch from '../components/UserSearch'
-import RegisterPage from "../components/RegisterPage";
-import LoginPage from "../components/LoginPage";
-import Home from "../components/Home";
-import ProfilePage from "../components/ProfilePage";
-import BusinessProfilePage from "../components/BusinessProfilePage";
-import RegisterBusinessPage from "../components/RegisterBusinessPage";
-import Catalogue from "../components/ProductCatalogue";
-import EditProductPage from "../components/EditProductPage";
-import InventoryPage from "../components/InventoryPage";
-import SaleListings from "../components/SaleListings";
-import EditInventoryItemPage from "../components/EditInventoryItemPage";
+import Register_page from "../components/Register_page";
+import Login_page from "../components/Login_page";
+import Profile_page from "../components/Profile_page";
+import Public_profile_page from "../components/Public_profile_page";
 
 const routes = [
     {
         path: '/',
-        name: 'landing',
-        component: Landing
+        name: 'home',
+        component: Home
     },
     {
-        path: '/users/search',
+        path: '/users',
         name: 'users',
         component: UserSearch
     },
     {
-        path: '/users/:userId',
+        path: '/user/:userId',
         name: 'viewUser',
-        component: ProfilePage
+        component: Public_profile_page
     },
     {
         path: '/register',
         name: 'register',
-        component: RegisterPage
+        component: Register_page
     },
     {
         path: '/login',
         name: 'login',
-        component: LoginPage
+        component: Login_page
     },
     {
-        path: '/home', //TODO: change to '/' after user logged in?
+        path: '/profile',
         name: 'user',
-        component: Home
-    },
-    {
-        path: '/businesses/:businessId',
-        name: 'viewBusiness',
-        component: BusinessProfilePage
-    },
-    {
-        path: '/businesses',
-        name: 'registerBusiness',
-        component: RegisterBusinessPage
-    },
-    {
-        path: '/businesses/:businessId/products',
-        name: 'viewCatalogue',
-        component: Catalogue
-    },
-    {
-        path: '/businesses/:businessId/products/:productId',
-        name: 'editProduct',
-        component: EditProductPage
-    },
-    {
-        path: '/businesses/:businessId/inventory',
-        name: 'InventoryPage',
-        component: InventoryPage
-    },
-    {
-        path: '/businesses/:businessId/inventory/:inventoryItemId',
-        name: 'editInventoryItem',
-        component: EditInventoryItemPage
-    },
-    {
-        path: '/businesses/:businessId/listings',
-        name: 'listings',
-        component: SaleListings
+        component: Profile_page
     }
 ];
 
-const base = process.env.VUE_APP_BASE_URL || '/';
 
-Vue.use(Router, {routes, base});
+Vue.use(Router, {routes});

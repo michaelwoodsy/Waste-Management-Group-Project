@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --port 9600",
+    "serve": "vue-cli-service serve --port 9500",
     "build": "vue-cli-service build --mode staging",
     "build-prod": "vue-cli-service build --mode prod",
     "kill-all": "fuser -k 9500/tcp 9499/tcp",
