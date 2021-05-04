@@ -149,10 +149,18 @@ export const Business = {
      */
     createProduct: (businessId, data) => instance.post(`businesses/${businessId}/products`, data),
 
-    /*
-     * Gets all the sale listings for a business
+    /**
+     * Retrieves all the listings for a given business
+     * @param businessId The ID of the business in the database
      */
     getListings: (businessId) => instance.get(`businesses/${businessId}/listings`, {}),
+
+    /**
+     * Creates a new listing for a given business
+     * @param businessId The ID of the business in the database
+     * @param data The listing data
+     */
+    createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data)
 
 
 };

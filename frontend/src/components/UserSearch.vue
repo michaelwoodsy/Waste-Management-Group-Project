@@ -146,6 +146,7 @@ export default {
     ShowingResultsText,
     Pagination
   },
+
   data() {
     return {
       searchTerm: "",
@@ -158,6 +159,7 @@ export default {
       loading: false
     }
   },
+
   computed: {
     /**
      * Checks to see if user is logged in currently
@@ -220,6 +222,7 @@ export default {
 
       return newUsers
     },
+
     /**
      * Calculates the number of results in users array
      * @returns {number}
@@ -228,6 +231,7 @@ export default {
       return this.users.length
     }
   },
+
   methods: {
     /**
      * Search Logic
@@ -249,9 +253,14 @@ export default {
               this.loading = false;
             })
     },
+
+    /**
+     * Blurs the search.
+     */
     blurSearch() {
       document.getElementById('search').blur()
     },
+
     /**
      * Function to order search results by specific column
      * @param col column to be sorted by
@@ -268,6 +277,7 @@ export default {
       this.orderDirection = this.orderCol === col;
       this.orderCol = col;
     },
+
     // Function for sorting a list by orderCol alphabetically
     sortAlpha(a, b) {
       if (a[this.orderCol] === null) {
@@ -284,6 +294,7 @@ export default {
       }
       return 0;
     },
+
     /**
      * Formats address of user by using their home address object
      * @param address object that stores the users home address
@@ -292,6 +303,7 @@ export default {
     formattedAddress(address) {
       return this.$root.$data.address.formatAddress(address)
     },
+
     /**
      * Router link to the clicked users profile page
      * @param id
@@ -299,6 +311,7 @@ export default {
     viewUser(id) {
       this.$router.push({name: 'viewUser', params: {userId: id}})
     },
+
     /**
      * concatenates the users first name and nickname (if they have one)
      * @param user

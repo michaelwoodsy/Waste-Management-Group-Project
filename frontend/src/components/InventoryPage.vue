@@ -22,7 +22,7 @@
               <h4>Inventory</h4>
             </div>
             <div class="col text-right">
-              <button class="btn btn-primary" v-on:click="newItem">
+              <button class="btn btn-primary" data-target="#createInventoryItem" data-toggle="modal" @click="newItem">
                 New Item
               </button>
             </div>
@@ -35,122 +35,18 @@
             </div>
           </div>
 
-          <!--    Result Information    -->
-          <div>
+          <inventory-items ref="inventoryItems" :business-id="businessId" :selecting-item="false"></inventory-items>
 
-            <div class="text-center">
-              <showing-results-text
-                  :items-per-page="resultsPerPage"
-                  :page="page"
-                  :total-count="totalCount"
-              />
-            </div>
-
-            <!--    Order By   -->
-            <div class="overflow-auto">
-              <table class="table table-hover">
-                <thead>
-                <tr>
-                  <!--    Inventory Item Id    -->
-                  <th class="pointer" scope="col" @click="orderResults('id')">
-                    <p class="d-inline">Id</p>
-                    <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
-                  </th>
-                  <!--    Product Code    -->
-                  <th class="pointer" scope="col" @click="orderResults('productId')">
-                    <p class="d-inline">Product Code</p>
-                    <p v-if="orderCol === 'productId'" class="d-inline">{{ orderDirArrow }}</p>
-                  </th>
-
-                  <!--    Quantity    -->
-                  <th class="pointer" scope="col" @click="orderResults('quantity')">
-                    <p class="d-inline">Quantity</p>
-                    <p v-if="orderCol === 'quantity'" class="d-inline">{{ orderDirArrow }}</p>
-                  </th>
-
-                  <!--    Price per Item    -->
-                  <th class="pointer" scope="col" @click="orderResults('pricePerItem')">
-                    <p class="d-inline">Price per Item</p>
-                    <p v-if="orderCol === 'pricePerItem'" class="d-inline">{{ orderDirArrow }}</p>
-                  </th>
-
-                  <!--    Total Price    -->
-                  <th class="pointer" scope="col" @click="orderResults('totalPrice')">
-                    <p class="d-inline">Total Price</p>
-                    <p v-if="orderCol === 'totalPrice'" class="d-inline">{{ orderDirArrow }}</p>
-                  </th>
-
-                  <!--   Manufactured date    -->
-                  <th class="pointer" scope="col" @click="orderResults('manufactured')">
-                    <p class="d-inline">Manufactured Date</p>
-                    <p v-if="orderCol === 'manufactured'" class="d-inline">{{ orderDirArrow }}</p>
-                  </th>
-
-                  <!--   Sell By date    -->
-                  <th class="pointer" scope="col" @click="orderResults('sellBy')">
-                    <p class="d-inline">Sell By Date</p>
-                    <p v-if="orderCol === 'sellBy'" class="d-inline">{{ orderDirArrow }}</p>
-                  </th>
-
-                  <!--   Best Before date    -->
-                  <th class="pointer" scope="col" @click="orderResults('bestBefore')">
-                    <p class="d-inline">Best Before Date</p>
-                    <p v-if="orderCol === 'bestBefore'" class="d-inline">{{ orderDirArrow }}</p>
-                  </th>
-
-                  <!--   Expiry date    -->
-                  <th class="pointer" scope="col" @click="orderResults('expires')">
-                    <p class="d-inline">Expiry Date</p>
-                    <p v-if="orderCol === 'expires'" class="d-inline">{{ orderDirArrow }}</p>
-                  </th>
-
-                <!--    Edit button column    -->
-                <th scope="col"></th>
-
-              </tr>
-              </thead>
-              <!--    Inventory item Information    -->
-              <tbody v-if="!loading">
-              <tr v-bind:key="item.id"
-                  v-for="item in paginatedInventoryItems"
-              >
-                <th scope="row">{{ item.id }}</th>
-                <td>{{ item.product.id }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ formatPrice(item.pricePerItem) }}</td>
-                <td>{{ formatPrice(item.totalPrice) }}</td>
-                <td>{{ formatDate(item.manufactured)}}</td>
-                <td>{{ formatDate(item.sellBy)}}</td>
-                <td>{{ formatDate(item.bestBefore)}}</td>
-                <td>{{ formatDate(item.expires)}}</td>
-                <td style="color: blue; cursor: pointer;"
-                    @click="editProduct(item.id)">
-                  Edit
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
+      </div>
+    </div>
 
-          <div v-if="loading" class="row">
-            <div class="col-12 text-center">
-              <p class="text-muted">Loading...</p>
-            </div>
+    <div id="createInventoryItem" :key="this.createNewInventoryItem" class="modal fade" data-backdrop="static">
+      <div ref="createInventoryItemWindow" class="modal-dialog modal-open">
+        <div class="modal-content">
+          <div class="modal-body">
+            <create-inventory-item @refresh-inventory="refreshInventory"></create-inventory-item>
           </div>
-
-          <!--    Result Information    -->
-          <div class="row">
-            <div class="col-12">
-              <pagination
-                  :current-page.sync="page"
-                  :items-per-page="resultsPerPage"
-                  :total-items="totalCount"
-                  class="mx-auto"
-              />
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
@@ -162,32 +58,25 @@
 import LoginRequired from "@/components/LoginRequired";
 import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
-import ShowingResultsText from "@/components/ShowingResultsText";
-import Pagination from "@/components/Pagination";
-import {Business} from "@/Api";
+import CreateInventoryItem from "@/components/CreateInventoryItem";
+import InventoryItems from "@/components/InventoryItems";
 
 export default {
   name: "InventoryPage",
+
   components: {
+    InventoryItems,
+    CreateInventoryItem,
     LoginRequired,
     AdminRequired,
-    Alert,
-    ShowingResultsText,
-    Pagination
+    Alert
   },
+
   data() {
     return {
-      inventoryItems: [],
       error: null,
-      orderCol: null,
-      orderDirection: false, // False -> Ascending
-      resultsPerPage: 10,
-      page: 1,
-      loading: false
+      createNewInventoryItem: false
     }
-  },
-  mounted() {
-    this.getCurrencyAndFillTable()
   },
 
   computed: {
@@ -207,73 +96,12 @@ export default {
       return this.$root.$data.user.state.loggedIn
     },
 
-    /**
-     * Checks which direction (ascending or descending) the order by should be
-     * @returns {string}
-     */
-    orderDirArrow() {
-      if (this.orderDirection) {
-        return '↓'
-      }
-      return '↑'
+    inventoryItems() {
+      return this.$refs.inventoryItems.inventoryItems;
     },
 
-    /**
-     * Sort InventoryItems Logic
-     * @returns {[]|*[]}
-     */
-    sortedInventoryItems() {
-      if (this.orderCol === null) {
-        return this.inventoryItems
-      }
-
-      // Create new inventory items array and sort
-      let newInventoryItems = [...this.inventoryItems];
-      // Order direction multiplier for sorting
-      const orderDir = (this.orderDirection ? 1 : -1);
-
-      // Sort inventory items if there are any
-      if (newInventoryItems.length > 0) {
-        // Sort inventory items
-        newInventoryItems.sort((a, b) => {
-          return orderDir * this.sortAlpha(a, b)
-        });
-      }
-
-      return newInventoryItems
-    },
-
-    /**
-     * Paginate the inventory items
-     * @returns {*[]|*[]}
-     */
-    paginatedInventoryItems() {
-      let newInventoryItems = this.sortedInventoryItems;
-
-      // Sort inventory items if there are any
-      if (newInventoryItems.length > 0) {
-        // Splice the results to showing size
-        const startIndex = this.resultsPerPage * (this.page - 1);
-        const endIndex = this.resultsPerPage * this.page;
-        newInventoryItems = newInventoryItems.slice(startIndex, endIndex)
-      }
-
-      return newInventoryItems
-    },
-    /**
-     * Calculates the number of results in inventory items array
-     * @returns {number}
-     */
-    totalCount() {
-      return this.inventoryItems.length
-    }
-  },
-  watch: {
-    /**
-     * Called when the businessId is changed, this occurs when the path variable for the business id is updated
-     */
-    businessId() {
-      this.fillTable()
+    actor() {
+      return this.$root.$data.user.state.actingAs;
     }
   },
   methods: {
@@ -286,113 +114,22 @@ export default {
     },
 
     /**
-     * Updates order direction
-     * @param col column to be ordered
-     */
-    orderResults(col) {
-      // Remove the ordering if the column is clicked and the arrow is down
-      if (this.orderCol === col && this.orderDirection) {
-        this.orderCol = null;
-        this.orderDirection = false;
-        return
-      }
-
-      // Updated order direction if the new column is the same as what is currently clicked
-      this.orderDirection = this.orderCol === col;
-      this.orderCol = col;
-    },
-    /**
-     * Function for sorting a list by orderCol alphabetically
-     */
-    sortAlpha (a, b) {
-
-      let sortVariable = this.orderCol
-
-      //Sorts by product id
-      if (this.orderCol === 'productId') {
-        a = a['product']
-        b = b['product']
-        sortVariable = 'id'
-      }
-
-      if(a[sortVariable] === null) { return -1 }
-      if(b[sortVariable] === null) { return 1 }
-      if(a[sortVariable] < b[[sortVariable]]) { return 1; }
-      if(a[sortVariable] > b[[sortVariable]]) { return -1; }
-      return 0;
-    },
-
-    /**
-     * routes to the edit inventory item page
-     * @param id of the inventory item
-     */
-    editProduct(id) {
-      this.$router.push({name: 'editInventoryItem', params: {businessId: this.businessId, inventoryItemId: id}})
-    },
-
-    /**
-     * Uses the getCurrency in the product.js module to get the currency of the business,
-     * and then call the fill table method
-     */
-    async getCurrencyAndFillTable() {
-      this.loading = true
-      //Change country to businesses address country when implemented
-      //The country variable  will always be an actual country as it is a requirement when creating a business
-      //Get Businesses country
-      const country = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
-
-      this.currency = await this.$root.$data.product.getCurrency(country)
-
-      this.fillTable()
-    },
-
-    /**
-     * calls the formatPrice method in the product module to format the products recommended retail price
-     */
-    formatPrice(price) {
-      return this.$root.$data.product.formatPrice(this.currency, price)
-    },
-
-    /**
-     * Function for formatting inventory item dates
-     */
-    formatDate(dateString) {
-      if (dateString === "" || dateString === null) {
-        return "";
-      } else {
-        return new Date(dateString).toDateString();
-      }
-    },
-
-    /**
-     * Fills the table with Product data
-     */
-    fillTable() {
-      this.inventoryItems = [];
-      this.loading = true;
-      this.page = 1;
-
-      Business.getInventory(this.$route.params.businessId)
-          .then((res) => {
-            this.error = null;
-            this.inventoryItems = res.data;
-            this.loading = false;
-          })
-          .catch((err) => {
-            this.error = err;
-            this.loading = false;
-          })
-    },
-    /**
      * Takes user to page to create new inventory item.
      */
     newItem() {
-      this.$router.push({name: 'CreateInventoryItem', params: {businessId: this.businessId}})
+      this.createNewInventoryItem = true;
+    },
+
+    /**
+     * Refreshes the inventory page, refilling the table.
+     */
+    refreshInventory() {
+      this.createNewInventoryItem = false;
+      this.$refs.inventoryItems.fillTable();
     }
   }
 }
 </script>
-
 
 <style scoped>
 

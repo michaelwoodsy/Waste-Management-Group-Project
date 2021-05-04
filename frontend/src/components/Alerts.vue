@@ -25,13 +25,16 @@ export default {
       alert: null
     }
   },
+
   components: {
     Alert
   },
+
   created() {
     // Create a listener for new alerts to display
     listen(this.pushAlert)
   },
+
   methods: {
     /**
      * Set the current alert message

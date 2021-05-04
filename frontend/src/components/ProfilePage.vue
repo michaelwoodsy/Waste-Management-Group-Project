@@ -150,9 +150,11 @@ export default {
   props: {
     msg: String
   },
+
   mounted() {
     User.getUserData(this.userId).then((response) => this.profile(response))
   },
+
   computed: {
     /**
      * Gets the users' ID
@@ -161,6 +163,7 @@ export default {
     userId() {
       return this.$route.params.userId
     },
+
     /**
      * Checks to see if user is logged in currently
      * @returns {boolean|*}
@@ -168,6 +171,7 @@ export default {
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     },
+
     /**
      * Returns true if the user is primary admin of any businesses
      * @returns {boolean|*}
@@ -175,6 +179,7 @@ export default {
     isPrimaryAdmin() {
       return this.primaryAdminOf.length > 0;
     },
+
     /**
      * Returns true if the user is currently viewing their profile page
      * @returns {boolean|*}
@@ -182,6 +187,7 @@ export default {
     isViewingSelf() {
       return this.userId === this.$root.$data.user.state.userId
     },
+
     /**
      * Returns true if the user is an administrator of the curentley acting business
      * @returns {boolean|*}
@@ -193,6 +199,7 @@ export default {
       return false
     }
   },
+
   watch: {
     /**
      * Called when the userId is changed, this occurs when the path variable for the user id is updated
@@ -203,9 +210,11 @@ export default {
       }
     }
   },
+
   components: {
     LoginRequired
   },
+
   methods: {
     /**
      * Assigns the data from the response to the profile variables

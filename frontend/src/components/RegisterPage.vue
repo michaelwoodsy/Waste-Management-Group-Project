@@ -206,6 +206,7 @@ export default {
         this.msg['lastName'] = null
       }
     },
+
     /**
      * Validates the email variable
      * Checks if the string is of an email format using regex, if not, displays a warning message
@@ -221,6 +222,7 @@ export default {
         this.msg['email'] = null
       }
     },
+
     /**
      * Validates the date of birth variable
      * Checks if the string is empty, if so displays a warning message
@@ -243,6 +245,7 @@ export default {
         this.msg['dateOfBirth'] = null
       }
     },
+
     /**
      * Validates the password variable
      * Checks if the string is empty, if so displays a warning message
@@ -258,6 +261,7 @@ export default {
         this.msg['password'] = null;
       }
     },
+
     /**
      * Validates the phone variable
      * Checks if the string is empty, or if it is in an incorrect format

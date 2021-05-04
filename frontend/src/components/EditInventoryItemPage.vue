@@ -258,6 +258,7 @@ export default {
     this.getCurrency()
     Business.getProducts(this.$route.params.businessId).then((response) => this.getProductIds(response))
   },
+
   data() {
     return {
       errorMessage: null,
@@ -281,11 +282,13 @@ export default {
       expiryBlur: false
     }
   },
+
   components: {
     LoginRequired,
     AdminRequired,
     Alert
   },
+
   computed: {
     /** Checks to see if user is logged in currently **/
     isLoggedIn() {
@@ -388,6 +391,7 @@ export default {
       }
       return /^([0-9]+(.[0-9]{0,2})?)?$/.test(this.newItem.totalPrice)
     },
+
     /**
      * Validate the product Manufactured field
      */
@@ -401,6 +405,7 @@ export default {
         return true
       }
     },
+
     /**
      * Validate the product Sell By field
      */
@@ -413,6 +418,7 @@ export default {
         return true
       }
     },
+
     /**
      * Validate the product Sell By field
      */
@@ -425,6 +431,7 @@ export default {
         return true
       }
     },
+
     /**
      * Validate the product Sell By field
      */
@@ -468,6 +475,7 @@ export default {
       return fixes.join(', ')
     },
   },
+
   methods: {
     /**
      * Get Currency data
@@ -478,6 +486,7 @@ export default {
       this.currencySymbol = currency.symbol
       this.currencyCode = currency.code
     },
+
     /**
      * Get all product IDs for the current Business
      */

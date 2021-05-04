@@ -15,6 +15,7 @@ export default {
       }
     }
   },
+
   computed: {
     /**
      * Returns the alert that just occurred

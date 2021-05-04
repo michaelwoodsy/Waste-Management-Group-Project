@@ -17,7 +17,8 @@
               <h4>Sale Listings</h4>
             </div>
             <div class="col text-right">
-              <button v-if="isAdminOf" class="btn btn-primary">
+              <button v-if="isAdminOf" class="btn btn-primary" data-target="#createListing" data-toggle="modal"
+                      @click="newListing">
                 New Listing
               </button>
             </div>
@@ -111,6 +112,16 @@
       </div>
     </div>
 
+    <div id="createListing" :key="this.createNewListing" class="modal fade" data-backdrop="static">
+      <div ref="createListingWindow" class="modal-dialog modal-open">
+        <div class="modal-content">
+          <div class="modal-body">
+            <create-listing @refresh-listings="refreshListings"></create-listing>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -120,33 +131,40 @@ import Alert from "@/components/Alert";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import {Business} from "@/Api";
+import CreateListing from "@/components/CreateListing";
 
 export default {
   name: "SaleListings",
   components: {
+    CreateListing,
     ShowingResultsText,
     LoginRequired,
     Alert,
     Pagination
   },
+
   data() {
     return {
       listings: [],
       currency: {
         symbol: "",
-        code: ""},
+        code: ""
+      },
       error: null,
       orderCol: null,
       orderDirection: false, // False = Ascending
       resultsPerPage: 10,
       page: 1,
-      loading: false
+      loading: false,
+      createNewListing: false
     }
   },
+
   mounted() {
     this.getCurrency();
     this.fillTable();
   },
+
   computed: {
     /**
      * Gets the business ID
@@ -155,12 +173,14 @@ export default {
     businessId() {
       return parseInt(this.$route.params.businessId);
     },
+
     /**
      * Returns whether or not the user is logged in.
      */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn;
     },
+
     /**
      * Check if the user is an admin of the business and is acting as that business
      */
@@ -168,6 +188,7 @@ export default {
       if (this.$root.$data.user.state.actingAs.type !== "business") return false
       return this.$root.$data.user.state.actingAs.id === this.businessId;
     },
+
     /**
      * Checks which direction (ascending or descending) the order by should be
      * @returns {string}
@@ -179,6 +200,7 @@ export default {
         return '↑';
       }
     },
+
     /**
      * Returns sales listings after sorting.
      */
@@ -195,6 +217,7 @@ export default {
       }
       return newListings;
     },
+
     /**
      * Returns paginated sale listings.
      */
@@ -207,6 +230,7 @@ export default {
       }
       return newListings;
     },
+
     /**
      * The total number of listings.
      */
@@ -214,6 +238,7 @@ export default {
       return this.listings.length;
     },
   },
+
   watch: {
     /**
      * Called when the businessId is changed, this occurs when the path variable for the business id is updated
@@ -222,6 +247,7 @@ export default {
       this.fillTable()
     }
   },
+
   methods: {
     /**
      * Method which sets the column and direction to order by.
@@ -236,6 +262,7 @@ export default {
       this.orderDirection = this.orderCol === col;
       this.orderCol = col;
     },
+
     /**
      * Function which returns the value of a specified column. Used for sorting.
      * @param item the item to get field from.
@@ -257,6 +284,7 @@ export default {
           return item.id;
       }
     },
+
     /**
      * Function that sorts alphabetically by orderCol.
      */
@@ -275,6 +303,7 @@ export default {
       }
       return 0;
     },
+
     /**
      * Formats the date fields.
      * @param string string representation of the date.
@@ -287,12 +316,14 @@ export default {
         return new Date(string).toDateString();
       }
     },
+
     /**
      * Formats the price to correct currency.
      */
     formatPrice(price) {
       return this.$root.$data.product.formatPrice(this.currency, price);
     },
+
     /**
      * Gets the currency to use for a particualr business.
      */
@@ -300,6 +331,7 @@ export default {
       const country = (await Business.getBusinessData(this.businessId)).data.address.country;
       this.currency = await this.$root.$data.product.getCurrency(country);
     },
+
     /**
      * Fills the table with a business's sale listings.
      */
@@ -318,6 +350,17 @@ export default {
             this.error = err;
             this.loading = false;
           })
+    },
+
+    /**
+     * Takes user to page to add a new listing.
+     */
+    newListing() {
+      this.createNewListing = true;
+    },
+    refreshListings() {
+      this.createNewListing = false;
+      this.fillTable();
     }
   }
 }
