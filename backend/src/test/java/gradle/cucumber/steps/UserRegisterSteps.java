@@ -27,14 +27,11 @@ public class UserRegisterSteps {
     @Autowired
     private AddressRepository addressRepository;
 
-    @Autowired
-    private List<ExistingRegisteredEmailException> existingRegisteredEmailExceptions;
+    private Integer existingRegisteredEmailExceptionCount = 0;
 
-    @Autowired
-    private List<RequiredFieldsMissingException> requiredFieldsMissingExceptions;
+    private Integer requiredFieldsMissingExceptionCount = 0;
 
-    @Autowired
-    private List<InvalidEmailException> invalidEmailExceptions;
+    private Integer invalidEmailExceptionCount = 0;
 
     /**
      * Creates the existing test user. Called by
@@ -116,13 +113,13 @@ public class UserRegisterSteps {
         try {
             userController.createUser(createdUser);
         } catch (ExistingRegisteredEmailException e) {
-            existingRegisteredEmailExceptions.add(e);
+            existingRegisteredEmailExceptionCount += 1;
         }
     }
 
     @Then("An error message is returned to say the email is already taken.")
     public void an_error_message_is_returned_to_say_the_email_is_already_taken() {
-        Assertions.assertEquals(1, existingRegisteredEmailExceptions.size());
+        Assertions.assertEquals(1, existingRegisteredEmailExceptionCount);
     }
 
     @When("I try to create an account without a password")
@@ -142,13 +139,13 @@ public class UserRegisterSteps {
         try {
             userController.createUser(createdUser);
         } catch (RequiredFieldsMissingException e) {
-            requiredFieldsMissingExceptions.add(e);
+            requiredFieldsMissingExceptionCount += 1;
         }
     }
 
     @Then("An error message is shown saying the password is required.")
     public void an_error_message_is_shown_saying_the_password_is_required() {
-        Assertions.assertEquals(1, requiredFieldsMissingExceptions.size());
+        Assertions.assertEquals(1, requiredFieldsMissingExceptionCount);
     }
 
     @When("I try to create an account with an invalid email")
@@ -170,14 +167,14 @@ public class UserRegisterSteps {
         try {
             userController.createUser(createdUser);
         } catch (InvalidEmailException e) {
-            invalidEmailExceptions.add(e);
+            invalidEmailExceptionCount += 1;
         }
     }
 
 
     @Then("An error message is shown saying the email is invalid.")
     public void an_error_message_is_shown_saying_the_email_is_invalid() {
-        Assertions.assertEquals(1, invalidEmailExceptions.size());
+        Assertions.assertEquals(1, invalidEmailExceptionCount);
     }
 
 

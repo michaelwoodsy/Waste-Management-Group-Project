@@ -93,7 +93,9 @@ public class UserController {
                     newUser.getLastName() == null || newUser.getLastName().equals("") ||
                     newUser.getEmail() == null || newUser.getEmail().equals("") ||
                     newUser.getDateOfBirth() == null || newUser.getDateOfBirth().equals("") ||
-                    newUser.getHomeAddress() == null || newUser.getHomeAddress().getCountry().equals("")) {
+                    newUser.getHomeAddress() == null || newUser.getHomeAddress().getCountry().equals("") ||
+                    newUser.getPassword() == null || newUser.getPassword().equals("")
+            ) {
                 RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
                 logger.warn(requiredFieldsMissingException.getMessage());
                 throw requiredFieldsMissingException;
@@ -149,16 +151,6 @@ public class UserController {
                 UserUnderageException underageException = new UserUnderageException();
                 logger.warn(underageException.getMessage());
                 throw underageException;
-            }
-
-            if (newUser.getFirstName().equals("") ||
-                    newUser.getLastName().equals("") ||
-                    newUser.getEmail().equals("") ||
-                    newUser.getDateOfBirth().equals("") ||
-                    newUser.getHomeAddress().getCountry().equals("")) {
-                RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
-                logger.warn(requiredFieldsMissingException.getMessage());
-                throw requiredFieldsMissingException;
             }
 
             LoginCredentials credentials = new LoginCredentials(newUser.getEmail(), newUser.getPassword());
