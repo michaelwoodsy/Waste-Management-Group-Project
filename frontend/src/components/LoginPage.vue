@@ -15,20 +15,19 @@
             <alert v-if="error">
               {{ error }}
             </alert>
-
           </div>
           <!-- Username -->
           <div class="form-row">
             <label for="username" style="margin-top:20px"><b>Email<span class="required">*</span></b></label><br/>
             <input id="username"
                    v-model="username"
-                   :class="inputClass(username)"
-                   class="form-control"
+                   :class="{'form-control': true, 'is-invalid': msg.username}"
                    placeholder="Enter Email"
                    required
                    style="width: 100%"
                    type="text"
                    @keyup.enter="login">
+            <span class="invalid-feedback" style="text-align: left">{{ msg.username }}</span>
           </div>
           <br>
           <!-- Password -->
@@ -36,22 +35,15 @@
             <label for="password"><b>Password<span class="required">*</span></b></label><br/>
             <input id="password"
                    v-model="password"
-                   :class="inputClass(password)"
-                   class="form-control"
+                   :class="{'form-control': true, 'is-invalid': msg.password}"
                    placeholder="Enter Password"
                    required
                    style="width: 100%"
                    type="password"
-                   @keyup.enter="login"><br/><br/>
+                   @keyup.enter="login"><br>
+            <span class="invalid-feedback" style="text-align: left">{{ msg.password }}</span>
           </div>
-          <!-- Username error (empty) -->
-          <div class="form-row">
-            <p v-if="isIncorrectField(username)" class="red-text">An email must be entered!</p>
-          </div>
-          <!-- Password error (empty) -->
-          <div class="form-row">
-            <p v-if="isIncorrectField(password)" class="red-text">A password must be entered!</p><br><br>
-          </div>
+          <br>
           <!-- Button for login and link to register-->
           <div class="form-row">
             <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" @click="login">Login</button>
@@ -79,7 +71,12 @@ const LoginPage = {
       username: '',
       password: '',
       error: null,
-      showMissingFields: false
+      showMissingFields: false,
+      msg: {
+        'username': null,
+        'password': null
+      },
+      valid: true
     }
   },
 
@@ -89,13 +86,34 @@ const LoginPage = {
   },
 
   methods: {
+    checkUsername() {
+      if (this.username === '') {
+        this.msg['username'] = "Please enter a username"
+        this.valid = false
+      } else {
+        this.msg['username'] = null
+      }
+    },
+
+    checkPassword() {
+      if (this.password === '') {
+        this.msg['password'] = "Please enter a password"
+        this.valid = false
+      } else {
+        this.msg['password'] = null
+      }
+    },
+
     /**
      * Login logic, checks that there are no missing fields, attempts to use login endpoint otherwise
      */
     login() {
-      if (this.username === '' || this.password === '') {
-        this.showMissingFields = true
-      } else {
+      this.checkUsername()
+      this.checkPassword()
+
+
+
+      if (this.valid) {
         this.$root.$data.user.login(this.username, this.password)
             .then(() => {
               this.$router.push({name: 'user'})
@@ -104,18 +122,10 @@ const LoginPage = {
               this.error = err.response
                   ? err.response.data.slice(err.response.data.indexOf(":") + 2)
                   : err
-              this.showMissingFields = false
             })
+      } else {
+        this.valid = true
       }
-    },
-
-    /**
-     * Checks to see if fields are missing
-     * @param field
-     * @returns {boolean}
-     */
-    isIncorrectField(field) {
-      return this.showMissingFields && (field === null || field === '')
     },
 
     //WARNING 'input-red' never used
