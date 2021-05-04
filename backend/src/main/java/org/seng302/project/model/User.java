@@ -69,7 +69,6 @@ public class User {
         return this.homeAddress;
     }
 
-    // TODO: change this to a list of Business ids, not objects
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_administers_business",

@@ -21,7 +21,7 @@ public class Business {
     private Integer id; // automatically generated and assigned by database connection.
     private String name;
     private String description;
-    private Address address; // TODO Use Address class once implemented.
+    private Address address;
     private String businessType;
     private Integer primaryAdministratorId;
     private List<User> administrators = new ArrayList<>();
