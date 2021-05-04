@@ -32,8 +32,8 @@
         <label for="quantity"><b>Product Quantity<span class="required">*</span></b></label>
         <div :class="{'input-group': true, 'is-invalid': msg.quantity}">
           <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
-                 :disabled="!selectedInventoryItem" :max="this.getMaxQuantity(this.selectedInventoryItem)" min="1"
-                 placeholder="Enter the quantity" required step="1" type="number" @change="updatePrice">
+                 :disabled="!selectedInventoryItem" :maxlength="10"
+                 placeholder="Enter the quantity" required  type="text" @change="updatePrice">
           <div v-if="this.selectedInventoryItem !== null" class="input-group-append">
                   <span class="input-group-text">Max Quantity: {{
                       this.getMaxQuantity(this.selectedInventoryItem)
@@ -51,7 +51,7 @@
             <span class="input-group-text">{{ this.currencySymbol }}</span>
           </div>
           <input id="price" v-model="price" :class="{'form-control': true, 'is-invalid': msg.price}"
-                 :disabled="!selectedInventoryItem" maxlength="255" placeholder="Price" type="number">
+                 :disabled="!selectedInventoryItem" maxlength="10" placeholder="Price" type="text">
           <div class="input-group-append">
             <span class="input-group-text">{{ this.currencyCode }}</span>
           </div>
@@ -290,7 +290,7 @@ export default {
     validatePrice() {
       let isNotNumber = Number.isNaN(Number(this.price))
 
-      if (isNotNumber || this.price === '') {
+      if (isNotNumber || this.price === '' || this.price === null || !/^([0-9]+(.[0-9]{0,2})?)?$/.test(this.price)) {
         this.msg.price = 'Please enter a valid price';
         this.valid = false;
       } else if (Number(this.price) < 0) {
@@ -306,7 +306,7 @@ export default {
      */
     validateQuantity() {
       let isNotNumber = Number.isNaN(Number(this.quantity))
-      if (isNotNumber || this.quantity === '') {
+      if (isNotNumber || this.quantity === '' || this.quantity === null || Number(this.quantity) > 2147483647 || !/^([1-9]+([1-9]{0,2})?)?$/.test(this.quantity)) {
         this.msg.quantity = 'Please enter a valid quantity';
         this.valid = false;
       } else if (Number(this.quantity) <= 0) {
@@ -349,12 +349,11 @@ export default {
      * Add a new listing to the Business' listings
      */
     addListing() {
-      const price = Number(this.price)
       this.$root.$data.business.createListing(
           this.businessId, {
             "inventoryItemId": this.inventoryItemId,
-            "quantity": this.quantity,
-            "price": this.roundPrice(price),
+            "quantity": Number(this.quantity),
+            "price": Number(this.price),
             "moreInfo": this.moreInfo,
             "closes": new Date(this.closes),
           }
@@ -367,13 +366,6 @@ export default {
             err
       });
 
-    },
-
-    /**
-     * Rounds the listing's price
-     */
-    roundPrice(price) {
-      return (Math.round(price * 100)) / 100;
     },
 
     /**
