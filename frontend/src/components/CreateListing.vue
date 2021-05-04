@@ -205,8 +205,8 @@ export default {
         if (item.id === this.inventoryItemId) {
           this.selectedInventoryItem = item;
           this.quantity = this.getMaxQuantity(item);
-          if (this.quantity === item.quantity) {
-            this.price = item.price
+          if (this.quantity === item.quantity && item.totalPrice !== null) {
+            this.price = item.totalPrice
           } else {
             this.updatePrice();
           }
@@ -222,7 +222,7 @@ export default {
      */
     updatePrice() {
       if (this.selectedInventoryItem.pricePerItem !== null) {
-        this.price = this.quantity * this.selectedInventoryItem.pricePerItem
+        this.price = (Math.round((this.quantity * this.selectedInventoryItem.pricePerItem) * 100) / 100).toFixed(2);
       }
     },
 
