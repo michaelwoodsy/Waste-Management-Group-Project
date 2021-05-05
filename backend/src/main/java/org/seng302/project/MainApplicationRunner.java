@@ -35,6 +35,7 @@ import org.seng302.project.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -62,6 +63,9 @@ public class MainApplicationRunner implements ApplicationRunner {
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
 
     /**
      * This constructor is implicitly called by Spring (purpose of the @Autowired
@@ -91,7 +95,12 @@ public class MainApplicationRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws FileNotFoundException, ParseException {
         logger.info("Startup application with {}", args);
         if (Constants.TEST_DATA) {
-            JSONObject data = (JSONObject) parser.parse(new FileReader("/home/gitlab-runner/test_data.json"));
+            JSONObject data;
+            if (activeProfile.equals("production")) {
+                data = (JSONObject) parser.parse(new FileReader("/home/gitlab-runner/test_data.json"));
+            } else {
+                data = (JSONObject) parser.parse(new FileReader("./src/main/resources/test_data.json"));
+            }
             // Insert test user data.
             if (userRepository.count() == 0) {
                 insertTestUsers((JSONArray) data.get("users"));
