@@ -91,7 +91,7 @@ public class MainApplicationRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws FileNotFoundException, ParseException {
         logger.info("Startup application with {}", args);
         if (Constants.TEST_DATA) {
-            JSONObject data = (JSONObject) parser.parse(new FileReader("./src/main/resources/test_data.json"));
+            JSONObject data = (JSONObject) parser.parse(new FileReader("/home/gitlab-runner/test_data.json"));
             // Insert test user data.
             if (userRepository.count() == 0) {
                 insertTestUsers((JSONArray) data.get("users"));

@@ -146,6 +146,7 @@ deploy-production-backend:
     - mkdir /home/gitlab-runner/production-backend/
     - cp -r ./build/libs /home/gitlab-runner/production-backend
     - cp ../runner/production-backend.sh /home/gitlab-runner/production-backend.sh
+    - cp ./src/main/resources/test_data.json /home/gitlab-runner/test_data.json
     - rm -f /home/gitlab-runner/production-backend/vars.txt || true
     - echo "export DB_URL=${DB_URL_PROD}" > /home/gitlab-runner/production-backend/vars.txt
     - echo "export DB_USERNAME=${DB_USERNAME}" >> /home/gitlab-runner/production-backend/vars.txt
