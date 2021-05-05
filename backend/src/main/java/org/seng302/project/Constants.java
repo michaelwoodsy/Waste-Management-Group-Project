@@ -12,6 +12,6 @@ public class Constants {
     /**
      * Toggles whether repositories should be filled with test data
      */
-    public static Boolean TEST_DATA = true;
+    public static Boolean TEST_DATA = false;
 
 }

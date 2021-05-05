@@ -64,9 +64,6 @@ public class MainApplicationRunner implements ApplicationRunner {
     private final SaleListingRepository saleListingRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
-
     /**
      * This constructor is implicitly called by Spring (purpose of the @Autowired
      * annotation). Injected constructors can be supplied with instances of other
@@ -95,12 +92,7 @@ public class MainApplicationRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws FileNotFoundException, ParseException {
         logger.info("Startup application with {}", args);
         if (Constants.TEST_DATA) {
-            JSONObject data;
-            if (activeProfile.equals("production")) {
-                data = (JSONObject) parser.parse(new FileReader("/home/gitlab-runner/test_data.json"));
-            } else {
-                data = (JSONObject) parser.parse(new FileReader("./src/main/resources/test_data.json"));
-            }
+            JSONObject data = (JSONObject) parser.parse(new FileReader("./src/main/resources/test_data.json"));
             // Insert test user data.
             if (userRepository.count() == 0) {
                 insertTestUsers((JSONArray) data.get("users"));
