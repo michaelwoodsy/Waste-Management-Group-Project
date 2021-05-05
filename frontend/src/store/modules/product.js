@@ -42,8 +42,8 @@ export default {
      * @returns formatted string of price, e.g '$30 NZD' or null if price does not exist.
      */
     formatPrice(currency, price) {
-        if (price) {
-            return `${currency.symbol}${price} ${currency.code}`
+        if (price !== null) {
+            return `${currency.symbol}${price.toFixed(2)} ${currency.code}`
         } else {
             return null;
         }

@@ -33,7 +33,7 @@
         <div :class="{'input-group': true, 'is-invalid': msg.quantity}">
           <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
                  :disabled="!selectedInventoryItem" :maxlength="10"
-                 placeholder="Enter the quantity" required  type="text" @change="updatePrice">
+                 placeholder="Enter the quantity" required type="text" @change="updatePrice">
           <div v-if="this.selectedInventoryItem !== null" class="input-group-append">
                   <span class="input-group-text">Max Quantity: {{
                       this.getMaxQuantity(this.selectedInventoryItem)
@@ -290,7 +290,10 @@ export default {
     validatePrice() {
       let isNotNumber = Number.isNaN(Number(this.price))
 
-      if (isNotNumber || this.price === '' || this.price === null || !/^([0-9]+(.[0-9]{0,2})?)?$/.test(this.price)) {
+      if (isNotNumber
+          || this.price === ''
+          || this.price === null
+          || !/^([0-9]+(.[0-9]{0,2})?)?$/.test(this.price)) {
         this.msg.price = 'Please enter a valid price';
         this.valid = false;
       } else if (Number(this.price) < 0) {
@@ -306,7 +309,11 @@ export default {
      */
     validateQuantity() {
       let isNotNumber = Number.isNaN(Number(this.quantity))
-      if (isNotNumber || this.quantity === '' || this.quantity === null || Number(this.quantity) > 2147483647 || !/^([1-9]+([1-9]{0,2})?)?$/.test(this.quantity)) {
+      if (isNotNumber
+          || this.quantity === ''
+          || this.quantity === null
+          || Number(this.quantity) > 2147483647
+          || !/^([1-9]+([1-9]{0,2})?)?$/.test(this.quantity)) {
         this.msg.quantity = 'Please enter a valid quantity';
         this.valid = false;
       } else if (Number(this.quantity) <= 0) {

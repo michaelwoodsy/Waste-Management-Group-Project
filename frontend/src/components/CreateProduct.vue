@@ -87,8 +87,8 @@ export default {
       description: '',
       manufacturer: '',
       recommendedRetailPrice: '',
-      currencySymbol: "",
-      currencyCode: "",
+      currencySymbol: '',
+      currencyCode: '',
       msg: {
         id: null,
         name: null,
@@ -178,7 +178,8 @@ export default {
             "name": this.name,
             "description": this.description,
             "manufacturer": this.manufacturer,
-            "recommendedRetailPrice": Number(this.recommendedRetailPrice)
+            "recommendedRetailPrice": this.recommendedRetailPrice !== null && this.recommendedRetailPrice !== ''
+                ? Number(this.recommendedRetailPrice) : null
           }
       ).then(() => {
         this.$refs.close.click();

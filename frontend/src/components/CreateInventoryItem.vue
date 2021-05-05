@@ -223,13 +223,15 @@ export default {
       // Regex valid for any non negative integer under 2147483647
       let isNotNumber = Number.isNaN(Number(this.quantity))
 
-      if (this.quantity === '' || this.quantity === null || this.quantity > 2147483647) {
+      if (isNotNumber
+          || this.quantity === ''
+          || this.quantity === null
+          || Number(this.quantity) > 2147483647
+          || Number(this.quantity) <= 0
+          || !/^([0-9]+([0-9]{0,2})?)?$/.test(this.quantity)) {
         this.msg.quantity = 'Please enter a valid quantity';
         this.valid = false;
-      } else if (isNotNumber || !/^([0-9]+([0-9]{0,2})?)?$/.test(this.quantity)) {
-        this.msg.quantity = 'Please enter a valid quantity';
-        this.valid = false;
-      } else{
+      } else {
         this.msg.quantity = null;
       }
     },
@@ -333,8 +335,10 @@ export default {
           this.$root.$data.user.state.actingAs.id, {
             "productId": this.productCode,
             "quantity": Number(this.quantity),
-            "pricePerItem": Number(this.pricePerItem),
-            "totalPrice": Number(this.totalPrice),
+            "pricePerItem": this.pricePerItem !== null && this.pricePerItem !== ''
+                ? Number(this.pricePerItem) : null,
+            "totalPrice": this.totalPrice !== null && this.totalPrice !== ''
+                ? Number(this.totalPrice) : null,
             "manufactured": this.manufactured,
             "sellBy": this.sellBy,
             "bestBefore": this.bestBefore,
