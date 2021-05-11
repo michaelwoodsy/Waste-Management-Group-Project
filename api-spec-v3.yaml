@@ -2,11 +2,11 @@ openapi: 3.0.0
 servers:
   # Added by API Auto Mocking Plugin
   - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/matthewminish/seng302-2021-api-spec/2.2.1
+    url: https://virtserver.swaggerhub.com/matthewminish/seng302-2021-api-spec/3.0.0
     
 info:
   description: API specification for the SENG302 2021 project
-  version: 2.2.1
+  version: 3.0.0
   title: Wasteless
   contact:
     email: seng302@canterbury.ac.nz
@@ -32,6 +32,14 @@ tags:
   - name: 'U19: Create inventory'
   - name: 'U20: Modify inventory entries'
   - name: 'U22: List sale'
+  - name: 'UCM1: Community marketplace'
+    description: 'No endpoints required here yet, these will come from the subsequent stories'
+  - name: 'UCM2: Card creation'
+  - name: 'UCM3: Marketplace section display'
+  - name: 'UCM4: Card expiry'
+  - name: 'UCM5: Find my cards'
+  - name: 'UCM6: Keyword management'
+  - name: 'UCM7: Keyword search'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -43,6 +51,10 @@ tags:
     description: 'Grouping of endpoints related to business inventories'
   - name: 'Listings / sales'
     description: 'Grouping of endpoints related to listings of items and the sales of these listings'
+  - name: 'Cards / community marketplace'
+    description: 'Grouping of endpoints related to the community marketplace, and the cards the are created for it'
+  - name: 'Keywords'
+    description: 'Grouping of endpoints related to system-wide keywords that can be added by users and attached to marketplace cards'
   
 security: 
   - CookieAuth: 
@@ -237,6 +249,15 @@ paths:
       responses:
         '201':
           description: Business account created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  businessId:
+                    type: integer
+                    description: The ID of the business that has just been created
+                    example: 100
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   
@@ -405,6 +426,15 @@ paths:
       responses:
         '201':
           description: Product created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  productId:
+                    type: string
+                    description: The ID of the product that has just been created
+                    example: "WATT-420-BEANS"
         '400': 
           description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
         '403':
@@ -452,7 +482,16 @@ paths:
                     format: binary
       responses:
         '201':
-          description: Image successfully created
+          description: Image created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imageId:
+                    type: integer
+                    description: The ID of the image that has just been created
+                    example: 1234
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -634,6 +673,15 @@ paths:
       responses:
         '201':
           description: Inventory item created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  inventoryItemId:
+                    type: integer
+                    description: The ID of the inventory item that has just been created
+                    example: 101
         '400': 
           description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
         '403':
@@ -735,6 +783,15 @@ paths:
       responses:
         '201':
           description: Listing created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  listingId:
+                    type: integer
+                    description: The ID of the listing that has just been created
+                    example: 57
         '400': 
           description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
         '403':
@@ -745,6 +802,339 @@ paths:
             schema:
               $ref: '#/components/schemas/Listing'
               
+  '/cards':
+    post:
+      tags:
+        - 'UCM2: Card creation'
+        - 'Cards / community marketplace'
+      summary: "Create a new card to go on the community marketplace"
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      responses:
+        '201':
+          description: Card created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cardId:
+                    type: integer
+                    description: The ID of the card that has just been created
+                    example: 500
+        '400': 
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Returned if a user who is not a GAA tries to create a card for somebody else.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Card'
+    get:
+      tags:
+        - 'UCM2: Card creation'
+        - 'Cards / community marketplace'
+      summary: 'Retrieve all cards for a given section'
+      parameters:
+        - name: section
+          in: query
+          description: The section for which cards should be retrieved.
+          required: true
+          schema:
+            type: string
+            enum:
+              - ForSale
+              - Wanted
+              - Exchange
+      security: 
+          - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      responses:
+        '200':
+          description: Request successful, a (possibly empty) list of cards is returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Card'
+        '400': 
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+          
+  '/cards/{id}':
+    get:
+      tags:
+        - 'UCM3: Marketplace section display'
+        - 'Cards / community marketplace'
+      summary: 'Retrieve a specific card'
+      parameters:
+        - name: id
+          in: path
+          description: The id of the card to get.
+          required: true
+          schema:
+            type: integer
+            example: 500
+      security: 
+          - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      responses:
+        '200':
+          description: Request successful, a card is returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '400': 
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+    delete:
+      tags:
+        - 'UCM4: Card expiry'
+        - 'Cards / community marketplace'
+      summary: Delete a community marketplace card
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: The id of the card to get.
+          required: true
+          schema:
+            type: integer
+            example: 500
+      responses:
+        '200':
+          description: Card deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user tries to delete a card that they are not the creator of AND the user is not a GAA'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+  
+  '/cards/{id}/extenddisplayperiod':
+    put:
+      tags:
+        - 'UCM4: Card expiry'
+        - 'Cards / community marketplace'
+      summary: 'Extend the display period of a card that is nearing expiry'
+      parameters:
+        - name: id
+          in: path
+          description: The id of the card to get.
+          required: true
+          schema:
+            type: integer
+            example: 500
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      responses:
+        '200':
+          description: End of display period successfully extended. Extension amount should be a further two weeks.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user who is neither the creator of the card, nor a GAA, tries to extend the display period of the card.'
+        '406': 
+          $ref: '#/components/responses/NotAcceptableError'
+          
+  '/users/{id}/cards':
+    get:
+      tags:
+        - 'UCM5: Find my cards'
+        - 'Cards / community marketplace'
+      summary: 'Retrieve all active cards that a user has created'
+      parameters:
+        - name: id
+          in: path
+          description: The id of the user for whom to get cards.
+          required: true
+          schema:
+            type: integer
+            example: 100
+      security: 
+          - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      responses:
+        '200':
+          description: Request successful, a (possibly empty) list of cards is returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Card'
+        '400': 
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+          
+  '/keywords':
+    post:
+      tags:
+        - 'UCM6: Keyword management'
+        - 'Keywords'
+      summary: "Create a new system-wide keyword"
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      responses:
+        '201':
+          description: Keyword created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keywordId:
+                    type: integer
+                    description: The ID of the keyword that has just been created
+                    example: 600
+        '400': 
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Keyword'
+              
+  '/keywords/search':
+    get:
+      tags:
+          - 'UCM6: Keyword management'
+          - 'Keywords'
+      summary: 'Search for keywords by partial (or complete) name'
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters: 
+        - in: query
+          name: searchQuery
+          schema:
+            type: string
+          required: true
+          description: 'Criteria to search keywords for, all partial and complete matches are returned'
+      responses:
+        '200':
+          description: Request successful, a (possibly empty) list of keywords is returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Keyword'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+          
+  '/keywords/{id}':
+    delete:
+      tags:
+        - 'UCM6: Keyword management'
+        - 'Keywords'
+      summary: 'Delete a keyword as an admin'
+      security: 
+        - CookieAuth:
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters: 
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of keyword to delete
+          example: 600
+      responses:
+        '200':
+          description: Keyword successfully deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned if a non-GAA user attempts to delete any card.'
+
+  '/cards/search':
+    get:
+      tags:
+        - 'UCM7: Keyword search'
+        - 'Cards / community marketplace'
+        - 'Keywords'
+      summary: 'Search for cards based on some keywords'
+      security: 
+        - CookieAuth:
+          - user
+          - globalApplicationAdmin
+          - defaultGlobalApplicationAdmin
+      parameters:
+        - in: query
+          name: keywordIds
+          description: 'The IDs of keywords by which cards are being searched'
+          schema:
+            type: array
+            items:
+              type: integer
+          required: true
+        - name: section
+          in: query
+          description: The section for which cards should be retrieved.
+          required: true
+          schema:
+            type: string
+            enum:
+              - ForSale
+              - Wanted
+              - Exchange
+        - in: query
+          name: union
+          description: Whether or not to get cards that match ANY of the keywords, or only cards that match ALL of the keywords. True = Match ANY, False = Match ALL
+          schema:
+            type: boolean
+          required: true
+      responses:
+        '200':
+          description: Request successful, a (possibly empty) list of cards is returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Card'
+        '400': 
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
 components:
   securitySchemes:
     CookieAuth:
@@ -781,6 +1171,88 @@ components:
             example: JSESSIONID=abcde12345; Path=/; HttpOnly
 
   schemas:
+    Keyword:
+      type: object
+      description: "Represents a single 'keyword' within the system - similar to a hashtag." 
+      properties:
+        id:
+          type: integer
+          example: 600
+          readOnly: true
+          description: Unique ID, autogenerated by the system
+        name:
+          type: string
+          description: The text value of the keyword
+          example: Vehicle
+        created:
+          type: string
+          format: date-time
+          example: '2021-07-15T05:10:00Z'
+          readOnly: true
+          description: Date and time when the keyword was created
+  
+    Card:
+      type: object
+      description: Represents an item in the Community Marketplace
+      required: 
+        - title
+        - creatorId
+        - section
+        - keywordIds
+      properties:
+        id:
+          type: integer
+          example: 500
+          readOnly: true
+          description: Unique ID, autogenerated by the system
+        creatorId:
+          type: integer
+          example: 100
+          writeOnly: true
+        creator:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/User'
+        section:
+          type: string
+          enum: 
+            - ForSale
+            - Wanted
+            - Exchange
+        created:
+          type: string
+          format: date-time
+          example: '2021-07-15T05:10:00Z'
+          readOnly: true
+          description: Date and time when the card was created
+        displayPeriodEnd:
+          type: string
+          format: date-time
+          example: '2021-07-29T05:10:00Z'
+          readOnly: true
+          description: Date and time when the display period of the card is set to expire. This defaults to 2 weeks from creation, and can be extended per UCM4.
+        title:
+          type: string
+          description: Title of the card, should be suitable for one-line displays.
+          example: "1982 Lada Samara"
+        description:
+          type: string
+          description: A more detailed description of the card.
+          example: "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar."
+        keywords:
+          type: array
+          readOnly: true
+          description: Keywords describing the card. A card can have one or more keywords associated with it.
+          items:
+            $ref: '#/components/schemas/Keyword'
+        keywordIds:
+          type: array
+          writeOnly: true
+          description: The IDs of keywords that will be associated with a card once it is created. These keywords are created through the POST /keywords endpoints (UCM6).
+          items:
+            type: integer
+            example: [20, 15, 600]
+  
     Listing:
       type: object
       description: A listing for the sale of some product from a business's inventory
@@ -799,6 +1271,8 @@ components:
           allOf:
             - $ref: '#/components/schemas/InventoryItem'
         inventoryItemId:
+          type: integer
+          example: 101
           writeOnly: true
         quantity:
           type: integer
