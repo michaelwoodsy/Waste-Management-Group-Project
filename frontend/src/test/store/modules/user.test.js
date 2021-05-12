@@ -16,7 +16,15 @@ jest.mock('@/Api', () => ({
                         "id": id,
                         "firstName": "John",
                         "lastName": "Smith",
-                        "email": "johnsmith99@gmail.com"
+                        "email": "johnsmith99@gmail.com",
+                        "businessesAdministered": [
+                            {
+                                name: "Store",
+                                type: "business",
+                                id: 2,
+                                primaryAdministratorId: 1
+                            }
+                        ]
                     }
                 })
             })
@@ -143,5 +151,25 @@ describe('store.user', () => {
         expect(user.state.actingAs.name).toBe("Shop 1")
         expect(user.state.actingAs.type).toBe("business")
     });
+
+
+    //check that when we change acting as to business,
+    // isPrimaryAdminOfBusiness returns true
+    test("testing isPrimaryAdminOfBusiness method", async() => {
+        // Test business
+        const business = {
+            name: "Store",
+            type: "business",
+            id: 2,
+            primaryAdministratorId: 1
+        }
+
+        // Try act as the business
+        await user.login("username", "pword")
+        user.setActingAs(business.id, business.name, business.type)
+
+        const isPrimaryAdmin = user.isPrimaryAdminOfBusiness()
+        expect(isPrimaryAdmin).toBeTruthy();
+    })
 
 })
