@@ -1,7 +1,7 @@
 Feature: Default Global Application Admin (U4)
 
   Scenario: AC1 - When the application is (re-) started, it checks that the DGAA exists.
-    Given
+    Given The application is running
     When The application is (re-) started
     Then A check is run for the existence of the DGAA
 
@@ -15,7 +15,7 @@ Feature: Default Global Application Admin (U4)
   Scenario: AC3 - If a DGAA does not exist (e.g. it was incorrectly deleted directly from the database),
   the DGAA should be created automatically and an entry should be made into the error log.
     Given A DGAA does not exist
-    When A check is run for the existence of the DGAA
+    When The existence of the DGAA is checked for
     Then A DGAA is created automatically
     And An entry is added into the error log
 
@@ -41,8 +41,8 @@ Feature: Default Global Application Admin (U4)
     When The DGAA removes admin rights from the user
     Then The role of the user is updated to user
 
-#  Scenario: AC8 - Only individuals can be given application admin rights.
-#  Business accounts cannot be given admin rights.
-#    Given
-#    When
-#    Then
+  Scenario: AC8 - Only individuals can be given application admin rights.
+  Business accounts cannot be given admin rights.
+    Given There exists a business with the name "Bob's Beans"
+    When A DGAA assigns admin rights to the business
+    Then An exception is thrown
