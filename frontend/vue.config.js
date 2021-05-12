@@ -32,7 +32,7 @@ module.exports = {
   runtimeCompiler: true,
   // because of nginx inner routing and http-server, must set public path to empty
     publicPath: process.env.NODE_ENV === 'production'
-        ? '/'
+        ? ''
         : '/',
   chainWebpack: config => {
     config
