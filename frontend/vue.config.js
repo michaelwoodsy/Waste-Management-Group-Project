@@ -30,8 +30,9 @@ module.exports = {
   // allows to define reusable templates instead of simple views
   // see https://vuejs.org/v2/guide/installation.html#Runtime-Compiler-vs-Runtime-only
   runtimeCompiler: true,
-  // because of nginx inner routing and http-server, must set public path to empty
-    publicPath: process.env.VUE_APP_BASE_URL,
+  // Public path set to the app base url, this way when routes are changed,
+  // the resources are served from the correct url
+  publicPath: process.env.VUE_APP_BASE_URL,
   chainWebpack: config => {
     config
         .plugin('html')
