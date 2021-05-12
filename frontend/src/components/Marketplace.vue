@@ -6,17 +6,24 @@
         page="view the Marketplace"
     />
     <div v-else>
-      <ul class="nav nav-pills nav-fill">
-        <li class="nav-item">
-          <a class="pointer" :class="{'nav-link': true, 'active': this.tabSelected === 'For Sale'}" @click="changePage('For Sale')">For Sale</a>
-        </li>
-        <li class="nav-item">
-          <a class="pointer" :class="{'nav-link': true, 'active': this.tabSelected === 'Wanted'}" @click="changePage('Wanted')">Wanted</a>
-        </li>
-        <li class="nav-item">
-          <a class="pointer" :class="{'nav-link': true, 'active': this.tabSelected === 'Exchange'}" @click="changePage('Exchange')">Exchange</a>
-        </li>
-      </ul>
+      <div class="row justify-content-center">
+        <div class="col-6">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="pointer" :class="{'nav-link': true, 'active': this.tabSelected === 'For Sale'}" @click="changePage('For Sale')">For Sale</a>
+            </li>
+            <li class="nav-item">
+              <a class="pointer" :class="{'nav-link': true, 'active': this.tabSelected === 'Wanted'}" @click="changePage('Wanted')">Wanted</a>
+            </li>
+            <li class="nav-item">
+              <a class="pointer" :class="{'nav-link': true, 'active': this.tabSelected === 'Exchange'}" @click="changePage('Exchange')">Exchange</a>
+            </li>
+          </ul>
+
+        </div>
+
+      </div>
+
 
       <div>
         <h1>{{ this.tabSelected }} Tab</h1>
