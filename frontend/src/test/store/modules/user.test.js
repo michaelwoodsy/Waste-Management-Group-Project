@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import {beforeEach, describe, test} from "@jest/globals";
+import "@jest/globals";
 import user from '@/store/modules/user'
 import {getCookie, setCookie} from '@/utils/cookieJar'
 
