@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import {afterEach, beforeEach, describe, test} from "@jest/globals";
+import "@jest/globals";
 import EditProductPage from '@/components/EditProductPage';
 import Vue from 'vue';
 

@@ -1,10 +1,5 @@
-/**
- * @jest-environment jsdom
- */
-
-import {afterEach, beforeEach, describe, test} from "@jest/globals";
+import "@jest/globals";
 import UserProfileLinks from '@/components/UserProfileLinks';
-
 
 const VueTestUtils = require('@vue/test-utils')
 
