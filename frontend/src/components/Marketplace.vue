@@ -7,16 +7,33 @@
     />
     <div v-else>
       <div class="row justify-content-center">
+
+        <!--    Div for marketplace tabs    -->
         <div class="col-6">
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
-              <a class="pointer" :class="{'nav-link': true, 'active': this.tabSelected === 'For Sale'}" @click="changePage('For Sale')">For Sale</a>
+              <a id="for-sale-link"
+                 class="pointer"
+                 :class="{'nav-link': true, 'active': this.tabSelected === 'for sale'}"
+                 @click="changePage('for sale')">
+                For Sale
+              </a>
             </li>
             <li class="nav-item">
-              <a class="pointer" :class="{'nav-link': true, 'active': this.tabSelected === 'Wanted'}" @click="changePage('Wanted')">Wanted</a>
+              <a id="wanted-link"
+                 class="pointer"
+                 :class="{'nav-link': true, 'active': this.tabSelected === 'wanted'}"
+                 @click="changePage('wanted')">
+                Wanted
+              </a>
             </li>
             <li class="nav-item">
-              <a class="pointer" :class="{'nav-link': true, 'active': this.tabSelected === 'Exchange'}" @click="changePage('Exchange')">Exchange</a>
+              <a id="exchange-link"
+                 class="pointer"
+                 :class="{'nav-link': true, 'active': this.tabSelected === 'exchange'}"
+                 @click="changePage('exchange')">
+                Exchange
+              </a>
             </li>
           </ul>
 
@@ -43,13 +60,11 @@ import LoginRequired from "./LoginRequired";
 
 export default {
   name: "Marketplace",
-  props: {
-    msg: String
-  },
 
   data() {
     return {
-      tabSelected: 'For Sale' //Default tab
+      tabSelected: 'for sale', //Default tab
+      error: ""
     }
   },
 
@@ -90,8 +105,6 @@ export default {
      * @param tab selected. is a string
      */
     changePage(tab) {
-      console.log(tab)
-
       this.tabSelected = tab
     }
   }
