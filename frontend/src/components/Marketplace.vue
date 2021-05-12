@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="col-12">
 
     <login-required
         v-if="!isLoggedIn"
@@ -41,9 +41,23 @@
 
       </div>
 
+      <br>
+      <div class="row justify-content-center">
+        <div class="col-9">
+          <div v-for="card in cards" v-bind:key="card.id">
+            <div>
+              <h1>{{tabSelected}} {{ card }}</h1>
+            </div>
 
-      <div>
-        <h1>{{ this.tabSelected }} Tab</h1>
+          </div>
+        </div>
+
+
+
+
+
+
+
       </div>
     </div>
 
@@ -55,7 +69,6 @@
 
 <script>
 
-//import {User} from '@/Api'
 import LoginRequired from "./LoginRequired";
 
 export default {
@@ -64,6 +77,7 @@ export default {
   data() {
     return {
       tabSelected: 'for sale', //Default tab
+      cards: ['Card 1', 'Card 2', 'card 3', 'card 4', 'card 5'],
       error: ""
     }
   },
@@ -93,7 +107,6 @@ export default {
     actorName() {
       return this.actor.name
     },
-
   },
   components: {
     LoginRequired
@@ -106,6 +119,7 @@ export default {
      */
     changePage(tab) {
       this.tabSelected = tab
+      //Call Api to get new cards for tab here
     }
   }
 }
@@ -113,5 +127,7 @@ export default {
 </script>
 
 <style scoped>
-
+.nav-item {
+  font-size: 25px;
+}
 </style>
