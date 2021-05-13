@@ -116,6 +116,10 @@ public class MainApplicationRunner implements ApplicationRunner {
         }
     }
 
+    public User createDGAA() {
+        return null;
+    }
+
     /**
      * Inserts test user data to the database.
      *
