@@ -15,6 +15,7 @@ import InventoryPage from "../components/InventoryPage";
 import SaleListings from "../components/SaleListings";
 import EditInventoryItemPage from "../components/EditInventoryItemPage";
 import Marketplace from "../components/Marketplace";
+import CreateCardPage from "@/components/CreateCardPage";
 
 const routes = [
     {
@@ -86,6 +87,11 @@ const routes = [
         path: '/marketplace',
         name: 'marketplace',
         component: Marketplace
+    },
+    {
+        path: '/cards',
+        name: 'CreateCard',
+        component: CreateCardPage
     }
 ];
 

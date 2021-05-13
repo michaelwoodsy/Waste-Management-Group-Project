@@ -160,7 +160,13 @@ export const Business = {
      * @param businessId The ID of the business in the database
      * @param data The listing data
      */
-    createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data)
+    createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data),
+
+    /**
+     * Creates a new Card for in the community marketplace
+     * @param data
+     */
+    createCard: (data) => instance.post('cards', data),
 
 
 };
