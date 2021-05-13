@@ -91,6 +91,10 @@ public class MainApplicationRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws FileNotFoundException, ParseException {
         logger.info("Startup application with {}", args);
+
+        DGAAChecker dgaaChecker = DGAAChecker.getInstance(userRepository);
+        dgaaChecker.dgaaExists();
+
         if (Constants.TEST_DATA) {
             JSONObject data = (JSONObject) parser.parse(new FileReader("./src/main/resources/test_data.json"));
             // Insert test user data.
