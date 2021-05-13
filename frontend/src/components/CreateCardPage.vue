@@ -41,7 +41,7 @@
         <label for="description"><b>Description</b></label>
         <input id="description" v-model="description" :class="{'form-control': true, 'is-invalid': msg.description}"
                placeholder="Enter the description"
-               required maxlength="255" type="text">
+               required maxlength="256" type="text">
         <span class="invalid-feedback">{{ msg.description }}</span>
       </div>
 
