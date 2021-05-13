@@ -5,7 +5,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.mockito.Mockito;
-import org.seng302.project.DGAAChecker;
+import org.seng302.project.model.DGAAChecker;
 import org.springframework.boot.SpringApplication;
 
 

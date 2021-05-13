@@ -1,7 +1,5 @@
-package org.seng302.project;
+package org.seng302.project.model;
 
-import org.seng302.project.model.User;
-import org.seng302.project.model.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +40,14 @@ public class DGAAChecker {
      * Checks that a DGAA exists.
      * If no DGAA exists, one is created and an error log entry is made.
      */
-    public void dgaaExists() {
+    public Boolean dgaaExists() {
         List<User> dgaaUsers = userRepository.findByRole("defaultGlobalApplicationAdmin");
 
         if (dgaaUsers.size() == 0) {
             logger.error("No DGAA found. Creating new DGAA...");
             //TODO: call function to create DGAA
+            return false;
         }
+        return true;
     }
 }
