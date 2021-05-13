@@ -1,7 +1,8 @@
-package org.seng302.project;
+package org.seng302.project.util;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.seng302.project.MainApplicationRunner;
 import org.seng302.project.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,33 +12,37 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Class for testing main application functionality.
- * Includes tests for MainApplicationRunner
+ * Class for testing DefaultAdmin utility class.
  */
 @SpringBootTest
-public class MainTest {
+public class DefaultAdminTest {
 
     @Autowired
-    private static MainApplicationRunner mainApplicationRunner;
+    private MainApplicationRunner mainApplicationRunner;
     @Autowired
-    private static BCryptPasswordEncoder passwordEncoder;
-    private static String defaultEmail;
-    private static String defaultPassword;
+    private BCryptPasswordEncoder passwordEncoder;
+    private String defaultEmail = "admin";
+    private String defaultPassword = "password";
 
-    @BeforeAll
-    public static void init() {
-        defaultEmail = System.getenv("DGAA_EMAIL") != null ? System.getenv("DGAA_EMAIL") : "admin";
-        defaultPassword = System.getenv("DGAA_PASSWORD") != null ? System.getenv("DGAA_PASSWORD") : "password";
+    @BeforeEach
+    public void init() {
+        if (System.getenv("DGAA_EMAIL") != null) {
+            defaultEmail = System.getenv("DGAA_EMAIL");
+        }
+        if (System.getenv("DGAA_PASSWORD") != null) {
+            defaultPassword = System.getenv("DGAA_PASSWORD");
+        }
     }
 
     /**
      * Test that the default global application admin is created with username and password set by environment.
      */
     @Test
-    public void testCreateDGAA() {
+    public void testCreateDefaultAdmin() {
         User defaultAdmin = mainApplicationRunner.createDGAA();
         assertEquals(defaultEmail, defaultAdmin.getEmail());
         assertTrue(passwordEncoder.matches(defaultPassword, defaultAdmin.getPassword()));
+        assertEquals("defaultGlobalApplicationAdmin", defaultAdmin.getRole());
     }
 
 }
