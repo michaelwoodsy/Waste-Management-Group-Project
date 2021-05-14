@@ -111,6 +111,18 @@ public class TestDataRunner {
             );
             userRepository.save(newUser);
         }
+
+        //Uncomment this to test DGAA and GAA functionality on frontend
+        /*
+        //Temporary making a user a DGAA or GAA to test frontend features
+        String userString = "user";
+        String GAAString = "globalApplicationAdmin";
+        String DGAAString = "defaultGlobalApplicationAdmin";
+        User user = userRepository.findByEmail("myrtle.t@gmail.com").get(0);
+        user.setRole(DGAAString);
+        userRepository.save(user);
+        */
+
         logger.info("Finished adding sample data to user repository");
         logger.info(String.format("Added %d entries to user repository", userRepository.count()));
     }
