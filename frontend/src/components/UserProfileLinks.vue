@@ -45,6 +45,9 @@
           <img alt="profile" class="profile-image-sm rounded-circle"
                src="../../public/profile.png">
           {{ user.firstName }} {{ user.lastName }}
+          <span class="badge badge-danger admin-badge" v-if="isGAA">ADMIN</span>
+          <span class="badge badge-danger admin-badge" v-else-if="isDGAA">DGAA</span>
+
         </a>
         <div class="dropdown-divider"/>
       </div>
@@ -111,6 +114,24 @@ export default {
     /** A list of the users associated business accounts **/
     businessAccounts() {
       return this.$root.$data.user.state.userData.businessesAdministered
+    },
+
+    /**
+     * Returns if the acting as user is a GAA
+     */
+    isGAA() {
+      return this.$root.$data.user.isGAA()
+    },
+
+    /**
+     * Returns if the acting as user is a DGAA
+     */
+    isDGAA() {
+      return this.$root.$data.user.isDGAA()
+    },
+
+    isActingAsUser() {
+      return this.$root.$data.user.isActingAsUser()
     }
   },
   methods: {
@@ -147,6 +168,9 @@ export default {
 .dropdown-item {
   display: flex;
   align-items: center;
+}
+.admin-badge {
+  margin-left: 10px;
 }
 
 </style>
