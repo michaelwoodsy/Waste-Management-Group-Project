@@ -148,6 +148,6 @@ export default {
 
 <style scoped>
 .nav-item {
-  font-size: 25px;
+  font-size: 20px;
 }
 </style>
