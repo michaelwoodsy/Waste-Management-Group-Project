@@ -40,8 +40,12 @@ public class SpringEnvironment {
         if (activeProfile.contains("local")) {
             DEV_MODE = true;
             TEST_DATA = true;
-            DGAA_EMAIL = "admin";
-            DGAA_PASSWORD = "password";
+            if (DGAA_EMAIL == null) {
+                DGAA_EMAIL = "admin";
+            }
+            if (DGAA_PASSWORD == null) {
+                DGAA_PASSWORD = "password";
+            }
         }
     }
 
