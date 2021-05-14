@@ -34,15 +34,6 @@ const app = {
   components: {
     Navbar,
     Alerts
-  },
-  computed: {
-    /**
-     * Called to see if user being acted as is a GAA or DGAA
-     * @returns {boolean|*}
-     */
-    isGAA() {
-      return this.$root.$data.user.isGAA()
-    }
   }
 };
 
