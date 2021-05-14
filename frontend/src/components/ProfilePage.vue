@@ -10,7 +10,10 @@
 
       <div class="row">
         <div class="col-12 text-center mb-2">
-          <h2>{{ firstName }} {{ lastName }}</h2>
+          <h2>{{ firstName }} {{ lastName }}
+            <span class="badge badge-danger admin-badge" v-if="isGAA && this.$root.$data.user.canDoAdminAction()">ADMIN</span>
+            <span class="badge badge-danger admin-badge" v-else-if="isDGAA && this.$root.$data.user.canDoAdminAction()">DGAA</span>
+          </h2>
         </div>
       </div>
 
@@ -203,6 +206,14 @@ export default {
      */
     userRole() {
       return this.$root.$data.user.state.role;
+    },
+
+    isGAA() {
+      return this.role === "globalApplicationAdmin"
+    },
+
+    isDGAA() {
+      return this.role === "defaultGlobalApplicationAdmin"
     }
   },
 
@@ -233,6 +244,7 @@ export default {
       this.nickName = response.data.nickname
       this.bio = response.data.bio
       this.email = response.data.email
+      this.role = response.data.role
 
       //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
       this.homeAddress = this.$root.$data.address.formatAddress(response.data.homeAddress)
@@ -369,6 +381,7 @@ export default {
   },
 
   data() {
+
     return {
       firstName: null,
       middleName: null,
@@ -379,6 +392,7 @@ export default {
       homeAddress: null,
       dateJoined: null,
       dateSinceJoin: null,
+      role: null,
       businessesAdministered: [],
       primaryAdminOf: [],
       addedAdmin: null,

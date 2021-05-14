@@ -38,6 +38,12 @@
           <li class="nav-item">
             <user-profile-links/>
           </li>
+          <li class="nav-item">
+            <span class="badge badge-danger"
+                  v-if="this.$root.$data.user.isGAA() && this.$root.$data.user.isActingAsUser()">ADMIN</span>
+            <span class="badge badge-danger"
+                  v-else-if="this.$root.$data.user.isDGAA() && this.$root.$data.user.isActingAsUser()">DGAA</span>
+          </li>
         </ul>
         <!-- If not logged in, Login and register link -->
         <ul v-else class="navbar-nav">
