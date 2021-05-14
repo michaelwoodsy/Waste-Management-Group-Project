@@ -1,12 +1,5 @@
 package gradle.cucumber.steps;
 
-import io.cucumber.java.Before;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
-import org.mockito.Mockito;
-import org.seng302.project.model.DGAAChecker;
-
 
 //
 //public class DGAASteps {

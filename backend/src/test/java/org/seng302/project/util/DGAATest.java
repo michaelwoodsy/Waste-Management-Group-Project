@@ -1,6 +1,11 @@
-package org.seng302.project.model;
+package org.seng302.project.util;
 
 import org.junit.jupiter.api.*;
+import org.seng302.project.model.Address;
+import org.seng302.project.model.AddressRepository;
+import org.seng302.project.model.User;
+import org.seng302.project.model.UserRepository;
+import org.seng302.project.util.DGAAChecker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -15,13 +20,8 @@ public class DGAATest {
     private UserRepository userRepository;
     @Autowired
     private AddressRepository addressRepository;
-
+    @Autowired
     private DGAAChecker dgaaChecker;
-
-    @BeforeEach
-    public void setup() {
-        dgaaChecker = DGAAChecker.getInstance(userRepository);
-    }
 
     /**
      * Test that no DGAA is found before one has been created

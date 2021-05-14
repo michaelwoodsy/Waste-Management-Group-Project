@@ -29,7 +29,7 @@ package org.seng302.project;
 
 import net.minidev.json.parser.ParseException;
 import org.seng302.project.model.Address;
-import org.seng302.project.model.DGAAChecker;
+import org.seng302.project.util.DGAAChecker;
 import org.seng302.project.model.User;
 import org.seng302.project.util.SpringEnvironment;
 import org.seng302.project.util.TestDataRunner;
@@ -54,6 +54,7 @@ public class MainApplicationRunner implements ApplicationRunner {
     private final BCryptPasswordEncoder passwordEncoder;
     private final TestDataRunner testDataRunner;
     private final SpringEnvironment springEnvironment;
+    private final DGAAChecker dgaaChecker;
 
     /**
      * This constructor is implicitly called by Spring (purpose of the @Autowired
@@ -65,10 +66,12 @@ public class MainApplicationRunner implements ApplicationRunner {
     @Autowired
     public MainApplicationRunner(BCryptPasswordEncoder passwordEncoder,
                                  TestDataRunner testDataRunner,
-                                 SpringEnvironment springEnvironment) {
+                                 SpringEnvironment springEnvironment,
+                                 DGAAChecker dgaaChecker) {
         this.passwordEncoder = passwordEncoder;
         this.testDataRunner = testDataRunner;
         this.springEnvironment = springEnvironment;
+        this.dgaaChecker = dgaaChecker;
     }
 
     /**
@@ -81,7 +84,6 @@ public class MainApplicationRunner implements ApplicationRunner {
         logger.info("Setting spring constant with environment variables");
         springEnvironment.setEnvironment();
 
-        DGAAChecker dgaaChecker = DGAAChecker.getInstance(userRepository);
         dgaaChecker.dgaaCheck();
 
         if (springEnvironment.TEST_DATA) {

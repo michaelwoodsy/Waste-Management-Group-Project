@@ -1,39 +1,29 @@
-package org.seng302.project.model;
+package org.seng302.project.util;
 
+import org.seng302.project.model.User;
+import org.seng302.project.model.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
  * Singleton class for checking & creating existence of DGAA
  */
-
+@Component
 public class DGAAChecker {
 
     private static final Logger logger = LoggerFactory.getLogger(DGAAChecker.class.getName());
-
     private final UserRepository userRepository;
-
-    private static DGAAChecker dgaaCheckerInstance = null;
 
     /**
      * Private constructor for this singleton
      */
+    @Autowired
     private DGAAChecker(UserRepository userRepository) {
         this.userRepository = userRepository;
-    }
-
-    /**
-     * Method for getting the DGAAChecker instance
-     * @return  DGAAChecker
-     */
-    public static DGAAChecker getInstance(UserRepository userRepository) {
-        if (dgaaCheckerInstance == null) {
-            dgaaCheckerInstance = new DGAAChecker(userRepository);
-        }
-        return dgaaCheckerInstance;
     }
 
     /**
