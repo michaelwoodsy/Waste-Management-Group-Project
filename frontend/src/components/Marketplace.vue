@@ -139,7 +139,7 @@ export default {
      * Refreshes the cards
      */
     refreshCards() {
-      this.createNewProduct = false;
+      this.createNewCard = false;
     }
   }
 }
