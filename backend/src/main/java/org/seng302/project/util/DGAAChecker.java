@@ -1,6 +1,5 @@
 package org.seng302.project.util;
 
-import org.seng302.project.MainApplicationRunner;
 import org.seng302.project.model.Address;
 import org.seng302.project.model.AddressRepository;
 import org.seng302.project.model.User;
@@ -8,6 +7,7 @@ import org.seng302.project.model.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -20,19 +20,19 @@ import java.util.List;
 public class DGAAChecker {
 
     private static final Logger logger = LoggerFactory.getLogger(DGAAChecker.class.getName());
-    private AddressRepository addressRepository;
-    private UserRepository userRepository;
     private final SpringEnvironment springEnvironment;
     private final BCryptPasswordEncoder passwordEncoder;
+    private AddressRepository addressRepository;
+    private UserRepository userRepository;
 
     /**
      * Private constructor for this singleton
      */
     @Autowired
     public DGAAChecker(AddressRepository addressRepository,
-                        UserRepository userRepository,
-                        SpringEnvironment springEnvironment,
-                        BCryptPasswordEncoder passwordEncoder) {
+                       UserRepository userRepository,
+                       SpringEnvironment springEnvironment,
+                       BCryptPasswordEncoder passwordEncoder) {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.springEnvironment = springEnvironment;
@@ -41,6 +41,7 @@ public class DGAAChecker {
 
     /**
      * Method to set the address repository. Used for unit testing purposes only.
+     *
      * @param addressRepository address repository which will be mocked.
      */
     public void setAddressRepository(AddressRepository addressRepository) {
@@ -49,6 +50,7 @@ public class DGAAChecker {
 
     /**
      * Method to set the user repository for the DGAA checker. Used for unit testing purposes only.
+     *
      * @param userRepository user repository which will be mocked.
      */
     public void setUserRepository(UserRepository userRepository) {
@@ -57,6 +59,7 @@ public class DGAAChecker {
 
     /**
      * Returns true when a DGAA exists
+     *
      * @return true if DGAA exists, false otherwise
      */
     public Boolean dgaaExists() {
@@ -68,16 +71,19 @@ public class DGAAChecker {
      * Checks that a DGAA exists.
      * If no DGAA exists, one is created and an error log entry is made.
      */
+    @Scheduled(fixedDelay = 600000, initialDelay = 600000)
     public void dgaaCheck() {
         logger.info("Running check for DGAA...");
 
         if (!dgaaExists()) {
             logger.error("No DGAA found. Creating new DGAA...");
             User dgaa = createDGAA();
-            addressRepository.save(dgaa.getHomeAddress());
-            userRepository.save(dgaa);
-        }
-        else {
+            if (dgaa != null) {
+                addressRepository.save(dgaa.getHomeAddress());
+                userRepository.save(dgaa);
+                logger.info("Successfully created DGAA");
+            }
+        } else {
             logger.info("Check for DGAA found DGAA");
         }
     }
