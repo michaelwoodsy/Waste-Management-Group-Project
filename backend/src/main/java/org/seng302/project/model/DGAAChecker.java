@@ -50,10 +50,14 @@ public class DGAAChecker {
      * If no DGAA exists, one is created and an error log entry is made.
      */
     public void dgaaCheck() {
+        logger.info("Running check for DGAA...");
 
         if (!dgaaExists()) {
             logger.error("No DGAA found. Creating new DGAA...");
             //TODO: call function to create DGAA
+        }
+        else {
+            logger.info("Check for DGAA found DGAA");
         }
     }
 }

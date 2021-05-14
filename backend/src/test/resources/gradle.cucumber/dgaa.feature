@@ -1,11 +1,5 @@
 Feature: Default Global Application Admin (U4)
 
-  Scenario: AC1 - When the application is (re-) started, it checks that the DGAA exists.
-    Given The application is running
-    When The application is (re-) started
-    Then A check is run for the existence of the DGAA
-
-
 #  Scenario: AC2 - The application periodically checks that at least one DGAA exists.
 #    Given The application is running
 #    When A period of time has passed
