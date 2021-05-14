@@ -100,8 +100,8 @@ public class MainApplicationRunner implements ApplicationRunner {
         String password = springEnvironment.DGAA_PASSWORD;
 
         if (email == null || password == null) {
-            logger.error("Error: dgaa variables are not present");
-            logger.error("Aborting creation of dgaa");
+            logger.error("Error: DGAA variables are not present");
+            logger.error("Aborting creation of DGAA");
             return null;
         }
 
