@@ -11,8 +11,8 @@
       <div class="row">
         <div class="col-12 text-center mb-2">
           <h2>{{ firstName }} {{ lastName }}
-            <span class="badge badge-danger admin-badge" v-if="isGAA && this.$root.$data.user.canDoAdminAction()">ADMIN</span>
-            <span class="badge badge-danger admin-badge" v-else-if="isDGAA && this.$root.$data.user.canDoAdminAction()">DGAA</span>
+            <span class="badge badge-danger admin-badge" v-if="isGAA && canDoAdminAction">ADMIN</span>
+            <span class="badge badge-danger admin-badge" v-else-if="isDGAA && canDoAdminAction">DGAA</span>
           </h2>
         </div>
       </div>
@@ -138,6 +138,15 @@
         </div>
       </div>
 
+      <div class="row d-flex justify-content-center" v-if="userRole === 'defaultGlobalApplicationAdmin'">
+        <button id="removeGAAButton" class="btn btn-block btn-danger" v-if="isGAA" style="width: 15%;margin:0 20px; font-size: 14px;"
+                v-on:click="removeUserAdmin(userId)">Remove Admin Access
+        </button>
+        <button id="addGAAButton" class="btn btn-block btn-danger" v-else-if="!isDGAA" style="width: 15%;margin:0 20px; font-size: 14px;"
+                v-on:click="addUserAdmin(userId)">Grant Admin Access
+        </button>
+      </div>
+
     </div>
 
   </div>
@@ -214,6 +223,9 @@ export default {
 
     isDGAA() {
       return this.role === "defaultGlobalApplicationAdmin"
+    },
+    canDoAdminAction() {
+      return this.$root.$data.user.canDoAdminAction()
     }
   },
 
