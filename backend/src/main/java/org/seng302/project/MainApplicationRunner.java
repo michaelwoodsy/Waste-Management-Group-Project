@@ -28,7 +28,9 @@
 package org.seng302.project;
 
 import net.minidev.json.parser.ParseException;
+import org.seng302.project.model.Address;
 import org.seng302.project.model.User;
+import org.seng302.project.util.SpringEnvironment;
 import org.seng302.project.util.TestDataRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,7 @@ public class MainApplicationRunner implements ApplicationRunner {
     private static final Logger logger = LoggerFactory.getLogger(MainApplicationRunner.class.getName());
     private final BCryptPasswordEncoder passwordEncoder;
     private final TestDataRunner testDataRunner;
+    private final SpringEnvironment springEnvironment;
 
     /**
      * This constructor is implicitly called by Spring (purpose of the @Autowired
@@ -59,9 +62,12 @@ public class MainApplicationRunner implements ApplicationRunner {
      * @param passwordEncoder the password encoder used to encode passwords.
      */
     @Autowired
-    public MainApplicationRunner(BCryptPasswordEncoder passwordEncoder, TestDataRunner testDataRunner) {
+    public MainApplicationRunner(BCryptPasswordEncoder passwordEncoder,
+                                 TestDataRunner testDataRunner,
+                                 SpringEnvironment springEnvironment) {
         this.passwordEncoder = passwordEncoder;
         this.testDataRunner = testDataRunner;
+        this.springEnvironment = springEnvironment;
     }
 
     /**
@@ -71,7 +77,9 @@ public class MainApplicationRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         logger.info("Startup application with {}", args);
-        if (Constants.TEST_DATA) {
+        logger.info("Setting spring constant with environment variables");
+        springEnvironment.setEnvironment();
+        if (springEnvironment.TEST_DATA) {
             try {
                 testDataRunner.insertTestData();
             } catch (FileNotFoundException exception) {
@@ -88,19 +96,19 @@ public class MainApplicationRunner implements ApplicationRunner {
      * @return new default global application admin.
      */
     public User createDGAA() {
-        String email = "admin";
-        String password = "password";
+        String email = springEnvironment.DGAA_EMAIL;
+        String password = springEnvironment.DGAA_PASSWORD;
 
-        if (System.getenv("DGAA_EMAIL") != null) {
-            email = System.getenv("DGAA_EMAIL");
-        }
-        if (System.getenv("DGAA_PASSWORD") != null) {
-            password = System.getenv("DGAA_PASSWORD");
+        if (email == null || password == null) {
+            logger.error("Error: dgaa variables are not present");
+            logger.error("Aborting creation of dgaa");
+            return null;
         }
 
         password = passwordEncoder.encode(password);
-        User admin = new User("admin", "admin", null, null,
-                null, email, null, null, null, password);
+        Address address = new Address();
+        User admin = new User("admin", null, null, null,
+                null, email, null, null, address, password);
         admin.setRole("defaultGlobalApplicationAdmin");
         return admin;
     }
