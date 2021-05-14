@@ -197,6 +197,12 @@ export default {
         if (this.businessesAdministered[i].id === this.$root.$data.user.state.actingAs.id) return true
       }
       return false
+    },
+    /**
+     * Gets the currently logged in user's role
+     */
+    userRole() {
+      return this.$root.$data.user.state.role;
     }
   },
 
@@ -324,12 +330,45 @@ export default {
           this.primaryAdminOf.push(business);
         }
       }
+    },
+
+    /**
+     * Calls api end point to add admin rights to a user
+     */
+    async addUserAdmin(id) {
+      if (this.userRole !== 'defaultGlobalApplicationAdmin') {
+        this.error = 'You must be a global admin to grant admin rights to a user'
+      } else {
+        try {
+          await User.makeAdmin(id)
+          console.log(`Successfully granted admin rights to user with id ${id}`)
+        } catch (error) {
+          console.error(error)
+          this.error = error.response.data || error
+        }
+      }
+    },
+
+    /**
+     * Calls api end point to remove admin rights from a user
+     */
+    async removeUserAdmin(id) {
+      if (this.userRole !== 'defaultGlobalApplicationAdmin') {
+        this.error = 'You must be a global admin to revoke admin rights from a user'
+      } else {
+        try {
+          await User.revokeAdmin(id)
+          console.log(`Successfully revoked admin rights from user with id ${id}`)
+        } catch (error) {
+          console.error(error)
+          this.error = error.response.data || error
+        }
+      }
     }
 
   },
 
   data() {
-
     return {
       firstName: null,
       middleName: null,
