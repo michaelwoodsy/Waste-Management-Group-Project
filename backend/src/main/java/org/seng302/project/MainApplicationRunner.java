@@ -92,7 +92,7 @@ public class MainApplicationRunner implements ApplicationRunner {
         logger.info("Startup application with {}", args);
 
         DGAAChecker dgaaChecker = DGAAChecker.getInstance(userRepository);
-        dgaaChecker.dgaaExists();
+        dgaaChecker.dgaaCheck();
 
         if (Constants.TEST_DATA) {
             JSONObject data = (JSONObject) parser.parse(new FileReader("./src/main/resources/test_data.json"));
