@@ -182,4 +182,17 @@ export default {
         }
         return false
     },
+
+    createCard(data){
+        // Return a promise for the api call
+        return new Promise(((resolve, reject) => {
+            User.createCard(data)
+                .then((res) => {
+                    resolve(res);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        }));
+    }
 }

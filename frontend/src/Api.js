@@ -82,6 +82,12 @@ export const User = {
     getUserData: (id) => instance.get(`users/${id}`, {}),
 
     getUsers: (searchTerm) => instance.get('users/search', {params: {'searchQuery': searchTerm}}),
+
+    /**
+     * Creates a new Card for in the community marketplace
+     * @param data
+     */
+    createCard: (data) => instance.post('cards', data),
 };
 
 export const Business = {
@@ -162,11 +168,7 @@ export const Business = {
      */
     createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data),
 
-    /**
-     * Creates a new Card for in the community marketplace
-     * @param data
-     */
-    createCard: (data) => instance.post('cards', data),
+
 
 
 };

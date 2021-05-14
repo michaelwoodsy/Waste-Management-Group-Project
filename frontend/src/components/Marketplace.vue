@@ -36,9 +36,12 @@
               </a>
             </li>
           </ul>
-
         </div>
-
+        <div class="col text-right">
+          <button class="btn btn-primary" data-target="#createCard" data-toggle="modal" @click="newCard">
+            New Card
+          </button>
+        </div>
       </div>
 
       <br>
@@ -51,13 +54,15 @@
 
           </div>
         </div>
-
-
-
-
-
-
-
+      </div>
+      <div id="createCard" :key="this.createNewCard" class="modal fade" data-backdrop="static">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <create-card-page @refresh-cards="refreshCards"></create-card-page>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -70,6 +75,7 @@
 <script>
 
 import LoginRequired from "./LoginRequired";
+import CreateCardPage from "@/components/CreateCardPage";
 
 export default {
   name: "Marketplace",
@@ -78,7 +84,8 @@ export default {
     return {
       tabSelected: 'for sale', //Default tab
       cards: ['Card 1', 'Card 2', 'card 3', 'card 4', 'card 5'],
-      error: ""
+      error: "",
+      createNewCard: false
     }
   },
 
@@ -109,6 +116,7 @@ export default {
     },
   },
   components: {
+    CreateCardPage,
     LoginRequired
   },
   methods: {
@@ -120,6 +128,18 @@ export default {
     changePage(tab) {
       this.tabSelected = tab
       //Call Api to get new cards for tab here
+    },
+    /**
+     * Takes user to page to create new card.
+     */
+    newCard() {
+      this.createNewCard = true;
+    },
+    /**
+     * Refreshes the cards
+     */
+    refreshCards() {
+      this.createNewProduct = false;
     }
   }
 }

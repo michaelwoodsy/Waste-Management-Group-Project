@@ -39,17 +39,26 @@
       <!-- Description -->
       <div class="form-group row">
         <label for="description"><b>Description</b></label>
-        <input id="description" v-model="description" :class="{'form-control': true, 'is-invalid': msg.description}"
+        <input id="description" v-model="description" :class="{'form-control': true, 'is-invalid': false}"
                placeholder="Enter the description"
                required maxlength="256" type="text">
-        <span class="invalid-feedback">{{ msg.description }}</span>
+      </div>
+
+      <!-- Keywords -->
+      <div class="form-group row">
+        <label for="keywords"><b>Keywords<span class="required">*</span></b></label>
+        <select id="keywords" v-model="selectedKeywords" multiple :class="{'form-control': true, 'is-invalid': msg.keywordIds}" >
+          <option v-for="keyword in keywordIds" v-bind:key="keyword.value" v-bind:value="keyword.value">
+            {{keyword.text}}
+          </option>
+        </select>
+        <span class="invalid-feedback">{{ msg.keywordIds }}</span>
       </div>
 
       <!-- Create Card button -->
       <div class="form-group row mb-0">
         <div class="btn-group" style="width: 100%">
-          <router-link :to="'marketplace'" class="btn btn-secondary col-4">Cancel
-          </router-link>
+          <button ref="close" class="btn btn-secondary col-4" data-dismiss="modal" @click="close">Cancel</button>
           <button class="btn btn-primary col-8" @click="checkInputs">Create Card</button>
         </div>
         <!-- Show an error if required fields are missing -->
@@ -71,15 +80,20 @@ export default {
   data() {
     return {
       PageTitle: 'Create a new card',
-      creatorId: null,
-      section: null,
-      title: null,
-      description: null,
-      keywordIds: null,
+      creatorId: '', //Required
+      section: '', //Required
+      title: '', //Required
+      description: '',
+      //Example Keywords
+      keywordIds: [
+        {text: 'Vehicle', value: 600},
+        {text: 'Car', value: 20},
+        {text: 'Motorcycle', value: 30},
+      ],
+      selectedKeywords: [], //Required
       msg: {
         section: null,
         title: null,
-        description: null,
         keywordIds: null,
         errorChecks: null
       },
@@ -113,6 +127,28 @@ export default {
       }
     },
 
+    validateKeywords(){
+      let validKeywords = true
+      console.log(this.selectedKeywords)
+      if (this.selectedKeywords.length === 0){
+        this.msg.keywordIds = 'Please select at least one keyword'
+        this.valid = false
+      } else {
+        for(let i = 0; i < this.selectedKeywords.length; i++){
+          if (!this.keywordIds.includes(this.selectedKeywords[i].value)){
+            console.log('keywordIds does not contain ' + this.selectedKeywords[i].text)
+            validKeywords = false
+          }
+          if (!validKeywords){
+            this.msg.keywordIds = 'Please select a valid keyword'
+            this.valid = false
+          } else {
+            this.msg.keywordIds = null
+          }
+        }
+      }
+    },
+
 
     /**
      * Check all inputs
@@ -120,7 +156,9 @@ export default {
     checkInputs(){
       this.validateSection()
       this.validateTitle()
+      this.validateKeywords()
 
+      console.log(this.selectedKeywords)
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
         console.log(this.msg.errorChecks);
@@ -128,7 +166,49 @@ export default {
       } else {
         this.msg.errorChecks = null;
         console.log('No errors');
+        this.addCard()
       }
+    },
+
+    /**
+     * Add a new card to the marketplace
+     */
+    addCard() {
+      this.$root.$data.user.createCard(
+          {
+            "creatorId": this.$root.$data.user.state.actingAs.id,
+            "section": this.section,
+            "title": this.title,
+            "description": this.description,
+            "keywordIds": this.selectedKeywords
+          }
+      ).then(() => {
+        this.$refs.close.click();
+        this.close();
+      }).catch((err) => {
+        this.msg.errorChecks = err.response ?
+            err.response.data.slice(err.response.data.indexOf(':') + 2) :
+            err
+      });
+    },
+    /**
+     * Closes the popup window to create a card
+     */
+    close() {
+      this.resetData()
+      this.$emit('refresh-cards');
+    },
+
+    resetData(){
+      this.section = ''
+      this.title = ''
+      this.description = ''
+      this.selectedKeywords = []
+      this.msg.section = null
+      this.msg.title = null
+      this.msg.keywordIds = null
+      this.msg.errorChecks = null
+      this.valid = true
     }
   }
 }
