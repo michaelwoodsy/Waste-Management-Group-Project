@@ -15,14 +15,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
+
+import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 /**
  * Unit tests for DGAA methods in UserController.
@@ -36,12 +42,17 @@ public class DGAAControllerTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     private User testUser;
     private Integer testUserId;
     private Address testAddress;
 
+    private User testDGAA;
+
     @Autowired
-    public AddressRepository addressRepository;
+    private AddressRepository addressRepository;
 
     @Autowired
     private MockMvc mockMvc;
@@ -52,13 +63,15 @@ public class DGAAControllerTest {
     /**
      * Creates a user that we try adding/revoking admin rights of.
      * Reads the environment variables for DGAA email & password
+     *
      */
     @BeforeEach
     public void setup() {
-        testUser = new User("Albert", "Brown", "", "", "", "albert.brown@gmail.com",
-                "2000-05-21", "+64 3 555 0129", null, "1337-H%nt3r2");
         testAddress = new Address("", "", "", "", "New Zealand","");
+        testUser = new User("Albert", "Brown", "", "", "", "albert.brown@gmail.com",
+                "2000-05-21", "+64 3 555 0129", testAddress, "1337-H%nt3r2");
         addressRepository.save(testAddress);
+        testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
         testUserId = userRepository.save(testUser).getId();
 
         if (System.getenv("DGAA_EMAIL") != null) {
@@ -68,7 +81,13 @@ public class DGAAControllerTest {
             dgaaPassword = System.getenv("DGAA_PASSWORD");
         }
 
+        testDGAA = new User("Admin", "Admin", "", "", "", dgaaEmail, "2000-05-21",
+                "+64 3 555 0129", testAddress, dgaaPassword);
+        testDGAA.setRole("defaultGlobalApplicationAdmin");
+        testDGAA.setPassword(passwordEncoder.encode(testDGAA.getPassword()));
+        userRepository.save(testDGAA);
     }
+
 
     /**
      * Tests that the DGAA can give someone admin privileges
@@ -78,7 +97,7 @@ public class DGAAControllerTest {
     public void testDGAAAddAdmin() throws Exception {
 
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
-                .post("/users/{id}/makeadmin", testUserId)
+                .put("/users/{id}/makeadmin", testUserId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(dgaaEmail, dgaaPassword));
@@ -87,8 +106,9 @@ public class DGAAControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
                 .andReturn();
 
-        User retrievedUser = userRepository.findByEmail("albert.brown@gmail.com").get(0);
-        Assertions.assertEquals("globalApplicationAdmin", retrievedUser.getRole());
+        Optional<User> retrievedUser = userRepository.findById(testUserId);
+        Assertions.assertTrue(retrievedUser.isPresent());
+        Assertions.assertEquals("globalApplicationAdmin", retrievedUser.get().getRole());
     }
 
     /**
@@ -101,13 +121,13 @@ public class DGAAControllerTest {
         testUserId = userRepository.save(testUser).getId();
 
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
-                .post("/users/{id}/makeadmin", testUserId)
+                .put("/users/{id}/makeadmin", testUserId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("albert.brown@gmail.com", "1337-H%nt3r2"));
 
         MvcResult putAdminResponse = this.mockMvc.perform(putAdminRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 403 response
+                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 403 response
                 .andReturn();
 
         String returnedExceptionString = putAdminResponse.getResponse().getContentAsString();
@@ -126,7 +146,7 @@ public class DGAAControllerTest {
         }
 
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
-                .post("/users/{id}/makeadmin", 128)
+                .put("/users/{id}/makeadmin", 128)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(dgaaEmail, dgaaPassword));
@@ -147,7 +167,7 @@ public class DGAAControllerTest {
     @Test
     public void testDGAARevokeAdmin() throws Exception {
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
-                .post("/users/{id}/revokeadmin", testUserId)
+                .put("/users/{id}/revokeadmin", testUserId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(dgaaEmail, dgaaPassword));
@@ -156,8 +176,9 @@ public class DGAAControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
                 .andReturn();
 
-        User retrievedUser = userRepository.findByEmail("albert.brown@gmail.com").get(0);
-        Assertions.assertEquals("user", retrievedUser.getRole());
+        Optional<User> retrievedUser = userRepository.findById(testUserId);
+        Assertions.assertTrue(retrievedUser.isPresent());
+        Assertions.assertEquals("user", retrievedUser.get().getRole());
 
     }
 
@@ -168,13 +189,13 @@ public class DGAAControllerTest {
     @Test
     public void testNotDGAARevokeAdmin() throws Exception {
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
-                .post("/users/{id}/revokeadmin", testUserId)
+                .put("/users/{id}/revokeadmin", testUserId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("albert.brown@gmail.com", "1337-H%nt3r2"));
 
         MvcResult putAdminResponse = this.mockMvc.perform(putAdminRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 403 response
+                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 403 response
                 .andReturn();
 
         String returnedExceptionString = putAdminResponse.getResponse().getContentAsString();
@@ -194,7 +215,7 @@ public class DGAAControllerTest {
         }
 
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
-                .post("/users/{id}/revokeadmin", 128)
+                .put("/users/{id}/revokeadmin", 128)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(dgaaEmail, dgaaPassword));
@@ -213,8 +234,10 @@ public class DGAAControllerTest {
      */
     @Test
     public void testDGAARevokeAdminSelf() throws Exception {
+        Integer dgaaId = userRepository.findByEmail(dgaaEmail).get(0).getId();
+
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
-                .post("/users/{id}/revokeadmin", testUserId)
+                .put("/users/{id}/revokeadmin", dgaaId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(dgaaEmail, dgaaPassword));

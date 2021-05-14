@@ -6,17 +6,20 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.seng302.project.controller.UserController;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 
 @AutoConfigureMockMvc
@@ -31,6 +34,9 @@ public class DGAASteps {
 
     private final UserRepository userRepository;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     private final AddressRepository addressRepository;
 
     private final BusinessRepository businessRepository;
@@ -39,6 +45,7 @@ public class DGAASteps {
     private String dgaaPassword = "password";
 
     @Autowired
+    private WebApplicationContext context;
     private MockMvc mockMvc;
 
     private RequestBuilder putAdminRequest;
@@ -61,6 +68,10 @@ public class DGAASteps {
         if (System.getenv("DGAA_PASSWORD") != null) {
             dgaaPassword = System.getenv("DGAA_PASSWORD");
         }
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
     }
 
 //    //AC3
@@ -90,6 +101,7 @@ public class DGAASteps {
                 "2000-05-21", "+64 3 555 0129", null, "1337-H%nt3r2");
         testAddress = new Address("", "", "", "", "New Zealand","");
         addressRepository.save(testAddress);
+        testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
         testUserId = userRepository.save(testUser).getId();
     }
 //
@@ -110,7 +122,7 @@ public class DGAASteps {
     public void the_dgaa_assigns_admin_rights_to_the_user() throws Exception {
 
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
-                .post("/users/{id}/makeadmin", testUserId)
+                .put("/users/{id}/makeadmin", testUserId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(dgaaEmail, dgaaPassword));
@@ -135,13 +147,14 @@ public class DGAASteps {
         testAddress = new Address("", "", "", "", "New Zealand","");
         testUser.setRole("globalApplicationAdmin");
         addressRepository.save(testAddress);
+        testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
         testUserId = userRepository.save(testUser).getId();
     }
 
     @When("The DGAA removes admin rights from the user")
     public void the_dgaa_removes_admin_rights_from_the_user() throws Exception {
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
-                .post("/users/{id}/revokeadmin", testUserId)
+                .put("/users/{id}/revokeadmin", testUserId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(dgaaEmail, dgaaPassword));
@@ -167,8 +180,8 @@ public class DGAASteps {
 
     @When("A DGAA assigns admin rights to the business")
     public void a_dgaa_assigns_admin_rights_to_the_business() {
-        RequestBuilder putAdminRequest = MockMvcRequestBuilders
-                .post("/businesses/{id}/makeadmin", testBusinessId)
+        putAdminRequest = MockMvcRequestBuilders
+                .put("/businesses/{id}/makeadmin", testBusinessId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(dgaaEmail, dgaaPassword));
