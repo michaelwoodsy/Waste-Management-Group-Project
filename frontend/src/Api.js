@@ -38,22 +38,6 @@ const instance = axios.create({
     withCredentials: true
 });
 
-export default {
-    // (C)reate
-
-
-    // (R)ead
-    getAll: () => instance.get('students', {
-        transformResponse: [function (data) {
-            return data ? JSON.parse(data)._embedded.students : data;
-        }]
-    }),
-    // (U)pdate
-    updateForId: (id, firstName, lastName) => instance.put('students/' + id, {firstName, lastName}),
-    // (D)elete
-    removeForId: (id) => instance.delete('students/' + id)
-}
-
 export const User = {
     createNew: (firstName,
                 lastName,
