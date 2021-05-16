@@ -47,18 +47,28 @@ Page for displaying the marketplace.
       </div>
       <br>
 
-      <!-- Combobox for ordering -->
+      <!-- Div above results -->
       <div class="row form justify-content-center">
         <div class="col-9 form-group text-center">
+
+          <!-- Combobox and label for ordering -->
           <label for="order-select" class="d-inline-block">Order By</label>
           <select id="order-select"
                   v-model="order"
-                  class="form-control ml-1 d-inline-block w-auto">
+                  class="form-control ml-2 d-inline-block w-auto">
             <option value="created-asc">Newest</option>
             <option value="created-desc">Oldest</option>
             <option value="title">Title</option>
             <option value="location">Location</option>
           </select>
+
+          <!-- Text for "showing x of x results -->
+          <showing-results-text
+              :items-per-page="resultsPerPage"
+              :page="page"
+              :total-count="totalCardCount"
+              class="ml-4"
+          />
         </div>
       </div>
 
@@ -85,6 +95,8 @@ Page for displaying the marketplace.
 
 import LoginRequired from "./LoginRequired";
 import MarketCard from "./MarketCard";
+import ShowingResultsText from "@/components/ShowingResultsText";
+import Pagination from "@/components/Pagination";
 
 export default {
   name: "Marketplace",
@@ -95,7 +107,9 @@ export default {
       cards: [],
       hideImages: false,
       error: "",
-      order: 'created-asc'
+      order: 'created-asc',
+      resultsPerPage: 10,
+      page: 1
     }
   },
 
@@ -145,11 +159,18 @@ export default {
       }
 
       return newCards
+    },
+
+    /** Total number of cards on the current tab **/
+    totalCardCount() {
+      return this.orderedCards.length
     }
   },
   components: {
     LoginRequired,
-    MarketCard
+    MarketCard,
+    ShowingResultsText,
+    Pagination
   },
   methods: {
     /**
