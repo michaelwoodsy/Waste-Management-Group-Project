@@ -95,6 +95,8 @@ public class DGAAControllerTest {
      */
     @Test
     public void testDGAAAddAdmin() throws Exception {
+        testUser.setRole("user");
+        testUserId = userRepository.save(testUser).getId();
 
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
                 .put("/users/{id}/makeadmin", testUserId)
@@ -117,8 +119,6 @@ public class DGAAControllerTest {
      */
     @Test
     public void testNotDGAAAddAdmin() throws Exception {
-        testUser.setRole("user");
-        testUserId = userRepository.save(testUser).getId();
 
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
                 .put("/users/{id}/makeadmin", testUserId)
@@ -166,6 +166,9 @@ public class DGAAControllerTest {
      */
     @Test
     public void testDGAARevokeAdmin() throws Exception {
+        testUser.setRole("globalApplicationAdmin");
+        testUserId = userRepository.save(testUser).getId();
+
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
                 .put("/users/{id}/revokeadmin", testUserId)
                 .contentType(MediaType.APPLICATION_JSON)
