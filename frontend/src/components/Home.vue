@@ -11,6 +11,7 @@
       <div class="row">
         <div class="col text-center mb-2">
           <h2>Hello {{ actorName }}</h2>
+          <router-link to="/marketplace" class="btn btn-outline-primary mx-2">View Marketplace</router-link>
         </div>
       </div>
     </div>
@@ -33,7 +34,6 @@
 
 <script>
 
-import {User} from '@/Api'
 import LoginRequired from "./LoginRequired";
 
 export default {
@@ -43,9 +43,6 @@ export default {
   },
 
   mounted() {
-    //the getUserData function at this moment requires a id (required for the API), this will have to be changed later
-    //to be the users email not id as id will be from the database
-    User.getUserData(this.$root.$data.user.state.userId).then((response) => this.profile(response))
   },
 
   computed: {
