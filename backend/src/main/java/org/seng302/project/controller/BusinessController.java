@@ -129,9 +129,12 @@ public class BusinessController {
 
             User currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
             Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
+            User loggedInUser = userRepository.findByEmail(userAuth.getName()).get(0);
 
             //Checks if the user preforming the action is the primary administrator of the business
-            if (!userRepository.findByEmail(userAuth.getName()).get(0).getId().equals(currBusiness.getPrimaryAdministratorId())) {
+            if (!loggedInUser.getId().equals(currBusiness.getPrimaryAdministratorId()) &&
+                    !loggedInUser.getRole().equals("defaultGlobalApplicationAdmin") &&
+                    !loggedInUser.getRole().equals("glonpm balApplicationAdmin")) {
                 ForbiddenPrimaryAdministratorActionException exception = new ForbiddenPrimaryAdministratorActionException(id);
                 logger.error(exception.getMessage());
                 throw exception;
@@ -172,11 +175,13 @@ public class BusinessController {
         try {
             int userId = (int) json.getAsNumber("userId");
             User currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
-
             Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
+            User loggedInUser = userRepository.findByEmail(userAuth.getName()).get(0);
 
             //Checks if the user preforming the action is the primary administrator of the business
-            if (!userRepository.findByEmail(userAuth.getName()).get(0).getId().equals(currBusiness.getPrimaryAdministratorId())) {
+            if (!loggedInUser.getId().equals(currBusiness.getPrimaryAdministratorId()) &&
+                    !loggedInUser.getRole().equals("defaultGlobalApplicationAdmin") &&
+                    !loggedInUser.getRole().equals("globalApplicationAdmin")) {
                 ForbiddenPrimaryAdministratorActionException exception = new ForbiddenPrimaryAdministratorActionException(id);
                 logger.error(exception.getMessage());
                 throw exception;

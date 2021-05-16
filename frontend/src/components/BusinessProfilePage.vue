@@ -281,6 +281,8 @@ export default {
      * Used when a GAA or DGAA wants to add a user as admin to the business
      */
     async addAdministrator() {
+      this.addAdministratorError = null
+      this.addAdministratorSuccess = null
       if (this.addAdministratorUserId === null) {
         this.addAdministratorError = "Please enter a User ID"
       }
