@@ -228,10 +228,9 @@ public class UserController {
             //Check if person making request is DGAA
             User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
 
+            logger.info(String.format("requestMaker: %s", requestMaker));
             if (!requestMaker.getRole().equals("defaultGlobalApplicationAdmin")) {
-                ForbiddenDGAAActionException forbiddenDGAAActionException = new ForbiddenDGAAActionException();
-                logger.warn(forbiddenDGAAActionException.getMessage());
-                throw forbiddenDGAAActionException;
+                throw new ForbiddenDGAAActionException();
             }
 
             //Check if user exists
@@ -242,6 +241,7 @@ public class UserController {
             userRepository.save(user);
 
         } catch (ForbiddenDGAAActionException | NoUserExistsException handledException) {
+            logger.warn(handledException.getMessage());
             throw handledException;
         } catch (Exception unHandledException) {
             logger.error(String.format(
@@ -263,9 +263,7 @@ public class UserController {
             User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
 
             if (!requestMaker.getRole().equals("defaultGlobalApplicationAdmin")) {
-                ForbiddenDGAAActionException forbiddenDGAAActionException = new ForbiddenDGAAActionException();
-                logger.warn(forbiddenDGAAActionException.getMessage());
-                throw forbiddenDGAAActionException;
+                throw new ForbiddenDGAAActionException();
             }
 
             //Check if user exists
@@ -273,9 +271,7 @@ public class UserController {
 
             //Check that DGAA is not revoking themselves
             if (user.getEmail().equals(appUser.getUsername())) {
-                DGAARevokeAdminSelfException dgaaRevokeAdminSelfException = new DGAARevokeAdminSelfException();
-                logger.warn(dgaaRevokeAdminSelfException.getMessage());
-                throw dgaaRevokeAdminSelfException;
+                throw new DGAARevokeAdminSelfException();
             }
 
             //Update user's role
@@ -283,6 +279,7 @@ public class UserController {
             userRepository.save(user);
 
         } catch (ForbiddenDGAAActionException | NoUserExistsException | DGAARevokeAdminSelfException handledException) {
+            logger.warn(handledException.getMessage());
             throw handledException;
         } catch (Exception unHandledException) {
             logger.error(String.format(

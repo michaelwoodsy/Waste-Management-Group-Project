@@ -22,9 +22,3 @@ Feature: Default Global Application Admin (U4)
     Given There exists a user with a role of GAA
     When The DGAA removes admin rights from the user
     Then The role of the user is updated to user
-
-  Scenario: AC8 - Only individuals can be given application admin rights.
-  Business accounts cannot be given admin rights.
-    Given There exists a business with the name "Bob's Beans"
-    When A DGAA assigns admin rights to the business
-    Then An exception is thrown
