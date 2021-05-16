@@ -53,8 +53,12 @@ beforeEach(() => {
         message: 'Hello!',
         loggedIn: false,
         userId: null,
-        userData: {},
-        actingAs: null
+        userData: {
+            role: "user"
+        },
+        actingAs: {
+            type: "user"
+        }
     }
 });
 
@@ -170,6 +174,41 @@ describe('store.user', () => {
 
         const isPrimaryAdmin = user.isPrimaryAdminOfBusiness()
         expect(isPrimaryAdmin).toBeTruthy();
+    })
+
+    //test isGAA method
+    test("testing isGAA method", () => {
+        user.state.userData.role = "globalApplicationAdmin"
+        const isGAA = user.isGAA()
+        expect(isGAA).toBeTruthy();
+    })
+
+    //test isDGAA method
+    test("testing isDGAA method", () => {
+        user.state.userData.role = "defaultGlobalApplicationAdmin"
+        const isDGAA = user.isDGAA()
+        expect(isDGAA).toBeTruthy();
+    })
+
+    //test canDoAdminAction method
+    test("testing canDoAdminAction method", () => {
+        user.state.userData.role = "globalApplicationAdmin"
+        user.state.actingAs.type = "user"
+        let canDoAdminAction = user.canDoAdminAction()
+        expect(canDoAdminAction).toBeTruthy();
+
+        user.state.actingAs.type = "business"
+        canDoAdminAction = user.canDoAdminAction()
+        expect(canDoAdminAction).toBeFalsy();
+
+        user.state.userData.role = "defaultGlobalApplicationAdmin"
+        user.state.actingAs.type = "user"
+        canDoAdminAction = user.canDoAdminAction()
+        expect(canDoAdminAction).toBeTruthy();
+
+        user.state.actingAs.type = "business"
+        canDoAdminAction = user.canDoAdminAction()
+        expect(canDoAdminAction).toBeFalsy();
     })
 
 })

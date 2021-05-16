@@ -2,6 +2,7 @@
   <div id="app">
 
     <header class="mb-3">
+      <div class="admin-bar" v-if="this.$root.$data.user.canDoAdminAction()"></div>
       <Navbar/>
     </header>
 
@@ -47,6 +48,12 @@ export default app;
 
 body {
   min-height: 500px;
+}
+
+.admin-bar {
+  height: 10px;
+  background-color: red;
+  width: 100%;
 }
 
 </style>
