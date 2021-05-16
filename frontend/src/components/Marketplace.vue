@@ -1,3 +1,8 @@
+<!--
+Marketplace.vue
+Page for displaying the marketplace.
+-->
+
 <template>
   <div class="col-12">
 
