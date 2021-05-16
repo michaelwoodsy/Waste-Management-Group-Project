@@ -105,7 +105,7 @@ public class DGAAChecker {
 
         password = passwordEncoder.encode(password);
         Address address = new Address();
-        User admin = new User("admin", null, null, null,
+        User admin = new User("admin", "", "", "",
                 null, email, null, null, address, password);
         admin.setRole("defaultGlobalApplicationAdmin");
         return admin;
