@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import {afterEach, beforeEach, describe, test} from "@jest/globals";
+import "@jest/globals";
 import AddressInputFields from '@/components/AddressInputFields';
 const VueTestUtils = require('@vue/test-utils')
 import axios from 'axios';
