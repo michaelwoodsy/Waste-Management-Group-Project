@@ -28,9 +28,7 @@
 package org.seng302.project;
 
 import net.minidev.json.parser.ParseException;
-import org.seng302.project.model.Address;
 import org.seng302.project.util.DGAAChecker;
-import org.seng302.project.model.User;
 import org.seng302.project.util.SpringEnvironment;
 import org.seng302.project.util.TestDataRunner;
 import org.slf4j.Logger;
@@ -38,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
@@ -51,24 +48,19 @@ import java.io.FileNotFoundException;
 public class MainApplicationRunner implements ApplicationRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(MainApplicationRunner.class.getName());
-    private final BCryptPasswordEncoder passwordEncoder;
+    public final DGAAChecker dgaaChecker;
     private final TestDataRunner testDataRunner;
     private final SpringEnvironment springEnvironment;
-    private final DGAAChecker dgaaChecker;
 
     /**
      * This constructor is implicitly called by Spring (purpose of the @Autowired
      * annotation). Injected constructors can be supplied with instances of other
      * classes (i.e. dependency injection)
-     *
-     * @param passwordEncoder the password encoder used to encode passwords.
      */
     @Autowired
-    public MainApplicationRunner(BCryptPasswordEncoder passwordEncoder,
-                                 TestDataRunner testDataRunner,
+    public MainApplicationRunner(TestDataRunner testDataRunner,
                                  SpringEnvironment springEnvironment,
                                  DGAAChecker dgaaChecker) {
-        this.passwordEncoder = passwordEncoder;
         this.testDataRunner = testDataRunner;
         this.springEnvironment = springEnvironment;
         this.dgaaChecker = dgaaChecker;
@@ -84,8 +76,6 @@ public class MainApplicationRunner implements ApplicationRunner {
         logger.info("Setting spring constant with environment variables");
         springEnvironment.setEnvironment();
 
-        dgaaChecker.dgaaCheck();
-
         if (springEnvironment.TEST_DATA) {
             try {
                 testDataRunner.insertTestData();
@@ -95,29 +85,8 @@ public class MainApplicationRunner implements ApplicationRunner {
                 logger.error("Error: test data cannot be parsed");
             }
         }
-    }
 
-    /**
-     * Creates a new User object to be used as the DGAA.
-     *
-     * @return new default global application admin.
-     */
-    public User createDGAA() {
-        String email = springEnvironment.DGAA_EMAIL;
-        String password = springEnvironment.DGAA_PASSWORD;
-
-        if (email == null || password == null) {
-            logger.error("Error: DGAA variables are not present");
-            logger.error("Aborting creation of DGAA");
-            return null;
-        }
-
-        password = passwordEncoder.encode(password);
-        Address address = new Address();
-        User admin = new User("admin", null, null, null,
-                null, email, null, null, address, password);
-        admin.setRole("defaultGlobalApplicationAdmin");
-        return admin;
+        dgaaChecker.dgaaCheck();
     }
 
 }
