@@ -12,83 +12,72 @@ Page for displaying the marketplace.
     />
     <div v-else>
       <div class="row justify-content-center">
-
         <!--    Div for marketplace tabs    -->
         <div class="col-6">
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
               <a id="for-sale-link"
                  class="pointer"
-                 :class="{'nav-link': true, 'active': this.tabSelected === 'for sale'}"
-                 @click="changePage('for sale')">
+                 :class="{'nav-link': true, 'active': this.tabSelected === 'ForSale'}"
+                 @click="changePage('ForSale')">
                 For Sale
               </a>
             </li>
             <li class="nav-item">
               <a id="wanted-link"
                  class="pointer"
-                 :class="{'nav-link': true, 'active': this.tabSelected === 'wanted'}"
-                 @click="changePage('wanted')">
+                 :class="{'nav-link': true, 'active': this.tabSelected === 'Wanted'}"
+                 @click="changePage('Wanted')">
                 Wanted
               </a>
             </li>
             <li class="nav-item">
               <a id="exchange-link"
                  class="pointer"
-                 :class="{'nav-link': true, 'active': this.tabSelected === 'exchange'}"
-                 @click="changePage('exchange')">
+                 :class="{'nav-link': true, 'active': this.tabSelected === 'Exchange'}"
+                 @click="changePage('Exchange')">
                 Exchange
               </a>
             </li>
           </ul>
-
         </div>
-
       </div>
-
       <br>
       <div class="row justify-content-center">
         <div class="col-9">
           <div v-for="card in cards" v-bind:key="card.id">
-            <div>
-              <h1>{{tabSelected}} {{ card }}</h1>
+            <div v-if="hideImages">
+              <MarektCard :card-data="card" hide-image></MarektCard>
             </div>
-
+            <div v-else>
+              <MarektCard :card-data="card"></MarektCard>
+            </div>
           </div>
         </div>
-
-
-
-
-
-
-
       </div>
     </div>
-
-
-
-
   </div>
 </template>
 
 <script>
 
 import LoginRequired from "./LoginRequired";
+import MarektCard from "./MarketCard";
 
 export default {
   name: "Marketplace",
 
   data() {
     return {
-      tabSelected: 'for sale', //Default tab
-      cards: ['Card 1', 'Card 2', 'card 3', 'card 4', 'card 5'],
+      tabSelected: 'ForSale', //Default tab
+      cards: [],
+      hideImages: false,
       error: ""
     }
   },
 
   mounted() {
-
+    this.changePage(this.tabSelected)
   },
 
   computed: {
@@ -114,7 +103,8 @@ export default {
     },
   },
   components: {
-    LoginRequired
+    LoginRequired,
+    MarektCard
   },
   methods: {
     /**
@@ -125,6 +115,192 @@ export default {
     changePage(tab) {
       this.tabSelected = tab
       //Call Api to get new cards for tab here
+      //Change to call from api when available
+      this.cards = this.getFakeCards(tab)
+    },
+
+    getFakeCards(tab) {
+      if (tab === 'ForSale') {
+        return [
+          {
+            "id": 500,
+            "creator": {
+              "id": 100,
+              "firstName": "John",
+              "lastName": "Smith",
+              "homeAddress": {
+                "streetNumber": "3/24",
+                "streetName": "Ilam Road",
+                "city": "Christchurch",
+                "region": "Canterbury",
+                "country": "New Zealand",
+                "postcode": "90210"
+              },
+            },
+            "section": "ForSale",
+            "created": "2021-04-15T05:10:00Z",
+            "displayPeriodEnd": "2021-07-29T05:10:00Z",
+            "title": "1982 Lada Samara",
+            "description": "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
+            "keywords": [
+              {
+                "id": 600,
+                "name": "Vehicle",
+                "created": "2021-07-15T05:10:00Z"
+              }
+            ]
+          },
+          {
+            "id": 501,
+            "creator": {
+              "id": 101,
+              "firstName": "John",
+              "lastName": "Smith",
+              "homeAddress": {
+                "streetNumber": "3/24",
+                "streetName": "Ilam Road",
+                "city": "Christchurch",
+                "region": "Canterbury",
+                "country": "New Zealand",
+                "postcode": "90210"
+              },
+            },
+            "section": "ForSale",
+            "created": "2021-05-15T05:10:00Z",
+            "displayPeriodEnd": "2021-07-29T05:10:00Z",
+            "title": "2005 Honda Fit",
+            "description": "Teal, Good ol car. Perfect Condition. As is, where is. Will swap for Lamborghini, nothing else.",
+            "keywords": [
+              {
+                "id": 600,
+                "name": "Vehicle",
+                "created": "2021-07-15T05:10:00Z"
+              }
+            ]
+          },
+          {
+            "id": 502,
+            "creator": {
+              "id": 101,
+              "firstName": "John",
+              "lastName": "Smith",
+              "homeAddress": {
+                "streetNumber": "3/24",
+                "streetName": "Ilam Road",
+                "city": "Christchurch",
+                "region": "Canterbury",
+                "country": "New Zealand",
+                "postcode": "90210"
+              },
+            },
+            "section": "ForSale",
+            "created": "2021-05-10T05:10:00Z",
+            "displayPeriodEnd": "2021-07-29T05:10:00Z",
+            "title": "Bag of chips",
+            "description": "Just a good ol bag of chips, nothing special, will trade for a pebble",
+            "keywords": [
+              {
+                "id": 601,
+                "name": "Food",
+                "created": "2021-07-15T05:10:00Z"
+              }
+            ]
+          }
+
+        ]
+      }
+      else if (tab === 'Wanted') {
+        return [
+          {
+            "id": 503,
+            "creator": {
+              "id": 100,
+              "firstName": "John",
+              "lastName": "Smith",
+              "homeAddress": {
+                "streetNumber": "3/24",
+                "streetName": "Ilam Road",
+                "city": "Christchurch",
+                "region": "Canterbury",
+                "country": "New Zealand",
+                "postcode": "90210"
+              },
+            },
+            "section": "Wanted",
+            "created": "2021-04-15T05:10:00Z",
+            "displayPeriodEnd": "2021-07-29T05:10:00Z",
+            "title": "To pass SENG302",
+            "description": "Please can I just pass SENG302",
+            "keywords": [
+              {
+                "id": 602,
+                "name": "University",
+                "created": "2021-07-15T05:10:00Z"
+              }
+            ]
+          },
+          {
+            "id": 504,
+            "creator": {
+              "id": 101,
+              "firstName": "John",
+              "lastName": "Smith",
+              "homeAddress": {
+                "streetNumber": "3/24",
+                "streetName": "Ilam Road",
+                "city": "Christchurch",
+                "region": "Canterbury",
+                "country": "New Zealand",
+                "postcode": "90210"
+              },
+            },
+            "section": "Wanted",
+            "created": "2021-05-15T05:10:00Z",
+            "displayPeriodEnd": "2021-07-29T05:10:00Z",
+            "title": "Money",
+            "description": "Who doesn't want money",
+            "keywords": [
+              {
+                "id": 603,
+                "name": "Money",
+                "created": "2021-07-15T05:10:00Z"
+              }
+            ]
+          }
+        ]
+      }
+      else if (tab === 'Exchange') {
+        return [
+          {
+            "id": 504,
+            "creator": {
+              "id": 101,
+              "firstName": "John",
+              "lastName": "Smith",
+              "homeAddress": {
+                "streetNumber": "3/24",
+                "streetName": "Ilam Road",
+                "city": "Christchurch",
+                "region": "Canterbury",
+                "country": "New Zealand",
+                "postcode": "90210"
+              },
+            },
+            "section": "Wanted",
+            "created": "2021-05-15T05:10:00Z",
+            "displayPeriodEnd": "2021-07-29T05:10:00Z",
+            "title": "Money Exchange",
+            "description": "I will exchange my $3 for your $20",
+            "keywords": [
+              {
+                "id": 603,
+                "name": "Money",
+                "created": "2021-07-15T05:10:00Z"
+              }
+            ]
+          }
+        ]
+      }
     }
   }
 }
