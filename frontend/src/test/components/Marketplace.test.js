@@ -33,7 +33,7 @@ describe("Clicking on the marketplace tab links", () => {
         let wantedElement = wrapper.find("#for-sale-link")
         wantedElement.trigger("click")
         await wrapper.vm.$nextTick()
-        expect(wrapper.vm.$data.tabSelected).toStrictEqual("for sale");
+        expect(wrapper.vm.$data.tabSelected).toStrictEqual("ForSale");
     });
 
     /**
@@ -44,7 +44,7 @@ describe("Clicking on the marketplace tab links", () => {
         let wantedElement = wrapper.find("#wanted-link")
         wantedElement.trigger("click")
         await wrapper.vm.$nextTick()
-        expect(wrapper.vm.$data.tabSelected).toStrictEqual("wanted");
+        expect(wrapper.vm.$data.tabSelected).toStrictEqual("Wanted");
     });
 
     /**
@@ -55,7 +55,7 @@ describe("Clicking on the marketplace tab links", () => {
         let wantedElement = wrapper.find("#exchange-link")
         wantedElement.trigger("click")
         await wrapper.vm.$nextTick()
-        expect(wrapper.vm.$data.tabSelected).toStrictEqual("exchange");
+        expect(wrapper.vm.$data.tabSelected).toStrictEqual("Exchange");
     });
 })
 
