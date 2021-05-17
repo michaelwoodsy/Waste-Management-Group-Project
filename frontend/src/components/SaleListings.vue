@@ -21,6 +21,11 @@
                       @click="newListing">
                 New Listing
               </button>
+              <!-- GAA/DGAA button to add sales listings -->
+              <button v-else-if="$root.$data.user.canDoAdminAction()" class="btn btn-danger" data-target="#createListing" data-toggle="modal"
+                      @click="newListing">
+                New Listing
+              </button>
             </div>
           </div>
 
@@ -307,7 +312,7 @@ export default {
     /**
      * Formats the date fields.
      * @param string string representation of the date.
-     * @returns {string} the formated date.
+     * @returns {string} the formatted date.
      */
     formatDate(string) {
       if (string === '') {
@@ -325,7 +330,7 @@ export default {
     },
 
     /**
-     * Gets the currency to use for a particualr business.
+     * Gets the currency to use for a particular business.
      */
     async getCurrency() {
       const country = (await Business.getBusinessData(this.businessId)).data.address.country;
