@@ -140,7 +140,7 @@
         <button id="removeGAAButton" class="btn btn-block btn-danger" v-if="isGAA" style="width: 15%;margin:0 20px; font-size: 14px;"
                 v-on:click="removeUserAdmin(userId)">Remove Admin Access
         </button>
-        <button id="addGAAButton" class="btn btn-block btn-danger" v-else-if="!isDGAA" style="width: 15%;margin:0 20px; font-size: 14px;"
+        <button id="addGAAButton" class="btn btn-block btn-success" v-else-if="!isDGAA" style="width: 15%;margin:0 20px; font-size: 14px;"
                 v-on:click="addUserAdmin(userId)">Grant Admin Access
         </button>
       </div>
@@ -366,6 +366,8 @@ export default {
         try {
           await User.makeAdmin(id)
           console.log(`Successfully granted admin rights to user with id ${id}`)
+          const response = await User.getUserData(id)
+          this.profile(response)
         } catch (error) {
           console.error(error)
           this.error = error.response
@@ -385,6 +387,8 @@ export default {
         try {
           await User.revokeAdmin(id)
           console.log(`Successfully revoked admin rights from user with id ${id}`)
+          const response = await User.getUserData(id)
+          this.profile(response)
         } catch (error) {
           console.error(error)
           this.error = error.response
