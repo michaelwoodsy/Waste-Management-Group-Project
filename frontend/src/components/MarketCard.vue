@@ -2,6 +2,9 @@
 MarketCard.vue
 Displays a single market card.
 
+Emits a 'cardDeleted' event with a payload containing the card id when the card is deleted.
+Eg, <market-card @cardDeleted="someMethod" ... />
+
 @prop cardData: The json data (from the api) to display
 @prop hideImage: Boolean, when true will not display the card image.
 -->
@@ -48,7 +51,7 @@ Displays a single market card.
           <div class="modal-header">
             <h5 class="modal-title">Delete Card: {{ cardData.title }}</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
+              <span id="close" aria-hidden="true">&times;</span>
             </button>
           </div>
 
@@ -59,7 +62,7 @@ Displays a single market card.
 
           <!-- Footer / button section of modal -->
           <div class="modal-footer">
-            <button type="button" class="btn btn-danger">Delete</button>
+            <button type="button" class="btn btn-danger" @click="deleteCard">Delete</button>
             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
           </div>
 
@@ -119,8 +122,17 @@ export default {
     }
   },
   methods: {
-    /** Deletes this card **/
-    deleteCard() {}
+    /** Deletes this card, emitting an event on success **/
+    deleteCard() {
+      // TODO: Make delete api request here.
+      // TODO: Display error if the request fails.
+
+      // Emit the cardDeleted event
+      this.$emit('cardDeleted', this.cardData.id)
+
+      // Bodge way of programmatically closing the modal, by simulating a click on the close button
+      document.getElementById('close').click();
+    }
   }
 }
 </script>

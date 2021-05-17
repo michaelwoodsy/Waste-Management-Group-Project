@@ -100,12 +100,12 @@ describe('Testing the MarketCard component', () => {
     })
 
     // Test the deleteCard method
-    test("Test the deleteCard method emits an event", () => {
+    test("Test the deleteCard method emits a 'cardDeleted' event", () => {
         wrapper.vm.deleteCard()
 
         // Expect the component to emit the deleteCard event
-        expect(wrapper.emitted().deleteCard).toBeTruthy()
+        expect(wrapper.emitted().cardDeleted).toBeTruthy()
         // Expect the component to emit the correct ID
-        expect(wrapper.emitted().deleteCard[1]).toEqual(mockedProps.cardData.id)
+        expect(wrapper.emitted().cardDeleted[0]).toEqual([mockedProps.cardData.id])
     })
 })
