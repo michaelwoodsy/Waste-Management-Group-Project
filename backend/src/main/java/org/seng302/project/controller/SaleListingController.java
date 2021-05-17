@@ -84,7 +84,8 @@ public class SaleListingController {
      */
     private void checkUserIsAdminOfBusiness(User user, Business business) throws ForbiddenAdministratorActionException {
         // Check if the logged in user is the business owner / administrator or a GAA
-        if (!business.userIsAdmin(user.getId()) && !user.isGAA()) {
+        if (!(business.userIsAdmin(user.getId()) ||
+                business.getPrimaryAdministratorId().equals(user.getId())) && !user.isGAA()) {
             ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(business.getId());
             logger.warn(exception.getMessage());
             throw exception;

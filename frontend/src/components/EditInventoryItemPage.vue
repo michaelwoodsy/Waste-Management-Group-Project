@@ -104,7 +104,7 @@
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="quantity"><b>Product Quantity<span
                     class="text-danger">*</span></b></label>
-                <div class="col-sm-8">
+                <div class="input-group col-sm-8">
                   <input
                       type="text"
                       id="quantity"
@@ -114,6 +114,9 @@
                       maxlength="10"
                       @blur="quantityBlur = true"
                   >
+                  <span v-if="this.getMinQuantity() !== 0" class="input-group-text">Min Quantity: {{
+                      this.getMinQuantity()
+                    }}</span>
                   <div class="invalid-feedback" v-if="!quantityValid"> Please enter a valid quantity</div>
                 </div>
               </div>
@@ -254,7 +257,8 @@ import {Business} from "@/Api";
 export default {
   name: "EditItemPage",
   mounted() {
-    this.loadItem();
+    this.getListings()
+    this.loadItem()
     this.getCurrency()
     Business.getProducts(this.$route.params.businessId).then((response) => this.getProductIds(response))
   },
@@ -279,7 +283,9 @@ export default {
       manufacturedBlur: false,
       sellByBlur: false,
       bestBeforeBlur: false,
-      expiryBlur: false
+      expiryBlur: false,
+      businessesListings: [],
+
     }
   },
 
@@ -360,6 +366,9 @@ export default {
       if (this.newItem.quantity === null || this.newItem.quantity === '' || isNotANumber) {
         return false
       }
+      //If quantity entered is less than the quantity used in sales listings
+      if (this.newItem.quantity < this.getMinQuantity()) return false
+
       //32 bit highest number
       if (this.newItem.quantity > 2147483647){
         return false
@@ -481,6 +490,35 @@ export default {
   },
 
   methods: {
+    /**
+     * Get all sales listings for the current Business
+     * Used to validate quantity editing
+     */
+    getListings() {
+      Business.getListings(this.businessId)
+          .then((res) => {
+            this.businessesListings = res.data;
+          });
+    },
+
+    /**
+     * Retrieves the highest number of available items of a specific
+     * inventory item type are available to list for sale.
+     */
+    getMinQuantity() {
+      if (!this.item) {
+        return 0;
+      } else {
+        let quantityListed = 0;
+        for (const listing of this.businessesListings) {
+          if (listing.inventoryItem.id === this.item.id) {
+            quantityListed += listing.quantity;
+          }
+        }
+        return quantityListed;
+      }
+    },
+
     /**
      * Get Currency data
      */
