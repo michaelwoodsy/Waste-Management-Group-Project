@@ -333,17 +333,8 @@ export default {
 
 <style scoped>
 
-.address-output {
-  cursor: pointer;
-  font-size: 14px;
-}
-
 .error-msg {
   color: red;
-}
-
-.addressText {
-  font-size: 30px;
 }
 
 .required {
