@@ -66,6 +66,10 @@ export const User = {
     getUserData: (id) => instance.get(`users/${id}`, {}),
 
     getUsers: (searchTerm) => instance.get('users/search', {params: {'searchQuery': searchTerm}}),
+
+    makeAdmin: (id) => instance.put(`users/${id}/makeadmin`),
+
+    revokeAdmin: (id) => instance.put(`users/${id}/revokeadmin`)
 };
 
 export const Business = {
