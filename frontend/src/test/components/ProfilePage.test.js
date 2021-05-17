@@ -106,6 +106,18 @@ describe('testAddUserAdminMethod', () => {
     })
 
     /**
+     * Tests adding a user as admin when current user is DGAA by clicking button
+     */
+    test('testAddUserAdminWithDGAAWithButton', async () => {
+        const response = {}
+        User.makeAdmin.mockResolvedValue(response)
+        let AddGAAButton = wrapper.find("#addGAAButton")
+        AddGAAButton.trigger("click")
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.$data.error).toStrictEqual(null)
+    })
+
+    /**
      * Tests adding a user as admin when current user is GAA
      */
     test('testAddUserAdminWithGAA', () => {
@@ -117,6 +129,19 @@ describe('testAddUserAdminMethod', () => {
     })
 
     /**
+     * Tests adding a user as admin when current user is GAA by clicking button
+     */
+    test('testAddUserAdminWithGAAWithButton', async () => {
+        const response = {}
+        User.makeAdmin.mockResolvedValue(response)
+        wrapper.vm.userRole = 'globalApplicationAdmin'
+        let AddGAAButton = wrapper.find("#addGAAButton")
+        AddGAAButton.trigger("click")
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.$data.error).toStrictEqual('You must be a global admin to grant admin rights to a user')
+    })
+
+    /**
      * Tests adding a user as admin when current user is not an admin
      */
     test('testAddUserAdminWithUser', () => {
@@ -124,6 +149,19 @@ describe('testAddUserAdminMethod', () => {
         User.makeAdmin.mockResolvedValue(response)
         wrapper.vm.userRole = 'user'
         wrapper.vm.addUserAdmin(2)
+        expect(wrapper.vm.$data.error).toStrictEqual('You must be a global admin to grant admin rights to a user')
+    })
+
+    /**
+     * Tests adding a user as admin when current user is not an admin by clicking button
+     */
+    test('testAddUserAdminWithUserWithButton', async () => {
+        const response = {}
+        User.makeAdmin.mockResolvedValue(response)
+        wrapper.vm.userRole = 'user'
+        let AddGAAButton = wrapper.find("#addGAAButton")
+        AddGAAButton.trigger("click")
+        await wrapper.vm.$nextTick()
         expect(wrapper.vm.$data.error).toStrictEqual('You must be a global admin to grant admin rights to a user')
     })
 
