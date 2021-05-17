@@ -1,6 +1,5 @@
 package org.seng302.project.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,27 +18,23 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "card_id")
     private Integer id;
-
+    private User creator;
     private String section;
     private String title;
     private String description;
     private LocalDateTime created = LocalDateTime.now();
-
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Id
-    private Integer creatorId; // The id of the user that created this card
-
+    private LocalDateTime displayPeriodEnd; //TODO: complete initialisation
 
     /**
      * Constructor for creating a new Card object.
      *
-     * @param creatorId                   User id creating card.
+     * @param creator                     User creating card.
      * @param section                     Marketplace section the Card falls to.
      * @param title                       Title of the card.
      * @param description                 Description of the card.
      */
-    public Card(Integer creatorId, String section, String title, String description) {
-        this.creatorId = creatorId;
+    public Card(User creator, String section, String title, String description) {
+        this.creator = creator;
         this.section = section;
         this.title = title;
         this.description = description;
