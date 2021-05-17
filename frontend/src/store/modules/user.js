@@ -214,5 +214,17 @@ export default {
      */
     canDoAdminAction() {
         return (this.isDGAA() || this.isGAA()) && this.isActingAsUser()
+    },
+
+    /**
+     * Returns true if the provided userId is the same as the logged in user id, and is acting as them.
+     * Usefull for checking if the
+     * @param userId userId to compare to the current logged in user.
+     * @returns {boolean} True if the two ID's are the same, and the user is acting as themself.
+     */
+    isUser(userId) {
+        return this.state.userId === userId && this.isActingAsUser();
     }
+
+
 }

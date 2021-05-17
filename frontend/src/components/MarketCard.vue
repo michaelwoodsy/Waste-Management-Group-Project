@@ -72,6 +72,11 @@ export default {
      * Currently just returns a template image **/
     imageUrl() {
       return "https://toitoi.nz/wp-content/uploads/2020/04/placeholder.png"
+    },
+
+    /** True if the logged in user is the creator of the card and acting as themself **/
+    isCardCreator() {
+      return this.$root.$data.user.isUser(this.cardData.creator.id)
     }
   }
 }

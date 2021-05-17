@@ -46,17 +46,23 @@ const mockedProps = {
     }
 }
 
-beforeEach(() => {
-    wrapper = mount(MarketCard, {
-        propsData: mockedProps
-    })
-})
 
 afterEach(() => {
     wrapper.destroy()
 })
 
 describe('Testing the MarketCard component', () => {
+
+    beforeEach(() => {
+        wrapper = mount(MarketCard, {
+            propsData: mockedProps,
+            computed: {
+                isCardCreator() {
+                    return false
+                }
+            }
+        })
+    })
 
     // Test the cardCreatorName computed property
     test("Test the cardCreatorName computed", () => {
@@ -77,5 +83,30 @@ describe('Testing the MarketCard component', () => {
             .toBe("Canterbury")
         expect(location.call(mockAddress({country: "New Zealand"})))
             .toBe("New Zealand")
+    })
+})
+
+
+describe('Testing the MarketCard isCardOwner computed property', () => {
+
+    beforeEach(() => {
+        wrapper = mount(MarketCard, {
+            propsData: mockedProps,
+            computed: {
+                isCardCreator() {
+                    return false
+                }
+            }
+        })
+    })
+
+    // Test the cardCreatorName computed property
+    test("Test the location computed", () => {
+        const isCardCreator = MarketCard.computed.isCardCreator
+        // Function for mocking the 'this' state
+        const mockThis = (id) => ({"cardData": mockedProps.cardData, "$root": {"$data": {"user": {isUser (userId) {return userId === id}}}}})
+
+        expect(isCardCreator.call(mockThis(100))).toBeTruthy()
+        expect(isCardCreator.call(mockThis(2))).toBeFalsy()
     })
 })
