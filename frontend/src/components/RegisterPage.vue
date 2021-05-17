@@ -329,7 +329,7 @@ export default {
           this.homeAddress,
           this.password
       ).then(() => {
-        this.$router.push({name: 'user'})
+        this.$router.push({name: 'home'})
       })
           .catch((err) => {
             this.msg.errorChecks = err.response
