@@ -3,7 +3,7 @@
 <template>
   <div class="nav-item">
     <!-- Image and name -->
-    <div class="nav-link pointer" data-toggle="dropdown">
+    <div class="nav-link text-white pointer" data-toggle="dropdown">
       <!-- Profile photo -->
       <img
           alt="profile"
