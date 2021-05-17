@@ -4,15 +4,18 @@ Page for displaying the marketplace.
 -->
 
 <template>
-  <div class="col-12">
+  <div class="container-fluid">
 
+    <!-- Check the user is logged in -->
     <login-required
         v-if="!isLoggedIn"
         page="view the Marketplace"
     />
+
     <div v-else>
+
+      <!--    Div for marketplace tabs    -->
       <div class="row justify-content-center">
-        <!--    Div for marketplace tabs    -->
         <div class="col-6">
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
@@ -43,9 +46,36 @@ Page for displaying the marketplace.
         </div>
       </div>
       <br>
+
+      <!-- Div above results -->
+      <div class="row form justify-content-center">
+        <div class="col-9 form-group text-center">
+
+          <!-- Combobox and label for ordering -->
+          <label for="order-select" class="d-inline-block">Order By</label>
+          <select id="order-select"
+                  v-model="order"
+                  class="form-control ml-2 d-inline-block w-auto">
+            <option value="created-asc">Newest</option>
+            <option value="created-desc">Oldest</option>
+            <option value="title">Title</option>
+            <option value="location">Location</option>
+          </select>
+
+          <!-- Text for "showing x of x results -->
+          <showing-results-text
+              :items-per-page="resultsPerPage"
+              :page="page"
+              :total-count="totalCardCount"
+              class="ml-4"
+          />
+        </div>
+      </div>
+
+      <!-- Div with cards -->
       <div class="row justify-content-center">
         <div class="col-9">
-          <div v-for="card in cards" v-bind:key="card.id">
+          <div v-for="card in orderedCards" v-bind:key="card.id">
             <div v-if="hideImages">
               <MarketCard :card-data="card" hide-image></MarketCard>
             </div>
@@ -53,8 +83,17 @@ Page for displaying the marketplace.
               <MarketCard :card-data="card"></MarketCard>
             </div>
           </div>
+
+          <!-- Pagination Links -->
+          <pagination
+              :current-page.sync="page"
+              :items-per-page="resultsPerPage"
+              :total-items="totalCardCount"
+          />
         </div>
       </div>
+
+
     </div>
   </div>
 </template>
@@ -62,7 +101,8 @@ Page for displaying the marketplace.
 <script>
 
 import LoginRequired from "./LoginRequired";
-import MarketCard from "@/components/MarketCard";
+import MarketCard from "./MarketCard";
+import ShowingResultsText from "@/components/ShowingResultsText";
 
 export default {
   name: "Marketplace",
@@ -72,7 +112,10 @@ export default {
       tabSelected: 'ForSale', //Default tab
       cards: [],
       hideImages: false,
-      error: ""
+      error: "",
+      order: 'created-asc',
+      resultsPerPage: 10,
+      page: 1
     }
   },
 
@@ -101,10 +144,38 @@ export default {
     actorName() {
       return this.actor.name
     },
+
+    /** List of cards, ordered by the selected ordering **/
+    orderedCards() {
+      // Create new card array
+      let newCards = [...this.cards];
+
+      // Order it appropriately
+      if (this.order === 'created-asc') {
+        newCards.sort((a, b) => -this.sortCreatedDate(a, b))
+      }
+      else if (this.order === 'created-desc') {
+        newCards.sort((a, b) => this.sortCreatedDate(a, b))
+      }
+      else if (this.order === 'title') {
+        newCards.sort((a, b) => this.sortTitle(a, b))
+      }
+      else if (this.order === 'location') {
+        newCards.sort((a, b) => {this.sortLocation(a, b)})
+      }
+
+      return newCards
+    },
+
+    /** Total number of cards on the current tab **/
+    totalCardCount() {
+      return this.orderedCards.length
+    }
   },
   components: {
     LoginRequired,
-    MarketCard
+    MarketCard,
+    ShowingResultsText
   },
   methods: {
     /**
@@ -114,9 +185,40 @@ export default {
      */
     changePage(tab) {
       this.tabSelected = tab
+      this.page = 1 // Reset the page number
       //Call Api to get new cards for tab here
       //Change to call from api when available
       this.cards = this.getFakeCards(tab)
+    },
+
+    /** Function for sorting a list of cards by created date **/
+    sortCreatedDate(a, b) {
+      return (a.created < b.created) ? -1 : ((a.created > b.created) ? 1 : 0)
+    },
+
+    /** Function for sorting a list by title alphabetically **/
+    sortTitle(a, b) {
+      return (a.title < b.title) ? -1 : ((a.title > b.title) ? 1 : 0)
+    },
+
+    /** Function for sorting a list by location alphabetically **/
+    sortLocation(a, b) {
+      const aTerm = a.creator.homeAddress.city;
+      const bTerm = b.creator.homeAddress.city;
+
+      if (aTerm === null) {
+        return -1
+      }
+      if (bTerm === null) {
+        return 1
+      }
+      if (aTerm < bTerm) {
+        return 1;
+      }
+      if (aTerm > bTerm) {
+        return -1;
+      }
+      return 0;
     },
 
     getFakeCards(tab) {
