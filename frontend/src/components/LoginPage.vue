@@ -135,7 +135,6 @@ export default LoginPage;
 <style scoped>
 
 .link-text {
-  color: blue;
   cursor: pointer;
   margin-right: 10px;
 }
