@@ -59,7 +59,7 @@ describe("Clicking on the marketplace tab links", () => {
     });
 })
 
-describe('Pagination and ordering tests', () => {
+describe('Pagination, ordering and deletion tests', () => {
     const cards = [
         {
             "id": 500,
@@ -148,6 +148,19 @@ describe('Pagination and ordering tests', () => {
     ]
     const orderedCards = Marketplace.computed.orderedCards // Ordered computed property.
 
+    beforeEach(async () => {
+        wrapper = await shallowMount(Marketplace, {
+            computed: {
+                isLoggedIn() {
+                    return true
+                }
+            }
+        })
+        wrapper.vm.$data.error = ""
+        wrapper.vm.$data.isLoggedIn = true
+        wrapper.vm.$data.cards = cards
+    });
+
     test("orderedCards computed value by created-asc", () => {
         const call = {cards, order: 'created-asc', ...Marketplace.methods}
 
@@ -198,5 +211,17 @@ describe('Pagination and ordering tests', () => {
         expect(orderedCards.call(call)[2].id)
             .toBe(502)
     })
+
+    test("deleteCard method deletes the card", () => {
+        // Expect the card to be there at first
+        expect(wrapper.vm.$data.cards.find((a) => a.id === 502)).toBeDefined()
+
+        // Delete card 502
+        wrapper.vm.deleteCard(502);
+
+        // Check the card is no longer there
+        expect(wrapper.vm.cards.find((a) => a.id === 502)).toBeUndefined()
+    })
+
 })
 

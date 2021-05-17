@@ -221,6 +221,9 @@ export default {
       return 0;
     },
 
+    /** Deletes a card with the corresponding id from the list of cards **/
+    deleteCard(id) {},
+
     getFakeCards(tab) {
       if (tab === 'ForSale') {
         return [
