@@ -100,10 +100,63 @@
         </div>
       </div>
 
-      <div class="row justify-content-center">
+      <div class="row justify-content-center" style="margin-bottom: 10px">
         <router-link :to="`businesses/${this.businessId}/listings`" class="btn btn-outline-primary mx-2">
           View Business's Listings
         </router-link>
+      </div>
+
+      <div class="row justify-content-center" v-if="$root.$data.user.canDoAdminAction()">
+        <router-link :to="`businesses/${this.businessId}/products`" class="btn btn-outline-danger mr-2">
+          View Product Catalogue
+        </router-link>
+        <router-link :to="`businesses/${this.businessId}/inventory`" class="btn btn-outline-danger mr-2">
+          View Inventory
+        </router-link>
+        <button class="btn btn-outline-danger" data-target="#addAdministrator" data-toggle="modal">Add Administrator</button>
+
+
+        <div class="modal fade" id="addAdministrator" tabindex="-1" role="dialog" aria-labelledby="addAdministratorLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addAdministratorLabel">Add Administrator</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-row">
+                  <!--    User ID    -->
+                  <label for="userId">
+                    <b>User ID</b>
+                  </label>
+                  <br/>
+                  <input id="userId" v-model="addAdministratorUserId"
+                         :class="{'form-control': true, 'is-invalid': addAdministratorError}"
+                         placeholder="ID of the user you want to make administrator"
+                         required style="width:100%" type="number">
+                  <!--   Error message for userId input   -->
+                  <span class="invalid-feedback text-left">{{ addAdministratorError }}</span>
+
+                  <div v-if="addAdministratorSuccess" class="col text-center mb-2">
+                    <p style="color: green">{{ addAdministratorSuccess }}</p>
+                  </div>
+
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-block btn-danger" style="width: 40%; margin:0 10px"
+                        v-on:click="addAdministrator">
+                  Add Administrator
+                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
       </div>
 
     </div>
@@ -162,7 +215,8 @@ export default {
      * @returns {boolean|*}
      */
     isPrimaryAdmin() {
-      return Number(this.$root.$data.user.state.userId) === this.primaryAdministratorId
+      return this.$root.$data.user.canDoAdminAction() ||
+          Number(this.$root.$data.user.state.userId) === this.primaryAdministratorId
     },
   },
 
@@ -217,6 +271,26 @@ export default {
         Business.getBusinessData(this.businessId).then((response) => this.profile(response))
       } catch (err) {
         this.error = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+            : err
+      }
+    },
+
+    /**
+     * Method to add a user with id addAdministratorUserId to the administrators of the business.
+     * Used when a GAA or DGAA wants to add a user as admin to the business
+     */
+    async addAdministrator() {
+      if (this.addAdministratorUserId === null) {
+        this.addAdministratorError = "Please enter a User ID"
+      }
+      try {
+        await Business.addAdministrator(Number(this.businessId), Number(this.addAdministratorUserId))
+        this.addAdministratorSuccess = `Added user with id ${this.addAdministratorUserId} to administrators of business with id ${this.businessId}`
+        //Reload the data
+        Business.getBusinessData(this.businessId).then((response) => this.profile(response))
+      } catch (err) {
+        this.addAdministratorError = err.response
             ? err.response.data.slice(err.response.data.indexOf(":") + 2)
             : err
       }
@@ -293,6 +367,9 @@ export default {
       dateSinceJoin: null,
       administrators: null,
       removedAdmin: null,
+      addAdministratorUserId: null,
+      addAdministratorError: null,
+      addAdministratorSuccess: null,
       error: null
     }
   }
