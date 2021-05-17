@@ -3,6 +3,7 @@ package org.seng302.project.controller;
 import net.minidev.json.JSONObject;
 import org.seng302.project.exceptions.*;
 import org.seng302.project.model.*;
+import org.seng302.project.util.DateArithmetic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -44,6 +48,9 @@ public class BusinessController {
     public void createBusiness(@RequestBody Business newBusiness) {
         logger.info("Request to create business");
         try {
+
+            String userEmail = "";
+
             //If the primary administrator id is not an id of a user
             if (userRepository.findById(newBusiness.getPrimaryAdministratorId()).isEmpty()) {
                 NoUserExistsException exception = new NoUserExistsException(newBusiness.getPrimaryAdministratorId());
@@ -52,7 +59,31 @@ public class BusinessController {
             } else {
                 Optional<User> currUser = userRepository.findById(newBusiness.getPrimaryAdministratorId());
                 currUser.ifPresent(newBusiness::addAdministrator);
+                if(currUser.isPresent()) userEmail = currUser.get().getEmail();
             }
+
+            User currentUser = userRepository.findByEmail(userEmail).get(0);
+
+            //If the current user is less than 16 years old
+            Date dateOfBirthDate;
+            Date currentDate = new Date();
+            try {
+                dateOfBirthDate = new SimpleDateFormat("yyyy-MM-dd").parse(currentUser.getDateOfBirth());
+            } catch (ParseException parseException) {
+                InvalidDateException invalidDateException = new InvalidDateException();
+                logger.warn(invalidDateException.getMessage());
+                throw invalidDateException;
+            } catch (Exception exception) {
+                logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
+                throw exception;
+            }
+
+            if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) < 16) {
+                UserUnderageException underageException = new UserUnderageException("a business", 16);
+                logger.warn(underageException.getMessage());
+                throw underageException;
+            }
+
 
             //If any of the required fields are empty
             if (newBusiness.getName().equals("") ||
