@@ -42,9 +42,9 @@
     <div class="d-flex mb-3">
       <div v-for="card in cards" v-bind:key="card.id">
         <div class="p-2 flex-fill">
-          <!-- TODO: use v-if for below div -->
-          <div>
+          <div v-if="expired(card)">
             <p style="color: red">This card is about to expire</p>
+            <!--TODO: Hook these buttons up to API calls-->
             <button class="btn btn-outline-primary" style="margin: 3px">Extend</button>
             <button class="btn btn-outline-danger" style="margin: 3px">Delete</button>
           </div>
@@ -217,7 +217,12 @@ export default {
           ]
         }
       ]
-
+    },
+    expired(card) {
+      const now = new Date();
+      if (now >= new Date(card.displayPeriodEnd)) {
+        return true;
+      }
     }
   }
 }
