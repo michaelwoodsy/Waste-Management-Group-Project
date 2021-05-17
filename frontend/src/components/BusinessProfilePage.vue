@@ -107,10 +107,10 @@
       </div>
 
       <div class="row justify-content-center" v-if="$root.$data.user.canDoAdminAction()">
-        <router-link :to="`businesses/${this.businessId}/products`" class="btn btn-outline-danger mx-2">
+        <router-link :to="`businesses/${this.businessId}/products`" class="btn btn-outline-danger mr-2">
           View Product Catalogue
         </router-link>
-        <router-link :to="`businesses/${this.businessId}/inventory`" class="btn btn-outline-danger mx-2">
+        <router-link :to="`businesses/${this.businessId}/inventory`" class="btn btn-outline-danger mr-2">
           View Inventory
         </router-link>
         <button class="btn btn-outline-danger" data-target="#addAdministrator" data-toggle="modal">Add Administrator</button>

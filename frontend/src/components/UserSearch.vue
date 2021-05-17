@@ -1,5 +1,6 @@
 <template>
   <div>
+
     <div v-if="isLoggedIn" class="container-fluid">
 
       <!--    Search Users Header    -->
@@ -34,9 +35,8 @@
       </div>
 
       <!--    Result Information    -->
-      <div class="row">
-        <div class="d-none d-lg-block col-lg-1"/>
-        <div class="col-12 col-lg-10">
+      <div class="row justify-content-center">
+        <div class="col-12">
           <div class="text-center">
             <showing-results-text
                 :items-per-page="resultsPerPage"
@@ -109,7 +109,6 @@
             </table>
           </div>
         </div>
-        <div class="d-none d-lg-block col-lg-1"/>
       </div>
 
       <div v-if="loading" class="row">
@@ -132,6 +131,7 @@
     </div>
 
     <login-required v-else page="search users"/>
+
   </div>
 </template>
 
