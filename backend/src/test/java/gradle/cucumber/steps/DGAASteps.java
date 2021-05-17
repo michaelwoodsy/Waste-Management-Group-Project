@@ -1,6 +1,5 @@
 package gradle.cucumber.steps;
 
-
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -8,59 +7,72 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.controller.UserController;
 import org.seng302.project.controller.authentication.AppUserDetails;
+import org.seng302.project.exceptions.NoUserExistsException;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 public class DGAASteps {
 
     private User testUser;
     private Integer testUserId;
     private Address testAddress;
-
-    private final UserController userController;
+    private Integer testBusinessId;
+    private MockMvc mockMvc;
 
     private final UserRepository userRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
+    private final BCryptPasswordEncoder passwordEncoder;
     private final AddressRepository addressRepository;
-
+    private final BusinessRepository businessRepository;
 
     private String dgaaEmail = "admin";
     private String dgaaPassword = "password";
-    private User testDGAA;
-
+    private RequestBuilder putAdminRequest;
 
     @Autowired
     public DGAASteps(UserRepository userRepository,
-                             AddressRepository addressRepository,
-                     UserController userController) {
+                     AddressRepository addressRepository,
+                     BusinessRepository businessRepository,
+                     BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
-        this.userController = userController;
+        this.businessRepository = businessRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-
     @BeforeEach
-    public void setup() {
+    @Autowired
+    public void setup(WebApplicationContext context) {
         if (System.getenv("DGAA_EMAIL") != null) {
             dgaaEmail = System.getenv("DGAA_EMAIL");
         }
         if (System.getenv("DGAA_PASSWORD") != null) {
             dgaaPassword = System.getenv("DGAA_PASSWORD");
         }
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
 
-        testDGAA = new User("Admin", "Admin", "", "", "", dgaaEmail,
+        User testDGAA = new User("Admin", "Admin", "", "", "", dgaaEmail,
                 "2000-05-21", "+64 3 555 0129", null, dgaaPassword);
         testAddress = new Address("", "", "", "", "New Zealand","");
         addressRepository.save(testAddress);
         testDGAA.setPassword(passwordEncoder.encode(testDGAA.getPassword()));
-        testDGAA = userRepository.save(testDGAA);
+        testDGAA.setRole("defaultGlobalApplicationAdmin");
+        userRepository.save(testDGAA);
     }
 
 //    //AC3
@@ -108,13 +120,18 @@ public class DGAASteps {
     //AC6
 
     @When("The DGAA assigns admin rights to the user")
-    public void the_dgaa_assigns_admin_rights_to_the_user() {
+    public void the_dgaa_assigns_admin_rights_to_the_user() throws Exception {
 
-        //TODO: this throws unexpected exception in controller: null
-        // Can't get past this line in controller:
-        // User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
+        RequestBuilder putAdminRequest = MockMvcRequestBuilders
+                .put("/users/{id}/makeadmin", testUserId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(dgaaEmail, dgaaPassword));
 
-        userController.dgaaMakeAdmin(testUserId, new AppUserDetails(testDGAA));
+        this.mockMvc.perform(putAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
+                .andReturn();
+
     }
 
     @Then("The role of the user is updated to GAA")
@@ -139,14 +156,48 @@ public class DGAASteps {
     }
 
     @When("The DGAA removes admin rights from the user")
-    public void the_dgaa_removes_admin_rights_from_the_user() {
-        userController.dgaaRevokeAdmin(testUserId, new AppUserDetails(testDGAA));
+    public void the_dgaa_removes_admin_rights_from_the_user() throws Exception {
+        RequestBuilder putAdminRequest = MockMvcRequestBuilders
+                .put("/users/{id}/revokeadmin", testUserId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(dgaaEmail, dgaaPassword));
+
+        this.mockMvc.perform(putAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
+                .andReturn();
     }
 
     @Then("The role of the user is updated to user")
     public void the_role_of_the_user_is_updated_to_user() {
-        User retrievedUser = userRepository.findByEmail(testUser.getEmail()).get(0);
+        User retrievedUser = userRepository.findById(testUserId).orElseThrow(() -> new NoUserExistsException(testUserId));
         Assertions.assertEquals("user", retrievedUser.getRole());
     }
+
+    //AC8
+
+    @Given("There exists a business with the name {string}")
+    public void there_exists_a_business_with_the_name(String businessName) {
+        Business testBusiness = new Business(businessName, "Test business", testAddress, "Retail Trade", 1);
+        testBusinessId = businessRepository.save(testBusiness).getId();
+    }
+
+    @When("A DGAA assigns admin rights to the business")
+    public void a_dgaa_assigns_admin_rights_to_the_business() {
+        putAdminRequest = MockMvcRequestBuilders
+                .put("/businesses/{id}/makeadmin", testBusinessId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(dgaaEmail, dgaaPassword));
+
+    }
+
+    @Then("An exception is thrown")
+    public void an_exception_is_thrown() throws Exception {
+        this.mockMvc.perform(putAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isNotFound()) // We expect a 404 response
+                .andReturn();
+    }
+
 
 }
