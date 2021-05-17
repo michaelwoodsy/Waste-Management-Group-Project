@@ -131,10 +131,8 @@
           <p style="color: green">{{ addedAdmin }}</p>
           <br>
         </div>
-        <div v-if="error" class="col text-center mb-2">
-          <br>
-          <p style="color: red">{{ error }}</p>
-          <br>
+        <div v-if="error" class="col-8 offset-2 text-center mb-2">
+          <alert>{{error}}</alert>
         </div>
       </div>
 
@@ -156,6 +154,7 @@
 
 import {Business, User} from '@/Api'
 import LoginRequired from "./LoginRequired"
+import Alert from "@/components/Alert";
 
 export default {
   name: "ProfilePage",
@@ -241,6 +240,7 @@ export default {
   },
 
   components: {
+    Alert,
     LoginRequired
   },
 
