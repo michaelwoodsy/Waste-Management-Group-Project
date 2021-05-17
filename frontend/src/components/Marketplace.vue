@@ -47,10 +47,10 @@ Page for displaying the marketplace.
         <div class="col-9">
           <div v-for="card in cards" v-bind:key="card.id">
             <div v-if="hideImages">
-              <MarektCard :card-data="card" hide-image></MarektCard>
+              <MarketCard :card-data="card" hide-image></MarketCard>
             </div>
             <div v-else>
-              <MarektCard :card-data="card"></MarektCard>
+              <MarketCard :card-data="card"></MarketCard>
             </div>
           </div>
         </div>
@@ -62,7 +62,7 @@ Page for displaying the marketplace.
 <script>
 
 import LoginRequired from "./LoginRequired";
-import MarektCard from "./MarketCard";
+import MarketCard from "@/components/MarketCard";
 
 export default {
   name: "Marketplace",
@@ -104,7 +104,7 @@ export default {
   },
   components: {
     LoginRequired,
-    MarektCard
+    MarketCard
   },
   methods: {
     /**

@@ -29,20 +29,42 @@
       </div>
     </div>
 
+    <!-- Cards -->
+    <div class="row justify-content-center">
+      <div class="col-9">
+        <div v-for="card in cards" v-bind:key="card.id">
+          <div v-if="hideImages">
+            <MarketCard :card-data="card" hide-image></MarketCard>
+          </div>
+          <div v-else>
+            <MarketCard :card-data="card"></MarketCard>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script>
 
 import LoginRequired from "./LoginRequired";
+import MarketCard from "@/components/MarketCard";
 
 export default {
   name: "Home",
   props: {
     msg: String
   },
-
   mounted() {
+    this.cards = this.getCardData();
+  },
+  data() {
+    return {
+      cards: [],
+      hideImages: false,
+      error: ""
+    }
   },
 
   computed: {
@@ -84,7 +106,103 @@ export default {
 
   },
   components: {
-    LoginRequired
+    LoginRequired,
+    MarketCard
+  },
+  methods: {
+    /**
+     * Gets the user's cards so we can check for ones about to expire
+     */
+    getCardData() {
+
+      return [
+        {
+          "id": 500,
+          "creator": {
+            "id": 100,
+            "firstName": "John",
+            "lastName": "Smith",
+            "homeAddress": {
+              "streetNumber": "3/24",
+              "streetName": "Ilam Road",
+              "city": "Christchurch",
+              "region": "Canterbury",
+              "country": "New Zealand",
+              "postcode": "90210"
+            },
+          },
+          "section": "ForSale",
+          "created": "2021-05-03T05:10:00Z",
+          "displayPeriodEnd": "2021-05-17T05:10:00Z",
+          "title": "1982 Lada Samara",
+          "description": "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
+          "keywords": [
+            {
+              "id": 600,
+              "name": "Vehicle",
+              "created": "2021-04-15T05:10:00Z"
+            }
+          ]
+        },
+        {
+          "id": 503,
+          "creator": {
+            "id": 100,
+            "firstName": "John",
+            "lastName": "Smith",
+            "homeAddress": {
+              "streetNumber": "3/24",
+              "streetName": "Ilam Road",
+              "city": "Christchurch",
+              "region": "Canterbury",
+              "country": "New Zealand",
+              "postcode": "90210"
+            },
+          },
+          "section": "Wanted",
+          "created": "2021-05-02T05:10:00Z",
+          "displayPeriodEnd": "2021-05-16T05:10:00Z",
+          "title": "To pass SENG302",
+          "description": "Please can I just pass SENG302",
+          "keywords": [
+            {
+              "id": 602,
+              "name": "University",
+              "created": "2021-04-15T05:10:00Z"
+            }
+          ]
+        },
+        {
+          "id": 502,
+          "creator": {
+            "id": 101,
+            "firstName": "John",
+            "lastName": "Smith",
+            "homeAddress": {
+              "streetNumber": "3/24",
+              "streetName": "Ilam Road",
+              "city": "Christchurch",
+              "region": "Canterbury",
+              "country": "New Zealand",
+              "postcode": "90210"
+            },
+          },
+          "section": "ForSale",
+          "created": "2021-06-10T05:10:00Z",
+          "displayPeriodEnd": "2021-06-24T05:10:00Z",
+          "title": "Bag of chips",
+          "description": "Just a good ol bag of chips, nothing special, will trade for a pebble",
+          "keywords": [
+            {
+              "id": 601,
+              "name": "Food",
+              "created": "2021-04-15T05:10:00Z"
+            }
+          ]
+        }
+      ]
+
+    }
   }
 }
 
