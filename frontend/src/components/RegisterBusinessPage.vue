@@ -317,7 +317,7 @@ export default {
           this.address,
           this.businessType
       ).then(() => {
-        this.$router.push({name: 'user'})
+        this.$router.push({name: 'home'})
         this.$root.$data.user.updateData()
       })
           .catch((err) => {
