@@ -43,8 +43,8 @@ const routes = [
         component: LoginPage
     },
     {
-        path: '/home', //TODO: change to '/' after user logged in?
-        name: 'user',
+        path: '/home',
+        name: 'home',
         component: Home
     },
     {

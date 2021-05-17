@@ -113,7 +113,7 @@ const LoginPage = {
       if (this.valid) {
         this.$root.$data.user.login(this.username, this.password)
             .then(() => {
-              this.$router.push({name: 'user'})
+              this.$router.push({name: 'home'})
             })
             .catch((err) => {
               this.error = err.response
@@ -135,7 +135,6 @@ export default LoginPage;
 <style scoped>
 
 .link-text {
-  color: blue;
   cursor: pointer;
   margin-right: 10px;
 }

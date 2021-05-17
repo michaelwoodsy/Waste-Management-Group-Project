@@ -38,22 +38,6 @@ const instance = axios.create({
     withCredentials: true
 });
 
-export default {
-    // (C)reate
-
-
-    // (R)ead
-    getAll: () => instance.get('students', {
-        transformResponse: [function (data) {
-            return data ? JSON.parse(data)._embedded.students : data;
-        }]
-    }),
-    // (U)pdate
-    updateForId: (id, firstName, lastName) => instance.put('students/' + id, {firstName, lastName}),
-    // (D)elete
-    removeForId: (id) => instance.delete('students/' + id)
-}
-
 export const User = {
     createNew: (firstName,
                 lastName,
@@ -83,11 +67,9 @@ export const User = {
 
     getUsers: (searchTerm) => instance.get('users/search', {params: {'searchQuery': searchTerm}}),
 
-    /**
-     * Creates a new Card for in the community marketplace
-     * @param data
-     */
-    createCard: (data) => instance.post('cards', data),
+    makeAdmin: (id) => instance.put(`users/${id}/makeadmin`),
+
+    revokeAdmin: (id) => instance.put(`users/${id}/revokeadmin`)
 };
 
 export const Business = {
@@ -166,9 +148,7 @@ export const Business = {
      * @param businessId The ID of the business in the database
      * @param data The listing data
      */
-    createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data),
-
-
+    createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data)
 
 
 };
