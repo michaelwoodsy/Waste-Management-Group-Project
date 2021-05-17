@@ -60,7 +60,7 @@ public class InventoryItemController {
                 NoBusinessExistsException noBusinessException = new NoBusinessExistsException(businessId);
                 logger.warn(noBusinessException.getMessage());
                 throw noBusinessException;
-            } else if (!business.userIsAdmin(loggedInUser.getId())) {
+            } else if (!business.userIsAdmin(loggedInUser.getId()) && !loggedInUser.isGAA()) {
                 ForbiddenAdministratorActionException notAdminException = new ForbiddenAdministratorActionException(businessId);
                 logger.warn(notAdminException.getMessage());
                 throw notAdminException;
@@ -107,8 +107,8 @@ public class InventoryItemController {
             }
             Business business = businessResult.get();
 
-            // Check if the logged in user is the business owner / administrator
-            if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
+            // Check if the logged in user is the business owner / administrator or a GAA
+            if (!business.userIsAdmin(loggedInUser.getId()) && !loggedInUser.isGAA()) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
                 logger.warn(exception.getMessage());
                 throw exception;
@@ -320,8 +320,8 @@ public class InventoryItemController {
             }
             Business business = businessResult.get();
 
-            // Check if the logged in user is the business owner / administrator
-            if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
+            // Check if the logged in user is the business owner / administrator or a GAA
+            if (!business.userIsAdmin(loggedInUser.getId()) && !loggedInUser.isGAA()) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
                 logger.warn(exception.getMessage());
                 throw exception;

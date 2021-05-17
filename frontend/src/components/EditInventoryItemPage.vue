@@ -8,7 +8,7 @@
 
     <!-- Check if the user is an admin of the business -->
     <admin-required
-        v-else-if="!isAdminOfBusiness"
+        v-else-if="!isAdminOf"
         :page="`of the business ${this.businessId} to edit its item`"
     />
 
@@ -313,16 +313,20 @@ export default {
       return []
     },
 
-    /** Checks if the user is an admin of the business **/
-    isAdminOfBusiness() {
-      let isAdmin = false;
-      // iterate over each business they administer and check if they administer this one
-      this.businessesAdministered.forEach((business) => {
-        if (business.id.toString() === this.businessId.toString()) {
-          isAdmin = true;
-        }
-      })
-      return isAdmin
+    /**
+     * Currently acting as user/business
+     */
+    actor() {
+      return this.$root.$data.user.state.actingAs;
+    },
+
+    /**
+     * Check if the user is an admin of the business and is acting as that business
+     */
+    isAdminOf() {
+      if (this.$root.$data.user.canDoAdminAction()) return true
+      else if (this.actor.type !== "business") return false
+      return this.actor.id === parseInt(this.$route.params.businessId);
     },
 
     /** Returns true if changes have been made to the item **/
@@ -514,8 +518,10 @@ export default {
       let item = {
         productId: this.newItem.product.id,
         quantity: Number(this.newItem.quantity),
-        pricePerItem: Number(this.newItem.pricePerItem),
-        totalPrice: Number(this.newItem.totalPrice),
+        "pricePerItem": this.newItem.pricePerItem !== null && this.newItem.pricePerItem !== ''
+            ? Number(this.newItem.pricePerItem) : null,
+        "totalPrice": this.newItem.totalPrice !== null && this.newItem.totalPrice !== ''
+            ? Number(this.newItem.totalPrice) : null,
         manufactured: this.newItem.manufactured,
         sellBy: this.newItem.sellBy,
         bestBefore: this.newItem.bestBefore,

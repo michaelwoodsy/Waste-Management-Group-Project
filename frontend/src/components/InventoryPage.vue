@@ -7,7 +7,7 @@
     />
 
     <admin-required
-        v-else-if="!isAdminOf()"
+        v-else-if="!isAdminOf"
         page="view this business's inventory"
     />
 
@@ -107,9 +107,8 @@ export default {
 
     actor() {
       return this.$root.$data.user.state.actingAs;
-    }
-  },
-  methods: {
+    },
+
     /**
      * Check if the user is an admin of the business and is acting as that business
      */
@@ -118,7 +117,8 @@ export default {
       else if (this.actor.type !== "business") return false
       return this.actor.id === parseInt(this.$route.params.businessId);
     },
-
+  },
+  methods: {
     /**
      * Takes user to page to create new inventory item.
      */
