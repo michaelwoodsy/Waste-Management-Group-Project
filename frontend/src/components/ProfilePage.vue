@@ -368,7 +368,9 @@ export default {
           console.log(`Successfully granted admin rights to user with id ${id}`)
         } catch (error) {
           console.error(error)
-          this.error = error.response.data || error
+          this.error = error.response
+              ? error.response.data
+              : error
         }
       }
     },
@@ -385,7 +387,9 @@ export default {
           console.log(`Successfully revoked admin rights from user with id ${id}`)
         } catch (error) {
           console.error(error)
-          this.error = error.response.data || error
+          this.error = error.response
+              ? error.response.data
+              : error
         }
       }
     }
