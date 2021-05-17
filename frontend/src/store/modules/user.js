@@ -168,6 +168,14 @@ export default {
     },
 
     /**
+     * Returns true if the user is acting as a user
+     * @returns {boolean|*}
+     */
+    isActingAsUser() {
+        return this.state.actingAs.type === "user"
+    },
+
+    /**
      * Returns true if the user is primary admin of the business they are acting as
      * @returns {boolean|*}
      */
@@ -184,4 +192,29 @@ export default {
         }
         return false
     },
+
+    /**
+     * Returns true if the user is a GAA
+     * @returns {boolean|*}
+     */
+    isGAA() {
+        return this.state.userData.role === "globalApplicationAdmin"
+    },
+
+    /**
+     * Returns true if the user is a DGAA
+     * @returns {boolean|*}
+     */
+    isDGAA() {
+        return this.state.userData.role === "defaultGlobalApplicationAdmin"
+    },
+
+    /**
+     * Returns true if the user can proform Admin Actions
+     * If they are a DGAA or GAA and are acting as a user
+     * @returns {boolean|*}
+     */
+    canDoAdminAction() {
+        return (this.isDGAA() || this.isGAA()) && this.isActingAsUser()
+    }
 }

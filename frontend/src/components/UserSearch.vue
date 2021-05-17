@@ -94,7 +94,11 @@
                   class="pointer"
                   @click="viewUser(user.id)"
               >
-                <th scope="row">{{ user.id }}</th>
+                <th scope="row">
+                  {{ user.id }}
+                  <span class="badge badge-danger admin-badge" v-if="isActingAsAdmin && user.role === 'globalApplicationAdmin'">ADMIN</span>
+                  <span class="badge badge-danger admin-badge" v-else-if="isActingAsAdmin && user.role === 'defaultGlobalApplicationAdmin'">DGAA</span>
+                </th>
                 <td>{{ nameAndNickname(user) }}</td>
                 <td>{{ user.middleName }}</td>
                 <td>{{ user.lastName }}</td>
@@ -229,6 +233,13 @@ export default {
      */
     totalCount() {
       return this.users.length
+    },
+    /**
+     * Returns whether the currentley logged in user is the DGAA
+     * @returns {boolean|*}
+     */
+    isActingAsAdmin() {
+      return this.$root.$data.user.canDoAdminAction()
     }
   },
 

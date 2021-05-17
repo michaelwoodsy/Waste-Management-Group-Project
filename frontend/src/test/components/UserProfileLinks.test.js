@@ -25,6 +25,15 @@ beforeEach(() => {
             businessAccounts() {
                 // Returns a list of fake business accounts for the time being
                 return []
+            },
+            isGAA() {
+                return false
+            },
+            isDGAA() {
+                return false
+            },
+            isActingAsUser() {
+                return true
             }
         }
     })

@@ -12,11 +12,14 @@
         <ul class="navbar-nav align-items-baseline">
           <!-- Profile photo -->
           <li class="nav-item">
-            <img
-                alt="profile"
-                class="logo-image"
-                src="../../public/logo.png"
-            />
+            <router-link class="nav-link" :to="imageClickRoute">
+              <img
+                  alt="profile"
+                  class="logo-image"
+                  src="../../public/logo.png"
+              />
+            </router-link>
+
           </li>
 
           <!-- If user is logged in -->
@@ -28,6 +31,10 @@
           <li v-if="isLoggedIn" class="nav-item">
             <router-link class="nav-link" to="/users/search">Users</router-link>
           </li>
+          <!-- Marketplace link -->
+          <li v-if="isLoggedIn" class="nav-item">
+            <router-link class="nav-link" to="/marketplace">Marketplace</router-link>
+          </li>
         </ul>
 
         <!-- Logged in user links -->
@@ -37,6 +44,12 @@
           </li>
           <li class="nav-item">
             <user-profile-links/>
+          </li>
+          <li class="nav-item">
+            <span class="badge badge-danger"
+                  v-if="this.$root.$data.user.isGAA() && this.$root.$data.user.isActingAsUser()">ADMIN</span>
+            <span class="badge badge-danger"
+                  v-else-if="this.$root.$data.user.isDGAA() && this.$root.$data.user.isActingAsUser()">DGAA</span>
           </li>
         </ul>
         <!-- If not logged in, Login and register link -->
@@ -81,7 +94,15 @@ export default {
       } else {
         return `users/${this.$root.$data.user.state.userId}`;
       }
+    },
 
+    /** Returns the landing page url if the user is not logged in and the users home page if they are logged in **/
+    imageClickRoute() {
+      if (this.$root.$data.user.state.loggedIn) {
+        return "home";
+      } else {
+        return "/";
+      }
     }
   }
 }
