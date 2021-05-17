@@ -11,8 +11,8 @@
       <div class="row">
         <div class="col-12 text-center mb-2">
           <h2>{{ firstName }} {{ lastName }}
-            <span class="badge badge-danger admin-badge" v-if="isGAA && this.$root.$data.user.canDoAdminAction()">ADMIN</span>
-            <span class="badge badge-danger admin-badge" v-else-if="isDGAA && this.$root.$data.user.canDoAdminAction()">DGAA</span>
+            <span class="badge badge-danger admin-badge" v-if="isGAA && canDoAdminAction">ADMIN</span>
+            <span class="badge badge-danger admin-badge" v-else-if="isDGAA && canDoAdminAction">DGAA</span>
           </h2>
         </div>
       </div>
@@ -131,11 +131,18 @@
           <p style="color: green">{{ addedAdmin }}</p>
           <br>
         </div>
-        <div v-if="error" class="col text-center mb-2">
-          <br>
-          <p style="color: red">{{ error }}</p>
-          <br>
+        <div v-if="error" class="col-8 offset-2 text-center mb-2">
+          <alert>{{error}}</alert>
         </div>
+      </div>
+
+      <div class="row d-flex justify-content-center" v-if="userRole === 'defaultGlobalApplicationAdmin'">
+        <button id="removeGAAButton" class="btn btn-block btn-danger" v-if="isGAA" style="width: 15%;margin:0 20px; font-size: 14px;"
+                v-on:click="removeUserAdmin(userId)">Remove Admin Access
+        </button>
+        <button id="addGAAButton" class="btn btn-block btn-danger" v-else-if="!isDGAA" style="width: 15%;margin:0 20px; font-size: 14px;"
+                v-on:click="addUserAdmin(userId)">Grant Admin Access
+        </button>
       </div>
 
     </div>
@@ -147,6 +154,7 @@
 
 import {Business, User} from '@/Api'
 import LoginRequired from "./LoginRequired"
+import Alert from "@/components/Alert";
 
 export default {
   name: "ProfilePage",
@@ -201,6 +209,12 @@ export default {
       }
       return false
     },
+    /**
+     * Gets the currently logged in user's role
+     */
+    userRole() {
+      return this.$root.$data.user.state.role;
+    },
 
     isGAA() {
       return this.role === "globalApplicationAdmin"
@@ -208,6 +222,9 @@ export default {
 
     isDGAA() {
       return this.role === "defaultGlobalApplicationAdmin"
+    },
+    canDoAdminAction() {
+      return this.$root.$data.user.canDoAdminAction()
     }
   },
 
@@ -223,6 +240,7 @@ export default {
   },
 
   components: {
+    Alert,
     LoginRequired
   },
 
@@ -334,6 +352,44 @@ export default {
       for (const business of this.businessesAdministered) {
         if (business.primaryAdministratorId === parseInt(this.$route.params.userId)) {
           this.primaryAdminOf.push(business);
+        }
+      }
+    },
+
+    /**
+     * Calls api end point to add admin rights to a user
+     */
+    async addUserAdmin(id) {
+      if (this.userRole !== 'defaultGlobalApplicationAdmin') {
+        this.error = 'You must be a global admin to grant admin rights to a user'
+      } else {
+        try {
+          await User.makeAdmin(id)
+          console.log(`Successfully granted admin rights to user with id ${id}`)
+        } catch (error) {
+          console.error(error)
+          this.error = error.response
+              ? error.response.data
+              : error
+        }
+      }
+    },
+
+    /**
+     * Calls api end point to remove admin rights from a user
+     */
+    async removeUserAdmin(id) {
+      if (this.userRole !== 'defaultGlobalApplicationAdmin') {
+        this.error = 'You must be a global admin to revoke admin rights from a user'
+      } else {
+        try {
+          await User.revokeAdmin(id)
+          console.log(`Successfully revoked admin rights from user with id ${id}`)
+        } catch (error) {
+          console.error(error)
+          this.error = error.response
+              ? error.response.data
+              : error
         }
       }
     }
