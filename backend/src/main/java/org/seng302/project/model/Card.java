@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class Card {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "card_id")
     private Integer id;
 
@@ -29,6 +29,15 @@ public class Card {
     @Id
     private Integer creatorId; // The id of the user that created this card
 
+
+    /**
+     * Constructor for creating a new Card object.
+     *
+     * @param creatorId                   User id creating card.
+     * @param section                     Marketplace section the Card falls to.
+     * @param title                       Title of the card.
+     * @param description                 Description of the card.
+     */
     public Card(Integer creatorId, String section, String title, String description) {
         this.creatorId = creatorId;
         this.section = section;
