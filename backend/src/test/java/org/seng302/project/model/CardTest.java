@@ -19,11 +19,16 @@ public class CardTest {
      */
     @Test
     public void createTestCard() {
-        Card testCard = new Card(100, "ForSale", "1982 Lada Samara",
+        User testCardCreator = new User("John", "Smith", "Arthur", "Jonny",
+                "Likes long walks on the beach", "johnsmith9999@gmail.com",
+                "1999-04-27", "+64 3 555 0129", null,
+                "1337-H%nt3r2");
+
+        Card testCard = new Card(testCardCreator, "ForSale", "1982 Lada Samara",
                 "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
 
         Assertions.assertNull(testCard.getId());
-        Assertions.assertEquals(100, testCard.getCreatorId());
+        Assertions.assertEquals("+64 3 555 0129", testCard.getCreator().getPhoneNumber());
         Assertions.assertEquals("ForSale", testCard.getSection());
         Assertions.assertEquals("1982 Lada Samara", testCard.getTitle());
         Assertions.assertEquals("Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
@@ -31,4 +36,6 @@ public class CardTest {
         Assertions.assertTrue(testCard.getCreated().isBefore(LocalDateTime.now()) || testCard.getCreated().isEqual(LocalDateTime.now()));
         Assertions.assertTrue(testCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
     }
+
+    // TODO: Test card repository
 }

@@ -14,9 +14,6 @@ import java.time.LocalDateTime;
 @Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
 public class Card {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "card_id")
     private Integer id;
     private User creator;
     private String section;
@@ -38,5 +35,12 @@ public class Card {
         this.section = section;
         this.title = title;
         this.description = description;
+    }
+
+    @Id // this field (attribute) is the primary key of the table
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
+    @Column(name = "inventory_item_id")
+    public Integer getId() {
+        return this.id;
     }
 }
