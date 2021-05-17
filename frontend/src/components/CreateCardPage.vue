@@ -44,17 +44,6 @@
                required maxlength="256" type="text">
       </div>
 
-      <!-- Keywords -->
-      <div class="form-group row">
-        <label for="keywords"><b>Keywords<span class="required">*</span></b></label>
-        <select id="keywords" v-model="selectedKeywords" multiple :class="{'form-control': true, 'is-invalid': msg.keywordIds}" >
-          <option v-for="keyword in keywordIds" v-bind:key="keyword.id" v-bind:value="keyword.id">
-            {{keyword.name}}
-          </option>
-        </select>
-        <span class="invalid-feedback">{{ msg.keywordIds }}</span>
-      </div>
-
       <!-- Create Card button -->
       <div class="form-group row mb-0">
         <div class="btn-group" style="width: 100%">
@@ -84,17 +73,9 @@ export default {
       section: '', //Required
       title: '', //Required
       description: '',
-      //Example Keywords
-      keywordIds: [
-        {name: 'Vehicle', id: 600},
-        {name: 'Car', id: 20},
-        {name: 'Motorcycle', id: 30},
-      ],
-      selectedKeywords: [], //Required
       msg: {
         section: null,
         title: null,
-        keywordIds: null,
         errorChecks: null
       },
       valid: true,
@@ -129,35 +110,12 @@ export default {
       }
     },
 
-    validateKeywords(){
-      let validKeywords = true
-
-      if (this.selectedKeywords.length === 0){
-        this.msg.keywordIds = 'Please select at least one keyword'
-        this.valid = false
-      } else {
-        for(let i = 0; i < this.selectedKeywords.length; i++){
-          if (!this.keywordIds.some(keyword => keyword.id === this.selectedKeywords[i])){
-            validKeywords = false
-          }
-        }
-        if (!validKeywords){
-          this.msg.keywordIds = 'Please select a valid keyword'
-          this.valid = false
-        } else {
-          this.msg.keywordIds = null
-        }
-      }
-    },
-
-
     /**
      * Check all inputs
      */
     checkInputs(){
       this.validateSection()
       this.validateTitle()
-      this.validateKeywords()
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
@@ -180,7 +138,6 @@ export default {
             "section": this.section,
             "title": this.title,
             "description": this.description,
-            "keywordIds": this.selectedKeywords
           }
       ).then(() => {
         this.$refs.close.click();

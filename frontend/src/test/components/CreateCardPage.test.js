@@ -83,56 +83,6 @@ describe('validate Title method tests', () => {
     })
 })
 
-describe('validate Keywords method tests', () => {
-
-    beforeEach(() => {
-        wrapper.vm.$data.msg.keywordIds = null
-        wrapper.vm.$data.keywordIds = [
-            {name: 'food', id: 5},
-            {name: 'vegetable', id: 6},
-            {name: 'fruit', id: 7},
-        ]
-        wrapper.vm.$data.selectedKeywords = []
-        wrapper.vm.$data.valid = true
-    })
-
-    test("Test no keywords", () => {
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.msg.keywordIds).toStrictEqual('Please select at least one keyword')
-        expect(wrapper.vm.$data.valid).toBeFalsy()
-    })
-
-    test("Test invalid keywords", () => {
-        wrapper.vm.$data.selectedKeywords.push(4)
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.msg.keywordIds).toStrictEqual('Please select a valid keyword')
-        expect(wrapper.vm.$data.valid).toBeFalsy()
-    })
-
-    test("Test mixture of valid and invalid keywords", () => {
-        wrapper.vm.$data.selectedKeywords.push(5)
-        wrapper.vm.$data.selectedKeywords.push(4)
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.msg.keywordIds).toStrictEqual('Please select a valid keyword')
-        expect(wrapper.vm.$data.valid).toBeFalsy()
-    })
-
-    test("Test valid keyword", () => {
-        wrapper.vm.$data.selectedKeywords.push(5)
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.msg.keywordIds).toStrictEqual(null)
-        expect(wrapper.vm.$data.valid).toBeTruthy()
-    })
-
-    test("Test multiple valid keywords", () => {
-        wrapper.vm.$data.selectedKeywords.push(5)
-        wrapper.vm.$data.selectedKeywords.push(7)
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.msg.keywordIds).toStrictEqual(null)
-        expect(wrapper.vm.$data.valid).toBeTruthy()
-    })
-})
-
 describe('validate Cancel button', () => {
 
     beforeEach(() => {

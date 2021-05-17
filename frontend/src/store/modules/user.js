@@ -216,5 +216,23 @@ export default {
      */
     canDoAdminAction() {
         return (this.isDGAA() || this.isGAA()) && this.isActingAsUser()
+    },
+
+    /**
+     * Allows the user to create a new card for in the marketplace
+     * @param data for the marketplace card
+     */
+    createCard(data){
+        // Return a promise for the api call
+        return new Promise(((resolve, reject) => {
+            User.createCard(data)
+                .then((res) => {
+                    resolve(res);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        }));
     }
+
 }
