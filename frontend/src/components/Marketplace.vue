@@ -83,6 +83,13 @@ Page for displaying the marketplace.
               <MarketCard :card-data="card"></MarketCard>
             </div>
           </div>
+
+          <!-- Pagination Links -->
+          <pagination
+              :current-page.sync="page"
+              :items-per-page="resultsPerPage"
+              :total-items="totalCardCount"
+          />
         </div>
       </div>
 
@@ -180,6 +187,7 @@ export default {
      */
     changePage(tab) {
       this.tabSelected = tab
+      this.page = 1 // Reset the page number
       //Call Api to get new cards for tab here
       //Change to call from api when available
       this.cards = this.getFakeCards(tab)
