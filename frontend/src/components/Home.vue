@@ -29,10 +29,25 @@
       </div>
     </div>
 
+    <br>
+
+    <div class="row">
+      <div class="col text-left mb-2">
+        <h2>My Cards</h2>
+      </div>
+    </div>
+
+
     <!-- Cards -->
-    <div class="row justify-content-center">
-      <div class="col-9">
-        <div v-for="card in cards" v-bind:key="card.id">
+    <div class="d-flex mb-3">
+      <div v-for="card in cards" v-bind:key="card.id">
+        <div class="p-2 flex-fill">
+          <!-- TODO: use v-if for below div -->
+          <div>
+            <p style="color: red">This card is about to expire</p>
+            <button class="btn btn-outline-primary" style="margin: 3px">Extend</button>
+            <button class="btn btn-outline-danger" style="margin: 3px">Delete</button>
+          </div>
           <div v-if="hideImages">
             <MarketCard :card-data="card" hide-image></MarketCard>
           </div>
@@ -42,6 +57,7 @@
         </div>
       </div>
     </div>
+
 
   </div>
 </template>
@@ -114,7 +130,7 @@ export default {
      * Gets the user's cards so we can check for ones about to expire
      */
     getCardData() {
-
+      //TODO: change to get the user's cards from backend
       return [
         {
           "id": 500,
