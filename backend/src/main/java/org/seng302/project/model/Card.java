@@ -1,11 +1,11 @@
 package org.seng302.project.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 /**
  * Card class for storing created marketplace cards.
@@ -15,27 +15,24 @@ import java.util.List;
 @Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
 public class Card {
 
-    private Integer id; // automatically generated and assigned by the server
-    private Integer creatorId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "card_id")
+    private Integer id;
+
     private String section;
     private String title;
     private String description;
-    private List<CardKeyword> keywords = new ArrayList<CardKeyword>();
-    //TODO: create Keyword class
+    private LocalDateTime created = LocalDateTime.now();
 
-    public Card(Integer creatorId, String section, String title, String description, ArrayList<Integer> keywordIds) {
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Id
+    private Integer creatorId; // The id of the user that created this card
+
+    public Card(Integer creatorId, String section, String title, String description) {
         this.creatorId = creatorId;
         this.section = section;
         this.title = title;
         this.description = description;
-        //for k in keywordIds
-        //this.keywords.add Keyword.get(k)
-    }
-
-    @Id // this field (attribute) is the primary key of the table
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
-    @Column(name = "card_id")
-    public Integer getId() {
-        return this.id;
     }
 }
