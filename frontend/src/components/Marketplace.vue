@@ -92,8 +92,6 @@ Page for displaying the marketplace.
           />
         </div>
       </div>
-
-
     </div>
   </div>
 </template>
@@ -103,6 +101,7 @@ Page for displaying the marketplace.
 import LoginRequired from "./LoginRequired";
 import MarketCard from "./MarketCard";
 import ShowingResultsText from "@/components/ShowingResultsText";
+import Pagination from "@/components/Pagination";
 
 export default {
   name: "Marketplace",
@@ -175,7 +174,8 @@ export default {
   components: {
     LoginRequired,
     MarketCard,
-    ShowingResultsText
+    ShowingResultsText,
+    Pagination
   },
   methods: {
     /**
@@ -227,7 +227,7 @@ export default {
           {
             "id": 500,
             "creator": {
-              "id": 100,
+              "id": 1,
               "firstName": "John",
               "lastName": "Smith",
               "homeAddress": {

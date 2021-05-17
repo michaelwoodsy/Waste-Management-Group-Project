@@ -10,6 +10,16 @@ Displays a single market card.
     <!-- Card Title -->
     <h5 class="d-inline"> {{ cardData.title }} </h5>
 
+    <!-- Delete button -->
+    <button
+        class="btn btn-outline-danger d-inline-block float-right"
+        v-if="isCardCreator"
+        data-toggle="modal"
+        data-target="#deleteModal"
+    >
+      Delete
+    </button>
+
     <!-- Card creators name, a dot and the time created -->
     <p class="text-muted small mb-1">
       {{ cardCreatorName }}
@@ -28,6 +38,35 @@ Displays a single market card.
          :src="imageUrl"
          :alt="cardData.title + ' Image'"
     >
+
+    <!-- Delete modal -->
+    <div class="modal" tabindex="-1" role="dialog" id="deleteModal">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+          <!-- Title section of modal -->
+          <div class="modal-header">
+            <h5 class="modal-title">Delete Card: {{ cardData.title }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <!-- Body section of modal -->
+          <div class="modal-body">
+            <p>Do you really want to delete your modal?</p>
+          </div>
+
+          <!-- Footer / button section of modal -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger">Delete</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 

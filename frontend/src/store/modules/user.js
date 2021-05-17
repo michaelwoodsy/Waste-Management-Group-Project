@@ -223,7 +223,7 @@ export default {
      * @returns {boolean} True if the two ID's are the same, and the user is acting as themself.
      */
     isUser(userId) {
-        return this.state.userId === userId && this.isActingAsUser();
+        return parseInt(this.state.userId) === parseInt(userId) && this.isActingAsUser();
     }
 
 
