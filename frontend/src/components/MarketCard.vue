@@ -117,6 +117,10 @@ export default {
     isCardCreator() {
       return this.$root.$data.user.isUser(this.cardData.creator.id)
     }
+  },
+  methods: {
+    /** Deletes this card **/
+    deleteCard() {}
   }
 }
 </script>
