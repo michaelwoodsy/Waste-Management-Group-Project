@@ -37,7 +37,6 @@
       </div>
     </div>
 
-
     <!-- Cards -->
     <div class="d-flex mb-3">
       <div v-for="card in cards" v-bind:key="card.id">
@@ -57,8 +56,6 @@
         </div>
       </div>
     </div>
-
-
   </div>
 </template>
 
