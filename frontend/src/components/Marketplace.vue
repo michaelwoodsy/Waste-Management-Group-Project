@@ -5,7 +5,6 @@ Page for displaying the marketplace.
 
 <template>
   <div class="container-fluid">
-
     <!-- Check the user is logged in -->
     <login-required
         v-if="!isLoggedIn"
@@ -13,7 +12,6 @@ Page for displaying the marketplace.
     />
 
     <div v-else>
-
       <!--    Div for marketplace tabs    -->
       <div class="row justify-content-center">
         <div class="col-6">
