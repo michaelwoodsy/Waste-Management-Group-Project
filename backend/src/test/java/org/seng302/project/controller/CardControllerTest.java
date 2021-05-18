@@ -3,8 +3,6 @@ package org.seng302.project.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.seng302.project.controller.authentication.AppUserDetails;
-import org.seng302.project.controller.authentication.AppUserDetailsService;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -40,26 +38,56 @@ public class CardControllerTest {
         given(userRepository.findByEmail("test@gmail.com")).willReturn(List.of(testUser));
     }
 
+    /**
+     * If the request is made by an unauthorized user, a 401 should be returned.
+     */
     @Test
-    void unauthenticatedUserReturns401() {
-        //given(userRepository.findByEmail("test@gmail.com")).willReturn(List.of(testUser));
-        assertEquals(userRepository.findByEmail("test@gmail.com").get(0), testUser);
+    void unauthenticatedUserReturns401() throws Exception {
+        mockMvc.perform(get("/cards"))
+                .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Checks a 400 response is returned if the "section" parameter isn't supplied.
+     */
     @Test
-    void missingSectionParamReturns400() {
-
-    }
-
-    @Test
-    void authenticatedUserReturns200() throws Exception {
-    }
-
-    @Test
-    void mockedUserProofConcept() throws Exception {
+    void missingSectionParamReturns400() throws Exception {
         mockMvc.perform(get("/cards")
                 .with(user(testUser.getEmail())))
                 .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Checks a 400 response is returned if the "section" parameter isn't valid.
+     */
+    @Test
+    void invalidSectionParamReturns400() throws Exception {
+        mockMvc.perform(get("/cards")
+                .with(user(testUser.getEmail()))
+                .param("section", "beans"))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Given an authenticated user makes the request with a valid section parameter
+     * a 200 response should be received.
+     */
+    @Test
+    void validSectionParameterReturns200() throws Exception {
+        mockMvc.perform(get("/cards")
+                .with(user(testUser.getEmail()))
+                .param("section", "ForSale"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/cards")
+                .with(user(testUser.getEmail()))
+                .param("section", "Wanted"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/cards")
+                .with(user(testUser.getEmail()))
+                .param("section", "Exchange"))
+                .andExpect(status().isOk());
     }
 
 
