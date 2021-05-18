@@ -305,7 +305,7 @@ export default {
           || this.quantity === ''
           || this.quantity === null
           || Number(this.quantity) > 2147483647
-          || !/^([1-9]+([1-9]{0,2})?)?$/.test(this.quantity)) {
+          || !/^([0-9]+([0-9]{0,2})?)?$/.test(this.quantity)) {
         this.msg.quantity = 'Please enter a valid quantity';
         this.valid = false;
       } else if (Number(this.quantity) <= 0) {

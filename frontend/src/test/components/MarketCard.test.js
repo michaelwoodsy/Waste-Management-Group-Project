@@ -4,8 +4,12 @@
 
 import "@jest/globals";
 import MarketCard from '@/components/MarketCard';
-import {shallowMount, mount} from "@vue/test-utils";
+import {mount} from "@vue/test-utils";
 import {test} from "@jest/globals";
+// import axios from 'axios';
+//
+// // Mock the axios module
+// jest.mock('axios');
 
 // Mock the dateTime module
 jest.mock('@/utils/dateTime', () => ({
@@ -46,17 +50,26 @@ const mockedProps = {
     }
 }
 
-beforeEach(() => {
-    wrapper = mount(MarketCard, {
-        propsData: mockedProps
-    })
-})
 
 afterEach(() => {
     wrapper.destroy()
 })
 
 describe('Testing the MarketCard component', () => {
+
+    beforeEach(() => {
+        wrapper = mount(MarketCard, {
+            propsData: mockedProps,
+            computed: {
+                isCardCreator() {
+                    return false
+                },
+                canDeleteCard() {
+                    return false
+                }
+            }
+        })
+    })
 
     // Test the cardCreatorName computed property
     test("Test the cardCreatorName computed", () => {
@@ -77,5 +90,25 @@ describe('Testing the MarketCard component', () => {
             .toBe("Canterbury")
         expect(location.call(mockAddress({country: "New Zealand"})))
             .toBe("New Zealand")
+    })
+
+    // Test the isCardOwner computed property
+    test("Tests the isCardOwner property", () => {
+        const isCardCreator = MarketCard.computed.isCardCreator
+        // Function for mocking the 'this' state
+        const mockThis = (id) => ({"cardData": mockedProps.cardData, "$root": {"$data": {"user": {isUser (userId) {return userId === id}}}}})
+
+        expect(isCardCreator.call(mockThis(100))).toBeTruthy()
+        expect(isCardCreator.call(mockThis(2))).toBeFalsy()
+    })
+
+    // Test the deleteCard method
+    test("Test the deleteCard method emits a 'cardDeleted' event", () => {
+        wrapper.vm.deleteCard()
+
+        // Expect the component to emit the deleteCard event
+        expect(wrapper.emitted().cardDeleted).toBeTruthy()
+        // Expect the component to emit the correct ID
+        expect(wrapper.emitted().cardDeleted[0]).toEqual([mockedProps.cardData.id])
     })
 })

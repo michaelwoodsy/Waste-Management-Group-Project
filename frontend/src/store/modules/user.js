@@ -219,20 +219,14 @@ export default {
     },
 
     /**
-     * Allows the user to create a new card for in the marketplace
-     * @param data for the marketplace card
+     * Returns true if the provided userId is the same as the logged in user id, and is acting as them.
+     * Usefull for checking if the
+     * @param userId userId to compare to the current logged in user.
+     * @returns {boolean} True if the two ID's are the same, and the user is acting as themself.
      */
-    createCard(data){
-        // Return a promise for the api call
-        return new Promise(((resolve, reject) => {
-            User.createCard(data)
-                .then((res) => {
-                    resolve(res);
-                })
-                .catch((err) => {
-                    reject(err);
-                });
-        }));
+    isUser(userId) {
+        return parseInt(this.state.userId) === parseInt(userId) && this.isActingAsUser();
     }
+
 
 }

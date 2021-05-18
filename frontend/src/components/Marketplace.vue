@@ -5,7 +5,6 @@ Page for displaying the marketplace.
 
 <template>
   <div class="container-fluid">
-
     <!-- Check the user is logged in -->
     <login-required
         v-if="!isLoggedIn"
@@ -13,7 +12,6 @@ Page for displaying the marketplace.
     />
 
     <div v-else>
-
       <!--    Div for marketplace tabs    -->
       <div class="row justify-content-center">
         <div class="col-6">
@@ -42,27 +40,10 @@ Page for displaying the marketplace.
                 Exchange
               </a>
             </li>
-            <li class="nav-item">
-              <button class="btn btn-primary" data-target="#createCard" data-toggle="modal" @click="newCard">
-                New Card
-              </button>
-            </li>
           </ul>
         </div>
-
       </div>
-
       <br>
-      <div id="createCard" :key="this.createNewCard" class="modal fade" data-backdrop="static">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-body">
-              <create-card-page @refresh-cards="refreshCards"></create-card-page>
-            </div>
-          </div>
-        </div>
-      </div>
-
 
       <!-- Div above results -->
       <div class="row form justify-content-center">
@@ -94,10 +75,10 @@ Page for displaying the marketplace.
         <div class="col-9">
           <div v-for="card in orderedCards" v-bind:key="card.id">
             <div v-if="hideImages">
-              <MarketCard :card-data="card" hide-image></MarketCard>
+              <MarketCard @cardDeleted="deleteCard" :card-data="card" hide-image></MarketCard>
             </div>
             <div v-else>
-              <MarketCard :card-data="card"></MarketCard>
+              <MarketCard @cardDeleted="deleteCard" :card-data="card"></MarketCard>
             </div>
           </div>
 
@@ -110,7 +91,6 @@ Page for displaying the marketplace.
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -119,7 +99,7 @@ Page for displaying the marketplace.
 import LoginRequired from "./LoginRequired";
 import MarketCard from "./MarketCard";
 import ShowingResultsText from "@/components/ShowingResultsText";
-import CreateCardPage from "@/components/CreateCardPage";
+import Pagination from "@/components/Pagination";
 
 export default {
   name: "Marketplace",
@@ -127,7 +107,6 @@ export default {
   data() {
     return {
       tabSelected: 'ForSale', //Default tab
-      createNewCard: false,
       cards: [],
       hideImages: false,
       error: "",
@@ -194,7 +173,7 @@ export default {
     LoginRequired,
     MarketCard,
     ShowingResultsText,
-    CreateCardPage
+    Pagination
   },
   methods: {
     /**
@@ -239,17 +218,13 @@ export default {
       }
       return 0;
     },
-    /**
-     * Takes user to page to create new card.
-     */
-    newCard() {
-      this.createNewCard = true;
-    },
-    /**
-     * Refreshes the card
-     */
-    refreshCards() {
-      this.createNewCard = false;
+
+    /** Deletes a card with the corresponding id from the list of cards **/
+    deleteCard(id) {
+      const index = this.cards.findIndex((a) => a.id === id)
+      if (index > -1) {
+        this.cards.splice(index, 1)
+      }
     },
 
     getFakeCards(tab) {
@@ -258,7 +233,7 @@ export default {
           {
             "id": 500,
             "creator": {
-              "id": 100,
+              "id": 1,
               "firstName": "John",
               "lastName": "Smith",
               "homeAddress": {

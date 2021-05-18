@@ -250,7 +250,7 @@ public class UserControllerTest {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new UserUnderageException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals(new UserUnderageException("an account", 13).getMessage(), returnedExceptionString);
     }
 
     /**
