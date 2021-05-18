@@ -1,6 +1,7 @@
 package org.seng302.project.controller;
 
 
+import org.seng302.project.exceptions.NoCardExistsException;
 import org.seng302.project.exceptions.NoUserExistsException;
 import org.seng302.project.exceptions.RequiredFieldsMissingException;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
  * Class that CardController uses for handling exceptions.
  */
 @ControllerAdvice
-public class CardControllerAdvice {;
+public class CardControllerAdvice {
 
     /**
      * Exception thrown by the createCard() function in CardController
@@ -35,6 +36,18 @@ public class CardControllerAdvice {;
     public ResponseEntity<String> userDoesNotExist(NoUserExistsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    /**
+     * Exception thrown by the getCard() function in CardController
+     * when there is no matching card.
+     *
+     * @return a 406 response with an appropriate message
+     */
+    @ExceptionHandler(NoCardExistsException.class)
+    public ResponseEntity<String> cardDoesNotExist(NoCardExistsException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+    }
+
 
 
 }

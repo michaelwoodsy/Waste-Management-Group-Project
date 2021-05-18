@@ -48,7 +48,6 @@ public class BusinessControllerTest {
 
     @BeforeEach
     public void setup() {
-        //Had to remove security because needed to create a business with no one logged in
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
