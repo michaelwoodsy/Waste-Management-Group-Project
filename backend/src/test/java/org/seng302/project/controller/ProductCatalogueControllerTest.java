@@ -61,6 +61,8 @@ public class ProductCatalogueControllerTest {
     @Autowired
     private ProductRepository productRepository;
 
+    private Business testBusiness;
+
     /**
      * Creates the user if it's not already created.
      * If it is already created, the user is returned.
@@ -96,7 +98,7 @@ public class ProductCatalogueControllerTest {
 
         // Create the business
         Address businessAddress = new Address(null, null, null, null, "New Zealand", null);
-        Business testBusiness = new Business("Business", "A Business", businessAddress, "Retail",
+        testBusiness = new Business("Business", "A Business", businessAddress, "Retail",
                 owner.getId());
 
         addressRepository.save(businessAddress);

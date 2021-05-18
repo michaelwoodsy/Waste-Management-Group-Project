@@ -79,6 +79,7 @@
             <br>
           </div>
 
+          <p style="width: 100%; text-align: center; margin: 0"><small>You must be at least 16 years old to register a business</small></p>
           <div class="form-row">
             <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px"
                     v-on:click="checkInputs">
@@ -271,6 +272,13 @@ export default {
       }
     },
 
+    isUnder16YearsOld() {
+      const dateOfBirth = new Date(this.$root.$data.user.state.userData.dateOfBirth)
+      const dateNow = new Date()
+      console.log(dateNow.getUTCFullYear() - dateOfBirth.getUTCFullYear())
+      return (dateNow.getUTCFullYear() - dateOfBirth.getUTCFullYear()) < 16
+    },
+
     /**
      * Validating to check if the data entered is input correctly
      * If not an error message is displayed
@@ -281,7 +289,10 @@ export default {
       await this.validateAddress();
       this.validateBusinessType();
 
-      if (!this.valid) {
+      if (this.isUnder16YearsOld()) {
+        this.msg['errorChecks'] = 'You must be at least 16 years old to register a business';
+        console.log('Please fix the shown errors and try again');
+      } else if (!this.valid) {
         this.msg['errorChecks'] = 'Please fix the shown errors and try again';
         console.log('Please fix the shown errors and try again');
         this.valid = true;//Reset the value
@@ -322,17 +333,8 @@ export default {
 
 <style scoped>
 
-.address-output {
-  cursor: pointer;
-  font-size: 14px;
-}
-
 .error-msg {
   color: red;
-}
-
-.addressText {
-  font-size: 30px;
 }
 
 .required {

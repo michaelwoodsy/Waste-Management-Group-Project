@@ -8,7 +8,7 @@
 
     <!-- Check if the user is an admin of the business -->
     <admin-required
-        v-else-if="!isAdminOfBusiness"
+        v-else-if="!isAdminOf"
         :page="`of the business ${this.businessId} to edit its products`"
     />
 
@@ -243,6 +243,10 @@ export default {
       return this.$route.params.productId;
     },
 
+    actor() {
+      return this.$root.$data.user.state.actingAs;
+    },
+
     /** A list of businesses the current user administers **/
     businessesAdministered() {
       if (this.isLoggedIn) {
@@ -251,16 +255,13 @@ export default {
       return []
     },
 
-    /** Checks if the user is an admin of the business **/
-    isAdminOfBusiness() {
-      let isAdmin = false;
-      // iterate over each business they administer and check if they administer this one
-      this.businessesAdministered.forEach((business) => {
-        if (business.id.toString() === this.businessId.toString()) {
-          isAdmin = true;
-        }
-      })
-      return isAdmin
+    /**
+     * Check if the user is an admin of the business and is acting as that business, or is a GAA
+     */
+    isAdminOf() {
+      if (this.$root.$data.user.canDoAdminAction()) return true
+      else if (this.actor.type !== "business") return false
+      return this.actor.id === parseInt(this.$route.params.businessId);
     },
 
     /** Returns true if changes have been made to the product **/
