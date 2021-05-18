@@ -1,8 +1,8 @@
 package org.seng302.project.model;
 
 
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -48,7 +48,7 @@ public class CardTest {
         Assertions.assertTrue(testCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
     }
 
-    // TODO: Test card repository
+
     @Test
     public void testRepository() {
         User testCardCreator = new User("John", "Smith", "Arthur", "Jonny",
@@ -69,7 +69,7 @@ public class CardTest {
 
         Card retrievedCard = retrievedCardOptions.get();
 
-        Assertions.assertNull(retrievedCard.getCreator().getId());
+        Assertions.assertNotNull(retrievedCard.getCreator().getId());
         Assertions.assertEquals("John", retrievedCard.getCreator().getFirstName());
         Assertions.assertEquals("Smith", retrievedCard.getCreator().getLastName());
 
@@ -79,9 +79,6 @@ public class CardTest {
                 retrievedCard.getDescription());
         Assertions.assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || testCard.getCreated().isEqual(LocalDateTime.now()));
         Assertions.assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-
-
-
 
     }
 }

@@ -39,8 +39,15 @@ public class Card {
 
     @Id // this field (attribute) is the primary key of the table
     @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
-    @Column(name = "inventory_item_id")
+    @Column(name = "card_id")
     public Integer getId() {
         return this.id;
+    }
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    public User getCreator() {
+        return this.creator;
     }
 }
