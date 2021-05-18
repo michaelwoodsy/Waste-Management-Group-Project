@@ -86,7 +86,7 @@ const routes = [
         path: '/marketplace',
         name: 'marketplace',
         component: Marketplace
-    }
+    },
 ];
 
 const base = process.env.VUE_APP_BASE_URL || '/';

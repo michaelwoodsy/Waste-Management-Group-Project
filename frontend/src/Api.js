@@ -69,7 +69,14 @@ export const User = {
 
     makeAdmin: (id) => instance.put(`users/${id}/makeadmin`),
 
-    revokeAdmin: (id) => instance.put(`users/${id}/revokeadmin`)
+    revokeAdmin: (id) => instance.put(`users/${id}/revokeadmin`),
+
+    /**
+     * Creates a new Card for in the community marketplace
+     * @param data
+     */
+    createCard: (data) => instance.post('cards', data),
+
 };
 
 export const Business = {

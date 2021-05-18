@@ -40,10 +40,25 @@ Page for displaying the marketplace.
                 Exchange
               </a>
             </li>
+            <li class="nav-item">
+              <button class="btn btn-primary" data-target="#createCard" data-toggle="modal" @click="newCard">
+                New Card
+              </button>
+            </li>
           </ul>
         </div>
       </div>
       <br>
+
+      <div id="createCard" :key="this.createNewCard" class="modal fade" data-backdrop="static">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <create-card-page @refresh-cards="refreshCards"></create-card-page>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Div above results -->
       <div class="row form justify-content-center">
@@ -100,6 +115,7 @@ import LoginRequired from "./LoginRequired";
 import MarketCard from "./MarketCard";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
+import CreateCardPage from "@/components/CreateCardPage";
 
 export default {
   name: "Marketplace",
@@ -107,6 +123,7 @@ export default {
   data() {
     return {
       tabSelected: 'ForSale', //Default tab
+      createNewCard: false,
       cards: [],
       hideImages: false,
       error: "",
@@ -173,7 +190,8 @@ export default {
     LoginRequired,
     MarketCard,
     ShowingResultsText,
-    Pagination
+    Pagination,
+    CreateCardPage
   },
   methods: {
     /**
@@ -225,6 +243,19 @@ export default {
       if (index > -1) {
         this.cards.splice(index, 1)
       }
+    },
+
+    /**
+     * Takes user to page to create new card.
+     */
+    newCard() {
+      this.createNewCard = true;
+    },
+    /**
+     * Refreshes the card
+     */
+    refreshCards() {
+      this.createNewCard = false;
     },
 
     getFakeCards(tab) {
