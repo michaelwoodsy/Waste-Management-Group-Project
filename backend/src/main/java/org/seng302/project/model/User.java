@@ -89,5 +89,10 @@ public class User {
         return false;
     }
 
+    @Transient
+    public boolean isGAA() {
+        return role.equals("globalApplicationAdmin") || role.equals("defaultGlobalApplicationAdmin");
+    }
+
 
 }

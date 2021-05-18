@@ -332,7 +332,7 @@ export default {
      */
     addItem() {
       this.$root.$data.business.createItem(
-          this.$root.$data.user.state.actingAs.id, {
+          this.businessId, {
             "productId": this.productCode,
             "quantity": Number(this.quantity),
             "pricePerItem": this.pricePerItem !== null && this.pricePerItem !== ''

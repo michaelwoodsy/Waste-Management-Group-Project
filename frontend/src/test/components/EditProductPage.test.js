@@ -28,7 +28,7 @@ let computed = {
     businessesAdministered() {
         return [{id: 2}]
     },
-    isAdminOfBusiness() {
+    isAdminOf() {
         return businessId === 2
     },
     changesMade() {
