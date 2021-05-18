@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -46,6 +47,7 @@ public class CardTest {
                 testCard.getDescription());
         Assertions.assertTrue(testCard.getCreated().isBefore(LocalDateTime.now()) || testCard.getCreated().isEqual(LocalDateTime.now()));
         Assertions.assertTrue(testCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
+        Assertions.assertTrue(testCard.getDisplayPeriodEnd().isEqual(testCard.getCreated().plusDays(14)));
     }
 
 
@@ -77,8 +79,29 @@ public class CardTest {
         Assertions.assertEquals("1982 Lada Samara", retrievedCard.getTitle());
         Assertions.assertEquals("Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
                 retrievedCard.getDescription());
-        Assertions.assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || testCard.getCreated().isEqual(LocalDateTime.now()));
+        Assertions.assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || retrievedCard.getCreated().isEqual(LocalDateTime.now()));
         Assertions.assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
+        Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
+
+
+        //Test finding all cards
+        List<Card> retrievedCards = cardRepository.findAllBySection("ForSale");
+
+        Assertions.assertEquals(1, retrievedCards.size());
+
+        retrievedCard = retrievedCards.get(0);
+
+        Assertions.assertNotNull(retrievedCard.getCreator().getId());
+        Assertions.assertEquals("John", retrievedCard.getCreator().getFirstName());
+        Assertions.assertEquals("Smith", retrievedCard.getCreator().getLastName());
+
+        Assertions.assertEquals("ForSale", retrievedCard.getSection());
+        Assertions.assertEquals("1982 Lada Samara", retrievedCard.getTitle());
+        Assertions.assertEquals("Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
+                retrievedCard.getDescription());
+        Assertions.assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || retrievedCard.getCreated().isEqual(LocalDateTime.now()));
+        Assertions.assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
+        Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
 
     }
 }

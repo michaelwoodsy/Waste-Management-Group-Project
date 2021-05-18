@@ -44,7 +44,6 @@ public class Card {
         return this.id;
     }
 
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     public User getCreator() {
