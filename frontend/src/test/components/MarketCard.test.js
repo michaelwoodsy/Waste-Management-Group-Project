@@ -6,10 +6,10 @@ import "@jest/globals";
 import MarketCard from '@/components/MarketCard';
 import {mount} from "@vue/test-utils";
 import {test} from "@jest/globals";
-import axios from 'axios';
-
-// Mock the axios module
-jest.mock('axios');
+// import axios from 'axios';
+//
+// // Mock the axios module
+// jest.mock('axios');
 
 // Mock the dateTime module
 jest.mock('@/utils/dateTime', () => ({
@@ -62,6 +62,9 @@ describe('Testing the MarketCard component', () => {
             propsData: mockedProps,
             computed: {
                 isCardCreator() {
+                    return false
+                },
+                canDeleteCard() {
                     return false
                 }
             }

@@ -16,7 +16,7 @@ Eg, <market-card @cardDeleted="someMethod" ... />
     <!-- Delete button -->
     <button
         class="btn btn-outline-danger d-inline-block float-right"
-        v-if="isCardCreator"
+        v-if="canDeleteCard"
         data-toggle="modal"
         :data-target="'#deleteModal' + cardData.id"
     >
@@ -119,6 +119,11 @@ export default {
     /** True if the logged in user is the creator of the card and acting as themself **/
     isCardCreator() {
       return this.$root.$data.user.isUser(this.cardData.creator.id)
+    },
+
+    /** True if the logged in user is the creator of the card or an admin **/
+    canDeleteCard() {
+      return this.isCardCreator || this.$root.$data.user.canDoAdminAction()
     }
   },
   methods: {
