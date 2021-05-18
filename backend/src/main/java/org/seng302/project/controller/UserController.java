@@ -162,7 +162,7 @@ public class UserController {
 
             // Check that the user is over 13 and has selected a realistic date of birth (under 200)
             if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) < 13) {
-                UserUnderageException underageException = new UserUnderageException();
+                UserUnderageException underageException = new UserUnderageException("an account", 13);
                 logger.warn(underageException.getMessage());
                 throw underageException;
             } else if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) > 200) {

@@ -7,7 +7,7 @@
     />
 
     <admin-required
-        v-else-if="!isAdminOf()"
+        v-else-if="!isAdminOf"
         page="view this business's product catalogue"
     />
 
@@ -109,19 +109,19 @@ export default {
 
     actor() {
       return this.$root.$data.user.state.actingAs;
-    }
-  },
+    },
 
-  methods: {
     /**
-     * Check if the user is an admin of the business and is acting as that business
+     * Check if the user is an admin of the business and is acting as that business, or is a GAA
      */
     isAdminOf() {
       if (this.$root.$data.user.canDoAdminAction()) return true
       else if (this.actor.type !== "business") return false
       return this.actor.id === parseInt(this.$route.params.businessId);
     },
+  },
 
+  methods: {
     productIdExists(id) {
       for (const product of this.products) {
         if (product.id === id) {
