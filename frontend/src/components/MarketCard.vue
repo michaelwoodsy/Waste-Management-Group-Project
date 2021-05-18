@@ -57,7 +57,7 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 
           <!-- Body section of modal -->
           <div class="modal-body">
-            <p>Do you really want to delete your card?</p>
+            <p>Do you really want to permanently delete this card?</p>
           </div>
 
           <!-- Footer / button section of modal -->
