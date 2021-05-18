@@ -22,7 +22,12 @@
               <h4>Inventory</h4>
             </div>
             <div class="col text-right">
-              <button class="btn btn-primary" data-target="#createInventoryItem" data-toggle="modal" @click="newItem">
+              <!--              Buton for GAA or DGAA to add product (so the button is red)-->
+              <button v-if="$root.$data.user.canDoAdminAction()" class="btn btn-danger"
+                      data-target="#createInventoryItem" data-toggle="modal" @click="newItem">
+                New Product
+              </button>
+              <button v-else class="btn btn-primary" data-target="#createInventoryItem" data-toggle="modal" @click="newItem">
                 New Item
               </button>
             </div>
@@ -109,8 +114,9 @@ export default {
      * Check if the user is an admin of the business and is acting as that business
      */
     isAdminOf() {
-      if (this.$root.$data.user.state.actingAs.type !== "business") return false
-      return this.$root.$data.user.state.actingAs.id === parseInt(this.$route.params.businessId);
+      if (this.$root.$data.user.canDoAdminAction()) return true
+      else if (this.actor.type !== "business") return false
+      return this.actor.id === parseInt(this.$route.params.businessId);
     },
 
     /**

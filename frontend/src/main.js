@@ -33,7 +33,7 @@ import App from './App'
 import Store from './store'
 import './router'
 import 'bootstrap'
-import './scss/main.scss'
+import '../scss/main.scss'
 import VueLogger from 'vuejs-logger';
 
 Vue.config.productionTip = false;

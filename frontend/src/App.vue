@@ -3,7 +3,7 @@
   <div id="app">
 
     <header class="mb-3">
-      <div class="admin-bar" v-if="this.$root.$data.user.canDoAdminAction()"></div>
+      <div class="admin-bar bg-danger" v-if="this.$root.$data.user.canDoAdminAction()"></div>
       <Navbar/>
     </header>
 
@@ -53,7 +53,6 @@ body {
 
 .admin-bar {
   height: 10px;
-  background-color: red;
   width: 100%;
 }
 

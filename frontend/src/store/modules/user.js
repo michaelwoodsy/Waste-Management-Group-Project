@@ -10,6 +10,7 @@ export default {
         message: 'Hello!',
         loggedIn: false,
         userId: null,
+        role: null,
         userData: {},
         actingAs: null
     },
@@ -23,6 +24,7 @@ export default {
             .then((res) => {
                 // Successfully got user data
                 this.state.userData = res.data;
+                this.state.role = res.data.role;
                 this.state.userId = userId;
                 this.state.loggedIn = true;
 
