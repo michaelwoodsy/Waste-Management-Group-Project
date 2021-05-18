@@ -5,7 +5,6 @@ Page for displaying the marketplace.
 
 <template>
   <div class="container-fluid">
-
     <!-- Check the user is logged in -->
     <login-required
         v-if="!isLoggedIn"
@@ -13,7 +12,6 @@ Page for displaying the marketplace.
     />
 
     <div v-else>
-
       <!--    Div for marketplace tabs    -->
       <div class="row justify-content-center">
         <div class="col-6">
@@ -77,10 +75,10 @@ Page for displaying the marketplace.
         <div class="col-9">
           <div v-for="card in orderedCards" v-bind:key="card.id">
             <div v-if="hideImages">
-              <MarketCard :card-data="card" hide-image></MarketCard>
+              <MarketCard @cardDeleted="deleteCard" :card-data="card" hide-image></MarketCard>
             </div>
             <div v-else>
-              <MarketCard :card-data="card"></MarketCard>
+              <MarketCard @cardDeleted="deleteCard" :card-data="card"></MarketCard>
             </div>
           </div>
 
@@ -92,8 +90,6 @@ Page for displaying the marketplace.
           />
         </div>
       </div>
-
-
     </div>
   </div>
 </template>
@@ -103,6 +99,7 @@ Page for displaying the marketplace.
 import LoginRequired from "./LoginRequired";
 import MarketCard from "./MarketCard";
 import ShowingResultsText from "@/components/ShowingResultsText";
+import Pagination from "@/components/Pagination";
 
 export default {
   name: "Marketplace",
@@ -175,7 +172,8 @@ export default {
   components: {
     LoginRequired,
     MarketCard,
-    ShowingResultsText
+    ShowingResultsText,
+    Pagination
   },
   methods: {
     /**
@@ -221,13 +219,21 @@ export default {
       return 0;
     },
 
+    /** Deletes a card with the corresponding id from the list of cards **/
+    deleteCard(id) {
+      const index = this.cards.findIndex((a) => a.id === id)
+      if (index > -1) {
+        this.cards.splice(index, 1)
+      }
+    },
+
     getFakeCards(tab) {
       if (tab === 'ForSale') {
         return [
           {
             "id": 500,
             "creator": {
-              "id": 100,
+              "id": 1,
               "firstName": "John",
               "lastName": "Smith",
               "homeAddress": {
