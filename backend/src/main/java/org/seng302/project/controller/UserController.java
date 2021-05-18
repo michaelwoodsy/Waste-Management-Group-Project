@@ -1,7 +1,10 @@
 package org.seng302.project.controller;
 
 import net.minidev.json.JSONObject;
+import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.*;
+import org.seng302.project.exceptions.dgaa.DGAARevokeAdminSelfException;
+import org.seng302.project.exceptions.dgaa.ForbiddenDGAAActionException;
 import org.seng302.project.model.*;
 import org.seng302.project.util.DateArithmetic;
 import org.slf4j.Logger;
@@ -12,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -158,7 +162,7 @@ public class UserController {
 
             // Check that the user is over 13 and has selected a realistic date of birth (under 200)
             if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) < 13) {
-                UserUnderageException underageException = new UserUnderageException();
+                UserUnderageException underageException = new UserUnderageException("an account", 13);
                 logger.warn(underageException.getMessage());
                 throw underageException;
             } else if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) > 200) {
@@ -211,6 +215,77 @@ public class UserController {
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while getting user: %s", exception.getMessage()));
             throw exception;
+        }
+    }
+
+    /**
+     * Promote a user account to the Global Application Admin role
+     */
+    @PutMapping("/users/{id}/makeadmin")
+    public void dgaaMakeAdmin(@PathVariable int id, @AuthenticationPrincipal AppUserDetails appUser) {
+
+        try {
+            //Check if person making request is DGAA
+            User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
+
+            logger.info(String.format("requestMaker: %s", requestMaker));
+            if (!requestMaker.getRole().equals("defaultGlobalApplicationAdmin")) {
+                throw new ForbiddenDGAAActionException();
+            }
+
+            //Check if user exists
+            User user = userRepository.findById(id).orElseThrow(() -> new NoUserExistsException(id));
+
+            //Update user's role
+            user.setRole("globalApplicationAdmin");
+            userRepository.save(user);
+
+        } catch (ForbiddenDGAAActionException | NoUserExistsException handledException) {
+            logger.warn(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unHandledException) {
+            logger.error(String.format(
+                    "Unexpected error while giving user application admin rights: %s",
+                    unHandledException.getMessage())
+            );
+        }
+    }
+
+
+    /**
+     * Promote a user account to the Global Application Admin role
+     */
+    @PutMapping("/users/{id}/revokeadmin")
+    public void dgaaRevokeAdmin(@PathVariable int id, @AuthenticationPrincipal AppUserDetails appUser) {
+
+        try {
+            //Check if person making request is DGAA
+            User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
+
+            if (!requestMaker.getRole().equals("defaultGlobalApplicationAdmin")) {
+                throw new ForbiddenDGAAActionException();
+            }
+
+            //Check if user exists
+            User user = userRepository.findById(id).orElseThrow(() -> new NoUserExistsException(id));
+
+            //Check that DGAA is not revoking themselves
+            if (user.getEmail().equals(appUser.getUsername())) {
+                throw new DGAARevokeAdminSelfException();
+            }
+
+            //Update user's role
+            user.setRole("user");
+            userRepository.save(user);
+
+        } catch (ForbiddenDGAAActionException | NoUserExistsException | DGAARevokeAdminSelfException handledException) {
+            logger.warn(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unHandledException) {
+            logger.error(String.format(
+                    "Unexpected error while revoking user application admin rights: %s",
+                    unHandledException.getMessage())
+            );
         }
     }
 }

@@ -1,7 +1,9 @@
 <template>
+
   <div id="app">
 
     <header class="mb-3">
+      <div class="admin-bar bg-danger" v-if="this.$root.$data.user.canDoAdminAction()"></div>
       <Navbar/>
     </header>
 
@@ -49,4 +51,11 @@ body {
   min-height: 500px;
 }
 
+.admin-bar {
+  height: 10px;
+  width: 100%;
+}
+
 </style>
+
+

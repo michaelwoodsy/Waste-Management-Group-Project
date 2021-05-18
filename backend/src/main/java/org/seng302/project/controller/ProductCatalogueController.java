@@ -66,8 +66,9 @@ public class ProductCatalogueController {
             }
             Business business = businessResult.get();
 
-            // Check if the logged in user is the business owner / administrator
-            if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
+            // Check if the logged in user is the business owner / administrator or a GAA
+            if (!(business.userIsAdmin(loggedInUser.getId()) ||
+                    business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
                 logger.error(exception.getMessage());
                 throw exception;
@@ -113,8 +114,9 @@ public class ProductCatalogueController {
             }
             Business business = businessResult.get();
 
-            // Check if the logged in user is the business owner / administrator
-            if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
+            // Check if the logged in user is the business owner / administrator or a GAA
+            if (!(business.userIsAdmin(loggedInUser.getId()) ||
+                    business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
                 logger.error(exception.getMessage());
                 throw exception;
@@ -217,8 +219,9 @@ public class ProductCatalogueController {
             }
             Business business = businessResult.get();
 
-            // Check if the logged in user is the business owner / administrator
-            if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
+            // Check if the logged in user is the business owner / administrator or a GAA
+            if (!(business.userIsAdmin(loggedInUser.getId()) ||
+                    business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
                 logger.error(exception.getMessage());
                 throw exception;

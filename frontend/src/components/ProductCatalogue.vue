@@ -7,7 +7,7 @@
     />
 
     <admin-required
-        v-else-if="!isAdminOf()"
+        v-else-if="!isAdminOf"
         page="view this business's product catalogue"
     />
 
@@ -23,7 +23,12 @@
               <h4>Product Catalogue</h4>
             </div>
             <div class="col text-right">
-              <button class="btn btn-primary" data-target="#createProduct" data-toggle="modal" @click="newProduct">
+<!--              Buton for GAA or DGAA to add product (so the button is red)-->
+              <button v-if="$root.$data.user.canDoAdminAction()" class="btn btn-danger" data-target="#createProduct"
+                      data-toggle="modal" @click="newProduct">
+                New Product
+              </button>
+              <button v-else class="btn btn-primary" data-target="#createProduct" data-toggle="modal" @click="newProduct">
                 New Product
               </button>
             </div>
@@ -104,18 +109,19 @@ export default {
 
     actor() {
       return this.$root.$data.user.state.actingAs;
-    }
+    },
+
+    /**
+     * Check if the user is an admin of the business and is acting as that business, or is a GAA
+     */
+    isAdminOf() {
+      if (this.$root.$data.user.canDoAdminAction()) return true
+      else if (this.actor.type !== "business") return false
+      return this.actor.id === parseInt(this.$route.params.businessId);
+    },
   },
 
   methods: {
-    /**
-     * Check if the user is an admin of the business and is acting as that business
-     */
-    isAdminOf() {
-      if (this.actor.type !== "business") return false
-      return this.actor.id === parseInt(this.$route.params.businessId);
-    },
-
     productIdExists(id) {
       for (const product of this.products) {
         if (product.id === id) {

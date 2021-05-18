@@ -1,6 +1,8 @@
 package org.seng302.project.controller;
 
 import org.seng302.project.exceptions.*;
+import org.seng302.project.exceptions.dgaa.DGAARevokeAdminSelfException;
+import org.seng302.project.exceptions.dgaa.ForbiddenDGAAActionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -114,6 +116,29 @@ public class UserControllerAdvice {
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<String> invalidPassword(InvalidPasswordException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+
+    /**
+     * Exception thrown by the dgaaMakeAdmin() and dgaaRevokeAdmin() methods
+     * when the user calling the endpoint is not the DGAA
+     *
+     * @return  a 403 response with an appropriate message
+     */
+    @ExceptionHandler(ForbiddenDGAAActionException.class)
+    public ResponseEntity<String> forbiddenDGAAAction(ForbiddenDGAAActionException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * Exception thrown by the dgaaRevokeAdmin() method
+     * when DGAA tries to revoke their own admin rights
+     *
+     * @return  a 409 response with an appropriate message
+     */
+    @ExceptionHandler(DGAARevokeAdminSelfException.class)
+    public ResponseEntity<String> dgaaRevokeAdminSelf(DGAARevokeAdminSelfException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
 }

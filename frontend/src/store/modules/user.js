@@ -10,6 +10,7 @@ export default {
         message: 'Hello!',
         loggedIn: false,
         userId: null,
+        role: null,
         userData: {},
         actingAs: null
     },
@@ -23,6 +24,7 @@ export default {
             .then((res) => {
                 // Successfully got user data
                 this.state.userData = res.data;
+                this.state.role = res.data.role;
                 this.state.userId = userId;
                 this.state.loggedIn = true;
 
@@ -166,6 +168,14 @@ export default {
     },
 
     /**
+     * Returns true if the user is acting as a user
+     * @returns {boolean|*}
+     */
+    isActingAsUser() {
+        return this.state.actingAs.type === "user"
+    },
+
+    /**
      * Returns true if the user is primary admin of the business they are acting as
      * @returns {boolean|*}
      */
@@ -182,4 +192,59 @@ export default {
         }
         return false
     },
+
+    /**
+     * Returns true if the user is a GAA
+     * @returns {boolean|*}
+     */
+    isGAA() {
+        return this.state.userData.role === "globalApplicationAdmin"
+    },
+
+    /**
+     * Returns true if the user is a DGAA
+     * @returns {boolean|*}
+     */
+    isDGAA() {
+        return this.state.userData.role === "defaultGlobalApplicationAdmin"
+    },
+
+    /**
+     * Returns true if the user can proform Admin Actions
+     * If they are a DGAA or GAA and are acting as a user
+     * @returns {boolean|*}
+     */
+    canDoAdminAction() {
+        return (this.isDGAA() || this.isGAA()) && this.isActingAsUser()
+    },
+
+    /**
+     * Returns true if the provided userId is the same as the logged in user id, and is acting as them.
+     * Usefull for checking if the
+     * @param userId userId to compare to the current logged in user.
+     * @returns {boolean} True if the two ID's are the same, and the user is acting as themself.
+     */
+    isUser(userId) {
+        return parseInt(this.state.userId) === parseInt(userId) && this.isActingAsUser();
+    },
+
+    /**
+     * Allows the user to create a new card for in the marketplace
+     * @param data for the marketplace card
+     */
+    createCard(data){
+        // Return a promise for the api call
+        return new Promise(((resolve, reject) => {
+            User.createCard(data)
+                .then((res) => {
+                    resolve(res);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        }));
+    }
+
+
+
 }

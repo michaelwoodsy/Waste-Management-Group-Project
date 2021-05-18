@@ -14,6 +14,7 @@ import EditProductPage from "../components/EditProductPage";
 import InventoryPage from "../components/InventoryPage";
 import SaleListings from "../components/SaleListings";
 import EditInventoryItemPage from "../components/EditInventoryItemPage";
+import Marketplace from "../components/Marketplace";
 
 const routes = [
     {
@@ -42,8 +43,8 @@ const routes = [
         component: LoginPage
     },
     {
-        path: '/home', //TODO: change to '/' after user logged in?
-        name: 'user',
+        path: '/home',
+        name: 'home',
         component: Home
     },
     {
@@ -80,7 +81,12 @@ const routes = [
         path: '/businesses/:businessId/listings',
         name: 'listings',
         component: SaleListings
-    }
+    },
+    {
+        path: '/marketplace',
+        name: 'marketplace',
+        component: Marketplace
+    },
 ];
 
 const base = process.env.VUE_APP_BASE_URL || '/';

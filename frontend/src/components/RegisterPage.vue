@@ -105,7 +105,7 @@
           </div>
 
           <div class="form-row mb-3">
-            <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" v-on:click="checkInputs">Create
+            <button id="createButton" class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" v-on:click="checkInputs">Create
               Account
             </button>
             <!--    Error message for the registering process    -->
@@ -167,7 +167,7 @@ export default {
         'lastName': null,
         'email': null,
         'dateOfBirth': null,
-        'streetName': '',
+        'streetName': null,
         'country': null,
         'password': null,
         'phone': null,
@@ -272,7 +272,7 @@ export default {
         this.msg['phone'] = null
       }
       //If phone number matches phone number regex
-      else if (/^\+(\(\d{1,4}\)|\d{1,4})\d+([-\s./]\d+)*$/.test(this.phoneNumber)) {
+      else if (/^\+(\(\d{1,4}\)|\d{1,4})\d+([-\s./]\d+)*$/.test(this.phone)) {
         this.msg['phone'] = null
       } else {
         this.msg['phone'] = 'Invalid phone number'
@@ -329,7 +329,7 @@ export default {
           this.homeAddress,
           this.password
       ).then(() => {
-        this.$router.push({name: 'user'})
+        this.$router.push({name: 'home'})
       })
           .catch((err) => {
             this.msg.errorChecks = err.response
@@ -350,17 +350,8 @@ export default {
   margin-right: 10px;
 }
 
-.address-output {
-  cursor: pointer;
-  font-size: 14px;
-}
-
 .error-msg {
   color: red;
-}
-
-.addressText {
-  font-size: 30px;
 }
 
 .required {
