@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.seng302.project.model.CardRepository;
 import org.seng302.project.model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,8 +34,12 @@ public class AuthenticationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CardRepository cardRepository;
+
     @BeforeEach
     public void initialise() throws JSONException {
+        cardRepository.deleteAll();
         userRepository.deleteAll();
         testAddress.put("country", "New Zealand");
         testUser.put("firstName", "Jane");

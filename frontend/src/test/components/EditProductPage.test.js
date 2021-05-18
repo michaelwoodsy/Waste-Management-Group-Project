@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import {afterEach, beforeEach, describe, test} from "@jest/globals";
+import "@jest/globals";
 import EditProductPage from '@/components/EditProductPage';
 import Vue from 'vue';
 
@@ -28,7 +28,7 @@ let computed = {
     businessesAdministered() {
         return [{id: 2}]
     },
-    isAdminOfBusiness() {
+    isAdminOf() {
         return businessId === 2
     },
     changesMade() {

@@ -15,4 +15,8 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
 
     List<User> findByEmail(@Param("email") String email);
 
+
+    //Role can be one of [user, globalApplicationAdmin, defaultGlobalApplicationAdmin]
+    List<User> findByRole(@Param("role") String role);
+
 }

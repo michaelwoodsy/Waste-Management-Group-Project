@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import {beforeEach, describe, test} from "@jest/globals";
+import "@jest/globals";
 import user from '@/store/modules/user'
 import {getCookie, setCookie} from '@/utils/cookieJar'
 
@@ -16,7 +16,15 @@ jest.mock('@/Api', () => ({
                         "id": id,
                         "firstName": "John",
                         "lastName": "Smith",
-                        "email": "johnsmith99@gmail.com"
+                        "email": "johnsmith99@gmail.com",
+                        "businessesAdministered": [
+                            {
+                                name: "Store",
+                                type: "business",
+                                id: 2,
+                                primaryAdministratorId: 1
+                            }
+                        ]
                     }
                 })
             })
@@ -45,8 +53,12 @@ beforeEach(() => {
         message: 'Hello!',
         loggedIn: false,
         userId: null,
-        userData: {},
-        actingAs: null
+        userData: {
+            role: "user"
+        },
+        actingAs: {
+            type: "user"
+        }
     }
 });
 
@@ -143,5 +155,60 @@ describe('store.user', () => {
         expect(user.state.actingAs.name).toBe("Shop 1")
         expect(user.state.actingAs.type).toBe("business")
     });
+
+
+    //check that when we change acting as to business,
+    // isPrimaryAdminOfBusiness returns true
+    test("testing isPrimaryAdminOfBusiness method", async() => {
+        // Test business
+        const business = {
+            name: "Store",
+            type: "business",
+            id: 2,
+            primaryAdministratorId: 1
+        }
+
+        // Try act as the business
+        await user.login("username", "pword")
+        user.setActingAs(business.id, business.name, business.type)
+
+        const isPrimaryAdmin = user.isPrimaryAdminOfBusiness()
+        expect(isPrimaryAdmin).toBeTruthy();
+    })
+
+    //test isGAA method
+    test("testing isGAA method", () => {
+        user.state.userData.role = "globalApplicationAdmin"
+        const isGAA = user.isGAA()
+        expect(isGAA).toBeTruthy();
+    })
+
+    //test isDGAA method
+    test("testing isDGAA method", () => {
+        user.state.userData.role = "defaultGlobalApplicationAdmin"
+        const isDGAA = user.isDGAA()
+        expect(isDGAA).toBeTruthy();
+    })
+
+    //test canDoAdminAction method
+    test("testing canDoAdminAction method", () => {
+        user.state.userData.role = "globalApplicationAdmin"
+        user.state.actingAs.type = "user"
+        let canDoAdminAction = user.canDoAdminAction()
+        expect(canDoAdminAction).toBeTruthy();
+
+        user.state.actingAs.type = "business"
+        canDoAdminAction = user.canDoAdminAction()
+        expect(canDoAdminAction).toBeFalsy();
+
+        user.state.userData.role = "defaultGlobalApplicationAdmin"
+        user.state.actingAs.type = "user"
+        canDoAdminAction = user.canDoAdminAction()
+        expect(canDoAdminAction).toBeTruthy();
+
+        user.state.actingAs.type = "business"
+        canDoAdminAction = user.canDoAdminAction()
+        expect(canDoAdminAction).toBeFalsy();
+    })
 
 })

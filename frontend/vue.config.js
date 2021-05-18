@@ -31,9 +31,7 @@ module.exports = {
   // see https://vuejs.org/v2/guide/installation.html#Runtime-Compiler-vs-Runtime-only
   runtimeCompiler: true,
   // because of nginx inner routing and http-server, must set public path to empty
-    publicPath: process.env.NODE_ENV === 'production'
-        ? ''
-        : '/',
+    publicPath: process.env.VUE_APP_BASE_URL,
   chainWebpack: config => {
     config
         .plugin('html')

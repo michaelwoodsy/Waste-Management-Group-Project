@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,6 +27,9 @@ public class CardTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Test
     public void createTestCard() {
@@ -58,6 +62,9 @@ public class CardTest {
                 "1999-04-27", "+64 3 555 0129", null,
                 "1337-H%nt3r2");
 
+
+        testCardCreator.setPassword(passwordEncoder.encode(testCardCreator.getPassword()));
+        userRepository.save(testCardCreator);
         userRepository.save(testCardCreator);
 
         Card testCard = new Card(testCardCreator, "ForSale", "1982 Lada Samara",
@@ -84,6 +91,8 @@ public class CardTest {
         Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
 
 
+        //TODO: This may fail in future when we have more than one card in the repository.
+        //TODO: Sarah had a go at mocking the cardRepository repository for this one but didn't succeed
         //Test finding all cards
         List<Card> retrievedCards = cardRepository.findAllBySection("ForSale");
 

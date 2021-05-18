@@ -26,6 +26,7 @@ public class InventoryItemController {
     private static final Logger logger = LoggerFactory.getLogger(InventoryItemController.class.getName());
     private final BusinessRepository businessRepository;
     private final ProductRepository productRepository;
+    private final SaleListingRepository saleListingRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final UserRepository userRepository;
 
@@ -34,10 +35,12 @@ public class InventoryItemController {
             BusinessRepository businessRepository,
             ProductRepository productRepository,
             InventoryItemRepository inventoryItemRepository,
+            SaleListingRepository saleListingRepository,
             UserRepository userRepository) {
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
+        this.saleListingRepository = saleListingRepository;
         this.userRepository = userRepository;
     }
 
@@ -60,7 +63,7 @@ public class InventoryItemController {
                 NoBusinessExistsException noBusinessException = new NoBusinessExistsException(businessId);
                 logger.warn(noBusinessException.getMessage());
                 throw noBusinessException;
-            } else if (!business.userIsAdmin(loggedInUser.getId())) {
+            } else if (!business.userIsAdmin(loggedInUser.getId()) && !loggedInUser.isGAA()) {
                 ForbiddenAdministratorActionException notAdminException = new ForbiddenAdministratorActionException(businessId);
                 logger.warn(notAdminException.getMessage());
                 throw notAdminException;
@@ -107,8 +110,9 @@ public class InventoryItemController {
             }
             Business business = businessResult.get();
 
-            // Check if the logged in user is the business owner / administrator
-            if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
+            // Check if the logged in user is the business owner / administrator or a GAA
+            if (!(business.userIsAdmin(loggedInUser.getId()) ||
+                    business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
                 logger.warn(exception.getMessage());
                 throw exception;
@@ -320,8 +324,9 @@ public class InventoryItemController {
             }
             Business business = businessResult.get();
 
-            // Check if the logged in user is the business owner / administrator
-            if (!(business.userIsAdmin(loggedInUser.getId()) || business.getPrimaryAdministratorId().equals(loggedInUser.getId()))) {
+            // Check if the logged in user is the business owner / administrator or a GAA
+            if (!(business.userIsAdmin(loggedInUser.getId()) ||
+                    business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
                 ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
                 logger.warn(exception.getMessage());
                 throw exception;
@@ -356,6 +361,22 @@ public class InventoryItemController {
                             logger.warn(exception.getMessage());
                             throw exception;
                         }
+                        //Check if there is enough inventory items
+                        //Calculates the quantity used of this Inventory item in other sales listings, if any
+                        Integer quantityUsed = 0;
+                        List<SaleListing> listings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(businessId, inventoryItemId);
+                        for(SaleListing listing: listings) {
+                            quantityUsed += listing.getQuantity();
+                        }
+                        //Check if there is enough of the inventory item
+                        if (newQuantity.intValue() < quantityUsed) {
+                            NotEnoughOfInventoryItemException exception = new NotEnoughOfInventoryItemException(inventoryItemId, item.getQuantity() - quantityUsed, quantityUsed);
+                            logger.warn(exception.getMessage());
+                            throw exception;
+                        }
+
+
+
                         item.setQuantity(newQuantity.intValue());
                     }
                 }
