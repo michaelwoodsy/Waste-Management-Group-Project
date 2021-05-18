@@ -18,7 +18,7 @@ Eg, <market-card @cardDeleted="someMethod" ... />
         class="btn btn-outline-danger d-inline-block float-right"
         v-if="isCardCreator"
         data-toggle="modal"
-        data-target="#deleteModal"
+        :data-target="'#deleteModal' + cardData.id"
     >
       Delete
     </button>
@@ -43,7 +43,7 @@ Eg, <market-card @cardDeleted="someMethod" ... />
     >
 
     <!-- Delete modal -->
-    <div class="modal" tabindex="-1" role="dialog" id="deleteModal">
+    <div class="modal" tabindex="-1" role="dialog" :id="'deleteModal' + cardData.id">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
 
@@ -51,13 +51,13 @@ Eg, <market-card @cardDeleted="someMethod" ... />
           <div class="modal-header">
             <h5 class="modal-title">Delete Card: {{ cardData.title }}</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span id="close" aria-hidden="true">&times;</span>
+              <span ref="close" aria-hidden="true">&times;</span>
             </button>
           </div>
 
           <!-- Body section of modal -->
           <div class="modal-body">
-            <p>Do you really want to delete your modal?</p>
+            <p>Do you really want to delete your card?</p>
           </div>
 
           <!-- Footer / button section of modal -->
@@ -127,11 +127,11 @@ export default {
       // TODO: Make delete api request here.
       // TODO: Display error if the request fails.
 
-      // Emit the cardDeleted event
+      // Emit the cardDeleted event once the api call is successful
       this.$emit('cardDeleted', this.cardData.id)
 
-      // Bodge way of programmatically closing the modal, by simulating a click on the close button
-      document.getElementById('close').click();
+      // Close the modal by simulating a click on the close button
+      this.$refs.close.click();
     }
   }
 }

@@ -77,10 +77,10 @@ Page for displaying the marketplace.
         <div class="col-9">
           <div v-for="card in orderedCards" v-bind:key="card.id">
             <div v-if="hideImages">
-              <MarketCard :card-data="card" hide-image></MarketCard>
+              <MarketCard @cardDeleted="deleteCard" :card-data="card" hide-image></MarketCard>
             </div>
             <div v-else>
-              <MarketCard :card-data="card"></MarketCard>
+              <MarketCard @cardDeleted="deleteCard" :card-data="card"></MarketCard>
             </div>
           </div>
 
@@ -222,7 +222,12 @@ export default {
     },
 
     /** Deletes a card with the corresponding id from the list of cards **/
-    deleteCard(id) {},
+    deleteCard(id) {
+      const index = this.cards.findIndex((a) => a.id === id)
+      if (index > -1) {
+        this.cards.splice(index, 1)
+      }
+    },
 
     getFakeCards(tab) {
       if (tab === 'ForSale') {
