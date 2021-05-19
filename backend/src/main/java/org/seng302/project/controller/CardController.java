@@ -25,19 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CardController {
 
-    /**
-     * Endpoint for getting all cards in a section.
-     *
-     * @param section Section to get all cards from.
-     * @param appUser The user that made the request.
-     * @return List of Cards in the corresponding section.
-     */
-    @GetMapping("/cards")
-    public List<Card> getAllCards(
-            @RequestParam int section,
-            @AuthenticationPrincipal AppUserDetails appUser) {
-        return List.of();
-    }
+
     private static final Logger logger = LoggerFactory.getLogger(CardController.class.getName());
     private final CardRepository cardRepository;
 
@@ -69,4 +57,18 @@ public class CardController {
             throw exception;
         }
     }
+
+    /**
+     * Endpoint for getting all cards in a section.
+     *
+     * @param section Section to get all cards from.
+     * @param appUser The user that made the request.
+     * @return List of Cards in the corresponding section.
+     */
+//    @GetMapping("/cards")
+//    public List<Card> getAllCards(
+//            @RequestParam int section,
+//            @AuthenticationPrincipal AppUserDetails appUser) {
+//        return List.of();
+//    }
 }
