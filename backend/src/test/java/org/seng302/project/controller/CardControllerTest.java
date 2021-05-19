@@ -212,7 +212,7 @@ public class CardControllerTest {
 
     @Test
     public void checkUnauthenticatedRequest() throws Exception {
-        mockMvc.perform(get("/cards/{id}", 999))
+        mockMvc.perform(get("/cards/{id}", testCard.getId()))
                 .andExpect(status().isUnauthorized());
     }
 
