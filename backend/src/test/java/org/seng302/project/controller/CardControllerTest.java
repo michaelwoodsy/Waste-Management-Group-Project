@@ -1,12 +1,11 @@
 package org.seng302.project.controller;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.seng302.project.exceptions.*;
+import org.seng302.project.exceptions.card.NoCardExistsException;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,9 +19,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -144,6 +140,29 @@ public class CardControllerTest {
                 .andReturn();
 
         String returnedExceptionString = getCardResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new NoCardExistsException(1).getMessage(), returnedExceptionString);
+    }
+
+    /**
+     * Test deleting a card that does not exist.
+     * Expect a 406 response with a NoCardExistsException
+     */
+    @Test
+    public void testDeleteCardDoesNotExist() throws Exception {
+        //Make sure the card repository is empty
+        cardRepository.deleteAll();
+
+        RequestBuilder deleteCardRequest = MockMvcRequestBuilders
+                .delete("/cards/{id}/", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(userEmail, userPassword));
+
+        MvcResult deleteCardResponse = this.mockMvc.perform(deleteCardRequest)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable()) // We expect a 406 response
+                .andReturn();
+
+        String returnedExceptionString = deleteCardResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new NoCardExistsException(1).getMessage(), returnedExceptionString);
     }
 }
