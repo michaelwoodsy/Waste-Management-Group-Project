@@ -9,9 +9,9 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 @prop hideImage: Boolean, when true will not display the card image.
 -->
 <template>
-  <div class="card shadow card-size mb-3" :class="{'border-danger': expired}">
+  <div :class="{'border-danger': expired}" class="card shadow card-size">
 
-    <div class="card-header" v-if="expired && showExpired">
+    <div v-if="expired && showExpired" class="card-header">
       <p class="text-danger d-inline">This card is about to expire</p>
       <!--TODO: Hook these buttons up to API calls-->
       <button class="btn btn-outline-danger d-inline float-right mx-1">Delete</button>
@@ -20,9 +20,9 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 
     <!-- Card image -->
     <img v-if="!hideImage"
-         class="img-fluid card-img-top"
-         :src="imageUrl"
          :alt="cardData.title + ' Image'"
+         :src="imageUrl"
+         class="img-fluid card-img-top"
     >
 
     <div class="card-body">
@@ -32,10 +32,10 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 
       <!-- Delete button -->
       <button
-          class="btn btn-outline-danger d-inline float-right"
           v-if="canDeleteCard && !expired"
-          data-toggle="modal"
           :data-target="'#deleteModal' + cardData.id"
+          class="btn btn-outline-danger d-inline float-right"
+          data-toggle="modal"
       >
         Delete
       </button>
@@ -49,22 +49,30 @@ Eg, <market-card @cardDeleted="someMethod" ... />
         {{ timeCreated }}
       </p>
 
-      <hr/>
+      <div :id="'cardDetails' + cardData.id" class="collapse">
+        <hr/>
+        <!-- Description -->
+        <p class="card-text"> {{ cardData.description }} </p>
+        <hr/>
+      </div>
 
-      <!-- Description -->
-      <p class="card-text"> {{ cardData.description }} </p>
+      <button :data-target="'#cardDetails' + cardData.id" class="btn btn-outline-secondary float-right"
+              data-toggle="collapse" @click="toggleDetails">
+        <span v-if="!showDetails">View Details <i class="bi bi-arrow-down"/></span>
+        <span v-else>Hide Details <i class="bi bi-arrow-up"/></span>
+      </button>
 
     </div>
 
     <!-- Delete modal -->
-    <div class="modal fade" tabindex="-1" role="dialog" :id="'deleteModal' + cardData.id">
+    <div :id="'deleteModal' + cardData.id" class="modal fade" role="dialog" tabindex="-1">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
 
           <!-- Title section of modal -->
           <div class="modal-header">
             <h5 class="modal-title">Delete Card: {{ cardData.title }}</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
               <span ref="close" aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -76,8 +84,8 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 
           <!-- Footer / button section of modal -->
           <div class="modal-footer">
-            <button type="button" class="btn btn-danger" @click="deleteCard">Delete</button>
-            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-danger" type="button" @click="deleteCard">Delete</button>
+            <button class="btn btn-primary" data-dismiss="modal" type="button">Cancel</button>
           </div>
 
         </div>
@@ -109,6 +117,11 @@ export default {
       default: false
     }
   },
+  data() {
+    return {
+      showDetails: false
+    }
+  },
   computed: {
     /** A string representation of how long ago the card was created or renewed **/
     timeCreated() {
@@ -125,7 +138,7 @@ export default {
      * **/
     location() {
       const address = this.cardData.creator.homeAddress
-      return  address.city || address.region || address.country
+      return address.city || address.region || address.country
     },
 
     /** Returns the image url for the card.
@@ -149,6 +162,12 @@ export default {
     }
   },
   methods: {
+    /**
+     * Toggles the showDetails field
+     */
+    toggleDetails() {
+      this.showDetails = !this.showDetails
+    },
     /** Deletes this card, emitting an event on success **/
     deleteCard() {
       // TODO: Make delete api request here.
@@ -168,5 +187,6 @@ export default {
 .card-size {
   min-height: 100px;
   min-width: 150px;
+  margin-bottom: 40px;
 }
 </style>

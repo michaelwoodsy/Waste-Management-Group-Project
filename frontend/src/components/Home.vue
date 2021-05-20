@@ -39,7 +39,7 @@
 
     <!-- Cards -->
     <div class="row row-cols-1 row-cols-lg-2 mb-3">
-      <div v-for="card in cards" v-bind:key="card.id" class="col mb-3">
+      <div v-for="card in cards" v-bind:key="card.id" class="col">
         <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="true"></MarketCard>
       </div>
     </div>

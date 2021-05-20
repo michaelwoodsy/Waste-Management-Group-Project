@@ -18,24 +18,24 @@ Page for displaying the marketplace.
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
               <a id="for-sale-link"
-                 class="pointer"
                  :class="{'nav-link': true, 'active': this.tabSelected === 'ForSale'}"
+                 class="pointer"
                  @click="changePage('ForSale')">
                 For Sale
               </a>
             </li>
             <li class="nav-item">
               <a id="wanted-link"
-                 class="pointer"
                  :class="{'nav-link': true, 'active': this.tabSelected === 'Wanted'}"
+                 class="pointer"
                  @click="changePage('Wanted')">
                 Wanted
               </a>
             </li>
             <li class="nav-item">
               <a id="exchange-link"
-                 class="pointer"
                  :class="{'nav-link': true, 'active': this.tabSelected === 'Exchange'}"
+                 class="pointer"
                  @click="changePage('Exchange')">
                 Exchange
               </a>
@@ -65,7 +65,7 @@ Page for displaying the marketplace.
         <div class="col-9 form-group text-center">
 
           <!-- Combobox and label for ordering -->
-          <label for="order-select" class="d-inline-block">Order By</label>
+          <label class="d-inline-block" for="order-select">Order By</label>
           <select id="order-select"
                   v-model="order"
                   class="form-control ml-2 d-inline-block w-auto">
@@ -86,20 +86,19 @@ Page for displaying the marketplace.
       </div>
 
       <!-- Div with cards -->
-      <div class="row justify-content-center">
-        <div class="col-9">
-          <div v-for="card in orderedCards" v-bind:key="card.id">
-            <MarketCard @cardDeleted="deleteCard" :card-data="card" :hide-image="hideImages"></MarketCard>
-          </div>
-
-          <!-- Pagination Links -->
-          <pagination
-              :current-page.sync="page"
-              :items-per-page="resultsPerPage"
-              :total-items="totalCardCount"
-          />
+      <div class="row row-cols-1 row-cols-lg-2">
+        <div v-for="card in orderedCards" v-bind:key="card.id" class="col">
+          <MarketCard :card-data="card" :hide-image="hideImages" @cardDeleted="deleteCard"></MarketCard>
         </div>
       </div>
+
+      <!-- Pagination Links -->
+      <pagination
+          :current-page.sync="page"
+          :items-per-page="resultsPerPage"
+          :total-items="totalCardCount"
+      />
+
     </div>
   </div>
 </template>
@@ -162,15 +161,14 @@ export default {
       // Order it appropriately
       if (this.order === 'created-asc') {
         newCards.sort((a, b) => -this.sortCreatedDate(a, b))
-      }
-      else if (this.order === 'created-desc') {
+      } else if (this.order === 'created-desc') {
         newCards.sort((a, b) => this.sortCreatedDate(a, b))
-      }
-      else if (this.order === 'title') {
+      } else if (this.order === 'title') {
         newCards.sort((a, b) => this.sortTitle(a, b))
-      }
-      else if (this.order === 'location') {
-        newCards.sort((a, b) => {this.sortLocation(a, b)})
+      } else if (this.order === 'location') {
+        newCards.sort((a, b) => {
+          this.sortLocation(a, b)
+        })
       }
 
       return newCards
@@ -342,8 +340,7 @@ export default {
           }
 
         ]
-      }
-      else if (tab === 'Wanted') {
+      } else if (tab === 'Wanted') {
         return [
           {
             "id": 503,
@@ -402,8 +399,7 @@ export default {
             ]
           }
         ]
-      }
-      else if (tab === 'Exchange') {
+      } else if (tab === 'Exchange') {
         return [
           {
             "id": 504,
