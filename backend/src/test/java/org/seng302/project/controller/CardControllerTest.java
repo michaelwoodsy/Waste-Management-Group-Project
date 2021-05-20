@@ -23,11 +23,13 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,6 +41,10 @@ public class CardControllerTest {
     private User user;
     private final String userEmail = "basicUser@gmail.com";
     private final String userPassword = "123";
+
+    private User otherUser;
+    private final String otherUserEmail = "otherBasicUser@gmail.com";
+    private final String otherUserPassword = "456";
 
 
     @Autowired
@@ -73,8 +79,8 @@ public class CardControllerTest {
         }
     }
 
-    private Card createCard(String section) {
-        return new Card(user, section, "Test Card", "Test card description");
+    private Card createCard(String section, User creator) {
+        return new Card(creator, section, "Test Card", "Test card description");
     }
 
     @BeforeEach
@@ -84,10 +90,14 @@ public class CardControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        // Create the user
+        // Create the users
         user = createUser(new User("John", "Smith", "Bob", "Jonny",
                 "Likes long walks on the beach", userEmail, "1999-04-27",
                 "+64 3 555 0129", null, userPassword));
+
+        otherUser = createUser(new User("Tim", "Bell", "Bob", "Timothy",
+                "Likes long walks on the beach", otherUserEmail, "1999-04-27",
+                "+64 3 666 0129", null, otherUserPassword));
     }
 
     @AfterEach
@@ -100,6 +110,8 @@ public class CardControllerTest {
     public void checkUnauthenticatedRequest() throws Exception {
         mockMvc.perform(get("/cards/{id}", 1))
                 .andExpect(status().isUnauthorized());
+        mockMvc.perform(put("/cards/{id}/extenddisplayperiod", 1))
+                .andExpect(status().isUnauthorized());
     }
 
     /**
@@ -107,7 +119,7 @@ public class CardControllerTest {
      */
     @Test
     public void testGetSingleCard() throws Exception {
-        Card testCard = createCard("ForSale");
+        Card testCard = createCard("ForSale", user);
         cardRepository.save(testCard);
 
         MvcResult returnedCardResult = mockMvc.perform(get("/cards/{id}", testCard.getId())
@@ -145,5 +157,74 @@ public class CardControllerTest {
 
         String returnedExceptionString = getCardResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new NoCardExistsException(1).getMessage(), returnedExceptionString);
+    }
+
+    /**
+     * Test extend display period of card that does not exist
+     */
+    @Test
+    public void testExtendCardDoesNotExist() throws Exception {
+        //Make sure the card repository is empty
+        cardRepository.deleteAll();
+
+        RequestBuilder extendCardRequest = MockMvcRequestBuilders
+                .put("/cards/{id}//extenddisplayperiod", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(userEmail, userPassword));
+
+        MvcResult extendCardResponse = this.mockMvc.perform(extendCardRequest)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable()) // We expect a 406 response
+                .andReturn();
+
+        String returnedExceptionString = extendCardResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new NoCardExistsException(1).getMessage(), returnedExceptionString);
+    }
+
+    /**
+     * Test extend display period of card that is not yours
+     */
+    @Test
+    public void testExtendCardForbidden() throws Exception {
+        createUser(user);
+        createUser(otherUser);
+        Card testCard = createCard("ForSale", user);
+        cardRepository.save(testCard);
+
+        RequestBuilder extendCardRequest = MockMvcRequestBuilders
+                .put("/cards/{id}//extenddisplayperiod", testCard.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(otherUserEmail, otherUserPassword));
+
+        MvcResult extendCardResponse = this.mockMvc.perform(extendCardRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 406 response
+                .andReturn();
+
+        String returnedExceptionString = extendCardResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new ForbiddenCardActionException(testCard.getId()).getMessage(), returnedExceptionString);
+    }
+
+    /**
+     * Test successfully extend display period of card
+     */
+    @Test
+    public void testExtendCardSuccess() throws Exception {
+        createUser(user);
+        Card testCard = createCard("ForSale", user);
+        cardRepository.save(testCard);
+
+        LocalDateTime expectedNewEndDate = testCard.getDisplayPeriodEnd().plusWeeks(2);
+
+        mockMvc.perform(put("/cards/{id}/extenddisplayperiod", testCard.getId())
+                .with(httpBasic(userEmail, userPassword)))
+                .andExpect(status().isOk());
+
+        Optional<Card> extendedCardOptional = cardRepository.findById(testCard.getId());
+        Assertions.assertTrue(extendedCardOptional.isPresent());
+        Card extendedCard = extendedCardOptional.get();
+
+        assertEquals(expectedNewEndDate.getMonthValue(), extendedCard.getDisplayPeriodEnd().getMonthValue());
+        assertEquals(expectedNewEndDate.getDayOfMonth(), extendedCard.getDisplayPeriodEnd().getDayOfMonth());
     }
 }
