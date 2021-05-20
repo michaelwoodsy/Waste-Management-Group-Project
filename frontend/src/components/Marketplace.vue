@@ -89,12 +89,7 @@ Page for displaying the marketplace.
       <div class="row justify-content-center">
         <div class="col-9">
           <div v-for="card in orderedCards" v-bind:key="card.id">
-            <div v-if="hideImages">
-              <MarketCard @cardDeleted="deleteCard" :card-data="card" hide-image></MarketCard>
-            </div>
-            <div v-else>
-              <MarketCard @cardDeleted="deleteCard" :card-data="card"></MarketCard>
-            </div>
+            <MarketCard @cardDeleted="deleteCard" :card-data="card" :hide-image="hideImages"></MarketCard>
           </div>
 
           <!-- Pagination Links -->
@@ -125,7 +120,7 @@ export default {
       tabSelected: 'ForSale', //Default tab
       createNewCard: false,
       cards: [],
-      hideImages: false,
+      hideImages: true,
       error: "",
       order: 'created-asc',
       resultsPerPage: 10,

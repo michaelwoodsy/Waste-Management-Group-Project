@@ -11,7 +11,7 @@
       <div class="row">
         <div class="col text-center mb-2">
           <h2>Hello {{ actorName }}</h2>
-          <router-link to="/marketplace" class="btn btn-outline-primary mx-2">View Marketplace</router-link>
+          <router-link class="btn btn-outline-primary mx-2" to="/marketplace">View Marketplace</router-link>
         </div>
       </div>
     </div>
@@ -38,22 +38,9 @@
     </div>
 
     <!-- Cards -->
-    <div class="d-flex mb-3">
-      <div v-for="card in cards" v-bind:key="card.id">
-        <div class="p-2 flex-fill">
-          <div v-if="expired(card)">
-            <p style="color: red">This card is about to expire</p>
-            <!--TODO: Hook these buttons up to API calls-->
-            <button class="btn btn-outline-primary" style="margin: 3px">Extend</button>
-            <button class="btn btn-outline-danger" style="margin: 3px">Delete</button>
-          </div>
-          <div v-if="hideImages">
-            <MarketCard :card-data="card" hide-image></MarketCard>
-          </div>
-          <div v-else>
-            <MarketCard :card-data="card"></MarketCard>
-          </div>
-        </div>
+    <div class="row row-cols-1 row-cols-lg-2 mb-3">
+      <div v-for="card in cards" v-bind:key="card.id" class="col mb-3">
+        <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="true"></MarketCard>
       </div>
     </div>
   </div>
@@ -75,7 +62,7 @@ export default {
   data() {
     return {
       cards: [],
-      hideImages: false,
+      hideImages: true,
       error: ""
     }
   },

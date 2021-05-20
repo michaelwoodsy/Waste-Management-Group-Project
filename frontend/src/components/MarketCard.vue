@@ -9,41 +9,55 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 @prop hideImage: Boolean, when true will not display the card image.
 -->
 <template>
-  <div class="rounded shadow-sm p-3 bg-white card-size m-3">
-    <!-- Card Title -->
-    <h5 class="d-inline"> {{ cardData.title }} </h5>
+  <div class="card shadow card-size mb-3" :class="{'border-danger': expired}">
 
-    <!-- Delete button -->
-    <button
-        class="btn btn-outline-danger d-inline-block float-right"
-        v-if="canDeleteCard"
-        data-toggle="modal"
-        :data-target="'#deleteModal' + cardData.id"
-    >
-      Delete
-    </button>
-
-    <!-- Card creators name, a dot and the time created -->
-    <p class="text-muted small mb-1">
-      {{ cardCreatorName }}
-      <b>&centerdot;</b>
-      {{ location }}
-      <b>&centerdot;</b>
-      {{ timeCreated }}
-    </p>
-
-    <!-- Description -->
-    <p class="text-muted"> {{ cardData.description }} </p>
+    <div class="card-header" v-if="expired && showExpired">
+      <p class="text-danger d-inline">This card is about to expire</p>
+      <!--TODO: Hook these buttons up to API calls-->
+      <button class="btn btn-outline-danger d-inline float-right mx-1">Delete</button>
+      <button class="btn btn-outline-primary d-inline float-right mx-1">Extend</button>
+    </div>
 
     <!-- Card image -->
     <img v-if="!hideImage"
-         class="img-fluid"
+         class="img-fluid card-img-top"
          :src="imageUrl"
          :alt="cardData.title + ' Image'"
     >
 
+    <div class="card-body">
+
+      <!-- Card Title -->
+      <h5 class="card-title d-inline"> {{ cardData.title }} </h5>
+
+      <!-- Delete button -->
+      <button
+          class="btn btn-outline-danger d-inline float-right"
+          v-if="canDeleteCard && !expired"
+          data-toggle="modal"
+          :data-target="'#deleteModal' + cardData.id"
+      >
+        Delete
+      </button>
+
+      <!-- Card creators name, a dot and the time created -->
+      <p class="card-text text-muted small mb-1">
+        {{ cardCreatorName }}
+        <b>&centerdot;</b>
+        {{ location }}
+        <b>&centerdot;</b>
+        {{ timeCreated }}
+      </p>
+
+      <hr/>
+
+      <!-- Description -->
+      <p class="card-text"> {{ cardData.description }} </p>
+
+    </div>
+
     <!-- Delete modal -->
-    <div class="modal" tabindex="-1" role="dialog" :id="'deleteModal' + cardData.id">
+    <div class="modal fade" tabindex="-1" role="dialog" :id="'deleteModal' + cardData.id">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
 
@@ -89,6 +103,10 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    showExpired: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -124,6 +142,10 @@ export default {
     /** True if the logged in user is the creator of the card or an admin **/
     canDeleteCard() {
       return this.isCardCreator || this.$root.$data.user.canDoAdminAction()
+    },
+    expired() {
+      const now = new Date();
+      return now >= new Date(this.cardData.displayPeriodEnd);
     }
   },
   methods: {
@@ -145,5 +167,6 @@ export default {
 <style scoped>
 .card-size {
   min-height: 100px;
+  min-width: 150px;
 }
 </style>
