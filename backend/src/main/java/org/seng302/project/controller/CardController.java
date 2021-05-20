@@ -66,6 +66,21 @@ public class CardController {
      */
     @GetMapping("/cards")
     public List<Card> getAllCards(@RequestParam String section) {
-        return List.of();
+        try {
+            // Check if the section is invalid
+            if (!("Exchange".equals(section) ||
+                  "ForSale".equals(section) ||
+                  "Wanted".equals(section))) {
+                throw new InvalidMarketplaceSectionException();
+            }
+
+            // Return all cards in the section
+            return cardRepository.findAllBySection(section);
+
+        } catch (Exception exception) {
+            logger.error("Unexpected error while getting all cards");
+            throw exception;
+        }
+
     }
 }
