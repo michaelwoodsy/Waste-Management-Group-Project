@@ -6,10 +6,12 @@ import "@jest/globals";
 import MarketCard from '@/components/MarketCard';
 import {mount} from "@vue/test-utils";
 import {test} from "@jest/globals";
-// import axios from 'axios';
-//
-// // Mock the axios module
-// jest.mock('axios');
+import axios from 'axios';
+import {Marketplace} from '@/Api';
+import AddressInputFields from "@/components/AddressInputFields";
+
+// Mock the axios module
+jest.mock('axios');
 
 // Mock the dateTime module
 jest.mock('@/utils/dateTime', () => ({
@@ -110,5 +112,61 @@ describe('Testing the MarketCard component', () => {
         expect(wrapper.emitted().cardDeleted).toBeTruthy()
         // Expect the component to emit the correct ID
         expect(wrapper.emitted().cardDeleted[0]).toEqual([mockedProps.cardData.id])
+    })
+
+    // Test the deleteCard method
+    test("Test the deleteCard method makes a call to the api", () => {
+        // Mock the api call
+        const mockAxiosDelete = jest.fn();
+        axios.delete.mockImplementationOnce(mockAxiosDelete);
+
+        // Create a spy on the deleteCard method in api module.
+        const spyDeleteCard = jest.spyOn(Marketplace, 'deleteCard')
+
+        // Run the deleteCard method
+        wrapper.vm.deleteCard()
+
+        // Expect the delete api method to be called
+        expect(spyDeleteCard).toBeCalledTimes(1);
+        expect(mockAxiosDelete).toBeCalledTimes(1);
+    })
+
+    // Test the deleteCard method sets error flag on error
+    test("Test the deleteCard method sets error flag on error", () => {
+        // Mock the api call
+        const mockAxiosDelete = jest.fn(() => {throw new Error("Error")});
+        axios.delete.mockImplementationOnce(mockAxiosDelete);
+
+        // Run the deleteCard method
+        wrapper.vm.deleteCard()
+
+        // Expect the error value to be set
+        expect(wrapper.vm.$data.error).toEqual("Error");
+    })
+
+    // Test the deleteCard method keeps keeps the modal open on error
+    test("Test the delete modal stays open when the request fails", () => {
+        // Mock the api call
+        const mockAxiosDelete = jest.fn(() => {throw new Error("Error")});
+        axios.delete.mockImplementationOnce(mockAxiosDelete);
+
+        // Run the deleteCard method
+        wrapper.vm.deleteCard()
+
+        // Expect the delete modal to exist
+        expect(wrapper.find(".modal").classes()).toContain("show");
+    })
+
+    // Test the deleteCard method keeps keeps the modal open on error
+    test("Test the delete modal closes when the request is successful", () => {
+        // Mock the api call
+        const mockAxiosDelete = jest.fn(() => Promise.resolve({}));
+        axios.delete.mockImplementationOnce(mockAxiosDelete);
+
+        // Run the deleteCard method
+        wrapper.vm.deleteCard()
+
+        // Expect the delete modal to be hidden
+        expect(wrapper.find(".modal").classes().includes("show")).toBeFalsy();
     })
 })

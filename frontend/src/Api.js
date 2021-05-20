@@ -156,6 +156,13 @@ export const Business = {
      * @param data The listing data
      */
     createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data)
-
-
 };
+
+export const Marketplace = {
+    /**
+     * Sends a marketplace card deletion request to the api.
+     * @param cardId Id of the card to delete
+     * @returns {Promise<AxiosResponse<any>>} Response from request
+     */
+    deleteCard: (cardId) => instance.post(`cards/${cardId}`)
+}
