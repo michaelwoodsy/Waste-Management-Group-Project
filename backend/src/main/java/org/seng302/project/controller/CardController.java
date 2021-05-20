@@ -72,12 +72,13 @@ public class CardController {
             //403 if card is not yours or you aren't DGAA/GAA (ForbiddenCardActionException)
             User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
             if (!requestMaker.getId().equals(retrievedCard.getCreator().getId())) {
-                //TODO: check if requestMaker is GAA/DGAA before throwing this exception
-                throw new ForbiddenCardActionException();
+                if (requestMaker.getRole().equals("user")) {
+                    throw new ForbiddenCardActionException();
+                }
             }
 
-            //TODO: 200 if card successfully deleted
-
+            //200 if card successfully deleted
+            cardRepository.deleteById(id);
 
         } catch (NoCardExistsException | ForbiddenCardActionException expectedException) {
             logger.warn(expectedException.getMessage());

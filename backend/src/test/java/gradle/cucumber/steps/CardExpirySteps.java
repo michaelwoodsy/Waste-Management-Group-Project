@@ -36,6 +36,7 @@ public class CardExpirySteps {
 
     private MockMvc mockMvc;
 
+    private Card testCard;
     private Integer testCardId;
 
     private final UserRepository userRepository;
@@ -94,7 +95,7 @@ public class CardExpirySteps {
 
     @Given("A user has created a card")
     public void a_user_has_created_a_card() {
-        Card testCard = new Card(cardCreator, "ForSale", "Beetle Juice", "Beetle juice from Bob");
+        testCard = new Card(cardCreator, "ForSale", "Beetle Juice", "Beetle juice from Bob");
         testCardId = cardRepository.save(testCard).getId();
     }
 
