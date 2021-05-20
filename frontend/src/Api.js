@@ -77,6 +77,12 @@ export const User = {
      */
     createCard: (data) => instance.post('cards', data),
 
+    /**
+     * Get all cards from the market place from a particular section (For Sale, Wanted, or Exchange)
+     * @param section The particular section you want the cards for
+     */
+    getCardsSection: (section) => instance.get(`cards`, {params: {'section': section}})
+
 };
 
 export const Business = {

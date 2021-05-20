@@ -349,6 +349,7 @@ export default {
           .then((res) => {
             this.error = null;
             this.listings = res.data;
+            console.log(res.data)
             this.loading = false;
           })
           .catch((err) => {
