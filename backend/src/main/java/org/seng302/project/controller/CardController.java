@@ -62,13 +62,10 @@ public class CardController {
      * Endpoint for getting all cards in a section.
      *
      * @param section Section to get all cards from.
-     * @param appUser The user that made the request.
      * @return List of Cards in the corresponding section.
      */
-//    @GetMapping("/cards")
-//    public List<Card> getAllCards(
-//            @RequestParam int section,
-//            @AuthenticationPrincipal AppUserDetails appUser) {
-//        return List.of();
-//    }
+    @GetMapping("/cards")
+    public List<Card> getAllCards(@RequestParam String section) {
+        return List.of();
+    }
 }
