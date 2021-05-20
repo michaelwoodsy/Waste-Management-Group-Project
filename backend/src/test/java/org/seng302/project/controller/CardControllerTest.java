@@ -5,7 +5,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.seng302.project.exceptions.*;
+import org.seng302.project.exceptions.card.NoCardExistsException;
+import org.seng302.project.exceptions.card.ForbiddenCardActionException;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -200,7 +201,7 @@ public class CardControllerTest {
                 .andReturn();
 
         String returnedExceptionString = extendCardResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new ForbiddenCardActionException(testCard.getId()).getMessage(), returnedExceptionString);
+        Assertions.assertEquals(new ForbiddenCardActionException().getMessage(), returnedExceptionString);
     }
 
     /**
@@ -224,5 +225,28 @@ public class CardControllerTest {
 
         assertEquals(expectedNewEndDate.getMonthValue(), extendedCard.getDisplayPeriodEnd().getMonthValue());
         assertEquals(expectedNewEndDate.getDayOfMonth(), extendedCard.getDisplayPeriodEnd().getDayOfMonth());
+    }
+
+    /**
+     * Test deleting a card that does not exist.
+     * Expect a 406 response with a NoCardExistsException
+     */
+    @Test
+    public void testDeleteCardDoesNotExist() throws Exception {
+        //Make sure the card repository is empty
+        cardRepository.deleteAll();
+
+        RequestBuilder deleteCardRequest = MockMvcRequestBuilders
+                .delete("/cards/{id}/", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(userEmail, userPassword));
+
+        MvcResult deleteCardResponse = this.mockMvc.perform(deleteCardRequest)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable()) // We expect a 406 response
+                .andReturn();
+
+        String returnedExceptionString = deleteCardResponse.getResponse().getContentAsString();
+        Assertions.assertEquals(new NoCardExistsException(1).getMessage(), returnedExceptionString);
     }
 }
