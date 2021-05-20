@@ -69,7 +69,7 @@ public class CardController {
             }
             Card retrievedCard = cardOptional.get();
 
-            //403 if card is not yours
+            //403 if card is not yours or you aren't DGAA/GAA (ForbiddenCardActionException)
             User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
             if (!requestMaker.getId().equals(retrievedCard.getCreator().getId())) {
                 //TODO: check if requestMaker is GAA/DGAA before throwing this exception
