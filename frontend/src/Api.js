@@ -159,3 +159,17 @@ export const Business = {
 
 
 };
+
+export const Card = {
+    /**
+     * Extends the display period of a card that is nearing expiry
+     * @param cardId The ID of the card in the database
+     */
+    extendDisplay: (cardId) => instance.put(`cards/${cardId}/extenddisplayperiod`, {cardId}),
+
+    /**
+     * Retrieves all the data for a given card
+     * @param cardId The ID of the card in the database
+     */
+    getCard: (cardId) => instance.get(`cards/${cardId}`, {})
+};

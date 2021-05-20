@@ -44,7 +44,7 @@
           <div v-if="expired(card)">
             <p style="color: red">This card is about to expire</p>
             <!--TODO: Hook these buttons up to API calls-->
-            <button class="btn btn-outline-primary" style="margin: 3px">Extend</button>
+            <button class="btn btn-outline-primary" @click="extendDisplay(card)" style="margin: 3px">Extend</button>
             <button class="btn btn-outline-danger" style="margin: 3px">Delete</button>
           </div>
           <div v-if="hideImages">
@@ -215,6 +215,7 @@ export default {
         }
       ]
     },
+
     expired(card) {
       const now = new Date();
       if (now >= new Date(card.displayPeriodEnd)) {

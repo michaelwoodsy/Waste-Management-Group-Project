@@ -6,6 +6,7 @@ import "@jest/globals";
 import MarketCard from '@/components/MarketCard';
 import {mount} from "@vue/test-utils";
 import {test} from "@jest/globals";
+import {Card} from "../../Api";
 // import axios from 'axios';
 //
 // // Mock the axios module
@@ -50,6 +51,13 @@ const mockedProps = {
     }
 }
 
+Card.getCard.mockResolvedValue(mockedGetResponse)
+
+Card.extendDisplay.mockImplementation(async () => {
+    extended = true
+    return mockedGetResponse
+})
+
 
 afterEach(() => {
     wrapper.destroy()
@@ -59,7 +67,9 @@ describe('Testing the MarketCard component', () => {
 
     beforeEach(() => {
         wrapper = mount(MarketCard, {
-            propsData: mockedProps,
+            propsData: {
+                cardData: mockedGetResponse.cardData
+            },
             computed: {
                 isCardCreator() {
                     return false
@@ -96,7 +106,7 @@ describe('Testing the MarketCard component', () => {
     test("Tests the isCardOwner property", () => {
         const isCardCreator = MarketCard.computed.isCardCreator
         // Function for mocking the 'this' state
-        const mockThis = (id) => ({"cardData": mockedProps.cardData, "$root": {"$data": {"user": {isUser (userId) {return userId === id}}}}})
+        const mockThis = (id) => ({"cardData": mockedGetResponse.cardData, "$root": {"$data": {"user": {isUser (userId) {return userId === id}}}}})
 
         expect(isCardCreator.call(mockThis(100))).toBeTruthy()
         expect(isCardCreator.call(mockThis(2))).toBeFalsy()
@@ -109,8 +119,12 @@ describe('Testing the MarketCard component', () => {
         // Expect the component to emit the deleteCard event
         expect(wrapper.emitted().cardDeleted).toBeTruthy()
         // Expect the component to emit the correct ID
-        expect(wrapper.emitted().cardDeleted[0]).toEqual([mockedProps.cardData.id])
+        expect(wrapper.emitted().cardDeleted[0]).toEqual([mockedGetResponse.cardData.id])
     })
 
-    // Test the
+    test('Test the extendCard method extends the cards time', async () => {
+        extended = false
+        await wrapper.vm.extendDisplay()
+        expect(extended).toBeTruthy()
+    })
 })
