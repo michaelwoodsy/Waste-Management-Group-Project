@@ -4,6 +4,7 @@ package org.seng302.project.controller;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.seng302.project.exceptions.NoUserExistsException;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -102,5 +103,14 @@ public class CardControllerTest {
         Assertions.assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || retrievedCard.getCreated().isEqual(LocalDateTime.now()));
         Assertions.assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
         Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
+    }
+
+    @Test
+    public void createTestCardWithoutRequiredFields() {
+
+
+        Exception exception = Assertions.assertThrows(NoUserExistsException.class, () -> {
+
+        });
     }
 }

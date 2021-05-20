@@ -1,6 +1,11 @@
 package org.seng302.project.controller;
 
 import net.minidev.json.JSONObject;
+import org.seng302.project.controller.authentication.AppUserDetails;
+import org.seng302.project.exceptions.InvalidLoginException;
+import org.seng302.project.exceptions.NoBusinessExistsException;
+import org.seng302.project.exceptions.NoUserExistsException;
+import org.seng302.project.exceptions.RequiredFieldsMissingException;
 import org.seng302.project.model.Card;
 import org.seng302.project.model.CardRepository;
 import org.seng302.project.model.User;
@@ -9,10 +14,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
+
+import java.util.Optional;
 
 
 /**
@@ -33,20 +42,42 @@ public class CardController {
 
     @PostMapping("/cards")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createCard(@RequestBody JSONObject json) {
-        logger.info("Request to create card");
+    public void createCard(@RequestBody JSONObject json, @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+            logger.info("Request to create card");
 
-        Integer creatorId = (Integer) json.getAsNumber("creatorId");
+            // Get the logged in user
+            Integer creatorId = (Integer) json.getAsNumber("creatorId").get();
+            String section = json.getAsString("section");
+            String title = json.getAsString("title");
+            String description = json.getAsString("description");
 
-        //TODO: handle case when user is not found.
-        User creator = userRepository.findById(creatorId).get();
+            User loggedInUser = userRepository.findByEmail(userEmail).get(0);
+            Optional<User> creator = userRepository.findById(creatorId);
 
-        String section = json.getAsString("section");
-        String title = json.getAsString("title");
-        String description = json.getAsString("description");
+            //TODO: if loggedInUser != creatorId, check loggedInUser is GAA
 
-        Card newCard = new Card(creator, section, title, description);
-        cardRepository.save(newCard);
+            //check that listed card creator exists.
+            f (creator.isEmpty()) {
+                NoUserExistsException noUserExistsException = new NoUserExistsException(creatorId)
+                logger.warn(noUserExistsException.getMessage());
+                throw noUserExistsException;
+            }
 
+            // check required fields
+            if (section.equals("") || title.equals("") || description.equals("")) {
+                RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
+                logger.warn(requiredFieldsMissingException.getMessage());
+                throw requiredFieldsMissingException;
+            }
+
+            Card newCard = new Card(creator.get(), section, title, description);
+            cardRepository.save(newCard);
+        } catch (NoUserExistsException | RequiredFieldsMissingException expectedException) {
+            throw expectedException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while creating card: %s", exception.getMessage()));
+            throw exception;
+        }
     }
 }
