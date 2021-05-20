@@ -1,6 +1,5 @@
 package org.seng302.project.controller;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -22,7 +21,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -146,7 +144,7 @@ public class CardControllerTest {
         cardRepository.deleteAll();
 
         RequestBuilder getCardRequest = MockMvcRequestBuilders
-                .get("/cards/{id}/", 1)
+                .get("/cards/{id}", 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(userEmail, userPassword));
@@ -168,7 +166,7 @@ public class CardControllerTest {
         cardRepository.deleteAll();
 
         RequestBuilder extendCardRequest = MockMvcRequestBuilders
-                .put("/cards/{id}//extenddisplayperiod", 1)
+                .put("/cards/{id}/extenddisplayperiod", 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(userEmail, userPassword));
@@ -192,13 +190,13 @@ public class CardControllerTest {
         cardRepository.save(testCard);
 
         RequestBuilder extendCardRequest = MockMvcRequestBuilders
-                .put("/cards/{id}//extenddisplayperiod", testCard.getId())
+                .put("/cards/{id}/extenddisplayperiod", testCard.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(otherUserEmail, otherUserPassword));
 
         MvcResult extendCardResponse = this.mockMvc.perform(extendCardRequest)
-                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 406 response
+                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 403 response
                 .andReturn();
 
         String returnedExceptionString = extendCardResponse.getResponse().getContentAsString();
