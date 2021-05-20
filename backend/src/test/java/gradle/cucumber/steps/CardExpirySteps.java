@@ -34,6 +34,12 @@ public class CardExpirySteps {
     private String testUserEmail;
     private String testUserPassword;
 
+    private User testGAA;
+    private String testGAAEmail;
+    private String testGAAPassword;
+
+    private Address testAddress;
+
     private MockMvc mockMvc;
 
     private Card testCard;
@@ -69,10 +75,10 @@ public class CardExpirySteps {
                 .apply(springSecurity())
                 .build();
 
-        Address testAddress = new Address("", "", "", "", "New Zealand", "");
+        testAddress = new Address("", "", "", "", "New Zealand", "");
         cardCreatorEmail = "b.beetle@gmail.com";
         cardCreatorPassword = "B0bLovesB33tles";
-        User cardCreator = new User("Bob", "Beetle", "", "", "",
+        cardCreator = new User("Bob", "Beetle", "", "", "",
                 cardCreatorEmail, "2000-05-21", "+64 3 555 0129",
                 testAddress, cardCreatorPassword);
         addressRepository.save(testAddress);
@@ -82,7 +88,7 @@ public class CardExpirySteps {
 
         testUserEmail = "test.user@gmail.com";
         testUserPassword = "1AmAT3stUser";
-        User testUser = new User("Bob", "Beetle", "", "", "",
+        testUser = new User("Bob", "Beetle", "", "", "",
                 testUserEmail, "2000-05-21", "+64 3 555 0129",
                 testAddress, testUserPassword);
         addressRepository.save(testAddress);
@@ -144,8 +150,14 @@ public class CardExpirySteps {
 
     @Given("A system administrator exists")
     public void a_system_administrator_exists() {
-        testUser.setRole("globalApplicationAdmin");
-        userRepository.save(testUser);
+        testGAAEmail = "test.gaa@gmail.com";
+        testGAAPassword = "IAmTestGAA123";
+        testGAA = new User("Bob", "Beetle", "", "", "",
+                testGAAEmail, "2000-05-21", "+64 3 555 0129",
+                testAddress, testGAAPassword);
+        testGAA.setRole("globalApplicationAdmin");
+        testGAA.setPassword(passwordEncoder.encode(testGAA.getPassword()));
+        userRepository.save(testGAA);
     }
 
     @When("The system administrator tries to delete the card")
@@ -154,7 +166,7 @@ public class CardExpirySteps {
                 .delete("/cards/{id}", testCardId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(testUserEmail, testUserPassword));
+                .with(httpBasic(testGAAEmail, testGAAPassword));
     }
 //
 //    //AC4
