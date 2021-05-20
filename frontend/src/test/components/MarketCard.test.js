@@ -19,8 +19,11 @@ jest.mock('@/utils/dateTime', () => ({
     }
 }));
 
+jest.mock('@/Api')
+
 let wrapper;
-const mockedProps = {
+let extended = false
+const mockedGetResponse = {
     cardData: {
         "id": 500,
         "creator": {
@@ -48,7 +51,8 @@ const mockedProps = {
                 "created": "2021-07-15T05:10:00Z"
             }
         ]
-    }
+    },
+    statusText: '200: yay'
 }
 
 Card.getCard.mockResolvedValue(mockedGetResponse)

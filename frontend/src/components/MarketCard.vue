@@ -75,6 +75,7 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 
 <script>
 import {getTimeDiffStr} from "@/utils/dateTime";
+import {Card} from "../Api";
 
 export default {
   name: "MarketCard",
@@ -137,6 +138,19 @@ export default {
 
       // Close the modal by simulating a click on the close button
       this.$refs.close.click();
+    },
+    /**
+     * Extends the display time of a card
+     */
+    async extendDisplay() {
+      try {
+        const response = await Card.extendDisplay(this.cardData.id)
+        // location.reload()
+        this.$emit('card-extended')
+        console.log(response.statusText)
+      } catch (error) {
+        console.log(error.response.statusText)
+      }
     }
   }
 }

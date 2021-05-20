@@ -64,8 +64,10 @@ beforeAll(() => {
                 set(val) {
                     this.stateRole = val
                 }
+            },
+            canDoAdminAction() {
+                return false
             }
-
         },
         methods: {
             profile(response) {

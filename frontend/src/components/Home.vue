@@ -48,7 +48,7 @@
             <button class="btn btn-outline-danger" style="margin: 3px">Delete</button>
           </div>
           <div v-if="hideImages">
-            <MarketCard :card-data="card" hide-image></MarketCard>
+            <MarketCard :card-data="card" hide-image @card-extended="getCardData"></MarketCard>
           </div>
           <div v-else>
             <MarketCard :card-data="card"></MarketCard>
