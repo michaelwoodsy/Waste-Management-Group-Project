@@ -6,12 +6,11 @@ import "@jest/globals";
 import MarketCard from '@/components/MarketCard';
 import {mount} from "@vue/test-utils";
 import {test} from "@jest/globals";
-import axios from 'axios';
+import '@/Api';
 import {Marketplace} from '@/Api';
-import AddressInputFields from "@/components/AddressInputFields";
 
-// Mock the axios module
-jest.mock('axios');
+// Mock the api module
+jest.mock("@/Api");
 
 // Mock the dateTime module
 jest.mock('@/utils/dateTime', () => ({
@@ -105,8 +104,10 @@ describe('Testing the MarketCard component', () => {
     })
 
     // Test the deleteCard method
-    test("Test the deleteCard method emits a 'cardDeleted' event", () => {
-        wrapper.vm.deleteCard()
+    test("Test the deleteCard method emits a 'cardDeleted' event", async () => {
+        const mockDeleteCard = jest.fn(() => Promise.resolve({}));
+        Marketplace.deleteCard.mockImplementationOnce(mockDeleteCard);
+        await wrapper.vm.deleteCard()
 
         // Expect the component to emit the deleteCard event
         expect(wrapper.emitted().cardDeleted).toBeTruthy()
@@ -115,56 +116,41 @@ describe('Testing the MarketCard component', () => {
     })
 
     // Test the deleteCard method
-    test("Test the deleteCard method makes a call to the api", () => {
-        // Mock the api call
-        const mockAxiosDelete = jest.fn();
-        axios.delete.mockImplementationOnce(mockAxiosDelete);
-
-        // Create a spy on the deleteCard method in api module.
-        const spyDeleteCard = jest.spyOn(Marketplace, 'deleteCard')
+    test("Test the deleteCard method makes a call to the api", async () => {
+        // Mock the delete api method
+        const mockDeleteCard = jest.fn(() => Promise.resolve({}));
+        Marketplace.deleteCard.mockImplementationOnce(mockDeleteCard);
 
         // Run the deleteCard method
-        wrapper.vm.deleteCard()
+        await wrapper.vm.deleteCard()
 
         // Expect the delete api method to be called
-        expect(spyDeleteCard).toBeCalledTimes(1);
-        expect(mockAxiosDelete).toBeCalledTimes(1);
+        expect(mockDeleteCard).toBeCalledTimes(1);
     })
 
     // Test the deleteCard method sets error flag on error
-    test("Test the deleteCard method sets error flag on error", () => {
-        // Mock the api call
-        const mockAxiosDelete = jest.fn(() => {throw new Error("Error")});
-        axios.delete.mockImplementationOnce(mockAxiosDelete);
+    test("Test the deleteCard method sets error flag on error", async () => {
+        // Mock the api module call
+        const mockDeleteCard = jest.fn(() => Promise.reject(new Error("Error")));
+        Marketplace.deleteCard.mockImplementationOnce(mockDeleteCard);
 
         // Run the deleteCard method
         wrapper.vm.deleteCard()
+        await wrapper.vm.$nextTick()
 
         // Expect the error value to be set
         expect(wrapper.vm.$data.error).toEqual("Error");
     })
 
     // Test the deleteCard method keeps keeps the modal open on error
-    test("Test the delete modal stays open when the request fails", () => {
+    test("Test the delete modal closes when the request is successful", async () => {
         // Mock the api call
-        const mockAxiosDelete = jest.fn(() => {throw new Error("Error")});
-        axios.delete.mockImplementationOnce(mockAxiosDelete);
+        const mockDeleteCard = jest.fn(() => Promise.resolve({}));
+        Marketplace.deleteCard.mockImplementationOnce(mockDeleteCard);
 
         // Run the deleteCard method
         wrapper.vm.deleteCard()
-
-        // Expect the delete modal to exist
-        expect(wrapper.find(".modal").classes()).toContain("show");
-    })
-
-    // Test the deleteCard method keeps keeps the modal open on error
-    test("Test the delete modal closes when the request is successful", () => {
-        // Mock the api call
-        const mockAxiosDelete = jest.fn(() => Promise.resolve({}));
-        axios.delete.mockImplementationOnce(mockAxiosDelete);
-
-        // Run the deleteCard method
-        wrapper.vm.deleteCard()
+        await wrapper.vm.$nextTick()
 
         // Expect the delete modal to be hidden
         expect(wrapper.find(".modal").classes().includes("show")).toBeFalsy();

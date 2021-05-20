@@ -164,5 +164,5 @@ export const Marketplace = {
      * @param cardId Id of the card to delete
      * @returns {Promise<AxiosResponse<any>>} Response from request
      */
-    deleteCard: (cardId) => instance.post(`cards/${cardId}`)
+    deleteCard: (cardId) => instance.delete(`cards/${cardId}`)
 }

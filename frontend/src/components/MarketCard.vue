@@ -62,6 +62,10 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 
           <!-- Footer / button section of modal -->
           <div class="modal-footer">
+
+            <!-- Error message -->
+            <alert v-if="error">{{ error }}</alert>
+
             <button type="button" class="btn btn-danger" @click="deleteCard">Delete</button>
             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
           </div>
@@ -75,9 +79,19 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 
 <script>
 import {getTimeDiffStr} from "@/utils/dateTime";
+import {Marketplace} from "@/Api";
+import Alert from "@/components/Alert";
 
 export default {
   name: "MarketCard",
+  data() {
+    return {
+      error: null
+    }
+  },
+  components: {
+    Alert
+  },
   props: {
     // Data of the card.
     cardData: {
@@ -129,14 +143,26 @@ export default {
   methods: {
     /** Deletes this card, emitting an event on success **/
     deleteCard() {
-      // TODO: Make delete api request here.
-      // TODO: Display error if the request fails.
+      // Reset error flag
+      this.error = null;
 
-      // Emit the cardDeleted event once the api call is successful
-      this.$emit('cardDeleted', this.cardData.id)
+      // Make request
+      Marketplace.deleteCard(this.cardData.id)
+          .then(() => {
+            // Emit the cardDeleted event once the api call is successful
+            this.$emit('cardDeleted', this.cardData.id)
 
-      // Close the modal by simulating a click on the close button
-      this.$refs.close.click();
+            // Close the modal by simulating a click on the close button
+            this.$refs.close.click();
+          })
+          .catch((err) => {
+            // Set error message
+            this.error = err.response
+                ? err.response.data.error
+                : err.message
+          })
+
+
     }
   }
 }
