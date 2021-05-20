@@ -45,7 +45,6 @@
             <p style="color: red">This card is about to expire</p>
             <!--TODO: Hook these buttons up to API calls-->
             <button class="btn btn-outline-primary" style="margin: 3px">Extend</button>
-            <button class="btn btn-outline-danger" style="margin: 3px">Delete</button>
           </div>
           <div v-if="hideImages">
             <MarketCard :card-data="card" hide-image></MarketCard>
@@ -132,7 +131,7 @@ export default {
         {
           "id": 500,
           "creator": {
-            "id": 100,
+            "id": 1,
             "firstName": "John",
             "lastName": "Smith",
             "homeAddress": {
@@ -160,7 +159,7 @@ export default {
         {
           "id": 503,
           "creator": {
-            "id": 100,
+            "id": 1,
             "firstName": "John",
             "lastName": "Smith",
             "homeAddress": {
