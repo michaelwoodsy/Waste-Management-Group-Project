@@ -111,4 +111,6 @@ describe('Testing the MarketCard component', () => {
         // Expect the component to emit the correct ID
         expect(wrapper.emitted().cardDeleted[0]).toEqual([mockedProps.cardData.id])
     })
+
+    // Test the
 })
