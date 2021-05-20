@@ -58,13 +58,13 @@ Eg, <market-card @cardDeleted="someMethod" ... />
           <!-- Body section of modal -->
           <div class="modal-body">
             <p>Do you really want to permanently delete this card?</p>
+
+            <!-- Error message -->
+            <alert v-if="error">{{ error }}</alert>
           </div>
 
           <!-- Footer / button section of modal -->
           <div class="modal-footer">
-
-            <!-- Error message -->
-            <alert v-if="error">{{ error }}</alert>
 
             <button type="button" class="btn btn-danger" @click="deleteCard">Delete</button>
             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
@@ -158,7 +158,7 @@ export default {
           .catch((err) => {
             // Set error message
             this.error = err.response
-                ? err.response.data.error
+                ? err.response.data
                 : err.message
           })
 
