@@ -2,7 +2,8 @@ package org.seng302.project.controller;
 
 import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.*;
-import org.seng302.project.exceptions.NoCardExistsException;
+import org.seng302.project.exceptions.card.NoCardExistsException;
+import org.seng302.project.exceptions.card.ForbiddenCardActionException;
 import org.seng302.project.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,8 @@ public class CardController {
 
     @Autowired
     public CardController(
-            CardRepository cardRepository, UserRepository userRepository) {
+            CardRepository cardRepository,
+            UserRepository userRepository) {
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
     }
@@ -52,7 +54,7 @@ public class CardController {
     private void checkUserCanEditCard(User user, Card card) throws ForbiddenCardActionException {
         // Check if the logged in user is the card creator or a GAA
         if (!card.getCreator().getId().equals(user.getId()) && !user.isGAA()) {
-            ForbiddenCardActionException exception = new ForbiddenCardActionException(card.getId());
+            ForbiddenCardActionException exception = new ForbiddenCardActionException();
             logger.warn(exception.getMessage());
             throw exception;
         }
@@ -117,5 +119,40 @@ public class CardController {
             logger.error(String.format("Unexpected error while extending display period of card: %s", exception.getMessage()));
             throw exception;
         }
+    }
+
+
+
+    @DeleteMapping("/cards/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteCard(@PathVariable int id, @AuthenticationPrincipal AppUserDetails appUser) {
+        logger.info(String.format("Request to delete card with id %d", id));
+        try {
+            //406 if card cannot be found (NoCardExistsException)
+            Optional<Card> cardOptional = cardRepository.findById(id);
+            if (cardOptional.isEmpty()) {
+                throw new NoCardExistsException(id);
+            }
+            Card retrievedCard = cardOptional.get();
+
+            //403 if card is not yours or you aren't DGAA/GAA (ForbiddenCardActionException)
+            User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
+            if (!requestMaker.getId().equals(retrievedCard.getCreator().getId())) {
+                if (requestMaker.getRole().equals("user")) {
+                    throw new ForbiddenCardActionException();
+                }
+            }
+
+            //200 if card successfully deleted
+            cardRepository.deleteById(id);
+
+        } catch (NoCardExistsException | ForbiddenCardActionException expectedException) {
+            logger.warn(expectedException.getMessage());
+            throw expectedException;
+        } catch (Exception unexpectedException) {
+            logger.error(String.format("Unexpected error while deleting card: %s", unexpectedException.getMessage()));
+            throw unexpectedException;
+        }
+
     }
 }
