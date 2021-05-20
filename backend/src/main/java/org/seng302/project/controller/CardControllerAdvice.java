@@ -1,7 +1,10 @@
 package org.seng302.project.controller;
 
 
-import org.seng302.project.exceptions.*;
+import org.seng302.project.exceptions.InvalidMarketplaceSectionException;
+import org.seng302.project.exceptions.NoCardExistsException;
+import org.seng302.project.exceptions.NoUserExistsException;
+import org.seng302.project.exceptions.RequiredFieldsMissingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -36,7 +39,7 @@ public class CardControllerAdvice {
     }
 
     /**
-     * Exception thrown by the getCard() and extendCardDisplayPeriod() functions in CardController
+     * Exception thrown by the getCard() function in CardController
      * when there is no matching card.
      *
      * @return a 406 response with an appropriate message
@@ -47,14 +50,14 @@ public class CardControllerAdvice {
     }
 
     /**
-     * Exception thrown by the extendCardDisplayPeriod() function in CardController
-     * when a user tries to perform a function when they are not the card creator or GAA.
+     * Exception thrown by the getAllCards() function in CardController
+     * when the section provided is invalid.
      *
-     * @return a 403 response with an appropriate message
+     * @return a 400 response with an appropriate message
      */
-    @ExceptionHandler(ForbiddenCardActionException.class)
-    public ResponseEntity<String> forbiddenCardAction(ForbiddenCardActionException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    @ExceptionHandler(InvalidMarketplaceSectionException.class)
+    public ResponseEntity<String> sectionNotValid(InvalidMarketplaceSectionException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
 }
