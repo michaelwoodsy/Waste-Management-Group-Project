@@ -39,7 +39,7 @@ public class CardControllerAdvice {
     }
 
     /**
-     * Exception thrown by the getCard() and deleteCard() function in CardController
+     * Exception thrown by the getCard(), deleteCard() and extendCardDisplayPeriod() functions in CardController
      * when there is no matching card.
      *
      * @return a 406 response with an appropriate message
@@ -50,8 +50,8 @@ public class CardControllerAdvice {
     }
 
     /**
-     * Exception thrown by the deleteCard() function in CardController
-     * when someone is trying to delete a card that is not their own.
+     * Exception thrown by the extendCardDisplayPeriod() and deleteCard() functions in CardController
+     * when a user tries to perform an action on a card when they are not the card creator or GAA.
      *
      * @return a 403 response with an appropriate message
      */
@@ -59,7 +59,5 @@ public class CardControllerAdvice {
     public ResponseEntity<String> forbiddenCardAction(ForbiddenCardActionException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
-
-
 
 }

@@ -8,10 +8,7 @@ import org.seng302.project.controller.UserController;
 import org.seng302.project.exceptions.ExistingRegisteredEmailException;
 import org.seng302.project.exceptions.InvalidEmailException;
 import org.seng302.project.exceptions.RequiredFieldsMissingException;
-import org.seng302.project.model.Address;
-import org.seng302.project.model.AddressRepository;
-import org.seng302.project.model.User;
-import org.seng302.project.model.UserRepository;
+import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +20,7 @@ public class UserRegisterSteps {
     private final UserRepository userRepository;
     private final UserController userController;
     private final AddressRepository addressRepository;
+    private final CardRepository cardRepository;
     private Integer existingRegisteredEmailExceptionCount = 0;
     private Integer requiredFieldsMissingExceptionCount = 0;
     private Integer invalidEmailExceptionCount = 0;
@@ -30,10 +28,12 @@ public class UserRegisterSteps {
     @Autowired
     public UserRegisterSteps(UserRepository userRepository,
                              UserController userController,
-                             AddressRepository addressRepository) {
+                             AddressRepository addressRepository,
+                             CardRepository cardRepository) {
         this.userRepository = userRepository;
         this.userController = userController;
         this.addressRepository = addressRepository;
+        this.cardRepository = cardRepository;
     }
 
     /**
@@ -56,6 +56,7 @@ public class UserRegisterSteps {
 
     @Given("I am trying to register as a new User")
     public void i_am_trying_to_register_as_a_new_user() {
+        cardRepository.deleteAll();
         userRepository.deleteAll();
         addressRepository.deleteAll();
     }

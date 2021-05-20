@@ -1,8 +1,9 @@
 package org.seng302.project.controller;
 
 import org.seng302.project.controller.authentication.AppUserDetails;
-import org.seng302.project.exceptions.card.ForbiddenCardActionException;
+import org.seng302.project.exceptions.*;
 import org.seng302.project.exceptions.card.NoCardExistsException;
+import org.seng302.project.exceptions.card.ForbiddenCardActionException;
 import org.seng302.project.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,32 @@ public class CardController {
 
 
     /**
+     * Returns the current logged in user that made the request.
+     * @param appUser The AppUserDetails object passed in from the authentication principle.
+     * @return User: the user that made the request.
+     */
+    private User getLoggedInUser(AppUserDetails appUser) {
+        String userEmail = appUser.getUsername();
+        return userRepository.findByEmail(userEmail).get(0);
+    }
+
+    /**
+     * Checks if the user is the owner or administrator of the business. Throws an exception if they aren't
+     * @param user The user to check.
+     * @param card The card to check.
+     * @throws ForbiddenAdministratorActionException Thrown if the user isn't and owner or admin of the business.
+     */
+    private void checkUserCanEditCard(User user, Card card) throws ForbiddenCardActionException {
+        // Check if the logged in user is the card creator or a GAA
+        if (!card.getCreator().getId().equals(user.getId()) && !user.isGAA()) {
+            ForbiddenCardActionException exception = new ForbiddenCardActionException();
+            logger.warn(exception.getMessage());
+            throw exception;
+        }
+    }
+
+
+    /**
      * Gets a single card with id cardID.
      * @param id of the card to retrieve.
      * @return a single card object.
@@ -51,6 +78,45 @@ public class CardController {
             throw noCardExistsException;
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while getting card: %s", exception.getMessage()));
+            throw exception;
+        }
+    }
+
+    /**
+     * Extends the card with id cardID's displayPeriodEnd date by 12 days.
+     * @param id of the card to extend.
+     */
+    @PutMapping("/cards/{id}/extenddisplayperiod")
+    @ResponseStatus(HttpStatus.OK)
+    public void extendCardDisplayPeriod(@PathVariable int id, @AuthenticationPrincipal AppUserDetails appUser) {
+
+        logger.info(String.format("Request to extend display period of card with id %d", id));
+        try {
+            User loggedInUser = getLoggedInUser(appUser);
+
+            // Get card from repository
+            Optional<Card> foundCard = cardRepository.findById(id);
+            // Check if the card exists
+            if (foundCard.isEmpty()) {
+                NoCardExistsException exception = new NoCardExistsException(id);
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+            Card cardToExtend = foundCard.get();
+
+            //Checks if the logged in user is allowed to edit this card
+            checkUserCanEditCard(loggedInUser, cardToExtend);
+
+            //Change the cards displayPeriodEnd date to 12 days in the future
+            cardToExtend.setDisplayPeriodEnd(cardToExtend.getDisplayPeriodEnd().plusWeeks(2));
+
+            cardRepository.save(cardToExtend);
+
+        } catch (NoCardExistsException | ForbiddenCardActionException foundException) {
+            logger.warn(foundException.getMessage());
+            throw foundException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while extending display period of card: %s", exception.getMessage()));
             throw exception;
         }
     }

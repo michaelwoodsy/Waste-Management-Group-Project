@@ -20,7 +20,7 @@ public class Card {
     private String title;
     private String description;
     private LocalDateTime created = LocalDateTime.now();
-    private LocalDateTime displayPeriodEnd = created.plusDays(14); // Display period is currently set at 2 weeks in Backlog
+    private LocalDateTime displayPeriodEnd = created.plusWeeks(2); // Display period is currently set at 2 weeks in Backlog
 
     /**
      * Constructor for creating a new Card object.
