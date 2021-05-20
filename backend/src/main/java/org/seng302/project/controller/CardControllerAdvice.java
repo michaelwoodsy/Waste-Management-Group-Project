@@ -1,9 +1,7 @@
 package org.seng302.project.controller;
 
 
-import org.seng302.project.exceptions.NoCardExistsException;
-import org.seng302.project.exceptions.NoUserExistsException;
-import org.seng302.project.exceptions.RequiredFieldsMissingException;
+import org.seng302.project.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -38,7 +36,7 @@ public class CardControllerAdvice {
     }
 
     /**
-     * Exception thrown by the getCard() function in CardController
+     * Exception thrown by the getCard() and extendCardDisplayPeriod() functions in CardController
      * when there is no matching card.
      *
      * @return a 406 response with an appropriate message
@@ -48,6 +46,15 @@ public class CardControllerAdvice {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
 
-
+    /**
+     * Exception thrown by the extendCardDisplayPeriod() function in CardController
+     * when a user tries to perform a function when they are not the card creator or GAA.
+     *
+     * @return a 403 response with an appropriate message
+     */
+    @ExceptionHandler(ForbiddenCardActionException.class)
+    public ResponseEntity<String> forbiddenCardAction(ForbiddenCardActionException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
 
 }

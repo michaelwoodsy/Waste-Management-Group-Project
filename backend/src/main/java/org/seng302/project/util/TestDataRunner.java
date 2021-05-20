@@ -33,18 +33,21 @@ public class TestDataRunner {
     private final ProductRepository productRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
+    private final CardRepository cardRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public TestDataRunner(UserRepository userRepository, BusinessRepository businessRepository, AddressRepository addressRepository,
                           ProductRepository productRepository, InventoryItemRepository inventoryItemRepository,
-                          SaleListingRepository saleListingRepository, BCryptPasswordEncoder passwordEncoder) {
+                          SaleListingRepository saleListingRepository, CardRepository cardRepository,
+                          BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.addressRepository = addressRepository;
         this.saleListingRepository = saleListingRepository;
+        this.cardRepository = cardRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -75,6 +78,9 @@ public class TestDataRunner {
         // Insert test saleListing data.
         if (saleListingRepository.count() == 0) {
             insertTestSaleListings((JSONArray) data.get("saleListings"));
+        }
+        if (cardRepository.count() == 0) {
+            insertTestCards((JSONArray) data.get("cards"));
         }
     }
 
@@ -243,6 +249,36 @@ public class TestDataRunner {
         }
         logger.info("Finished adding sample data to sale listing repository");
         logger.info(String.format("Added %d entries to sale listing repository", saleListingRepository.count()));
+    }
+
+    /**
+     * Inserts test card data to the database.
+     *
+     * @param cardsData JSONArray of sale listing data.
+     */
+    public void insertTestCards(JSONArray cardsData) {
+        logger.info("Adding sample data to card repository");
+
+        for (Object object : cardsData) {
+            JSONObject jsonCard = (JSONObject) object;
+            Optional<User> testUserOptions = userRepository.findById(jsonCard.getAsNumber("creatorId").intValue());
+            if (testUserOptions.isPresent()) {
+                User testUser = testUserOptions.get();
+
+                Card testCard = new Card(
+                        testUser,
+                        jsonCard.getAsString("section"),
+                        jsonCard.getAsString("title"),
+                        jsonCard.getAsString("description")
+                );
+
+
+                cardRepository.save(testCard);
+            }
+
+        }
+        logger.info("Finished adding sample data to card repository");
+        logger.info(String.format("Added %d entries to card repository", cardRepository.count()));
     }
 
 }
