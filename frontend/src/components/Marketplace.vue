@@ -4,7 +4,7 @@ Page for displaying the marketplace.
 -->
 
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid justify-content-center">
     <!-- Check the user is logged in -->
     <login-required
         v-if="!isLoggedIn"
@@ -14,6 +14,7 @@ Page for displaying the marketplace.
     <div v-else>
       <!--    Div for marketplace tabs    -->
       <div class="row justify-content-center">
+        <div class="col"/>
         <div class="col-6">
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
@@ -40,15 +41,14 @@ Page for displaying the marketplace.
                 Exchange
               </a>
             </li>
-            <li class="nav-item">
-              <button class="btn btn-primary" data-target="#createCard" data-toggle="modal" @click="newCard">
-                New Card
-              </button>
-            </li>
           </ul>
         </div>
+        <div class="col">
+          <button class="btn btn-primary float-right" data-target="#createCard" data-toggle="modal" @click="newCard">
+            New Card
+          </button>
+        </div>
       </div>
-      <br>
 
       <div id="createCard" :key="this.createNewCard" class="modal fade" data-backdrop="static">
         <div class="modal-dialog">
@@ -62,8 +62,7 @@ Page for displaying the marketplace.
 
       <!-- Div above results -->
       <div class="row form justify-content-center">
-        <div class="col-9 form-group text-center">
-
+        <div class="col form-group text-center">
           <!-- Combobox and label for ordering -->
           <label class="d-inline-block" for="order-select">Order By</label>
           <select id="order-select"
@@ -438,7 +437,13 @@ export default {
 </script>
 
 <style scoped>
+
 .nav-item {
   font-size: 20px;
 }
+
+.row {
+  margin-bottom: 20px;
+}
+
 </style>

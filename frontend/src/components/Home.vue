@@ -1,46 +1,57 @@
 <template>
   <div>
-
     <login-required
         v-if="!isLoggedIn"
         page="view your profile page"
     />
 
-    <!-- Greeting User -->
-    <div v-else-if="this.actor.type === 'user'">
-      <div class="row">
-        <div class="col text-center mb-2">
-          <h2>Hello {{ actorName }}</h2>
-          <router-link class="btn btn-outline-primary mx-2" to="/marketplace">View Marketplace</router-link>
+    <div v-else class="d-flex">
+
+      <!-- Side Bar -->
+      <div class="d-flex flex-row flex-sm-column flex-shrink-0 bg-dark shadow p-3" style="width: 250px">
+        <div>
+          <h4 class="text-light">Quick Links</h4>
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+              <router-link class="btn btn-block btn-primary" to="/marketplace">Marketplace</router-link>
+            </li>
+          </ul>
+        </div>
+        <!-- Links to display if acting as business -->
+        <div v-if="!isActingAsUser">
+          <br>
+          <h4 class="text-light">My Business</h4>
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+              <router-link :to="productCatalogueRoute" class="btn btn-block btn-primary">Product Catalogue</router-link>
+            </li>
+            <li class="nav-item mb-2">
+              <router-link :to="inventoryRoute" class="btn btn-block btn-primary">Inventory</router-link>
+            </li>
+            <li class="nav-item mb-2">
+              <router-link :to="saleListingRoute" class="btn btn-block btn-primary">Sale Listings</router-link>
+            </li>
+          </ul>
         </div>
       </div>
-    </div>
 
-    <!-- Greeting Business -->
-    <div v-else>
-      <div class="row">
-        <div class="col text-center mb-2">
-          <h2>{{ actorName }}</h2>
-          <router-link :to="productCatalogueRoute" class="btn btn-outline-primary mx-2">View Product Catalogue
-          </router-link>
-          <router-link :to="inventoryRoute" class="btn btn-outline-primary mx-2">View Inventory</router-link>
-          <router-link :to="saleListingRoute" class="btn btn-outline-primary mx-2">View Sale Listings</router-link>
+      <!-- Page Content -->
+      <div class="d-flex flex-column p-3">
+        <h1><span v-if="isActingAsUser">Hello </span>{{ actorName }}</h1>
+        <hr/>
+
+        <!-- Greeting -->
+        <div class="d-flex flex-column p-2">
         </div>
-      </div>
-    </div>
 
-    <br>
+        <!-- Cards Section -->
+        <div v-if="isActingAsUser" class="d-flex flex-column p-2">
+          <h2>My Cards</h2>
+          <div v-for="card in cards" v-bind:key="card.id" class="col">
+            <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="true"></MarketCard>
+          </div>
+        </div>
 
-    <div class="row">
-      <div class="col text-left mb-2">
-        <h2>My Cards</h2>
-      </div>
-    </div>
-
-    <!-- Cards -->
-    <div class="row row-cols-1 row-cols-lg-2 mb-3">
-      <div v-for="card in cards" v-bind:key="card.id" class="col">
-        <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="true"></MarketCard>
       </div>
     </div>
   </div>
@@ -103,6 +114,13 @@ export default {
     actorName() {
       return this.actor.name
     },
+
+    /**
+     * Returns true if the user is currently acting as a user
+     */
+    isActingAsUser() {
+      return this.actor.type === 'user'
+    }
 
   },
   components: {

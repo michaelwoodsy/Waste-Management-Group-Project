@@ -2,25 +2,15 @@
 
   <div id="app">
 
-    <header class="mb-3">
-      <div class="admin-bar bg-danger" v-if="this.$root.$data.user.canDoAdminAction()"></div>
-      <Navbar/>
-    </header>
+    <div class="admin-bar bg-danger" v-if="this.$root.$data.user.canDoAdminAction()"></div>
+    <Navbar/>
 
     <!-- Global alert popups -->
     <alerts/>
 
-    <body>
-    <div class="container-fluid">
-      <div class="row justify-content-center">
-        <div class="col-12 col-sm-10">
-          <router-view/>
-        </div>
-      </div>
-    </div>
-    </body>
+    <router-view/>
 
-    <footer class="text-center">
+    <footer class="text-center fixed-bottom">
       <p class="text-muted">SENG302 Team 200 - re: sale</p>
     </footer>
   </div>
