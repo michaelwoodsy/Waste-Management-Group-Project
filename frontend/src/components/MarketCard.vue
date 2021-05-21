@@ -32,6 +32,11 @@ Eg, <market-card @cardDeleted="someMethod" ... />
       {{ timeCreated }}
     </p>
 
+    <!-- Gives time left until card expiry -->
+    <p id="countdown" class="text-danger small mb-1">
+      Card expires in: {{ daysToExpire }}d {{ hoursToExpire }}h {{ minutesToExpire }}m {{ secondsToExpire }}s
+    </p>
+
     <!-- Description -->
     <p class="text-muted"> {{ cardData.description }} </p>
 
@@ -91,6 +96,25 @@ export default {
       default: false
     }
   },
+
+  data() {
+    return{
+      daysToExpire: '',
+      hoursToExpire: '',
+      minutesToExpire: '',
+      secondsToExpire: '',
+      timeInterval: ''
+    }
+  },
+
+  mounted() {
+    this.daysToExpire = this.timeUntilExpiry().days
+    this.hoursToExpire = this.timeUntilExpiry().hours
+    this.minutesToExpire = this.timeUntilExpiry().minutes
+    this.secondsToExpire = this.timeUntilExpiry().seconds
+    this.updateTimer()
+  },
+
   computed: {
     /** A string representation of how long ago the card was created or renewed **/
     timeCreated() {
@@ -137,9 +161,44 @@ export default {
 
       // Close the modal by simulating a click on the close button
       this.$refs.close.click();
+    },
+
+    /** Calculates the time remaining before a card expires in days, hours, minutes and seconds **/
+    timeUntilExpiry() {
+      const now = new Date()
+      const created = new Date(this.cardData.created)
+      const twoWeeksAfter = new Date(created.setDate(created.getDate() + 14))
+      const timeLeft = twoWeeksAfter.getTime() - now.getTime()
+      const seconds = Math.floor( (timeLeft/1000) % 60 );
+      const minutes = Math.floor( (timeLeft/1000/60) % 60 );
+      const hours = Math.floor( (timeLeft/(1000*60*60)) % 24 );
+      const days = Math.floor( timeLeft/(1000*60*60*24) );
+
+      return {
+        timeLeft,
+        days,
+        hours,
+        minutes,
+        seconds
+      }
+    },
+
+
+    /** Initialises the timer for counting down the expiry of a card
+     *
+     */
+    updateTimer(){
+        this.daysToExpire = this.timeUntilExpiry().days
+        this.hoursToExpire = this.timeUntilExpiry().hours
+        this.minutesToExpire = this.timeUntilExpiry().minutes
+        this.secondsToExpire = this.timeUntilExpiry().seconds
+        if (this.timeUntilExpiry().timeLeft <= 0) {
+          clearInterval(this.timeInterval);
+        }
+        setInterval(this.updateTimer,1000)
+      }
     }
   }
-}
 </script>
 
 <style scoped>
