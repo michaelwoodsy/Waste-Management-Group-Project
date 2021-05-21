@@ -107,9 +107,9 @@ describe('Testing the MarketCard component', () => {
         wrapper.vm.deleteCard()
 
         // Expect the component to emit the deleteCard event
-        expect(wrapper.emitted().cardDeleted).toBeTruthy()
+        expect(wrapper.emitted('card-deleted')).toBeTruthy()
         // Expect the component to emit the correct ID
-        expect(wrapper.emitted().cardDeleted[0]).toEqual([mockedProps.cardData.id])
+        expect(wrapper.emitted('card-deleted')[0]).toEqual([mockedProps.cardData.id])
     })
 
     test('Test toggleDetails method switches showDetails from false to true', () => {
