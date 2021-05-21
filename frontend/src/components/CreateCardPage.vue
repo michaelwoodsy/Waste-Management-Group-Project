@@ -135,14 +135,14 @@ export default {
         this.msg.keywords = 'Please enter one or more keywords'
         this.valid = false
       } else if(this.keywords.includes(', ') || this.keywords.includes(' ')){
-        while(this.keywords.includes(', ')){
-          this.keywords = this.keywords.replace(/, */, ',')
-        }
-        if(this.keywords.includes(' ')) {
-          while (this.keywords.includes(' ')) {
-            this.keywords = this.keywords.replace(/ /, '-')
-          }
-        }
+        //Remove the leading and trailing white spaces
+        this.keywords = this.keywords.replace(/^\s+|\s+$/g, '')
+        //Remove any multiple commas
+        this.keywords = this.keywords.replace(/,+/g, ',')
+        //Remove white spaces after comma
+        this.keywords = this.keywords.replace(/,\s+/g, ',')
+        //Replace white spaces between words with hyphens
+        this.keywords = this.keywords.replace(/\s/g, '-')
         this.msg.keywords = null
       }else {
         this.msg.keywords = null

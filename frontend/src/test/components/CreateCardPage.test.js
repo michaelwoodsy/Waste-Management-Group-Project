@@ -97,34 +97,42 @@ describe('validate Keywords method tests', () => {
         expect(wrapper.vm.$data.valid).toBeFalsy()
     })
 
-    test("Test keyword with spaces", () => {
-        wrapper.vm.$data.keywords = 'free car'
+    test("Test keyword with leading and trailing spaces", () => {
+        wrapper.vm.$data.keywords = '  free  '
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free')
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
+    })
+
+    test("Test multiword keyword with leading and trailing spaces", () => {
+        wrapper.vm.$data.keywords = '  free car '
         wrapper.vm.validateKeywords()
         expect(wrapper.vm.$data.keywords).toStrictEqual('free-car')
         expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
         expect(wrapper.vm.$data.valid).toBeTruthy()
     })
 
-    test("Test multiple keywords with spaces", () => {
-        wrapper.vm.$data.keywords = 'free fruit,apples oranges'
+    test("Test multiple keywords", () => {
+        wrapper.vm.$data.keywords = 'free,oranges'
         wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.keywords).toStrictEqual('free-fruit,apples-oranges')
-        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
-        expect(wrapper.vm.$data.valid).toBeTruthy()
-    })
-
-    test("Test multiple keywords with spaces after comma", () => {
-        wrapper.vm.$data.keywords = 'free fruit, apples'
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.keywords).toStrictEqual('free-fruit,apples')
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free,oranges')
         expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
         expect(wrapper.vm.$data.valid).toBeTruthy()
     })
 
     test("Test multiple multiword keywords with spaces after comma", () => {
-        wrapper.vm.$data.keywords = 'free fruit, apples and oranges'
+        wrapper.vm.$data.keywords = 'free fruit, apples and oranges '
         wrapper.vm.validateKeywords()
         expect(wrapper.vm.$data.keywords).toStrictEqual('free-fruit,apples-and-oranges')
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
+    })
+
+    test("Test multiple keywords with multiple commas", () => {
+        wrapper.vm.$data.keywords = 'free,,oranges '
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free,oranges')
         expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
         expect(wrapper.vm.$data.valid).toBeTruthy()
     })
