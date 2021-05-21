@@ -45,9 +45,13 @@
         <!-- Cards Section -->
         <div v-if="isActingAsUser">
           <h2>My Cards</h2>
+          <alert v-if="hasExpiredCards" class="text-center">
+            You have cards that will expire in less than 24 hours! Please extend or delete them!
+          </alert>
           <div class="row row-cols-1 row-cols-lg-2">
             <div v-for="card in cards" v-bind:key="card.id" class="col">
-              <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="true"></MarketCard>
+              <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="true"
+                          @card-deleted="deleteCard" @card-extended="extendCard"></MarketCard>
             </div>
           </div>
         </div>
@@ -65,9 +69,15 @@
 
 import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/MarketCard";
+import Alert from "@/components/Alert";
 
 export default {
   name: "Home",
+  components: {
+    Alert,
+    LoginRequired,
+    MarketCard
+  },
   props: {
     msg: String
   },
@@ -81,7 +91,6 @@ export default {
       error: ""
     }
   },
-
   computed: {
     /**
      * Check if user is logged in
@@ -124,12 +133,17 @@ export default {
      */
     isActingAsUser() {
       return this.actor.type === 'user'
+    },
+
+    hasExpiredCards() {
+      for (const card of this.cards) {
+        if (this.expired(card)) {
+          return true
+        }
+      }
+      return false
     }
 
-  },
-  components: {
-    LoginRequired,
-    MarketCard
   },
   methods: {
     /**
@@ -141,7 +155,7 @@ export default {
         {
           "id": 500,
           "creator": {
-            "id": 100,
+            "id": 1,
             "firstName": "John",
             "lastName": "Smith",
             "homeAddress": {
@@ -228,6 +242,30 @@ export default {
       const now = new Date();
       if (now >= new Date(card.displayPeriodEnd)) {
         return true;
+      }
+    },
+    /**
+     * Deletes a card from the list of cards once it has been deleted from the server
+     * @param id
+     */
+    deleteCard(id) {
+      for (let index = 0; index < this.cards.length; index++) {
+        if (this.cards[index].id === id) {
+          this.cards.splice(index, 1)
+        }
+      }
+    },
+    /**
+     * Updates an extended cards information.
+     * @param id ID of card to update
+     * @param newDate the new date to set on the card
+     */
+    // TODO: May need to change when hooked up to backend
+    extendCard(id, newDate) {
+      for (let index = 0; index < this.cards.length; index++) {
+        if (this.cards[index].id === id) {
+          this.cards[index].displayPeriodEnd = newDate
+        }
       }
     }
   }

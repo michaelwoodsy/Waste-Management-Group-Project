@@ -14,8 +14,10 @@ Eg, <market-card @cardDeleted="someMethod" ... />
     <div v-if="expired && showExpired" class="card-header">
       <p class="text-danger d-inline">This card is about to expire</p>
       <!--TODO: Hook these buttons up to API calls-->
-      <button class="btn btn-outline-danger d-inline float-right mx-1">Delete</button>
-      <button class="btn btn-outline-primary d-inline float-right mx-1">Extend</button>
+      <button :data-target="'#deleteModal' + cardData.id"
+              class="btn btn-outline-danger d-inline float-right mx-1" data-toggle="modal">Delete
+      </button>
+      <button class="btn btn-outline-primary d-inline float-right mx-1" @click="extendCard">Extend</button>
     </div>
 
     <!-- Card image -->
@@ -52,7 +54,7 @@ Eg, <market-card @cardDeleted="someMethod" ... />
       <div :id="'cardDetails' + cardData.id" class="collapse">
         <hr/>
         <!-- Description -->
-        <p class="card-text"> {{ cardData.description }} </p>
+        <p class="card-text">{{ cardData.description }}</p>
         <hr/>
       </div>
 
@@ -168,13 +170,23 @@ export default {
     toggleDetails() {
       this.showDetails = !this.showDetails
     },
+    /**
+     * Sends API request to extend the time of a card
+     */
+    extendCard() {
+      // TODO: Make API request to extend card once implemented.
+      const newDate = new Date()
+      newDate.setDate(this.cardData.displayPeriodEnd)
+
+      this.$emit('card-extended', this.cardData.id, newDate.toDateString())
+    },
     /** Deletes this card, emitting an event on success **/
     deleteCard() {
       // TODO: Make delete api request here.
       // TODO: Display error if the request fails.
 
       // Emit the cardDeleted event once the api call is successful
-      this.$emit('cardDeleted', this.cardData.id)
+      this.$emit('card-deleted', this.cardData.id)
 
       // Close the modal by simulating a click on the close button
       this.$refs.close.click();
