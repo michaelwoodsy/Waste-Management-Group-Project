@@ -43,19 +43,19 @@ public class CardController {
             logger.info("Request to create card");
 
             // Get the logged in user
-            Integer creatorId = (Integer) json.getAsNumber("creatorId").get();
+            Integer creatorId = (Integer) json.getAsNumber("creatorId");
             String section = json.getAsString("section");
             String title = json.getAsString("title");
             String description = json.getAsString("description");
 
-            User loggedInUser = userRepository.findByEmail(userEmail).get(0);
+            User loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
             Optional<User> creator = userRepository.findById(creatorId);
 
             //TODO: if loggedInUser != creatorId, check loggedInUser is GAA
 
             //check that listed card creator exists.
             if (creator.isEmpty()) {
-                NoUserExistsException noUserExistsException = new NoUserExistsException(creatorId)
+                NoUserExistsException noUserExistsException = new NoUserExistsException(creatorId);
                 logger.warn(noUserExistsException.getMessage());
                 throw noUserExistsException;
             }
