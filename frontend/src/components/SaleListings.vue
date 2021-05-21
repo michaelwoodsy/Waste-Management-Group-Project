@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <page-wrapper>
 
     <login-required
         v-if="!isLoggedIn"
@@ -22,7 +22,8 @@
                 New Listing
               </button>
               <!-- GAA/DGAA button to add sales listings -->
-              <button v-else-if="$root.$data.user.canDoAdminAction()" class="btn btn-danger" data-target="#createListing" data-toggle="modal"
+              <button v-else-if="$root.$data.user.canDoAdminAction()" class="btn btn-danger"
+                      data-target="#createListing" data-toggle="modal"
                       @click="newListing">
                 New Listing
               </button>
@@ -127,7 +128,7 @@
       </div>
     </div>
 
-  </div>
+  </page-wrapper>
 </template>
 
 <script>
@@ -137,10 +138,12 @@ import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import {Business} from "@/Api";
 import CreateListing from "@/components/CreateListing";
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "SaleListings",
   components: {
+    PageWrapper,
     CreateListing,
     ShowingResultsText,
     LoginRequired,

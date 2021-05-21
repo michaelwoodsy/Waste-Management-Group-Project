@@ -1,14 +1,15 @@
 <template>
-  <div>
+  <div class="container-fluid">
+
     <login-required
         v-if="!isLoggedIn"
         page="view your profile page"
     />
 
-    <div v-else class="d-flex">
+    <div v-else class="row">
 
       <!-- Side Bar -->
-      <div class="d-flex flex-row flex-sm-column flex-shrink-0 bg-dark shadow p-3" style="width: 250px">
+      <div class="col-2 pt-3  bg-dark shadow min-vh-100" style="width: 250px">
         <div>
           <h4 class="text-light">Quick Links</h4>
           <ul class="nav flex-column">
@@ -36,24 +37,27 @@
       </div>
 
       <!-- Page Content -->
-      <div class="d-flex flex-column p-3">
-        <h1><span v-if="isActingAsUser">Hello </span>{{ actorName }}</h1>
-        <hr/>
-
-        <!-- Greeting -->
-        <div class="d-flex flex-column p-2">
+      <div class="col-8 p-3 mx-3">
+        <div class="text-center">
+          <h1><span v-if="isActingAsUser">Hello </span>{{ actorName }}</h1>
+          <hr>
         </div>
-
         <!-- Cards Section -->
-        <div v-if="isActingAsUser" class="d-flex flex-column p-2">
+        <div v-if="isActingAsUser">
           <h2>My Cards</h2>
-          <div v-for="card in cards" v-bind:key="card.id" class="col">
-            <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="true"></MarketCard>
+          <div class="row row-cols-1 row-cols-md-2">
+            <div v-for="card in cards" v-bind:key="card.id" class="col">
+              <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="true"></MarketCard>
+            </div>
           </div>
         </div>
 
       </div>
+
+      <div class="col-2 pt-3"></div>
+
     </div>
+
   </div>
 </template>
 

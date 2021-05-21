@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <page-wrapper>
+
     <!-- Check if the user is logged in -->
     <login-required
         v-if="!isLoggedIn"
@@ -40,8 +41,8 @@
 
             <!-- Make more changes button -->
             <button
-                type="button"
                 class="btn btn-secondary float-left"
+                type="button"
                 @click="resetPage"
             >
               Edit Again
@@ -49,9 +50,9 @@
 
             <!-- Product catalogue button -->
             <router-link
-                type="button"
                 :to="{name: 'viewCatalogue', params: {businessId: this.businessId}}"
                 class="btn btn-primary float-right"
+                type="button"
             >
               Product Catalogue
             </router-link>
@@ -64,10 +65,11 @@
       <div v-else-if="product" class="container-fluid">
 
         <!-- Row for submit error message -->
-        <div class="row" v-if="submitError && !(submitError || '').includes('ProductIdAlreadyExistsException')">
+        <div v-if="submitError && !(submitError || '').includes('ProductIdAlreadyExistsException')" class="row">
           <div class="col-12 col-sm-8 offset-sm-2">
             <alert>An error occurred when submitting your changes:
-              {{ submitError.slice(submitError.indexOf(':') + 2) }}</alert>
+              {{ submitError.slice(submitError.indexOf(':') + 2) }}
+            </alert>
           </div>
         </div>
 
@@ -92,8 +94,9 @@
                       type="text"
                       @blur="idBlur = true"
                   >
-                  <div class="invalid-feedback" v-if="idTaken">The ID must be unique</div>
-                  <div class="invalid-feedback" v-else>The ID must be unique, and can only contain letters, numbers, hyphens
+                  <div v-if="idTaken" class="invalid-feedback">The ID must be unique</div>
+                  <div v-else class="invalid-feedback">The ID must be unique, and can only contain letters, numbers,
+                    hyphens
                     and must be at least 1 character long.
                   </div>
                 </div>
@@ -119,7 +122,8 @@
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="description">Description</label>
                 <div class="col-sm-8">
-                  <textarea id="description" v-model="newProduct.description" class="form-control" maxlength="255" rows="3"
+                  <textarea id="description" v-model="newProduct.description" class="form-control" maxlength="255"
+                            rows="3"
                             type="text"></textarea>
                 </div>
               </div>
@@ -168,9 +172,9 @@
             <button
                 :class="{'btn': true, 'mr-1': true, 'my-1': true, 'btn-danger': this.changesMade,
               'btn-secondary': !this.changesMade, 'float-left': true}"
+                class="btn mr-1 my-1 btn-secondary float-left"
                 type="button"
                 @click="cancel"
-                class="btn mr-1 my-1 btn-secondary float-left"
             >
               Cancel
             </button>
@@ -189,7 +193,8 @@
         </div>
       </div>
     </div>
-  </div>
+
+  </page-wrapper>
 </template>
 
 <script>
@@ -197,6 +202,7 @@ import LoginRequired from "@/components/LoginRequired";
 import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
 import {Business} from "@/Api";
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "EditProductPage",
@@ -222,6 +228,7 @@ export default {
   },
 
   components: {
+    PageWrapper,
     LoginRequired,
     AdminRequired,
     Alert
@@ -325,7 +332,7 @@ export default {
     /**
      * Validates the users inputs, then sends the data to the api.
      */
-    submit () {
+    submit() {
       // Set id as blurred in case the id was not unique
       this.idBlur = true
 
@@ -364,7 +371,7 @@ export default {
      * Cancels the product edit.
      * Will confirm with the user if they want to lose there changes, if they made any.
      */
-    cancel () {
+    cancel() {
       this.$router.push({name: 'viewCatalogue', params: {businessId: this.businessId}})
     },
 
@@ -390,7 +397,7 @@ export default {
     /**
      * Resets the page after submitting changes, so the user can make more changes.
      */
-    resetPage () {
+    resetPage() {
       if (this.productId !== this.newProduct.id) {
         this.$router.push(`/businesses/${this.businessId}/products/${this.newProduct.id}`)
       }

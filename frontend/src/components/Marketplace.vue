@@ -4,7 +4,8 @@ Page for displaying the marketplace.
 -->
 
 <template>
-  <div class="container-fluid justify-content-center">
+  <page-wrapper>
+
     <!-- Check the user is logged in -->
     <login-required
         v-if="!isLoggedIn"
@@ -99,7 +100,8 @@ Page for displaying the marketplace.
       />
 
     </div>
-  </div>
+
+  </page-wrapper>
 </template>
 
 <script>
@@ -109,6 +111,7 @@ import MarketCard from "./MarketCard";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import CreateCardPage from "@/components/CreateCardPage";
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "Marketplace",
@@ -179,6 +182,7 @@ export default {
     }
   },
   components: {
+    PageWrapper,
     LoginRequired,
     MarketCard,
     ShowingResultsText,

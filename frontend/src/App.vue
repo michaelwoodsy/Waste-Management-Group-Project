@@ -1,8 +1,7 @@
 <template>
-
   <div id="app">
 
-    <div class="admin-bar bg-danger" v-if="this.$root.$data.user.canDoAdminAction()"></div>
+    <div v-if="this.$root.$data.user.canDoAdminAction()" class="admin-bar bg-danger"></div>
     <Navbar/>
 
     <!-- Global alert popups -->
@@ -10,7 +9,7 @@
 
     <router-view/>
 
-    <footer class="text-center fixed-bottom">
+    <footer class="text-center">
       <p class="text-muted">SENG302 Team 200 - re: sale</p>
     </footer>
   </div>

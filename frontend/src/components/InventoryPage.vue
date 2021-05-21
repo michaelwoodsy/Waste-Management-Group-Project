@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <page-wrapper>
 
     <login-required
         v-if="!isLoggedIn"
@@ -27,7 +27,8 @@
                       data-target="#createInventoryItem" data-toggle="modal" @click="newItem">
                 New Product
               </button>
-              <button v-else class="btn btn-primary" data-target="#createInventoryItem" data-toggle="modal" @click="newItem">
+              <button v-else class="btn btn-primary" data-target="#createInventoryItem" data-toggle="modal"
+                      @click="newItem">
                 New Item
               </button>
             </div>
@@ -56,7 +57,7 @@
       </div>
     </div>
 
-  </div>
+  </page-wrapper>
 </template>
 
 <script>
@@ -65,11 +66,13 @@ import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
 import CreateInventoryItem from "@/components/CreateInventoryItem";
 import InventoryItems from "@/components/InventoryItems";
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "InventoryPage",
 
   components: {
+    PageWrapper,
     InventoryItems,
     CreateInventoryItem,
     LoginRequired,
