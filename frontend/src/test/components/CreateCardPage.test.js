@@ -83,6 +83,53 @@ describe('validate Title method tests', () => {
     })
 })
 
+describe('validate Keywords method tests', () => {
+
+    beforeEach(() => {
+        wrapper.vm.$data.msg.keywords = null
+        wrapper.vm.$data.valid = true
+    })
+
+    test("Test no keywords", () => {
+        wrapper.vm.$data.keywords = ''
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual('Please enter one or more keywords')
+        expect(wrapper.vm.$data.valid).toBeFalsy()
+    })
+
+    test("Test keyword with spaces", () => {
+        wrapper.vm.$data.keywords = 'free car'
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free-car')
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
+    })
+
+    test("Test multiple keywords with spaces", () => {
+        wrapper.vm.$data.keywords = 'free fruit,apples oranges'
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free-fruit,apples-oranges')
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
+    })
+
+    test("Test multiple keywords with spaces after comma", () => {
+        wrapper.vm.$data.keywords = 'free fruit, apples'
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free-fruit,apples')
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
+    })
+
+    test("Test multiple multiword keywords with spaces after comma", () => {
+        wrapper.vm.$data.keywords = 'free fruit, apples and oranges'
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free-fruit,apples-and-oranges')
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
+    })
+})
+
 describe('validate Cancel button', () => {
 
     beforeEach(() => {
