@@ -5,13 +5,10 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.seng302.project.controller.UserController;
-import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.NoUserExistsException;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -137,7 +134,6 @@ public class DGAASteps {
     @Then("The role of the user is updated to GAA")
     public void the_role_of_the_user_is_updated_to_gaa() {
 
-        //TODO: role is still user :(
         User retrievedUser = userRepository.findByEmail(testUser.getEmail()).get(0);
         Assertions.assertEquals("globalApplicationAdmin", retrievedUser.getRole());
     }

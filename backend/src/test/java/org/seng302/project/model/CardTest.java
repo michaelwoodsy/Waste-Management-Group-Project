@@ -51,12 +51,15 @@ public class CardTest {
                 testCard.getDescription());
         Assertions.assertTrue(testCard.getCreated().isBefore(LocalDateTime.now()) || testCard.getCreated().isEqual(LocalDateTime.now()));
         Assertions.assertTrue(testCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-        Assertions.assertTrue(testCard.getDisplayPeriodEnd().isEqual(testCard.getCreated().plusDays(14)));
+        Assertions.assertTrue(testCard.getDisplayPeriodEnd().isEqual(testCard.getCreated().plusWeeks(2)));
     }
 
 
     @Test
     public void testRepository() {
+        cardRepository.deleteAll();
+        userRepository.deleteAll();
+
         User testCardCreator = new User("John", "Smith", "Arthur", "Jonny",
                 "Likes long walks on the beach", "johnsmith9999@gmail.com",
                 "1999-04-27", "+64 3 555 0129", null,
@@ -86,9 +89,11 @@ public class CardTest {
         Assertions.assertEquals("1982 Lada Samara", retrievedCard.getTitle());
         Assertions.assertEquals("Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
                 retrievedCard.getDescription());
+
+        //TODO: the below line sometimes fails
         Assertions.assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || retrievedCard.getCreated().isEqual(LocalDateTime.now()));
         Assertions.assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-        Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
+        Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusWeeks(2)));
 
 
         //TODO: This may fail in future when we have more than one card in the repository.
@@ -110,7 +115,7 @@ public class CardTest {
                 retrievedCard.getDescription());
         Assertions.assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || retrievedCard.getCreated().isEqual(LocalDateTime.now()));
         Assertions.assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-        Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
+        Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusWeeks(2)));
 
     }
 }
