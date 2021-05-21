@@ -6,10 +6,10 @@
         page="view your profile page"
     />
 
-    <div v-else class="row">
+    <div v-else class="row justify-content-between min-vh-100">
 
       <!-- Side Bar -->
-      <div class="col-2 pt-3  bg-dark shadow min-vh-100" style="width: 250px">
+      <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
         <div>
           <h4 class="text-light">Quick Links</h4>
           <ul class="nav flex-column">
@@ -37,7 +37,7 @@
       </div>
 
       <!-- Page Content -->
-      <div class="col-8 p-3 mx-3">
+      <div class="col-12 col-md-8 p-3">
         <div class="text-center">
           <h1><span v-if="isActingAsUser">Hello </span>{{ actorName }}</h1>
           <hr>
@@ -45,7 +45,7 @@
         <!-- Cards Section -->
         <div v-if="isActingAsUser">
           <h2>My Cards</h2>
-          <div class="row row-cols-1 row-cols-md-2">
+          <div class="row row-cols-1 row-cols-lg-2">
             <div v-for="card in cards" v-bind:key="card.id" class="col">
               <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="true"></MarketCard>
             </div>
@@ -54,7 +54,7 @@
 
       </div>
 
-      <div class="col-2 pt-3"></div>
+      <div class="col-md-1 col-lg-2 p-3"></div>
 
     </div>
 

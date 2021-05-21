@@ -184,9 +184,11 @@ export default {
 </script>
 
 <style scoped>
+
 .card-size {
   min-height: 100px;
   min-width: 150px;
   margin-bottom: 40px;
 }
+
 </style>
