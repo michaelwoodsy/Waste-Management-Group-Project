@@ -57,6 +57,7 @@ public class UsersCardsControllerTest {
                 "+64 3 555 0129", null, "");
         testUser.setId(1);
         given(userRepository.findByEmail("test@gmail.com")).willReturn(List.of(testUser));
+        given(userRepository.findById(1)).willReturn(Optional.of(testUser));
 
         // Create mock user 2
         otherUser = new User("John", "Smith", "Bob", "Jonny",
@@ -64,6 +65,7 @@ public class UsersCardsControllerTest {
                 "+64 3 555 0129", null, "");
         otherUser.setId(2);
         given(userRepository.findByEmail("other@gmail.com")).willReturn(List.of(otherUser));
+        given(userRepository.findById(2)).willReturn(Optional.of(otherUser));
 
         // Create mock cards
         // Card 1
