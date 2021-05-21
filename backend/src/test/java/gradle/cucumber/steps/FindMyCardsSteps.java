@@ -12,7 +12,9 @@ import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -20,25 +22,33 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 public class FindMyCardsSteps {
 
     private User testUser;
+    private Address testAddress;
+    private ResultActions result;
     private JSONArray results;
     private MockMvc mockMvc;
 
     private final UserRepository userRepository;
     private final CardRepository cardRepository;
+    private final AddressRepository addressRepository;
 
     @Autowired
     public FindMyCardsSteps(
             UserRepository userRepository,
-            CardRepository cardRepository) {
+            CardRepository cardRepository,
+            AddressRepository addressRepository) {
         this.userRepository = userRepository;
         this.cardRepository = cardRepository;
+        this.addressRepository = addressRepository;
     }
 
     @BeforeEach
@@ -49,11 +59,8 @@ public class FindMyCardsSteps {
                 .apply(springSecurity())
                 .build();
 
-//        Address testAddress = new Address("", "", "", "", "New Zealand","");
-//        addressRepository.save(testAddress);
-//        testDGAA.setPassword(passwordEncoder.encode(testDGAA.getPassword()));
-//        testDGAA.setRole("defaultGlobalApplicationAdmin");
-//        userRepository.save(testDGAA);
+        testAddress = new Address("", "", "", "", "New Zealand","");
+        addressRepository.save(testAddress);
     }
 
 
@@ -77,7 +84,9 @@ public class FindMyCardsSteps {
     @Given("I am logged in with email {string} and the following cards exist:")
     public void i_am_logged_in_with_email_and_the_following_cards_exist(String email, DataTable cardsTable) {
         // Create the logged in user
-        testUser = new User();
+        testUser = new User("John", "Smith", "Bob", "Jonny",
+                "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
+                "+64 3 555 0129", null, "");
         testUser.setEmail(email);
         testUser = createUser(testUser);
         Card newCard;
@@ -86,7 +95,9 @@ public class FindMyCardsSteps {
         List<List<String>> rows = cardsTable.asLists(String.class);
         for (List<String> cols : rows) {
             // Creat the card creator user
-            User owner = new User();
+            User owner = new User("John", "Smith", "Bob", "Jonny",
+                    "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
+                    "+64 3 555 0129", null, "");
             owner.setEmail(cols.get(3));
             owner = createUser(owner);
 
@@ -113,16 +124,19 @@ public class FindMyCardsSteps {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(testUser.getEmail()));
 
-        results = (JSONArray) mockMvc.perform(getCardsReq)
-                .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
-                .andReturn();
+        result = mockMvc.perform(getCardsReq)
+                .andExpect(MockMvcResultMatchers.status().isOk()); // We expect a 200 response
+
     }
     @Then("I find {int} cards")
-    public void i_find_cards(Integer cardCount) {
-        assertEquals(results.length(), cardCount);
+    public void i_find_cards(Integer cardCount) throws Exception {
+        result.andExpect(jsonPath("$", hasSize(cardCount)));
     }
+
     @Then("All returned cards are by user with email {string}")
-    public void all_returned_cards_are_by_user_with_email(String desiredEmail) throws JSONException {
+    public void all_returned_cards_are_by_user_with_email(String desiredEmail) throws Exception {
+        String contentAsString = result.andReturn().getResponse().getContentAsString();
+        JSONArray results = new JSONArray(contentAsString);
         for (int i = 0; i < results.length(); i++) {
             // Get json for card
             JSONObject cardJson = results.getJSONObject(i);
@@ -133,6 +147,8 @@ public class FindMyCardsSteps {
             // Check it is the desired email
             assertEquals(email, desiredEmail);
         }
+
+        // result.andExpect(jsonPath("$[*].creator.email").value(containsInAnyOrder(is(desiredEmail))));
     }
 
 
