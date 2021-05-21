@@ -220,7 +220,7 @@ describe('Pagination, ordering and deletion tests', () => {
         wrapper.vm.deleteCard(502);
 
         // Check the card is no longer there
-        expect(wrapper.vm.cards.find((a) => a.id === 502)).toBeUndefined()
+        expect(wrapper.vm.$data.cards.find((a) => a.id === 502)).toBeUndefined()
     })
 
 })
