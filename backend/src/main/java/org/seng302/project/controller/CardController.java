@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -154,5 +155,11 @@ public class CardController {
             throw unexpectedException;
         }
 
+    }
+
+    @GetMapping("/users/{id}/cards")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Card> getAllCardsByUser(Integer id) {
+        return List.of();
     }
 }
