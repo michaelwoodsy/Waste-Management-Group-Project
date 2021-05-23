@@ -50,7 +50,7 @@
           <b>Keywords<span class="required">*</span></b>
            (Separate keywords with a comma no spaces)
         </label>
-        <input id="keywords" v-model="keywords" :class="{'form-control': true, 'is-invalid': false}"
+        <input id="keywords" v-model="keywords" :class="{'form-control': true, 'is-invalid': msg.keywords}"
                placeholder="Enter the Keywords"
                required maxlength="255" type="text">
         <span class="invalid-feedback">{{ msg.keywords }}</span>
