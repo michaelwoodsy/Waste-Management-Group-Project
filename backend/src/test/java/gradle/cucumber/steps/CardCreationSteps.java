@@ -134,6 +134,7 @@ public class CardCreationSteps {
     @Then("The card's title is shown")
     public void the_card_s_title_is_shown() {
         // Write code here that turns the phrase above into concrete actions
+
         throw new io.cucumber.java.PendingException();
     }
 
