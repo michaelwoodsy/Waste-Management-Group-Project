@@ -36,6 +36,7 @@ public class CardCreationSteps {
     private String testUserPassword;
     private Integer testUserId;
     private Integer testCardId;
+    private String testCardSection;
     private Address testAddress;
     private MockMvc mockMvc;
 
@@ -206,7 +207,9 @@ public class CardCreationSteps {
     @When("A user creates a card with keywords: {string}, {string}, {string}, and {string}")
     public void a_user_creates_a_card_with_keywords_and(String string, String string2, String string3, String string4) throws JSONException {
         // Write code here that turns the phrase above into concrete actions
-        testCardJson.put("keywords", "sale car cheap");
+        String keywords = string + string2 + string3 + string4;
+        testCard.setKeywords(keywords);
+        testCardJson.put("keywords", keywords);
     }
 
     @Then("The card's keywords are successfully saved with the card")
@@ -233,20 +236,37 @@ public class CardCreationSteps {
     @Given("A card exists in the {string} section")
     public void a_card_exists_in_the_section(String string) {
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        testCardSection = string
+        a_user_exists();
+        testCard = new Card(testUser, testCardSection, "Beetle Juice", "Beetle juice from Bob", "");
+        testCardId = cardRepository.save(testCard).getId();
     }
 
-    @When("A user views the {string} section")
-    public void a_user_views_the_section(String string) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
-    }
+//    @When("A user views the {string} section")
+//    public void a_user_views_the_section(String string) {
+//        // Write code here that turns the phrase above into concrete actions
+//
+//    } No action to perform
 
     @Then("The card is successfully displayed in this section")
-    public void the_card_is_successfully_displayed_in_this_section() {
+    public void the_card_is_successfully_displayed_in_this_section() throws Exception {
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                .get("/cards")
+                .param("section", testCardSection)
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(testUserEmail, testUserPassword)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        JSONArray retrievedCards = new JSONArray(result.getResponse().getContentAsString());
+        for (int i = 0; i < retrievedCards.length(); i++) {
+            JSONObject retrievedCard = retrievedCards.getJSONObject(i);
+            String retrievedSection = retrievedCard.getString("section");
+
+            Assertions.assertEquals(retrievedSection, testCardSection);
+        }
     }
-
-
 }
