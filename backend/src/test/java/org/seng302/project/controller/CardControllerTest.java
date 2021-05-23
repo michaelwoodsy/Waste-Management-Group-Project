@@ -284,20 +284,7 @@ public class CardControllerTest {
 
         User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
 
-        JSONObject testCardJson = new JSONObject();
-        testCardJson.put("creatorId", loggedInUser.getId());
-        testCardJson.put("section", "ForSale");
-        testCardJson.put("title", "1982 Lada Samara");
-        testCardJson.put("description",
-                "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
 
-        mockMvc.perform(MockMvcRequestBuilders
-                .post("/cards")
-                .content(testCardJson.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
-                .andExpect(status().isCreated());
 
         Card retrievedCard = cardRepository.findAllBySection("ForSale").get(0);
 

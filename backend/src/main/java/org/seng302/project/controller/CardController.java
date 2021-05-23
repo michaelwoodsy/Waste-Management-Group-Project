@@ -10,9 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 
 
@@ -206,5 +210,14 @@ public class CardController {
             throw unexpectedException;
         }
 
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void RemoveCardsAfter24Hrs() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneDayAgo = now.minusDays(1);
+
+        //call the method
+        cardRepository.deleteByCreatedBeforeOrCreatedEquals(oneDayAgo);
     }
 }
