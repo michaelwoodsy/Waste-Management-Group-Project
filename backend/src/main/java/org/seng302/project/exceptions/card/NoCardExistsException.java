@@ -1,4 +1,4 @@
-package org.seng302.project.exceptions;
+package org.seng302.project.exceptions.card;
 
 /**
  * Exception triggered when business with id does not exist.
