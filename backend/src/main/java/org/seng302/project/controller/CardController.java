@@ -47,6 +47,7 @@ public class CardController {
             String section = json.getAsString("section");
             String title = json.getAsString("title");
             String description = json.getAsString("description");
+            String keywords = json.getAsString("keyworeds");
 
             User loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
             Optional<User> creator = userRepository.findById(creatorId);
@@ -72,7 +73,7 @@ public class CardController {
                 throw requiredFieldsMissingException;
             }
 
-            Card newCard = new Card(creator.get(), section, title, description);
+            Card newCard = new Card(creator.get(), section, title, description, keywords);
             Integer cardId = cardRepository.save(newCard).getId();
             JSONObject response = new JSONObject();
             response.put("cardId", cardId);

@@ -19,6 +19,7 @@ public class Card {
     private String section;
     private String title;
     private String description;
+    private String keywords;
     private LocalDateTime created = LocalDateTime.now();
     private LocalDateTime displayPeriodEnd = created.plusWeeks(2); // Display period is currently set at 2 weeks in Backlog
 
@@ -30,11 +31,12 @@ public class Card {
      * @param title                       Title of the card.
      * @param description                 Description of the card.
      */
-    public Card(User creator, String section, String title, String description) {
+    public Card(User creator, String section, String title, String description, String keywords) {
         this.creator = creator;
         this.section = section;
         this.title = title;
         this.description = description;
+        this.keywords = keywords;
     }
 
     @Id // this field (attribute) is the primary key of the table

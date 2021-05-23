@@ -87,7 +87,6 @@ public class CardCreationSteps {
         testCardJson.put("title", "1982 Lada Samara");
         testCardJson.put("description",
                 "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
-
     }
 
     @Then("The card is successfully created")
@@ -115,7 +114,7 @@ public class CardCreationSteps {
     public void a_card_exists() {
         // Write code here that turns the phrase above into concrete actions
         a_user_exists();
-        testCard = new Card(testUser, "ForSale", "Beetle Juice", "Beetle juice from Bob");
+        testCard = new Card(testUser, "ForSale", "Beetle Juice", "Beetle juice from Bob", "");
         testCardId = cardRepository.save(testCard).getId();
     }
 
@@ -205,15 +204,29 @@ public class CardCreationSteps {
     //AC5
 
     @When("A user creates a card with keywords: {string}, {string}, {string}, and {string}")
-    public void a_user_creates_a_card_with_keywords_and(String string, String string2, String string3, String string4) {
+    public void a_user_creates_a_card_with_keywords_and(String string, String string2, String string3, String string4) throws JSONException {
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        testCardJson.put("keywords", "sale car cheap");
     }
 
     @Then("The card's keywords are successfully saved with the card")
-    public void the_card_s_keywords_are_successfully_saved_with_the_card() {
+    public void the_card_s_keywords_are_successfully_saved_with_the_card() throws Exception {
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                .post("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(testUserEmail, testUserPassword)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+
+        JSONObject jsonObject = new JSONObject(result.getResponse().getContentAsString());
+        Integer testCardId = jsonObject.getInt("cardId");
+
+        String retrievedKeywords = cardRepository.findById(testCardId).get().getKeywords();
+        Assertions.assertEquals(retrievedKeywords, testCard.getKeywords());
     }
 
     //AC6
