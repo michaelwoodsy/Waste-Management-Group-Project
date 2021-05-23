@@ -111,4 +111,16 @@ describe('Testing the MarketCard component', () => {
         // Expect the component to emit the correct ID
         expect(wrapper.emitted().cardDeleted[0]).toEqual([mockedProps.cardData.id])
     })
+
+    test('Test toggleDetails method switches showDetails from false to true', () => {
+        wrapper.vm.$data.showDetails = false
+        wrapper.vm.toggleDetails()
+        expect(wrapper.vm.$data.showDetails).toBeTruthy()
+    })
+
+    test('Test toggleDetails method switches showDetails from true to false', () => {
+        wrapper.vm.$data.showDetails = true
+        wrapper.vm.toggleDetails()
+        expect(wrapper.vm.$data.showDetails).toBeFalsy()
+    })
 })
