@@ -16,6 +16,18 @@ Eg, <market-card @cardDeleted="someMethod" ... />
       <!--TODO: Hook these buttons up to API calls-->
       <button class="btn btn-outline-danger d-inline float-right mx-1">Delete</button>
       <button class="btn btn-outline-primary d-inline float-right mx-1">Extend</button>
+      <!-- Shows expiry time of a particular card -->
+      <p v-if="daysToExpire > 0 || hoursToExpire > 0 || minutesToExpire > 0 || secondsToExpire > 0" class="text-danger float- small mb-1">
+        Card expires in:
+        <span v-if="daysToExpire > 0">{{ daysToExpire }}d</span>
+        <span v-if="hoursToExpire > 0">{{ hoursToExpire }}h</span>
+        <span v-if="minutesToExpire > 0">{{ minutesToExpire }}m</span>
+        <span v-if="secondsToExpire > 0">{{ secondsToExpire }}s</span>
+      </p>
+      <!-- If card has expired, card will have been deleted -->
+      <p v-else class="text-danger float- small mb-1">
+        Card has expired
+      </p>
     </div>
 
     <!-- Card image -->
@@ -55,13 +67,6 @@ Eg, <market-card @cardDeleted="someMethod" ... />
         <p class="card-text"> {{ cardData.description }} </p>
         <hr/>
       </div>
-    <!-- Gives time left until card expiry -->
-    <p id="countdown" class="text-danger small mb-1">
-      Card expires in: {{ daysToExpire }}d {{ hoursToExpire }}h {{ minutesToExpire }}m {{ secondsToExpire }}s
-    </p>
-
-    <!-- Description -->
-    <p class="text-muted"> {{ cardData.description }} </p>
 
       <button :data-target="'#cardDetails' + cardData.id" class="btn btn-outline-secondary float-right"
               data-toggle="collapse" @click="toggleDetails">
@@ -126,16 +131,16 @@ export default {
   },
 
   data() {
-    return{
+    return {
       daysToExpire: '',
       hoursToExpire: '',
       minutesToExpire: '',
       secondsToExpire: '',
-      timeInterval: '',
       showDetails: false
     }
   },
 
+  /** Initialises the timer for displaying the expiry of a card */
   mounted() {
     this.daysToExpire = this.timeUntilExpiry().days
     this.hoursToExpire = this.timeUntilExpiry().hours
@@ -157,7 +162,7 @@ export default {
 
     /** The rough location of the listing.
      * Will be the city, region or country, whichever is available.
-     * **/
+     **/
     location() {
       const address = this.cardData.creator.homeAddress
       return address.city || address.region || address.country
@@ -178,6 +183,8 @@ export default {
     canDeleteCard() {
       return this.isCardCreator || this.$root.$data.user.canDoAdminAction()
     },
+
+    /** Returns whether the card is about to expire or not **/
     expired() {
       const now = new Date();
       return now >= new Date(this.cardData.displayPeriodEnd);
@@ -208,10 +215,10 @@ export default {
       const created = new Date(this.cardData.created)
       const twoWeeksAfter = new Date(created.setDate(created.getDate() + 14))
       const timeLeft = twoWeeksAfter.getTime() - now.getTime()
-      const seconds = Math.floor( (timeLeft/1000) % 60 );
-      const minutes = Math.floor( (timeLeft/1000/60) % 60 );
-      const hours = Math.floor( (timeLeft/(1000*60*60)) % 24 );
-      const days = Math.floor( timeLeft/(1000*60*60*24) );
+      const seconds = Math.floor((timeLeft / 1000) % 60);
+      const minutes = Math.floor((timeLeft / 1000 / 60) % 60);
+      const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
 
       return {
         timeLeft,
@@ -223,21 +230,18 @@ export default {
     },
 
 
-    /** Initialises the timer for counting down the expiry of a card
-     *
-     */
-    updateTimer(){
-        this.daysToExpire = this.timeUntilExpiry().days
-        this.hoursToExpire = this.timeUntilExpiry().hours
-        this.minutesToExpire = this.timeUntilExpiry().minutes
-        this.secondsToExpire = this.timeUntilExpiry().seconds
-        if (this.timeUntilExpiry().timeLeft <= 0) {
-          clearInterval(this.timeInterval);
-        }
-        setInterval(this.updateTimer,1000)
+    /** Updates the timer for counting down the expiry of a card */
+    updateTimer() {
+      this.daysToExpire = this.timeUntilExpiry().days
+      this.hoursToExpire = this.timeUntilExpiry().hours
+      this.minutesToExpire = this.timeUntilExpiry().minutes
+      this.secondsToExpire = this.timeUntilExpiry().seconds
+      if (this.timeUntilExpiry().timeLeft > 0) {
+        requestAnimationFrame(this.updateTimer)
       }
     }
   }
+}
 </script>
 
 <style scoped>

@@ -123,4 +123,11 @@ describe('Testing the MarketCard component', () => {
         wrapper.vm.toggleDetails()
         expect(wrapper.vm.$data.showDetails).toBeFalsy()
     })
+
+    test('Test time until expiry computed method', () => {
+        const now =  new Date()
+        const createdDate = new Date("2021-05-13T05:10:00Z")
+        const twoWeeksAfter = new Date(createdDate.setDate(createdDate.getDate() + 14))
+        expect(wrapper.vm.timeUntilExpiry().timeLeft).toEqual(twoWeeksAfter.getTime() - now.getTime())
+    })
 })
