@@ -7,6 +7,7 @@ import io.cucumber.java.en.When;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +62,8 @@ public class FindMyCardsSteps {
 
         testAddress = new Address("", "", "", "", "New Zealand","");
         addressRepository.save(testAddress);
+        cardRepository.deleteAll();
     }
-
 
     /**
      * Creates the user if it's not already created.
@@ -79,7 +80,6 @@ public class FindMyCardsSteps {
             return wantedUser;
         }
     }
-
 
     @Given("I am logged in with email {string} and the following cards exist:")
     public void i_am_logged_in_with_email_and_the_following_cards_exist(String email, DataTable cardsTable) {
@@ -130,13 +130,16 @@ public class FindMyCardsSteps {
     }
     @Then("I find {int} cards")
     public void i_find_cards(Integer cardCount) throws Exception {
-        result.andExpect(jsonPath("$", hasSize(cardCount)));
+       result.andExpect(jsonPath("$", hasSize(cardCount)));
     }
 
     @Then("All returned cards are by user with email {string}")
     public void all_returned_cards_are_by_user_with_email(String desiredEmail) throws Exception {
+        // Get the json result
         String contentAsString = result.andReturn().getResponse().getContentAsString();
         JSONArray results = new JSONArray(contentAsString);
+
+        // Iterate over the json results and check the creator email
         for (int i = 0; i < results.length(); i++) {
             // Get json for card
             JSONObject cardJson = results.getJSONObject(i);
@@ -147,8 +150,6 @@ public class FindMyCardsSteps {
             // Check it is the desired email
             assertEquals(email, desiredEmail);
         }
-
-        // result.andExpect(jsonPath("$[*].creator.email").value(containsInAnyOrder(is(desiredEmail))));
     }
 
 
