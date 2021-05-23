@@ -1,5 +1,6 @@
 package org.seng302.project.controller;
 
+import java.util.List;
 import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.*;
 import org.seng302.project.exceptions.card.NoCardExistsException;
@@ -81,6 +82,33 @@ public class CardController {
             throw exception;
         }
     }
+    /**
+     * Endpoint for getting all cards in a section.
+     *
+     * @param section Section to get all cards from.
+     * @return List of Cards in the corresponding section.
+     */
+    @GetMapping("/cards")
+    public List<Card> getAllCards(@RequestParam String section) {
+        try {
+            // Check if the section is invalid
+            if (!("Exchange".equals(section) ||
+                  "ForSale".equals(section) ||
+                  "Wanted".equals(section))) {
+                throw new InvalidMarketplaceSectionException();
+            }
+
+            // Return all cards in the section
+            return cardRepository.findAllBySection(section);
+
+        } catch (Exception exception) {
+            logger.error("Unexpected error while getting all cards");
+            throw exception;
+        }
+    }
+
+
+
 
     /**
      * Extends the card with id cardID's displayPeriodEnd date by 12 days.
