@@ -38,7 +38,7 @@ public class CardController {
 
     @PostMapping("/cards")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createCard(@RequestBody JSONObject json, @AuthenticationPrincipal AppUserDetails appUser) {
+    public JSONObject createCard(@RequestBody JSONObject json, @AuthenticationPrincipal AppUserDetails appUser) {
         try {
             logger.info("Request to create card");
 
@@ -52,6 +52,11 @@ public class CardController {
             Optional<User> creator = userRepository.findById(creatorId);
 
             //TODO: if loggedInUser != creatorId, check loggedInUser is GAA
+            if (!loggedInUser.getId().equals(creatorId) {
+                if (!loggedInUser.getRole().equals("globalApplicationAdmin") || !loggedInUser.getRole().equals("defaultGlobalApplicationAdmin")) {
+                    throw new ForbiddenCardActionException()
+                }
+            }
 
             //check that listed card creator exists.
             if (creator.isEmpty()) {
@@ -68,7 +73,10 @@ public class CardController {
             }
 
             Card newCard = new Card(creator.get(), section, title, description);
-            cardRepository.save(newCard);
+            Integer cardId = cardRepository.save(newCard).getId();
+            JSONObject response = new JSONObject();
+            response.put("cardId", cardId);
+            return response;
         } catch (NoUserExistsException | RequiredFieldsMissingException expectedException) {
             throw expectedException;
         } catch (Exception exception) {
