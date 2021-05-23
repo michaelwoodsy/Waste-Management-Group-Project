@@ -3,6 +3,7 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -100,6 +102,7 @@ public class CardCreationSteps {
                 .andExpect(status().isCreated())
                 .andReturn();
 
+
         JSONObject jsonObject = new JSONObject(result.getResponse().getContentAsString());
         Integer testCardId = jsonObject.getInt("cardId");
         Integer retrievedCardId = cardRepository.findById(testCardId).get().getId();
@@ -121,35 +124,82 @@ public class CardCreationSteps {
     public void the_card_creator_s_name_and_location_are_displayed_successfully() throws Exception {
         // Write code here that turns the phrase above into concrete actions
 
-        String retrievedFirstName = cardRepository.findById(testCardId).get().getCreator().getFirstName();
-        String retrievedLastName = cardRepository.findById(testCardId).get().getCreator().getLastName();
-        String retrievedLocation = cardRepository.findById(testCardId).get().getCreator().getHomeAddress().getCountry();
-        Assertions.assertEquals(retrievedFirstName, testUser.getFirstName());
-        Assertions.assertEquals(retrievedLastName, testUser.getLastName());
-        Assertions.assertEquals(retrievedLocation, testUser.getHomeAddress().getCountry());
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                .get("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(testUserEmail, testUserPassword)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        JSONArray retrievedCards = new JSONArray(result.getResponse().getContentAsString());
+        for (int i = 0; i < retrievedCards.length(); i++) {
+            JSONObject retrievedCard = retrievedCards.getJSONObject(i);
+            JSONObject retrievedCreator = retrievedCard.getJSONObject("creator");
+            String retrievedFirstName = retrievedCreator.getString("firstName");
+            String retrievedLastName = retrievedCreator.getString("lastName");
+
+            String retrievedLocation = retrievedCreator.getJSONObject("homeAddress").getString("country");
+
+            Assertions.assertEquals(retrievedFirstName, testUser.getFirstName());
+            Assertions.assertEquals(retrievedLastName, testUser.getLastName());
+            Assertions.assertEquals(retrievedLocation, testUser.getHomeAddress().getCountry());
+        }
     }
 
     //AC3
 
     @Then("The card's title is shown")
-    public void the_card_s_title_is_shown() {
+    public void the_card_s_title_is_shown() throws Exception {
         // Write code here that turns the phrase above into concrete actions
 
-        throw new io.cucumber.java.PendingException();
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                .get("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(testUserEmail, testUserPassword)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        JSONArray retrievedCards = new JSONArray(result.getResponse().getContentAsString());
+        for (int i = 0; i < retrievedCards.length(); i++) {
+            JSONObject retrievedCard = retrievedCards.getJSONObject(i);
+            String retrievedTitle = retrievedCard.getString("title");
+
+            Assertions.assertEquals(retrievedTitle, testCard.getTitle());
+        }
     }
 
 
     //AC4
 
-    @When("A user views a card in the card display section")
-    public void a_user_views_a_card_in_the_card_display_section() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
-    }
+//    @When("A user views a card in the card display section")
+//    public void a_user_views_a_card_in_the_card_display_section() {
+//        // Write code here that turns the phrase above into concrete actions
+//        throw new io.cucumber.java.PendingException();
+//    } // nothing to test
+
     @Then("The card's description is shown")
-    public void the_card_s_description_is_shown() {
+    public void the_card_s_description_is_shown() throws Exception{
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                .get("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic(testUserEmail, testUserPassword)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        JSONArray retrievedCards = new JSONArray(result.getResponse().getContentAsString());
+        for (int i = 0; i < retrievedCards.length(); i++) {
+            JSONObject retrievedCard = retrievedCards.getJSONObject(i);
+            String retrievedDescription = retrievedCard.getString("description");
+
+            Assertions.assertEquals(retrievedDescription, testCard.getDescription());
+        }
     }
 
     //AC5
