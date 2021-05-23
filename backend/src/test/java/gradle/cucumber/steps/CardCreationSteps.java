@@ -3,6 +3,7 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -25,7 +27,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class CardCreationSteps {
 
     private User testUser;
+    private Card testCard;
+    private JSONObject testCardJson = new JSONObject();
+
+    private String testUserEmail;
+    private String testUserPassword;
     private Integer testUserId;
+    private Integer testCardId;
     private Address testAddress;
     private MockMvc mockMvc;
 
@@ -72,55 +80,53 @@ public class CardCreationSteps {
     @When("A user creates a card to be displayed in the {string} section")
     public void a_user_creates_a_card_to_be_displayed_in_the_section(String section) throws Exception {
         // Write code here that turns the phrase above into concrete actions
-        JSONObject testCardJson = new JSONObject();
         testCardJson.put("creatorId", testUserId);
         testCardJson.put("section", "ForSale");
         testCardJson.put("title", "1982 Lada Samara");
         testCardJson.put("description",
                 "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
 
-        mockMvc.perform(MockMvcRequestBuilders
+    }
+
+    @Then("The card is successfully created")
+    public void the_card_is_successfully_created() throws Exception {
+        // Write code here that turns the phrase above into concrete actions
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                 .post("/cards")
                 .content(testCardJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(testUserEmail, testUserPassword)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn();
 
-    }
+        JSONObject jsonObject = new JSONObject(result.getResponse().getContentAsString());
+        Integer testCardId = jsonObject.getInt("cardId");
+        Integer retrievedCardId = cardRepository.findById(testCardId).get().getId();
+        Assertions.assertEquals(testCardId, retrievedCardId);
 
-    @Then("The card is successfully created")
-    public void the_card_is_successfully_created() {
-        // Write code here that turns the phrase above into concrete actions
-
-        Card retrievedCard = cardRepository.findAllBySection("ForSale").get(0);
-
-        Assertions.assertNotNull(retrievedCard.getCreator().getId());
-        Assertions.assertEquals("Jim", retrievedCard.getCreator().getFirstName());
-        Assertions.assertEquals("Smith", retrievedCard.getCreator().getLastName());
-
-        Assertions.assertEquals("ForSale", retrievedCard.getSection());
-        Assertions.assertEquals("1982 Lada Samara", retrievedCard.getTitle());
-        Assertions.assertEquals("Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
-                retrievedCard.getDescription());
-        Assertions.assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || retrievedCard.getCreated().isEqual(LocalDateTime.now()));
-        Assertions.assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-        Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
-        throw new io.cucumber.java.PendingException();
     }
 
     //AC2
     @Given("A card exists")
     public void a_card_exists() {
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        a_user_exists();
+        testCard = new Card(testUser, "ForSale", "Beetle Juice", "Beetle juice from Bob");
+        testCardId = cardRepository.save(testCard).getId();
     }
 
 
     @Then("The card creator's name and location are displayed successfully")
-    public void the_card_creator_s_name_and_location_are_displayed_successfully() {
+    public void the_card_creator_s_name_and_location_are_displayed_successfully() throws Exception {
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+
+        String retrievedFirstName = cardRepository.findById(testCardId).get().getCreator().getFirstName();
+        String retrievedLastName = cardRepository.findById(testCardId).get().getCreator().getLastName();
+        String retrievedLocation = cardRepository.findById(testCardId).get().getCreator().getHomeAddress().getCountry();
+        Assertions.assertEquals(retrievedFirstName, testUser.getFirstName());
+        Assertions.assertEquals(retrievedLastName, testUser.getLastName());
+        Assertions.assertEquals(retrievedLocation, testUser.getHomeAddress().getCountry());
     }
 
     //AC3
