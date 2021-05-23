@@ -13,8 +13,12 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 
     <div v-if="expired && showExpired" class="card-header">
       <p class="text-danger d-inline">This card is about to expire</p>
-      <!--TODO: Hook these buttons up to API calls-->
-      <button class="btn btn-outline-danger d-inline float-right mx-1">Delete</button>
+      <button class="btn btn-outline-danger d-inline float-right mx-1"
+              data-toggle="modal"
+              :data-target="'#deleteModal' + cardData.id">
+        Delete
+      </button>
+      <!--TODO: Hook extend button up to API calls-->
       <button class="btn btn-outline-primary d-inline float-right mx-1">Extend</button>
     </div>
 
@@ -105,11 +109,6 @@ import Alert from "@/components/Alert";
 
 export default {
   name: "MarketCard",
-  data() {
-    return {
-      error: null
-    }
-  },
   components: {
     Alert
   },
@@ -132,7 +131,8 @@ export default {
   },
   data() {
     return {
-      showDetails: false
+      showDetails: false,
+      error: null
     }
   },
   computed: {
