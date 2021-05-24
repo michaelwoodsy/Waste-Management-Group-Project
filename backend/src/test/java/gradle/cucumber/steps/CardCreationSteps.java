@@ -236,7 +236,7 @@ public class CardCreationSteps {
     @Given("A card exists in the {string} section")
     public void a_card_exists_in_the_section(String string) {
         // Write code here that turns the phrase above into concrete actions
-        testCardSection = string
+        testCardSection = string;
         a_user_exists();
         testCard = new Card(testUser, testCardSection, "Beetle Juice", "Beetle juice from Bob", "");
         testCardId = cardRepository.save(testCard).getId();

@@ -53,9 +53,9 @@ public class CardController {
             Optional<User> creator = userRepository.findById(creatorId);
 
             //TODO: if loggedInUser != creatorId, check loggedInUser is GAA
-            if (!loggedInUser.getId().equals(creatorId) {
+            if (!loggedInUser.getId().equals(creatorId)) {
                 if (!loggedInUser.getRole().equals("globalApplicationAdmin") || !loggedInUser.getRole().equals("defaultGlobalApplicationAdmin")) {
-                    throw new ForbiddenCardActionException()
+                    throw new ForbiddenCardActionException();
                 }
             }
 

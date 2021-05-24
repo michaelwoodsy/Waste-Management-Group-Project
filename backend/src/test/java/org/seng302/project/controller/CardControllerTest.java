@@ -314,12 +314,12 @@ public class CardControllerTest {
         Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
     }
 
-    @Test
-    public void createTestCardWithoutRequiredFields() {
-
-
-        Exception exception = Assertions.assertThrows(NoUserExistsException.class, () -> {
-
-        });
-    }
+//    @Test
+//    public void createTestCardWithoutRequiredFields() {
+//
+//
+//        Exception exception = Assertions.assertThrows(NoUserExistsException.class, () -> {
+//
+//        });
+//    }
 }
