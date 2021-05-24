@@ -155,7 +155,6 @@ public class CardController {
 
             // Return all cards in the section
             return cardRepository.findAllBySection(section);
-
         } catch (Exception exception) {
             logger.error("Unexpected error while getting all cards");
             throw exception;
