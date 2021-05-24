@@ -334,6 +334,7 @@ public class CardControllerTest {
         testCardJson.put("creatorId", testUser.getId());
         testCardJson.put("section", "ForSale");
         testCardJson.put("title", "1982 Lada Samara");
+        testCardJson.put("keywords", "word");
         testCardJson.put("description",
                 "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
 
@@ -366,13 +367,6 @@ public class CardControllerTest {
         assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || retrievedCard.getCreated().isEqual(LocalDateTime.now()));
         assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
         assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
-    }
-
-    @Test
-    public void createTestCardWithoutRequiredFields() {
-        Assertions.assertThrows(ForbiddenCardActionException.class, () ->
-                cardController.createCard(new net.minidev.json.JSONObject(), new AppUserDetails(testUser))
-        );
     }
 
     /**
