@@ -78,6 +78,12 @@ export const User = {
     createCard: (data) => instance.post('cards', data),
 
     /**
+     * Get all cards from the market place from a particular section (For Sale, Wanted, or Exchange)
+     * @param section The particular section you want the cards for
+     */
+    getCardsSection: (section) => instance.get(`cards`, {params: {'section': section}}),
+
+    /**
      * Gets a user's cards from the backend
      * @param id User ID to get cards from
      * @returns {Promise<AxiosResponse<any>>} response containing user's cards
