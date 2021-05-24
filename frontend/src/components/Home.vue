@@ -1,61 +1,67 @@
 <template>
-  <div>
+  <div class="container-fluid">
 
     <login-required
         v-if="!isLoggedIn"
         page="view your profile page"
     />
 
-    <!-- Greeting User -->
-    <div v-else-if="this.actor.type === 'user'">
-      <div class="row">
-        <div class="col text-center mb-2">
-          <h2>Hello {{ actorName }}</h2>
-          <router-link to="/marketplace" class="btn btn-outline-primary mx-2">View Marketplace</router-link>
+    <div v-else class="row justify-content-between min-vh-100">
+
+      <!-- Side Bar -->
+      <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
+        <div>
+          <h4 class="text-light">Quick Links</h4>
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+              <router-link class="btn btn-block btn-primary" to="/marketplace">Marketplace</router-link>
+            </li>
+          </ul>
+        </div>
+        <!-- Links to display if acting as business -->
+        <div v-if="!isActingAsUser">
+          <br>
+          <h4 class="text-light">My Business</h4>
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+              <router-link :to="productCatalogueRoute" class="btn btn-block btn-primary">Product Catalogue</router-link>
+            </li>
+            <li class="nav-item mb-2">
+              <router-link :to="inventoryRoute" class="btn btn-block btn-primary">Inventory</router-link>
+            </li>
+            <li class="nav-item mb-2">
+              <router-link :to="saleListingRoute" class="btn btn-block btn-primary">Sale Listings</router-link>
+            </li>
+          </ul>
         </div>
       </div>
-    </div>
 
-    <!-- Greeting Business -->
-    <div v-else>
-      <div class="row">
-        <div class="col text-center mb-2">
-          <h2>{{ actorName }}</h2>
-          <router-link :to="productCatalogueRoute" class="btn btn-outline-primary mx-2">View Product Catalogue
-          </router-link>
-          <router-link :to="inventoryRoute" class="btn btn-outline-primary mx-2">View Inventory</router-link>
-          <router-link :to="saleListingRoute" class="btn btn-outline-primary mx-2">View Sale Listings</router-link>
+      <!-- Page Content -->
+      <div class="col-12 col-md-8 p-3">
+        <div class="text-center">
+          <h1><span v-if="isActingAsUser">Hello </span>{{ actorName }}</h1>
+          <hr>
         </div>
-      </div>
-    </div>
-
-    <br>
-
-    <div class="row">
-      <div class="col text-left mb-2">
-        <h2>My Cards</h2>
-      </div>
-    </div>
-
-    <!-- Cards -->
-    <div class="d-flex mb-3">
-      <div v-for="card in cards" v-bind:key="card.id">
-        <div class="p-2 flex-fill">
-          <div v-if="expired(card)">
-            <p style="color: red">This card is about to expire</p>
-            <!--TODO: Hook these buttons up to API calls-->
-            <button class="btn btn-outline-primary" style="margin: 3px">Extend</button>
-            <button class="btn btn-outline-danger" style="margin: 3px">Delete</button>
-          </div>
-          <div v-if="hideImages">
-            <MarketCard :card-data="card" hide-image></MarketCard>
-          </div>
-          <div v-else>
-            <MarketCard :card-data="card"></MarketCard>
+        <!-- Cards Section -->
+        <div v-if="isActingAsUser">
+          <h2>My Cards</h2>
+          <alert v-if="hasExpiredCards" class="text-center">
+            You have cards that will expire in less than 24 hours! Please extend or delete them!
+          </alert>
+          <div class="row row-cols-1 row-cols-lg-2">
+            <div v-for="card in cards" v-bind:key="card.id" class="col">
+              <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
+                          @card-deleted="deleteCard" @card-extended="extendCard"></market-card>
+            </div>
           </div>
         </div>
+
       </div>
+
+      <div class="col-md-1 col-lg-2 p-3"></div>
+
     </div>
+
   </div>
 </template>
 
@@ -63,9 +69,15 @@
 
 import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/MarketCard";
+import Alert from "@/components/Alert";
 
 export default {
   name: "Home",
+  components: {
+    Alert,
+    LoginRequired,
+    MarketCard
+  },
   props: {
     msg: String
   },
@@ -75,11 +87,10 @@ export default {
   data() {
     return {
       cards: [],
-      hideImages: false,
+      hideImages: true,
       error: ""
     }
   },
-
   computed: {
     /**
      * Check if user is logged in
@@ -117,10 +128,22 @@ export default {
       return this.actor.name
     },
 
-  },
-  components: {
-    LoginRequired,
-    MarketCard
+    /**
+     * Returns true if the user is currently acting as a user
+     */
+    isActingAsUser() {
+      return this.actor.type === 'user'
+    },
+
+    hasExpiredCards() {
+      for (const card of this.cards) {
+        if (this.expired(card)) {
+          return true
+        }
+      }
+      return false
+    }
+
   },
   methods: {
     /**
@@ -132,7 +155,7 @@ export default {
         {
           "id": 500,
           "creator": {
-            "id": 100,
+            "id": 1,
             "firstName": "John",
             "lastName": "Smith",
             "homeAddress": {
@@ -146,7 +169,7 @@ export default {
           },
           "section": "ForSale",
           "created": "2021-05-03T05:10:00Z",
-          "displayPeriodEnd": "2021-05-17T05:10:00Z",
+          "displayPeriodEnd": "2021-05-22T05:10:00Z",
           "title": "1982 Lada Samara",
           "description": "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
           "keywords": [
@@ -160,7 +183,7 @@ export default {
         {
           "id": 503,
           "creator": {
-            "id": 100,
+            "id": 1,
             "firstName": "John",
             "lastName": "Smith",
             "homeAddress": {
@@ -219,6 +242,30 @@ export default {
       const now = new Date();
       if (now >= new Date(card.displayPeriodEnd)) {
         return true;
+      }
+    },
+    /**
+     * Deletes a card from the list of cards once it has been deleted from the server
+     * @param id
+     */
+    deleteCard(id) {
+      for (let index = 0; index < this.cards.length; index++) {
+        if (this.cards[index].id === id) {
+          this.cards.splice(index, 1)
+        }
+      }
+    },
+    /**
+     * Updates an extended cards information.
+     * @param id ID of card to update
+     * @param newDate the new date to set on the card
+     */
+    // TODO: May need to change when hooked up to backend
+    extendCard(id, newDate) {
+      for (let index = 0; index < this.cards.length; index++) {
+        if (this.cards[index].id === id) {
+          this.cards[index].displayPeriodEnd = newDate
+        }
       }
     }
   }

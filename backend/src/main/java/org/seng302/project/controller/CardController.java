@@ -1,6 +1,7 @@
 package org.seng302.project.controller;
 
 import net.minidev.json.JSONObject;
+import java.util.List;
 import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.*;
 import org.seng302.project.exceptions.card.NoCardExistsException;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -133,6 +135,33 @@ public class CardController {
             throw exception;
         }
     }
+    /**
+     * Endpoint for getting all cards in a section.
+     *
+     * @param section Section to get all cards from.
+     * @return List of Cards in the corresponding section.
+     */
+    @GetMapping("/cards")
+    public List<Card> getAllCards(@RequestParam String section) {
+        try {
+            // Check if the section is invalid
+            if (!("Exchange".equals(section) ||
+                  "ForSale".equals(section) ||
+                  "Wanted".equals(section))) {
+                throw new InvalidMarketplaceSectionException();
+            }
+
+            // Return all cards in the section
+            return cardRepository.findAllBySection(section);
+
+        } catch (Exception exception) {
+            logger.error("Unexpected error while getting all cards");
+            throw exception;
+        }
+    }
+
+
+
 
     /**
      * Extends the card with id cardID's displayPeriodEnd date by 12 days.
@@ -203,6 +232,39 @@ public class CardController {
             throw expectedException;
         } catch (Exception unexpectedException) {
             logger.error(String.format("Unexpected error while deleting card: %s", unexpectedException.getMessage()));
+            throw unexpectedException;
+        }
+
+    }
+
+    @GetMapping("/users/{id}/cards")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Card> getAllCardsByUser(@PathVariable Integer id) {
+        // Log the request
+        logger.info(String.format("Request to get cards by user with id %d", id));
+
+        try {
+            // Try get the user, and check they exist
+            Optional<User> optionalUser = userRepository.findById(id);
+            if (optionalUser.isEmpty()) {
+                throw new NoUserExistsException(id);
+            }
+            User user = optionalUser.get();
+
+            // Get the users cards
+            return cardRepository.findAllByCreator(user);
+        }
+
+        // Deal with known Exceptions
+        catch (NoUserExistsException expectedException) {
+            logger.warn(expectedException.getMessage());
+            throw expectedException;
+
+        }
+
+        // Deal with unknown exceptions
+        catch (Exception unexpectedException) {
+            logger.error(String.format("Unexpected error while retrieving users cards: %s", unexpectedException.getMessage()));
             throw unexpectedException;
         }
 

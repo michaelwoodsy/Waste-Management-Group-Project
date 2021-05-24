@@ -8,6 +8,7 @@ import org.mockito.ArgumentCaptor;
 import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.NoUserExistsException;
 import org.seng302.project.exceptions.RequiredFieldsMissingException;
+import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.card.ForbiddenCardActionException;
 import org.seng302.project.exceptions.card.NoCardExistsException;
 import org.seng302.project.model.Card;
@@ -34,6 +35,12 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -97,6 +104,95 @@ public class CardControllerTest {
         otherUsersCard = new Card(otherUser, "ForSale", "Other users card", "Other card description");
         otherUsersCard.setId(3);
         given(cardRepository.findById(otherUsersCard.getId())).willReturn(Optional.of(otherUsersCard));
+    }
+
+    /**
+     * Checks that a 401 response is sent when the request is made by and unauthenticated user.
+     */
+    @Test
+    public void getAllCardsByUser_checkUnauthenticated401() throws Exception {
+        mockMvc.perform(get("/users/{id}/cards", testUser.getId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * Checks a 406 response is sent when the userId doesn't exist.
+     */
+    @Test
+    public void getAllCardsByUser_checkNonExistentUser406() throws Exception {
+        // Mock a user that doesn't exist
+        given(userRepository.findByEmail("notAUser@gmail.com")).willReturn(List.of());
+        given(userRepository.findById(3)).willReturn(Optional.empty());
+
+        // Make the request
+        mockMvc.perform(get("/users/{id}/cards", 3)
+                .with(user(testUser.getEmail())))
+                .andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Checks a 400 response is sent when the userId is a string.
+     */
+    @Test
+    public void getAllCardsByUser_checkInvalidUserId400() throws Exception {
+        mockMvc.perform(get("/users/{id}/cards", "beans")
+                .with(user(testUser.getEmail())))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Checks a 200 response is sent when a valid request is made.
+     */
+    @Test
+    public void getAllCardsByUser_checkValidRequest200() throws Exception {
+        mockMvc.perform(get("/users/{id}/cards", testUser.getId())
+                .with(user(testUser.getEmail())))
+                .andExpect(status().isOk());
+    }
+
+    /**
+     * Only cards from the requested userId are returned.
+     */
+    @Test
+    void getAllCardsByUser_onlyCardsCreatedByCreatorWithId() {
+        // Mock the card repository call
+        List<Card> expectedCards = List.of(testUsersCard1, testUsersCard2);
+        given(cardRepository.findAllByCreator(testUser)).willReturn(expectedCards);
+
+        // Run the method
+        List<Card> cards = cardController.getAllCardsByUser(testUser.getId());
+
+        // Check the repository was called
+        verify(cardRepository, times(1)).findAllByCreator(testUser);
+
+        // Check the expected cards were returned
+        assertEquals(expectedCards, cards);
+    }
+
+    /**
+     * Checks expired cards are also returned.
+     */
+    @Test
+    void getAllCardsByUser_allCardsReturned() {
+        // Create, and mock, an expired card
+        Card expiredCard = new Card(testUser, "Wanted", "Test Card 2", "Test card 2 description");
+        expiredCard.setId(4);
+        LocalDateTime timeInPast = LocalDateTime.now().minus(2, ChronoUnit.HOURS);
+        expiredCard.setDisplayPeriodEnd(timeInPast);
+        given(cardRepository.findById(expiredCard.getId())).willReturn(Optional.of(expiredCard));
+
+        // Mock the card repository call
+        List<Card> expectedCards = List.of(testUsersCard1, expiredCard);
+        given(cardRepository.findAllByCreator(testUser)).willReturn(expectedCards);
+
+        // Run the method
+        List<Card> cards = cardController.getAllCardsByUser(testUser.getId());
+
+        // Check the repository was called
+        verify(cardRepository, times(1)).findAllByCreator(testUser);
+
+        // Check the expected cards were returned
+        assertEquals(List.of(testUsersCard1, expiredCard), cards);
     }
 
     @Test
@@ -208,7 +304,7 @@ public class CardControllerTest {
                 .andExpect(status().isOk());
 
         Optional<Card> extendedCardOptional = cardRepository.findById(testUsersCard1.getId());
-        assertTrue(extendedCardOptional.isPresent());
+        Assertions.assertTrue(extendedCardOptional.isPresent());
         Card extendedCard = extendedCardOptional.get();
 
         assertEquals(expectedNewEndDate.getMonthValue(), extendedCard.getDisplayPeriodEnd().getMonthValue());
@@ -285,5 +381,3 @@ public class CardControllerTest {
         );
     }
 }
-
-

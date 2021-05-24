@@ -41,7 +41,19 @@
         <label for="description"><b>Description</b></label>
         <input id="description" v-model="description" :class="{'form-control': true, 'is-invalid': false}"
                placeholder="Enter the description"
-               required maxlength="256" type="text">
+               required maxlength="255" type="text">
+      </div>
+
+      <!-- Keywords -->
+      <div class="form-group row">
+        <label for="keywords">
+          <b>Keywords<span class="required">*</span></b>
+           (Separate keywords with a comma no spaces)
+        </label>
+        <input id="keywords" v-model="keywords" :class="{'form-control': true, 'is-invalid': msg.keywords}"
+               placeholder="Enter the Keywords"
+               required maxlength="255" type="text">
+        <span class="invalid-feedback">{{ msg.keywords }}</span>
       </div>
 
       <!-- Create Card button -->
@@ -73,9 +85,11 @@ export default {
       section: '', //Required
       title: '', //Required
       description: '',
+      keywords: '',
       msg: {
         section: null,
         title: null,
+        keywords: null,
         errorChecks: null
       },
       valid: true,
@@ -86,6 +100,7 @@ export default {
   methods: {
     /**
      * Validate the section input
+     * Must select one of the 3 available sections
      */
     validateSection(){
       if (this.section === '' || this.section === null){
@@ -100,6 +115,7 @@ export default {
     },
     /**
      * Validate the title input
+     * Cannot be empty
      */
     validateTitle(){
       if (this.title === '' || this.title === null){
@@ -111,11 +127,35 @@ export default {
     },
 
     /**
-     * Check all inputs
+     * Validate the keywords input
+     * Will edit keywords to be correct, remove spaces (Comma separated string FOR NOW)
+     */
+    validateKeywords(){
+      if (this.keywords === '' || this.keywords === null){
+        this.msg.keywords = 'Please enter one or more keywords'
+        this.valid = false
+      } else if(this.keywords.includes(', ') || this.keywords.includes(' ')){
+        //Remove the leading and trailing white spaces
+        this.keywords = this.keywords.replace(/^\s+|\s+$/g, '')
+        //Remove any multiple commas
+        this.keywords = this.keywords.replace(/,+/g, ',')
+        //Remove white spaces after comma
+        this.keywords = this.keywords.replace(/,\s+/g, ',')
+        //Replace white spaces between words with hyphens
+        this.keywords = this.keywords.replace(/\s/g, '-')
+        this.msg.keywords = null
+      }else {
+        this.msg.keywords = null
+      }
+    },
+
+    /**
+     * Check all inputs are valid, if not show error message otherwise add card to marketplace
      */
     checkInputs(){
       this.validateSection()
       this.validateTitle()
+      this.validateKeywords()
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
@@ -138,6 +178,7 @@ export default {
             "section": this.section,
             "title": this.title,
             "description": this.description,
+            "keywords": this.keywords
           }
       ).then(() => {
         this.$refs.close.click();

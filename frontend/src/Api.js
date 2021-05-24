@@ -77,6 +77,19 @@ export const User = {
      */
     createCard: (data) => instance.post('cards', data),
 
+    /**
+     * Get all cards from the market place from a particular section (For Sale, Wanted, or Exchange)
+     * @param section The particular section you want the cards for
+     */
+    getCardsSection: (section) => instance.get(`cards`, {params: {'section': section}}),
+
+    /**
+     * Gets a user's cards from the backend
+     * @param id User ID to get cards from
+     * @returns {Promise<AxiosResponse<any>>} response containing user's cards
+     */
+    getCards: (id) => instance.get(`users/${id}/cards`)
+
 };
 
 export const Business = {
@@ -156,6 +169,13 @@ export const Business = {
      * @param data The listing data
      */
     createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data)
-
-
 };
+
+export const Marketplace = {
+    /**
+     * Sends a marketplace card deletion request to the api.
+     * @param cardId Id of the card to delete
+     * @returns {Promise<AxiosResponse<any>>} Response from request
+     */
+    deleteCard: (cardId) => instance.delete(`cards/${cardId}`)
+}

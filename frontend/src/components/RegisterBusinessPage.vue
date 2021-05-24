@@ -1,16 +1,14 @@
 <template>
-  <div>
+  <page-wrapper>
 
     <login-required
         v-if="!isLoggedIn"
         page="Register a Business"
     />
 
-    <div v-else class="container-fluid"> <!--    If Logged In    -->
-      <br><br>
-
+    <div v-else> <!--    If Logged In    -->
       <div class="row">
-        <div class="col-12 text-center mb-2">
+        <div class="col-12 text-center my-3">
           <h2>Register a Business</h2>
         </div>
       </div>
@@ -24,8 +22,8 @@
               <b>Business Name<span class="required">*</span></b>
             </label>
             <br/>
-            <input id="businessName" maxlength="200" v-model="businessName"
-                   class="form-control" placeholder="Enter your Business Name"
+            <input id="businessName" v-model="businessName" class="form-control"
+                   maxlength="200" placeholder="Enter your Business Name"
                    required style="width:100%" type="text">
             <br>
             <!--    Error message for business name input   -->
@@ -40,8 +38,8 @@
               <b>Bio</b>
             </label>
             <br>
-            <textarea id="description" maxlength="255" v-model="description"
-                      class="form-control" placeholder="Write a Business Description (Max length 255 characters)"
+            <textarea id="description" v-model="description" class="form-control"
+                      maxlength="255" placeholder="Write a Business Description (Max length 255 characters)"
                       style="width: 100%; height: 200px;">
 
             </textarea>
@@ -49,12 +47,12 @@
           <br>
 
           <hr/>
-            <address-input-fields
-                :showErrors="submitClicked"
-                @setAddress="(newAddress) => {this.address = newAddress}"
-                @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
-                ref="addressInput"
-            />
+          <address-input-fields
+              ref="addressInput"
+              :showErrors="submitClicked"
+              @setAddress="(newAddress) => {this.address = newAddress}"
+              @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
+          />
           <hr/>
 
           <div class="form-row">
@@ -79,7 +77,8 @@
             <br>
           </div>
 
-          <p style="width: 100%; text-align: center; margin: 0"><small>You must be at least 16 years old to register a business</small></p>
+          <p style="width: 100%; text-align: center; margin: 0"><small>You must be at least 16 years old to register a
+            business</small></p>
           <div class="form-row">
             <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px"
                     v-on:click="checkInputs">
@@ -97,14 +96,15 @@
         </div>
       </div>
     </div>
-  </div>
 
+  </page-wrapper>
 </template>
 
 <script>
 import LoginRequired from "@/components/LoginRequired";
 import Alert from "./Alert"
 import AddressInputFields from "@/components/AddressInputFields";
+import PageWrapper from "@/components/PageWrapper";
 
 /**
  * Default starting parameters
@@ -113,6 +113,7 @@ export default {
   name: "RegisterBusinessPage",
 
   components: {
+    PageWrapper,
     AddressInputFields,
     LoginRequired,
     Alert
