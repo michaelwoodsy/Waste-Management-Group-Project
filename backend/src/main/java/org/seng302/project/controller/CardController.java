@@ -53,6 +53,16 @@ public class CardController {
             User loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
             Optional<User> creator = userRepository.findById(creatorId);
 
+            // check required fields
+            if (section == null || section.isEmpty() ||
+                    title == null || title.isEmpty() ||
+                    keywords == null || keywords.isEmpty() ||
+                    !json.containsKey("creatorId")) {
+                RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
+                logger.warn(requiredFieldsMissingException.getMessage());
+                throw requiredFieldsMissingException;
+            }
+
             // check if loggedInUser has the same ID as the creator id provided, otherwise check loggedInUser is GAA
             if (!loggedInUser.getId().equals(creatorId)) {
                 if (!loggedInUser.getRole().equals("globalApplicationAdmin") || !loggedInUser.getRole().equals("defaultGlobalApplicationAdmin")) {
@@ -65,15 +75,6 @@ public class CardController {
                 NoUserExistsException noUserExistsException = new NoUserExistsException(creatorId);
                 logger.warn(noUserExistsException.getMessage());
                 throw noUserExistsException;
-            }
-
-            // check required fields
-            if (section == null || section.isEmpty() ||
-                    title == null || title.isEmpty() ||
-                    keywords == null || keywords.isEmpty()) {
-                RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
-                logger.warn(requiredFieldsMissingException.getMessage());
-                throw requiredFieldsMissingException;
             }
 
             Card newCard = new Card(creator.get(), section, title, description, keywords);
