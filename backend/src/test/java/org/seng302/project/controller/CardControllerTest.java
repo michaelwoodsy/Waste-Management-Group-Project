@@ -160,10 +160,10 @@ public class CardControllerTest {
     }
 
     /**
-     * Checks only cards that are active are returned.
+     * Checks expired cards are also returned.
      */
     @Test
-    void getAllCardsByUser_onlyActiveCardsReturned() {
+    void getAllCardsByUser_allCardsReturned() {
         // Create, and mock, an expired card
         Card expiredCard = new Card(testUser, "Wanted", "Test Card 2", "Test card 2 description");
         expiredCard.setId(4);
@@ -172,7 +172,8 @@ public class CardControllerTest {
         given(cardRepository.findById(expiredCard.getId())).willReturn(Optional.of(expiredCard));
 
         // Mock the card repository call
-        given(cardRepository.findAllByCreator(testUser)).willReturn(List.of(testUsersCard1, expiredCard));
+        List<Card> expectedCards = List.of(testUsersCard1, expiredCard);
+        given(cardRepository.findAllByCreator(testUser)).willReturn(expectedCards);
 
         // Run the method
         List<Card> cards = cardController.getAllCardsByUser(testUser.getId());
@@ -181,7 +182,7 @@ public class CardControllerTest {
         verify(cardRepository, times(1)).findAllByCreator(testUser);
 
         // Check the expected cards were returned
-        assertEquals(List.of(testUsersCard1), cards);
+        assertEquals(List.of(testUsersCard1, expiredCard), cards);
     }
 
     @Test
