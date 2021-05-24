@@ -34,6 +34,7 @@ import Store from './store'
 import './router'
 import 'bootstrap'
 import '../scss/main.scss'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 import VueLogger from 'vuejs-logger';
 
 Vue.config.productionTip = false;

@@ -34,3 +34,7 @@
 .pointer {
     cursor: pointer;
 }
+
+body {
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+}

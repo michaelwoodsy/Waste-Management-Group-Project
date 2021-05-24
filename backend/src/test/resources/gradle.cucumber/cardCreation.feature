@@ -37,8 +37,8 @@ Feature: UCM2 - Card Creation
     Then The card's keywords are successfully saved with the card
 
   Scenario: AC6: The newly-created card is added to the corresponding marketplace section.
-    Given A card exists in the "For Sale" section
-    When A user views the "For Sale" section
+    Given A card exists in the "ForSale" section
+    When A user views the "ForSale" section
     Then The card is successfully displayed in this section
 
   Scenario: AC6: The newly-created card is added to the corresponding marketplace section.

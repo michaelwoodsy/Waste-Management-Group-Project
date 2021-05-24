@@ -39,6 +39,13 @@ public class Card {
         this.keywords = keywords;
     }
 
+    public Card(User creator, String section, String title, String description) {
+        this.creator = creator;
+        this.section = section;
+        this.title = title;
+        this.description = description;
+    }
+
     @Id // this field (attribute) is the primary key of the table
     @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
     @Column(name = "card_id")

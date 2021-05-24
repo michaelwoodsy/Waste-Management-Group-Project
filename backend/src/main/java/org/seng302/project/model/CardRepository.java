@@ -18,6 +18,13 @@ public interface CardRepository extends JpaRepository<Card, Integer> {
 
     List<Card> findAllBySection(@Param("section") String section);
 
+    /**
+     * Finds all cards created by a user.
+     * @param user The user to find all cards for.
+     * @return List of cards created by the user.
+     */
+    List<Card> findAllByCreator(@Param("creator") User user);
+
     @Modifying
     @Transactional
     void deleteByCreatedBeforeOrCreatedEquals(LocalDateTime expiryDate);

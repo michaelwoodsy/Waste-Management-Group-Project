@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <page-wrapper>
+
     <!-- Check if the user is logged in -->
     <login-required
         v-if="!isLoggedIn"
@@ -40,8 +41,8 @@
 
             <!-- Make more changes button -->
             <button
-                type="button"
                 class="btn btn-secondary float-left"
+                type="button"
                 @click="resetPage"
             >
               Edit Again
@@ -49,9 +50,9 @@
 
             <!-- Inventory button -->
             <router-link
-                type="button"
                 :to="{name: 'InventoryPage', params: {businessId: this.businessId}}"
                 class="btn btn-primary float-right"
+                type="button"
             >
               Inventory
             </router-link>
@@ -64,7 +65,7 @@
       <div v-else-if="item" class="container-fluid">
 
         <!-- Row for submit error message -->
-        <div class="row" v-if="submitError">
+        <div v-if="submitError" class="row">
           <div class="col-12 col-sm-8 offset-sm-2">
             <alert>An error occurred when submitting your changes:
               {{ submitError.slice(submitError.indexOf(':') + 2) }}
@@ -84,7 +85,8 @@
             <form>
               <!-- Product Code -->
               <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="productCode"><b>Product Code<span class="text-danger">*</span></b></label>
+                <label class="col-sm-4 col-form-label" for="productCode"><b>Product Code<span
+                    class="text-danger">*</span></b></label>
                 <div class="col-sm-8">
                   <select
                       id="productCode"
@@ -96,7 +98,7 @@
                       {{ code.id }}
                     </option>
                   </select>
-                  <div class="invalid-feedback" v-if="!productCodeValid">The Product Code is invalid</div>
+                  <div v-if="!productCodeValid" class="invalid-feedback">The Product Code is invalid</div>
                 </div>
               </div>
 
@@ -106,39 +108,40 @@
                     class="text-danger">*</span></b></label>
                 <div class="input-group col-sm-8">
                   <input
-                      type="text"
                       id="quantity"
                       v-model="newItem.quantity"
                       :class="{'form-control': true, 'is-invalid': !quantityValid && quantityBlur}"
-                      required
                       maxlength="10"
+                      required
+                      type="text"
                       @blur="quantityBlur = true"
                   >
                   <span v-if="this.getMinQuantity() !== 0" class="input-group-text">Min Quantity: {{
                       this.getMinQuantity()
                     }}</span>
-                  <div class="invalid-feedback" v-if="!quantityValid"> Please enter a valid quantity</div>
+                  <div v-if="!quantityValid" class="invalid-feedback"> Please enter a valid quantity</div>
                 </div>
               </div>
 
               <!-- Price Per Item -->
               <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="pricePerItem"><b>Price Per Item<span class="text-danger"></span></b></label>
-                <div class="col-sm-8"
-                     :class="{'input-group': true, 'is-invalid': !pricePerItemValid && pricePerItemBlur}">
+                <label class="col-sm-4 col-form-label" for="pricePerItem"><b>Price Per Item<span
+                    class="text-danger"></span></b></label>
+                <div :class="{'input-group': true, 'is-invalid': !pricePerItemValid && pricePerItemBlur}"
+                     class="col-sm-8">
                   <div class="input-group-prepend">
                     <span class="input-group-text">{{ this.currencySymbol }}</span>
                   </div>
                   <input id="pricePerItem" v-model="newItem.pricePerItem"
                          :class="{'form-control': true, 'is-invalid': !pricePerItemValid && pricePerItemBlur}"
+                         maxlength="10"
                          placeholder="Price Per Item"
                          type="text"
-                         maxlength="10"
                          @blur="pricePerItemBlur = true">
                   <div class="input-group-append">
                     <span class="input-group-text">{{ this.currencyCode }}</span>
                   </div>
-                  <div class="invalid-feedback" v-if="!pricePerItemValid">Please enter a valid price</div>
+                  <div v-if="!pricePerItemValid" class="invalid-feedback">Please enter a valid price</div>
                 </div>
 
               </div>
@@ -146,7 +149,7 @@
               <!-- Total Price -->
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="totalPrice"><b>Total Price</b></label>
-                <div class="col-sm-8" :class="{'input-group': true, 'is-invalid': !totalPriceValid && totalPriceBlur}">
+                <div :class="{'input-group': true, 'is-invalid': !totalPriceValid && totalPriceBlur}" class="col-sm-8">
                   <div class="input-group-prepend">
                     <span class="input-group-text">{{ this.currencySymbol }}</span>
                   </div>
@@ -157,7 +160,7 @@
                   <div class="input-group-append">
                     <span class="input-group-text">{{ this.currencyCode }}</span>
                   </div>
-                  <div class="invalid-feedback" v-if="!totalPriceValid">Please enter a valid price</div>
+                  <div v-if="!totalPriceValid" class="invalid-feedback">Please enter a valid price</div>
                 </div>
 
               </div>
@@ -170,7 +173,7 @@
                        style="width:100%"
                        type="date" @blur="manufacturedBlur=true"><br>
                 <!--    Error message for the date input    -->
-                <span class="invalid-feedback" v-if="!manufacturedValid">Please enter a date in the past</span><br><br>
+                <span v-if="!manufacturedValid" class="invalid-feedback">Please enter a date in the past</span><br><br>
               </div>
 
               <!-- Sell By -->
@@ -181,7 +184,7 @@
                        style="width:100%"
                        type="date" @blur="sellByBlur=true"><br>
                 <!--    Error message for the date input    -->
-                <span class="invalid-feedback" v-if="!sellByValid">Please enter a date in the future</span><br><br>
+                <span v-if="!sellByValid" class="invalid-feedback">Please enter a date in the future</span><br><br>
               </div>
 
               <!-- Best Before -->
@@ -192,7 +195,7 @@
                        style="width:100%"
                        type="date" @blur="bestBeforeBlur=true"><br>
                 <!--    Error message for the date input    -->
-                <span class="invalid-feedback" v-if="!bestBeforeValid">Please enter a date in the future</span><br><br>
+                <span v-if="!bestBeforeValid" class="invalid-feedback">Please enter a date in the future</span><br><br>
               </div>
 
               <!-- Expiry -->
@@ -203,7 +206,7 @@
                        style="width:100%"
                        type="date" @blur="expiryBlur=true"><br>
                 <!--    Error message for the date input    -->
-                <span class="invalid-feedback" v-if="!expiryValid">Please enter a date in the future</span><br><br>
+                <span v-if="!expiryValid" class="invalid-feedback">Please enter a date in the future</span><br><br>
               </div>
 
             </form>
@@ -225,9 +228,9 @@
             <button
                 :class="{'btn': true, 'mr-1': true, 'my-1': true, 'btn-danger': this.changesMade,
               'btn-secondary': !this.changesMade, 'float-left': true}"
+                class="btn mr-1 my-1 btn-secondary float-left"
                 type="button"
                 @click="cancel"
-                class="btn mr-1 my-1 btn-secondary float-left"
             >
               Cancel
             </button>
@@ -245,7 +248,8 @@
         </div>
       </div>
     </div>
-  </div>
+
+  </page-wrapper>
 </template>
 
 <script>
@@ -253,6 +257,7 @@ import LoginRequired from "@/components/LoginRequired";
 import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
 import {Business} from "@/Api";
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "EditItemPage",
@@ -290,6 +295,7 @@ export default {
   },
 
   components: {
+    PageWrapper,
     LoginRequired,
     AdminRequired,
     Alert
@@ -370,7 +376,7 @@ export default {
       if (this.newItem.quantity < this.getMinQuantity()) return false
 
       //32 bit highest number
-      if (this.newItem.quantity > 2147483647){
+      if (this.newItem.quantity > 2147483647) {
         return false
       }
       return /^([0-9]+([0-9]{0,2})?)?$/.test(this.newItem.quantity)
@@ -385,7 +391,7 @@ export default {
       if (this.newItem.pricePerItem === null || this.newItem.pricePerItem === '') {
         return true
       }
-      if (isNotANumber){
+      if (isNotANumber) {
         return false
       }
       return /^([0-9]+(.[0-9]{0,2})?)?$/.test(this.newItem.pricePerItem)
@@ -399,7 +405,7 @@ export default {
       if (this.newItem.totalPrice === null || this.newItem.totalPrice === '') {
         return true
       }
-      if (isNotANumber){
+      if (isNotANumber) {
         return false
       }
       return /^([0-9]+(.[0-9]{0,2})?)?$/.test(this.newItem.totalPrice)

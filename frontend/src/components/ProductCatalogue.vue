@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <page-wrapper>
 
     <login-required
         v-if="!isLoggedIn"
@@ -23,12 +23,13 @@
               <h4>Product Catalogue</h4>
             </div>
             <div class="col text-right">
-<!--              Buton for GAA or DGAA to add product (so the button is red)-->
+              <!--              Buton for GAA or DGAA to add product (so the button is red)-->
               <button v-if="$root.$data.user.canDoAdminAction()" class="btn btn-danger" data-target="#createProduct"
                       data-toggle="modal" @click="newProduct">
                 New Product
               </button>
-              <button v-else class="btn btn-primary" data-target="#createProduct" data-toggle="modal" @click="newProduct">
+              <button v-else class="btn btn-primary" data-target="#createProduct" data-toggle="modal"
+                      @click="newProduct">
                 New Product
               </button>
             </div>
@@ -58,7 +59,7 @@
       </div>
     </div>
 
-  </div>
+  </page-wrapper>
 </template>
 
 <script>
@@ -67,11 +68,13 @@ import AdminRequired from "@/components/AdminRequired";
 import Alert from './Alert'
 import CreateProduct from "@/components/CreateProduct";
 import CatalogueItems from "@/components/ProductCatalogueItems";
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "Catalogue",
 
   components: {
+    PageWrapper,
     CatalogueItems,
     CreateProduct,
     LoginRequired,
