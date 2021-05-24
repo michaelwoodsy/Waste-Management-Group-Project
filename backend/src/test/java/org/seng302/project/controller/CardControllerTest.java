@@ -1,115 +1,110 @@
 package org.seng302.project.controller;
 
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.seng302.project.exceptions.NoUserExistsException;
-import org.seng302.project.exceptions.card.NoCardExistsException;
+import org.mockito.ArgumentCaptor;
+import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.card.ForbiddenCardActionException;
-import org.seng302.project.model.*;
+import org.seng302.project.exceptions.card.NoCardExistsException;
+import org.seng302.project.model.Card;
+import org.seng302.project.model.CardRepository;
+import org.seng302.project.model.User;
+import org.seng302.project.model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
+/**
+ * Class for testing GET /users/{id}/cards.
+ * Separated from the CardControllerTest class so the tests can be setup with mocking.
+ */
+@WebMvcTest(CardController.class)
 public class CardControllerTest {
 
-    // Test users
-    private User user;
-    private final String userEmail = "basicUser@gmail.com";
-    private final String userPassword = "123";
-
+    private User testUser;
     private User otherUser;
-    private final String otherUserEmail = "otherBasicUser@gmail.com";
-    private final String otherUserPassword = "456";
-
+    private Card testUsersCard1;
+    private Card testUsersCard2;
+    private Card otherUsersCard;
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private WebApplicationContext context;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
+    @MockBean
     private CardRepository cardRepository;
 
+    @MockBean
+    private UserRepository userRepository;
 
-    /**
-     * Creates the user if it's not already created.
-     * If it is already created, the user is returned.
-     * @return User
-     */
-    private User createUser(User wantedUser) {
-        if (userRepository.findByEmail(wantedUser.getEmail()).size() > 0) {
-            // Already exists, return it
-            return(userRepository.findByEmail(wantedUser.getEmail()).get(0));
-        } else {
-            // User doesn't exist, save it to repository
-            wantedUser.setPassword(passwordEncoder.encode(wantedUser.getPassword()));
-            userRepository.save(wantedUser);
-            return wantedUser;
-        }
-    }
-
-    private Card createCard(String section, User creator) {
-        return new Card(creator, section, "Test Card", "Test card description");
-    }
+    @Autowired
+    private CardController cardController;
 
     @BeforeEach
-    public void initialise() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
+    void setup() {
+        // Create mock user 1
+        testUser = new User("John", "Smith", "Bob", "Jonny",
+                "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
+                "+64 3 555 0129", null, "");
+        testUser.setId(1);
+        given(userRepository.findByEmail("test@gmail.com")).willReturn(List.of(testUser));
+        given(userRepository.findById(1)).willReturn(Optional.of(testUser));
 
-        // Create the users
-        user = createUser(new User("John", "Smith", "Bob", "Jonny",
-                "Likes long walks on the beach", userEmail, "1999-04-27",
-                "+64 3 555 0129", null, userPassword));
+        // Create mock user 2
+        otherUser = new User("John", "Smith", "Bob", "Jonny",
+                "Likes long walks on the beach", "other@gmail.com", "1999-04-27",
+                "+64 3 555 0129", null, "");
+        otherUser.setId(2);
+        given(userRepository.findByEmail("other@gmail.com")).willReturn(List.of(otherUser));
+        given(userRepository.findById(2)).willReturn(Optional.of(otherUser));
 
-        otherUser = createUser(new User("Tim", "Bell", "Bob", "Timothy",
-                "Likes long walks on the beach", otherUserEmail, "1999-04-27",
-                "+64 3 666 0129", null, otherUserPassword));
-    }
+        // Create mock cards
+        // Card 1
+        testUsersCard1 = new Card(testUser, "ForSale", "Test Card", "Test card description");
+        testUsersCard1.setId(1);
+        given(cardRepository.findById(testUsersCard1.getId())).willReturn(Optional.of(testUsersCard1));
 
-    @AfterEach
-    public void tearDown() {
-        cardRepository.deleteAll();
-        userRepository.delete(user);
+        // Card 2
+        testUsersCard2 = new Card(testUser, "Wanted", "Test Card 2", "Test card 2 description");
+        testUsersCard2.setId(2);
+        given(cardRepository.findById(testUsersCard2.getId())).willReturn(Optional.of(testUsersCard2));
+
+        // Other users card
+        otherUsersCard = new Card(otherUser, "ForSale", "Other users card", "Other card description");
+        otherUsersCard.setId(3);
+        given(cardRepository.findById(otherUsersCard.getId())).willReturn(Optional.of(otherUsersCard));
     }
 
     @Test
-    public void checkUnauthenticatedRequest() throws Exception {
+    public void getCard_checkUnauthenticatedRequest() throws Exception {
         mockMvc.perform(get("/cards/{id}", 1))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void extendCardDisplayPeriod_checkUnauthenticatedRequest() throws Exception {
         mockMvc.perform(put("/cards/{id}/extenddisplayperiod", 1))
                 .andExpect(status().isUnauthorized());
     }
@@ -118,21 +113,20 @@ public class CardControllerTest {
      * Test GETting card from endpoint
      */
     @Test
-    public void testGetSingleCard() throws Exception {
-        Card testCard = createCard("ForSale", user);
-        cardRepository.save(testCard);
-
-        MvcResult returnedCardResult = mockMvc.perform(get("/cards/{id}", testCard.getId())
-                .with(httpBasic(userEmail, userPassword)))
+    public void getCard_testGetSingleCard() throws Exception {
+        MvcResult returnedCardResult = mockMvc.perform(get("/cards/{id}", testUsersCard1.getId())
+                .with(user(testUser.getEmail())))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Convert response to json
         String returnedCardString = returnedCardResult.getResponse().getContentAsString();
         JSONObject returnedCard = new JSONObject(returnedCardString);
 
-        assertEquals(testCard.getSection(), returnedCard.get("section"));
-        assertEquals(testCard.getTitle(), returnedCard.get("title"));
-        assertEquals(testCard.getDescription(), returnedCard.get("description"));
+        // Check the returned card is the correct card
+        assertEquals(testUsersCard1.getSection(), returnedCard.get("section"));
+        assertEquals(testUsersCard1.getTitle(), returnedCard.get("title"));
+        assertEquals(testUsersCard1.getDescription(), returnedCard.get("description"));
         assertNotNull(returnedCard.get("created"));
         assertNotNull(returnedCard.get("displayPeriodEnd"));
     }
@@ -142,14 +136,14 @@ public class CardControllerTest {
      */
     @Test
     public void testGetCardDoesNotExist() throws Exception {
-        //Make sure the card repository is empty
-        cardRepository.deleteAll();
+        // Mock card with id 1 being empty
+        given(cardRepository.findById(1)).willReturn(Optional.empty());
 
         RequestBuilder getCardRequest = MockMvcRequestBuilders
                 .get("/cards/{id}", 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(userEmail, userPassword));
+                .with(user(testUser.getEmail()));
 
         MvcResult getCardResponse = this.mockMvc.perform(getCardRequest)
                 .andExpect(MockMvcResultMatchers.status().isNotAcceptable()) // We expect a 406 response
@@ -164,14 +158,14 @@ public class CardControllerTest {
      */
     @Test
     public void testExtendCardDoesNotExist() throws Exception {
-        //Make sure the card repository is empty
-        cardRepository.deleteAll();
+        // Mock card with id 1 being empty
+        given(cardRepository.findById(1)).willReturn(Optional.empty());
 
         RequestBuilder extendCardRequest = MockMvcRequestBuilders
                 .put("/cards/{id}/extenddisplayperiod", 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(userEmail, userPassword));
+                .with(user(new AppUserDetails(testUser)));
 
         MvcResult extendCardResponse = this.mockMvc.perform(extendCardRequest)
                 .andExpect(MockMvcResultMatchers.status().isNotAcceptable()) // We expect a 406 response
@@ -186,16 +180,11 @@ public class CardControllerTest {
      */
     @Test
     public void testExtendCardForbidden() throws Exception {
-        createUser(user);
-        createUser(otherUser);
-        Card testCard = createCard("ForSale", user);
-        cardRepository.save(testCard);
-
         RequestBuilder extendCardRequest = MockMvcRequestBuilders
-                .put("/cards/{id}/extenddisplayperiod", testCard.getId())
+                .put("/cards/{id}/extenddisplayperiod", otherUsersCard.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(otherUserEmail, otherUserPassword));
+                .with(user(new AppUserDetails(testUser)));
 
         MvcResult extendCardResponse = this.mockMvc.perform(extendCardRequest)
                 .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 403 response
@@ -210,18 +199,14 @@ public class CardControllerTest {
      */
     @Test
     public void testExtendCardSuccess() throws Exception {
-        createUser(user);
-        Card testCard = createCard("ForSale", user);
-        cardRepository.save(testCard);
+        LocalDateTime expectedNewEndDate = testUsersCard1.getDisplayPeriodEnd().plusWeeks(2);
 
-        LocalDateTime expectedNewEndDate = testCard.getDisplayPeriodEnd().plusWeeks(2);
-
-        mockMvc.perform(put("/cards/{id}/extenddisplayperiod", testCard.getId())
-                .with(httpBasic(userEmail, userPassword)))
+        mockMvc.perform(put("/cards/{id}/extenddisplayperiod", testUsersCard1.getId())
+                .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isOk());
 
-        Optional<Card> extendedCardOptional = cardRepository.findById(testCard.getId());
-        Assertions.assertTrue(extendedCardOptional.isPresent());
+        Optional<Card> extendedCardOptional = cardRepository.findById(testUsersCard1.getId());
+        assertTrue(extendedCardOptional.isPresent());
         Card extendedCard = extendedCardOptional.get();
 
         assertEquals(expectedNewEndDate.getMonthValue(), extendedCard.getDisplayPeriodEnd().getMonthValue());
@@ -234,14 +219,14 @@ public class CardControllerTest {
      */
     @Test
     public void testDeleteCardDoesNotExist() throws Exception {
-        //Make sure the card repository is empty
-        cardRepository.deleteAll();
+        // Mock card with id 1 being empty
+        given(cardRepository.findById(1)).willReturn(Optional.empty());
 
         RequestBuilder deleteCardRequest = MockMvcRequestBuilders
                 .delete("/cards/{id}/", 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(userEmail, userPassword));
+                .with(user(new AppUserDetails(testUser)));
 
         MvcResult deleteCardResponse = this.mockMvc.perform(deleteCardRequest)
                 .andExpect(MockMvcResultMatchers.status().isNotAcceptable()) // We expect a 406 response
@@ -251,75 +236,54 @@ public class CardControllerTest {
         Assertions.assertEquals(new NoCardExistsException(1).getMessage(), returnedExceptionString);
     }
 
-    private void createLoggedInUser() throws Exception {
-        JSONObject testAddress = new JSONObject();
-        testAddress.put("country", "New Zealand");
-
-        JSONObject testUserJson = new JSONObject();
-        testUserJson.put("firstName", "Jim");
-        testUserJson.put("lastName", "Smith");
-        testUserJson.put("email", "jimsmith@gmail.com");
-        testUserJson.put("dateOfBirth", "1999-04-27");
-        testUserJson.put("homeAddress", testAddress);
-        testUserJson.put("password", "1337-H%nt3r2");
-
-        testUserJson.put("middleName", "");
-        testUserJson.put("nickname", "");
-        testUserJson.put("bio", "");
-        testUserJson.put("phoneNumber", "");
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post("/users")
-                .content(testUserJson.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-    }
-
     @Test
     public void createAndRetrieveTestCard() throws Exception {
-
-
-        createLoggedInUser();
-
-        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
-
         JSONObject testCardJson = new JSONObject();
-        testCardJson.put("creatorId", loggedInUser.getId());
+        testCardJson.put("creatorId", testUser.getId());
         testCardJson.put("section", "ForSale");
         testCardJson.put("title", "1982 Lada Samara");
         testCardJson.put("description",
                 "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
+
+        // Mock the save method on the cardRepository
+        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/cards")
                 .content(testCardJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
+                .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isCreated());
 
-        Card retrievedCard = cardRepository.findAllBySection("ForSale").get(0);
+        // This captures the arguments given to the mocked repository
+        ArgumentCaptor<Card> argument = ArgumentCaptor.forClass(Card.class);
+        verify(cardRepository).save(argument.capture());
 
-        Assertions.assertNotNull(retrievedCard.getCreator().getId());
-        Assertions.assertEquals("Jim", retrievedCard.getCreator().getFirstName());
-        Assertions.assertEquals("Smith", retrievedCard.getCreator().getLastName());
+        // This gets the actual card argument passed to the card repository
+        Card retrievedCard = argument.getValue();
 
-        Assertions.assertEquals("ForSale", retrievedCard.getSection());
-        Assertions.assertEquals("1982 Lada Samara", retrievedCard.getTitle());
-        Assertions.assertEquals("Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
+        assertNotNull(retrievedCard.getCreator().getId());
+        assertEquals("John", retrievedCard.getCreator().getFirstName());
+        assertEquals("Smith", retrievedCard.getCreator().getLastName());
+
+        assertEquals("ForSale", retrievedCard.getSection());
+        assertEquals("1982 Lada Samara", retrievedCard.getTitle());
+        assertEquals("Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
                 retrievedCard.getDescription());
-        Assertions.assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || retrievedCard.getCreated().isEqual(LocalDateTime.now()));
-        Assertions.assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-        Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
+        assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || retrievedCard.getCreated().isEqual(LocalDateTime.now()));
+        assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
+        assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
     }
-
-//    @Test
-//    public void createTestCardWithoutRequiredFields() {
 //
-//
-//        Exception exception = Assertions.assertThrows(NoUserExistsException.class, () -> {
-//
-//        });
-//    }
+////    @Test
+////    public void createTestCardWithoutRequiredFields() {
+////
+////
+////        Exception exception = Assertions.assertThrows(NoUserExistsException.class, () -> {
+////
+////        });
+////    }
 }
+
+
