@@ -87,4 +87,22 @@ describe('Jest tests for the home component', () => {
         expect(new Date(wrapper.vm.$data.cards[0].displayPeriodEnd) > oldDate).toBeTruthy()
     })
 
+    test('Expired cards computed property', () => {
+        const pastDate = new Date()
+        pastDate.setDate(pastDate.getDate() - 7) // Set date to past
+        wrapper.vm.$data.cards[0].displayPeriodEnd = pastDate.toDateString()
+
+        expect(wrapper.vm.expiredCards.length).toStrictEqual(1)
+        expect(wrapper.vm.activeCards.length).toStrictEqual(0)
+    })
+
+    test('Active cards computed property', () => {
+        const futureDate = new Date()
+        futureDate.setDate(futureDate.getDate() + 7) // Set date to past
+        wrapper.vm.$data.cards[0].displayPeriodEnd = futureDate.toDateString()
+
+        expect(wrapper.vm.expiredCards.length).toStrictEqual(0)
+        expect(wrapper.vm.activeCards.length).toStrictEqual(1)
+    })
+
 })
