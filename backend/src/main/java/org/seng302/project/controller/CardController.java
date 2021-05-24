@@ -10,12 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -176,18 +172,7 @@ public class CardController {
             User user = optionalUser.get();
 
             // Get the users cards
-            List<Card> unfilteredCards = cardRepository.findAllByCreator(user);
-
-            // Filter out expired cards
-            List<Card> filteredCards = new ArrayList<>();
-            for (Card card : unfilteredCards) {
-                // Check if the card is active
-                if (card.getDisplayPeriodEnd().isAfter(LocalDateTime.now())) {
-                    filteredCards.add(card);
-                }
-            }
-
-            return filteredCards;
+            return cardRepository.findAllByCreator(user);
         }
 
         // Deal with known Exceptions
