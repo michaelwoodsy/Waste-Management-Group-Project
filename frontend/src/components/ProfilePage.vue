@@ -250,6 +250,8 @@ export default {
     userId(value) {
       if (value !== undefined) {
         User.getUserData(value).then((response) => this.profile(response))
+        this.cards = this.getCardData()
+        this.filterCards()
       }
     }
   },
