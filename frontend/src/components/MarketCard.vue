@@ -2,8 +2,8 @@
 MarketCard.vue
 Displays a single market card.
 
-Emits a 'cardDeleted' event with a payload containing the card id when the card is deleted.
-Eg, <market-card @cardDeleted="someMethod" ... />
+Emits a 'card-deleted' event with a payload containing the card id when the card is deleted.
+Eg, <market-card @card-deleted="someMethod" ... />
 
 @prop cardData: The json data (from the api) to display
 @prop hideImage: Boolean, when true will not display the card image.
@@ -13,11 +13,13 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 
     <div v-if="expired && showExpired" class="card-header">
       <p class="text-danger d-inline">This card is about to expire</p>
-      <!--TODO: Hook these buttons up to API calls-->
-      <button :data-target="'#deleteModal' + cardData.id"
-              class="btn btn-outline-danger d-inline float-right mx-1" data-toggle="modal">Delete
+      <button class="btn btn-outline-danger d-inline float-right mx-1"
+              data-toggle="modal"
+              :data-target="'#deleteModal' + cardData.id">
+        Delete
       </button>
-      <button class="btn btn-outline-primary d-inline float-right mx-1" @click="extendCard">Extend</button>
+      <!--TODO: Hook extend button up to API calls-->
+      <button class="btn btn-outline-primary d-inline float-right mx-1">Extend</button>
     </div>
 
     <!-- Card image -->
@@ -82,6 +84,9 @@ Eg, <market-card @cardDeleted="someMethod" ... />
           <!-- Body section of modal -->
           <div class="modal-body">
             <p>Do you really want to permanently delete this card?</p>
+
+            <!-- Error message -->
+            <alert v-if="error">{{ error }}</alert>
           </div>
 
           <!-- Footer / button section of modal -->
@@ -99,9 +104,14 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 
 <script>
 import {getTimeDiffStr} from "@/utils/dateTime";
+import {Marketplace} from "@/Api";
+import Alert from "@/components/Alert";
 
 export default {
   name: "MarketCard",
+  components: {
+    Alert
+  },
   props: {
     // Data of the card.
     cardData: {
@@ -121,7 +131,8 @@ export default {
   },
   data() {
     return {
-      showDetails: false
+      showDetails: false,
+      error: null
     }
   },
   computed: {
@@ -182,14 +193,26 @@ export default {
     },
     /** Deletes this card, emitting an event on success **/
     deleteCard() {
-      // TODO: Make delete api request here.
-      // TODO: Display error if the request fails.
+      // Reset error flag
+      this.error = null;
 
-      // Emit the cardDeleted event once the api call is successful
-      this.$emit('card-deleted', this.cardData.id)
+      // Make request
+      Marketplace.deleteCard(this.cardData.id)
+          .then(() => {
+            // Emit the card-deleted event once the api call is successful
+            this.$emit('card-deleted', this.cardData.id)
 
-      // Close the modal by simulating a click on the close button
-      this.$refs.close.click();
+            // Close the modal by simulating a click on the close button
+            this.$refs.close.click();
+          })
+          .catch((err) => {
+            // Set error message
+            this.error = err.response
+                ? err.response.data
+                : err.message
+          })
+
+
     }
   }
 }
