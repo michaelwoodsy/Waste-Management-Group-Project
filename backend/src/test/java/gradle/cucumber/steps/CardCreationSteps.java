@@ -3,11 +3,14 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import lombok.SneakyThrows;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -15,14 +18,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,6 +46,9 @@ public class CardCreationSteps {
     private String testCardSection;
     private Address testAddress;
     private MockMvc mockMvc;
+
+    private ResultActions reqResult;
+
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -57,6 +67,23 @@ public class CardCreationSteps {
         this.cardRepository = cardRepository;
     }
 
+    /**
+     * Creates the user if it's not already created.
+     * If it is already created, the user is returned.
+     * @return User
+     */
+    private User createUser(User wantedUser) {
+        if (userRepository.findByEmail(wantedUser.getEmail()).size() > 0) {
+            // Already exists, return it
+            return(userRepository.findByEmail(wantedUser.getEmail()).get(0));
+        } else {
+            // User doesn't exist, save it to repository
+            userRepository.save(wantedUser);
+            return wantedUser;
+        }
+    }
+
+
     @BeforeEach
     @Autowired
     public void setUp(WebApplicationContext context) {
@@ -66,6 +93,13 @@ public class CardCreationSteps {
                 .build();
     }
 
+    @AfterEach
+    public void tearDown() {
+        List<User> possibleUser = userRepository.findByEmail("test.user@gmail.com");
+        if (possibleUser.size() > 0) {
+            userRepository.delete(possibleUser.get(0));
+        }
+    }
 
     //AC1
     @Given("A user exists")
@@ -77,31 +111,37 @@ public class CardCreationSteps {
                 "2000-05-21", "+64 3 555 0129", testAddress, testUserPassword);
         testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
         addressRepository.save(testAddress);
-        testUserId = userRepository.save(testUser).getId();
+        testUser = createUser(testUser);
+        testUserId = testUser.getId();
     }
 
     @When("A user creates a card to be displayed in the {string} section")
     public void a_user_creates_a_card_to_be_displayed_in_the_section(String section) throws Exception {
         // Write code here that turns the phrase above into concrete actions
         testCardJson.put("creatorId", testUserId);
-        testCardJson.put("section", "ForSale");
+        testCardJson.put("section", section);
         testCardJson.put("title", "1982 Lada Samara");
         testCardJson.put("description",
                 "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
+
+        System.out.println(testUserId);
+        System.out.println(testUser.getId());
+
+        // Make the actual request
+        reqResult = mockMvc.perform(MockMvcRequestBuilders
+                .post("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))));
     }
 
     @Then("The card is successfully created")
     public void the_card_is_successfully_created() throws Exception {
         // Write code here that turns the phrase above into concrete actions
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
-                .post("/cards")
-                .content(testCardJson.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(testUserEmail, testUserPassword)))
+        MvcResult result = reqResult
                 .andExpect(status().isCreated())
                 .andReturn();
-
 
         JSONObject jsonObject = new JSONObject(result.getResponse().getContentAsString());
         Integer testCardId = jsonObject.getInt("cardId");
@@ -129,7 +169,7 @@ public class CardCreationSteps {
                 .content(testCardJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(testUserEmail, testUserPassword)))
+                .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -159,7 +199,7 @@ public class CardCreationSteps {
                 .content(testCardJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(testUserEmail, testUserPassword)))
+                .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -189,7 +229,7 @@ public class CardCreationSteps {
                 .content(testCardJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(testUserEmail, testUserPassword)))
+                .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -205,22 +245,25 @@ public class CardCreationSteps {
     //AC5
 
     @When("A user creates a card with keywords: {string}, {string}, {string}, and {string}")
-    public void a_user_creates_a_card_with_keywords_and(String string, String string2, String string3, String string4) throws JSONException {
+    public void a_user_creates_a_card_with_keywords_and(String string, String string2, String string3, String string4) throws Exception {
         // Write code here that turns the phrase above into concrete actions
         String keywords = string + string2 + string3 + string4;
         testCard.setKeywords(keywords);
         testCardJson.put("keywords", keywords);
+
+        // Make the actual request
+        reqResult = mockMvc.perform(MockMvcRequestBuilders
+                .post("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))));
     }
 
     @Then("The card's keywords are successfully saved with the card")
     public void the_card_s_keywords_are_successfully_saved_with_the_card() throws Exception {
         // Write code here that turns the phrase above into concrete actions
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
-                .post("/cards")
-                .content(testCardJson.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(testUserEmail, testUserPassword)))
+        MvcResult result = reqResult
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -257,7 +300,7 @@ public class CardCreationSteps {
                 .content(testCardJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(testUserEmail, testUserPassword)))
+                .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isCreated())
                 .andReturn();
 
