@@ -121,6 +121,7 @@ public class CardCreationSteps {
         testCardJson.put("creatorId", testUserId);
         testCardJson.put("section", section);
         testCardJson.put("title", "1982 Lada Samara");
+        testCardJson.put("keywords", "word");
         testCardJson.put("description",
                 "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
 
