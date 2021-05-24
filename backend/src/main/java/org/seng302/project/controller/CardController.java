@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -179,6 +180,39 @@ public class CardController {
             throw expectedException;
         } catch (Exception unexpectedException) {
             logger.error(String.format("Unexpected error while deleting card: %s", unexpectedException.getMessage()));
+            throw unexpectedException;
+        }
+
+    }
+
+    @GetMapping("/users/{id}/cards")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Card> getAllCardsByUser(@PathVariable Integer id) {
+        // Log the request
+        logger.info(String.format("Request to get cards by user with id %d", id));
+
+        try {
+            // Try get the user, and check they exist
+            Optional<User> optionalUser = userRepository.findById(id);
+            if (optionalUser.isEmpty()) {
+                throw new NoUserExistsException(id);
+            }
+            User user = optionalUser.get();
+
+            // Get the users cards
+            return cardRepository.findAllByCreator(user);
+        }
+
+        // Deal with known Exceptions
+        catch (NoUserExistsException expectedException) {
+            logger.warn(expectedException.getMessage());
+            throw expectedException;
+
+        }
+
+        // Deal with unknown exceptions
+        catch (Exception unexpectedException) {
+            logger.error(String.format("Unexpected error while retrieving users cards: %s", unexpectedException.getMessage()));
             throw unexpectedException;
         }
 
