@@ -1,5 +1,6 @@
 package org.seng302.project.controller;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -372,5 +373,28 @@ public class CardControllerTest {
         Assertions.assertThrows(ForbiddenCardActionException.class, () ->
                 cardController.createCard(new net.minidev.json.JSONObject(), new AppUserDetails(testUser))
         );
+    }
+
+    /**
+     * Creating a card with the bare minimum required fields.
+     */
+    @Test
+    public void createCard_bareMinimum201() throws Exception {
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("creatorId", testUser.getId());
+        testCardJson.put("section", "ForSale");
+        testCardJson.put("title", "1982 Lada Samara");
+        testCardJson.put("keywords", "word");
+
+        // Mock the save method on the cardRepository
+        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isCreated());
     }
 }

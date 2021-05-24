@@ -68,7 +68,7 @@ public class CardController {
             }
 
             // check required fields
-            if (section.equals("") || title.equals("") || description.equals("")) {
+            if (section.equals("") || title.equals("") || keywords.equals("")) {
                 RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
                 logger.warn(requiredFieldsMissingException.getMessage());
                 throw requiredFieldsMissingException;
