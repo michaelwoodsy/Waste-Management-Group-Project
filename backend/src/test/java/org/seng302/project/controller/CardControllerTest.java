@@ -397,4 +397,26 @@ public class CardControllerTest {
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isCreated());
     }
+
+    /**
+     * Check a 400 is returned when the keywords section is missing
+     */
+    @Test
+    public void createCard_missingKeywordsField400() throws Exception {
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("creatorId", testUser.getId());
+        testCardJson.put("section", "ForSale");
+        testCardJson.put("title", "1982 Lada Samara");
+
+        // Mock the save method on the cardRepository
+        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isBadRequest());
+    }
 }
