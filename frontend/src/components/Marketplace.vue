@@ -240,12 +240,14 @@ export default {
         this.cards.splice(index, 1)
       }
     },
+
     /**
      * Takes user to modal to create a new card
      */
     newCard() {
       this.createNewCard = true;
     },
+
     /**
      * Refreshes the card modal
      */

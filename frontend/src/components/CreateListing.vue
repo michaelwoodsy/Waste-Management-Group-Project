@@ -3,13 +3,13 @@
 
     <!-- Page title -->
     <div class="row mb-4">
-      <div v-if="selectingItem" class="col-3 text-left">
+      <div v-if="selectingItem" class="col-2 text-left">
         <button class="btn btn-secondary" @click="finishSelectItem">Back</button>
       </div>
       <div class="col text-center">
         <h2>{{ title }}</h2>
       </div>
-      <div v-if="selectingItem" class="col-3"/>
+      <div v-if="selectingItem" class="col-2"/>
     </div>
 
     <!-- Form fields -->
@@ -386,12 +386,12 @@ export default {
     selectItem() {
       this.selectingItem = true;
       this.title = 'Select a product from your inventory'
-      this.$parent.$refs.createListingWindow.classList.add('modal-xl');
+      this.$emit('select-inventory-item-toggle');
     },
     finishSelectItem() {
       this.selectingItem = false;
       this.title = 'Create a new sale listing'
-      this.$parent.$refs.createListingWindow.classList.remove('modal-xl');
+      this.$emit('select-inventory-item-toggle');
     }
   }
 }

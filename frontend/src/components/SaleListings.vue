@@ -119,10 +119,11 @@
     </div>
 
     <div id="createListing" :key="this.createNewListing" class="modal fade" data-backdrop="static">
-      <div ref="createListingWindow" class="modal-dialog modal-open">
+      <div ref="createListingWindow" class="modal-dialog modal-open" :class="{'modal-xl': selectingInventoryItem}">
         <div class="modal-content">
           <div class="modal-body">
-            <create-listing @refresh-listings="refreshListings"></create-listing>
+            <create-listing @refresh-listings="refreshListings"
+                            @select-inventory-item-toggle="selectingInventoryItem = !selectingInventoryItem"></create-listing>
           </div>
         </div>
       </div>
@@ -164,7 +165,8 @@ export default {
       resultsPerPage: 10,
       page: 1,
       loading: false,
-      createNewListing: false
+      createNewListing: false,
+      selectingInventoryItem: false
     }
   },
 

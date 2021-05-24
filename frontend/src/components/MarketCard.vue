@@ -92,7 +92,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
           <!-- Footer / button section of modal -->
           <div class="modal-footer">
             <button class="btn btn-danger" type="button" @click="deleteCard">Delete</button>
-            <button class="btn btn-primary" data-dismiss="modal" type="button">Cancel</button>
+            <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
           </div>
 
         </div>

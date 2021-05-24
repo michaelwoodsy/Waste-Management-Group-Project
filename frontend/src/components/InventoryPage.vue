@@ -48,10 +48,11 @@
     </div>
 
     <div id="createInventoryItem" :key="this.createNewInventoryItem" class="modal fade" data-backdrop="static">
-      <div ref="createInventoryItemWindow" class="modal-dialog modal-open">
+      <div ref="createInventoryItemWindow" class="modal-dialog modal-open" :class="{'modal-xl': selectingProduct}">
         <div class="modal-content">
           <div class="modal-body">
-            <create-inventory-item @refresh-inventory="refreshInventory"></create-inventory-item>
+            <create-inventory-item @refresh-inventory="refreshInventory"
+                                   @select-product-toggle="selectingProduct = !selectingProduct"></create-inventory-item>
           </div>
         </div>
       </div>
@@ -83,7 +84,8 @@ export default {
   data() {
     return {
       error: null,
-      createNewInventoryItem: false
+      createNewInventoryItem: false,
+      selectingProduct: false
     }
   },
 
