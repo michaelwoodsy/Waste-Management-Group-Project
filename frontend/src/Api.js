@@ -85,10 +85,10 @@ export const User = {
 
     /**
      * Gets a user's cards from the backend
-     * @param id User ID to get cards from
+     * @param userId User ID to get cards from
      * @returns {Promise<AxiosResponse<any>>} response containing user's cards
      */
-    getCards: (id) => instance.get(`users/${id}/cards`)
+    getCards: (userId) => instance.get(`users/${userId}/cards`)
 
 };
 
