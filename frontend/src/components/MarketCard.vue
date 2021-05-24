@@ -19,7 +19,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
         Delete
       </button>
       <!--TODO: Hook extend button up to API calls-->
-      <button class="btn btn-outline-primary d-inline float-right mx-1">Extend</button>
+      <button class="btn btn-outline-primary d-inline float-right mx-1" @click="extendCard">Extend</button>
     </div>
 
     <!-- Card image -->
@@ -56,7 +56,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
       <div :id="'cardDetails' + cardData.id" class="collapse">
         <hr/>
         <!-- Description -->
-        <p class="card-text"> {{ cardData.description }} </p>
+        <p class="card-text">{{ cardData.description }}</p>
         <hr/>
       </div>
 
@@ -92,7 +92,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
           <!-- Footer / button section of modal -->
           <div class="modal-footer">
             <button class="btn btn-danger" type="button" @click="deleteCard">Delete</button>
-            <button class="btn btn-primary" data-dismiss="modal" type="button">Cancel</button>
+            <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
           </div>
 
         </div>
@@ -181,6 +181,20 @@ export default {
     toggleDetails() {
       this.showDetails = !this.showDetails
     },
+    /**
+     * Sends API request to extend the time of a card
+     */
+    extendCard() {
+      // TODO: Make API request to extend card once implemented.
+      const currentDate = new Date(this.cardData.displayPeriodEnd)
+      const newDate = new Date(this.cardData.displayPeriodEnd)
+      newDate.setDate(currentDate.getDate() + 14)
+
+      console.log(currentDate)
+      console.log(newDate)
+
+      this.$emit('card-extended', this.cardData.id, newDate.toDateString())
+    },
     /** Deletes this card, emitting an event on success **/
     deleteCard() {
       // Reset error flag
@@ -209,9 +223,11 @@ export default {
 </script>
 
 <style scoped>
+
 .card-size {
   min-height: 100px;
   min-width: 150px;
   margin-bottom: 40px;
 }
+
 </style>

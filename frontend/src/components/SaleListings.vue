@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <page-wrapper>
 
     <login-required
         v-if="!isLoggedIn"
@@ -22,7 +22,8 @@
                 New Listing
               </button>
               <!-- GAA/DGAA button to add sales listings -->
-              <button v-else-if="$root.$data.user.canDoAdminAction()" class="btn btn-danger" data-target="#createListing" data-toggle="modal"
+              <button v-else-if="$root.$data.user.canDoAdminAction()" class="btn btn-danger"
+                      data-target="#createListing" data-toggle="modal"
                       @click="newListing">
                 New Listing
               </button>
@@ -118,16 +119,17 @@
     </div>
 
     <div id="createListing" :key="this.createNewListing" class="modal fade" data-backdrop="static">
-      <div ref="createListingWindow" class="modal-dialog modal-open">
+      <div ref="createListingWindow" class="modal-dialog modal-open" :class="{'modal-xl': selectingInventoryItem}">
         <div class="modal-content">
           <div class="modal-body">
-            <create-listing @refresh-listings="refreshListings"></create-listing>
+            <create-listing @refresh-listings="refreshListings"
+                            @select-inventory-item-toggle="selectingInventoryItem = !selectingInventoryItem"></create-listing>
           </div>
         </div>
       </div>
     </div>
 
-  </div>
+  </page-wrapper>
 </template>
 
 <script>
@@ -137,10 +139,12 @@ import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import {Business} from "@/Api";
 import CreateListing from "@/components/CreateListing";
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "SaleListings",
   components: {
+    PageWrapper,
     CreateListing,
     ShowingResultsText,
     LoginRequired,
@@ -161,7 +165,8 @@ export default {
       resultsPerPage: 10,
       page: 1,
       loading: false,
-      createNewListing: false
+      createNewListing: false,
+      selectingInventoryItem: false
     }
   },
 

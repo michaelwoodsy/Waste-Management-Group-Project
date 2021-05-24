@@ -1,8 +1,8 @@
 <template>
-  <div class="container-fluid">
-    <br><br>
+  <page-wrapper>
+
     <div class="row">
-      <div class="col-12 text-center mb-2">
+      <div class="col-12 text-center my-3">
         <h2>Login</h2>
       </div>
     </div>
@@ -57,12 +57,14 @@
         </div>
       </div>
     </logout-required>
-  </div>
+
+  </page-wrapper>
 </template>
 
 <script>
 import LogoutRequired from "./LogoutRequired";
 import Alert from "./Alert"
+import PageWrapper from "@/components/PageWrapper";
 
 const LoginPage = {
   name: "LoginPage",
@@ -80,6 +82,7 @@ const LoginPage = {
   },
 
   components: {
+    PageWrapper,
     LogoutRequired,
     Alert
   },

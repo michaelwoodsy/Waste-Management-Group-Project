@@ -5,7 +5,6 @@
 import "@jest/globals";
 import MarketCard from '@/components/MarketCard';
 import {mount} from "@vue/test-utils";
-import {test} from "@jest/globals";
 import '@/Api';
 import {Marketplace} from '@/Api';
 
@@ -110,9 +109,9 @@ describe('Testing the MarketCard component', () => {
         await wrapper.vm.deleteCard()
 
         // Expect the component to emit the deleteCard event
-        expect(wrapper.emitted()['card-deleted']).toBeTruthy()
+        expect(wrapper.emitted('card-deleted')).toBeTruthy()
         // Expect the component to emit the correct ID
-        expect(wrapper.emitted()['card-deleted'][0]).toEqual([mockedProps.cardData.id])
+        expect(wrapper.emitted('card-deleted')[0]).toEqual([mockedProps.cardData.id])
     })
 
     test('Test toggleDetails method switches showDetails from false to true', () => {
@@ -167,4 +166,12 @@ describe('Testing the MarketCard component', () => {
         // Expect the delete modal to be hidden
         expect(wrapper.find(".modal").classes().includes("show")).toBeFalsy();
     })
+
+    test('Test the extend card function emits an extend card event', async () => {
+        wrapper.vm.extendCard()
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.emitted('card-extended')).toBeTruthy()
+    })
+
 })
