@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.seng302.project.controller.authentication.AppUserDetails;
+import org.seng302.project.exceptions.NoUserExistsException;
+import org.seng302.project.exceptions.RequiredFieldsMissingException;
 import org.seng302.project.exceptions.card.ForbiddenCardActionException;
 import org.seng302.project.exceptions.card.NoCardExistsException;
 import org.seng302.project.model.Card;
@@ -275,15 +277,13 @@ public class CardControllerTest {
         assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
         assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
     }
-//
-////    @Test
-////    public void createTestCardWithoutRequiredFields() {
-////
-////
-////        Exception exception = Assertions.assertThrows(NoUserExistsException.class, () -> {
-////
-////        });
-////    }
+
+    @Test
+    public void createTestCardWithoutRequiredFields() {
+        Assertions.assertThrows(ForbiddenCardActionException.class, () ->
+                cardController.createCard(new net.minidev.json.JSONObject(), new AppUserDetails(testUser))
+        );
+    }
 }
 
 

@@ -47,12 +47,12 @@ public class CardController {
             String section = json.getAsString("section");
             String title = json.getAsString("title");
             String description = json.getAsString("description");
-            String keywords = json.getAsString("keyworeds");
+            String keywords = json.getAsString("keywords");
 
             User loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
             Optional<User> creator = userRepository.findById(creatorId);
 
-            //TODO: if loggedInUser != creatorId, check loggedInUser is GAA
+            // check if loggedInUser has the same ID as the creator id provided, otherwise check loggedInUser is GAA
             if (!loggedInUser.getId().equals(creatorId)) {
                 if (!loggedInUser.getRole().equals("globalApplicationAdmin") || !loggedInUser.getRole().equals("defaultGlobalApplicationAdmin")) {
                     throw new ForbiddenCardActionException();
