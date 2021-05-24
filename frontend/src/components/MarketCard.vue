@@ -12,7 +12,7 @@ Eg, <market-card @cardDeleted="someMethod" ... />
   <div :class="{'border-danger': expired}" class="card shadow card-size">
 
     <div v-if="expired && showExpired" class="card-header">
-      <p class="text-danger d-inline">This card is about to expire</p>
+      <p class="text-danger d-inline">This card has expired</p>
       <!--TODO: Hook these buttons up to API calls-->
       <button class="btn btn-outline-danger d-inline float-right mx-1">Delete</button>
       <button class="btn btn-outline-primary d-inline float-right mx-1">Extend</button>
