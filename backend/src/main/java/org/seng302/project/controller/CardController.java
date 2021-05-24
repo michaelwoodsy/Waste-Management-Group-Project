@@ -212,7 +212,7 @@ public class CardController {
 
         // Deal with unknown exceptions
         catch (Exception unexpectedException) {
-            logger.error(String.format("Unexpected error while deleting card: %s", unexpectedException.getMessage()));
+            logger.error(String.format("Unexpected error while retrieving users cards: %s", unexpectedException.getMessage()));
             throw unexpectedException;
         }
 
