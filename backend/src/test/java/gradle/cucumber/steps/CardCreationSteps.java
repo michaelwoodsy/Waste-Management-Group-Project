@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -119,7 +120,6 @@ public class CardCreationSteps {
 
     @When("A user creates a card to be displayed in the {string} section")
     public void a_user_creates_a_card_to_be_displayed_in_the_section(String section) throws Exception {
-        // Write code here that turns the phrase above into concrete actions
         testCardJson.put("creatorId", testUserId);
         testCardJson.put("section", section);
         testCardJson.put("title", "1982 Lada Samara");
@@ -141,7 +141,6 @@ public class CardCreationSteps {
 
     @Then("The card is successfully created")
     public void the_card_is_successfully_created() throws Exception {
-        // Write code here that turns the phrase above into concrete actions
         MvcResult result = reqResult
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -156,7 +155,6 @@ public class CardCreationSteps {
     //AC2
     @Given("A card exists")
     public void a_card_exists() {
-        // Write code here that turns the phrase above into concrete actions
         a_user_exists();
         testCard = new Card(testUser, "ForSale", "Beetle Juice", "Beetle juice from Bob", "");
         testCardId = cardRepository.save(testCard).getId();
@@ -165,7 +163,6 @@ public class CardCreationSteps {
 
     @Then("The card creator's name and location are displayed successfully")
     public void the_card_creator_s_name_and_location_are_displayed_successfully() throws Exception {
-        // Write code here that turns the phrase above into concrete actions
 
         MvcResult result = reqResult
                 .andExpect(status().isOk())
@@ -190,7 +187,6 @@ public class CardCreationSteps {
 
     @Then("The card's title is shown")
     public void the_card_s_title_is_shown() throws Exception {
-        // Write code here that turns the phrase above into concrete actions
 
         MvcResult result = reqResult
                 .andExpect(status().isOk())
@@ -210,7 +206,6 @@ public class CardCreationSteps {
 
     @When("A user views a card in the card display section")
     public void a_user_views_a_card_in_the_card_display_section() throws Exception {
-        // Write code here that turns the phrase above into concrete actions
         reqResult = mockMvc.perform(MockMvcRequestBuilders
                 .get("/cards")
                 .param("section", "ForSale")
@@ -219,7 +214,6 @@ public class CardCreationSteps {
 
     @Then("The card's description is shown")
     public void the_card_s_description_is_shown() throws Exception{
-        // Write code here that turns the phrase above into concrete actions
         MvcResult result = reqResult
                 .andExpect(status().isOk())
                 .andReturn();
@@ -237,7 +231,6 @@ public class CardCreationSteps {
 
     @When("A user creates a card with keywords: {string}, {string}, {string}, and {string}")
     public void a_user_creates_a_card_with_keywords_and(String string, String string2, String string3, String string4) throws Exception {
-        // Write code here that turns the phrase above into concrete actions
         String keywords = string + string2 + string3 + string4;
         savedKeyword = keywords;
         testCardJson.put("creatorId", testUserId);
@@ -258,7 +251,6 @@ public class CardCreationSteps {
 
     @Then("The card's keywords are successfully saved with the card")
     public void the_card_s_keywords_are_successfully_saved_with_the_card() throws Exception {
-        // Write code here that turns the phrase above into concrete actions
         MvcResult result = reqResult
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -273,7 +265,6 @@ public class CardCreationSteps {
     //AC6
     @Given("A card exists in the {string} section")
     public void a_card_exists_in_the_section(String string) {
-        // Write code here that turns the phrase above into concrete actions
         testCardSection = string;
         a_user_exists();
         testCard = new Card(testUser, testCardSection, "Beetle Juice", "Beetle juice from Bob", "");
@@ -282,7 +273,6 @@ public class CardCreationSteps {
 
     @When("A user views the {string} section")
     public void a_user_views_the_section(String section) throws Exception {
-        // Write code here that turns the phrase above into concrete actions
         reqResult = mockMvc.perform(MockMvcRequestBuilders
                 .get("/cards")
                 .param("section", section)
@@ -291,17 +281,22 @@ public class CardCreationSteps {
 
     @Then("The card is successfully displayed in this section")
     public void the_card_is_successfully_displayed_in_this_section() throws Exception {
-        // Write code here that turns the phrase above into concrete actions
         MvcResult result = reqResult
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Iterate over retrieved cards and check the created card is there
+        boolean cardIsInSection = false;
         JSONArray retrievedCards = new JSONArray(result.getResponse().getContentAsString());
         for (int i = 0; i < retrievedCards.length(); i++) {
             JSONObject retrievedCard = retrievedCards.getJSONObject(i);
-            String retrievedSection = retrievedCard.getString("section");
+            int cardId = retrievedCard.getInt("id");
 
-            Assertions.assertEquals(retrievedSection, testCardSection);
+            if (cardId == testCard.getId()) {
+                cardIsInSection = true;
+            }
         }
+
+        assertTrue(cardIsInSection);
     }
 }
