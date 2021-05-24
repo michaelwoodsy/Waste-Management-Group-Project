@@ -146,7 +146,6 @@ describe('Pagination, ordering and deletion tests', () => {
             ]
         }
     ]
-    const orderedCards = Marketplace.computed.orderedCards // Ordered computed property.
 
     beforeEach(async () => {
         wrapper = await shallowMount(Marketplace, {
@@ -158,57 +157,62 @@ describe('Pagination, ordering and deletion tests', () => {
         })
         wrapper.vm.$data.error = ""
         wrapper.vm.$data.isLoggedIn = true
-        wrapper.vm.$data.cards = cards
+        wrapper.vm.$data.cards = [...cards]
     });
 
     test("orderedCards computed value by created-asc", () => {
-        const call = {cards, order: 'created-asc', ...Marketplace.methods}
+        // const call = {cards, order: 'created-asc', ...Marketplace.methods}
+        wrapper.vm.$data.order = 'created-asc'
 
         // Check ordering by created date ascending
-        expect(orderedCards.call(call)[0].id)
+        const orderedCards = [...wrapper.vm.orderedCards]
+        expect(orderedCards[0].id)
             .toBe(501)
-        expect(orderedCards.call(call)[1].id)
+        expect(orderedCards[1].id)
             .toBe(500)
-        expect(orderedCards.call(call)[2].id)
+        expect(orderedCards[2].id)
             .toBe(502)
     })
 
     test("orderedCards computed value by created-desc", () => {
         // Mocks the 'this' state of the component
-        const call = {cards, order: 'created-desc', ...Marketplace.methods}
+        wrapper.vm.$data.order = 'created-desc'
 
         // Check ordering by created date descending
-        expect(orderedCards.call(call)[0].id)
+        const orderedCards = [...wrapper.vm.orderedCards]
+        expect(orderedCards[0].id)
             .toBe(502)
-        expect(orderedCards.call(call)[1].id)
+        expect(orderedCards[1].id)
             .toBe(500)
-        expect(orderedCards.call(call)[2].id)
+        expect(orderedCards[2].id)
             .toBe(501)
     })
 
     test("orderedCards computed value by title", () => {
         // Mocks the 'this' state of the component
-        const call = {cards, order: 'title', ...Marketplace.methods}
+        wrapper.vm.$data.order = 'title'
 
         // Check ordering by title
-        expect(orderedCards.call(call)[0].id)
+        const orderedCards = [...wrapper.vm.orderedCards]
+        expect(orderedCards[0].id)
             .toBe(500)
-        expect(orderedCards.call(call)[1].id)
+        expect(orderedCards[1].id)
             .toBe(501)
-        expect(orderedCards.call(call)[2].id)
+        expect(orderedCards[2].id)
             .toBe(502)
     })
 
     test("orderedCards computed value by location", () => {
         // Mocks the 'this' state of the component
-        const call = {cards, order: 'location', ...Marketplace.methods}
+        wrapper.vm.$data.order = 'location'
 
         // Check ordering by location
-        expect(orderedCards.call(call)[0].id)
+        const orderedCards = [...wrapper.vm.orderedCards]
+        expect(orderedCards[0].id)
             .toBe(500)
-        expect(orderedCards.call(call)[1].id)
+        expect(orderedCards[1].id)
             .toBe(501)
-        expect(orderedCards.call(call)[2].id)
+        expect(orderedCards[2].id)
             .toBe(502)
     })
 
@@ -221,6 +225,18 @@ describe('Pagination, ordering and deletion tests', () => {
 
         // Check the card is no longer there
         expect(wrapper.vm.$data.cards.find((a) => a.id === 502)).toBeUndefined()
+    })
+
+    test("filteredCards only returns cards with a future displayPeriodEnd date", () => {
+        let date = new Date()
+        date.setDate(date.getDate() - 7) // Set date to be a prior to today's date.
+        wrapper.vm.$data.cards[0].displayPeriodEnd = date.toDateString()
+        date = new Date()
+        date.setDate(date.getDate() + 7) // Set date to be after today's date.
+        wrapper.vm.$data.cards[1].displayPeriodEnd = date.toDateString()
+        wrapper.vm.$data.cards[2].displayPeriodEnd = date.toDateString()
+
+        expect(wrapper.vm.filteredCards.every((card) => new Date(card.displayPeriodEnd) > Date.now())).toBeTruthy()
     })
 
 })
