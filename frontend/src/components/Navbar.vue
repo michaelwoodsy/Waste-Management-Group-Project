@@ -24,7 +24,7 @@
 
           <!-- If user is logged in -->
           <!-- Home link -->
-          <li v-if="isLoggedIn" class="nav-item text-white">
+          <li v-if="isLoggedIn" class="nav-item">
             <router-link class="nav-link text-white" to="/home">Home</router-link>
           </li>
           <!-- Users search link -->

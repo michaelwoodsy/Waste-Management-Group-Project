@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <page-wrapper>
 
     <div v-if="isLoggedIn" class="container-fluid">
 
@@ -96,8 +96,10 @@
               >
                 <th scope="row">
                   {{ user.id }}
-                  <span class="badge badge-danger admin-badge" v-if="isActingAsAdmin && user.role === 'globalApplicationAdmin'">ADMIN</span>
-                  <span class="badge badge-danger admin-badge" v-else-if="isActingAsAdmin && user.role === 'defaultGlobalApplicationAdmin'">DGAA</span>
+                  <span v-if="isActingAsAdmin && user.role === 'globalApplicationAdmin'"
+                        class="badge badge-danger admin-badge">ADMIN</span>
+                  <span v-else-if="isActingAsAdmin && user.role === 'defaultGlobalApplicationAdmin'"
+                        class="badge badge-danger admin-badge">DGAA</span>
                 </th>
                 <td>{{ nameAndNickname(user) }}</td>
                 <td>{{ user.middleName }}</td>
@@ -132,7 +134,7 @@
 
     <login-required v-else page="search users"/>
 
-  </div>
+  </page-wrapper>
 </template>
 
 <script>
@@ -141,10 +143,12 @@ import LoginRequired from './LoginRequired'
 import ShowingResultsText from "./ShowingResultsText";
 import Pagination from "./Pagination";
 import Alert from './Alert'
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "UserSearch",
   components: {
+    PageWrapper,
     LoginRequired,
     Alert,
     ShowingResultsText,
@@ -253,16 +257,16 @@ export default {
       this.loading = true;
       this.page = 1;
 
-        User.getUsers(this.searchTerm)
-            .then((res) => {
-              this.error = null;
-              this.users = res.data;
-              this.loading = false;
-            })
-            .catch((err) => {
-              this.error = err;
-              this.loading = false;
-            })
+      User.getUsers(this.searchTerm)
+          .then((res) => {
+            this.error = null;
+            this.users = res.data;
+            this.loading = false;
+          })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
     },
 
     /**

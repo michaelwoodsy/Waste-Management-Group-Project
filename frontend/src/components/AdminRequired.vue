@@ -1,5 +1,6 @@
 <template>
-  <div class="container-fluid">
+  <page-wrapper>
+
     <div class="row">
       <div class="col-12 text-center mb-2">
         <h4>Must be an Administrator and acting as a Business</h4>
@@ -11,12 +12,16 @@
         <p class="text-muted">You must be an Administrator and acting as a Business to {{ page }}.</p>
       </div>
     </div>
-  </div>
+
+  </page-wrapper>
 </template>
 
 <script>
+import PageWrapper from "@/components/PageWrapper";
+
 export default {
   name: "AdminRequired",
+  components: {PageWrapper},
   props: ['page']
 }
 </script>

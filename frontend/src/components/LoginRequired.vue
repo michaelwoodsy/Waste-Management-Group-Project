@@ -1,5 +1,6 @@
 <template>
-  <div class="container-fluid">
+  <page-wrapper>
+
     <div class="row">
       <div class="col-12 text-center mb-2">
         <h4>Login Required</h4>
@@ -25,13 +26,16 @@
         </div>
       </div>
     </div>
-  </div>
 
+  </page-wrapper>
 </template>
 
 <script>
+import PageWrapper from "@/components/PageWrapper";
+
 export default {
   name: "LoginRequired",
+  components: {PageWrapper},
   props: ['page']
 }
 </script>

@@ -1,9 +1,8 @@
 <template>
+  <page-wrapper>
 
-  <div class="container-fluid">
-    <br><br>
     <div class="row">
-      <div class="col-12 text-center mb-2">
+      <div class="col-12 text-center my-3">
         <h2>Register for an Account</h2>
       </div>
     </div>
@@ -78,18 +77,18 @@
             <!--    Phone Number    -->
             <label for="phoneNumber"><b>Phone Number</b></label>
             <input id="phoneNumber" v-model="phone" class="form-control"
-                  maxlength="30"
+                   maxlength="30"
                    placeholder="Enter your Phone Number with extension" style="width:100%" type="text">
             <!--    Error message for the phone input    -->
             <span v-if="msg.phone" class="error-msg">{{ msg.phone }}</span>
           </div>
 
           <hr/>
-            <address-input-fields
-                :showErrors="submitClicked"
-                @setAddress="(newAddress) => {this.homeAddress = newAddress}"
-                @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
-            />
+          <address-input-fields
+              :showErrors="submitClicked"
+              @setAddress="(newAddress) => {this.homeAddress = newAddress}"
+              @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
+          />
           <hr/>
 
           <div class="form-row mb-3">
@@ -105,7 +104,8 @@
           </div>
 
           <div class="form-row mb-3">
-            <button id="createButton" class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" v-on:click="checkInputs">Create
+            <button id="createButton" class="btn btn-block btn-primary" style="width: 100%; margin:0 20px"
+                    v-on:click="checkInputs">Create
               Account
             </button>
             <!--    Error message for the registering process    -->
@@ -126,14 +126,15 @@
         </div>
       </div>
     </logout-required>
-  </div>
 
+  </page-wrapper>
 </template>
 
 <script>
 import LogoutRequired from "./LogoutRequired";
 import Alert from "./Alert"
 import AddressInputFields from "@/components/AddressInputFields";
+import PageWrapper from "@/components/PageWrapper";
 
 /**
  * Default starting parameters
@@ -141,6 +142,7 @@ import AddressInputFields from "@/components/AddressInputFields";
 export default {
   name: "RegisterPage",
   components: {
+    PageWrapper,
     LogoutRequired,
     Alert,
     AddressInputFields

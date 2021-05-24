@@ -1,6 +1,6 @@
 package org.seng302.project.controller;
 
-
+import org.seng302.project.exceptions.InvalidMarketplaceSectionException;
 import org.seng302.project.exceptions.card.ForbiddenCardActionException;
 import org.seng302.project.exceptions.card.NoCardExistsException;
 import org.seng302.project.exceptions.NoUserExistsException;
@@ -37,6 +37,17 @@ public class CardControllerAdvice {
     public ResponseEntity<String> userDoesNotExist(NoUserExistsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+    /**
+     * Exception thrown by the getAllCards() function in CardController
+     * when the section provided is invalid.
+     *
+     * @return a 400 response with an appropriate message
+     */
+    @ExceptionHandler(InvalidMarketplaceSectionException.class)
+    public ResponseEntity<String> sectionNotValid(InvalidMarketplaceSectionException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 
     /**
      * Exception thrown by the getCard(), deleteCard() and extendCardDisplayPeriod() functions in CardController
