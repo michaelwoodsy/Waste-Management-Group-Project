@@ -1,9 +1,11 @@
 package org.seng302.project.controller;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.card.ForbiddenCardActionException;
 import org.seng302.project.exceptions.card.NoCardExistsException;
@@ -26,12 +28,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -322,5 +326,157 @@ public class CardControllerTest {
 
         String returnedExceptionString = deleteCardResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new NoCardExistsException(1).getMessage(), returnedExceptionString);
+    }
+
+    @Test
+    public void createAndRetrieveTestCard() throws Exception {
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("creatorId", testUser.getId());
+        testCardJson.put("section", "ForSale");
+        testCardJson.put("title", "1982 Lada Samara");
+        testCardJson.put("keywords", "word");
+        testCardJson.put("description",
+                "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
+
+        // Mock the save method on the cardRepository
+        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isCreated());
+
+        // This captures the arguments given to the mocked repository
+        ArgumentCaptor<Card> argument = ArgumentCaptor.forClass(Card.class);
+        verify(cardRepository).save(argument.capture());
+
+        // This gets the actual card argument passed to the card repository
+        Card retrievedCard = argument.getValue();
+
+        assertNotNull(retrievedCard.getCreator().getId());
+        assertEquals("John", retrievedCard.getCreator().getFirstName());
+        assertEquals("Smith", retrievedCard.getCreator().getLastName());
+
+        assertEquals("ForSale", retrievedCard.getSection());
+        assertEquals("1982 Lada Samara", retrievedCard.getTitle());
+        assertEquals("Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
+                retrievedCard.getDescription());
+        assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || retrievedCard.getCreated().isEqual(LocalDateTime.now()));
+        assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
+        assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusDays(14)));
+    }
+
+    /**
+     * Creating a card with the bare minimum required fields.
+     */
+    @Test
+    public void createCard_bareMinimum201() throws Exception {
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("creatorId", testUser.getId());
+        testCardJson.put("section", "ForSale");
+        testCardJson.put("title", "1982 Lada Samara");
+        testCardJson.put("keywords", "word");
+
+        // Mock the save method on the cardRepository
+        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isCreated());
+    }
+
+    /**
+     * Check a 400 is returned when the keywords section is missing
+     */
+    @Test
+    public void createCard_missingKeywordsField400() throws Exception {
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("creatorId", testUser.getId());
+        testCardJson.put("section", "ForSale");
+        testCardJson.put("title", "1982 Lada Samara");
+
+        // Mock the save method on the cardRepository
+        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Check a 400 is returned when the title section is missing.
+     */
+    @Test
+    public void createCard_missingTitle400() throws Exception {
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("creatorId", testUser.getId());
+        testCardJson.put("section", "ForSale");
+        testCardJson.put("keywords", "word");
+
+        // Mock the save method on the cardRepository
+        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Check a 400 is returned when the section field is missing.
+     */
+    @Test
+    public void createCard_missingSection400() throws Exception {
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("creatorId", testUser.getId());
+        testCardJson.put("title", "1982 Lada Samara");
+        testCardJson.put("keywords", "word");
+
+        // Mock the save method on the cardRepository
+        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Check a 400 is returned when the creatorId field is missing.
+     */
+    @Test
+    public void createCard_missingCreatorId400() throws Exception {
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("section", "ForSale");
+        testCardJson.put("title", "1982 Lada Samara");
+        testCardJson.put("keywords", "word");
+
+        // Mock the save method on the cardRepository
+        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/cards")
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isBadRequest());
     }
 }
