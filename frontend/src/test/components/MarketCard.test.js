@@ -5,7 +5,6 @@
 import "@jest/globals";
 import MarketCard from '@/components/MarketCard';
 import {mount} from "@vue/test-utils";
-import {test} from "@jest/globals";
 import '@/Api';
 import {Marketplace} from '@/Api';
 
@@ -167,4 +166,12 @@ describe('Testing the MarketCard component', () => {
         // Expect the delete modal to be hidden
         expect(wrapper.find(".modal").classes().includes("show")).toBeFalsy();
     })
+
+    test('Test the extend card function emits an extend card event', async () => {
+        wrapper.vm.extendCard()
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.emitted('card-extended')).toBeTruthy()
+    })
+
 })

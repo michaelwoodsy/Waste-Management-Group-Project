@@ -19,7 +19,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
         Delete
       </button>
       <!--TODO: Hook extend button up to API calls-->
-      <button class="btn btn-outline-primary d-inline float-right mx-1">Extend</button>
+      <button class="btn btn-outline-primary d-inline float-right mx-1" @click="extendCard">Extend</button>
     </div>
 
     <!-- Card image -->
@@ -186,8 +186,12 @@ export default {
      */
     extendCard() {
       // TODO: Make API request to extend card once implemented.
-      const newDate = new Date()
-      newDate.setDate(this.cardData.displayPeriodEnd)
+      const currentDate = new Date(this.cardData.displayPeriodEnd)
+      const newDate = new Date(this.cardData.displayPeriodEnd)
+      newDate.setDate(currentDate.getDate() + 14)
+
+      console.log(currentDate)
+      console.log(newDate)
 
       this.$emit('card-extended', this.cardData.id, newDate.toDateString())
     },

@@ -50,8 +50,8 @@
           </alert>
           <div class="row row-cols-1 row-cols-lg-2">
             <div v-for="card in cards" v-bind:key="card.id" class="col">
-              <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="true"
-                          @card-deleted="deleteCard" @card-extended="extendCard"></MarketCard>
+              <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
+                          @card-deleted="deleteCard" @card-extended="extendCard"></market-card>
             </div>
           </div>
         </div>
@@ -169,7 +169,7 @@ export default {
           },
           "section": "ForSale",
           "created": "2021-05-03T05:10:00Z",
-          "displayPeriodEnd": "2021-05-17T05:10:00Z",
+          "displayPeriodEnd": "2021-05-22T05:10:00Z",
           "title": "1982 Lada Samara",
           "description": "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
           "keywords": [
