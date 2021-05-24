@@ -2,8 +2,8 @@
 MarketCard.vue
 Displays a single market card.
 
-Emits a 'cardDeleted' event with a payload containing the card id when the card is deleted.
-Eg, <market-card @cardDeleted="someMethod" ... />
+Emits a 'card-deleted' event with a payload containing the card id when the card is deleted.
+Eg, <market-card @card-deleted="someMethod" ... />
 
 @prop cardData: The json data (from the api) to display
 @prop hideImage: Boolean, when true will not display the card image.
@@ -189,8 +189,8 @@ export default {
       // Make request
       Marketplace.deleteCard(this.cardData.id)
           .then(() => {
-            // Emit the cardDeleted event once the api call is successful
-            this.$emit('cardDeleted', this.cardData.id)
+            // Emit the card-deleted event once the api call is successful
+            this.$emit('card-deleted', this.cardData.id)
 
             // Close the modal by simulating a click on the close button
             this.$refs.close.click();

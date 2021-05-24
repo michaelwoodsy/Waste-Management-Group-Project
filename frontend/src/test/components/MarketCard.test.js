@@ -104,15 +104,15 @@ describe('Testing the MarketCard component', () => {
     })
 
     // Test the deleteCard method
-    test("Test the deleteCard method emits a 'cardDeleted' event", async () => {
+    test("Test the deleteCard method emits a 'card-deleted' event", async () => {
         const mockDeleteCard = jest.fn(() => Promise.resolve({}));
         Marketplace.deleteCard.mockImplementationOnce(mockDeleteCard);
         await wrapper.vm.deleteCard()
 
         // Expect the component to emit the deleteCard event
-        expect(wrapper.emitted().cardDeleted).toBeTruthy()
+        expect(wrapper.emitted()['card-deleted']).toBeTruthy()
         // Expect the component to emit the correct ID
-        expect(wrapper.emitted().cardDeleted[0]).toEqual([mockedProps.cardData.id])
+        expect(wrapper.emitted()['card-deleted'][0]).toEqual([mockedProps.cardData.id])
     })
 
     test('Test toggleDetails method switches showDetails from false to true', () => {
