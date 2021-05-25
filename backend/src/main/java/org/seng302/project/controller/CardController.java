@@ -11,9 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 
 
@@ -207,7 +211,11 @@ public class CardController {
     }
 
 
-
+    /**
+     * Endpoint for deleting a card
+     * @param id id of the card to be deleted
+     * @param appUser user details to check if the current user is allowed to delete this card
+     */
     @DeleteMapping("/cards/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteCard(@PathVariable int id, @AuthenticationPrincipal AppUserDetails appUser) {
@@ -241,6 +249,11 @@ public class CardController {
 
     }
 
+    /**
+     * Endpoint to get all cards from a user
+     * @param id id of the user
+     * @return List of cards from that user
+     */
     @GetMapping("/users/{id}/cards")
     @ResponseStatus(HttpStatus.OK)
     public List<Card> getAllCardsByUser(@PathVariable Integer id) {
@@ -272,5 +285,15 @@ public class CardController {
             throw unexpectedException;
         }
 
+    }
+
+    /**
+     * Method that gets called every 60 seconds that removes all cards that have a display period end of more than a day ago
+     */
+    @Scheduled(fixedRate = 60000)
+    public void removeCardsAfter24Hrs() {
+        logger.info("Removing cards that have been expired for 24 hours or more");
+        LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
+        cardRepository.deleteByDisplayPeriodEndBefore(oneDayAgo);
     }
 }
