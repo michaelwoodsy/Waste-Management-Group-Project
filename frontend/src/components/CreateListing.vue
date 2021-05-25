@@ -16,7 +16,7 @@
     <div v-if="!selectingItem">
       <!-- Listing ID -->
       <div class="form-group row">
-        <label for="inventoryItem"><b>Inventory Item<span class="required">*</span></b></label>
+        <label for="inventoryItem"><strong>Inventory Item<span class="required">*</span></strong></label>
         <div :class="{'input-group': true, 'is-invalid': msg.inventoryItemId}">
           <input id="inventoryItem" :class="{'form-control': true, 'is-invalid': msg.inventoryItemId}"
                  :value="formatInventoryItem()" placeholder="Select a product from inventory..." readonly>
@@ -29,7 +29,7 @@
 
       <!-- Quantity -->
       <div class="form-group row">
-        <label for="quantity"><b>Product Quantity<span class="required">*</span></b></label>
+        <label for="quantity"><strong>Product Quantity<span class="required">*</span></strong></label>
         <div :class="{'input-group': true, 'is-invalid': msg.quantity}">
           <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
                  :disabled="!selectedInventoryItem" :maxlength="10"
@@ -45,7 +45,7 @@
 
       <!-- Price -->
       <div class="form-group row">
-        <label for="price"><b>Price<span class="required">*</span></b></label>
+        <label for="price"><strong>Price<span class="required">*</span></strong></label>
         <div :class="{'input-group': true, 'is-invalid': msg.price}">
           <div class="input-group-prepend">
             <span class="input-group-text">{{ this.currencySymbol }}</span>
@@ -61,7 +61,7 @@
 
       <!-- More Info -->
       <div class="form-group row">
-        <label class="moreInfo" for="moreInfo"><b>More Info</b></label>
+        <label class="moreInfo" for="moreInfo"><strong>More Info</strong></label>
         <textarea id="moreInfo" v-model="moreInfo" :disabled="!selectedInventoryItem" class="form-control"
                   maxlength="255" placeholder="Write some additional listing information" style="width: 100%">
             </textarea>
@@ -69,7 +69,7 @@
 
       <!-- Closing Date -->
       <div class="form-group row">
-        <label for="closes"><b>Closing Date<span class="required">*</span></b></label>
+        <label for="closes"><strong>Closing Date<span class="required">*</span></strong></label>
         <input id="closes" v-model="closes" :class="{'form-control': true, 'is-invalid': msg.closes}"
                :disabled="!selectedInventoryItem" required style="width:100%" type="date">
         <!--    Error message for the date input    -->

@@ -18,8 +18,10 @@ export default {
     /**
      * Sets the user state as logged in, including the userId cookie.
      * @param userId UserId of the user that is logged in
+     * @param resolve resolve function passed from login and register methods,
+     * used so the userData is set before completely logging in or registering
      */
-    setLoggedIn(userId) {
+    setLoggedIn(userId, resolve) {
         User.getUserData(userId)
             .then((res) => {
                 // Successfully got user data
@@ -35,6 +37,9 @@ export default {
                 }
 
                 setCookie('userId', this.state.userId, null);
+
+                //Only return resolve if resolve is specified as a function (in register and login methods)
+                if (typeof resolve === "function") return resolve()
             })
             .catch((err) => {
                 // Failed to get data, alert the user
@@ -73,8 +78,7 @@ export default {
             User.createNew(firstName, lastName, middleName, nickname, bio, email, dateOfBirth, phoneNumber, homeAddress, password)
                 .then((res) => {
                     // Set logged in then resolve the promise
-                    this.setLoggedIn(res.data.userId);
-                    resolve(res)
+                    this.setLoggedIn(res.data.userId, resolve)
                 })
                 .catch((err) => {
                     // Set logged out then reject the promise
@@ -96,8 +100,8 @@ export default {
             User.login(username, password)
                 .then((res) => {
                     // Set logged in then resolve the promise
-                    this.setLoggedIn(res.data.userId);
-                    resolve(res)
+                    this.setLoggedIn(res.data.userId, resolve)
+
                 })
                 .catch((err) => {
                     // Set logged out then reject the promise

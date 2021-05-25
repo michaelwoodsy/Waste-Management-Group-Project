@@ -88,7 +88,7 @@ Page for displaying the marketplace.
       <!-- Div with cards -->
       <div class="row row-cols-1 row-cols-lg-2">
         <div v-for="card in orderedCards" v-bind:key="card.id" class="col">
-          <MarketCard :card-data="card" :hide-image="hideImages" @card-deleted="deleteCard"></MarketCard>
+          <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="false" @card-deleted="deleteCard"></MarketCard>
         </div>
       </div>
 
@@ -163,10 +163,24 @@ export default {
       return this.actor.name
     },
 
+    /**
+     * Filters the cards to show only active cards.
+     */
+    filteredCards() {
+      const newCards = []
+      for (const card of this.cards) {
+        const displayPeriodEnd = new Date(card.displayPeriodEnd)
+        if (displayPeriodEnd > Date.now()) {
+          newCards.push(card)
+        }
+      }
+      return newCards
+    },
+
     /** List of cards, ordered by the selected ordering **/
     orderedCards() {
       // Create new card array
-      let newCards = [...this.cards];
+      let newCards = [...this.filteredCards];
 
       // Order it appropriately
       if (this.order === 'created-asc') {

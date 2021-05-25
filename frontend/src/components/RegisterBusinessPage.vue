@@ -19,7 +19,7 @@
           <div class="form-row">
             <!--    Business Name    -->
             <label for="businessName" style="margin-top:20px">
-              <b>Business Name<span class="required">*</span></b>
+              <strong>Business Name<span class="required">*</span></strong>
             </label>
             <br/>
             <input id="businessName" v-model="businessName" class="form-control"
@@ -35,7 +35,7 @@
           <div class="form-row">
             <!--    Business Description    -->
             <label class="description-label" for="description">
-              <b>Bio</b>
+              <strong>Bio</strong>
             </label>
             <br>
             <textarea id="description" v-model="description" class="form-control"
@@ -58,7 +58,7 @@
           <div class="form-row">
             <!--    Business Type    -->
             <label for="businessType">
-              <b>Business Type<span class="required">*</span></b>
+              <strong>Business Type<span class="required">*</span></strong>
             </label>
             <br/>
             <select id="businessType" v-model="businessType" class="form-control"

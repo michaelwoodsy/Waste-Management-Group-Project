@@ -275,8 +275,16 @@ public class TestDataRunner {
 
                 cardRepository.save(testCard);
             }
-
         }
+
+        if (cardRepository.count() > 0) {
+            Optional<Card> testCard = cardRepository.findById(1);
+            if (testCard.isPresent()) {
+                testCard.get().setDisplayPeriodEnd(LocalDateTime.now());
+                cardRepository.save(testCard.get());
+            }
+        }
+
         logger.info("Finished adding sample data to card repository");
         logger.info(String.format("Added %d entries to card repository", cardRepository.count()));
     }

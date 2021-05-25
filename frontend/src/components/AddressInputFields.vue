@@ -4,7 +4,7 @@
     <!--    Div for displaying full address search input box    -->
     <div class="form-row mb-3 needs-validation" v-if="fullAddressMode">
       <label for="fullAddress" class="addressText">
-        <b>Address</b><span class="required">*</span>
+        <strong>Address</strong><span class="required">*</span>
 
         <!-- Loading spinning win -->
         <transition name="fade">
@@ -86,7 +86,7 @@
 
       <div class="form-row mb-3">
         <!--    Home Address Street Number    -->
-        <label for="addressNumber"><b>Street Number</b></label>
+        <label for="addressNumber"><strong>Street Number</strong></label>
         <input id="addressNumber"
                v-model="address.streetNumber"
                class="form-control"
@@ -96,7 +96,7 @@
 
       <div class="form-row mb-3">
         <!--    Home Address Street Name    -->
-        <label for="addressStreet"><b>Street Name</b></label><br/>
+        <label for="addressStreet"><strong>Street Name</strong></label><br/>
         <input id="addressStreet" v-model="address.streetName" class="form-control" placeholder="Enter your Street Name"
                style="width:100%" type="text"><br>
 
@@ -106,7 +106,7 @@
 
       <div class="form-row mb-3">
         <!--    Home Address City    -->
-        <label for="addressCity"><b>City or Town</b></label>
+        <label for="addressCity"><strong>City or Town</strong></label>
         <input id="addressCity" v-model="address.city" class="form-control" maxlength="50"
                placeholder="Enter your City" style="width:100%" type="search">
 
@@ -114,14 +114,14 @@
 
       <div class="form-row mb-3">
         <!--    Home Address Region    -->
-        <label for="addressRegion"><b>Region</b></label>
+        <label for="addressRegion"><strong>Region</strong></label>
         <input id="addressRegion" v-model="address.region" class="form-control" maxlength="50"
                placeholder="Enter your Region" style="width:100%" type="search">
       </div>
 
       <div class="form-row mb-3">
         <!--    Home Address Country    -->
-        <label for="addressCountry"><b>Country<span class="required">*</span></b></label>
+        <label for="addressCountry"><strong>Country<span class="required">*</span></strong></label>
         <input id="addressCountry" v-model="address.country"
                :class="{'form-control': true, 'is-invalid': msg.country && showErrors}" maxlength="30"
                placeholder="Enter your Country" required style="width:100%" type="search">
@@ -132,7 +132,7 @@
 
       <div class="form-row mb-3">
         <!--    Home Address Post Code    -->
-        <label for="addressPostCode"><b>Postcode</b></label>
+        <label for="addressPostCode"><strong>Postcode</strong></label>
         <input id="addressPostCode" v-model="address.postcode" class="form-control"
                maxlength="30"
                placeholder="Enter your Postcode" style="width:100%" type="text">
@@ -270,7 +270,7 @@ export default {
       let stringRep = ''
 
       // Add the street number and name
-      if (location.streetNumber && location.streetNumber) {
+      if (location.streetNumber && location.streetName) {
         stringRep = `${location.streetNumber} ${location.streetName}`
       }
 

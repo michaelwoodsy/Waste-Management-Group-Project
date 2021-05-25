@@ -18,7 +18,7 @@
           </div>
           <!-- Username -->
           <div class="form-row">
-            <label for="username" style="margin-top:20px"><b>Email<span class="required">*</span></b></label><br/>
+            <label for="username" style="margin-top:20px"><strong>Email<span class="required">*</span></strong></label><br/>
             <input id="username"
                    v-model="username"
                    :class="{'form-control': true, 'is-invalid': msg.username}"
@@ -32,7 +32,7 @@
           <br>
           <!-- Password -->
           <div class="form-row">
-            <label for="password"><b>Password<span class="required">*</span></b></label><br/>
+            <label for="password"><strong>Password<span class="required">*</span></strong></label><br/>
             <input id="password"
                    v-model="password"
                    :class="{'form-control': true, 'is-invalid': msg.password}"

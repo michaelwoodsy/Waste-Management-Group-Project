@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-md navbar-light bg-primary">
+  <nav class="navbar navbar-expand-md navbar-light bg-primary p-0">
     <div class="col-12 col-md-10">
 
       <!-- Nav Bar -->

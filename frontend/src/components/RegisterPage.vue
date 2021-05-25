@@ -12,7 +12,7 @@
 
           <div class="form-row mb-3">
             <!--    First Name    -->
-            <label for="firstName" style="margin-top:20px"><b>First Name<span class="required">*</span></b></label>
+            <label for="firstName" style="margin-top:20px"><strong>First Name<span class="required">*</span></strong></label>
             <input id="firstName" v-model="firstName" :class="{'form-control': true, 'is-invalid': msg.firstName}"
                    maxlength="100"
                    placeholder="Enter your First Name" required style="width:100%" type="text">
@@ -22,14 +22,14 @@
 
           <div class="form-row mb-3">
             <!--    Middle Name    -->
-            <label for="middleName"><b>Middle Name</b></label>
+            <label for="middleName"><strong>Middle Name</strong></label>
             <input id="middleName" v-model="middleName" class="form-control" maxlength="100"
                    placeholder="Enter your Middle Name" style="width:100%" type="text">
           </div>
 
           <div class="form-row mb-3">
             <!--    Last Name    -->
-            <label for="lastName"><b>Last Name<span class="required">*</span></b></label>
+            <label for="lastName"><strong>Last Name<span class="required">*</span></strong></label>
             <input id="lastName" v-model="lastName" :class="{'form-control': true, 'is-invalid': msg.lastName}"
                    maxlength="100"
                    placeholder="Enter your Last Name" required style="width:100%" type="text">
@@ -39,7 +39,7 @@
 
           <div class="form-row mb-3">
             <!--    Nickname    -->
-            <label for="nickname"><b>Nickname</b></label>
+            <label for="nickname"><strong>Nickname</strong></label>
             <input id="nickname" v-model="nickname" class="form-control" maxlength="100"
                    placeholder="Enter your Nickname"
                    style="width: 100%" type="text">
@@ -47,7 +47,7 @@
 
           <div class="form-row mb-3">
             <!--    Email    -->
-            <label for="email"><b>Email<span class="required">*</span></b></label>
+            <label for="email"><strong>Email<span class="required">*</span></strong></label>
             <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}" maxlength="100"
                    placeholder="Enter your Email"
                    required style="width: 100%" type="email">
@@ -57,7 +57,7 @@
 
           <div class="form-row mb-3">
             <!--    bio    -->
-            <label class="bio-label" for="bio"><b>Bio</b></label>
+            <label class="bio-label" for="bio"><strong>Bio</strong></label>
             <textarea id="bio" v-model="bio" class="form-control" maxlength="255"
                       placeholder="Write a Bio (Max length 255 characters)"
                       style="width: 100%; height: 200px;"></textarea>
@@ -65,7 +65,7 @@
 
           <div class="form-row mb-3">
             <!--    Date of Birth    -->
-            <label for="dateOfBirth"><b>Date of Birth<span class="required">*</span></b></label>
+            <label for="dateOfBirth"><strong>Date of Birth<span class="required">*</span></strong></label>
             <input id="dateOfBirth" v-model="dateOfBirth" :class="{'form-control': true, 'is-invalid': msg.dateOfBirth}"
                    maxlength="100" required
                    style="width:100%" type="date">
@@ -75,7 +75,7 @@
 
           <div class="form-row mb-3">
             <!--    Phone Number    -->
-            <label for="phoneNumber"><b>Phone Number</b></label>
+            <label for="phoneNumber"><strong>Phone Number</strong></label>
             <input id="phoneNumber" v-model="phone" class="form-control"
                    maxlength="30"
                    placeholder="Enter your Phone Number with extension" style="width:100%" type="text">
@@ -93,7 +93,7 @@
 
           <div class="form-row mb-3">
             <!--    Password    -->
-            <label for="password"><b>Password<span class="required">*</span></b></label>
+            <label for="password"><strong>Password<span class="required">*</span></strong></label>
             <input id="password" v-model="password" :class="{'form-control': true, 'is-invalid': msg.password}"
                    maxlength="200"
                    placeholder="Enter your Password" style="width:100%" type="password"><br>

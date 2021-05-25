@@ -16,7 +16,7 @@
     <div v-if="!selectingItem">
       <!-- Product Code -->
       <div class="form-group row">
-        <label for="productCode"><b>Product Code<span class="required">*</span></b></label>
+        <label for="productCode"><strong>Product Code<span class="required">*</span></strong></label>
         <div :class="{'input-group': true, 'is-invalid': msg.productCode}">
           <input id="productCode" v-model="productCode" :class="{'form-control': true, 'is-invalid': msg.productCode}"
                  placeholder="Select a product from your catalogue..." readonly>
@@ -29,7 +29,7 @@
 
       <!-- Quantity -->
       <div class="form-group row">
-        <label for="quantity"><b>Product Quantity<span class="required">*</span></b></label>
+        <label for="quantity"><strong>Product Quantity<span class="required">*</span></strong></label>
         <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
                placeholder="Enter the quantity"
                required maxlength="10" type="text">
@@ -38,7 +38,7 @@
 
       <!-- Price Per Item -->
       <div class="form-group row">
-        <label for="pricePerItem"><b>Price Per Item</b></label>
+        <label for="pricePerItem"><strong>Price Per Item</strong></label>
         <div :class="{'input-group': true, 'is-invalid': msg.pricePerItem}">
           <div class="input-group-prepend">
             <span class="input-group-text">{{ this.currencySymbol }}</span>
@@ -56,7 +56,7 @@
 
       <!-- Total Price -->
       <div class="form-group row">
-        <label for="totalPrice"><b>Total Price</b></label>
+        <label for="totalPrice"><strong>Total Price</strong></label>
         <div :class="{'input-group': true, 'is-invalid': msg.totalPrice}">
           <div class="input-group-prepend">
             <span class="input-group-text">{{ this.currencySymbol }}</span>
@@ -74,7 +74,7 @@
 
       <!-- Manufactured -->
       <div class="form-group row">
-        <label for="manufactured"><b>Manufactured Date</b></label>
+        <label for="manufactured"><strong>Manufactured Date</strong></label>
         <input id="manufactured" v-model="manufactured"
                :class="{'form-control': true, 'is-invalid': msg.manufactured}" required style="width:100%"
                type="date">
@@ -84,7 +84,7 @@
 
       <!-- Sell By -->
       <div class="form-group row">
-        <label for="sellBy"><b>Sell By Date</b></label>
+        <label for="sellBy"><strong>Sell By Date</strong></label>
         <input id="sellBy" v-model="sellBy" :class="{'form-control': true, 'is-invalid': msg.sellBy}" required
                style="width:100%"
                type="date">
@@ -94,7 +94,7 @@
 
       <!-- Best Before -->
       <div class="form-group row">
-        <label for="bestBefore"><b>Best Before Date</b></label>
+        <label for="bestBefore"><strong>Best Before Date</strong></label>
         <input id="bestBefore" v-model="bestBefore" :class="{'form-control': true, 'is-invalid': msg.bestBefore}"
                required style="width:100%"
                type="date">
@@ -104,7 +104,7 @@
 
       <!-- Expires -->
       <div class="form-group row">
-        <label for="expires"><b>Expiry Date<span class="required">*</span></b></label>
+        <label for="expires"><strong>Expiry Date<span class="required">*</span></strong></label>
         <input id="expires" v-model="expires" :class="{'form-control': true, 'is-invalid': msg.expires}" required
                style="width:100%"
                type="date">

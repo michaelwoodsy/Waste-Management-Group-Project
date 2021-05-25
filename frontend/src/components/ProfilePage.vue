@@ -148,7 +148,7 @@
       </div>
 
       <div class="row">
-        <div class="col text-left mb-2">
+        <div class="col text-left mb-2" v-if="cards.length !== 0">
           <h2>User's Cards</h2>
         </div>
       </div>
@@ -178,9 +178,9 @@ export default {
   props: {
     msg: String
   },
-  mounted() {
+  async mounted() {
     User.getUserData(this.userId).then((response) => this.profile(response))
-    this.cards = this.getCardData();
+    await this.getCardData();
     this.filterCards();
   },
 
@@ -250,10 +250,10 @@ export default {
     /**
      * Called when the userId is changed, this occurs when the path variable for the user id is updated
      */
-    userId(value) {
+    async userId(value) {
       if (value !== undefined) {
         User.getUserData(value).then((response) => this.profile(response))
-        this.cards = this.getCardData()
+        await this.getCardData()
         this.filterCards()
       }
     }
@@ -422,94 +422,14 @@ export default {
     /**
      * Gets the user's cards to display on their profile page
      */
-    getCardData() {
-      //TODO: change to get the user's cards from backend
-      return [
-        { //This first card has expired and should not be shown on the profile page
-          "id": 500,
-          "creator": {
-            "id": 100,
-            "firstName": "This",
-            "lastName": "User",
-            "homeAddress": {
-              "streetNumber": "3/24",
-              "streetName": "Ilam Road",
-              "city": "Christchurch",
-              "region": "Canterbury",
-              "country": "New Zealand",
-              "postcode": "90210"
-            },
-          },
-          "section": "ForSale",
-          "created": "2021-05-03T05:10:00Z",
-          "displayPeriodEnd": "2021-05-17T05:10:00Z",
-          "title": "1982 Lada Samara",
-          "description": "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
-          "keywords": [
-            {
-              "id": 600,
-              "name": "Vehicle",
-              "created": "2021-04-15T05:10:00Z"
-            }
-          ]
-        },
-        {
-          "id": 503,
-          "creator": {
-            "id": 100,
-            "firstName": "This",
-            "lastName": "User",
-            "homeAddress": {
-              "streetNumber": "3/24",
-              "streetName": "Ilam Road",
-              "city": "Christchurch",
-              "region": "Canterbury",
-              "country": "New Zealand",
-              "postcode": "90210"
-            },
-          },
-          "section": "Wanted",
-          "created": "2021-05-02T05:10:00Z",
-          "displayPeriodEnd": "2021-06-16T05:10:00Z",
-          "title": "To pass SENG302",
-          "description": "Please can I just pass SENG302",
-          "keywords": [
-            {
-              "id": 602,
-              "name": "University",
-              "created": "2021-04-15T05:10:00Z"
-            }
-          ]
-        },
-        {
-          "id": 502,
-          "creator": {
-            "id": 101,
-            "firstName": "This",
-            "lastName": "User",
-            "homeAddress": {
-              "streetNumber": "3/24",
-              "streetName": "Ilam Road",
-              "city": "Christchurch",
-              "region": "Canterbury",
-              "country": "New Zealand",
-              "postcode": "90210"
-            },
-          },
-          "section": "ForSale",
-          "created": "2021-06-10T05:10:00Z",
-          "displayPeriodEnd": "2021-06-24T05:10:00Z",
-          "title": "Bag of chips",
-          "description": "Just a good ol bag of chips, nothing special, will trade for a pebble",
-          "keywords": [
-            {
-              "id": 601,
-              "name": "Food",
-              "created": "2021-04-15T05:10:00Z"
-            }
-          ]
-        }
-      ]
+    async getCardData() {
+      try {
+        const response = await User.getCards(this.userId)
+        this.cards = response.data
+      } catch (error) {
+        console.error(error)
+        this.error = error.response ? error.response.data : error
+      }
     },
     expired(card) {
       const now = new Date();

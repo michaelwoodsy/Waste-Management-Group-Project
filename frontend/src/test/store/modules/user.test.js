@@ -132,10 +132,10 @@ describe('store.user', () => {
         expect(user.state.loggedIn).toBeFalsy();
 
         // Try to register
-        const res = await user.register("Tom", "Rizzi")
+        await user.register("Tom", "Rizzi")
 
         // Checks the state is set correctly
-        expect(user.state.userId).toBe(res.data.userId)
+        expect(user.state.userId).toBe(1)
         expect(user.state.loggedIn).toBeTruthy();
     });
 
