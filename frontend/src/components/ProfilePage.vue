@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <page-wrapper>
 
     <login-required
         v-if="!isLoggedIn"
@@ -11,8 +11,8 @@
       <div class="row">
         <div class="col-12 text-center mb-2">
           <h2>{{ firstName }} {{ lastName }}
-            <span class="badge badge-danger admin-badge" v-if="isGAA && canDoAdminAction">ADMIN</span>
-            <span class="badge badge-danger admin-badge" v-else-if="isDGAA && canDoAdminAction">DGAA</span>
+            <span v-if="isGAA && canDoAdminAction" class="badge badge-danger admin-badge">ADMIN</span>
+            <span v-else-if="isDGAA && canDoAdminAction" class="badge badge-danger admin-badge">DGAA</span>
           </h2>
         </div>
       </div>
@@ -132,15 +132,17 @@
           <br>
         </div>
         <div v-if="error" class="col-8 offset-2 text-center mb-2">
-          <alert>{{error}}</alert>
+          <alert>{{ error }}</alert>
         </div>
       </div>
 
-      <div class="row d-flex justify-content-center" v-if="userRole === 'defaultGlobalApplicationAdmin'">
-        <button id="removeGAAButton" class="btn btn-block btn-danger" v-if="isGAA" style="width: 15%;margin:0 20px; font-size: 14px;"
+      <div v-if="userRole === 'defaultGlobalApplicationAdmin'" class="row d-flex justify-content-center">
+        <button v-if="isGAA" id="removeGAAButton" class="btn btn-block btn-danger"
+                style="width: 15%;margin:0 20px; font-size: 14px;"
                 v-on:click="removeUserAdmin(userId)">Remove Admin Access
         </button>
-        <button id="addGAAButton" class="btn btn-block btn-success" v-else-if="!isDGAA" style="width: 15%;margin:0 20px; font-size: 14px;"
+        <button v-else-if="!isDGAA" id="addGAAButton" class="btn btn-block btn-success"
+                style="width: 15%;margin:0 20px; font-size: 14px;"
                 v-on:click="addUserAdmin(userId)">Grant Admin Access
         </button>
       </div>
@@ -160,7 +162,7 @@
 
     </div>
 
-  </div>
+  </page-wrapper>
 </template>
 
 <script>
@@ -168,7 +170,7 @@
 import {Business, User} from '@/Api'
 import LoginRequired from "./LoginRequired"
 import Alert from "@/components/Alert";
-import MarketCard from "@/components/MarketCard";
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "ProfilePage",
@@ -257,6 +259,7 @@ export default {
   },
 
   components: {
+    PageWrapper,
     Alert,
     LoginRequired,
     MarketCard

@@ -1,5 +1,7 @@
 package org.seng302.project.controller;
 
+import net.minidev.json.JSONObject;
+import java.util.List;
 import org.seng302.project.controller.authentication.AppUserDetails;
 import org.seng302.project.exceptions.*;
 import org.seng302.project.exceptions.card.NoCardExistsException;
@@ -32,6 +34,60 @@ public class CardController {
             UserRepository userRepository) {
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
+    }
+
+
+    @PostMapping("/cards")
+    @ResponseStatus(HttpStatus.CREATED)
+    public JSONObject createCard(@RequestBody JSONObject json, @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+            logger.info("Request to create card");
+
+            // Get the logged in user
+            Integer creatorId = (Integer) json.getAsNumber("creatorId");
+            String section = json.getAsString("section");
+            String title = json.getAsString("title");
+            String description = json.getAsString("description");
+            String keywords = json.getAsString("keywords");
+
+            User loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
+            Optional<User> creator = userRepository.findById(creatorId);
+
+            // check required fields
+            if (section == null || section.isEmpty() ||
+                    title == null || title.isEmpty() ||
+                    keywords == null || keywords.isEmpty() ||
+                    !json.containsKey("creatorId")) {
+                RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
+                logger.warn(requiredFieldsMissingException.getMessage());
+                throw requiredFieldsMissingException;
+            }
+
+            // check if loggedInUser has the same ID as the creator id provided, otherwise check loggedInUser is GAA
+            if (!loggedInUser.getId().equals(creatorId)) {
+                if (!loggedInUser.getRole().equals("globalApplicationAdmin") || !loggedInUser.getRole().equals("defaultGlobalApplicationAdmin")) {
+                    throw new ForbiddenCardActionException();
+                }
+            }
+
+            //check that listed card creator exists.
+            if (creator.isEmpty()) {
+                NoUserExistsException noUserExistsException = new NoUserExistsException(creatorId);
+                logger.warn(noUserExistsException.getMessage());
+                throw noUserExistsException;
+            }
+
+            Card newCard = new Card(creator.get(), section, title, description, keywords);
+            Integer cardId = cardRepository.save(newCard).getId();
+            JSONObject response = new JSONObject();
+            response.put("cardId", cardId);
+            return response;
+        } catch (NoUserExistsException | RequiredFieldsMissingException expectedException) {
+            throw expectedException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while creating card: %s", exception.getMessage()));
+            throw exception;
+        }
     }
 
 
@@ -81,6 +137,32 @@ public class CardController {
             throw exception;
         }
     }
+    /**
+     * Endpoint for getting all cards in a section.
+     *
+     * @param section Section to get all cards from.
+     * @return List of Cards in the corresponding section.
+     */
+    @GetMapping("/cards")
+    public List<Card> getAllCards(@RequestParam String section) {
+        try {
+            // Check if the section is invalid
+            if (!("Exchange".equals(section) ||
+                  "ForSale".equals(section) ||
+                  "Wanted".equals(section))) {
+                throw new InvalidMarketplaceSectionException();
+            }
+
+            // Return all cards in the section
+            return cardRepository.findAllBySection(section);
+        } catch (Exception exception) {
+            logger.error("Unexpected error while getting all cards");
+            throw exception;
+        }
+    }
+
+
+
 
     /**
      * Extends the card with id cardID's displayPeriodEnd date by 12 days.
@@ -151,6 +233,39 @@ public class CardController {
             throw expectedException;
         } catch (Exception unexpectedException) {
             logger.error(String.format("Unexpected error while deleting card: %s", unexpectedException.getMessage()));
+            throw unexpectedException;
+        }
+
+    }
+
+    @GetMapping("/users/{id}/cards")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Card> getAllCardsByUser(@PathVariable Integer id) {
+        // Log the request
+        logger.info(String.format("Request to get cards by user with id %d", id));
+
+        try {
+            // Try get the user, and check they exist
+            Optional<User> optionalUser = userRepository.findById(id);
+            if (optionalUser.isEmpty()) {
+                throw new NoUserExistsException(id);
+            }
+            User user = optionalUser.get();
+
+            // Get the users cards
+            return cardRepository.findAllByCreator(user);
+        }
+
+        // Deal with known Exceptions
+        catch (NoUserExistsException expectedException) {
+            logger.warn(expectedException.getMessage());
+            throw expectedException;
+
+        }
+
+        // Deal with unknown exceptions
+        catch (Exception unexpectedException) {
+            logger.error(String.format("Unexpected error while retrieving users cards: %s", unexpectedException.getMessage()));
             throw unexpectedException;
         }
 
