@@ -185,6 +185,8 @@ export default {
         this.close();
       }).catch((err) => {
         this.msg.errorChecks = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+            : err
       });
     },
     /**

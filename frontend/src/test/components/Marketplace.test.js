@@ -10,6 +10,9 @@ describe("Clicking on the marketplace tab links", () => {
             computed: {
                 isLoggedIn() {
                     return true
+                },
+                actingAsUser() {
+                    return true
                 }
             }
         })
@@ -152,6 +155,9 @@ describe('Pagination, ordering and deletion tests', () => {
         wrapper = await shallowMount(Marketplace, {
             computed: {
                 isLoggedIn() {
+                    return true
+                },
+                actingAsUser() {
                     return true
                 }
             }

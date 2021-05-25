@@ -45,7 +45,7 @@ Page for displaying the marketplace.
           </ul>
         </div>
         <div class="col">
-          <button class="btn btn-primary float-right" data-target="#createCard" data-toggle="modal" @click="newCard">
+          <button v-if="actingAsUser" class="btn btn-primary float-right" data-target="#createCard" data-toggle="modal" @click="newCard">
             New Card
           </button>
         </div>
@@ -149,6 +149,13 @@ export default {
      **/
     actor() {
       return this.$root.$data.user.state.actingAs
+    },
+
+    /**
+     * Returns true if the logged in account is acting as a user
+     **/
+    actingAsUser() {
+      return this.actor.type === 'user'
     },
 
     /** Returns the current logged in users data **/
