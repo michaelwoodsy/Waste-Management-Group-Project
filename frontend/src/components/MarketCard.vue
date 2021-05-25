@@ -13,9 +13,13 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
     <div v-if="expired && showExpired" class="card-header">
       <p class="text-danger d-inline">This card is about to expire</p>
-      <!--TODO: Hook these buttons up to API calls-->
-      <button class="btn btn-outline-danger d-inline float-right mx-1">Delete</button>
-      <button class="btn btn-outline-primary d-inline float-right mx-1">Extend</button>
+      <button class="btn btn-outline-danger d-inline float-right mx-1"
+              data-toggle="modal"
+              :data-target="'#deleteModal' + cardData.id">
+        Delete
+      </button>
+      <!--TODO: Hook extend button up to API calls-->
+      <button class="btn btn-outline-primary d-inline float-right mx-1" @click="extendCard">Extend</button>
       <!-- Shows expiry time of a particular card -->
       <p v-if="daysToExpire > 0 || hoursToExpire > 0 || minutesToExpire > 0 || secondsToExpire > 0" class="text-danger float- small mb-1">
         Card expires in:
@@ -28,13 +32,6 @@ Eg, <market-card @card-deleted="someMethod" ... />
       <p v-else class="text-danger float- small mb-1">
         Card has expired
       </p>
-      <button class="btn btn-outline-danger d-inline float-right mx-1"
-              data-toggle="modal"
-              :data-target="'#deleteModal' + cardData.id">
-        Delete
-      </button>
-      <!--TODO: Hook extend button up to API calls-->
-      <button class="btn btn-outline-primary d-inline float-right mx-1" @click="extendCard">Extend</button>
     </div>
 
     <!-- Card image -->
@@ -148,7 +145,7 @@ export default {
   data() {
     return {
       showDetails: false,
-      error: null
+      error: null,
       daysToExpire: '',
       hoursToExpire: '',
       minutesToExpire: '',
@@ -256,9 +253,7 @@ export default {
     /** Calculates the time remaining before a card expires in days, hours, minutes and seconds **/
     timeUntilExpiry() {
       const now = new Date()
-      const created = new Date(this.cardData.created)
-      const twoWeeksAfter = new Date(created.setDate(created.getDate() + 14))
-      const timeLeft = twoWeeksAfter.getTime() - now.getTime()
+      const timeLeft = this.cardData.displayPeriodEnd.getTime() - now.getTime()
       const seconds = Math.floor((timeLeft / 1000) % 60);
       const minutes = Math.floor((timeLeft / 1000 / 60) % 60);
       const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
