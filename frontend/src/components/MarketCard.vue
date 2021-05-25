@@ -228,16 +228,21 @@ export default {
     /**
      * Sends API request to extend the time of a card
      */
-    extendCard() {
-      // TODO: Make API request to extend card once implemented.
-      const currentDate = new Date(this.cardData.displayPeriodEnd)
-      const newDate = new Date(this.cardData.displayPeriodEnd)
-      newDate.setDate(currentDate.getDate() + 14)
+    async extendCard() {
+      try {
+        await Card.extendDisplay(this.cardData.id)
 
-      console.log(currentDate)
-      console.log(newDate)
+        const response = await Card.getCard(this.cardData.id)
+        const newDate = response.data.displayPeriodEnd
 
-      this.$emit('card-extended', this.cardData.id, newDate.toDateString())
+        // const currentDate = new Date(this.cardData.displayPeriodEnd)
+        // const newDate = new Date(this.cardData.displayPeriodEnd)
+        // newDate.setDate(currentDate.getDate() + 14)
+
+        this.$emit('card-extended', this.cardData.id, newDate)
+      } catch (error) {
+        console.error(error)
+      }
     },
     /** Deletes this card, emitting an event on success **/
     deleteCard() {
@@ -283,7 +288,6 @@ export default {
         seconds
       }
     },
-
 
     /** Updates the timer for counting down the expiry of a card */
     updateTimer() {

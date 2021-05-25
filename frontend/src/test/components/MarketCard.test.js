@@ -19,9 +19,8 @@ jest.mock('@/utils/dateTime', () => ({
 }));
 
 let wrapper;
-let extended = false
 const mockedGetResponse = {
-    cardData: {
+    data: {
         "id": 500,
         "creator": {
             "id": 100,
@@ -54,11 +53,11 @@ const mockedGetResponse = {
 
 Card.getCard.mockResolvedValue(mockedGetResponse)
 
-Card.extendDisplay.mockImplementation(async () => {
-    extended = true
-    return mockedGetResponse
+Card.extendDisplay.mockImplementation(() => {
+    const date = new Date(mockedGetResponse.data.displayPeriodEnd)
+    date.setDate(date.getDate() + 14)
+    mockedGetResponse.data.displayPeriodEnd = date.toDateString()
 })
-
 
 afterEach(() => {
     wrapper.destroy()
@@ -69,7 +68,7 @@ describe('Testing the MarketCard component', () => {
     beforeEach(() => {
         wrapper = mount(MarketCard, {
             propsData: {
-                cardData: mockedGetResponse.cardData
+                cardData: mockedGetResponse.data
             },
             computed: {
                 isCardCreator() {
@@ -110,7 +109,7 @@ describe('Testing the MarketCard component', () => {
     test("Tests the isCardOwner property", () => {
         const isCardCreator = MarketCard.computed.isCardCreator
         // Function for mocking the 'this' state
-        const mockThis = (id) => ({"cardData": mockedGetResponse.cardData, "$root": {"$data": {"user": {isUser (userId) {return userId === id}}}}})
+        const mockThis = (id) => ({"cardData": mockedGetResponse.data, "$root": {"$data": {"user": {isUser (userId) {return userId === id}}}}})
 
         expect(isCardCreator.call(mockThis(100))).toBeTruthy()
         expect(isCardCreator.call(mockThis(2))).toBeFalsy()
@@ -125,7 +124,7 @@ describe('Testing the MarketCard component', () => {
         // Expect the component to emit the deleteCard event
         expect(wrapper.emitted('card-deleted')).toBeTruthy()
         // Expect the component to emit the correct ID
-        expect(wrapper.emitted('card-deleted')[0]).toEqual([mockedProps.cardData.id])
+        expect(wrapper.emitted('card-deleted')[0]).toEqual([mockedGetResponse.data.id])
     })
 
     test('Test toggleDetails method switches showDetails from false to true', () => {
@@ -145,13 +144,6 @@ describe('Testing the MarketCard component', () => {
         const displayEnd = new Date("2021-07-29T05:10:00Z")
         expect(wrapper.vm.timeUntilExpiry().timeLeft).toEqual(displayEnd.getTime() - now.getTime())
     })
-
-    test('Test the extendCard method extends the cards time', async () => {
-        extended = false
-        await wrapper.vm.extendDisplay()
-        expect(extended).toBeTruthy()
-    })
-
 
     // Test the deleteCard method
     test("Test the deleteCard method makes a call to the api", async () => {
@@ -195,7 +187,7 @@ describe('Testing the MarketCard component', () => {
     })
 
     test('Test the extend card function emits an extend card event', async () => {
-        wrapper.vm.extendCard()
+        await wrapper.vm.extendCard()
         await wrapper.vm.$nextTick()
 
         expect(wrapper.emitted('card-extended')).toBeTruthy()
