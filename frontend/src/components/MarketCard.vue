@@ -31,7 +31,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
     <div class="card-body">
 
-      <div v-if="this.cardData.creator.id === Number(this.$root.$data.user.state.userId)">
+      <div v-if="this.cardData.creator.id === userId">
         <!-- Shows expiry time of a particular card -->
         <p v-if="daysToExpire > 0 || hoursToExpire > 0 || minutesToExpire > 0 || secondsToExpire > 0" class="text-danger float-right small mb-1">
           Card expires in:
@@ -160,7 +160,6 @@ export default {
 
   /** Initialises the timer for displaying the expiry of a card */
   mounted() {
-    console.log(this.$root.$data.user.state.userId)
     this.daysToExpire = this.timeUntilExpiry().days
     this.hoursToExpire = this.timeUntilExpiry().hours
     this.minutesToExpire = this.timeUntilExpiry().minutes
@@ -172,6 +171,11 @@ export default {
     /** A string representation of how long ago the card was created or renewed **/
     timeCreated() {
       return getTimeDiffStr(this.cardData.created)
+    },
+
+    /** Returns the current user ID **/
+    userId() {
+      return Number(this.$root.$data.user.state)
     },
 
     /** The name of the creator of the card **/

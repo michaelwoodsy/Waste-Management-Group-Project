@@ -66,6 +66,9 @@ describe('Testing the MarketCard component', () => {
                 },
                 canDeleteCard() {
                     return false
+                },
+                userId() {
+                    return 1
                 }
             }
         })
@@ -128,9 +131,8 @@ describe('Testing the MarketCard component', () => {
 
     test('Test time until expiry computed method', () => {
         const now =  new Date()
-        const createdDate = new Date("2021-05-13T05:10:00Z")
-        const twoWeeksAfter = new Date(createdDate.setDate(createdDate.getDate() + 14))
-        expect(wrapper.vm.timeUntilExpiry().timeLeft).toEqual(twoWeeksAfter.getTime() - now.getTime())
+        const displayEnd = new Date("2021-07-29T05:10:00Z")
+        expect(wrapper.vm.timeUntilExpiry().timeLeft).toEqual(displayEnd.getTime() - now.getTime())
     })
 
     // Test the deleteCard method
