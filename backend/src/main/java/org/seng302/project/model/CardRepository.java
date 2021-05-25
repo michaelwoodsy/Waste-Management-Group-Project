@@ -27,6 +27,6 @@ public interface CardRepository extends JpaRepository<Card, Integer> {
 
     @Modifying
     @Transactional
-    void deleteByCreatedBeforeOrCreatedEquals(LocalDateTime expiryDate);
+    void deleteByDisplayPeriodEndBefore(LocalDateTime dayAgo);
 
 }

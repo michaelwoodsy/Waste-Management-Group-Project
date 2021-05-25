@@ -16,10 +16,8 @@ Feature: UCM4 - Card expiry
     And A user has created a card
     When The system administrator tries to delete the card
     Then The card is successfully deleted
-#
-#  Scenario: AC4: If I take no action within 24 hours of the notification (card expiry) then the card will be deleted automatically
-#    Given A user has created a card
-#    When The card has an expiry date of more than 24 hours ago
-#    Then The card is automatically deleted
 
-
+  Scenario: AC4: If I take no action within 24 hours of the notification (card expiry) then the card will be deleted automatically
+    Given A user has created a card
+    When The card has an expiry date of more than 24 hours ago
+    Then The card is automatically deleted
