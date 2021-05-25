@@ -2,11 +2,19 @@ import '@jest/globals'
 import {shallowMount} from "@vue/test-utils"
 import CreateCardPage from "@/components/CreateCardPage"
 
-let wrapper = shallowMount(CreateCardPage)
+let wrapper
 
 describe('validate Section method tests', () => {
 
-    beforeEach(() => {
+    beforeEach(async () => {
+        wrapper = await shallowMount(CreateCardPage, {
+            methods: {
+                addCard() {
+                    return null
+                }
+            }
+        })
+
         wrapper.vm.$data.msg.section = null
         wrapper.vm.$data.valid = true
     })
@@ -33,7 +41,7 @@ describe('validate Section method tests', () => {
     })
 
     test("Test valid section", () => {
-        wrapper.vm.$data.section = 'For Sale'
+        wrapper.vm.$data.section = 'ForSale'
         wrapper.vm.validateSection()
         expect(wrapper.vm.$data.msg.section).toStrictEqual(null)
         expect(wrapper.vm.$data.valid).toBeTruthy()

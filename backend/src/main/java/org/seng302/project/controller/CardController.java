@@ -141,6 +141,7 @@ public class CardController {
             throw exception;
         }
     }
+
     /**
      * Endpoint for getting all cards in a section.
      *
@@ -150,10 +151,12 @@ public class CardController {
     @GetMapping("/cards")
     public List<Card> getAllCards(@RequestParam String section) {
         try {
+            logger.info(String.format("Request to get all cards by section: %s", section));
+
             // Check if the section is invalid
             if (!("Exchange".equals(section) ||
-                  "ForSale".equals(section) ||
-                  "Wanted".equals(section))) {
+                    "ForSale".equals(section) ||
+                    "Wanted".equals(section))) {
                 throw new InvalidMarketplaceSectionException();
             }
 
