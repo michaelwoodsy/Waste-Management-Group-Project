@@ -269,9 +269,11 @@ public class TestDataRunner {
                         testUser,
                         jsonCard.getAsString("section"),
                         jsonCard.getAsString("title"),
-                        jsonCard.getAsString("description")
+                        jsonCard.getAsString("description"),
+                        jsonCard.getAsString("keywords")
                 );
 
+                testCard.setDisplayPeriodEnd(LocalDateTime.now().minusHours(1));
 
                 cardRepository.save(testCard);
             }
