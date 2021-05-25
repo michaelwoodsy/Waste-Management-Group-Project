@@ -273,8 +273,6 @@ public class TestDataRunner {
                         jsonCard.getAsString("keywords")
                 );
 
-                testCard.setDisplayPeriodEnd(LocalDateTime.now().minusHours(1));
-
                 cardRepository.save(testCard);
             }
 
