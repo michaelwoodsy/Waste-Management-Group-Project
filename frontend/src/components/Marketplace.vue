@@ -55,7 +55,7 @@ Page for displaying the marketplace.
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-body">
-              <create-card-page @refresh-cards="refreshCards"></create-card-page>
+              <create-card-page @refresh-cards="refreshCards()"></create-card-page>
             </div>
           </div>
         </div>
@@ -267,6 +267,7 @@ export default {
      */
     refreshCards() {
       this.createNewCard = false;
+      this.getCards(this.tabSelected)
     },
 
     /**

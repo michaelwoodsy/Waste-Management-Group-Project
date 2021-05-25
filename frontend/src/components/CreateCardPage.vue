@@ -14,13 +14,13 @@
       <div class="form-group row">
         <label for="section"><b>Section<span class="required">*</span></b></label>
           <select id="section" v-model="section" :class="{'form-control': true, 'is-invalid': msg.section}" >
-            <option>
+            <option value="ForSale">
               For Sale
             </option>
-            <option>
+            <option value="Wanted">
               Wanted
             </option>
-            <option>
+            <option value="Exchange">
               Exchange
             </option>
           </select>
@@ -106,7 +106,7 @@ export default {
       if (this.section === '' || this.section === null){
         this.msg.section = 'Please select a section'
         this.valid = false
-      } else if (this.section === 'For Sale' || this.section === 'Wanted' || this.section === 'Exchange'){
+      } else if (this.section === 'ForSale' || this.section === 'Wanted' || this.section === 'Exchange'){
         this.msg.section = null
       } else {
         this.msg.section = 'Please select an appropriate section'
