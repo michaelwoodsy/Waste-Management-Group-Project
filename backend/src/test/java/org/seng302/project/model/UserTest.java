@@ -37,7 +37,6 @@ public class UserTest {
         Assertions.assertNull(testUser.getHomeAddress());
         Assertions.assertEquals("1337-H%nt3r2", testUser.getPassword());
         Assertions.assertEquals("user", testUser.getRole());
-        Assertions.assertTrue(testUser.getCreated().isBefore(LocalDateTime.now()) || testUser.getCreated().isEqual(LocalDateTime.now()));
         Assertions.assertTrue(testUser.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
     }
 
