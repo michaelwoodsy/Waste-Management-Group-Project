@@ -16,7 +16,7 @@ jest.mock('@/Api')
 beforeAll(() => {
     const userDataResponse = {
         data: {
-            id: 1,
+            id: 100,
             firstName: 'John',
             lastName: 'Smith',
             middleName: '',
@@ -38,6 +38,7 @@ beforeAll(() => {
             businessesAdministered: []
         }
     }
+
     User.getUserData.mockResolvedValue(userDataResponse)
 
     wrapper = shallowMount(ProfilePage, {
@@ -63,8 +64,10 @@ beforeAll(() => {
                 set(val) {
                     this.stateRole = val
                 }
+            },
+            canDoAdminAction() {
+                return false
             }
-
         },
         methods: {
             profile(response) {
