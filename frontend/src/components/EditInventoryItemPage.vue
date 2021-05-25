@@ -85,8 +85,8 @@
             <form>
               <!-- Product Code -->
               <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="productCode"><b>Product Code<span
-                    class="text-danger">*</span></b></label>
+                <label class="col-sm-4 col-form-label" for="productCode"><strong>Product Code<span
+                    class="text-danger">*</span></strong></label>
                 <div class="col-sm-8">
                   <select
                       id="productCode"
@@ -104,8 +104,8 @@
 
               <!-- Quantity -->
               <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="quantity"><b>Product Quantity<span
-                    class="text-danger">*</span></b></label>
+                <label class="col-sm-4 col-form-label" for="quantity"><strong>Product Quantity<span
+                    class="text-danger">*</span></strong></label>
                 <div class="input-group col-sm-8">
                   <input
                       id="quantity"
@@ -125,8 +125,8 @@
 
               <!-- Price Per Item -->
               <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="pricePerItem"><b>Price Per Item<span
-                    class="text-danger"></span></b></label>
+                <label class="col-sm-4 col-form-label" for="pricePerItem"><strong>Price Per Item<span
+                    class="text-danger"></span></strong></label>
                 <div :class="{'input-group': true, 'is-invalid': !pricePerItemValid && pricePerItemBlur}"
                      class="col-sm-8">
                   <div class="input-group-prepend">
@@ -148,7 +148,7 @@
 
               <!-- Total Price -->
               <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="totalPrice"><b>Total Price</b></label>
+                <label class="col-sm-4 col-form-label" for="totalPrice"><strong>Total Price</strong></label>
                 <div :class="{'input-group': true, 'is-invalid': !totalPriceValid && totalPriceBlur}" class="col-sm-8">
                   <div class="input-group-prepend">
                     <span class="input-group-text">{{ this.currencySymbol }}</span>
@@ -167,7 +167,7 @@
 
               <!-- Manufactured -->
               <div class="form-row">
-                <label for="manufactured"><b>Manufactured Date</b></label><br/>
+                <label for="manufactured"><strong>Manufactured Date</strong></label><br/>
                 <input id="manufactured" v-model="newItem.manufactured"
                        :class="{'form-control': true, 'is-invalid': !manufacturedValid && manufacturedBlur}" required
                        style="width:100%"
@@ -178,7 +178,7 @@
 
               <!-- Sell By -->
               <div class="form-row">
-                <label for="sellBy"><b>Sell By Date</b></label><br/>
+                <label for="sellBy"><strong>Sell By Date</strong></label><br/>
                 <input id="sellBy" v-model="newItem.sellBy"
                        :class="{'form-control': true, 'is-invalid': !sellByValid && sellByBlur}" required
                        style="width:100%"
@@ -189,7 +189,7 @@
 
               <!-- Best Before -->
               <div class="form-row">
-                <label for="bestBefore"><b>Best Before Date</b></label><br/>
+                <label for="bestBefore"><strong>Best Before Date</strong></label><br/>
                 <input id="bestBefore" v-model="newItem.bestBefore"
                        :class="{'form-control': true, 'is-invalid': !bestBeforeValid && bestBeforeBlur}" required
                        style="width:100%"
@@ -200,7 +200,7 @@
 
               <!-- Expiry -->
               <div class="form-row">
-                <label for="expiry"><b>Expiry Date<span class="text-danger">*</span></b></label><br/>
+                <label for="expiry"><strong>Expiry Date<span class="text-danger">*</span></strong></label><br/>
                 <input id="expiry" v-model="newItem.expires"
                        :class="{'form-control': true, 'is-invalid': !expiryValid && expiryBlur}" required
                        style="width:100%"

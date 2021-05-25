@@ -12,7 +12,7 @@
     <div>
       <!-- ID -->
       <div class="form-group row">
-        <label for="id"><b>Product ID<span class="required">*</span></b></label>
+        <label for="id"><strong>Product ID<span class="required">*</span></strong></label>
         <input id="id" v-model="id" :class="{'form-control': true, 'is-invalid': msg.id}" maxlength="255"
                placeholder="Enter a product ID (Only letters, numbers and hyphens allowed)" required type="text">
         <span class="invalid-feedback">{{ msg.id }}</span>
@@ -20,7 +20,7 @@
 
       <!-- Name -->
       <div class="form-group row">
-        <label for="name"><b>Product Name<span class="required">*</span></b></label>
+        <label for="name"><strong>Product Name<span class="required">*</span></strong></label>
         <input id="name" v-model="name" :class="{'form-control': true, 'is-invalid': msg.name}" maxlength="255"
                placeholder="Enter a product name" required type="text">
         <span class="invalid-feedback">{{ msg.name }}</span>
@@ -28,21 +28,21 @@
 
       <!-- Description -->
       <div class="form-group row">
-        <label for="description"><b>Product Description</b></label>
+        <label for="description"><strong>Product Description</strong></label>
         <textarea id="description" v-model="description" class="form-control" maxlength="255"
                   placeholder="Enter a product description" type="text"/>
       </div>
 
       <!-- Manufacturer -->
       <div class="form-group row">
-        <label for="manufacturer"><b>Manufacturer</b></label>
+        <label for="manufacturer"><strong>Manufacturer</strong></label>
         <input id="manufacturer" v-model="manufacturer" class="form-control" maxlength="255"
                placeholder="Enter a manufacturer" required type="text">
       </div>
 
       <!-- RRP -->
       <div class="form-group row">
-        <label for="rrp"><b>Recommended Retail Price</b></label>
+        <label for="rrp"><strong>Recommended Retail Price</strong></label>
         <div :class="{'input-group': true, 'is-invalid': msg.rrp}">
           <div class="input-group-prepend">
             <span class="input-group-text">{{ this.currencySymbol }}</span>

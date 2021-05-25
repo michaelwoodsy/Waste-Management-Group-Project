@@ -131,7 +131,7 @@
                 <div class="form-row">
                   <!--    User ID    -->
                   <label for="userId">
-                    <b>User ID</b>
+                    <strong>User ID</strong>
                   </label>
                   <br/>
                   <input id="userId" v-model="addAdministratorUserId"

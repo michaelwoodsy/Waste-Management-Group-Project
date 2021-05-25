@@ -53,9 +53,9 @@ Eg, <market-card @card-deleted="someMethod" ... />
       <!-- Card creators name, a dot and the time created -->
       <p class="card-text text-muted small mb-1">
         {{ cardCreatorName }}
-        <b>&centerdot;</b>
+        <strong>&centerdot;</strong>
         {{ location }}
-        <b>&centerdot;</b>
+        <strong>&centerdot;</strong>
         {{ timeCreated }}
       </p>
 

@@ -12,7 +12,7 @@
     <div>
       <!-- Section -->
       <div class="form-group row">
-        <label for="section"><b>Section<span class="required">*</span></b></label>
+        <label for="section"><strong>Section<span class="required">*</span></strong></label>
           <select id="section" v-model="section" :class="{'form-control': true, 'is-invalid': msg.section}" >
             <option value="ForSale">
               For Sale
@@ -29,7 +29,7 @@
 
       <!-- Title -->
       <div class="form-group row">
-        <label for="title"><b>Card Title<span class="required">*</span></b></label>
+        <label for="title"><strong>Card Title<span class="required">*</span></strong></label>
         <input id="title" v-model="title" :class="{'form-control': true, 'is-invalid': msg.title}"
                placeholder="Enter the title"
                required maxlength="255" type="text">
@@ -38,7 +38,7 @@
 
       <!-- Description -->
       <div class="form-group row">
-        <label for="description"><b>Description</b></label>
+        <label for="description"><strong>Description</strong></label>
         <input id="description" v-model="description" :class="{'form-control': true, 'is-invalid': false}"
                placeholder="Enter the description"
                required maxlength="255" type="text">
@@ -47,7 +47,7 @@
       <!-- Keywords -->
       <div class="form-group row">
         <label for="keywords">
-          <b>Keywords<span class="required">*</span></b>
+          <strong>Keywords<span class="required">*</span></strong>
            (Separate keywords with a comma no spaces)
         </label>
         <input id="keywords" v-model="keywords" :class="{'form-control': true, 'is-invalid': msg.keywords}"
