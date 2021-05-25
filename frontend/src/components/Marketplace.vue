@@ -88,7 +88,7 @@ Page for displaying the marketplace.
       <!-- Div with cards -->
       <div class="row row-cols-1 row-cols-lg-2">
         <div v-for="card in orderedCards" v-bind:key="card.id" class="col">
-          <MarketCard :card-data="card" :hide-image="hideImages" @card-deleted="deleteCard"></MarketCard>
+          <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="false" @card-deleted="deleteCard"></MarketCard>
         </div>
       </div>
 

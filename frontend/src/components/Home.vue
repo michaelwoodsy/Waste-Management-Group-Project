@@ -46,10 +46,10 @@
         <div v-if="isActingAsUser">
           <h2>My Cards</h2>
           <alert v-if="hasExpiredCards" class="text-center">
-            You have cards that will expire in less than 24 hours! Please extend or delete them!
+            You have cards that have recently expired and will be deleted within 24 hours if not extended!
           </alert>
           <div v-if="hasExpiredCards">
-            <h5>Expired Cards</h5>
+            <h5>Recently Expired Cards</h5>
             <div class="row row-cols-1 row-cols-lg-2">
               <div v-for="card in expiredCards" v-bind:key="card.id" class="col">
                 <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
