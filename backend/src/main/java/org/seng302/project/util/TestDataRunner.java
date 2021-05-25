@@ -269,7 +269,8 @@ public class TestDataRunner {
                         testUser,
                         jsonCard.getAsString("section"),
                         jsonCard.getAsString("title"),
-                        jsonCard.getAsString("description")
+                        jsonCard.getAsString("description"),
+                        jsonCard.getAsString("keywords")
                 );
 
                 cardRepository.save(testCard);

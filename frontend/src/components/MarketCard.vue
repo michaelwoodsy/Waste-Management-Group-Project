@@ -68,6 +68,9 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <!-- Description -->
         <p class="card-text">{{ cardData.description }}</p>
         <hr/>
+        <!-- Keywords -->
+        <p class="card-text"><b>Keywords:</b><br>{{ cardData.keywords }}</p>
+        <hr/>
       </div>
 
       <!-- Delete button -->
