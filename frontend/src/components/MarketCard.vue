@@ -20,18 +20,6 @@ Eg, <market-card @card-deleted="someMethod" ... />
       </button>
       <!--TODO: Hook extend button up to API calls-->
       <button class="btn btn-outline-primary d-inline float-right mx-1" @click="extendCard">Extend</button>
-      <!-- Shows expiry time of a particular card -->
-      <p v-if="daysToExpire > 0 || hoursToExpire > 0 || minutesToExpire > 0 || secondsToExpire > 0" class="text-danger float- small mb-1">
-        Card expires in:
-        <span v-if="daysToExpire > 0">{{ daysToExpire }}d</span>
-        <span v-if="hoursToExpire > 0">{{ hoursToExpire }}h</span>
-        <span v-if="minutesToExpire > 0">{{ minutesToExpire }}m</span>
-        <span v-if="secondsToExpire > 0">{{ secondsToExpire }}s</span>
-      </p>
-      <!-- If card has expired, card will have been deleted -->
-      <p v-else class="text-danger float- small mb-1">
-        Card has expired
-      </p>
     </div>
 
     <!-- Card image -->
@@ -43,18 +31,24 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
     <div class="card-body">
 
+      <div v-if="this.cardData.creator.id === Number(this.$root.$data.user.state.userId)">
+        <!-- Shows expiry time of a particular card -->
+        <p v-if="daysToExpire > 0 || hoursToExpire > 0 || minutesToExpire > 0 || secondsToExpire > 0" class="text-danger float-right small mb-1">
+          Card expires in:
+          <span v-if="daysToExpire > 0">{{ daysToExpire }}d </span>
+          <span v-if="hoursToExpire > 0">{{ hoursToExpire }}h </span>
+          <span v-if="minutesToExpire > 0">{{ minutesToExpire }}m </span>
+          <span v-if="secondsToExpire > 0">{{ secondsToExpire }}s </span>
+        </p>
+        <!-- If card has expired, card will have been deleted -->
+        <p v-else class="text-danger float-right small mb-1">
+          Card has expired
+        </p>
+      </div>
+
       <!-- Card Title -->
       <h5 class="card-title d-inline"> {{ cardData.title }} </h5>
 
-      <!-- Delete button -->
-      <button
-          v-if="canDeleteCard && !expired"
-          :data-target="'#deleteModal' + cardData.id"
-          class="btn btn-outline-danger d-inline float-right"
-          data-toggle="modal"
-      >
-        Delete
-      </button>
 
       <!-- Card creators name, a dot and the time created -->
       <p class="card-text text-muted small mb-1">
@@ -64,6 +58,17 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <b>&centerdot;</b>
         {{ timeCreated }}
       </p>
+
+      <!-- Delete button -->
+      <button
+          v-if="canDeleteCard && !expired"
+          :data-target="'#deleteModal' + cardData.id"
+          style="margin-left: 10px"
+          class="btn btn-outline-danger d-inline float-right"
+          data-toggle="modal"
+      >
+        Delete
+      </button>
 
       <div :id="'cardDetails' + cardData.id" class="collapse">
         <hr/>
@@ -155,6 +160,7 @@ export default {
 
   /** Initialises the timer for displaying the expiry of a card */
   mounted() {
+    console.log(this.$root.$data.user.state.userId)
     this.daysToExpire = this.timeUntilExpiry().days
     this.hoursToExpire = this.timeUntilExpiry().hours
     this.minutesToExpire = this.timeUntilExpiry().minutes
@@ -253,7 +259,8 @@ export default {
     /** Calculates the time remaining before a card expires in days, hours, minutes and seconds **/
     timeUntilExpiry() {
       const now = new Date()
-      const timeLeft = this.cardData.displayPeriodEnd.getTime() - now.getTime()
+      const displayEnd = new Date(this.cardData.displayPeriodEnd)
+      const timeLeft = displayEnd.getTime() - now.getTime()
       const seconds = Math.floor((timeLeft / 1000) % 60);
       const minutes = Math.floor((timeLeft / 1000 / 60) % 60);
       const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
