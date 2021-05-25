@@ -5,6 +5,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.seng302.project.controller.CardController;
 import org.seng302.project.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -49,6 +51,7 @@ public class CardExpirySteps {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AddressRepository addressRepository;
     private final CardRepository cardRepository;
+    private final CardController cardController;
 
     private RequestBuilder deleteCardRequest;
 
@@ -57,11 +60,13 @@ public class CardExpirySteps {
     public CardExpirySteps(UserRepository userRepository,
                            AddressRepository addressRepository,
                            BCryptPasswordEncoder passwordEncoder,
-                           CardRepository cardRepository) {
+                           CardRepository cardRepository,
+                           CardController cardController) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.passwordEncoder = passwordEncoder;
         this.cardRepository = cardRepository;
+        this.cardController = cardController;
     }
 
     /**
@@ -171,19 +176,26 @@ public class CardExpirySteps {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(testGAAEmail, testGAAPassword));
     }
-//
-//    //AC4
-//
-//    @When("The card has an expiry date of more than {int} hours ago")
-//    public void the_card_has_an_expiry_date_of_more_than_hours_ago(Integer noActionLimit) {
-//        //noActionLimit = 24 (hours)
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The card is automatically deleted")
-//    public void the_card_is_automatically_deleted() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
+
+    //AC4
+
+    @When("The card has an expiry date of more than {int} hours ago")
+    public void the_card_has_an_expiry_date_of_more_than_hours_ago(Integer noActionLimit) {
+        //noActionLimit = 24 (hours)
+
+        //Make it so the test cards best before end is a day and a minute ago so it should be deleted
+        testCard.setDisplayPeriodEnd(LocalDateTime.now().minusHours(noActionLimit).minusMinutes(1));
+        cardRepository.save(testCard);
+    }
+
+    @Then("The card is automatically deleted")
+    public void the_card_is_automatically_deleted() {
+
+        //Manually calls the removeCardsAfter24Hrs method as it is on a timer
+        cardController.removeCardsAfter24Hrs();
+        Optional<Card> returnedCard = cardRepository.findById(testCardId);
+
+        //Card was deleted
+        Assertions.assertTrue(returnedCard.isEmpty());
+    }
 }
