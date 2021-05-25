@@ -148,7 +148,7 @@
       </div>
 
       <div class="row">
-        <div class="col text-left mb-2">
+        <div class="col text-left mb-2" v-if="cards.length !== 0">
           <h2>User's Cards</h2>
         </div>
       </div>
@@ -250,10 +250,10 @@ export default {
     /**
      * Called when the userId is changed, this occurs when the path variable for the user id is updated
      */
-    userId(value) {
+    async userId(value) {
       if (value !== undefined) {
         User.getUserData(value).then((response) => this.profile(response))
-        this.cards = this.getCardData()
+        await this.getCardData()
         this.filterCards()
       }
     }
