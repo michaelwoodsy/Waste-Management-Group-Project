@@ -2,8 +2,8 @@
 MarketCard.vue
 Displays a single market card.
 
-Emits a 'cardDeleted' event with a payload containing the card id when the card is deleted.
-Eg, <market-card @cardDeleted="someMethod" ... />
+Emits a 'card-deleted' event with a payload containing the card id when the card is deleted.
+Eg, <market-card @card-deleted="someMethod" ... />
 
 @prop cardData: The json data (from the api) to display
 @prop hideImage: Boolean, when true will not display the card image.
@@ -28,6 +28,13 @@ Eg, <market-card @cardDeleted="someMethod" ... />
       <p v-else class="text-danger float- small mb-1">
         Card has expired
       </p>
+      <button class="btn btn-outline-danger d-inline float-right mx-1"
+              data-toggle="modal"
+              :data-target="'#deleteModal' + cardData.id">
+        Delete
+      </button>
+      <!--TODO: Hook extend button up to API calls-->
+      <button class="btn btn-outline-primary d-inline float-right mx-1" @click="extendCard">Extend</button>
     </div>
 
     <!-- Card image -->
@@ -64,7 +71,7 @@ Eg, <market-card @cardDeleted="someMethod" ... />
       <div :id="'cardDetails' + cardData.id" class="collapse">
         <hr/>
         <!-- Description -->
-        <p class="card-text"> {{ cardData.description }} </p>
+        <p class="card-text">{{ cardData.description }}</p>
         <hr/>
       </div>
 
@@ -92,12 +99,15 @@ Eg, <market-card @cardDeleted="someMethod" ... />
           <!-- Body section of modal -->
           <div class="modal-body">
             <p>Do you really want to permanently delete this card?</p>
+
+            <!-- Error message -->
+            <alert v-if="error">{{ error }}</alert>
           </div>
 
           <!-- Footer / button section of modal -->
           <div class="modal-footer">
             <button class="btn btn-danger" type="button" @click="deleteCard">Delete</button>
-            <button class="btn btn-primary" data-dismiss="modal" type="button">Cancel</button>
+            <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
           </div>
 
         </div>
@@ -109,9 +119,14 @@ Eg, <market-card @cardDeleted="someMethod" ... />
 
 <script>
 import {getTimeDiffStr} from "@/utils/dateTime";
+import {Marketplace} from "@/Api";
+import Alert from "@/components/Alert";
 
 export default {
   name: "MarketCard",
+  components: {
+    Alert
+  },
   props: {
     // Data of the card.
     cardData: {
@@ -132,11 +147,12 @@ export default {
 
   data() {
     return {
+      showDetails: false,
+      error: null
       daysToExpire: '',
       hoursToExpire: '',
       minutesToExpire: '',
       secondsToExpire: '',
-      showDetails: false
     }
   },
 
@@ -197,13 +213,41 @@ export default {
     toggleDetails() {
       this.showDetails = !this.showDetails
     },
+    /**
+     * Sends API request to extend the time of a card
+     */
+    extendCard() {
+      // TODO: Make API request to extend card once implemented.
+      const currentDate = new Date(this.cardData.displayPeriodEnd)
+      const newDate = new Date(this.cardData.displayPeriodEnd)
+      newDate.setDate(currentDate.getDate() + 14)
+
+      console.log(currentDate)
+      console.log(newDate)
+
+      this.$emit('card-extended', this.cardData.id, newDate.toDateString())
+    },
     /** Deletes this card, emitting an event on success **/
     deleteCard() {
-      // TODO: Make delete api request here.
-      // TODO: Display error if the request fails.
+      // Reset error flag
+      this.error = null;
 
-      // Emit the cardDeleted event once the api call is successful
-      this.$emit('cardDeleted', this.cardData.id)
+      // Make request
+      Marketplace.deleteCard(this.cardData.id)
+          .then(() => {
+            // Emit the card-deleted event once the api call is successful
+            this.$emit('card-deleted', this.cardData.id)
+
+            // Close the modal by simulating a click on the close button
+            this.$refs.close.click();
+          })
+          .catch((err) => {
+            // Set error message
+            this.error = err.response
+                ? err.response.data
+                : err.message
+          })
+
 
       // Close the modal by simulating a click on the close button
       this.$refs.close.click();
@@ -245,9 +289,11 @@ export default {
 </script>
 
 <style scoped>
+
 .card-size {
   min-height: 100px;
   min-width: 150px;
   margin-bottom: 40px;
 }
+
 </style>

@@ -55,8 +55,8 @@ public class CardExpirySteps {
 
     @Autowired
     public CardExpirySteps(UserRepository userRepository,
-                     AddressRepository addressRepository,
-                     BCryptPasswordEncoder passwordEncoder,
+                           AddressRepository addressRepository,
+                           BCryptPasswordEncoder passwordEncoder,
                            CardRepository cardRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
@@ -70,6 +70,9 @@ public class CardExpirySteps {
     @BeforeEach
     @Autowired
     public void setup(WebApplicationContext context) {
+        cardRepository.deleteAll();
+        userRepository.deleteAll();
+
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
