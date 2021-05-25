@@ -2,11 +2,19 @@ import '@jest/globals'
 import {shallowMount} from "@vue/test-utils"
 import CreateCardPage from "@/components/CreateCardPage"
 
-let wrapper = shallowMount(CreateCardPage)
+let wrapper
 
 describe('validate Section method tests', () => {
 
-    beforeEach(() => {
+    beforeEach(async () => {
+        wrapper = await shallowMount(CreateCardPage, {
+            methods: {
+                addCard() {
+                    return null
+                }
+            }
+        })
+
         wrapper.vm.$data.msg.section = null
         wrapper.vm.$data.valid = true
     })
@@ -33,7 +41,7 @@ describe('validate Section method tests', () => {
     })
 
     test("Test valid section", () => {
-        wrapper.vm.$data.section = 'For Sale'
+        wrapper.vm.$data.section = 'ForSale'
         wrapper.vm.validateSection()
         expect(wrapper.vm.$data.msg.section).toStrictEqual(null)
         expect(wrapper.vm.$data.valid).toBeTruthy()
@@ -79,6 +87,61 @@ describe('validate Title method tests', () => {
         wrapper.vm.$data.title = '1982 Lada Samara'
         wrapper.vm.validateTitle()
         expect(wrapper.vm.$data.msg.title).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
+    })
+})
+
+describe('validate Keywords method tests', () => {
+
+    beforeEach(() => {
+        wrapper.vm.$data.msg.keywords = null
+        wrapper.vm.$data.valid = true
+    })
+
+    test("Test no keywords", () => {
+        wrapper.vm.$data.keywords = ''
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual('Please enter one or more keywords')
+        expect(wrapper.vm.$data.valid).toBeFalsy()
+    })
+
+    test("Test keyword with leading and trailing spaces", () => {
+        wrapper.vm.$data.keywords = '  free  '
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free')
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
+    })
+
+    test("Test multiword keyword with leading and trailing spaces", () => {
+        wrapper.vm.$data.keywords = '  free car '
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free-car')
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
+    })
+
+    test("Test multiple keywords", () => {
+        wrapper.vm.$data.keywords = 'free,oranges'
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free,oranges')
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
+    })
+
+    test("Test multiple multiword keywords with spaces after comma", () => {
+        wrapper.vm.$data.keywords = 'free fruit, apples and oranges '
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free-fruit,apples-and-oranges')
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
+    })
+
+    test("Test multiple keywords with multiple commas", () => {
+        wrapper.vm.$data.keywords = 'free,,oranges '
+        wrapper.vm.validateKeywords()
+        expect(wrapper.vm.$data.keywords).toStrictEqual('free,oranges')
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
         expect(wrapper.vm.$data.valid).toBeTruthy()
     })
 })

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <page-wrapper>
 
     <login-required
         v-if="!isLoggedIn"
@@ -106,22 +106,24 @@
         </router-link>
       </div>
 
-      <div class="row justify-content-center" v-if="$root.$data.user.canDoAdminAction()">
+      <div v-if="$root.$data.user.canDoAdminAction()" class="row justify-content-center">
         <router-link :to="`businesses/${this.businessId}/products`" class="btn btn-outline-danger mr-2">
           View Product Catalogue
         </router-link>
         <router-link :to="`businesses/${this.businessId}/inventory`" class="btn btn-outline-danger mr-2">
           View Inventory
         </router-link>
-        <button class="btn btn-outline-danger" data-target="#addAdministrator" data-toggle="modal">Add Administrator</button>
+        <button class="btn btn-outline-danger" data-target="#addAdministrator" data-toggle="modal">Add Administrator
+        </button>
 
 
-        <div class="modal fade" id="addAdministrator" tabindex="-1" role="dialog" aria-labelledby="addAdministratorLabel" aria-hidden="true">
+        <div id="addAdministrator" aria-hidden="true" aria-labelledby="addAdministratorLabel" class="modal fade"
+             role="dialog" tabindex="-1">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="addAdministratorLabel">Add Administrator</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 id="addAdministratorLabel" class="modal-title">Add Administrator</h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
@@ -150,7 +152,7 @@
                         v-on:click="addAdministrator">
                   Add Administrator
                 </button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
               </div>
             </div>
           </div>
@@ -161,13 +163,14 @@
 
     </div>
 
-  </div>
+  </page-wrapper>
 </template>
 
 <script>
 
 import {Business} from '@/Api';
 import LoginRequired from "./LoginRequired";
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "BusinessProfilePage",
@@ -232,6 +235,7 @@ export default {
   },
 
   components: {
+    PageWrapper,
     LoginRequired
   },
   methods: {

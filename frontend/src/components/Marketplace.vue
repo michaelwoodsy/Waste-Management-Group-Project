@@ -4,7 +4,8 @@ Page for displaying the marketplace.
 -->
 
 <template>
-  <div class="container-fluid">
+  <page-wrapper>
+
     <!-- Check the user is logged in -->
     <login-required
         v-if="!isLoggedIn"
@@ -14,47 +15,47 @@ Page for displaying the marketplace.
     <div v-else>
       <!--    Div for marketplace tabs    -->
       <div class="row justify-content-center">
+        <div class="col"/>
         <div class="col-6">
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
               <a id="for-sale-link"
-                 class="pointer"
                  :class="{'nav-link': true, 'active': this.tabSelected === 'ForSale'}"
+                 class="pointer"
                  @click="changePage('ForSale')">
                 For Sale
               </a>
             </li>
             <li class="nav-item">
               <a id="wanted-link"
-                 class="pointer"
                  :class="{'nav-link': true, 'active': this.tabSelected === 'Wanted'}"
+                 class="pointer"
                  @click="changePage('Wanted')">
                 Wanted
               </a>
             </li>
             <li class="nav-item">
               <a id="exchange-link"
-                 class="pointer"
                  :class="{'nav-link': true, 'active': this.tabSelected === 'Exchange'}"
+                 class="pointer"
                  @click="changePage('Exchange')">
                 Exchange
               </a>
             </li>
-            <li class="nav-item">
-              <button class="btn btn-primary" data-target="#createCard" data-toggle="modal" @click="newCard">
-                New Card
-              </button>
-            </li>
           </ul>
         </div>
+        <div class="col">
+          <button class="btn btn-primary float-right" data-target="#createCard" data-toggle="modal" @click="newCard">
+            New Card
+          </button>
+        </div>
       </div>
-      <br>
 
       <div id="createCard" :key="this.createNewCard" class="modal fade" data-backdrop="static">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-body">
-              <create-card-page @refresh-cards="refreshCards"></create-card-page>
+              <create-card-page @refresh-cards="refreshCards()"></create-card-page>
             </div>
           </div>
         </div>
@@ -62,10 +63,9 @@ Page for displaying the marketplace.
 
       <!-- Div above results -->
       <div class="row form justify-content-center">
-        <div class="col-9 form-group text-center">
-
+        <div class="col form-group text-center">
           <!-- Combobox and label for ordering -->
-          <label for="order-select" class="d-inline-block">Order By</label>
+          <label class="d-inline-block" for="order-select">Order By</label>
           <select id="order-select"
                   v-model="order"
                   class="form-control ml-2 d-inline-block w-auto">
@@ -86,27 +86,22 @@ Page for displaying the marketplace.
       </div>
 
       <!-- Div with cards -->
-      <div class="row justify-content-center">
-        <div class="col-9">
-          <div v-for="card in orderedCards" v-bind:key="card.id">
-            <div v-if="hideImages">
-              <MarketCard @cardDeleted="deleteCard" :card-data="card" hide-image></MarketCard>
-            </div>
-            <div v-else>
-              <MarketCard @cardDeleted="deleteCard" :card-data="card"></MarketCard>
-            </div>
-          </div>
-
-          <!-- Pagination Links -->
-          <pagination
-              :current-page.sync="page"
-              :items-per-page="resultsPerPage"
-              :total-items="totalCardCount"
-          />
+      <div class="row row-cols-1 row-cols-lg-2">
+        <div v-for="card in orderedCards" v-bind:key="card.id" class="col">
+          <MarketCard :card-data="card" :hide-image="hideImages" @card-deleted="deleteCard"></MarketCard>
         </div>
       </div>
+
+      <!-- Pagination Links -->
+      <pagination
+          :current-page.sync="page"
+          :items-per-page="resultsPerPage"
+          :total-items="totalCardCount"
+      />
+
     </div>
-  </div>
+
+  </page-wrapper>
 </template>
 
 <script>
@@ -116,6 +111,8 @@ import MarketCard from "./MarketCard";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import CreateCardPage from "@/components/CreateCardPage";
+import PageWrapper from "@/components/PageWrapper";
+import { User } from "@/Api";
 
 export default {
   name: "Marketplace",
@@ -125,7 +122,7 @@ export default {
       tabSelected: 'ForSale', //Default tab
       createNewCard: false,
       cards: [],
-      hideImages: false,
+      hideImages: true,
       error: "",
       order: 'created-asc',
       resultsPerPage: 10,
@@ -167,15 +164,14 @@ export default {
       // Order it appropriately
       if (this.order === 'created-asc') {
         newCards.sort((a, b) => -this.sortCreatedDate(a, b))
-      }
-      else if (this.order === 'created-desc') {
+      } else if (this.order === 'created-desc') {
         newCards.sort((a, b) => this.sortCreatedDate(a, b))
-      }
-      else if (this.order === 'title') {
+      } else if (this.order === 'title') {
         newCards.sort((a, b) => this.sortTitle(a, b))
-      }
-      else if (this.order === 'location') {
-        newCards.sort((a, b) => {this.sortLocation(a, b)})
+      } else if (this.order === 'location') {
+        newCards.sort((a, b) => {
+          this.sortLocation(a, b)
+        })
       }
 
       return newCards
@@ -187,6 +183,7 @@ export default {
     }
   },
   components: {
+    PageWrapper,
     LoginRequired,
     MarketCard,
     ShowingResultsText,
@@ -203,8 +200,7 @@ export default {
       this.tabSelected = tab
       this.page = 1 // Reset the page number
       //Call Api to get new cards for tab here
-      //Change to call from api when available
-      this.cards = this.getFakeCards(tab)
+      this.getCards(tab)
     },
 
     /** Function for sorting a list of cards by created date **/
@@ -246,208 +242,46 @@ export default {
     },
 
     /**
-     * Takes user to page to create new card.
+     * Takes user to modal to create a new card
      */
     newCard() {
       this.createNewCard = true;
     },
+
     /**
-     * Refreshes the card
+     * Refreshes the card modal
      */
     refreshCards() {
       this.createNewCard = false;
+      this.getCards(this.tabSelected)
     },
 
-    getFakeCards(tab) {
-      if (tab === 'ForSale') {
-        return [
-          {
-            "id": 500,
-            "creator": {
-              "id": 1,
-              "firstName": "John",
-              "lastName": "Smith",
-              "homeAddress": {
-                "streetNumber": "3/24",
-                "streetName": "Ilam Road",
-                "city": "Christchurch",
-                "region": "Canterbury",
-                "country": "New Zealand",
-                "postcode": "90210"
-              },
-            },
-            "section": "ForSale",
-            "created": "2021-04-15T05:10:00Z",
-            "displayPeriodEnd": "2021-07-29T05:10:00Z",
-            "title": "1982 Lada Samara",
-            "description": "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
-            "keywords": [
-              {
-                "id": 600,
-                "name": "Vehicle",
-                "created": "2021-07-15T05:10:00Z"
-              }
-            ]
-          },
-          {
-            "id": 501,
-            "creator": {
-              "id": 101,
-              "firstName": "John",
-              "lastName": "Smith",
-              "homeAddress": {
-                "streetNumber": "3/24",
-                "streetName": "Ilam Road",
-                "city": "Christchurch",
-                "region": "Canterbury",
-                "country": "New Zealand",
-                "postcode": "90210"
-              },
-            },
-            "section": "ForSale",
-            "created": "2021-05-15T05:10:00Z",
-            "displayPeriodEnd": "2021-07-29T05:10:00Z",
-            "title": "2005 Honda Fit",
-            "description": "Teal, Good ol car. Perfect Condition. As is, where is. Will swap for Lamborghini, nothing else.",
-            "keywords": [
-              {
-                "id": 600,
-                "name": "Vehicle",
-                "created": "2021-07-15T05:10:00Z"
-              }
-            ]
-          },
-          {
-            "id": 502,
-            "creator": {
-              "id": 101,
-              "firstName": "John",
-              "lastName": "Smith",
-              "homeAddress": {
-                "streetNumber": "3/24",
-                "streetName": "Ilam Road",
-                "city": "Christchurch",
-                "region": "Canterbury",
-                "country": "New Zealand",
-                "postcode": "90210"
-              },
-            },
-            "section": "ForSale",
-            "created": "2021-05-10T05:10:00Z",
-            "displayPeriodEnd": "2021-07-29T05:10:00Z",
-            "title": "Bag of chips",
-            "description": "Just a good ol bag of chips, nothing special, will trade for a pebble",
-            "keywords": [
-              {
-                "id": 601,
-                "name": "Food",
-                "created": "2021-07-15T05:10:00Z"
-              }
-            ]
-          }
-
-        ]
-      }
-      else if (tab === 'Wanted') {
-        return [
-          {
-            "id": 503,
-            "creator": {
-              "id": 100,
-              "firstName": "John",
-              "lastName": "Smith",
-              "homeAddress": {
-                "streetNumber": "3/24",
-                "streetName": "Ilam Road",
-                "city": "Christchurch",
-                "region": "Canterbury",
-                "country": "New Zealand",
-                "postcode": "90210"
-              },
-            },
-            "section": "Wanted",
-            "created": "2021-04-15T05:10:00Z",
-            "displayPeriodEnd": "2021-07-29T05:10:00Z",
-            "title": "To pass SENG302",
-            "description": "Please can I just pass SENG302",
-            "keywords": [
-              {
-                "id": 602,
-                "name": "University",
-                "created": "2021-07-15T05:10:00Z"
-              }
-            ]
-          },
-          {
-            "id": 504,
-            "creator": {
-              "id": 101,
-              "firstName": "John",
-              "lastName": "Smith",
-              "homeAddress": {
-                "streetNumber": "3/24",
-                "streetName": "Ilam Road",
-                "city": "Christchurch",
-                "region": "Canterbury",
-                "country": "New Zealand",
-                "postcode": "90210"
-              },
-            },
-            "section": "Wanted",
-            "created": "2021-05-15T05:10:00Z",
-            "displayPeriodEnd": "2021-07-29T05:10:00Z",
-            "title": "Money",
-            "description": "Who doesn't want money",
-            "keywords": [
-              {
-                "id": 603,
-                "name": "Money",
-                "created": "2021-07-15T05:10:00Z"
-              }
-            ]
-          }
-        ]
-      }
-      else if (tab === 'Exchange') {
-        return [
-          {
-            "id": 504,
-            "creator": {
-              "id": 101,
-              "firstName": "John",
-              "lastName": "Smith",
-              "homeAddress": {
-                "streetNumber": "3/24",
-                "streetName": "Ilam Road",
-                "city": "Christchurch",
-                "region": "Canterbury",
-                "country": "New Zealand",
-                "postcode": "90210"
-              },
-            },
-            "section": "Wanted",
-            "created": "2021-05-15T05:10:00Z",
-            "displayPeriodEnd": "2021-07-29T05:10:00Z",
-            "title": "Money Exchange",
-            "description": "I will exchange my $3 for your $20",
-            "keywords": [
-              {
-                "id": 603,
-                "name": "Money",
-                "created": "2021-07-15T05:10:00Z"
-              }
-            ]
-          }
-        ]
-      }
-    }
+    /**
+     * Gets all the cards for a particular section
+     */
+    getCards(tab){
+      User.getCardsSection(tab)
+          .then((res) => {
+            this.error = "";
+            this.cards = res.data
+          })
+          .catch((err) => {
+            this.error = err;
+          })
+    },
   }
 }
 
 </script>
 
 <style scoped>
+
 .nav-item {
   font-size: 20px;
 }
+
+.row {
+  margin-bottom: 20px;
+}
+
 </style>

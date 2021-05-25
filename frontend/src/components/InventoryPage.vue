@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <page-wrapper>
 
     <login-required
         v-if="!isLoggedIn"
@@ -27,7 +27,8 @@
                       data-target="#createInventoryItem" data-toggle="modal" @click="newItem">
                 New Product
               </button>
-              <button v-else class="btn btn-primary" data-target="#createInventoryItem" data-toggle="modal" @click="newItem">
+              <button v-else class="btn btn-primary" data-target="#createInventoryItem" data-toggle="modal"
+                      @click="newItem">
                 New Item
               </button>
             </div>
@@ -47,16 +48,17 @@
     </div>
 
     <div id="createInventoryItem" :key="this.createNewInventoryItem" class="modal fade" data-backdrop="static">
-      <div ref="createInventoryItemWindow" class="modal-dialog modal-open">
+      <div ref="createInventoryItemWindow" class="modal-dialog modal-open" :class="{'modal-xl': selectingProduct}">
         <div class="modal-content">
           <div class="modal-body">
-            <create-inventory-item @refresh-inventory="refreshInventory"></create-inventory-item>
+            <create-inventory-item @refresh-inventory="refreshInventory"
+                                   @select-product-toggle="selectingProduct = !selectingProduct"></create-inventory-item>
           </div>
         </div>
       </div>
     </div>
 
-  </div>
+  </page-wrapper>
 </template>
 
 <script>
@@ -65,11 +67,13 @@ import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
 import CreateInventoryItem from "@/components/CreateInventoryItem";
 import InventoryItems from "@/components/InventoryItems";
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "InventoryPage",
 
   components: {
+    PageWrapper,
     InventoryItems,
     CreateInventoryItem,
     LoginRequired,
@@ -80,7 +84,8 @@ export default {
   data() {
     return {
       error: null,
-      createNewInventoryItem: false
+      createNewInventoryItem: false,
+      selectingProduct: false
     }
   },
 

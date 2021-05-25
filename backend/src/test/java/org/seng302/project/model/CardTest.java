@@ -89,6 +89,8 @@ public class CardTest {
         Assertions.assertEquals("1982 Lada Samara", retrievedCard.getTitle());
         Assertions.assertEquals("Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
                 retrievedCard.getDescription());
+
+        //TODO: the below line sometimes fails
         Assertions.assertTrue(retrievedCard.getCreated().isBefore(LocalDateTime.now()) || retrievedCard.getCreated().isEqual(LocalDateTime.now()));
         Assertions.assertTrue(retrievedCard.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
         Assertions.assertTrue(retrievedCard.getDisplayPeriodEnd().isEqual(retrievedCard.getCreated().plusWeeks(2)));
