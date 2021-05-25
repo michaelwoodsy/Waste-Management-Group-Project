@@ -31,7 +31,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
     <div class="card-body">
 
-      <div v-if="this.cardData.creator.id === userId">
+      <div v-if="isCardCreator">
         <!-- Shows expiry time of a particular card -->
         <p v-if="daysToExpire > 0 || hoursToExpire > 0 || minutesToExpire > 0 || secondsToExpire > 0" class="text-danger float-right small mb-1">
           Card expires in:
@@ -59,6 +59,13 @@ Eg, <market-card @card-deleted="someMethod" ... />
         {{ timeCreated }}
       </p>
 
+      <div :id="'cardDetails' + cardData.id" class="collapse">
+        <hr/>
+        <!-- Description -->
+        <p class="card-text">{{ cardData.description }}</p>
+        <hr/>
+      </div>
+
       <!-- Delete button -->
       <button
           v-if="canDeleteCard && !expired"
@@ -69,13 +76,6 @@ Eg, <market-card @card-deleted="someMethod" ... />
       >
         Delete
       </button>
-
-      <div :id="'cardDetails' + cardData.id" class="collapse">
-        <hr/>
-        <!-- Description -->
-        <p class="card-text">{{ cardData.description }}</p>
-        <hr/>
-      </div>
 
       <button :data-target="'#cardDetails' + cardData.id" class="btn btn-outline-secondary float-right"
               data-toggle="collapse" @click="toggleDetails">
@@ -175,7 +175,7 @@ export default {
 
     /** Returns the current user ID **/
     userId() {
-      return Number(this.$root.$data.user.state)
+      return Number(this.$root.$data.user.state.actingAs.id)
     },
 
     /** The name of the creator of the card **/
@@ -199,12 +199,17 @@ export default {
 
     /** True if the logged in user is the creator of the card and acting as themself **/
     isCardCreator() {
-      return this.$root.$data.user.isUser(this.cardData.creator.id)
+      return this.$root.$data.user.isUser(this.cardData.creator.id) || this.canDoAdminAction
     },
 
     /** True if the logged in user is the creator of the card or an admin **/
     canDeleteCard() {
-      return this.isCardCreator || this.$root.$data.user.canDoAdminAction()
+      return this.isCardCreator || this.canDoAdminAction
+    },
+
+    /** True if the logged in user is a GAA or DGAA **/
+    canDoAdminAction() {
+      return this.$root.$data.user.canDoAdminAction()
     },
 
     /** Returns whether the card is about to expire or not **/
