@@ -115,7 +115,7 @@ public class UserController {
             }
 
             // If phone number is in incorrect format or empty
-            String phoneRegEx = "^(\\+\\d{1,2}\\s*)?\\(?\\d{1,6}\\)?[\\s.-]?\\d{3,6}[\\s.-]?\\d{4,8}$";
+            String phoneRegEx = "^(\\+\\d{1,2}\\s*)?\\(?\\d{1,6}\\)?[\\s.-]?\\d{3,6}[\\s.-]?\\d{3,8}$";
             if ((newUser.getPhoneNumber() != null && !newUser.getPhoneNumber().equals(""))
                     && !newUser.getPhoneNumber().matches(phoneRegEx)) {
                 InvalidPhoneNumberException phoneNumberException = new InvalidPhoneNumberException();

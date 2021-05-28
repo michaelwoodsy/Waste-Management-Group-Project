@@ -274,7 +274,7 @@ export default {
         this.msg['phone'] = null
       }
       //If phone number matches phone number regex
-      else if (/^(\+\d{1,2}\s*)?\(?\d{1,6}\)?[\s.-]?\d{3,6}[\s.-]?\d{4,8}$/.test(this.phone)) {
+      else if (/^(\+\d{1,2}\s*)?\(?\d{1,6}\)?[\s.-]?\d{3,6}[\s.-]?\d{3,8}$/.test(this.phone)) {
         this.msg['phone'] = null
       } else {
         this.msg['phone'] = 'Invalid phone number'
