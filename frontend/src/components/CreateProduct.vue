@@ -80,6 +80,13 @@ import {Business} from "@/Api";
 export default {
   name: "CreateProduct",
   components: {Alert},
+  props: {
+    // Data of the card.
+    products: {
+      type: Array,
+      required: true
+    }
+  },
   data() {
     return {
       id: '', // Required
@@ -111,6 +118,18 @@ export default {
   },
   methods: {
     /**
+     * Checks through the businesses product ids and sees if the selected product id is being used
+     */
+    productIdExists() {
+      for (const product of this.products) {
+        if (product.id === this.id) {
+          return true;
+        }
+      }
+      return false;
+    },
+
+    /**
      * Validate product ID field
      */
     validateId() {
@@ -120,7 +139,7 @@ export default {
       } else if (!/^[a-zA-Z0-9-]+$/.test(this.id)) {
         this.msg.id = 'Product ID must consist of letters, numbers, and hyphens';
         this.valid = false;
-      } else if (this.$parent.productIdExists(this.id)) {
+      } else if (this.productIdExists()) {
         this.msg.id = 'Product ID already exists';
         this.valid = false;
       } else {
