@@ -53,7 +53,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-body">
-            <create-product @refresh-products="refreshProducts"></create-product>
+            <create-product @refresh-products="refreshProducts" :products="businessesProducts"></create-product>
           </div>
         </div>
       </div>
@@ -85,7 +85,10 @@ export default {
   data() {
     return {
       error: null,
-      createNewProduct: false
+      createNewProduct: false,
+      //This array is used when sending the businesses products to the CreateProduct page,
+      // as if you put 'products' in the props, an error is thrown because the $refs arent defined when the page opens
+      businessesProducts: []
     }
   },
 
@@ -125,19 +128,11 @@ export default {
   },
 
   methods: {
-    productIdExists(id) {
-      for (const product of this.products) {
-        if (product.id === id) {
-          return true;
-        }
-      }
-      return false;
-    },
-
     /**
      * Takes user to page to create new product.
      */
     newProduct() {
+      this.businessesProducts = this.products
       this.createNewProduct = true;
     },
 
