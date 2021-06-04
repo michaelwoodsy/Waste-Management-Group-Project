@@ -1,5 +1,7 @@
 package org.seng302.project.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -14,8 +16,8 @@ import java.io.IOException;
 @Component
 public class ImageUtil {
 
-
-    private final int THUMBNAIL_WIDTH = 150; //Pixels
+    private static final Logger logger = LoggerFactory.getLogger(ImageUtil.class.getName());
+    private static final int THUMBNAIL_WIDTH = 150; //Pixels
 
     /**
      * Initial attempt to try creating an image thumbnail.
@@ -25,16 +27,16 @@ public class ImageUtil {
      *                  trying to create a thumbnail for
      */
     public void createThumbnail(String filepath) throws IOException {
-        BufferedImage originalBufferedImage = readImageFromFile(filepath);
-        BufferedImage resizedBufferImage = scaleImage(originalBufferedImage);
-        BufferedImage thumbnailBufferedImage = cropImage(resizedBufferImage);
+        var originalBufferedImage = readImageFromFile(filepath);
+        var resizedBufferImage = scaleImage(originalBufferedImage);
+        var thumbnailBufferedImage = cropImage(resizedBufferImage);
 
         //Splits filepath into "directory/image" bit and "jpg" bit
         String[] filepathBits = filepath.split("\\.(?=[a-z])");
 
         //Add "_thumbnail" to the end of image name
         filepathBits[0] = filepathBits[0] + "_thumbnail";
-        String thumbnailPath = String.join(".", filepathBits);
+        var thumbnailPath = String.join(".", filepathBits);
         saveImage(thumbnailBufferedImage, thumbnailPath);
     }
 
@@ -52,7 +54,7 @@ public class ImageUtil {
             originalBufferedImage = ImageIO.read(new File(filepath));
         }
         catch(IOException ioe) {
-            System.out.println("IO exception occurred while trying to read image.");
+            logger.error("IO exception occurred while trying to read image.");
             throw ioe;
         }
         return originalBufferedImage;
@@ -66,7 +68,8 @@ public class ImageUtil {
      */
     public BufferedImage scaleImage(BufferedImage originalBufferedImage) {
 
-        int widthToScale, heightToScale;
+        int widthToScale;
+        int heightToScale;
         if (originalBufferedImage.getWidth() > originalBufferedImage.getHeight()) {
             //Landscape
             heightToScale = (int)(1.1 * THUMBNAIL_WIDTH);
@@ -81,7 +84,7 @@ public class ImageUtil {
         }
 
         //Creates a new BufferedImage object to hold the scaled down image
-        BufferedImage resizedImage = new BufferedImage(widthToScale,
+        var resizedImage = new BufferedImage(widthToScale,
                 heightToScale, originalBufferedImage.getType());
         Graphics2D g = resizedImage.createGraphics();
 
@@ -123,7 +126,7 @@ public class ImageUtil {
             ImageIO.write(image, "JPG", new File(filepath));
         }
         catch (IOException ioe) {
-            System.out.println("Error writing image to file");
+            logger.error("Error writing image to file");
             throw ioe;
         }
     }

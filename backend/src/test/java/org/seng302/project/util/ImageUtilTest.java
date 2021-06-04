@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 
-public class ImageUtilTest {
+class ImageUtilTest {
 
 
     private ImageUtil imageUtil;
@@ -24,7 +24,7 @@ public class ImageUtilTest {
      * The manual test then checks for the thumbnail's dimensions.
      */
     @Test
-    public void testCreateThumbnail() throws IOException {
+    void testCreateThumbnail() throws IOException {
         //delete existing thumbnail if it exists
         File existingThumbnail = new File("../media/asparagus_thumbnail.jpg");
         existingThumbnail.delete(); //Returns false if file does not exist
