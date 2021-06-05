@@ -2,6 +2,11 @@ package org.seng302.project.webLayer.controllerAdvice;
 
 
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
+import org.seng302.project.serviceLayer.exceptions.register.InvalidAddressException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

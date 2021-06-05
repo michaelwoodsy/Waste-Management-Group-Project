@@ -1,4 +1,4 @@
-package org.seng302.project.serviceLayer.exceptions;
+package org.seng302.project.serviceLayer.exceptions.card;
 
 /**
  * Exception triggered when the marketplace section is invalid

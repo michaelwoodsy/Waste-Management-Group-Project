@@ -3,6 +3,7 @@ package org.seng302.project.webLayer.controllerAdvice;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.dgaa.DGAARevokeAdminSelfException;
 import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenDGAAActionException;
+import org.seng302.project.serviceLayer.exceptions.register.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

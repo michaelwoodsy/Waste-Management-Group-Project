@@ -1,6 +1,6 @@
 package org.seng302.project.webLayer.controllerAdvice;
 
-import org.seng302.project.serviceLayer.exceptions.InvalidMarketplaceSectionException;
+import org.seng302.project.serviceLayer.exceptions.card.InvalidMarketplaceSectionException;
 import org.seng302.project.serviceLayer.exceptions.card.ForbiddenCardActionException;
 import org.seng302.project.serviceLayer.exceptions.card.NoCardExistsException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;

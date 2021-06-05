@@ -7,6 +7,7 @@ import org.seng302.project.repositoryLayer.repository.InventoryItemRepository;
 import org.seng302.project.repositoryLayer.repository.SaleListingRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

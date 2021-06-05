@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -392,7 +393,7 @@ public class SaleListingControllerTest {
                 .andReturn();
 
         List<SaleListing> retrievedSaleListings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(business.getId(), inventoryItem.getId());
-        assertEquals(retrievedSaleListings.size(), 1);
+        assertEquals(1, retrievedSaleListings.size());
         SaleListing retrievedListing = retrievedSaleListings.get(0);
 
         Assertions.assertEquals(inventoryItem.getId(), retrievedListing.getInventoryItem().getId());

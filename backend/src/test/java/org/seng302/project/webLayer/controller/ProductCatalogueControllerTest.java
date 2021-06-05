@@ -10,6 +10,7 @@ import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -138,8 +139,8 @@ public class ProductCatalogueControllerTest {
     void testAdministratorCanGetProducts() {
         List<Product> products =
                 productCatalogueController.getBusinessesProducts(businessId, new AppUserDetails(owner));
-        assertEquals(products.size(), 2);
-        assertEquals(products.get(0).getName(), "Watties Beans");
+        assertEquals(2, products.size());
+        assertEquals("Watties Beans", products.get(0).getName());
     }
 
     /**

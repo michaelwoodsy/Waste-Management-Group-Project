@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -432,7 +433,7 @@ public class InventoryItemControllerTest {
                 .andReturn();
 
         List<InventoryItem> retrievedInventoryItems = inventoryItemRepository.findAllByBusinessId(businessId);
-        assertEquals(retrievedInventoryItems.size(), 1);
+        assertEquals(1, retrievedInventoryItems.size());
 
         InventoryItem retrievedItem = retrievedInventoryItems.get(0);
 
@@ -767,7 +768,7 @@ public class InventoryItemControllerTest {
 
         //Retrieve Inventory Item
         List<InventoryItem> items = inventoryItemRepository.findAllByBusinessId(businessId);
-        assertEquals(items.size(), 1);
+        assertEquals(1, items.size());
         InventoryItem retrievedItem = items.get(0);
 
         Assertions.assertNotNull(item.getId());

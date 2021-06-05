@@ -9,8 +9,8 @@ import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.webLayer.controller.UserController;
-import org.seng302.project.serviceLayer.exceptions.ExistingRegisteredEmailException;
-import org.seng302.project.serviceLayer.exceptions.InvalidEmailException;
+import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
+import org.seng302.project.serviceLayer.exceptions.register.InvalidEmailException;
 import org.seng302.project.serviceLayer.exceptions.RequiredFieldsMissingException;
 import org.springframework.beans.factory.annotation.Autowired;
 

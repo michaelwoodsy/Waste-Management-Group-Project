@@ -5,7 +5,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.seng302.project.webLayer.controller.UserController;
-import org.seng302.project.serviceLayer.exceptions.ExistingRegisteredEmailException;
+import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
 import org.seng302.project.serviceLayer.exceptions.InvalidLoginException;
 import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.LoginCredentials;

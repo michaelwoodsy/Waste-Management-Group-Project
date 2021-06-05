@@ -1,4 +1,4 @@
-package org.seng302.project.serviceLayer.exceptions;
+package org.seng302.project.serviceLayer.exceptions.register;
 
 public class InvalidPasswordException extends RuntimeException {
 

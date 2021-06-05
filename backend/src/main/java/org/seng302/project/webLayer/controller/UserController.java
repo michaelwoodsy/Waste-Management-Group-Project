@@ -5,6 +5,7 @@ import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.register.*;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.seng302.project.serviceLayer.exceptions.dgaa.DGAARevokeAdminSelfException;
 import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenDGAAActionException;
