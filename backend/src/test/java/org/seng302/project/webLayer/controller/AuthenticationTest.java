@@ -33,6 +33,7 @@ class AuthenticationTest {
     private final JSONObject testUserJson = new JSONObject();
     private final JSONObject testIncorrectLogin = new JSONObject();
     private final JSONObject testCorrectLogin = new JSONObject();
+    private final JSONObject testNonexistentLogin = new JSONObject();
     private User testUser;
 
     @Autowired
@@ -44,6 +45,8 @@ class AuthenticationTest {
 
     @BeforeEach
     public void initialise() throws JSONException {
+        testAddress.put("country", "New Zealand");
+
 
         //Mock a test user
         testUser = new User("Jane", "Doe", "", "", "",
@@ -61,6 +64,8 @@ class AuthenticationTest {
         testUserJson.put("phoneNumber", testUser.getPhoneNumber());
         testUserJson.put("homeAddress", testAddress);
         testUserJson.put("password", testUser.getPassword());
+        testNonexistentLogin.put("email", "notRegistered@gmail.com");
+        testNonexistentLogin.put("password", "1357-H%nt3r4");
         testIncorrectLogin.put("email", "janedoe95@gmail.com");
         testIncorrectLogin.put("password", "1357-H%nt3r4");
         testCorrectLogin.put("email", "janedoe95@gmail.com");
@@ -84,7 +89,7 @@ class AuthenticationTest {
         mvc.perform(MockMvcRequestBuilders
                 .post("/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(testCorrectLogin.toString())
+                .content(testNonexistentLogin.toString())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
