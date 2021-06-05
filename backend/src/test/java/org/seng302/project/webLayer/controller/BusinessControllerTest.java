@@ -13,7 +13,9 @@ import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRem
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -25,7 +27,10 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 
+import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,19 +41,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class BusinessControllerTest {
+@WebMvcTest(BusinessController.class)
+class BusinessControllerTest {
 
     @Autowired
     private WebApplicationContext context;
 
-    @Autowired
+    @MockBean
     private UserRepository userRepository;
 
+    //TODO: mock me!
     @Autowired
     private BusinessRepository businessRepository;
 
     private MockMvc mvc;
+    private User testPrimaryAdmin;
+    private User testUser;
 
     @BeforeEach
     public void setup() {
@@ -56,6 +64,24 @@ public class BusinessControllerTest {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
+
+        //Mock a test user to be used as business primary admin
+        testPrimaryAdmin = new User("Jim", "Smith", "", "", "",
+                "jimsmith@gmail.com", "1999-04-27", "",
+                null, "1337-H%nt3r2");
+
+        testPrimaryAdmin.setId(1);
+        given(userRepository.findByEmail("jimsmith@gmail.com")).willReturn(List.of(testPrimaryAdmin));
+        given(userRepository.findById(1)).willReturn(Optional.of(testPrimaryAdmin));
+
+        //Mock a different test user
+        testUser = new User("Dave", "Sims", "", "", "",
+                "DaveSims@gmail.com", "1998-04-27", "",
+                null, "1337-H%nt3r2");
+
+        testUser.setId(2);
+        given(userRepository.findByEmail("DaveSims@gmail.com")).willReturn(List.of(testUser));
+        given(userRepository.findById(2)).willReturn(Optional.of(testUser));
     }
 
     private JSONObject createTestBusiness() throws JSONException {
@@ -71,30 +97,6 @@ public class BusinessControllerTest {
         return testBusinessJson;
     }
 
-    private void createLoggedInUser() throws Exception {
-        JSONObject testAddress = new JSONObject();
-        testAddress.put("country", "New Zealand");
-        JSONObject testUserJson = new JSONObject();
-        testUserJson.put("firstName", "Jim");
-        testUserJson.put("lastName", "Smith");
-        testUserJson.put("email", "jimsmith@gmail.com");
-        testUserJson.put("dateOfBirth", "1999-04-27");
-        testUserJson.put("homeAddress", testAddress);
-        testUserJson.put("password", "1337-H%nt3r2");
-
-        testUserJson.put("middleName", "");
-        testUserJson.put("nickname", "");
-        testUserJson.put("bio", "");
-        testUserJson.put("phoneNumber", "");
-
-        mvc.perform(MockMvcRequestBuilders
-                .post("/users")
-                .content(testUserJson.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-    }
-
 
     /**
      * Creates the test business from the API by calling the POST '/businesses' endpoint.
@@ -102,15 +104,11 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(1)
-    public void createAndRetrieveTestBusiness() throws Exception {
-        //Create a user and log them in
-        createLoggedInUser();
+    void createAndRetrieveTestBusiness() throws Exception {
 
         JSONObject testBusinessJson = createTestBusiness();
 
-        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
-
-        testBusinessJson.put("primaryAdministratorId", loggedInUser.getId());
+        testBusinessJson.put("primaryAdministratorId", testPrimaryAdmin.getId());
 
         mvc.perform(MockMvcRequestBuilders
                 .post("/businesses")
@@ -124,8 +122,8 @@ public class BusinessControllerTest {
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
 
         Assertions.assertNotNull(retrievedBusiness.getId());
-        Assertions.assertEquals(loggedInUser.getId(), retrievedBusiness.getPrimaryAdministratorId());
-        Assertions.assertEquals(loggedInUser.getId(), retrievedBusiness.getAdministrators().get(0).getId());
+        Assertions.assertEquals(testPrimaryAdmin.getId(), retrievedBusiness.getPrimaryAdministratorId());
+        Assertions.assertEquals(testPrimaryAdmin.getId(), retrievedBusiness.getAdministrators().get(0).getId());
         Assertions.assertEquals("Lumbridge General Store", retrievedBusiness.getName());
         Assertions.assertEquals("A one-stop shop for all your adventuring needs", retrievedBusiness.getDescription());
         Assertions.assertEquals("New Zealand", retrievedBusiness.getAddress().getCountry());
@@ -143,11 +141,10 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(2)
-    public void tryNameFieldEmpty() throws Exception {
+    void tryNameFieldEmpty() throws Exception {
 
         JSONObject testBusiness = createTestBusiness();
-        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
-        testBusiness.put("primaryAdministratorId", loggedInUser.getId());
+        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
 
         //Name field empty
         testBusiness.put("name", "");
@@ -173,13 +170,12 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(3)
-    public void tryAddressFieldEmpty() throws Exception {
-        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
+    void tryAddressFieldEmpty() throws Exception {
 
         JSONObject testAddress = new JSONObject();
         testAddress.put("country", "");
         JSONObject testBusiness = createTestBusiness();
-        testBusiness.put("primaryAdministratorId", loggedInUser.getId());
+        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
         testBusiness.put("address", testAddress);
         RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .post("/businesses")
@@ -203,11 +199,10 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(4)
-    public void tryTypeFieldEmpty() throws Exception {
-        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
+    void tryTypeFieldEmpty() throws Exception {
 
         JSONObject testBusiness = createTestBusiness();
-        testBusiness.put("primaryAdministratorId", loggedInUser.getId());
+        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
 
         testBusiness.put("businessType", "");
         RequestBuilder postUserRequest = MockMvcRequestBuilders
@@ -232,13 +227,12 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(5)
-    public void tryAllRequiredFieldsEmpty() throws Exception {
-        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
+    void tryAllRequiredFieldsEmpty() throws Exception {
 
         JSONObject testAddress = new JSONObject();
         testAddress.put("country", "");
         JSONObject testBusiness = createTestBusiness();
-        testBusiness.put("primaryAdministratorId", loggedInUser.getId());
+        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
         testBusiness.put("name", "");
         testBusiness.put("address", testAddress);
         testBusiness.put("businessType", "");
@@ -265,8 +259,9 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(6)
-    public void getBusiness() throws Exception {
+    void getBusiness() throws Exception {
 
+        //TODO: mock this business
         Business testBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
 
         RequestBuilder getBusinessRequest = MockMvcRequestBuilders
@@ -282,11 +277,9 @@ public class BusinessControllerTest {
         String returnedBusinessString = getBusinessResponse.getResponse().getContentAsString();
         JSONObject returnedBusiness = new JSONObject(returnedBusinessString);
 
-        User loggedInUser = userRepository.findByEmail("jimsmith@gmail.com").get(0);
-
         Assertions.assertNotNull(returnedBusiness.getString("id"));
         Assertions.assertEquals("Lumbridge General Store", returnedBusiness.getString("name"));
-        Assertions.assertEquals(loggedInUser.getId().toString(), returnedBusiness.getString("primaryAdministratorId"));
+        Assertions.assertEquals(testPrimaryAdmin.getId().toString(), returnedBusiness.getString("primaryAdministratorId"));
         Assertions.assertEquals("A one-stop shop for all your adventuring needs", returnedBusiness.getString("description"));
         Assertions.assertEquals("New Zealand", returnedBusiness.getJSONObject("address").getString("country"));
         Assertions.assertEquals("Accommodation and Food Services", returnedBusiness.getString("businessType"));
@@ -305,30 +298,7 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(7)
-    public void addAdministrator() throws Exception {
-        //Create Test user to add as administrator
-        JSONObject testAddress = new JSONObject();
-        testAddress.put("country", "New Zealand");
-        JSONObject testUserJson = new JSONObject();
-        testUserJson.put("firstName", "Dave");
-        testUserJson.put("lastName", "Sims");
-        testUserJson.put("email", "DaveSims@gmail.com");
-        testUserJson.put("dateOfBirth", "1998-04-27");
-        testUserJson.put("homeAddress", testAddress);
-        testUserJson.put("password", "1337-H%nt3r2");
-
-        testUserJson.put("middleName", "");
-        testUserJson.put("nickname", "");
-        testUserJson.put("bio", "");
-        testUserJson.put("phoneNumber", "");
-
-        mvc.perform(MockMvcRequestBuilders
-                .post("/users")
-                .content(testUserJson.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
-                .andExpect(status().isCreated());
+    void addAdministrator() throws Exception {
 
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
 
@@ -338,25 +308,12 @@ public class BusinessControllerTest {
 
         User retrievedUser = userRepository.findByEmail("DaveSims@gmail.com").get(0);
 
-        JSONObject loginCredentials = new JSONObject();
-        loginCredentials.put("email", "jimsmith@gmail.com");
-        loginCredentials.put("password", "1337-H%nt3r2");
-
-        //Log back into the main admin account
-        mvc.perform(MockMvcRequestBuilders
-                .post("/login")
-                .content(loginCredentials.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-
-        JSONObject testAdmin = new JSONObject();
-        testAdmin.put("userId", retrievedUser.getId());
+        JSONObject testUserJson = new JSONObject();
+        testUserJson.put("userId", retrievedUser.getId());
 
         mvc.perform(MockMvcRequestBuilders
                 .put(String.format("/businesses/%d/makeAdministrator", retrievedBusiness.getId()))
-                .content(testAdmin.toString())
+                .content(testUserJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
@@ -377,16 +334,16 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(8)
-    public void addSameAdministrator() throws Exception {
+    void addSameAdministrator() throws Exception {
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
         User retrievedUser = userRepository.findByEmail("DaveSims@gmail.com").get(0);
-        JSONObject testAdmin = new JSONObject();
-        testAdmin.put("userId", retrievedUser.getId());
+        JSONObject newAdmin = new JSONObject();
+        newAdmin.put("userId", retrievedUser.getId());
 
         //Trying to add the same admin again
         RequestBuilder addAdminRequest = MockMvcRequestBuilders
                 .put(String.format("/businesses/%d/makeAdministrator", retrievedBusiness.getId()))
-                .content(testAdmin.toString())
+                .content(newAdmin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
@@ -406,27 +363,15 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(9)
-    public void addAdministratorWhenNotPrimaryAdmin() throws Exception {
+    void addAdministratorWhenNotPrimaryAdmin() throws Exception {
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
-        //Log into the other account so we can test adding an administrator to a business when you are not the primary administrator
-        JSONObject loginCredentials = new JSONObject();
-        loginCredentials.put("email", "DaveSims@gmail.com");
-        loginCredentials.put("password", "1337-H%nt3r2");
 
-        mvc.perform(MockMvcRequestBuilders
-                .post("/login")
-                .content(loginCredentials.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-
-        JSONObject testAdmin = new JSONObject();
-        testAdmin.put("userId", userRepository.findByEmail("jimsmith@gmail.com").get(0).getId());
+        JSONObject primaryAdmin = new JSONObject();
+        primaryAdmin.put("userId", userRepository.findByEmail("jimsmith@gmail.com").get(0).getId());
 
         RequestBuilder addAdminRequest = MockMvcRequestBuilders
                 .put(String.format("/businesses/%d/makeAdministrator", retrievedBusiness.getId()))
-                .content(testAdmin.toString())
+                .content(primaryAdmin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("DaveSims@gmail.com", "1337-H%nt3r2"));
@@ -446,29 +391,16 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(10)
-    public void removePrimaryAdministrator() throws Exception {
+    void removePrimaryAdministrator() throws Exception {
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
-        User primaryAdmin = userRepository.findByEmail("jimsmith@gmail.com").get(0);
-
-        //Login to Primary admin account
-        JSONObject loginCredentials = new JSONObject();
-        loginCredentials.put("email", "jimsmith@gmail.com");
-        loginCredentials.put("password", "1337-H%nt3r2");
-
-        mvc.perform(MockMvcRequestBuilders
-                .post("/login")
-                .content(loginCredentials.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
 
         //Trying to remove the primary administrator
-        JSONObject testAdmin = new JSONObject();
-        testAdmin.put("userId", primaryAdmin.getId());
+        JSONObject primaryAdmin = new JSONObject();
+        primaryAdmin.put("userId", testPrimaryAdmin.getId());
 
         RequestBuilder removeAdminRequest = MockMvcRequestBuilders
                 .put(String.format("/businesses/%d/removeAdministrator", retrievedBusiness.getId()))
-                .content(testAdmin.toString())
+                .content(primaryAdmin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
@@ -478,7 +410,7 @@ public class BusinessControllerTest {
                 .andReturn();
 
         String returnedExceptionString = removeAdminResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new CantRemoveAdministratorException(primaryAdmin.getId(), retrievedBusiness.getId()).getMessage(), returnedExceptionString);
+        Assertions.assertEquals(new CantRemoveAdministratorException(testPrimaryAdmin.getId(), retrievedBusiness.getId()).getMessage(), returnedExceptionString);
     }
 
 
@@ -488,16 +420,16 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(11)
-    public void removeAdministrator() throws Exception {
+    void removeAdministrator() throws Exception {
         User retrievedUser = userRepository.findByEmail("DaveSims@gmail.com").get(0);
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
 
-        JSONObject testAdmin = new JSONObject();
-        testAdmin.put("userId", retrievedUser.getId());
+        JSONObject admin = new JSONObject();
+        admin.put("userId", retrievedUser.getId());
 
         mvc.perform(MockMvcRequestBuilders
                 .put(String.format("/businesses/%d/removeAdministrator", retrievedBusiness.getId()))
-                .content(testAdmin.toString())
+                .content(admin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
@@ -518,17 +450,17 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(12)
-    public void removeNonExistentAdministrator() throws Exception {
+    void removeNonExistentAdministrator() throws Exception {
         User retrievedUser = userRepository.findByEmail("DaveSims@gmail.com").get(0);
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
 
         //Trying to remove a user who is not an admin (The user that was just removed as an admin in the previous test)
-        JSONObject testAdmin = new JSONObject();
-        testAdmin.put("userId", retrievedUser.getId());
+        JSONObject user = new JSONObject();
+        user.put("userId", retrievedUser.getId());
 
         RequestBuilder removeAdminRequest = MockMvcRequestBuilders
                 .put(String.format("/businesses/%d/removeAdministrator", retrievedBusiness.getId()))
-                .content(testAdmin.toString())
+                .content(user.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
@@ -548,28 +480,15 @@ public class BusinessControllerTest {
      */
     @Test
     @Order(13)
-    public void removeAdministratorWhenNotPrimaryAdmin() throws Exception {
+    void removeAdministratorWhenNotPrimaryAdmin() throws Exception {
         Business retrievedBusiness = businessRepository.findByName("Lumbridge General Store").get(0);
 
-        //Log into the other account so we can test removing an administrator from a business when you are not the primary administrator
-        JSONObject loginCredentials = new JSONObject();
-        loginCredentials.put("email", "DaveSims@gmail.com");
-        loginCredentials.put("password", "1337-H%nt3r2");
-
-        mvc.perform(MockMvcRequestBuilders
-                .post("/login")
-                .content(loginCredentials.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-
-        JSONObject testAdmin = new JSONObject();
-        testAdmin.put("userId", userRepository.findByEmail("jimsmith@gmail.com").get(0).getId());
+        JSONObject primaryAdmin = new JSONObject();
+        primaryAdmin.put("userId", userRepository.findByEmail("jimsmith@gmail.com").get(0).getId());
 
         RequestBuilder removeAdminRequest = MockMvcRequestBuilders
                 .put(String.format("/businesses/%d/removeAdministrator", retrievedBusiness.getId()))
-                .content(testAdmin.toString())
+                .content(primaryAdmin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("DaveSims@gmail.com", "1337-H%nt3r2"));
