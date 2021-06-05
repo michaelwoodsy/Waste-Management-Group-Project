@@ -28,9 +28,9 @@
 package org.seng302.project;
 
 import net.minidev.json.parser.ParseException;
-import org.seng302.project.util.DGAAChecker;
-import org.seng302.project.util.SpringEnvironment;
-import org.seng302.project.util.TestDataRunner;
+import org.seng302.project.serviceLayer.util.DGAAChecker;
+import org.seng302.project.serviceLayer.util.SpringEnvironment;
+import org.seng302.project.serviceLayer.util.TestDataRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
