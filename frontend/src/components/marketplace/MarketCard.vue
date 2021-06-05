@@ -69,7 +69,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <p class="card-text">{{ cardData.description }}</p>
         <hr/>
         <!-- Keywords -->
-        <p class="card-text"><b>Keywords:</b><br>{{ cardData.keywords }}</p>
+        <p class="card-text"><strong>Keywords:</strong><br>{{ cardData.keywords }}</p>
         <hr/>
       </div>
 
@@ -86,8 +86,8 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
       <button :data-target="'#cardDetails' + cardData.id" class="btn btn-outline-secondary float-right"
               data-toggle="collapse" @click="toggleDetails">
-        <span v-if="!showDetails">View Details <i class="bi bi-arrow-down"/></span>
-        <span v-else>Hide Details <i class="bi bi-arrow-up"/></span>
+        <span v-if="!showDetails">View Details <em class="bi bi-arrow-down"/></span>
+        <span v-else>Hide Details <em class="bi bi-arrow-up"/></span>
       </button>
 
     </div>
@@ -242,9 +242,6 @@ export default {
         const response = await Card.getCard(this.cardData.id)
         const newDate = response.data.displayPeriodEnd
 
-        // const currentDate = new Date(this.cardData.displayPeriodEnd)
-        // const newDate = new Date(this.cardData.displayPeriodEnd)
-        // newDate.setDate(currentDate.getDate() + 14)
 
         this.$emit('card-extended', this.cardData.id, newDate)
       } catch (error) {
