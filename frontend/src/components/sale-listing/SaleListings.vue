@@ -138,7 +138,7 @@ import Alert from "@/components/Alert";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import {Business} from "@/Api";
-import CreateListing from "@/components/CreateListing";
+import CreateListing from "@/components/sale-listing/CreateListing";
 import PageWrapper from "@/components/PageWrapper";
 
 export default {

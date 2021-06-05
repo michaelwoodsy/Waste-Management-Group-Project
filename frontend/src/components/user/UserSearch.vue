@@ -139,10 +139,10 @@
 
 <script>
 import {User} from '@/Api'
-import LoginRequired from './LoginRequired'
-import ShowingResultsText from "./ShowingResultsText";
-import Pagination from "./Pagination";
-import Alert from './Alert'
+import LoginRequired from '../LoginRequired'
+import ShowingResultsText from "../ShowingResultsText";
+import Pagination from "../Pagination";
+import Alert from '../Alert'
 import PageWrapper from "@/components/PageWrapper";
 
 export default {

@@ -3,7 +3,7 @@
  */
 
 import "@jest/globals";
-import MarketCard from '@/components/MarketCard';
+import MarketCard from '@/components/marketplace/MarketCard';
 import {mount} from "@vue/test-utils";
 import '@/Api';
 import {Card, Marketplace} from '@/Api';

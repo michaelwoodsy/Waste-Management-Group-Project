@@ -102,7 +102,7 @@
 
 <script>
 import LoginRequired from "@/components/LoginRequired";
-import Alert from "./Alert"
+import Alert from "../Alert"
 import AddressInputFields from "@/components/AddressInputFields";
 import PageWrapper from "@/components/PageWrapper";
 

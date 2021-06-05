@@ -63,11 +63,11 @@
 </template>
 
 <script>
-import LoginRequired from './LoginRequired'
+import LoginRequired from '../LoginRequired'
 import AdminRequired from "@/components/AdminRequired";
-import Alert from './Alert'
-import CreateProduct from "@/components/CreateProduct";
-import CatalogueItems from "@/components/ProductCatalogueItems";
+import Alert from '../Alert'
+import CreateProduct from "@/components/product-catalogue/CreateProduct";
+import CatalogueItems from "@/components/product-catalogue/ProductCatalogueItems";
 import PageWrapper from "@/components/PageWrapper";
 
 export default {

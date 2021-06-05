@@ -168,10 +168,10 @@
 <script>
 
 import {Business, User} from '@/Api'
-import LoginRequired from "./LoginRequired"
+import LoginRequired from "../LoginRequired"
 import Alert from "@/components/Alert";
 import PageWrapper from "@/components/PageWrapper";
-import MarketCard from "./MarketCard";
+import MarketCard from "../marketplace/MarketCard";
 
 export default {
   name: "ProfilePage",

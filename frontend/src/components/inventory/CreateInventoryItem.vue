@@ -133,7 +133,7 @@
 <script>
 import {Business} from '@/Api'
 import Alert from "@/components/Alert";
-import CatalogueItems from "@/components/ProductCatalogueItems";
+import CatalogueItems from "@/components/product-catalogue/ProductCatalogueItems";
 
 export default {
   name: "CreateInventoryItem",

@@ -97,7 +97,7 @@
 <script>
 import Alert from "@/components/Alert";
 import {Business} from "@/Api";
-import InventoryItems from "@/components/InventoryItems";
+import InventoryItems from "@/components/inventory/InventoryItems";
 
 /**
  * Default starting parameters

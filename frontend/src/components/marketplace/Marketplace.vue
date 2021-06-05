@@ -106,11 +106,11 @@ Page for displaying the marketplace.
 
 <script>
 
-import LoginRequired from "./LoginRequired";
+import LoginRequired from "../LoginRequired";
 import MarketCard from "./MarketCard";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
-import CreateCardPage from "@/components/CreateCardPage";
+import CreateCardPage from "@/components/marketplace/CreateCardPage";
 import PageWrapper from "@/components/PageWrapper";
 import { User } from "@/Api";
 

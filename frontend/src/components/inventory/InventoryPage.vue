@@ -65,8 +65,8 @@
 import LoginRequired from "@/components/LoginRequired";
 import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
-import CreateInventoryItem from "@/components/CreateInventoryItem";
-import InventoryItems from "@/components/InventoryItems";
+import CreateInventoryItem from "@/components/inventory/CreateInventoryItem";
+import InventoryItems from "@/components/inventory/InventoryItems";
 import PageWrapper from "@/components/PageWrapper";
 
 export default {

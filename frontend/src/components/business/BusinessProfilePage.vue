@@ -169,7 +169,7 @@
 <script>
 
 import {Business} from '@/Api';
-import LoginRequired from "./LoginRequired";
+import LoginRequired from "../LoginRequired";
 import PageWrapper from "@/components/PageWrapper";
 
 export default {

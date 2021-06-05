@@ -106,8 +106,8 @@
 </template>
 
 <script>
-import ShowingResultsText from "./ShowingResultsText";
-import Pagination from "./Pagination";
+import ShowingResultsText from "../ShowingResultsText";
+import Pagination from "../Pagination";
 import {Business} from '@/Api';
 
 export default {
