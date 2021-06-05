@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.seng302.project.repositoryLayer.repository.InventoryItemRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
+import org.seng302.project.repositoryLayer.repository.SaleListingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -23,8 +24,12 @@ public class InventoryItemTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private SaleListingRepository saleListingRepository;
+
     @BeforeEach
     public void initTest() {
+        saleListingRepository.deleteAll();
         inventoryItemRepository.deleteAll();
         productRepository.deleteAll();
     }
