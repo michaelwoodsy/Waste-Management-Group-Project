@@ -156,9 +156,6 @@ class BusinessControllerTest {
         Assertions.assertEquals("Accommodation and Food Services", createdBusiness.getBusinessType());
         Assertions.assertEquals("jimsmith@gmail.com", createdBusiness.getAdministrators().get(0).getEmail());
 
-        Assertions.assertTrue(createdBusiness.getCreated().isBefore(LocalDateTime.now()));
-        Assertions.assertTrue(createdBusiness.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-
     }
 
 

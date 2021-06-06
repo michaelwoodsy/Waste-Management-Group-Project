@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * Unit tests for User class
  */
 @SpringBootTest
-public class UserTest {
+class UserTest {
 
     /**
      * Creates the test user from the API.
@@ -18,8 +18,7 @@ public class UserTest {
      * (Except the businessesAdministered attribute)
      */
     @Test
-    public void createTestUser() {
-//        Address testAddress = new Address("5", "Rountree Street", "Christchurch", "Canterbury", "New Zealand", "8042");
+    void createTestUser() {
         User testUser = new User("John", "Smith", "Arthur", "Jonny",
                 "Likes long walks on the beach", "johnsmith9999@gmail.com",
                 "1999-04-27", "+64 3 555 0129", null,
@@ -44,8 +43,7 @@ public class UserTest {
      * Creates the test user and tests the isGAA method in the user model.
      */
     @Test
-    public void testIsGAAMethod() {
-//        Address testAddress = new Address("5", "Rountree Street", "Christchurch", "Canterbury", "New Zealand", "8042");
+    void testIsGAAMethod() {
         User testUser = new User("John", "Smith", "Arthur", "Jonny",
                 "Likes long walks on the beach", "johnsmith9999@gmail.com",
                 "1999-04-27", "+64 3 555 0129", null,
