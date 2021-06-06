@@ -17,7 +17,7 @@ import java.util.Optional;
  * Unit tests for Card class
  */
 @SpringBootTest
-public class CardTest {
+class CardTest {
 
     /**
      * Creates the test card from the API.
@@ -34,7 +34,7 @@ public class CardTest {
     private BCryptPasswordEncoder passwordEncoder;
 
     @Test
-    public void createTestCard() {
+    void createTestCard() {
         User testCardCreator = new User("John", "Smith", "Arthur", "Jonny",
                 "Likes long walks on the beach", "johnsmith9999@gmail.com",
                 "1999-04-27", "+64 3 555 0129", null,
@@ -58,7 +58,9 @@ public class CardTest {
 
 
     @Test
-    public void testRepository() {
+    void testRepository() {
+
+        //TODO: these need to be mocked!
         cardRepository.deleteAll();
         userRepository.deleteAll();
 

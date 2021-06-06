@@ -2,94 +2,158 @@ package org.seng302.project.webLayer.controller;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.seng302.project.repositoryLayer.model.Address;
+import org.seng302.project.repositoryLayer.model.LoginCredentials;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.exceptions.InvalidLoginException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests authentication. DISABLE_AUTHENTICATION must be set to false to run these tests.
+ * Tests authentication.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@WebMvcTest(UserController.class)
 class AuthenticationTest {
 
+
+    private LoginCredentials testNonexistentLogin;
     private final JSONObject testAddress = new JSONObject();
-    private final JSONObject testUserJson = new JSONObject();
+    private final JSONObject newUserJson = new JSONObject();
+    private User unregisteredUser;
     private final JSONObject testIncorrectLogin = new JSONObject();
     private final JSONObject testCorrectLogin = new JSONObject();
-    private final JSONObject testNonexistentLogin = new JSONObject();
-    private User testUser;
+    private User registeredUser;
+
 
     @Autowired
-    private WebApplicationContext context;
     private MockMvc mvc;
 
     @MockBean
     private UserRepository userRepository;
 
+    //All tests in this class fail (even the ones that don't explicitly reference addressRepository)
+    // when addressRepository bean is removed
+    @MockBean
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private UserController userController;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     @BeforeEach
     public void initialise() throws JSONException {
+
+        testNonexistentLogin = new LoginCredentials("notRegistered@gmail.com", "1357-H%nt3r4");
+        given(userRepository.findByEmail("notRegistered@gmail.com")).willReturn(List.of());
+
         testAddress.put("country", "New Zealand");
+        newUserJson.put("firstName", "New");
+        newUserJson.put("lastName", "User");
+        newUserJson.put("email", "IWantToRegister@icloud.com");
+        newUserJson.put("dateOfBirth", "2000-07-27");
+        newUserJson.put("phoneNumber", "+64 3 545 2896");
+        newUserJson.put("homeAddress", testAddress);
+        newUserJson.put("password", "1357-H%nt762");
 
 
-        //Mock a test user
-        testUser = new User("Jane", "Doe", "", "", "",
+        //Mock a registered user
+        registeredUser = new User("Jane", "Doe", "", "", "",
                 "janedoe95@gmail.com", "1995-06-20", "+64 3 545 2896",
                 null, "1357-H%nt3r2");
 
-        testUser.setId(1);
-        given(userRepository.findByEmail("janedoe95@gmail.com")).willReturn(List.of(testUser));
-        given(userRepository.findById(1)).willReturn(Optional.of(testUser));
+        registeredUser.setId(1);
+        registeredUser.setPassword(passwordEncoder.encode(registeredUser.getPassword()));
+        given(userRepository.findByEmail("janedoe95@gmail.com")).willReturn(List.of(registeredUser));
+        given(userRepository.findById(1)).willReturn(Optional.of(registeredUser));
 
-        testUserJson.put("firstName", testUser.getFirstName());
-        testUserJson.put("lastName", testUser.getLastName());
-        testUserJson.put("email", testUser.getEmail());
-        testUserJson.put("dateOfBirth", testUser.getDateOfBirth());
-        testUserJson.put("phoneNumber", testUser.getPhoneNumber());
-        testUserJson.put("homeAddress", testAddress);
-        testUserJson.put("password", testUser.getPassword());
-        testNonexistentLogin.put("email", "notRegistered@gmail.com");
-        testNonexistentLogin.put("password", "1357-H%nt3r4");
+
         testIncorrectLogin.put("email", "janedoe95@gmail.com");
         testIncorrectLogin.put("password", "1357-H%nt3r4");
         testCorrectLogin.put("email", "janedoe95@gmail.com");
         testCorrectLogin.put("password", "1357-H%nt3r2");
 
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
+
     }
 
 
     /**
      * Tests that:
      * Login fails for a non-registered user
+     * and an InvalidLoginException is thrown
+     */
+    @Test
+    void loginFailsBeforeRegistering() {
+        Assertions.assertThrows(InvalidLoginException.class, () -> {
+            userController.authenticate(testNonexistentLogin);
+        });
+    }
+
+    /**
+     * Tests that:
+     * Registering a new user succeeds
+     * and the user (and their address) are added.
+     * Note: there is actually a 400 response here because
+     * the registration is successful but the call to authenticate() isn't.
+     * This is because the repository has been mocked so that no user
+     * with the email IWantToRegister@icloud.com exists, meaning we can
+     * add them successfully. But then the authenticate() function
+     * tries to find them by email to check their password and log
+     * them in, which fails because they don't exist in the repository.
+     * Testing authenticate() with an existing user is done in
+     * correctLogin() below.
+     * @throws Exception exception thrown.
+     */
+    @Test
+    void registerUser() throws Exception {
+
+        mvc.perform(MockMvcRequestBuilders
+                .post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(newUserJson.toString())
+                .accept(MediaType.APPLICATION_JSON));
+
+        // This captures the arguments given to the mocked repository
+        ArgumentCaptor<Address> addressArgumentCaptor = ArgumentCaptor.forClass(Address.class);
+        verify(addressRepository).save(addressArgumentCaptor.capture());
+
+        ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userArgumentCaptor.capture());
+
+    }
+
+
+    /**
+     * Tests that:
+     * Authentication with wrong password fails
      * and a 400 response is given
      * @throws Exception exception thrown.
      */
     @Test
-    void loginFailsBeforeRegistering() throws Exception {
+    void incorrectLogin() throws Exception {
         mvc.perform(MockMvcRequestBuilders
                 .post("/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(testNonexistentLogin.toString())
+                .content(testIncorrectLogin.toString())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -97,28 +161,12 @@ class AuthenticationTest {
 
     /**
      * Tests that:
-     * Registering a new user is successful,
-     * then authentication with wrong password fails,
-     * then authentication with correct login credentials succeeds
-     * then we can get the new user
-     *
+     * authentication with correct login credentials succeeds
+     * and that a 200 response is given
      * @throws Exception exception thrown.
      */
     @Test
-    void testRegisterAndLogin() throws Exception {
-        mvc.perform(MockMvcRequestBuilders
-                .post("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(testUserJson.toString())
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-
-        mvc.perform(MockMvcRequestBuilders
-                .post("/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(testIncorrectLogin.toString())
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+    void correctLogin() throws Exception {
 
         mvc.perform(MockMvcRequestBuilders
                 .post("/login")
@@ -127,15 +175,6 @@ class AuthenticationTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        Integer id = testUser.getId();
-
-        mvc.perform(MockMvcRequestBuilders
-                .get(String.format("/users/%d", id))
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(testCorrectLogin.getString("email"),
-                        testCorrectLogin.getString("password"))))
-                .andExpect(status().isOk());
     }
 
 }
