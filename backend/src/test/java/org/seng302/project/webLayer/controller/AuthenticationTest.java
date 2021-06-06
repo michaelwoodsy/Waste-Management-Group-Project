@@ -37,7 +37,6 @@ class AuthenticationTest {
     private LoginCredentials testNonexistentLogin;
     private final JSONObject testAddress = new JSONObject();
     private final JSONObject newUserJson = new JSONObject();
-    private User unregisteredUser;
     private final JSONObject testIncorrectLogin = new JSONObject();
     private final JSONObject testCorrectLogin = new JSONObject();
     private User registeredUser;
