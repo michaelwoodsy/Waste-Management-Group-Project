@@ -292,10 +292,6 @@ class BusinessControllerTest {
         Assertions.assertEquals(testPrimaryAdmin.getId(), returnedBusiness.getPrimaryAdministratorId());
         Assertions.assertEquals("A one-stop shop for all your adventuring needs", returnedBusiness.getDescription());
         Assertions.assertEquals("Accommodation and Food Services", returnedBusiness.getBusinessType());
-
-        LocalDateTime createdTimestamp = returnedBusiness.getCreated();
-        Assertions.assertTrue(createdTimestamp.isBefore(LocalDateTime.now()));
-        Assertions.assertTrue(createdTimestamp.isAfter(LocalDateTime.now().minusSeconds(5)));
     }
 
 
