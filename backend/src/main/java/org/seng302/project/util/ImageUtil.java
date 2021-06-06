@@ -19,6 +19,7 @@ public class ImageUtil {
     private static final Logger logger = LoggerFactory.getLogger(ImageUtil.class.getName());
     private static final int THUMBNAIL_WIDTH = 150; //Pixels
 
+
     /**
      * Initial attempt to try creating an image thumbnail.
      * Based on code from:
@@ -100,6 +101,7 @@ public class ImageUtil {
         return resizedImage;
     }
 
+
     /**
      * Crops the (scaled down) image into a thumbnail
      * @return the thumbnail image
@@ -114,6 +116,7 @@ public class ImageUtil {
 
         return resizedImage.getSubimage(x, y, THUMBNAIL_WIDTH, THUMBNAIL_WIDTH);
     }
+
 
     /**
      *
