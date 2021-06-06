@@ -3,7 +3,7 @@
  */
 
 import "@jest/globals";
-import EditProductPage from '@/components/EditProductPage';
+import EditProductPage from '@/components/product-catalogue/EditProductPage';
 import Vue from 'vue';
 
 const VueTestUtils = require('@vue/test-utils')

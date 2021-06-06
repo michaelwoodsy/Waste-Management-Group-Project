@@ -1,4 +1,4 @@
-import Marketplace from "@/components/Marketplace";
+import Marketplace from "@/components/marketplace/Marketplace";
 import {shallowMount} from "@vue/test-utils";
 
 let wrapper

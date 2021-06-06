@@ -1,6 +1,6 @@
 import '@jest/globals'
 import {shallowMount} from "@vue/test-utils"
-import CreateCardPage from "@/components/CreateCardPage"
+import CreateCardPage from "@/components/marketplace/CreateCardPage"
 
 let wrapper
 

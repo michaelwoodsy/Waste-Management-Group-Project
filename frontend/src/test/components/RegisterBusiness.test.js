@@ -3,7 +3,7 @@
  */
 
 import "@jest/globals";
-import RegisterBusinessPage from "@/components/RegisterBusinessPage";
+import RegisterBusinessPage from "@/components/business/RegisterBusinessPage";
 import {shallowMount} from "@vue/test-utils";
 import {Business} from "@/Api";
 

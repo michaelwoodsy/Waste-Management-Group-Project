@@ -3,13 +3,12 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
-import org.seng302.project.controller.CardController;
-import org.seng302.project.model.Card;
-import org.seng302.project.model.CardRepository;
-import org.seng302.project.model.UserRepository;
-import org.seng302.project.model.User;
+import org.seng302.project.webLayer.controller.CardController;
+import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class MarketplaceSectionDisplaySteps {

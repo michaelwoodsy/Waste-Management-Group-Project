@@ -78,7 +78,7 @@
 <script>
 
 import LoginRequired from "./LoginRequired";
-import MarketCard from "@/components/MarketCard";
+import MarketCard from "@/components/marketplace/MarketCard";
 import Alert from "@/components/Alert";
 import {User} from "@/Api";
 
