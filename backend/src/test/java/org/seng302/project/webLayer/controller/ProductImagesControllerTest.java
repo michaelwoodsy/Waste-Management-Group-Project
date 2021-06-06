@@ -1,16 +1,17 @@
 package org.seng302.project.webLayer.controller;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.seng302.project.repositoryLayer.model.Business;
-import org.seng302.project.repositoryLayer.model.Image;
-import org.seng302.project.repositoryLayer.model.Product;
-import org.seng302.project.repositoryLayer.model.User;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
+import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -86,6 +88,7 @@ class ProductImagesControllerTest {
         testBusiness = new Business("Food with Photos", "Images to accompany your food",
                 null, "Retail Trade", 1);
         testBusiness.setId(1);
+        given(businessRepository.findByName("Food with Photos")).willReturn(List.of(testBusiness));
         given(businessRepository.findById(1)).willReturn(Optional.of(testBusiness));
 
         //Mock a product with images
@@ -102,7 +105,7 @@ class ProductImagesControllerTest {
     /**
      * Tests successful setting of a product's primary image.
      * Request made by business admin.
-     * Expect 200 response
+     * Expect 200 response and the product's primary image to be updated.
      */
     @Test
     void setPrimaryImage_requestByBusinessAdmin_success() throws Exception {
@@ -111,12 +114,16 @@ class ProductImagesControllerTest {
                 .with(user(new AppUserDetails(businessAdmin))))
                 .andExpect(status().isOk());
 
+        ArgumentCaptor<Integer> imageIdArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(testProduct).setPrimaryImageId(imageIdArgumentCaptor.capture());
+
+        Assertions.assertEquals(2, imageIdArgumentCaptor.getValue());
     }
 
     /**
      * Tests successful setting of a product's primary image.
      * Request made by system admin.
-     * Expect 200 response
+     * Expect 200 response and the product's primary image to be updated.
      */
     @Test
     void setPrimaryImage_requestByGAA_success() throws Exception {
@@ -124,6 +131,11 @@ class ProductImagesControllerTest {
                 testBusiness.getId(), testProduct.getId(), 2)
                 .with(user(new AppUserDetails(systemAdmin))))
                 .andExpect(status().isOk());
+
+        ArgumentCaptor<Integer> imageIdArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(testProduct).setPrimaryImageId(imageIdArgumentCaptor.capture());
+
+        Assertions.assertEquals(2, imageIdArgumentCaptor.getValue());
     }
 
     /**
