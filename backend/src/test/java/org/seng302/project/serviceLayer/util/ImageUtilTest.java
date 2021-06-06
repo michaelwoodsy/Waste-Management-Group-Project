@@ -1,8 +1,9 @@
-package org.seng302.project.util;
+package org.seng302.project.serviceLayer.util;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.seng302.project.serviceLayer.util.ImageUtil;
 
 import java.io.File;
 import java.io.IOException;
