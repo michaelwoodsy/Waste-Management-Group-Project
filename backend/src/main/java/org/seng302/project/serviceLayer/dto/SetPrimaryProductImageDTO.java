@@ -5,36 +5,37 @@ import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.exceptions.NoBusinessExistsException;
-import org.seng302.project.serviceLayer.exceptions.NoProductExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.productImages.NoProductImageWithIdException;
+import org.seng302.project.serviceLayer.exceptions.productImages.ProductNotFoundException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 
 
 public class SetPrimaryProductImageDTO {
 
-    private Integer businessId;
-    private String productId;
-    private Integer imageId;
-    private AppUserDetails appUser;
+    private final Integer businessId;
+    private final String productId;
+    private final Integer imageId;
+    private final AppUserDetails appUser;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private BusinessRepository businessRepository;
+    private final BusinessRepository businessRepository;
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(SetPrimaryProductImageDTO.class.getName());
 
-    public SetPrimaryProductImageDTO(Integer businessId, String productId,
+    public SetPrimaryProductImageDTO(UserRepository userRepository,
+                                     BusinessRepository businessRepository,
+                                     ProductRepository productRepository,
+                                     Integer businessId, String productId,
                                      Integer imageId, AppUserDetails appUser) {
+        this.userRepository = userRepository;
+        this.businessRepository = businessRepository;
+        this.productRepository = productRepository;
         this.businessId = businessId;
         this.productId = productId;
         this.imageId = imageId;
@@ -47,11 +48,9 @@ public class SetPrimaryProductImageDTO {
      * throws exceptions up to the controller to handle
      */
     public void executeRequest() {
-        logger.info(String.format("Request to update primary image for product %s of business %d", productId, businessId));
+        logger.info("Request to update primary image for product {} of business {}", productId, businessId);
 
-        //TODO: tests fail at the line below due to NullPointerException
         var currBusiness = businessRepository.findById(businessId).orElseThrow(() -> new NoBusinessExistsException(businessId));
-        logger.info(String.format("Business: %s", currBusiness.getName()));
 
         //Check if user making request is business admin/gaa/dgaa
         String userEmail = appUser.getUsername();
@@ -63,7 +62,7 @@ public class SetPrimaryProductImageDTO {
         }
 
         var product = productRepository.findByIdAndBusinessId(productId, businessId)
-                .orElseThrow(() -> new NoProductExistsException(productId, businessId));
+                .orElseThrow(() -> new ProductNotFoundException(productId, businessId));
 
         //Check if image exists for product
         var productImages = product.getImages();
