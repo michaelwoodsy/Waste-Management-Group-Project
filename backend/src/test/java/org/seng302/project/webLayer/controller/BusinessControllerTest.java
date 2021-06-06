@@ -332,6 +332,7 @@ class BusinessControllerTest {
     @Test
     @Order(8)
     void addSameAdministrator() throws Exception {
+
         given(testBusiness.getAdministrators()).willReturn(List.of(testUser));
 
         JSONObject newAdmin = new JSONObject();
@@ -416,6 +417,7 @@ class BusinessControllerTest {
     @Test
     @Order(11)
     void removeAdministrator() throws Exception {
+
         given(testBusiness.getAdministrators()).willReturn(List.of(testUser));
 
         JSONObject admin = new JSONObject();
