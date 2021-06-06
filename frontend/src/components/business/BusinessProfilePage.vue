@@ -16,6 +16,18 @@
             </div>
           </div>
 
+          <!-- Profile image -->
+          <div class="row">
+            <div class="col-12 text-center mb-2">
+              <img
+                  alt="profile"
+                  class="profile-image rounded-circle"
+                  style="max-width: 300px"
+                  src="@/../../media/defaultProfile.jpg"
+              />
+            </div>
+          </div>
+
           <!-- Name of Business -->
           <div class="row">
             <div class="col-6 text-right font-weight-bold">

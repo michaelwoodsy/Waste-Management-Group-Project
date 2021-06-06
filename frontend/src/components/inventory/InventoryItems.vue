@@ -23,6 +23,9 @@
               <p v-if="orderCol === 'productId'" class="d-inline">{{ orderDirArrow }}</p>
             </th>
 
+            <!--    Product Image    -->
+            <th></th>
+
             <!--    Quantity    -->
             <th class="pointer" scope="col" @click="orderResults('quantity')">
               <p v-if="!selectingItem" class="d-inline">Quantity</p>
@@ -77,6 +80,10 @@
               v-bind:key="item.id"
           >
             <td>{{ item.product.id }}</td>
+            <td>
+              <img alt="productImage" class="ui-icon-image"
+                   src="@/../../media/defaultProduct_thumbnail.jpg">
+            </td>
             <td>
               <span v-if="!selectingItem">{{ item.quantity }}</span>
               <span v-if="selectingItem">{{ getMaxQuantity(item) }}/{{ item.quantity }}</span>

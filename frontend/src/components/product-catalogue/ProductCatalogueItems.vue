@@ -24,6 +24,9 @@
               <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
             </th>
 
+            <!--    Product Image    -->
+            <th></th>
+
             <!--    Full Name    -->
             <th class="pointer" scope="col" @click="orderResults('name')">
               <p class="d-inline">Product Info</p>
@@ -59,6 +62,10 @@
               v-bind:key="product.id"
           >
             <th scope="row">{{ product.id }}</th>
+            <td>
+              <img alt="productImage" class="ui-icon-image"
+                   src="@/../../media/defaultProduct_thumbnail.jpg">
+            </td>
             <td style="word-break: break-word; width: 40%">
               {{ product.name }}
               <span v-if="product.description" style="font-size: small"><br/>{{ product.description }}</span>

@@ -18,6 +18,19 @@
       </div>
 
 
+      <!-- Profile image -->
+      <div class="row">
+        <div class="col-12 text-center mb-2">
+          <img
+              alt="profile"
+              class="profile-image rounded-circle"
+              style="max-width: 300px"
+              src="@/../../media/defaultProfile.jpg"
+          />
+        </div>
+      </div>
+
+
       <!-- First Name -->
       <div class="row">
         <div class="col-6 text-right font-weight-bold">
@@ -461,7 +474,17 @@ export default {
       addedAdmin: null,
       error: null,
       cards: [],
-      hideImages: true
+      hideImages: true,
+      //Temp images
+      images: [
+          {
+            id: 1,
+            filename: "/media/defaultProfile.jpg"
+          },
+          {
+            id: 2,
+            filename: "/media/asparagus.jpg"
+          }]
     }
   }
 }

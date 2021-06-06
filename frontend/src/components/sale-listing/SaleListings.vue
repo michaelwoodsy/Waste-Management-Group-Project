@@ -54,7 +54,9 @@
               <table class="table table-hover">
                 <thead>
                 <tr>
-                  <!-- Product code -->
+                  <!-- Product Image -->
+                  <th></th>
+                  <!-- Product Info -->
                   <th class="pointer" scope="col" @click="orderResults('name')">
                     <p class="d-inline">Product Info</p>
                     <p v-if="orderCol === 'name'" class="d-inline">{{ orderDirArrow }}</p>
@@ -83,6 +85,10 @@
                 </thead>
                 <tbody v-if="!loading">
                 <tr v-for="item in paginatedListings" v-bind:key="item.id">
+                  <td>
+                    <img alt="productImage" class="ui-icon-image"
+                         src="@/../../media/defaultProduct_thumbnail.jpg">
+                  </td>
                   <td style="word-break: break-word; width: 50%">
                     {{ item.inventoryItem.product.name }}
                     <span v-if="item.moreInfo" style="font-size: small"><br/>{{ item.moreInfo }}</span>
@@ -354,7 +360,6 @@ export default {
           .then((res) => {
             this.error = null;
             this.listings = res.data;
-            console.log(res.data)
             this.loading = false;
           })
           .catch((err) => {
