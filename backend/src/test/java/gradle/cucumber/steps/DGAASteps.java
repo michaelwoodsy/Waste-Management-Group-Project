@@ -5,8 +5,11 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.seng302.project.exceptions.NoUserExistsException;
-import org.seng302.project.model.*;
+import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.repository.AddressRepository;
+import org.seng302.project.repositoryLayer.repository.BusinessRepository;
+import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.MediaType;
