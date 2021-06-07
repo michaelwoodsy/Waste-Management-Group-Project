@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Product class for storing individual products.
@@ -25,6 +25,8 @@ public class Product {
     private String manufacturer;
     private Double recommendedRetailPrice;
     private LocalDateTime created = LocalDateTime.now();
+
+    @OneToMany(targetEntity=Image.class, fetch=FetchType.EAGER)
     private List<Image> images = new ArrayList<>();
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Id
@@ -37,20 +39,6 @@ public class Product {
         this.manufacturer = manufacturer;
         this.recommendedRetailPrice = recommendedRetailPrice;
         this.businessId = businessId;
-    }
-
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "product_has_image",
-            @JoinColumns({
-                    @JoinColumn(name = "product_id"),
-                    @JoinColumn(name = "business_id")
-            }),
-            inverseJoinColumns = @JoinColumn(name = "image_id")
-    )
-    @JsonIgnoreProperties("administrators")
-    public List<Business> getBusinessesAdministered() {
-        return this.businessesAdministered;
     }
 
     public void addImage(Image newImage){

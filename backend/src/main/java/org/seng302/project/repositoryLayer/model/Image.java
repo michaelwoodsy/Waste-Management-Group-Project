@@ -1,3 +1,9 @@
+package org.seng302.project.repositoryLayer.model;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 
 @Data // generate setters and getters for all fields (lombok pre-processor)
 @NoArgsConstructor // generate a no-args constructor needed by JPA (lombok pre-processor)
@@ -6,6 +12,11 @@ public class Image {
     private Integer id;
     private String filename;
     private String thumbnailFilename;
+
+    public Image(String filename, String thumbnailFilename) {
+        this.filename = filename;
+        this.thumbnailFilename = thumbnailFilename;
+    }
 
     @Id // this field (attribute) is the primary key of the table
     @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
