@@ -25,7 +25,7 @@ public class Product {
     private String manufacturer;
     private Double recommendedRetailPrice;
     private LocalDateTime created = LocalDateTime.now();
-    private String images; //TODO: change this to a list of image objects
+    private List<Image> images = new ArrayList<>();
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Id
     private Integer businessId; // The id of the business that offers this product
@@ -37,5 +37,27 @@ public class Product {
         this.manufacturer = manufacturer;
         this.recommendedRetailPrice = recommendedRetailPrice;
         this.businessId = businessId;
+    }
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "product_has_image",
+            @JoinColumns({
+                    @JoinColumn(name = "product_id"),
+                    @JoinColumn(name = "business_id")
+            }),
+            inverseJoinColumns = @JoinColumn(name = "image_id")
+    )
+    @JsonIgnoreProperties("administrators")
+    public List<Business> getBusinessesAdministered() {
+        return this.businessesAdministered;
+    }
+
+    public void addImage(Image newImage){
+        this.images.add(newImage);
+    }
+
+    public void removeImage(Image image){
+        this.images.remove(image);
     }
 }
