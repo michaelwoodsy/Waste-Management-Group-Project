@@ -87,7 +87,7 @@
                 <tr v-for="item in paginatedListings" v-bind:key="item.id">
                   <td>
                     <img alt="productImage" class="ui-icon-image"
-                         src="@/../../media/defaultProduct_thumbnail.jpg">
+                         src="@/../../media/defaults/defaultProduct_thumbnail.jpg">
                   </td>
                   <td style="word-break: break-word; width: 50%">
                     {{ item.inventoryItem.product.name }}

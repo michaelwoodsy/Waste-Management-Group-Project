@@ -23,7 +23,7 @@
                   alt="profile"
                   class="profile-image rounded-circle"
                   style="max-width: 300px"
-                  src="@/../../media/defaultProfile.jpg"
+                  src="@/../../media/defaults/defaultProfile.jpg"
               />
             </div>
           </div>
@@ -182,10 +182,10 @@
           <div id="imageCarousel" class="carousel slide" data-ride="carousel">
             <div class="carousel-inner">
               <div class="carousel-item active">
-                <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaultProfile.jpg" alt="User Image">
+                <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProfile.jpg" alt="User Image">
               </div>
               <div class="carousel-item">
-                <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaultProfile.jpg" alt="User Image">
+                <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProfile.jpg" alt="User Image">
               </div>
             </div>
             <a class="carousel-control-prev btn-primary" href="#imageCarousel" role="button" data-slide="prev">

@@ -64,7 +64,7 @@
             <th scope="row">{{ product.id }}</th>
             <td>
               <img alt="productImage" class="ui-icon-image"
-                   src="@/../../media/defaultProduct_thumbnail.jpg">
+                   src="@/../../media/defaults/defaultProduct_thumbnail.jpg">
             </td>
             <td style="word-break: break-word; width: 40%">
               {{ product.name }}

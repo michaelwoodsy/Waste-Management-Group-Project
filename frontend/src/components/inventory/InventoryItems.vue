@@ -82,7 +82,7 @@
             <td>{{ item.product.id }}</td>
             <td>
               <img alt="productImage" class="ui-icon-image"
-                   src="@/../../media/defaultProduct_thumbnail.jpg">
+                   src="@/../../media/defaults/defaultProduct_thumbnail.jpg">
             </td>
             <td>
               <span v-if="!selectingItem">{{ item.quantity }}</span>
