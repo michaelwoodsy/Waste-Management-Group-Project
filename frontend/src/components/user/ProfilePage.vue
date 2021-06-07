@@ -161,6 +161,33 @@
       </div>
 
       <div class="row">
+        <div class="col text-left mb-2" v-if="images.length !== 0">
+          <h2>User's Images</h2>
+        </div>
+      </div>
+
+      <div class="row" style="height: 500px">
+        <div class="col col-12 justify-content-center" v-if="images.length !== 0">
+          <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+              <div v-for="(image, index) in images" v-bind:key="image.id"
+                   :class="{'carousel-item': true,  active: index===0}">
+                <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="image.filename" alt="User Image">
+              </div>
+            </div>
+            <a class="carousel-control-prev btn-primary" href="#carouselExampleControls" role="button" data-slide="prev">
+              <span class="carousel-control-prev-icon carouse" aria-hidden="true"></span>
+              <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next btn-primary" href="#carouselExampleControls" role="button" data-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="sr-only">Next</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
         <div class="col text-left mb-2" v-if="cards.length !== 0">
           <h2>User's Cards</h2>
         </div>
@@ -479,11 +506,11 @@ export default {
       images: [
           {
             id: 1,
-            filename: "/media/defaultProfile.jpg"
+            filename: require("@/../../media/asparagus.jpg")
           },
           {
             id: 2,
-            filename: "/media/asparagus.jpg"
+            filename: require("@/../../media/defaultProduct.jpg")
           }]
     }
   }
