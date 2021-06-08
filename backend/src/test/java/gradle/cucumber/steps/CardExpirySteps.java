@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.NotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.webLayer.controller.CardController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,7 @@ public class CardExpirySteps {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AddressRepository addressRepository;
     private final CardRepository cardRepository;
+    private final NotificationRepository notificationRepository;
     private final CardController cardController;
 
     private RequestBuilder deleteCardRequest;
@@ -64,11 +66,13 @@ public class CardExpirySteps {
                            AddressRepository addressRepository,
                            BCryptPasswordEncoder passwordEncoder,
                            CardRepository cardRepository,
+                           NotificationRepository notificationRepository,
                            CardController cardController) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.passwordEncoder = passwordEncoder;
         this.cardRepository = cardRepository;
+        this.notificationRepository = notificationRepository;
         this.cardController = cardController;
     }
 
@@ -191,8 +195,8 @@ public class CardExpirySteps {
         cardRepository.save(testCard);
     }
 
-    @Then("The card is automatically deleted")
-    public void the_card_is_automatically_deleted() {
+    @Then("The card is automatically deleted and a notification is created")
+    public void the_card_is_automatically_deleted_and_a_notification_is_created() {
 
         //Manually calls the removeCardsAfter24Hrs method as it is on a timer
         cardController.removeCardsAfter24Hrs();
@@ -200,5 +204,13 @@ public class CardExpirySteps {
 
         //Card was deleted
         Assertions.assertTrue(returnedCard.isEmpty());
+
+        String message = String.format("Your expired card, '%s', has be automatically deleted from the Marketplace",
+                testCard.getTitle());
+        Optional<Notification> returnedNotification = notificationRepository.findByMessage(message);
+
+        //notification exists
+        Assertions.assertTrue(returnedNotification.isPresent());
+
     }
 }
