@@ -41,10 +41,16 @@ public class Product {
         this.businessId = businessId;
     }
 
+    /**
+    * Function used to add an image to the list of images associated with a product
+    */
     public void addImage(Image newImage){
         this.images.add(newImage);
     }
 
+    /**
+    * Function used to remove an image from the list of images associated with a product
+    */
     public void removeImage(Image image){
         this.images.remove(image);
     }

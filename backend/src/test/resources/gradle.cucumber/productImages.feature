@@ -27,7 +27,7 @@ Feature: U16 - Product Images
     Then The uploaded image has a thumbnail
 
   Scenario: AC4: I can delete product images
-    Given A product has image
+    Given A product has an image
     When I delete an image
     Then The product no longer has that image as one of it's images
     And The image is no longer saved
