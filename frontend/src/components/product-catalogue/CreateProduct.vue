@@ -238,8 +238,9 @@ export default {
                 ? Number(this.recommendedRetailPrice) : null
           }
       ).then(() => {
-        this.$refs.close.click();
-        this.close();
+          this.addImages();
+          this.$refs.close.click();
+          this.close();
       }).catch((err) => {
         this.msg.errorChecks = err.response ?
             err.response.data.slice(err.response.data.indexOf(':') + 2) :
@@ -281,7 +282,7 @@ export default {
       fileReader.addEventListener('load', () => {
         this.images.push({
           url: fileReader.result,
-          image: files[0],
+          file: files[0],
         })
       })
       fileReader.readAsDataURL(files[0])
@@ -295,6 +296,15 @@ export default {
       this.images = this.images.filter(function(image) {
         return image.url !== imageUrl;
       })
+    },
+    /**
+     * Makes requests to add the product's images
+     */
+    addImages() {
+      for (const image of this.images) {
+        this.$root.$data.business.addProductImage(
+            this.businessId, this.id, image.file)
+      }
     }
   }
 }

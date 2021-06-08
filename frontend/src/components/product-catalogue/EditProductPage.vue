@@ -261,7 +261,8 @@ export default {
       priceBlur: false,
       nameBlur: false,
       triedIds: [], // List of ids tested for uniqueness
-      images: [] //TODO: prefill with product's existing images
+      images: [], //TODO: prefill with product's existing images
+      imagesEdited: false
     }
   },
 
@@ -313,6 +314,9 @@ export default {
     changesMade() {
       if (!this.product) {
         return false
+      }
+      if (this.imagesEdited) {
+        return true
       }
       let allSame = true;
       for (const [key, val] of Object.entries(this.product)) {
@@ -388,6 +392,7 @@ export default {
       this.submitting = true;
       Business.editProduct(this.businessId, this.productId, this.newProduct)
           .then(() => {
+            this.addImages()
             this.submitError = null
             this.success = true
             this.submitting = false
@@ -459,6 +464,7 @@ export default {
      * '+' button is clicked.
      */
     onPickFile () {
+      this.imagesEdited = true
       this.$refs.fileInput.click()
     },
     /**
@@ -472,9 +478,7 @@ export default {
       fileReader.addEventListener('load', () => {
         this.images.push({
           url: fileReader.result,
-          image: files[0],
-          //This is set to true when user mouses over the image, used to show delete option
-          hover: false
+          file: files[0]
         })
       })
       fileReader.readAsDataURL(files[0])
@@ -485,9 +489,21 @@ export default {
      * @param imageUrl the url of the image to be removed
      */
     removeImage(imageUrl) {
+      this.imagesEdited = true
+      //TODO: get this to call delete endpoint if image stored on backend
       this.images = this.images.filter(function(image) {
         return image.url !== imageUrl;
       })
+    },
+    /**
+     * Makes requests to add the product's images
+     */
+    addImages() {
+      //TODO: get this to only add images that didn't previously exist for product
+      for (const image of this.images) {
+        this.$root.$data.business.addProductImage(
+            this.businessId, this.newProduct.id, image.file)
+      }
     }
   }
 }
