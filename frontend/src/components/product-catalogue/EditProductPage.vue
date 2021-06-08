@@ -153,6 +153,43 @@
                 </div>
               </div>
 
+
+              <!-- Images -->
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Images</label>
+                <div class="col-sm-8">
+                  <button
+                      class="btn btn-primary ml-1 my-1 pad1"
+                      type="button"
+                      @click="onPickFile"
+                  >
+                    Add image
+                  </button>
+                  <input
+                      type="file"
+                      style="display: none"
+                      ref="fileInput"
+                      accept="image/*"
+                      @change="onFilePicked"/>
+
+                  <div v-for="image in images"
+                        :key="image.url" class="pad1"
+                        @mouseover="image.hover = true"
+                        @mouseleave="image.hover = false"
+                  >
+                    <img width="250"
+                         :src="image.url"
+                         alt="Uploaded product image"
+                    />
+                    <button class="btn btn-danger ml-1 my-1 pad1"
+                            @click="removeImage(image.url)">
+                      Remove
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+
             </form>
           </div>
         </div>
@@ -223,7 +260,8 @@ export default {
       idBlur: false, // True when the user has clicked on then off the input field
       priceBlur: false,
       nameBlur: false,
-      triedIds: [] // List of ids tested for uniqueness
+      triedIds: [], // List of ids tested for uniqueness
+      images: [] //TODO: prefill with product's existing images
     }
   },
 
@@ -414,10 +452,47 @@ export default {
 
       // Reload product
       this.loadProduct()
+    },
+
+    /**
+     * Programmatically triggers the file input field when the
+     * '+' button is clicked.
+     */
+    onPickFile () {
+      this.$refs.fileInput.click()
+    },
+    /**
+     * Handles the file that has been uploaded
+     * @param event the button click event that triggers this function
+     */
+    onFilePicked (event) {
+      const files = event.target.files
+      const fileReader = new FileReader()
+      console.log(`File with name ${files[0].name} uploaded`)
+      fileReader.addEventListener('load', () => {
+        this.images.push({
+          url: fileReader.result,
+          image: files[0],
+          //This is set to true when user mouses over the image, used to show delete option
+          hover: false
+        })
+      })
+      fileReader.readAsDataURL(files[0])
+    },
+    /**
+     * Called by the remove button next to an uploaded image.
+     * Removes the image from the frontend's list of images.
+     * @param imageUrl the url of the image to be removed
+     */
+    removeImage(imageUrl) {
+      this.images = this.images.filter(function(image) {
+        return image.url !== imageUrl;
+      })
     }
   }
 }
 </script>
 
 <style scoped>
+
 </style>

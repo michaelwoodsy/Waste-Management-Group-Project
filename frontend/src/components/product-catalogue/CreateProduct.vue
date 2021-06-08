@@ -57,6 +57,42 @@
         <span class="invalid-feedback">{{ msg.rrp }}</span>
       </div>
 
+      <!-- Images -->
+      <div class="form-group row">
+        <label><strong>Images</strong></label>
+        <div class="col-sm-8">
+          <button
+              class="btn btn-primary ml-1 my-1 pad1"
+              type="button"
+              @click="onPickFile"
+          >
+            Add image
+          </button>
+          <input
+              type="file"
+              style="display: none"
+              ref="fileInput"
+              accept="image/*"
+              @change="onFilePicked"/>
+
+          <div v-for="image in images"
+               :key="image.url" class="pad1"
+               @mouseover="image.hover = true"
+               @mouseleave="image.hover = false"
+          >
+            <img width="180"
+                 :src="image.url"
+                 alt="Uploaded product image"
+            />
+            <button class="btn btn-danger ml-1 my-1 pad1"
+                    @click="removeImage(image.url)">
+              Remove
+            </button>
+          </div>
+
+        </div>
+      </div>
+
       <!-- Create Product button -->
       <div class="form-group row mb-0">
         <div class="btn-group" style="width: 100%">
@@ -96,6 +132,7 @@ export default {
       recommendedRetailPrice: '',
       currencySymbol: '',
       currencyCode: '',
+      images: [],
       msg: {
         id: null,
         name: null,
@@ -225,6 +262,39 @@ export default {
      */
     close() {
       this.$emit('refresh-products');
+    },
+    /**
+     * Programmatically triggers the file input field when the
+     * '+' button is clicked.
+     */
+    onPickFile () {
+      this.$refs.fileInput.click()
+    },
+    /**
+     * Handles the file that has been uploaded
+     * @param event the button click event that triggers this function
+     */
+    onFilePicked (event) {
+      const files = event.target.files
+      const fileReader = new FileReader()
+      console.log(`File with name ${files[0].name} uploaded`)
+      fileReader.addEventListener('load', () => {
+        this.images.push({
+          url: fileReader.result,
+          image: files[0],
+        })
+      })
+      fileReader.readAsDataURL(files[0])
+    },
+    /**
+     * Called by the remove button next to an uploaded image.
+     * Removes the image from the frontend's list of images.
+     * @param imageUrl the url of the image to be removed
+     */
+    removeImage(imageUrl) {
+      this.images = this.images.filter(function(image) {
+        return image.url !== imageUrl;
+      })
     }
   }
 }
