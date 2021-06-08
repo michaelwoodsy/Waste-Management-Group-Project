@@ -1,20 +1,26 @@
 package org.seng302.project;
 
-import io.cucumber.java.bs.A;
 import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.Product;
 import org.seng302.project.repositoryLayer.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-public class AbstractInitializer {
+public abstract class AbstractInitializer {
+
+    @Autowired
+    protected BCryptPasswordEncoder passwordEncoder;
 
     private User testUser;
+    private User testSystemAdmin;
     private User testUserBusinessAdmin;
     private Business testBusiness;
     private Product testProduct;
 
     public void initialise() {
         this.initialiseTestUser();
+        this.initialiseTestSystemAdmin();
         this.initialiseTestUserBusinessAdmin();
         this.initialiseTestBusiness();
         this.initialiseTestProduct();
@@ -34,6 +40,25 @@ public class AbstractInitializer {
                 address,
                 "password");
         testUser.setId(1);
+        testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
+    }
+
+    public void initialiseTestSystemAdmin() {
+        Address address = new Address(null, null, null, null, "New Zealand", null);
+        testSystemAdmin = new User(
+                "System",
+                "Admin",
+                "",
+                "",
+                "I am a system admin",
+                "admin@resale.com",
+                "1999-07-28",
+                "+64 123 4567",
+                address,
+                "Th1s1sMyApplication");
+        testSystemAdmin.setId(2);
+        testSystemAdmin.setRole("globalApplicationAdmin");
+        testSystemAdmin.setPassword(passwordEncoder.encode(testSystemAdmin.getPassword()));
     }
 
     public void initialiseTestUserBusinessAdmin() {
@@ -49,7 +74,8 @@ public class AbstractInitializer {
                 null,
                 address,
                 "password");
-        testUserBusinessAdmin.setId(2);
+        testUserBusinessAdmin.setId(3);
+        testUserBusinessAdmin.setPassword(passwordEncoder.encode(testUserBusinessAdmin.getPassword()));
     }
 
     public void initialiseTestBusiness() {
@@ -59,7 +85,7 @@ public class AbstractInitializer {
                 "A test business",
                 address,
                 "Retail Trade",
-                2);
+                3);
         testBusiness.setId(1);
         testBusiness.addAdministrator(testUserBusinessAdmin);
     }
@@ -76,6 +102,10 @@ public class AbstractInitializer {
 
     public User getTestUser() {
         return this.testUser;
+    }
+
+    public User getTestSystemAdmin() {
+        return this.testSystemAdmin;
     }
 
     public User getTestUserBusinessAdmin() {
