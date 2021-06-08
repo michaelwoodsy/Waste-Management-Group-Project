@@ -3,6 +3,7 @@ package org.seng302.project;
 import io.cucumber.java.bs.A;
 import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Business;
+import org.seng302.project.repositoryLayer.model.Product;
 import org.seng302.project.repositoryLayer.model.User;
 
 public class AbstractInitializer {
@@ -10,11 +11,13 @@ public class AbstractInitializer {
     private User testUser;
     private User testUserBusinessAdmin;
     private Business testBusiness;
+    private Product testProduct;
 
     public void initialise() {
         this.initialiseTestUser();
         this.initialiseTestUserBusinessAdmin();
         this.initialiseTestBusiness();
+        this.initialiseTestProduct();
     }
 
     public void initialiseTestUser() {
@@ -35,7 +38,7 @@ public class AbstractInitializer {
 
     public void initialiseTestUserBusinessAdmin() {
         Address address = new Address(null, null, null, null, "New Zealand", null);
-        testUser = new User(
+        testUserBusinessAdmin = new User(
                 "Jane",
                 "Doe",
                 "Angela",
@@ -46,7 +49,7 @@ public class AbstractInitializer {
                 null,
                 address,
                 "password");
-        testUser.setId(2);
+        testUserBusinessAdmin.setId(2);
     }
 
     public void initialiseTestBusiness() {
@@ -57,8 +60,18 @@ public class AbstractInitializer {
                 address,
                 "Retail Trade",
                 2);
-        testBusiness.addAdministrator(testUserBusinessAdmin);
         testBusiness.setId(1);
+        testBusiness.addAdministrator(testUserBusinessAdmin);
+    }
+
+    public void initialiseTestProduct() {
+        testProduct = new Product(
+                "TEST-PROD",
+                "Test Product",
+                "A test product",
+                null,
+                null,
+                1);
     }
 
     public User getTestUser() {
@@ -71,6 +84,10 @@ public class AbstractInitializer {
 
     public Business getTestBusiness() {
         return this.testBusiness;
+    }
+
+    public Product getTestProduct() {
+        return this.testProduct;
     }
 
 }
