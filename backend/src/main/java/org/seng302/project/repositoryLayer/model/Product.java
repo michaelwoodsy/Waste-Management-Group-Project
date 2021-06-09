@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.Transient;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Product class for storing individual products.
@@ -25,7 +27,10 @@ public class Product {
     private String manufacturer;
     private Double recommendedRetailPrice;
     private LocalDateTime created = LocalDateTime.now();
-    private String images; //TODO: change this to a list of image objects
+    private Integer primaryImageId; //TODO: implement relationship to an image
+
+    @Transient //TODO: remove transient annotation when product-image relationship exists
+    private List<Image> images;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Id
     private Integer businessId; // The id of the business that offers this product
