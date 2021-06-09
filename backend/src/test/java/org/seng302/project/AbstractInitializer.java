@@ -1,12 +1,16 @@
 package org.seng302.project;
 
-import org.seng302.project.repositoryLayer.model.Address;
-import org.seng302.project.repositoryLayer.model.Business;
-import org.seng302.project.repositoryLayer.model.Product;
-import org.seng302.project.repositoryLayer.model.User;
+import lombok.Data;
+import org.seng302.project.repository_layer.model.Address;
+import org.seng302.project.repository_layer.model.Business;
+import org.seng302.project.repository_layer.model.Product;
+import org.seng302.project.repository_layer.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+@Data
 public abstract class AbstractInitializer {
 
     @Autowired
@@ -17,6 +21,7 @@ public abstract class AbstractInitializer {
     private User testUserBusinessAdmin;
     private Business testBusiness;
     private Product testProduct;
+    private MockMultipartFile testFile;
 
     public void initialise() {
         this.initialiseTestUser();
@@ -24,6 +29,7 @@ public abstract class AbstractInitializer {
         this.initialiseTestUserBusinessAdmin();
         this.initialiseTestBusiness();
         this.initialiseTestProduct();
+        this.initialiseTestFile();
     }
 
     public void initialiseTestUser() {
@@ -100,24 +106,12 @@ public abstract class AbstractInitializer {
                 1);
     }
 
-    public User getTestUser() {
-        return this.testUser;
-    }
-
-    public User getTestSystemAdmin() {
-        return this.testSystemAdmin;
-    }
-
-    public User getTestUserBusinessAdmin() {
-        return this.testUserBusinessAdmin;
-    }
-
-    public Business getTestBusiness() {
-        return this.testBusiness;
-    }
-
-    public Product getTestProduct() {
-        return this.testProduct;
+    public void initialiseTestFile() {
+        testFile = new MockMultipartFile(
+                "file",
+                "file.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                "file".getBytes());
     }
 
 }
