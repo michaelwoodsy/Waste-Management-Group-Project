@@ -266,7 +266,7 @@ export default {
     },
     /**
      * Programmatically triggers the file input field when the
-     * '+' button is clicked.
+     * 'Add button' button is clicked.
      */
     onPickFile () {
       this.$refs.fileInput.click()

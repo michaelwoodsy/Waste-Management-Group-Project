@@ -159,6 +159,7 @@
                 <label class="col-sm-4 col-form-label">Images</label>
                 <div class="col-sm-8">
                   <button
+                      id="addImage"
                       class="btn btn-primary ml-1 my-1 pad1"
                       type="button"
                       @click="onPickFile"
@@ -461,7 +462,7 @@ export default {
 
     /**
      * Programmatically triggers the file input field when the
-     * '+' button is clicked.
+     * 'Add image' button is clicked.
      */
     onPickFile () {
       this.imagesEdited = true
@@ -472,6 +473,7 @@ export default {
      * @param event the button click event that triggers this function
      */
     onFilePicked (event) {
+      console.log("Called onFilePicked");
       const files = event.target.files
       const fileReader = new FileReader()
       console.log(`File with name ${files[0].name} uploaded`)
