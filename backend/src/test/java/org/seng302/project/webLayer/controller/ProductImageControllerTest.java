@@ -4,11 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repositoryLayer.model.Image;
+import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.Product;
-import org.seng302.project.repositoryLayer.repository.BusinessRepository;
-import org.seng302.project.repositoryLayer.repository.ProductRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -25,10 +23,6 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -40,38 +34,23 @@ public class ProductImageControllerTest extends AbstractInitializer {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private UserRepository userRepository;
-
-    @MockBean
-    private BusinessRepository businessRepository;
-
-    @MockBean
-    private ProductRepository productRepository;
-
     @MockBean
     private ProductImageService productImageService;
 
+    private User testUser;
+    private User testUserBusinessAdmin;
+    private User testSystemAdmin;
+    private Business testBusiness;
     private Product testProduct;
 
     @BeforeEach
     public void setup() {
         this.initialise();
-        given(userRepository.findByEmail("john.smith@gmail.com")).willReturn(List.of(this.getTestUser()));
-        given(userRepository.findById(1)).willReturn(Optional.of(this.getTestUser()));
-        given(userRepository.findByEmail("admin@resale.com")).willReturn(List.of(this.getTestSystemAdmin()));
-        given(userRepository.findById(2)).willReturn(Optional.of(this.getTestSystemAdmin()));
-        given(userRepository.findByEmail("jane.doe@gmail.com")).willReturn(List.of(this.getTestUserBusinessAdmin()));
-        given(userRepository.findById(3)).willReturn(Optional.of(this.getTestUserBusinessAdmin()));
-        given(businessRepository.findByName("Test Business")).willReturn(List.of(this.getTestBusiness()));
-        given(businessRepository.findById(1)).willReturn(Optional.of(this.getTestBusiness()));
-        testProduct = Mockito.spy(this.getTestProduct());
-        Image image1 = new Image(1);
-        Image image2 = new Image(2);
-        Image image3 = new Image(3);
-        given(testProduct.getImages()).willReturn(List.of(image1, image2, image3));
-        given(productRepository.findByIdAndBusinessId("TEST-PROD", 1)).willReturn(Optional.of(testProduct));
+        testUser = this.getTestUser();
+        testUserBusinessAdmin = this.getTestUserBusinessAdmin();
+        testSystemAdmin = this.getTestSystemAdmin();
+        testBusiness = this.getTestBusiness();
+        testProduct = this.getTestProduct();
     }
 
     /**
@@ -82,14 +61,9 @@ public class ProductImageControllerTest extends AbstractInitializer {
     @Test
     void setPrimaryImage_requestByBusinessAdmin_success() throws Exception {
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                this.getTestBusiness().getId(), testProduct.getId(), 2)
-                .with(user(new AppUserDetails(this.getTestUserBusinessAdmin()))))
+                testBusiness.getId(), testProduct.getId(), 2)
+                .with(user(new AppUserDetails(testUserBusinessAdmin))))
                 .andExpect(status().isOk());
-
-        //ArgumentCaptor<Integer> imageIdArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        //verify(testProduct).setPrimaryImageId(imageIdArgumentCaptor.capture());
-
-        //Assertions.assertEquals(2, imageIdArgumentCaptor.getValue());
     }
 
     /**
@@ -100,14 +74,9 @@ public class ProductImageControllerTest extends AbstractInitializer {
     @Test
     void setPrimaryImage_requestByGAA_success() throws Exception {
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                this.getTestBusiness().getId(), testProduct.getId(), 2)
-                .with(user(new AppUserDetails(this.getTestSystemAdmin()))))
+                testBusiness.getId(), testProduct.getId(), 2)
+                .with(user(new AppUserDetails(testSystemAdmin))))
                 .andExpect(status().isOk());
-
-        //ArgumentCaptor<Integer> imageIdArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        //verify(testProduct).setPrimaryImageId(imageIdArgumentCaptor.capture());
-
-        //Assertions.assertEquals(2, imageIdArgumentCaptor.getValue());
     }
 
     /**
@@ -117,11 +86,11 @@ public class ProductImageControllerTest extends AbstractInitializer {
      */
     @Test
     void setPrimaryImage_notAdmin() throws Exception {
-        doThrow(new ForbiddenAdministratorActionException(this.getTestBusiness().getId()))
+        doThrow(new ForbiddenAdministratorActionException(testBusiness.getId()))
                 .when(productImageService).setPrimaryImage(Mockito.any(SetPrimaryProductImageDTO.class));
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                this.getTestBusiness().getId(), testProduct.getId(), 2)
-                .with(user(new AppUserDetails(this.getTestUser()))))
+                testBusiness.getId(), testProduct.getId(), 2)
+                .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isForbidden());
     }
 
@@ -132,12 +101,11 @@ public class ProductImageControllerTest extends AbstractInitializer {
      */
     @Test
     void setPrimaryImage_noBusinessExists() throws Exception {
-        //given(businessRepository.findById(4)).willReturn(Optional.empty());
         doThrow(new NoBusinessExistsException(4))
                 .when(productImageService).setPrimaryImage(Mockito.any(SetPrimaryProductImageDTO.class));
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
                 4, testProduct.getId(), 2)
-                .with(user(new AppUserDetails(this.getTestUserBusinessAdmin()))))
+                .with(user(new AppUserDetails(testUserBusinessAdmin))))
                 .andExpect(status().isNotAcceptable());
     }
 
@@ -148,12 +116,11 @@ public class ProductImageControllerTest extends AbstractInitializer {
      */
     @Test
     void setPrimaryImage_noProductExists() throws Exception {
-        //given(productRepository.findByIdAndBusinessId("NotAProduct", 1)).willReturn(Optional.empty());
-        doThrow(new ProductNotFoundException("NotAProduct", this.getTestBusiness().getId()))
+        doThrow(new ProductNotFoundException("NotAProduct", testBusiness.getId()))
                 .when(productImageService).setPrimaryImage(Mockito.any(SetPrimaryProductImageDTO.class));
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                this.getTestBusiness().getId(), "NotAProduct", 2)
-                .with(user(new AppUserDetails(this.getTestUserBusinessAdmin()))))
+                testBusiness.getId(), "NotAProduct", 2)
+                .with(user(new AppUserDetails(testUserBusinessAdmin))))
                 .andExpect(status().isNotAcceptable());
     }
 
@@ -167,8 +134,8 @@ public class ProductImageControllerTest extends AbstractInitializer {
         doThrow(new NoProductImageWithIdException(testProduct.getId(), 7))
                 .when(productImageService).setPrimaryImage(Mockito.any(SetPrimaryProductImageDTO.class));
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                this.getTestBusiness().getId(), testProduct.getId(), 7)
-                .with(user(new AppUserDetails(this.getTestUserBusinessAdmin()))))
+                testBusiness.getId(), testProduct.getId(), 7)
+                .with(user(new AppUserDetails(testUserBusinessAdmin))))
                 .andExpect(status().isNotAcceptable());
     }
 
