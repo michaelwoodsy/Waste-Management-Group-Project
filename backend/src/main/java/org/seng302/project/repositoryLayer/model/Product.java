@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Transient;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,9 +27,10 @@ public class Product {
     private String manufacturer;
     private Double recommendedRetailPrice;
     private LocalDateTime created = LocalDateTime.now();
+    private Integer primaryImageId; //TODO: implement relationship to an image
 
-    @OneToMany(targetEntity=Image.class, fetch=FetchType.EAGER)
-    private List<Image> images = new ArrayList<>();
+    @Transient //TODO: remove transient annotation when product-image relationship exists
+    private List<Image> images;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Id
     private Integer businessId; // The id of the business that offers this product
@@ -39,19 +42,5 @@ public class Product {
         this.manufacturer = manufacturer;
         this.recommendedRetailPrice = recommendedRetailPrice;
         this.businessId = businessId;
-    }
-
-    /**
-    * Function used to add an image to the list of images associated with a product
-    */
-    public void addImage(Image newImage){
-        this.images.add(newImage);
-    }
-
-    /**
-    * Function used to remove an image from the list of images associated with a product
-    */
-    public void removeImage(Image image){
-        this.images.remove(image);
     }
 }
