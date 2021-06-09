@@ -64,7 +64,7 @@
           <button
               class="btn btn-primary ml-1 my-1 pad1"
               type="button"
-              @click="onPickFile"
+              @click="addImageClicked"
           >
             Add image
           </button>
@@ -73,7 +73,7 @@
               style="display: none"
               ref="fileInput"
               accept="image/*"
-              @change="onFilePicked"/>
+              @change="imageUpload"/>
 
           <div v-for="image in images"
                :key="image.url" class="pad1"
@@ -266,16 +266,16 @@ export default {
     },
     /**
      * Programmatically triggers the file input field when the
-     * 'Add button' button is clicked.
+     * 'Add image' button is clicked.
      */
-    onPickFile () {
+    addImageClicked () {
       this.$refs.fileInput.click()
     },
     /**
-     * Handles the file that has been uploaded
+     * Handles the file being uploaded
      * @param event the button click event that triggers this function
      */
-    onFilePicked (event) {
+    imageUpload (event) {
       const files = event.target.files
       const fileReader = new FileReader()
       console.log(`File with name ${files[0].name} uploaded`)
