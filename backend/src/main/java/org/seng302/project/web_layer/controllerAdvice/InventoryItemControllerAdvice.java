@@ -1,7 +1,9 @@
 package org.seng302.project.web_layer.controllerAdvice;
 
 import org.seng302.project.service_layer.exceptions.*;
+import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.service_layer.exceptions.product.NoProductExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -19,8 +21,8 @@ public class InventoryItemControllerAdvice {
      *
      * @return a 406 response with an appropriate message
      */
-    @ExceptionHandler(NoBusinessExistsException.class)
-    public ResponseEntity<String> businessDoesNotExist(NoBusinessExistsException ex) {
+    @ExceptionHandler(BusinessNotFoundException.class)
+    public ResponseEntity<String> businessDoesNotExist(BusinessNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
 

@@ -3,10 +3,10 @@ package org.seng302.project.web_layer.controller;
 import org.seng302.project.service_layer.dto.AddProductImageDTO;
 import org.seng302.project.service_layer.dto.AddProductImageResponseDTO;
 import org.seng302.project.service_layer.dto.SetPrimaryProductImageDTO;
-import org.seng302.project.service_layer.exceptions.NoBusinessExistsException;
+import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
-import org.seng302.project.service_layer.exceptions.productImages.NoProductImageWithIdException;
-import org.seng302.project.service_layer.exceptions.productImages.ProductNotFoundException;
+import org.seng302.project.service_layer.exceptions.product.ProductImageNotFoundException;
+import org.seng302.project.service_layer.exceptions.product.ProductNotFoundException;
 import org.seng302.project.service_layer.service.ProductImageService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -49,8 +49,8 @@ public class ProductImageController {
         try {
             var requestDTO = new SetPrimaryProductImageDTO(businessId, productId, imageId, appUser);
             productImageService.setPrimaryImage(requestDTO);
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException
-                | ProductNotFoundException | NoProductImageWithIdException handledException) {
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException
+                | ProductNotFoundException | ProductImageNotFoundException handledException) {
             logger.error(handledException.getMessage());
             throw handledException;
         } catch (Exception unhandledException) {

@@ -14,10 +14,10 @@ import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.ProductRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.SetPrimaryProductImageDTO;
-import org.seng302.project.service_layer.exceptions.NoBusinessExistsException;
+import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
-import org.seng302.project.service_layer.exceptions.productImages.NoProductImageWithIdException;
-import org.seng302.project.service_layer.exceptions.productImages.ProductNotFoundException;
+import org.seng302.project.service_layer.exceptions.product.ProductImageNotFoundException;
+import org.seng302.project.service_layer.exceptions.product.ProductNotFoundException;
 import org.seng302.project.service_layer.service.ProductImageService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,7 +133,7 @@ public class ProductImageServiceTest extends AbstractInitializer {
                 2,
                 new AppUserDetails(testUserBusinessAdmin)
         );
-        Assertions.assertThrows(NoBusinessExistsException.class,
+        Assertions.assertThrows(BusinessNotFoundException.class,
                 () -> productImageService.setPrimaryImage(dto));
     }
 
@@ -164,7 +164,7 @@ public class ProductImageServiceTest extends AbstractInitializer {
                 7,
                 new AppUserDetails(testUserBusinessAdmin)
         );
-        Assertions.assertThrows(NoProductImageWithIdException.class,
+        Assertions.assertThrows(ProductImageNotFoundException.class,
                 () -> productImageService.setPrimaryImage(dto));
     }
 

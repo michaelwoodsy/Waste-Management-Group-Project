@@ -7,6 +7,7 @@ import org.seng302.project.repository_layer.repository.InventoryItemRepository;
 import org.seng302.project.repository_layer.repository.SaleListingRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.exceptions.*;
+import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -64,15 +65,15 @@ public class SaleListingController {
      * Gets a business with the provided id.
      * @param businessId The id of the business to look for.
      * @return The business with the corresponding id.
-     * @throws NoBusinessExistsException Thrown if the business doesn't exist.
+     * @throws BusinessNotFoundException Thrown if the business doesn't exist.
      */
-    private Business getBusiness(Integer businessId) throws NoBusinessExistsException {
+    private Business getBusiness(Integer businessId) throws BusinessNotFoundException {
         // Get business from repository
         Optional<Business> foundBusiness = businessRepository.findById(businessId);
 
         // Check if the business exists
         if (foundBusiness.isEmpty()) {
-            NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
+            BusinessNotFoundException exception = new BusinessNotFoundException(businessId);
             logger.warn(exception.getMessage());
             throw exception;
         }
@@ -120,7 +121,7 @@ public class SaleListingController {
             // Get the sale listings of the business
             return saleListingRepository.findAllByBusinessId(businessId);
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException exception) {
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException exception) {
             throw exception;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while getting business sale listings: %s",
@@ -268,7 +269,7 @@ public class SaleListingController {
             SaleListing saleListing = new SaleListing(businessId, item, price, moreInfo, closesDateTime, quantity);
             saleListingRepository.save(saleListing);
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | NotEnoughOfInventoryItemException |
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException | NotEnoughOfInventoryItemException |
                 MissingInventoryItemIdException | NoInventoryItemExistsException |
                 InvalidQuantityException | InvalidNumberFormatException | InvalidPriceException |
                 MissingPriceException | InvalidClosesDateException | InvalidDateException exception) {

@@ -10,6 +10,7 @@ import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.ProductRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.exceptions.*;
+import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,7 +150,7 @@ public class ProductCatalogueControllerTest {
      */
     @Test
     void testNonExistentBusiness() {
-        assertThrows(NoBusinessExistsException.class,
+        assertThrows(BusinessNotFoundException.class,
                 () -> productCatalogueController.getBusinessesProducts(businessId + 999999, new AppUserDetails(user)));
     }
 

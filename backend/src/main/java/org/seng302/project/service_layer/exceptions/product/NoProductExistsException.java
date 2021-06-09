@@ -1,4 +1,4 @@
-package org.seng302.project.service_layer.exceptions;
+package org.seng302.project.service_layer.exceptions.product;
 
 import org.seng302.project.web_layer.controller.BusinessController;
 

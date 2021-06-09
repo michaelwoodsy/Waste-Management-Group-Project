@@ -1,5 +1,6 @@
-package org.seng302.project.service_layer.exceptions;
+package org.seng302.project.service_layer.exceptions.business;
 
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.controller.BusinessController;
 
 /**
@@ -7,9 +8,9 @@ import org.seng302.project.web_layer.controller.BusinessController;
  *
  * @see BusinessController
  */
-public class NoBusinessExistsException extends NotAcceptableException {
+public class BusinessNotFoundException extends NotAcceptableException {
 
-    public NoBusinessExistsException(Integer id) {
+    public BusinessNotFoundException(Integer id) {
         super(String.format("NoBusinessExistsException: no business with id %d exists.", id));
     }
 

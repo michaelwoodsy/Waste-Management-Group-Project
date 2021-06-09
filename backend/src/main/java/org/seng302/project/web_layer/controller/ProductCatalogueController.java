@@ -7,7 +7,9 @@ import org.seng302.project.repository_layer.repository.InventoryItemRepository;
 import org.seng302.project.repository_layer.repository.ProductRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.exceptions.*;
+import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.service_layer.exceptions.product.NoProductExistsException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +67,7 @@ public class ProductCatalogueController {
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
+                BusinessNotFoundException exception = new BusinessNotFoundException(businessId);
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -82,7 +84,7 @@ public class ProductCatalogueController {
             // Get the products for the businesses
             return productRepository.findAllByBusinessId(businessId);
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException handledException) {
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while getting business products: %s",
@@ -113,7 +115,7 @@ public class ProductCatalogueController {
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
+                BusinessNotFoundException exception = new BusinessNotFoundException(businessId);
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -185,7 +187,7 @@ public class ProductCatalogueController {
             Product product = new Product(productId, name, description, manufacturer, recommendedRetailPrice, businessId);
             productRepository.save(product);
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException | MissingProductIdException |
                 MissingProductNameException | ProductIdAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
@@ -218,7 +220,7 @@ public class ProductCatalogueController {
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
+                BusinessNotFoundException exception = new BusinessNotFoundException(businessId);
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -343,7 +345,7 @@ public class ProductCatalogueController {
                 productRepository.save(product);
             }
 
-        } catch (NoBusinessExistsException | NoProductExistsException | MissingProductIdException |
+        } catch (BusinessNotFoundException | NoProductExistsException | MissingProductIdException |
                 MissingProductNameException | IncorrectRRPFormatException | ForbiddenAdministratorActionException |
                 ProductIdAlreadyExistsException | InvalidProductIdCharactersException handledException) {
             throw handledException;

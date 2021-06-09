@@ -7,10 +7,10 @@ import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.AddProductImageDTO;
 import org.seng302.project.service_layer.dto.AddProductImageResponseDTO;
 import org.seng302.project.service_layer.dto.SetPrimaryProductImageDTO;
-import org.seng302.project.service_layer.exceptions.NoBusinessExistsException;
+import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
-import org.seng302.project.service_layer.exceptions.productImages.NoProductImageWithIdException;
-import org.seng302.project.service_layer.exceptions.productImages.ProductNotFoundException;
+import org.seng302.project.service_layer.exceptions.product.ProductImageNotFoundException;
+import org.seng302.project.service_layer.exceptions.product.ProductNotFoundException;
 import org.seng302.project.service_layer.util.ImageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class ProductImageService {
     public void setPrimaryImage(SetPrimaryProductImageDTO dto) {
         logger.info("Request to update primary image for product {} of business {}", dto.getProductId(), dto.getBusinessId());
 
-        var currBusiness = businessRepository.findById(dto.getBusinessId()).orElseThrow(() -> new NoBusinessExistsException(dto.getBusinessId()));
+        var currBusiness = businessRepository.findById(dto.getBusinessId()).orElseThrow(() -> new BusinessNotFoundException(dto.getBusinessId()));
 
         //Check if user making request is business admin/gaa/dgaa
         String userEmail = dto.getAppUser().getUsername();
@@ -81,7 +81,7 @@ public class ProductImageService {
             product.setPrimaryImageId(dto.getImageId());
             productRepository.save(product);
         } else {
-            throw new NoProductImageWithIdException(dto.getProductId(), dto.getImageId());
+            throw new ProductImageNotFoundException(dto.getProductId(), dto.getImageId());
         }
     }
 

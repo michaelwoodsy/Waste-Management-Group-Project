@@ -6,6 +6,7 @@ import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.exceptions.*;
+import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.CantRemoveAdministratorException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
@@ -143,10 +144,10 @@ public class BusinessController {
 
         logger.info(String.format("Request to get business %d", id));
         try {
-            return businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
-        } catch (NoBusinessExistsException noBusinessExistsException) {
-            logger.warn(noBusinessExistsException.getMessage());
-            throw noBusinessExistsException;
+            return businessRepository.findById(id).orElseThrow(() -> new BusinessNotFoundException(id));
+        } catch (BusinessNotFoundException businessNotFoundException) {
+            logger.warn(businessNotFoundException.getMessage());
+            throw businessNotFoundException;
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while getting business: %s", exception.getMessage()));
             throw exception;
@@ -168,7 +169,7 @@ public class BusinessController {
             logger.info(String.format("Request to add user with id %d as administrator for business with id %d", userId, id));
 
             User currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
-            Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
+            Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new BusinessNotFoundException(id));
             User loggedInUser = userRepository.findByEmail(userAuth.getName()).get(0);
 
             //Checks if the user preforming the action is the primary administrator of the business or a GAA
@@ -190,7 +191,7 @@ public class BusinessController {
             businessRepository.save(currBusiness);
 
             logger.info(String.format("Successfully added Administrator %d to business %d", currUser.getId(), currBusiness.getId()));
-        } catch (NoUserExistsException | NoBusinessExistsException | ForbiddenPrimaryAdministratorActionException |
+        } catch (NoUserExistsException | BusinessNotFoundException | ForbiddenPrimaryAdministratorActionException |
                 AdministratorAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
@@ -213,7 +214,7 @@ public class BusinessController {
             logger.info(String.format("Request to remove user with id %d from administering business with id %d", userId, id));
 
             User currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
-            Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
+            Business currBusiness = businessRepository.findById(id).orElseThrow(() -> new BusinessNotFoundException(id));
             User loggedInUser = userRepository.findByEmail(userAuth.getName()).get(0);
 
             //Checks if the user preforming the action is the primary administrator of the business or a GAA
@@ -248,7 +249,7 @@ public class BusinessController {
 
             logger.info(String.format("Successfully removed administrator %d from business %d", currUser.getId(), currBusiness.getId()));
 
-        } catch (NoBusinessExistsException | ForbiddenPrimaryAdministratorActionException | CantRemoveAdministratorException
+        } catch (BusinessNotFoundException | ForbiddenPrimaryAdministratorActionException | CantRemoveAdministratorException
                 | UserNotAdministratorException | NoUserExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {

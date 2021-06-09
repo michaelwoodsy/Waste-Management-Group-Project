@@ -9,6 +9,7 @@ import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.exceptions.*;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.service_layer.exceptions.product.NoProductExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;

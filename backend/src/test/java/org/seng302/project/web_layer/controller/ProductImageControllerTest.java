@@ -10,10 +10,10 @@ import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.service_layer.dto.AddProductImageDTO;
 import org.seng302.project.service_layer.dto.AddProductImageResponseDTO;
 import org.seng302.project.service_layer.dto.SetPrimaryProductImageDTO;
-import org.seng302.project.service_layer.exceptions.NoBusinessExistsException;
+import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
-import org.seng302.project.service_layer.exceptions.productImages.NoProductImageWithIdException;
-import org.seng302.project.service_layer.exceptions.productImages.ProductNotFoundException;
+import org.seng302.project.service_layer.exceptions.product.ProductImageNotFoundException;
+import org.seng302.project.service_layer.exceptions.product.ProductNotFoundException;
 import org.seng302.project.service_layer.service.ProductImageService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,12 +130,31 @@ class ProductImageControllerTest extends AbstractInitializer {
     @Test
     void addProductImage_noBusinessExists() throws Exception {
         Mockito.when(productImageService.addProductImage(Mockito.any(AddProductImageDTO.class)))
-                .thenThrow(new NoBusinessExistsException(4));
+                .thenThrow(new BusinessNotFoundException(4));
 
         RequestBuilder request = MockMvcRequestBuilders
                 .multipart("/businesses/{businessId}/products/{productId}/images",
                         4,
                         testProduct.getId(),
+                        2)
+                .file(testFile)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that a 406 status is returned when a product does not exists.
+     */
+    @Test
+    void addProductImage_noProductExists() throws Exception {
+        Mockito.when(productImageService.addProductImage(Mockito.any(AddProductImageDTO.class)))
+                .thenThrow(new ProductNotFoundException("NotAProduct", testBusiness.getId()));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .multipart("/businesses/{businessId}/products/{productId}/images",
+                        testBusiness.getId(),
+                        "NotAProduct",
                         2)
                 .file(testFile)
                 .with(user(new AppUserDetails(testUserBusinessAdmin)));
@@ -204,7 +223,7 @@ class ProductImageControllerTest extends AbstractInitializer {
      */
     @Test
     void setPrimaryImage_noBusinessExists() throws Exception {
-        doThrow(new NoBusinessExistsException(4))
+        doThrow(new BusinessNotFoundException(4))
                 .when(productImageService).setPrimaryImage(Mockito.any(SetPrimaryProductImageDTO.class));
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -244,7 +263,7 @@ class ProductImageControllerTest extends AbstractInitializer {
      */
     @Test
     void setPrimaryImage_noImageExists() throws Exception {
-        doThrow(new NoProductImageWithIdException(testProduct.getId(), 7))
+        doThrow(new ProductImageNotFoundException(testProduct.getId(), 7))
                 .when(productImageService).setPrimaryImage(Mockito.any(SetPrimaryProductImageDTO.class));
 
         RequestBuilder request = MockMvcRequestBuilders
