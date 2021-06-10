@@ -96,8 +96,8 @@ public class ProductCatalogueService {
             String userEmail = requestDTO.getAppUser().getUsername();
             User loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
-            logger.info("User with user id: " + loggedInUser.getId() + " Adding product to business with ID: "
-                    + requestDTO.getBusinessId());
+            logger.info("User with user id: {} Adding product to business with ID: {}"
+                  , loggedInUser.getId(), requestDTO.getBusinessId());
 
             // Get the business
             Optional<Business> businessResult = businessRepository.findById(requestDTO.getBusinessId());
@@ -198,8 +198,8 @@ public class ProductCatalogueService {
             String userEmail = requestDTO.getAppUser().getUsername();
             User loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
-            logger.info("User with user id: " + loggedInUser.getId() + " Editing product with id '"
-                    + requestDTO.getProductId() + "' from business with id " + requestDTO.getBusinessId());
+            logger.info("User with user id: {} Editing product with id '{}' from business with id {}",
+                    loggedInUser.getId(), requestDTO.getProductId(), requestDTO.getBusinessId());
 
             // Get the business
             Optional<Business> businessResult = businessRepository.findById(requestDTO.getBusinessId());
