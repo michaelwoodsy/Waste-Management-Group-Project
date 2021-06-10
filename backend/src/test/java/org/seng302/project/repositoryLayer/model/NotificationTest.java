@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
  * Unit tests for Notification class
  */
 @SpringBootTest
-public class NotificationTest {
+class NotificationTest {
 
     /**
      * Creates an example test Notification
-     * Then checks all of the attributes of the new card.
+     * Then checks all of the attributes of the new notification.
      */
     @Test
     void createTestCard() {
