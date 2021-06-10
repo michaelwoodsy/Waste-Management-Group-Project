@@ -1,8 +1,8 @@
 package org.seng302.project.webLayer.controller;
 
-import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.serviceLayer.dto.AddProductDTO;
+import org.seng302.project.serviceLayer.dto.EditProductDTO;
 import org.seng302.project.serviceLayer.service.ProductCatalogueService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,14 +62,16 @@ public class ProductCatalogueController {
      * @param businessId ID of the business the product is under.
      * @param productId ID of the product
      * @param appUser AppUserDetails of current user
-     * @param json The fields of the product to edit
+     * @param requestDTO The fields of the product to edit
      */
     @PutMapping("/businesses/{businessId}/products/{productId}")
     @ResponseStatus(HttpStatus.OK)
     public void editProduct(@PathVariable int businessId, @PathVariable String productId,
-                            @RequestBody JSONObject json, @AuthenticationPrincipal AppUserDetails appUser) {
-        //TODO: create DTO of request
-        productCatalogueService.editProduct(businessId, productId, json, appUser);
+                            @RequestBody EditProductDTO requestDTO, @AuthenticationPrincipal AppUserDetails appUser) {
+        requestDTO.setBusinessId(businessId);
+        requestDTO.setProductId(productId);
+        requestDTO.setAppUser(appUser);
+        productCatalogueService.editProduct(requestDTO);
     }
 
 }

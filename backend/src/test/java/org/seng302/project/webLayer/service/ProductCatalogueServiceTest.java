@@ -159,5 +159,12 @@ class ProductCatalogueServiceTest {
 
     //Successful product creation
 
+    //Test editing product to invalid id
+
+    //Test editing product giving nothing to change
+
+    //Test editing product changes fields
+
+    //Test editing product id removes product with old id
 
 }

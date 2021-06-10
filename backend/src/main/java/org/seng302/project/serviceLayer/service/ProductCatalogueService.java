@@ -1,6 +1,5 @@
 package org.seng302.project.serviceLayer.service;
 
-import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.InventoryItem;
 import org.seng302.project.repositoryLayer.model.Product;
@@ -10,6 +9,7 @@ import org.seng302.project.repositoryLayer.repository.InventoryItemRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.AddProductDTO;
+import org.seng302.project.serviceLayer.dto.EditProductDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -190,26 +190,23 @@ public class ProductCatalogueService {
 
     /**
      * Edits product with id productId
-     * @param businessId ID of the business the product is under.
-     * @param productId ID of the product
-     * @param appUser AppUserDetails of current user
-     * @param requestBody The fields of the product to edit
+     * @param requestDTO The DTO for this request
      */
-    public void editProduct(Integer businessId, String productId,
-                            JSONObject requestBody, AppUserDetails appUser) {
+    public void editProduct(EditProductDTO requestDTO) {
         try {
             // Get the logged in user from the user's email
-            String userEmail = appUser.getUsername();
+            String userEmail = requestDTO.getAppUser().getUsername();
             User loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
-            logger.info("User with user id: " + loggedInUser.getId() + " Editing product with id '" + productId + "' from business with id " + businessId);
+            logger.info("User with user id: " + loggedInUser.getId() + " Editing product with id '"
+                    + requestDTO.getProductId() + "' from business with id " + requestDTO.getBusinessId());
 
             // Get the business
-            Optional<Business> businessResult = businessRepository.findById(businessId);
+            Optional<Business> businessResult = businessRepository.findById(requestDTO.getBusinessId());
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
+                NoBusinessExistsException exception = new NoBusinessExistsException(requestDTO.getBusinessId());
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -218,17 +215,17 @@ public class ProductCatalogueService {
             // Check if the logged in user is the business owner / administrator or a GAA
             if (!(business.userIsAdmin(loggedInUser.getId()) ||
                     business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
-                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
+                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(requestDTO.getBusinessId());
                 logger.error(exception.getMessage());
                 throw exception;
             }
 
             // Get the product
-            Optional<Product> productResult = productRepository.findByIdAndBusinessId(productId, businessId);
+            Optional<Product> productResult = productRepository.findByIdAndBusinessId(requestDTO.getProductId(), requestDTO.getBusinessId());
 
             // Check if the product exists
             if (productResult.isEmpty()) {
-                NoProductExistsException exception = new NoProductExistsException(productId, businessId);
+                NoProductExistsException exception = new NoProductExistsException(requestDTO.getProductId(), requestDTO.getBusinessId());
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -236,17 +233,17 @@ public class ProductCatalogueService {
             Product product = productResult.get();
             Product originalProduct = productResult.get();
 
-            String newName = requestBody.getAsString("name");
-            String newDescription = requestBody.getAsString("description");
-            String newManufacturer = requestBody.getAsString("manufacturer");
-            Number newNumberRRP = requestBody.getAsNumber("recommendedRetailPrice");
+            String newName = requestDTO.getName();
+            String newDescription = requestDTO.getDescription();
+            String newManufacturer = requestDTO.getManufacturer();
+            Number newNumberRRP = requestDTO.getRecommendedRetailPrice();
             Double newRRP = originalProduct.getRecommendedRetailPrice();
-            String newId = requestBody.getAsString("id");
+            String newId = requestDTO.getId();
 
             //Edit fields if they are sent
 
             //Name
-            if(requestBody.containsKey("name") && !originalProduct.getName().equals(newName)) {
+            if(requestDTO.getName() != null && !originalProduct.getName().equals(newName)) {
                 if (newName == null || newName.equals("")) {
                     MissingProductNameException exception = new MissingProductNameException();
                     logger.warn(exception.getMessage());
@@ -256,24 +253,24 @@ public class ProductCatalogueService {
             }
 
             //Description
-            if(requestBody.containsKey("description") && !originalProduct.getDescription().equals(newDescription)) {
+            if(requestDTO.getDescription() != null && !originalProduct.getDescription().equals(newDescription)) {
                 product.setDescription(newDescription);
             }
 
             //Manufacturer
-            if(requestBody.containsKey("manufacturer") && !originalProduct.getManufacturer().equals(newManufacturer)) {
+            if(requestDTO.getManufacturer() != null && !originalProduct.getManufacturer().equals(newManufacturer)) {
                 product.setManufacturer(newManufacturer);
             }
 
             //Recommended Retail Price
             try {
-                if (requestBody.containsKey("recommendedRetailPrice")) {
+                if (requestDTO.getRecommendedRetailPrice() != null) {
                     if (newNumberRRP == null) {
                         product.setRecommendedRetailPrice(null);
                         newRRP = null;
                     } else if (originalProduct.getRecommendedRetailPrice() == null ||
                             originalProduct.getRecommendedRetailPrice() != newNumberRRP.doubleValue()) {
-                        newRRP = requestBody.getAsNumber("recommendedRetailPrice").doubleValue();
+                        newRRP = requestDTO.getRecommendedRetailPrice();
                         //If Recommended Retail Price is below 0
                         if (newRRP < 0) {
                             InvalidPriceException exception = new InvalidPriceException("recommended retail price");
@@ -291,7 +288,7 @@ public class ProductCatalogueService {
             }
 
             //Id
-            if(requestBody.containsKey("id") && !originalProduct.getId().equals(newId)) {
+            if(requestDTO.getId() != null && !originalProduct.getId().equals(newId)) {
                 if (newId == null || newId.equals("")) {
                     MissingProductIdException exception = new MissingProductIdException();
                     logger.warn(exception.getMessage());
@@ -299,7 +296,7 @@ public class ProductCatalogueService {
                 }
                 //Return 400 if id not unique
                 if (newId.equals(originalProduct.getId()) || !(originalProduct.getId().equals(newId)) &&
-                        productRepository.findByIdAndBusinessId(newId, businessId).isPresent()) {
+                        productRepository.findByIdAndBusinessId(newId, requestDTO.getBusinessId()).isPresent()) {
                     ProductIdAlreadyExistsException exception = new ProductIdAlreadyExistsException();
                     logger.warn(exception.getMessage());
                     throw exception;
@@ -312,12 +309,12 @@ public class ProductCatalogueService {
                     throw exception;
                 }
                 //Create new product
-                Product newProduct = new Product(newId, newName, newDescription, newManufacturer, newRRP, businessId);
+                Product newProduct = new Product(newId, newName, newDescription, newManufacturer, newRRP, requestDTO.getBusinessId());
                 //Save new product
                 productRepository.save(newProduct);
 
                 // Get inventory items
-                List<InventoryItem> inventoryItems = inventoryItemRepository.findAllByBusinessId(businessId);
+                List<InventoryItem> inventoryItems = inventoryItemRepository.findAllByBusinessId(requestDTO.getBusinessId());
                 //Loop through businesses inventory items and change product of inventory item if it is the one that needs to be changed
                 for (InventoryItem item: inventoryItems) {
                     //If item has old product

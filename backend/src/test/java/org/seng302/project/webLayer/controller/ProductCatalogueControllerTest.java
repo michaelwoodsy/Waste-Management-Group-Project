@@ -1,15 +1,12 @@
 package org.seng302.project.webLayer.controller;
 
 import org.json.JSONObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.repositoryLayer.repository.AddressRepository;
-import org.seng302.project.repositoryLayer.repository.BusinessRepository;
-import org.seng302.project.repositoryLayer.repository.ProductRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.AddProductDTO;
+import org.seng302.project.serviceLayer.dto.EditProductDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.service.ProductCatalogueService;
@@ -19,17 +16,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.Optional;
 
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,7 +37,8 @@ class ProductCatalogueControllerTest {
 
     private User user;
     private User owner;
-    private Integer businessId;
+    private final Integer businessId = 1;
+    private final String productId = "BEANS";
 
     @Autowired
     private MockMvc mockMvc;
@@ -53,57 +46,20 @@ class ProductCatalogueControllerTest {
     @MockBean
     private ProductCatalogueService productCatalogueService;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private BusinessRepository businessRepository;
-
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
-
-    private Business testBusiness;
-
 
     @BeforeEach
     public void initialise() {
         // Create the users
-
         Address userAddress = new Address(null, null, null, null, "New Zealand", null);
         user = new User("John", "Smith", "Bob", "Jonny",
-                "Likes long walks on the beach", "jane111@gmail.com", "1999-04-27",
+                "Likes long walks on the beach",  "johnxyz@gmail.com", "1999-04-27",
                 "+64 3 555 0129", userAddress, "1337-H%nt3r2");
 
         Address ownerAddress = new Address(null, null, null, null, "New Zealand", null);
         owner = new User("Jane", "Smith", "Rose", "Jonny",
-                "Likes long walks on the beach", "johnxyz@gmail.com", "1999-04-27",
+                "Likes long walks on the beach", "jane111@gmail.com", "1999-04-27",
                 "+64 3 555 0120", ownerAddress, "1337-H%nt3r2");
 
-        // Create the business
-        Address businessAddress = new Address(null, null, null, null, "New Zealand", null);
-        testBusiness = new Business("Business", "A Business", businessAddress, "Retail",
-                owner.getId());
-
-        addressRepository.save(businessAddress);
-        businessRepository.save(testBusiness);
-        businessId = testBusiness.getId();
-
-        // Create a product
-        Product product = new Product("p1", "Watties Beans", "beans in a can", "Watties", 2.00,
-                businessId);
-        productRepository.save(product);
-
-        // Create another product
-        Product product2 = new Product("p2", "Fresh Water", "Water straight from a spring", "Rutgers", 10.00,
-                businessId);
-        productRepository.save(product2);
     }
 
     /**
@@ -173,90 +129,14 @@ class ProductCatalogueControllerTest {
      * Expect a 400 response.
      */
     @Test
-    void tryCreatingProductWithoutId() throws Exception {
+    void addProduct_noProductId_400Response() throws Exception {
 
         JSONObject testProduct = new JSONObject();
         testProduct.put("name", "Sarah's cookies");
         testProduct.put("description", "20pk of delicious home baked cookies");
 
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
-                .post("/businesses/{businessId}/products", businessId)
-                .content(testProduct.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
-
-        MvcResult postUserResponse = this.mockMvc.perform(postUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
-                .andReturn();
-
-        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new MissingProductIdException().getMessage(), returnedExceptionString);
-
-    }
-
-
-    /**
-     * Tries creating a product without a product name.
-     * Expect a 400 response.
-     */
-    @Test
-    void tryCreatingProductWithoutName() throws Exception {
-        JSONObject testProduct = new JSONObject();
-        testProduct.put("id", "S-COOKIES");
-        testProduct.put("name", "");
-        testProduct.put("description", "20pk of delicious home baked cookies");
-
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
-                .post("/businesses/{businessId}/products", businessId)
-                .content(testProduct.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
-
-        MvcResult postUserResponse = this.mockMvc.perform(postUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
-                .andReturn();
-
-        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new MissingProductNameException().getMessage(), returnedExceptionString);
-    }
-
-    /**
-     * Tries creating a product with an existing product id.
-     * Expect a 400 response.
-     */
-    @Test
-    void tryCreatingProductExistingId() throws Exception {
-        JSONObject testProduct = new JSONObject();
-        testProduct.put("id", "p1");
-        testProduct.put("name", "My first product");
-
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
-                .post("/businesses/{businessId}/products", businessId)
-                .content(testProduct.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
-
-        MvcResult postUserResponse = this.mockMvc.perform(postUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
-                .andReturn();
-
-        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new ProductIdAlreadyExistsException().getMessage(), returnedExceptionString);
-    }
-
-    /**
-     * Tries creating a product where the product id has invalid characters.
-     * Expect a 400 response.
-     */
-    @Test
-    void newProduct_invalidProductId_400Response() throws Exception {
-        JSONObject testProduct = new JSONObject();
-        testProduct.put("id", "Sarah's Cookies");
-        testProduct.put("name", "Sarah's Cookies");
-        //TODO: mock service
+        Mockito.doThrow(new MissingProductIdException()).when(productCatalogueService)
+                .newProduct(Mockito.any(AddProductDTO.class));
 
         RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/products", businessId)
@@ -265,16 +145,90 @@ class ProductCatalogueControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 
-        MvcResult postUserResponse = this.mockMvc.perform(postUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
-                .andReturn();
+        mockMvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+
+    /**
+     * Tries creating a product without a product name.
+     * Expect a 400 response.
+     */
+    @Test
+    void addProduct_noProductName_400Response() throws Exception {
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "S-COOKIES");
+        testProduct.put("name", "");
+        testProduct.put("description", "20pk of delicious home baked cookies");
+
+        Mockito.doThrow(new MissingProductNameException()).when(productCatalogueService)
+                .newProduct(Mockito.any(AddProductDTO.class));
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .post("/businesses/{businessId}/products", businessId)
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        mockMvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    }
+
+    /**
+     * Tries creating a product with an existing product id.
+     * Expect a 400 response.
+     */
+    @Test
+    void addProduct_existingId_400Response() throws Exception {
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "p1");
+        testProduct.put("name", "My first product");
+
+        Mockito.doThrow(new ProductIdAlreadyExistsException()).when(productCatalogueService)
+                .newProduct(Mockito.any(AddProductDTO.class));
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .post("/businesses/{businessId}/products", businessId)
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        mockMvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tries creating a product where the product id has invalid characters.
+     * Expect a 400 response.
+     */
+    @Test
+    void addProduct_invalidProductId_400Response() throws Exception {
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "Sarah's Cookies");
+        testProduct.put("name", "Sarah's Cookies");
+
+        Mockito.doThrow(new InvalidProductIdCharactersException()).when(productCatalogueService)
+                .newProduct(Mockito.any(AddProductDTO.class));
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .post("/businesses/{businessId}/products", businessId)
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        mockMvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     /**
      * Tests successful creation of a product through the POST method
      */
     @Test
-    void createAndRetrieveProduct() throws Exception {
+    void addProduct_success_201Response() throws Exception {
         JSONObject testProduct = new JSONObject();
         testProduct.put("id", "S-COOKIES");
         testProduct.put("name", "Sarah's cookies");
@@ -286,106 +240,62 @@ class ProductCatalogueControllerTest {
                 .content(testProduct.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(owner)));
 
-        MvcResult postUserResponse = this.mockMvc.perform(postUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isCreated()) // We expect a 201 response
-                .andReturn();
-
-        Optional<Product> retrievedProductOptions = productRepository.findByIdAndBusinessId("S-COOKIES", businessId);
-        Assertions.assertTrue(retrievedProductOptions.isPresent());
-
-        Product retrievedProduct = retrievedProductOptions.get();
-
-        Assertions.assertEquals("Sarah's cookies", retrievedProduct.getName());
-        Assertions.assertEquals("20pk of delicious home baked cookies", retrievedProduct.getDescription());
-        Assertions.assertEquals("Sarah", retrievedProduct.getManufacturer());
-        Assertions.assertNull(retrievedProduct.getRecommendedRetailPrice());
-        Assertions.assertEquals(businessId, retrievedProduct.getBusinessId());
+        mockMvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 
     /**
-     * Tests editing a product and giving it an invalid id
+     * Tries editing a product and giving it an invalid id.
+     * Expect a 400 response.
      */
     @Test
-    void editProductInvalidId() throws Exception {
-
-        Optional<Product> retrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
-        Assertions.assertTrue(retrievedProductOptions.isPresent());
-
-        Product retrievedProduct = retrievedProductOptions.get();
-
+    void editProduct_invalidId_400Response() throws Exception {
 
         JSONObject testProduct = new JSONObject();
         testProduct.put("id", "invalid id+/");
         testProduct.put("name", "Not Fresh Water");
 
+        Mockito.doThrow(new InvalidProductIdCharactersException()).when(productCatalogueService)
+                .editProduct(Mockito.any(EditProductDTO.class));
+
         RequestBuilder putProductRequest = MockMvcRequestBuilders
-                .put("/businesses/{businessId}/products/{productId}", businessId, retrievedProduct.getId())
+                .put("/businesses/{businessId}/products/{productId}", businessId, productId)
                 .content(testProduct.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(owner)));
 
-        MvcResult putProductResponse = this.mockMvc.perform(putProductRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
-                .andReturn();
-
-        String returnedExceptionString = putProductResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new InvalidProductIdCharactersException().getMessage(), returnedExceptionString);
+        mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     /**
      * Tests editing a product and giving it nothing to change
      */
     @Test
-    void editProductNoChanges() throws Exception {
-
-        Optional<Product> retrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
-        Assertions.assertTrue(retrievedProductOptions.isPresent());
-
-        Product retrievedProduct = retrievedProductOptions.get();
-
+    void editProduct_noChanges_200Response() throws Exception {
 
         JSONObject testProduct = new JSONObject();
 
         RequestBuilder putProductRequest = MockMvcRequestBuilders
-                .put("/businesses/{businessId}/products/{productId}", businessId, retrievedProduct.getId())
+                .put("/businesses/{businessId}/products/{productId}", businessId, productId)
                 .content(testProduct.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(owner)));
 
         this.mockMvc.perform(putProductRequest)
-                .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
-                .andReturn();
-
-        //Get edited product
-        Optional<Product> newRetrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
-        Assertions.assertTrue(newRetrievedProductOptions.isPresent());
-
-        Product newRetrievedProduct = newRetrievedProductOptions.get();
-
-        System.out.println(newRetrievedProduct);
-
-        Assertions.assertEquals("p2", newRetrievedProduct.getId());
-        Assertions.assertEquals("Fresh Water", newRetrievedProduct.getName());
-        Assertions.assertEquals("Water straight from a spring", newRetrievedProduct.getDescription());
-        Assertions.assertEquals("Rutgers", newRetrievedProduct.getManufacturer());
-        Assertions.assertEquals(10.00, newRetrievedProduct.getRecommendedRetailPrice());
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     /**
      * Tests editing a product, without editing its id
+     * Expect 200 response
      */
     @Test
-    void editProduct() throws Exception {
-
-        Optional<Product> retrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
-        Assertions.assertTrue(retrievedProductOptions.isPresent());
-
-        Product retrievedProduct = retrievedProductOptions.get();
-
+    void editProduct_notChangingId_200Response() throws Exception {
 
         JSONObject testProduct = new JSONObject();
         testProduct.put("name", "Different Kind of Water");
@@ -394,43 +304,22 @@ class ProductCatalogueControllerTest {
         testProduct.put("recommendedRetailPrice", 3.00);
 
         RequestBuilder putProductRequest = MockMvcRequestBuilders
-                .put("/businesses/{businessId}/products/{productId}", businessId, retrievedProduct.getId())
+                .put("/businesses/{businessId}/products/{productId}", businessId, productId)
                 .content(testProduct.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(owner)));
 
         this.mockMvc.perform(putProductRequest)
-                .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
-                .andReturn();
-
-        //Get edited product
-        Optional<Product> newRetrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
-        Assertions.assertTrue(newRetrievedProductOptions.isPresent());
-
-
-        Product newRetrievedProduct = newRetrievedProductOptions.get();
-
-        System.out.println(newRetrievedProduct);
-
-        Assertions.assertEquals("p2", newRetrievedProduct.getId());
-        Assertions.assertEquals("Different Kind of Water", newRetrievedProduct.getName());
-        Assertions.assertEquals("Water from your local sewer", newRetrievedProduct.getDescription());
-        Assertions.assertEquals("Sewerage department", newRetrievedProduct.getManufacturer());
-        Assertions.assertEquals(3.00, newRetrievedProduct.getRecommendedRetailPrice());
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     /**
      * Tests editing a product, also its Id
+     * Expects a 200 response
      */
     @Test
-    void editProductAndId() throws Exception {
-
-        Optional<Product> retrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
-        Assertions.assertTrue(retrievedProductOptions.isPresent());
-
-        Product retrievedProduct = retrievedProductOptions.get();
-
+    void editProduct_changeId_200Response() throws Exception {
 
         JSONObject testProduct = new JSONObject();
         testProduct.put("id", "Sprite-1.5L");
@@ -439,35 +328,17 @@ class ProductCatalogueControllerTest {
         testProduct.put("manufacturer", "Coca Cola");
         testProduct.put("recommendedRetailPrice", 0.99);
 
+
         RequestBuilder putProductRequest = MockMvcRequestBuilders
-                .put("/businesses/{businessId}/products/{productId}", businessId, retrievedProduct.getId())
+                .put("/businesses/{businessId}/products/{productId}", businessId, productId)
                 .content(testProduct.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(owner)));
 
-        this.mockMvc.perform(putProductRequest)
-                .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
-                .andReturn();
+        mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk());
 
-        //Check if old product is removed (Because Id changed, original product has to be removed)
-        Optional<Product> newRetrievedProductOptions = productRepository.findByIdAndBusinessId("p2", businessId);
-        Assertions.assertTrue(newRetrievedProductOptions.isEmpty());
-
-        //Get edited product
-        newRetrievedProductOptions = productRepository.findByIdAndBusinessId("Sprite-1.5L", businessId);
-        Assertions.assertTrue(newRetrievedProductOptions.isPresent());
-
-
-        Product newRetrievedProduct = newRetrievedProductOptions.get();
-
-        System.out.println(newRetrievedProduct);
-
-        Assertions.assertEquals("Sprite-1.5L", newRetrievedProduct.getId());
-        Assertions.assertEquals("Sprite Lemon flavour - 1.5L", newRetrievedProduct.getName());
-        Assertions.assertEquals("Your favourite beverage in lemon", newRetrievedProduct.getDescription());
-        Assertions.assertEquals("Coca Cola", newRetrievedProduct.getManufacturer());
-        Assertions.assertEquals(0.99, newRetrievedProduct.getRecommendedRetailPrice());
     }
 }
 
