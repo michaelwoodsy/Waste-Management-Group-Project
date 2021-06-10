@@ -8,6 +8,7 @@ import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.serviceLayer.service.ProductCatalogueService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class ProductCatalogueController {
     private final UserRepository userRepository;
 
     @Autowired
-    public ProductCatalogueController(
+    public ProductCatalogueController(ProductCatalogueService productCatalogueService,
             BusinessRepository businessRepository,
             ProductRepository productRepository,
             InventoryItemRepository inventoryItemRepository,
@@ -41,7 +42,10 @@ public class ProductCatalogueController {
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.userRepository = userRepository;
+        this.productCatalogueService = productCatalogueService;
     }
+
+    private final ProductCatalogueService productCatalogueService;
 
     /**
      * Gets a list of products that belongs to a business.
@@ -52,43 +56,7 @@ public class ProductCatalogueController {
      */
     @GetMapping("/businesses/{businessId}/products")
     public List<Product> getBusinessesProducts(@PathVariable int businessId, @AuthenticationPrincipal AppUserDetails appUser) {
-
-        try {
-            // Get the logged in user from the users email
-            String userEmail = appUser.getUsername();
-            User loggedInUser = userRepository.findByEmail(userEmail).get(0);
-
-            logger.info("User with user id: " + loggedInUser.getId() + " Getting business with ID: " + businessId + " products");
-
-            // Get the business
-            Optional<Business> businessResult = businessRepository.findById(businessId);
-
-            // Check if the business exists
-            if (businessResult.isEmpty()) {
-                NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
-                logger.error(exception.getMessage());
-                throw exception;
-            }
-            Business business = businessResult.get();
-
-            // Check if the logged in user is the business owner / administrator or a GAA
-            if (!(business.userIsAdmin(loggedInUser.getId()) ||
-                    business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
-                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
-                logger.error(exception.getMessage());
-                throw exception;
-            }
-
-            // Get the products for the businesses
-            return productRepository.findAllByBusinessId(businessId);
-
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException handledException) {
-            throw handledException;
-        } catch (Exception unhandledException) {
-            logger.error(String.format("Unexpected error while getting business products: %s",
-                    unhandledException.getMessage()));
-            throw unhandledException;
-        }
+        return productCatalogueService.getBusinessesProducts(businessId, appUser);
     }
 
 

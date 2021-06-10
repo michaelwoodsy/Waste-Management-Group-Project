@@ -4,6 +4,7 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
@@ -11,10 +12,12 @@ import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.serviceLayer.service.ProductCatalogueService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +32,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
-public class ProductCatalogueControllerTest {
+class ProductCatalogueControllerTest {
 
     private User user;
     private User owner;
@@ -47,6 +51,9 @@ public class ProductCatalogueControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private ProductCatalogueService productCatalogueService;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -126,9 +133,16 @@ public class ProductCatalogueControllerTest {
      * Expects a 403 forbidden response.
      */
     @Test
-    void testRandomUserCantAccess() {
-        assertThrows(ForbiddenAdministratorActionException.class,
-                () -> productCatalogueController.getBusinessesProducts(businessId, new AppUserDetails(user)));
+    void getProducts_randomUser_403Response() throws Exception {
+        Mockito.when(productCatalogueService.getBusinessesProducts(Mockito.any(Integer.class),
+                Mockito.any(AppUserDetails.class)))
+                .thenThrow(new ForbiddenAdministratorActionException(businessId));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{id}/products", businessId)
+                .with(user(new AppUserDetails(user)));
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
     }
 
     /**
@@ -136,31 +150,42 @@ public class ProductCatalogueControllerTest {
      * Expects a 200 OK response, and product present.
      */
     @Test
-    void testAdministratorCanGetProducts() {
-        List<Product> products =
-                productCatalogueController.getBusinessesProducts(businessId, new AppUserDetails(owner));
-        assertEquals(2, products.size());
-        assertEquals("Watties Beans", products.get(0).getName());
+    void getProducts_200Response() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{id}/products", businessId)
+                .with(user(new AppUserDetails(owner)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
     }
 
     /**
-     * Tries to get a non existent business.
+     * Tries to get products from a nonexistent business.
      * Expects a 406 response.
      */
     @Test
-    void testNonExistentBusiness() {
-        assertThrows(NoBusinessExistsException.class,
-                () -> productCatalogueController.getBusinessesProducts(businessId + 999999, new AppUserDetails(user)));
+    void getProducts_nonexistentBusiness_406Response() throws Exception {
+
+        Mockito.when(productCatalogueService.getBusinessesProducts(Mockito.any(Integer.class),
+                Mockito.any(AppUserDetails.class)))
+                .thenThrow(new NoBusinessExistsException(businessId));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{id}/products", businessId + 999999)
+                .with(user(new AppUserDetails(user)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
     }
 
+
+
     /**
-     * Tries to get a non existent business.
-     * Expects a 406 response.
+     * Tries to get business products when not logged in
+     * Expects a 401 response.
      *
      * @throws Exception possible exception from using MockMvc
      */
     @Test
-    void testUnauthorised() throws Exception {
+    void getProducts_notLoggedIn_401Response() throws Exception {
         mockMvc.perform(get("/business/{id}/products", businessId))
                 .andExpect(status().isUnauthorized());
     }
