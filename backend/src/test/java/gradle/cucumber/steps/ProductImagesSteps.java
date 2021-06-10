@@ -20,7 +20,7 @@ public class ProductImagesSteps {
 //     public void theImageIsSavedWithTheProduct() {
 //     }
 //
-//     @And("The image is saved in the repository")
+//     @Then("The image is saved in the repository")
 //     public void theImageIsSavedInTheRepository() {
 //     }
 //
@@ -67,7 +67,7 @@ public class ProductImagesSteps {
 //     public void theProductNoLongerHasThatImageAsOneOfItSImages() {
 //     }
 //
-//     @And("The image is no longer saved")
+//     @Then("The image is no longer saved")
 //     public void theImageIsNoLongerSaved() {
 //     }
 }

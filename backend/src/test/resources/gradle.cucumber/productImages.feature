@@ -1,12 +1,12 @@
 Feature: U16 - Product Images
 
-#  Scenario: AC1: I can upload one or more images for the product. These will be displayed next to the product details.  If no image is supplied then a standard default image will be displayed.
+#  Scenario: AC1: I can upload one or more images for the product.
 #    Given A product has no images
 #    When I upload an image
 #    Then The image is saved with the product
 #    And The image is saved in the repository
 #
-#  Scenario: AC1: I can upload one or more images for the product. These will be displayed next to the product details.  If no image is supplied then a standard default image will be displayed.
+#  Scenario: AC1: I can upload one or more images for the product.
 #    Given A product has no images
 #    When I upload multiple images
 #    Then The images are saved with the product

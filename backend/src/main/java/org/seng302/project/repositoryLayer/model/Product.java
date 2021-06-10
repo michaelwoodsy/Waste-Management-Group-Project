@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,8 +25,9 @@ public class Product {
     private String manufacturer;
     private Double recommendedRetailPrice;
     private LocalDateTime created = LocalDateTime.now();
+    private Integer primaryImageId;
 
-    @OneToMany(targetEntity=Image.class, fetch=FetchType.EAGER)
+    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
     private List<Image> images = new ArrayList<>();
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Id
