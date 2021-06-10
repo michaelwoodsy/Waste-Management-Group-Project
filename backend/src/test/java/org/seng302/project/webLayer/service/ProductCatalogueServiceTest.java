@@ -45,7 +45,6 @@ class ProductCatalogueServiceTest {
 
     private User user;
     private User owner;
-    private Business testBusiness;
 
     @BeforeEach
     public void setup() {
@@ -68,7 +67,7 @@ class ProductCatalogueServiceTest {
         given(userRepository.findById(2)).willReturn(Optional.of(owner));
 
         //Mock a regular business
-        testBusiness = new Business("Business", "A Business", null, "Retail",
+        Business testBusiness = new Business("Business", "A Business", null, "Retail",
                 owner.getId());
         testBusiness.setId(1);
         given(businessRepository.findByName("Business")).willReturn(List.of(testBusiness));
@@ -105,13 +104,33 @@ class ProductCatalogueServiceTest {
      */
     @Test
     void getProducts_success() {
-        //call get products method
-        //check 2 products
+        List<Product> returnedProducts = productCatalogueService
+                .getBusinessesProducts(1, new AppUserDetails(owner));
+        Assertions.assertEquals(2, returnedProducts.size());
+        Assertions.assertEquals("CARROT", returnedProducts.get(0).getId());
+        Assertions.assertEquals("POTATO", returnedProducts.get(1).getId());
     }
 
-    //Test product images are returned
-    //call get products method
-    //check 2 images on carrot
+    /**
+     * Tries to get the business products with images
+     * Expects the first product to have 2 images
+     * and the second to have 1 image
+     */
+    @Test
+    void getProducts_withImages_success() {
+        List<Product> returnedProducts = productCatalogueService
+                .getBusinessesProducts(1, new AppUserDetails(owner));
+        Assertions.assertEquals(2, returnedProducts.size());
+
+        Product firstProduct = returnedProducts.get(0);
+        Assertions.assertEquals(2, firstProduct.getImages().size());
+        Assertions.assertEquals("carrot.jpg", firstProduct.getImages().get(0).getFilename());
+        Assertions.assertEquals("carrot2.jpg", firstProduct.getImages().get(1).getFilename());
+
+        Product secondProduct = returnedProducts.get(1);
+        Assertions.assertEquals("potato.jpg", secondProduct.getImages().get(0).getFilename());
+
+    }
 
     /**
      * Tries to get products from a nonexistent business.
@@ -124,6 +143,21 @@ class ProductCatalogueServiceTest {
         Assertions.assertThrows(NoBusinessExistsException.class,
                 () -> productCatalogueService.getBusinessesProducts(4, new AppUserDetails(user)));
     }
+
+
+    //Add product without id
+    //MissingProductIdException
+
+    //Add product without name
+    //MissingProductNameException
+
+    //Add product with existing id
+    //ProductIdAlreadyExistsException
+
+    //Add product with invalid id
+    //InvalidProductIdCharactersException
+
+    //Successful product creation
 
 
 }

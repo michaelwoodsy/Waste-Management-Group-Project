@@ -26,11 +26,9 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -58,8 +56,6 @@ class ProductCatalogueControllerTest {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    private ProductCatalogueController productCatalogueController;
 
     @Autowired
     private UserRepository userRepository;
@@ -75,38 +71,20 @@ class ProductCatalogueControllerTest {
 
     private Business testBusiness;
 
-    /**
-     * Creates the user if it's not already created.
-     * If it is already created, the user is returned.
-     *
-     * @return User
-     */
-    private User createUser(User wantedUser) {
-        if (userRepository.findByEmail(wantedUser.getEmail()).size() > 0) {
-            // Already exists, return it
-            return (userRepository.findByEmail(wantedUser.getEmail()).get(0));
-        } else {
-            // User doesn't exist, save it to repository
-            wantedUser.setPassword(passwordEncoder.encode(wantedUser.getPassword()));
-            addressRepository.save(wantedUser.getHomeAddress());
-            userRepository.save(wantedUser);
-            return wantedUser;
-        }
-    }
 
     @BeforeEach
     public void initialise() {
         // Create the users
 
         Address userAddress = new Address(null, null, null, null, "New Zealand", null);
-        user = createUser(new User("John", "Smith", "Bob", "Jonny",
+        user = new User("John", "Smith", "Bob", "Jonny",
                 "Likes long walks on the beach", "jane111@gmail.com", "1999-04-27",
-                "+64 3 555 0129", userAddress, "1337-H%nt3r2"));
+                "+64 3 555 0129", userAddress, "1337-H%nt3r2");
 
         Address ownerAddress = new Address(null, null, null, null, "New Zealand", null);
-        owner = createUser(new User("Jane", "Smith", "Rose", "Jonny",
+        owner = new User("Jane", "Smith", "Rose", "Jonny",
                 "Likes long walks on the beach", "johnxyz@gmail.com", "1999-04-27",
-                "+64 3 555 0120", ownerAddress, "1337-H%nt3r2"));
+                "+64 3 555 0120", ownerAddress, "1337-H%nt3r2");
 
         // Create the business
         Address businessAddress = new Address(null, null, null, null, "New Zealand", null);
@@ -274,24 +252,22 @@ class ProductCatalogueControllerTest {
      * Expect a 400 response.
      */
     @Test
-    void tryCreatingInvalidProductId() throws Exception {
+    void newProduct_invalidProductId_400Response() throws Exception {
         JSONObject testProduct = new JSONObject();
         testProduct.put("id", "Sarah's Cookies");
         testProduct.put("name", "Sarah's Cookies");
+        //TODO: mock service
 
         RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/products", businessId)
                 .content(testProduct.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("johnxyz@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(owner)));
 
         MvcResult postUserResponse = this.mockMvc.perform(postUserRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
-
-        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new InvalidProductIdCharactersException().getMessage(), returnedExceptionString);
     }
 
     /**
