@@ -4,11 +4,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-
+/**
+ * Model tests for product images
+ */
 @SpringBootTest
 class ProductImageTest{
 
 
+    /**
+     * Tests that adding an image to a product's list of images is successful
+     */
     @Test
     void addImage() {
         Product testProduct = new Product("BEANS", "Watties Beans", "Just Beans", "Watties", 3.5, 1);
@@ -19,6 +24,9 @@ class ProductImageTest{
         Assertions.assertEquals("testImageThumbnail.jpg", testProduct.getImages().get(0).getThumbnailFilename());
     }
 
+    /**
+     * Tests that (adding then) removing an image from a product's list of images is successful
+     */
     @Test
     void removeImage() {
         Product testProduct = new Product("BEANS", "Watties Beans", "Just Beans", "Watties", 3.5, 1);
