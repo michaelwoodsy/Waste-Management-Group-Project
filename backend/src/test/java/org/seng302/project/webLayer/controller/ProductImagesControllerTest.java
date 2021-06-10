@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -92,10 +93,13 @@ class ProductImagesControllerTest {
         //Mock a product with images
         testProduct = spy(new Product("PP1", "Potatoes & Pictures", "Delicious spuds with some shots",
                 "Food with Photos", 5.00, 1));
-        Image image1 = new Image(1);
-        Image image2 = new Image(2);
-        Image image3 = new Image(3);
-        given(testProduct.getImages()).willReturn(List.of(image1, image2, image3));
+        Image image4 = new Image("image4.jpg", "image4_thumbnail.jpg" );
+        image4.setId(4);
+        Image image5 = new Image("image5.jpg", "image5_thumbnail.jpg" );
+        image5.setId(5);
+        Image image6 = new Image("image6.jpg", "image6_thumbnail.jpg" );
+        image6.setId(6);
+        given(testProduct.getImages()).willReturn(List.of(image4, image5, image6));
         given(productRepository.findByIdAndBusinessId("PP1", 1)).willReturn(Optional.of(testProduct));
 
     }
@@ -108,14 +112,14 @@ class ProductImagesControllerTest {
     @Test
     void setPrimaryImage_requestByBusinessAdmin_success() throws Exception {
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                testBusiness.getId(), testProduct.getId(), 2)
+                testBusiness.getId(), testProduct.getId(), 5)
                 .with(user(new AppUserDetails(businessAdmin))))
                 .andExpect(status().isOk());
 
         ArgumentCaptor<Integer> imageIdArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(testProduct).setPrimaryImageId(imageIdArgumentCaptor.capture());
 
-        Assertions.assertEquals(2, imageIdArgumentCaptor.getValue());
+        Assertions.assertEquals(5, imageIdArgumentCaptor.getValue());
     }
 
     /**
@@ -126,14 +130,14 @@ class ProductImagesControllerTest {
     @Test
     void setPrimaryImage_requestByGAA_success() throws Exception {
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                testBusiness.getId(), testProduct.getId(), 2)
+                testBusiness.getId(), testProduct.getId(), 5)
                 .with(user(new AppUserDetails(systemAdmin))))
                 .andExpect(status().isOk());
 
         ArgumentCaptor<Integer> imageIdArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(testProduct).setPrimaryImageId(imageIdArgumentCaptor.capture());
 
-        Assertions.assertEquals(2, imageIdArgumentCaptor.getValue());
+        Assertions.assertEquals(5, imageIdArgumentCaptor.getValue());
     }
 
     /**
@@ -144,7 +148,7 @@ class ProductImagesControllerTest {
     @Test
     void setPrimaryImage_notAdmin() throws Exception {
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                testBusiness.getId(), testProduct.getId(), 2)
+                testBusiness.getId(), testProduct.getId(), 5)
                 .with(user(new AppUserDetails(otherUser))))
                 .andExpect(status().isForbidden());
     }
@@ -159,7 +163,7 @@ class ProductImagesControllerTest {
         given(businessRepository.findById(4)).willReturn(Optional.empty());
 
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                4, testProduct.getId(), 2)
+                4, testProduct.getId(), 5)
                 .with(user(new AppUserDetails(businessAdmin))))
                 .andExpect(status().isNotAcceptable());
     }
@@ -174,7 +178,7 @@ class ProductImagesControllerTest {
         given(productRepository.findByIdAndBusinessId("NotAProduct", 1)).willReturn(Optional.empty());
 
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                testBusiness.getId(), "NotAProduct", 2)
+                testBusiness.getId(), "NotAProduct", 5)
                 .with(user(new AppUserDetails(businessAdmin))))
                 .andExpect(status().isNotAcceptable());
     }
@@ -186,6 +190,9 @@ class ProductImagesControllerTest {
      */
     @Test
     void setPrimaryImage_noImageExists() throws Exception {
+
+        given(productRepository.save(any(Product.class))).willReturn(testProduct);
+
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
                 testBusiness.getId(), testProduct.getId(), 7)
                 .with(user(new AppUserDetails(businessAdmin))))
