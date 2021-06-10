@@ -3,15 +3,16 @@ package org.seng302.project.webLayer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.seng302.project.repositoryLayer.model.Business;
-import org.seng302.project.repositoryLayer.model.Image;
-import org.seng302.project.repositoryLayer.model.Product;
-import org.seng302.project.repositoryLayer.model.User;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.InventoryItemRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.exceptions.NoBusinessExistsException;
+import org.seng302.project.serviceLayer.dto.AddProductDTO;
+import org.seng302.project.serviceLayer.dto.EditProductDTO;
+import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.service.ProductCatalogueService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -25,6 +26,7 @@ import java.util.Optional;
 
 
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 @SpringBootTest
 class ProductCatalogueServiceTest {
@@ -45,6 +47,7 @@ class ProductCatalogueServiceTest {
 
     private User user;
     private User owner;
+    private Product existingProduct;
 
     @BeforeEach
     public void setup() {
@@ -84,6 +87,9 @@ class ProductCatalogueServiceTest {
         Image potatoImage = new Image("potato.jpg", "potato_thumbnail.jpg");
         product2.addImage(potatoImage);
         given(productRepository.findAllByBusinessId(1)).willReturn(List.of(product1, product2));
+
+        existingProduct = new Product("CHOC-CHIP", "Choc-Chip Cookies", "", "",
+                2.00, 1);
 
     }
 
@@ -145,26 +151,250 @@ class ProductCatalogueServiceTest {
     }
 
 
-    //Add product without id
-    //MissingProductIdException
+    /**
+     * Tries to add a new product without a product id
+     * Expects a MissingProductIdException
+     */
+    @Test
+    void addProduct_noId_missingProductIdException() {
+        AddProductDTO dto = new AddProductDTO(
+                "",
+                "Choc-Chip Cookies",
+                "",
+                "",
+                2.00
+        );
+        dto.setBusinessId(1);
+        dto.setAppUser(new AppUserDetails(owner));
 
-    //Add product without name
-    //MissingProductNameException
+        Assertions.assertThrows(MissingProductIdException.class,
+                () -> productCatalogueService.newProduct(dto));
 
-    //Add product with existing id
-    //ProductIdAlreadyExistsException
+    }
 
-    //Add product with invalid id
-    //InvalidProductIdCharactersException
+    /**
+     * Tries to add a new product without a product name
+     * Expects a MissingProductNameException
+     */
+    @Test
+    void addProduct_noName_missingProductNameException() {
+        AddProductDTO dto = new AddProductDTO(
+                "CHOC-CHIP",
+                "",
+                "",
+                "",
+                2.00
+        );
+        dto.setBusinessId(1);
+        dto.setAppUser(new AppUserDetails(owner));
 
-    //Successful product creation
+        Assertions.assertThrows(MissingProductNameException.class,
+                () -> productCatalogueService.newProduct(dto));
 
-    //Test editing product to invalid id
+    }
 
-    //Test editing product giving nothing to change
 
-    //Test editing product changes fields
+    /**
+     * Tries to add a new product with an existing id
+     * Expects a ProductIdAlreadyExistsException
+     */
+    @Test
+    void addProduct_existingId_existingProductIdException() {
+        AddProductDTO dto = new AddProductDTO(
+                "CHOC-CHIP",
+                "Choc-Chip Cookies",
+                "",
+                "",
+                2.00
+        );
+        dto.setBusinessId(1);
+        dto.setAppUser(new AppUserDetails(owner));
 
-    //Test editing product id removes product with old id
+        given(productRepository.findByIdAndBusinessId("CHOC-CHIP", 1))
+                .willReturn(Optional.of(existingProduct));
+
+        Assertions.assertThrows(ProductIdAlreadyExistsException.class,
+                () -> productCatalogueService.newProduct(dto));
+
+    }
+
+
+    /**
+     * Tries to add a new product with an invalid id
+     * Expects a InvalidProductIdCharactersException
+     */
+    @Test
+    void addProduct_invalidId_invalidProductIdException() {
+        AddProductDTO dto = new AddProductDTO(
+                "Invalid id",
+                "Choc-Chip Cookies",
+                "",
+                "",
+                2.00
+        );
+        dto.setBusinessId(1);
+        dto.setAppUser(new AppUserDetails(owner));
+
+        Assertions.assertThrows(InvalidProductIdCharactersException.class,
+                () -> productCatalogueService.newProduct(dto));
+
+    }
+
+    /**
+     * Tries to add a new product with correct fields
+     * Expects the new product to be saved to the repository
+     */
+    @Test
+    void addProduct_correctFields_success() {
+        AddProductDTO dto = new AddProductDTO(
+                "CHOC-CHIP",
+                "Choc-Chip Cookies",
+                "",
+                "",
+                2.00
+        );
+        dto.setBusinessId(1);
+        dto.setAppUser(new AppUserDetails(owner));
+
+        productCatalogueService.newProduct(dto);
+
+        ArgumentCaptor<Product> newProductArgumentCaptor = ArgumentCaptor.forClass(Product.class);
+        Mockito.verify(productRepository).save(newProductArgumentCaptor.capture());
+
+        Product savedProduct = newProductArgumentCaptor.getValue();
+
+        Assertions.assertEquals("CHOC-CHIP", savedProduct.getId());
+        Assertions.assertEquals("Choc-Chip Cookies", savedProduct.getName());
+
+    }
+
+
+    /**
+     * Tries to edit a product with an invalid id
+     * Expects a InvalidProductIdCharactersException
+     */
+    @Test
+    void editProduct_invalidId_invalidProductIdException() {
+        EditProductDTO dto = new EditProductDTO(
+                "Invalid id",
+                "Choc-Chip Cookies",
+                "",
+                "",
+                2.00
+        );
+        dto.setBusinessId(1);
+        dto.setProductId("CHOC-CHIP");
+        dto.setAppUser(new AppUserDetails(owner));
+
+        given(productRepository.findByIdAndBusinessId("CHOC-CHIP", 1))
+                .willReturn(Optional.of(existingProduct));
+
+        Assertions.assertThrows(InvalidProductIdCharactersException.class,
+                () -> productCatalogueService.editProduct(dto));
+
+    }
+
+    /**
+     * Tries to edit a product without changing anything
+     * Expects no exceptions to be thrown
+     */
+    @Test
+    void editProduct_noChanges_success() {
+        EditProductDTO dto = new EditProductDTO(
+                "CHOC-CHIP",
+                "Choc-Chip Cookies",
+                "",
+                "",
+                2.00
+        );
+        dto.setBusinessId(1);
+        dto.setProductId("CHOC-CHIP");
+        dto.setAppUser(new AppUserDetails(owner));
+
+        given(productRepository.findByIdAndBusinessId("CHOC-CHIP", 1))
+                .willReturn(Optional.of(existingProduct));
+
+        try {
+            productCatalogueService.editProduct(dto);
+        } catch(Exception e) {
+            fail("Should not have thrown any exception");
+        }
+
+    }
+
+    /**
+     * Tries to edit a product, changing everything
+     * Expects the new product details to be saved
+     */
+    @Test
+    void editProduct_allFieldsChanges_success() {
+        EditProductDTO dto = new EditProductDTO(
+                "EXTRA-CHOC-CHIP",
+                "Chunky choc-chip cookies",
+                "The most chocolate chips you've ever had in a cookie",
+                "Cookie Monster",
+                2.50
+        );
+        dto.setBusinessId(1);
+        dto.setProductId("CHOC-CHIP");
+        dto.setAppUser(new AppUserDetails(owner));
+
+        given(productRepository.findByIdAndBusinessId("CHOC-CHIP", 1))
+                .willReturn(Optional.of(existingProduct));
+
+        productCatalogueService.editProduct(dto);
+
+        ArgumentCaptor<Product> newProductArgumentCaptor = ArgumentCaptor.forClass(Product.class);
+        Mockito.verify(productRepository).save(newProductArgumentCaptor.capture());
+
+        Product savedProduct = newProductArgumentCaptor.getValue();
+
+        Assertions.assertEquals("EXTRA-CHOC-CHIP", savedProduct.getId());
+        Assertions.assertEquals("Chunky choc-chip cookies", savedProduct.getName());
+        Assertions.assertEquals("The most chocolate chips you've ever had in a cookie",
+                savedProduct.getDescription());
+        Assertions.assertEquals("Cookie Monster", savedProduct.getManufacturer());
+        Assertions.assertEquals(2.50, savedProduct.getRecommendedRetailPrice());
+    }
+
+    /**
+     * Tries to edit a product that has an inventory item, changing everything
+     * Expects the new product details to be saved with the inventory item
+     */
+    @Test
+    void editProduct_allFieldsChanges_updatesInventoryItem() {
+        EditProductDTO dto = new EditProductDTO(
+                "EXTRA-CHOC-CHIP",
+                "Chunky choc-chip cookies",
+                "The most chocolate chips you've ever had in a cookie",
+                "Cookie Monster",
+                2.50
+        );
+        dto.setBusinessId(1);
+        dto.setProductId("CHOC-CHIP");
+        dto.setAppUser(new AppUserDetails(owner));
+
+        given(productRepository.findByIdAndBusinessId("CHOC-CHIP", 1))
+                .willReturn(Optional.of(existingProduct));
+
+        InventoryItem inventoryItem = new InventoryItem(existingProduct, 20, null, null,
+                null, null, null, null);
+        given(inventoryItemRepository.findAllByBusinessId(1)).willReturn(List.of(inventoryItem));
+
+        productCatalogueService.editProduct(dto);
+
+        ArgumentCaptor<InventoryItem> newInventoryItemArgumentCaptor = ArgumentCaptor.forClass(InventoryItem.class);
+        Mockito.verify(inventoryItemRepository).save(newInventoryItemArgumentCaptor.capture());
+
+        InventoryItem savedInventoryItem = newInventoryItemArgumentCaptor.getValue();
+        Product inventoryItemProduct = savedInventoryItem.getProduct();
+
+        Assertions.assertEquals("EXTRA-CHOC-CHIP", inventoryItemProduct.getId());
+        Assertions.assertEquals("Chunky choc-chip cookies", inventoryItemProduct.getName());
+        Assertions.assertEquals("The most chocolate chips you've ever had in a cookie",
+                inventoryItemProduct.getDescription());
+        Assertions.assertEquals("Cookie Monster", inventoryItemProduct.getManufacturer());
+        Assertions.assertEquals(2.50, inventoryItemProduct.getRecommendedRetailPrice());
+    }
 
 }
