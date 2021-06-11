@@ -75,13 +75,12 @@
             <td>{{ product.manufacturer }}</td>
             <td>{{ formatPrice(product.recommendedRetailPrice) }}</td>
             <td>{{ new Date(product.created).toDateString() }}</td>
-            <td v-if="!selectingItem" style="color: blue; cursor: pointer;"
-                @click="editProduct(product.id)">
-              Edit
+            <td v-if="!selectingItem">
+              <button class="btn btn-primary" @click="editProduct(product.id)">Edit</button>
             </td>
-            <td v-if="!selectingItem" style="color: blue; cursor: pointer;" data-target="#viewImages" data-toggle="modal"
-                @click="changeViewedProduct(product)">
-              View Images
+            <td v-if="!selectingItem">
+              <button class="btn btn-primary" data-target="#viewImages" data-toggle="modal"
+                      @click="changeViewedProduct(product)">View Images</button>
             </td>
             <td v-if="selectingItem">
               <button class="btn btn-primary" @click="selectProduct(product.id)">Select</button>
@@ -307,6 +306,9 @@ export default {
       this.$router.push({name: 'editProduct', params: {businessId: this.businessId, productId: id}})
     },
 
+    /**
+     * Sets the viewing product in order to view the products images
+     */
     changeViewedProduct(product) {
       this.productViewing = product
       this.isViewingImages = true

@@ -81,6 +81,8 @@
                     <p class="d-inline">Closes</p>
                     <p v-if="orderCol === 'closes'" class="d-inline">{{ orderDirArrow }}</p>
                   </th>
+                  <!--    view images button column    -->
+                  <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody v-if="!loading">
@@ -97,6 +99,10 @@
                   <td>{{ formatPrice(item.price) }}</td>
                   <td>{{ formatDate(item.created) }}</td>
                   <td>{{ formatDate(item.closes) }}</td>
+                  <td>
+                    <button class="btn btn-primary" data-target="#viewImages" data-toggle="modal"
+                            @click="changeViewedProduct(item.inventoryItem.product)">View Images</button>
+                  </td>
                 </tr>
                 </tbody>
               </table>
@@ -130,6 +136,47 @@
           <div class="modal-body">
             <create-listing @refresh-listings="refreshListings"
                             @select-inventory-item-toggle="selectingInventoryItem = !selectingInventoryItem"></create-listing>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!--   Product images modal   -->
+    <div v-if="isViewingImages" id="viewImages" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{productViewing.name}}'s Images</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="isViewingImages=false">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row" style="height: 500px">
+              <div class="col col-12 justify-content-center">
+                <div id="imageCarousel" class="carousel slide" data-ride="carousel">
+                  <div class="carousel-inner">
+                    <!--   Image 1   -->
+                    <div class="carousel-item active">
+                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProduct2.jpg" alt="ProductImage">
+                    </div>
+                    <!--   Image 2   -->
+                    <div class="carousel-item">
+                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProduct3.jpg" alt="ProductImage">
+                    </div>
+                  </div>
+                  <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                  <a class="carousel-control-next" href="#imageCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -172,7 +219,9 @@ export default {
       page: 1,
       loading: false,
       createNewListing: false,
-      selectingInventoryItem: false
+      selectingInventoryItem: false,
+      isViewingImages: false,
+      productViewing: null
     }
   },
 
@@ -318,6 +367,14 @@ export default {
         return -1;
       }
       return 0;
+    },
+
+    /**
+     * Sets the viewing product in order to view the products images
+     */
+    changeViewedProduct(product) {
+      this.productViewing = product
+      this.isViewingImages = true
     },
 
     /**
