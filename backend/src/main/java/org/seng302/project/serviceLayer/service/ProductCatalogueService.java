@@ -52,7 +52,7 @@ public class ProductCatalogueService {
         try {
             // Get the logged in user from the users email
             String userEmail = appUser.getUsername();
-            User loggedInUser = userRepository.findByEmail(userEmail).get(0);
+            var loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
             logger.info("User with user id: {} getting products from business with ID: {}", loggedInUser.getId(), businessId );
 
@@ -61,16 +61,16 @@ public class ProductCatalogueService {
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
+                var exception = new NoBusinessExistsException(businessId);
                 logger.error(exception.getMessage());
                 throw exception;
             }
-            Business business = businessResult.get();
+            var business = businessResult.get();
 
             // Check if the logged in user is the business owner / administrator or a GAA
             if (!(business.userIsAdmin(loggedInUser.getId()) ||
                     business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
-                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(businessId);
+                var exception = new ForbiddenAdministratorActionException(businessId);
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -94,7 +94,7 @@ public class ProductCatalogueService {
         try {
             // Get the logged in user from the user's email
             String userEmail = requestDTO.getAppUser().getUsername();
-            User loggedInUser = userRepository.findByEmail(userEmail).get(0);
+            var loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
             logger.info("User with user id: {} Adding product to business with ID: {}"
                   , loggedInUser.getId(), requestDTO.getBusinessId());
@@ -104,59 +104,49 @@ public class ProductCatalogueService {
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                NoBusinessExistsException exception = new NoBusinessExistsException(requestDTO.getBusinessId());
+                var exception = new NoBusinessExistsException(requestDTO.getBusinessId());
                 logger.error(exception.getMessage());
                 throw exception;
             }
-            Business business = businessResult.get();
+            var business = businessResult.get();
 
             // Check if the logged in user is the business owner / administrator or a GAA
             if (!(business.userIsAdmin(loggedInUser.getId()) ||
                     business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
-                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(
+                var exception = new ForbiddenAdministratorActionException(
                         requestDTO.getBusinessId());
                 logger.error(exception.getMessage());
                 throw exception;
             }
 
             //These have been checked to be not empty by the DTO
+            //Also productId checked against regex by DTO
             String productId = requestDTO.getId();
             String name = requestDTO.getName();
 
             //These can be empty
             String description = requestDTO.getDescription();
             String manufacturer = requestDTO.getManufacturer();
+
+
             Double recommendedRetailPrice = null;
+            //DTO validates that price is either null or >= 0
             if (requestDTO.getRecommendedRetailPrice() != null) {
                 recommendedRetailPrice = requestDTO.getRecommendedRetailPrice();
-                //If Recommended Retail Price is below 0
-                if (recommendedRetailPrice < 0) {
-                    InvalidPriceException exception = new InvalidPriceException("recommended retail price");
-                    logger.error(exception.getMessage());
-                    throw exception;
-                }
             }
 
             //Return 400 if id not unique
             if (productRepository.findByIdAndBusinessId(productId, requestDTO.getBusinessId()).isPresent()) {
-                ProductIdAlreadyExistsException exception = new ProductIdAlreadyExistsException();
+                var exception = new ProductIdAlreadyExistsException();
                 logger.warn(exception.getMessage());
                 throw exception;
             }
 
-            //Return 400 if id contains characters other than: letters, numbers, dashes
-            String productIdRegEx = "^[a-zA-Z0-9\\-^\\S]+$";
-            if (!productId.matches(productIdRegEx)) {
-                InvalidProductIdCharactersException exception = new InvalidProductIdCharactersException();
-                logger.warn(exception.getMessage());
-                throw exception;
-            }
-
-            Product product = new Product(productId, name, description, manufacturer, recommendedRetailPrice, requestDTO.getBusinessId());
+            var product = new Product(productId, name, description, manufacturer, recommendedRetailPrice, requestDTO.getBusinessId());
             productRepository.save(product);
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | InvalidPriceException
-                | ProductIdAlreadyExistsException  | InvalidProductIdCharactersException handledException) {
+        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException
+                | ProductIdAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while adding business product: %s",
@@ -167,14 +157,20 @@ public class ProductCatalogueService {
 
 
     /**
-     * Edits product with id productId
+     * Edits product with id productId.
+     *
+     * Note: The frontend prefills the fields with the existing values for the product
+     * so we do not need to check whether the request has certain fields or not.
+     * This checking has been removed to greatly reduce the Cognitive Complexity of this method.
+     * But this method still has a large Cognitive Complexity
+     *
      * @param requestDTO The DTO for this request
      */
     public void editProduct(EditProductDTO requestDTO) {
         try {
             // Get the logged in user from the user's email
             String userEmail = requestDTO.getAppUser().getUsername();
-            User loggedInUser = userRepository.findByEmail(userEmail).get(0);
+            var loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
             logger.info("User with user id: {} Editing product with id '{}' from business with id {}",
                     loggedInUser.getId(), requestDTO.getProductId(), requestDTO.getBusinessId());
@@ -184,16 +180,16 @@ public class ProductCatalogueService {
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                NoBusinessExistsException exception = new NoBusinessExistsException(requestDTO.getBusinessId());
+                var exception = new NoBusinessExistsException(requestDTO.getBusinessId());
                 logger.error(exception.getMessage());
                 throw exception;
             }
-            Business business = businessResult.get();
+            var business = businessResult.get();
 
             // Check if the logged in user is the business owner / administrator or a GAA
             if (!(business.userIsAdmin(loggedInUser.getId()) ||
                     business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
-                ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(requestDTO.getBusinessId());
+                var exception = new ForbiddenAdministratorActionException(requestDTO.getBusinessId());
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -203,84 +199,45 @@ public class ProductCatalogueService {
 
             // Check if the product exists
             if (productResult.isEmpty()) {
-                NoProductExistsException exception = new NoProductExistsException(requestDTO.getProductId(), requestDTO.getBusinessId());
+                var exception = new NoProductExistsException(requestDTO.getProductId(), requestDTO.getBusinessId());
                 logger.error(exception.getMessage());
                 throw exception;
             }
 
-            Product product = productResult.get();
-            Product originalProduct = productResult.get();
+            var product = productResult.get();
+            var originalProduct = productResult.get();
 
+            //Has been checked to be non empty by the DTO
             String newName = requestDTO.getName();
+            product.setName(newName);
+
             String newDescription = requestDTO.getDescription();
+            product.setDescription(newDescription);
+
             String newManufacturer = requestDTO.getManufacturer();
-            Number newNumberRRP = requestDTO.getRecommendedRetailPrice();
-            Double newRRP = originalProduct.getRecommendedRetailPrice();
+            product.setManufacturer(newManufacturer);
+
+            //DTO validates that price is either null or >= 0
+            Double newRRP = requestDTO.getRecommendedRetailPrice();
+            product.setRecommendedRetailPrice(newRRP);
+
             String newId = requestDTO.getId();
 
-            //Edit fields if they are sent
-
-            //Name
-            if(requestDTO.getName() != null && !originalProduct.getName().equals(newName)) {
-                //Has been checked to be non empty by the DTO
-                product.setName(newName);
-            }
-
-            //Description
-            if(requestDTO.getDescription() != null && !originalProduct.getDescription().equals(newDescription)) {
-                product.setDescription(newDescription);
-            }
-
-            //Manufacturer
-            if(requestDTO.getManufacturer() != null && !originalProduct.getManufacturer().equals(newManufacturer)) {
-                product.setManufacturer(newManufacturer);
-            }
-
-            //Recommended Retail Price
-            try {
-                if (requestDTO.getRecommendedRetailPrice() != null) {
-                    if (newNumberRRP == null) {
-                        product.setRecommendedRetailPrice(null);
-                        newRRP = null;
-                    } else if (originalProduct.getRecommendedRetailPrice() == null ||
-                            originalProduct.getRecommendedRetailPrice() != newNumberRRP.doubleValue()) {
-                        newRRP = requestDTO.getRecommendedRetailPrice();
-                        //If Recommended Retail Price is below 0
-                        if (newRRP < 0) {
-                            InvalidPriceException exception = new InvalidPriceException("recommended retail price");
-                            logger.error(exception.getMessage());
-                            throw exception;
-                        }
-                        product.setRecommendedRetailPrice(newRRP);
-                    }
-                }
-
-            } catch(NumberFormatException e) {
-                IncorrectRRPFormatException exception = new IncorrectRRPFormatException();
-                logger.error(exception.getMessage());
-                throw exception;
-            }
-
             //Id
-            if(requestDTO.getId() != null && !originalProduct.getId().equals(newId)) {
+            if(!originalProduct.getId().equals(newId)) {
                 //Id has been checked to be non empty by the DTO
+                //Also productId checked against regex by DTO
 
                 //Return 400 if id not unique
                 if (newId.equals(originalProduct.getId()) || !(originalProduct.getId().equals(newId)) &&
                         productRepository.findByIdAndBusinessId(newId, requestDTO.getBusinessId()).isPresent()) {
-                    ProductIdAlreadyExistsException exception = new ProductIdAlreadyExistsException();
+                    var exception = new ProductIdAlreadyExistsException();
                     logger.warn(exception.getMessage());
                     throw exception;
                 }
-                //Return 400 if id contains characters other than: letters, numbers, dashes
-                String productIdRegEx = "^[a-zA-Z0-9\\-^\\S]+$";
-                if (!newId.matches(productIdRegEx)) {
-                    InvalidProductIdCharactersException exception = new InvalidProductIdCharactersException();
-                    logger.warn(exception.getMessage());
-                    throw exception;
-                }
+
                 //Create new product
-                Product newProduct = new Product(newId, newName, newDescription, newManufacturer, newRRP, requestDTO.getBusinessId());
+                var newProduct = new Product(newId, newName, newDescription, newManufacturer, newRRP, requestDTO.getBusinessId());
                 //Save new product
                 productRepository.save(newProduct);
 
@@ -302,11 +259,11 @@ public class ProductCatalogueService {
                 productRepository.save(product);
             }
 
-        } catch (NoBusinessExistsException | IncorrectRRPFormatException | ForbiddenAdministratorActionException |
-                ProductIdAlreadyExistsException | InvalidProductIdCharactersException handledException) {
+        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException |
+                ProductIdAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
-            logger.error(String.format("Unexpected error while adding business product: %s",
+            logger.error(String.format("Unexpected error while editing business product: %s",
                     unhandledException.getMessage()));
             throw unhandledException;
         }

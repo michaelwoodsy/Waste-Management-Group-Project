@@ -84,17 +84,6 @@ public class ProductCatalogueControllerAdvice {
     }
 
     /**
-     * Exception thrown by the editProduct() in ProductCatalogueController
-     * when a user tries to edit a product with a rrp that is not a number
-     *
-     * @return a 400 response with an appropriate message
-     */
-    @ExceptionHandler(IncorrectRRPFormatException.class)
-    public ResponseEntity<String> productIdAlreadyExists(IncorrectRRPFormatException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    /**
      * Exception thrown by newProduct() and editProduct() in ProductCatalogueController
      * when a user tries to use a product id with invalid characters
      *

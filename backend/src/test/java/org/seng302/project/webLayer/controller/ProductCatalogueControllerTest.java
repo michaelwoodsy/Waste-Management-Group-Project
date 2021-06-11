@@ -113,7 +113,6 @@ class ProductCatalogueControllerTest {
     }
 
 
-
     /**
      * Tries to get business products when not logged in
      * Expects a 401 response.
@@ -134,6 +133,7 @@ class ProductCatalogueControllerTest {
     void addProduct_noProductId_400Response() throws Exception {
 
         JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "");
         testProduct.put("name", "Sarah's cookies");
         testProduct.put("description", "20pk of delicious home baked cookies");
 
@@ -149,7 +149,12 @@ class ProductCatalogueControllerTest {
                 .andReturn();
 
         String returnedExceptionString = response.getResponse().getContentAsString();
-        Assertions.assertEquals("Product id is a mandatory field", returnedExceptionString);
+
+        //Sometimes the regex is checked first, sometimes the non-empty property is checked first
+        Assertions.assertTrue(returnedExceptionString.equals("Product id is a mandatory field") ||
+                returnedExceptionString.equals("This productId contains invalid characters. " +
+                        "Acceptable characters are letters, numbers and dashes."));
+
     }
 
 
@@ -205,16 +210,13 @@ class ProductCatalogueControllerTest {
 
     /**
      * Tries creating a product where the product id has invalid characters.
-     * Expect a 400 response.
+     * Expect a 400 response and message from the DTO
      */
     @Test
     void addProduct_invalidProductId_400Response() throws Exception {
         JSONObject testProduct = new JSONObject();
         testProduct.put("id", "Sarah's Cookies");
         testProduct.put("name", "Sarah's Cookies");
-
-        Mockito.doThrow(new InvalidProductIdCharactersException()).when(productCatalogueService)
-                .newProduct(Mockito.any(AddProductDTO.class));
 
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/products", businessId)
@@ -223,8 +225,13 @@ class ProductCatalogueControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 
-        mockMvc.perform(request)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        MvcResult response = mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = response.getResponse().getContentAsString();
+        Assertions.assertEquals("This productId contains invalid characters. " +
+                "Acceptable characters are letters, numbers and dashes.", returnedExceptionString);
     }
 
     /**
@@ -250,8 +257,35 @@ class ProductCatalogueControllerTest {
     }
 
     /**
+     * Tests successful creation of a product through the POST method
+     */
+    @Test
+    void addProduct_negativePrice_400Response() throws Exception {
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "S-COOKIES");
+        testProduct.put("name", "Sarah's cookies");
+        testProduct.put("description", "Free cookies with cash!");
+        testProduct.put("recommendedRetailPrice", -2.00);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/businesses/{businessId}/products", businessId)
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        MvcResult response = mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = response.getResponse().getContentAsString();
+        Assertions.assertEquals("Price cannot be negative", returnedExceptionString);
+
+    }
+
+    /**
      * Tries editing a product and giving it an invalid id.
-     * Expect a 400 response.
+     * Expect a 400 response and a message from the DTO
      */
     @Test
     void editProduct_invalidId_400Response() throws Exception {
@@ -270,8 +304,13 @@ class ProductCatalogueControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 
-        mockMvc.perform(putProductRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        MvcResult response = mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = response.getResponse().getContentAsString();
+        Assertions.assertEquals("This productId contains invalid characters. " +
+                "Acceptable characters are letters, numbers and dashes.", returnedExceptionString);
     }
 
 
@@ -298,7 +337,11 @@ class ProductCatalogueControllerTest {
                 .andReturn();
 
         String returnedExceptionString = response.getResponse().getContentAsString();
-        Assertions.assertEquals("Product id is a mandatory field", returnedExceptionString);
+
+        //Sometimes the regex is checked first, sometimes the non-empty property is checked first
+        Assertions.assertTrue(returnedExceptionString.equals("Product id is a mandatory field") ||
+                returnedExceptionString.equals("This productId contains invalid characters. " +
+                        "Acceptable characters are letters, numbers and dashes."));
     }
 
     /**
@@ -352,6 +395,35 @@ class ProductCatalogueControllerTest {
         this.mockMvc.perform(putProductRequest)
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
+
+    /**
+     * Tests editing a product, setting a negative price
+     * Expect 400 response and message from the DTO
+     */
+    @Test
+    void editProduct_negativePrice_400Response() throws Exception {
+
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("id", productId);
+        testProduct.put("name", "Why pay us when we can pay you!");
+        testProduct.put("recommendedRetailPrice", -3.00);
+
+        RequestBuilder putProductRequest = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}", businessId, productId)
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        MvcResult response = mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = response.getResponse().getContentAsString();
+        Assertions.assertEquals("Price cannot be negative", returnedExceptionString);
+
+    }
+
 
     /**
      * Tests editing a product, also its Id

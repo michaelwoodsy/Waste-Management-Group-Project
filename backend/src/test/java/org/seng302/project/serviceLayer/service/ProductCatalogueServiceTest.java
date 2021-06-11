@@ -176,28 +176,6 @@ class ProductCatalogueServiceTest {
 
     }
 
-
-    /**
-     * Tries to add a new product with an invalid id
-     * Expects a InvalidProductIdCharactersException
-     */
-    @Test
-    void addProduct_invalidId_invalidProductIdException() {
-        AddProductDTO dto = new AddProductDTO(
-                "Invalid id",
-                "Choc-Chip Cookies",
-                "",
-                "",
-                2.00
-        );
-        dto.setBusinessId(1);
-        dto.setAppUser(new AppUserDetails(owner));
-
-        Assertions.assertThrows(InvalidProductIdCharactersException.class,
-                () -> productCatalogueService.newProduct(dto));
-
-    }
-
     /**
      * Tries to add a new product with correct fields
      * Expects the new product to be saved to the repository
@@ -226,31 +204,6 @@ class ProductCatalogueServiceTest {
 
     }
 
-
-    /**
-     * Tries to edit a product with an invalid id
-     * Expects a InvalidProductIdCharactersException
-     */
-    @Test
-    void editProduct_invalidId_invalidProductIdException() {
-        EditProductDTO dto = new EditProductDTO(
-                "Invalid id",
-                "Choc-Chip Cookies",
-                "",
-                "",
-                2.00
-        );
-        dto.setBusinessId(1);
-        dto.setProductId("CHOC-CHIP");
-        dto.setAppUser(new AppUserDetails(owner));
-
-        given(productRepository.findByIdAndBusinessId("CHOC-CHIP", 1))
-                .willReturn(Optional.of(existingProduct));
-
-        Assertions.assertThrows(InvalidProductIdCharactersException.class,
-                () -> productCatalogueService.editProduct(dto));
-
-    }
 
     /**
      * Tries to edit a product without changing anything
