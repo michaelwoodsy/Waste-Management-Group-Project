@@ -1,4 +1,4 @@
-package org.seng302.project.util;
+package org.seng302.project.serviceLayer.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
