@@ -1,4 +1,4 @@
-package org.seng302.project.webLayer.service;
+package org.seng302.project.serviceLayer.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +14,7 @@ import org.seng302.project.serviceLayer.dto.AddProductDTO;
 import org.seng302.project.serviceLayer.dto.EditProductDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
-import org.seng302.project.serviceLayer.service.ProductCatalogueService;
+
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -99,8 +99,9 @@ class ProductCatalogueServiceTest {
      */
     @Test
     void getProducts_notAdmin_forbiddenException() {
+        AppUserDetails notAdmin = new AppUserDetails(user);
         Assertions.assertThrows(ForbiddenAdministratorActionException.class,
-                () -> productCatalogueService.getBusinessesProducts(1, new AppUserDetails(user)));
+                () -> productCatalogueService.getBusinessesProducts(1, notAdmin));
     }
 
 
@@ -146,53 +147,10 @@ class ProductCatalogueServiceTest {
     void getProducts_nonExistentBusiness_noBusinessExistsException() {
         given(businessRepository.findById(4)).willReturn(Optional.empty());
 
+        AppUserDetails userDetails = new AppUserDetails(user);
         Assertions.assertThrows(NoBusinessExistsException.class,
-                () -> productCatalogueService.getBusinessesProducts(4, new AppUserDetails(user)));
+                () -> productCatalogueService.getBusinessesProducts(4, userDetails));
     }
-
-
-    /**
-     * Tries to add a new product without a product id
-     * Expects a MissingProductIdException
-     */
-    @Test
-    void addProduct_noId_missingProductIdException() {
-        AddProductDTO dto = new AddProductDTO(
-                "",
-                "Choc-Chip Cookies",
-                "",
-                "",
-                2.00
-        );
-        dto.setBusinessId(1);
-        dto.setAppUser(new AppUserDetails(owner));
-
-        Assertions.assertThrows(MissingProductIdException.class,
-                () -> productCatalogueService.newProduct(dto));
-
-    }
-
-    /**
-     * Tries to add a new product without a product name
-     * Expects a MissingProductNameException
-     */
-    @Test
-    void addProduct_noName_missingProductNameException() {
-        AddProductDTO dto = new AddProductDTO(
-                "CHOC-CHIP",
-                "",
-                "",
-                "",
-                2.00
-        );
-        dto.setBusinessId(1);
-        dto.setAppUser(new AppUserDetails(owner));
-
-        Assertions.assertThrows(MissingProductNameException.class,
-                () -> productCatalogueService.newProduct(dto));
-
-    }
-
 
     /**
      * Tries to add a new product with an existing id
@@ -327,7 +285,7 @@ class ProductCatalogueServiceTest {
      * Expects the new product details to be saved
      */
     @Test
-    void editProduct_allFieldsChanges_success() {
+    void editProduct_allFieldsChanged_success() {
         EditProductDTO dto = new EditProductDTO(
                 "EXTRA-CHOC-CHIP",
                 "Chunky choc-chip cookies",
@@ -362,7 +320,7 @@ class ProductCatalogueServiceTest {
      * Expects the new product details to be saved with the inventory item
      */
     @Test
-    void editProduct_allFieldsChanges_updatesInventoryItem() {
+    void editProduct_allFieldsChanged_updatesInventoryItem() {
         EditProductDTO dto = new EditProductDTO(
                 "EXTRA-CHOC-CHIP",
                 "Chunky choc-chip cookies",

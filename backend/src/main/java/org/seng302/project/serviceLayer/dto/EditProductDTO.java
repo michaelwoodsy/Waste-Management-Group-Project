@@ -3,13 +3,16 @@ package org.seng302.project.serviceLayer.dto;
 import lombok.Data;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 
+import javax.validation.constraints.NotEmpty;
+
 @Data
 public class EditProductDTO {
 
 
-    //TODO: validation
-
+    @NotEmpty(message = "Product id is a mandatory field")
     private String id; // What productId has possibly been changed to
+
+    @NotEmpty(message = "Product name is a mandatory field")
     private String name;
     private String description;
     private String manufacturer;

@@ -119,31 +119,9 @@ public class ProductCatalogueService {
                 throw exception;
             }
 
+            //These have been checked to be not empty by the DTO
             String productId = requestDTO.getId();
-            try {
-                if (productId.isEmpty()) { //Empty string
-                    MissingProductIdException exception = new MissingProductIdException();
-                    logger.error(exception.getMessage());
-                    throw exception;
-                }
-            } catch (NullPointerException nullPointerException) { //Field not in requestBody
-                MissingProductIdException exception = new MissingProductIdException();
-                logger.error(exception.getMessage());
-                throw exception;
-            }
-
             String name = requestDTO.getName();
-            try {
-                if (name.isEmpty()) { //Empty string
-                    MissingProductNameException exception = new MissingProductNameException();
-                    logger.error(exception.getMessage());
-                    throw exception;
-                }
-            } catch (NullPointerException nullPointerException) { //Field not in requestBody
-                MissingProductNameException exception = new MissingProductNameException();
-                logger.error(exception.getMessage());
-                throw exception;
-            }
 
             //These can be empty
             String description = requestDTO.getDescription();
@@ -177,8 +155,8 @@ public class ProductCatalogueService {
             Product product = new Product(productId, name, description, manufacturer, recommendedRetailPrice, requestDTO.getBusinessId());
             productRepository.save(product);
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
-                MissingProductNameException | ProductIdAlreadyExistsException handledException) {
+        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | InvalidPriceException
+                | ProductIdAlreadyExistsException  | InvalidProductIdCharactersException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while adding business product: %s",
@@ -244,11 +222,7 @@ public class ProductCatalogueService {
 
             //Name
             if(requestDTO.getName() != null && !originalProduct.getName().equals(newName)) {
-                if (newName == null || newName.equals("")) {
-                    MissingProductNameException exception = new MissingProductNameException();
-                    logger.warn(exception.getMessage());
-                    throw exception;
-                }
+                //Has been checked to be non empty by the DTO
                 product.setName(newName);
             }
 
@@ -289,11 +263,8 @@ public class ProductCatalogueService {
 
             //Id
             if(requestDTO.getId() != null && !originalProduct.getId().equals(newId)) {
-                if (newId == null || newId.equals("")) {
-                    MissingProductIdException exception = new MissingProductIdException();
-                    logger.warn(exception.getMessage());
-                    throw exception;
-                }
+                //Id has been checked to be non empty by the DTO
+
                 //Return 400 if id not unique
                 if (newId.equals(originalProduct.getId()) || !(originalProduct.getId().equals(newId)) &&
                         productRepository.findByIdAndBusinessId(newId, requestDTO.getBusinessId()).isPresent()) {
@@ -331,8 +302,7 @@ public class ProductCatalogueService {
                 productRepository.save(product);
             }
 
-        } catch (NoBusinessExistsException | NoProductExistsException | MissingProductIdException |
-                MissingProductNameException | IncorrectRRPFormatException | ForbiddenAdministratorActionException |
+        } catch (NoBusinessExistsException | IncorrectRRPFormatException | ForbiddenAdministratorActionException |
                 ProductIdAlreadyExistsException | InvalidProductIdCharactersException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {

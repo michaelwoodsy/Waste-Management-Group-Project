@@ -1,6 +1,7 @@
 package org.seng302.project.webLayer.controller;
 
 import org.json.JSONObject;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -126,7 +128,7 @@ class ProductCatalogueControllerTest {
 
     /**
      * Tries creating a product without a product id.
-     * Expect a 400 response.
+     * Expect a 400 response and a message from the DTO
      */
     @Test
     void addProduct_noProductId_400Response() throws Exception {
@@ -135,24 +137,25 @@ class ProductCatalogueControllerTest {
         testProduct.put("name", "Sarah's cookies");
         testProduct.put("description", "20pk of delicious home baked cookies");
 
-        Mockito.doThrow(new MissingProductIdException()).when(productCatalogueService)
-                .newProduct(Mockito.any(AddProductDTO.class));
-
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
+        RequestBuilder request = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/products", businessId)
                 .content(testProduct.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 
-        mockMvc.perform(postUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        MvcResult response = mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = response.getResponse().getContentAsString();
+        Assertions.assertEquals("Product id is a mandatory field", returnedExceptionString);
     }
 
 
     /**
      * Tries creating a product without a product name.
-     * Expect a 400 response.
+     * Expect a 400 response and a message from the DTO
      */
     @Test
     void addProduct_noProductName_400Response() throws Exception {
@@ -161,19 +164,19 @@ class ProductCatalogueControllerTest {
         testProduct.put("name", "");
         testProduct.put("description", "20pk of delicious home baked cookies");
 
-        Mockito.doThrow(new MissingProductNameException()).when(productCatalogueService)
-                .newProduct(Mockito.any(AddProductDTO.class));
-
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
+        RequestBuilder request = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/products", businessId)
                 .content(testProduct.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 
-        mockMvc.perform(postUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        MvcResult response = mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
 
+        String returnedExceptionString = response.getResponse().getContentAsString();
+        Assertions.assertEquals("Product name is a mandatory field", returnedExceptionString);
     }
 
     /**
@@ -189,14 +192,14 @@ class ProductCatalogueControllerTest {
         Mockito.doThrow(new ProductIdAlreadyExistsException()).when(productCatalogueService)
                 .newProduct(Mockito.any(AddProductDTO.class));
 
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
+        RequestBuilder request = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/products", businessId)
                 .content(testProduct.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 
-        mockMvc.perform(postUserRequest)
+        mockMvc.perform(request)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -213,14 +216,14 @@ class ProductCatalogueControllerTest {
         Mockito.doThrow(new InvalidProductIdCharactersException()).when(productCatalogueService)
                 .newProduct(Mockito.any(AddProductDTO.class));
 
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
+        RequestBuilder request = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/products", businessId)
                 .content(testProduct.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 
-        mockMvc.perform(postUserRequest)
+        mockMvc.perform(request)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -235,14 +238,14 @@ class ProductCatalogueControllerTest {
         testProduct.put("description", "20pk of delicious home baked cookies");
         testProduct.put("manufacturer", "Sarah");
 
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
+        RequestBuilder request = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/products", businessId)
                 .content(testProduct.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 
-        mockMvc.perform(postUserRequest)
+        mockMvc.perform(request)
                 .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 
@@ -271,13 +274,17 @@ class ProductCatalogueControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
+
     /**
-     * Tests editing a product and giving it nothing to change
+     * Tries editing a product and giving it an empty id.
+     * Expect a 400 response and a message from the DTO
      */
     @Test
-    void editProduct_noChanges_200Response() throws Exception {
+    void editProduct_emptyId_400Response() throws Exception {
 
         JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "");
+        testProduct.put("name", "Not Fresh Water");
 
         RequestBuilder putProductRequest = MockMvcRequestBuilders
                 .put("/businesses/{businessId}/products/{productId}", businessId, productId)
@@ -286,9 +293,40 @@ class ProductCatalogueControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 
-        this.mockMvc.perform(putProductRequest)
-                .andExpect(MockMvcResultMatchers.status().isOk());
+        MvcResult response = mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = response.getResponse().getContentAsString();
+        Assertions.assertEquals("Product id is a mandatory field", returnedExceptionString);
     }
+
+    /**
+     * Tries editing a product and giving it an empty name.
+     * Expect a 400 response and a message from the DTO
+     */
+    @Test
+    void editProduct_emptyName_400Response() throws Exception {
+
+        JSONObject testProduct = new JSONObject();
+        testProduct.put("id", "Empty-name");
+        testProduct.put("name", "");
+
+        RequestBuilder putProductRequest = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}", businessId, productId)
+                .content(testProduct.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        MvcResult response = mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = response.getResponse().getContentAsString();
+        Assertions.assertEquals("Product name is a mandatory field", returnedExceptionString);
+    }
+
 
     /**
      * Tests editing a product, without editing its id
@@ -298,6 +336,7 @@ class ProductCatalogueControllerTest {
     void editProduct_notChangingId_200Response() throws Exception {
 
         JSONObject testProduct = new JSONObject();
+        testProduct.put("id", productId);
         testProduct.put("name", "Different Kind of Water");
         testProduct.put("description", "Water from your local sewer");
         testProduct.put("manufacturer", "Sewerage department");
@@ -327,7 +366,6 @@ class ProductCatalogueControllerTest {
         testProduct.put("description", "Your favourite beverage in lemon");
         testProduct.put("manufacturer", "Coca Cola");
         testProduct.put("recommendedRetailPrice", 0.99);
-
 
         RequestBuilder putProductRequest = MockMvcRequestBuilders
                 .put("/businesses/{businessId}/products/{productId}", businessId, productId)

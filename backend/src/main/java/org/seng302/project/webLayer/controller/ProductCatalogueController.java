@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -48,7 +49,7 @@ public class ProductCatalogueController {
      */
     @PostMapping("/businesses/{businessId}/products")
     @ResponseStatus(HttpStatus.CREATED)
-    public void newProduct(@PathVariable int businessId, @RequestBody AddProductDTO requestDTO,
+    public void newProduct(@PathVariable int businessId, @Valid @RequestBody AddProductDTO requestDTO,
                            @AuthenticationPrincipal AppUserDetails appUser) {
         requestDTO.setBusinessId(businessId);
         requestDTO.setAppUser(appUser);
@@ -67,7 +68,7 @@ public class ProductCatalogueController {
     @PutMapping("/businesses/{businessId}/products/{productId}")
     @ResponseStatus(HttpStatus.OK)
     public void editProduct(@PathVariable int businessId, @PathVariable String productId,
-                            @RequestBody EditProductDTO requestDTO, @AuthenticationPrincipal AppUserDetails appUser) {
+                            @Valid @RequestBody EditProductDTO requestDTO, @AuthenticationPrincipal AppUserDetails appUser) {
         requestDTO.setBusinessId(businessId);
         requestDTO.setProductId(productId);
         requestDTO.setAppUser(appUser);

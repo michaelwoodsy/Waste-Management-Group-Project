@@ -3,15 +3,19 @@ package org.seng302.project.serviceLayer.dto;
 import lombok.Data;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 
+
+import javax.validation.constraints.NotEmpty;
+
 /**
  * DTO for a request to add a new product
  */
 @Data
 public class AddProductDTO {
 
-    //TODO: validation
-
+    @NotEmpty(message = "Product id is a mandatory field")
     private String id; // Chosen by the business
+
+    @NotEmpty(message = "Product name is a mandatory field")
     private String name;
     private String description;
     private String manufacturer;
