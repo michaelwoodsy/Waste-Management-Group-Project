@@ -3,7 +3,6 @@ package org.seng302.project.serviceLayer.service;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.InventoryItem;
 import org.seng302.project.repositoryLayer.model.Product;
-import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.InventoryItemRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;

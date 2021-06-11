@@ -83,25 +83,4 @@ public class ProductCatalogueControllerAdvice {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Exception thrown by newProduct() and editProduct() in ProductCatalogueController
-     * when a user tries to use a product id with invalid characters
-     *
-     * @return a 400 response with an appropriate message
-     */
-    @ExceptionHandler(InvalidProductIdCharactersException.class)
-    public ResponseEntity<String> invalidProductIdCharacters(InvalidProductIdCharactersException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Exception thrown by the newProduct() and editProduct() functions in ProductCatalogueController
-     * when a price field has a negative number in it.
-     *
-     * @return a 400 response with an appropriate message
-     */
-    @ExceptionHandler(InvalidPriceException.class)
-    public ResponseEntity<String> invalidPrice(InvalidPriceException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
 }

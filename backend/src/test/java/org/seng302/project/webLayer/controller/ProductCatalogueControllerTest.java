@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.serviceLayer.dto.AddProductDTO;
-import org.seng302.project.serviceLayer.dto.EditProductDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.service.ProductCatalogueService;
@@ -293,9 +292,6 @@ class ProductCatalogueControllerTest {
         JSONObject testProduct = new JSONObject();
         testProduct.put("id", "invalid id+/");
         testProduct.put("name", "Not Fresh Water");
-
-        Mockito.doThrow(new InvalidProductIdCharactersException()).when(productCatalogueService)
-                .editProduct(Mockito.any(EditProductDTO.class));
 
         RequestBuilder putProductRequest = MockMvcRequestBuilders
                 .put("/businesses/{businessId}/products/{productId}", businessId, productId)
