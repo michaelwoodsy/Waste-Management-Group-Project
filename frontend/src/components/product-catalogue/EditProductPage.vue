@@ -153,6 +153,44 @@
                 </div>
               </div>
 
+
+              <!-- Images -->
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Images</label>
+                <div class="col-sm-8">
+                  <button
+                      id="addImage"
+                      class="btn btn-primary ml-1 my-1 pad1"
+                      type="button"
+                      @click="addImageClicked"
+                  >
+                    Add image
+                  </button>
+                  <input
+                      type="file"
+                      style="display: none"
+                      ref="fileInput"
+                      accept="image/*"
+                      @change="imageUpload"/>
+
+                  <div v-for="image in images"
+                        :key="image.url" class="pad1"
+                        @mouseover="image.hover = true"
+                        @mouseleave="image.hover = false"
+                  >
+                    <img width="250"
+                         :src="image.url"
+                         alt="Uploaded product image"
+                    />
+                    <button class="btn btn-danger ml-1 my-1 pad1"
+                            @click="removeImage(image.url)">
+                      Remove
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+
             </form>
           </div>
         </div>
@@ -223,7 +261,9 @@ export default {
       idBlur: false, // True when the user has clicked on then off the input field
       priceBlur: false,
       nameBlur: false,
-      triedIds: [] // List of ids tested for uniqueness
+      triedIds: [], // List of ids tested for uniqueness
+      images: [], //TODO: prefill with product's existing images
+      imagesEdited: false
     }
   },
 
@@ -275,6 +315,9 @@ export default {
     changesMade() {
       if (!this.product) {
         return false
+      }
+      if (this.imagesEdited) {
+        return true
       }
       let allSame = true;
       for (const [key, val] of Object.entries(this.product)) {
@@ -350,6 +393,7 @@ export default {
       this.submitting = true;
       Business.editProduct(this.businessId, this.productId, this.newProduct)
           .then(() => {
+            this.addImages()
             this.submitError = null
             this.success = true
             this.submitting = false
@@ -414,10 +458,58 @@ export default {
 
       // Reload product
       this.loadProduct()
+    },
+
+    /**
+     * Programmatically triggers the file input field when the
+     * 'Add image' button is clicked.
+     */
+    addImageClicked () {
+      this.imagesEdited = true
+      this.$refs.fileInput.click()
+    },
+    /**
+     * Handles the file being uploaded
+     * @param event the button click event that triggers this function
+     */
+    imageUpload (event) {
+      const files = event.target.files
+      const fileReader = new FileReader()
+      console.log(`File with name ${files[0].name} uploaded`)
+      fileReader.addEventListener('load', () => {
+        this.images.push({
+          url: fileReader.result,
+          file: files[0]
+        })
+      })
+      fileReader.readAsDataURL(files[0])
+    },
+    /**
+     * Called by the remove button next to an uploaded image.
+     * Removes the image from the frontend's list of images.
+     * @param imageUrl the url of the image to be removed
+     */
+    removeImage(imageUrl) {
+      this.imagesEdited = true
+      //TODO: get this to call delete endpoint if image stored on backend
+      this.images = this.images.filter(function(image) {
+        return image.url !== imageUrl;
+      })
+    },
+    /**
+     * Makes requests to add the product's images
+     */
+    addImages() {
+      //TODO: get this to only add images that didn't previously exist for product
+      for (const image of this.images) {
+        this.$root.$data.business.addProductImage(
+            this.businessId, this.newProduct.id, image.file)
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+
 </style>

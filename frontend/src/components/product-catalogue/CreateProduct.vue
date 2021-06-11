@@ -57,6 +57,42 @@
         <span class="invalid-feedback">{{ msg.rrp }}</span>
       </div>
 
+      <!-- Images -->
+      <div class="form-group row">
+        <label><strong>Images</strong></label>
+        <div class="col-sm-8">
+          <button
+              class="btn btn-primary ml-1 my-1 pad1"
+              type="button"
+              @click="addImageClicked"
+          >
+            Add image
+          </button>
+          <input
+              type="file"
+              style="display: none"
+              ref="fileInput"
+              accept="image/*"
+              @change="imageUpload"/>
+
+          <div v-for="image in images"
+               :key="image.url" class="pad1"
+               @mouseover="image.hover = true"
+               @mouseleave="image.hover = false"
+          >
+            <img width="180"
+                 :src="image.url"
+                 alt="Uploaded product image"
+            />
+            <button class="btn btn-danger ml-1 my-1 pad1"
+                    @click="removeImage(image.url)">
+              Remove
+            </button>
+          </div>
+
+        </div>
+      </div>
+
       <!-- Create Product button -->
       <div class="form-group row mb-0">
         <div class="btn-group" style="width: 100%">
@@ -96,6 +132,7 @@ export default {
       recommendedRetailPrice: '',
       currencySymbol: '',
       currencyCode: '',
+      images: [],
       msg: {
         id: null,
         name: null,
@@ -146,6 +183,7 @@ export default {
         this.msg.id = null;
       }
     },
+
     /**
      * Validate product name field
      */
@@ -157,6 +195,7 @@ export default {
         this.msg.name = null;
       }
     },
+
     /**
      * Validate the product RRP field
      */
@@ -169,6 +208,7 @@ export default {
         this.msg.rrp = null;
       }
     },
+
     /**
      * Checks all inputs are valid
      */
@@ -187,6 +227,7 @@ export default {
         this.addProduct();
       }
     },
+
     /**
      * Add a new product to the business's product catalogue
      */
@@ -201,8 +242,9 @@ export default {
                 ? Number(this.recommendedRetailPrice) : null
           }
       ).then(() => {
-        this.$refs.close.click();
-        this.close();
+          this.addImages();
+          this.$refs.close.click();
+          this.close();
       }).catch((err) => {
         this.msg.errorChecks = err.response ?
             err.response.data.slice(err.response.data.indexOf(':') + 2) :
@@ -225,6 +267,52 @@ export default {
      */
     close() {
       this.$emit('refresh-products');
+    },
+
+    /**
+     * Programmatically triggers the file input field when the
+     * 'Add image' button is clicked.
+     */
+    addImageClicked () {
+      this.$refs.fileInput.click()
+    },
+
+    /**
+     * Handles the file being uploaded
+     * @param event the button click event that triggers this function
+     */
+    imageUpload (event) {
+      const files = event.target.files
+      const fileReader = new FileReader()
+      console.log(`File with name ${files[0].name} uploaded`)
+      fileReader.addEventListener('load', () => {
+        this.images.push({
+          url: fileReader.result,
+          file: files[0],
+        })
+      })
+      fileReader.readAsDataURL(files[0])
+    },
+
+    /**
+     * Called by the remove button next to an uploaded image.
+     * Removes the image from the frontend's list of images.
+     * @param imageUrl the url of the image to be removed
+     */
+    removeImage(imageUrl) {
+      this.images = this.images.filter(function(image) {
+        return image.url !== imageUrl;
+      })
+    },
+
+    /**
+     * Makes requests to add the product's images
+     */
+    addImages() {
+      for (const image of this.images) {
+        this.$root.$data.business.addProductImage(
+            this.businessId, this.id, image.file)
+      }
     }
   }
 }
