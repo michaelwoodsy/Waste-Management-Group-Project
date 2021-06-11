@@ -183,6 +183,7 @@ export default {
         this.msg.id = null;
       }
     },
+
     /**
      * Validate product name field
      */
@@ -194,6 +195,7 @@ export default {
         this.msg.name = null;
       }
     },
+
     /**
      * Validate the product RRP field
      */
@@ -206,6 +208,7 @@ export default {
         this.msg.rrp = null;
       }
     },
+
     /**
      * Checks all inputs are valid
      */
@@ -224,6 +227,7 @@ export default {
         this.addProduct();
       }
     },
+
     /**
      * Add a new product to the business's product catalogue
      */
@@ -264,6 +268,7 @@ export default {
     close() {
       this.$emit('refresh-products');
     },
+
     /**
      * Programmatically triggers the file input field when the
      * 'Add image' button is clicked.
@@ -271,6 +276,7 @@ export default {
     addImageClicked () {
       this.$refs.fileInput.click()
     },
+
     /**
      * Handles the file being uploaded
      * @param event the button click event that triggers this function
@@ -287,6 +293,7 @@ export default {
       })
       fileReader.readAsDataURL(files[0])
     },
+
     /**
      * Called by the remove button next to an uploaded image.
      * Removes the image from the frontend's list of images.
@@ -297,6 +304,7 @@ export default {
         return image.url !== imageUrl;
       })
     },
+
     /**
      * Makes requests to add the product's images
      */
