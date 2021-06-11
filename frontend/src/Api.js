@@ -158,6 +158,16 @@ export const Business = {
     createProduct: (businessId, data) => instance.post(`businesses/${businessId}/products`, data),
 
     /**
+     * Adds an image to a product
+     */
+    addProductImage: (businessId, productId, file) => instance.post(
+        `businesses/${businessId}/products/${productId}/images`, file, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }),
+
+    /**
      * Retrieves all the listings for a given business
      * @param businessId The ID of the business in the database
      */

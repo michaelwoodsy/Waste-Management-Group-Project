@@ -128,7 +128,7 @@ describe('EditProductPage Component Tests', () => {
 
     // Check an error message is displayed if the product doesn't exist
     test("a message is shown when the product doesn't exist", async () => {
-        productId = "Non existant";
+        productId = "Non existent";
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required", "alert"],
             computed
@@ -205,5 +205,24 @@ describe('EditProductPage Component Tests', () => {
         // Expect the 'is-invalid' class is set on the input element, this will display the fixes message
         expect(priceInput.classes().find(el => el === 'is-invalid')).toBeDefined()
 
+    })
+})
+
+describe("Edit Product Images Test",  () => {
+
+    // Test that we can remove an uploaded image
+    test('Removing an image from the frontend list', () => {
+        wrapper.vm.$data.images = [{
+            url: "image.png",
+            file: ""
+            }, {
+            url: "other_image.jpg",
+            file: ""
+        }]
+        wrapper.vm.removeImage("image.png")
+        expect(wrapper.vm.$data.images).toEqual([{
+            url: "other_image.jpg",
+            file: ""
+        }])
     })
 })
