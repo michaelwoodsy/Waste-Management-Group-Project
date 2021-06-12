@@ -37,7 +37,7 @@ public class SpringEnvironment {
      * Sets the environment based on spring profile
      */
     public void setEnvironment() {
-        if (activeProfile.contains("local")) {
+        if (activeProfile.contains("local") || activeProfile.contains("test")) {
             DEV_MODE = true;
             TEST_DATA = true;
             if (DGAA_EMAIL == null) {
@@ -47,6 +47,10 @@ public class SpringEnvironment {
                 DGAA_PASSWORD = "password";
             }
         }
+        if (activeProfile.contains("test")) {
+            TEST_DATA = false;
+        }
+
     }
 
 }
