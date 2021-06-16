@@ -147,6 +147,10 @@
                     <span class="sr-only">Next</span>
                   </a>
                 </div>
+                <!-- Delete Image Button -->
+                <button class="btn btn-danger mx-auto" @click="deleteImage">
+                  Delete Image
+                </button>
               </div>
             </div>
           </div>
@@ -360,6 +364,10 @@ export default {
             this.error = err;
             this.loading = false;
           })
+    },
+
+    deleteImage(){
+
     }
   }
 }
