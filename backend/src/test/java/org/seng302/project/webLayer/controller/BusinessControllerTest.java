@@ -4,13 +4,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
@@ -19,7 +20,6 @@ import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNot
 import org.seng302.project.serviceLayer.service.BusinessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,11 +28,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,8 +46,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(BusinessController.class)
 class BusinessControllerTest {
 
-    @MockBean
-    private AddressRepository addressRepository;
 
     @MockBean
     private UserRepository userRepository;
@@ -65,9 +59,6 @@ class BusinessControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
-    private BusinessController businessController;
-
     @MockBean
     private BusinessService businessService;
 
@@ -77,6 +68,8 @@ class BusinessControllerTest {
 
     @BeforeEach
     public void setup() {
+
+        //TODO: take these out
 
         //Mock a test user to be used as business primary admin
         testPrimaryAdmin = new User("Jim", "Smith", "", "", "",
@@ -163,11 +156,11 @@ class BusinessControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult postUserResponse = this.mvc.perform(postBusinessRequest)
+        MvcResult postBusinessResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
-        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
         Assertions.assertEquals("Business name is a mandatory field", returnedExceptionString);
     }
 
@@ -191,11 +184,11 @@ class BusinessControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult postUserResponse = this.mvc.perform(postBusinessRequest)
+        MvcResult postBusinessResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
-        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
         Assertions.assertEquals("Address format is incorrect. A country must be included." +
                 " If a street number is given, a street name must be provided", returnedExceptionString);
     }
@@ -219,11 +212,11 @@ class BusinessControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult postUserResponse = this.mvc.perform(postBusinessRequest)
+        MvcResult postBusinessResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
-        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
         Assertions.assertTrue(returnedExceptionString.equals("Business type is a mandatory field") ||
                 returnedExceptionString.equals("Invalid business type provided"));
     }
@@ -274,11 +267,11 @@ class BusinessControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult postUserResponse = this.mvc.perform(postBusinessRequest)
+        MvcResult postBusinessResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
-        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
         Assertions.assertEquals("Invalid business type provided", returnedExceptionString);
     }
 
@@ -307,44 +300,62 @@ class BusinessControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult postUserResponse = this.mvc.perform(postBusinessRequest)
+        MvcResult postBusinessResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
-        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
         Assertions.assertEquals("Address format is incorrect. A country must be included." +
                 " If a street number is given, a street name must be provided", returnedExceptionString);
     }
 
-
-
     /**
-     * Tries to get a business by calling the /businesses/{id} endpoint
-     * Checks that we retrieve the correct business
+     * Tries to get an existing business by calling the /businesses/{id} endpoint
+     * Checks that 200 response given
      */
     @Test
-    @Order(6)
-    void getBusiness() {
+    void getBusiness_200() throws Exception {
 
-        Business returnedBusiness = businessController.getBusiness(1);
+        RequestBuilder getBusinessRequest = MockMvcRequestBuilders
+                .get("/businesses/{id}", 1)
+                .content(testBusiness.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        Assertions.assertEquals(1, returnedBusiness.getId());
-        Assertions.assertEquals("Lumbridge General Store", returnedBusiness.getName());
-        Assertions.assertEquals(testPrimaryAdmin.getId(), returnedBusiness.getPrimaryAdministratorId());
-        Assertions.assertEquals("A one-stop shop for all your adventuring needs", returnedBusiness.getDescription());
-        Assertions.assertEquals("Accommodation and Food Services", returnedBusiness.getBusinessType());
+                mvc.perform(getBusinessRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk()); // We expect a 200 response
+
     }
 
+    /**
+     * Tries to get a non-existing business by calling the /businesses/{id} endpoint
+     * Checks that 406 response given
+     */
+    @Test
+    void getNonExistentBusiness_406() throws Exception {
+        Mockito.doThrow(new NoBusinessExistsException(80)).when(businessService)
+                .getBusiness(Mockito.any(Integer.class));
 
+        RequestBuilder getBusinessRequest = MockMvcRequestBuilders
+                .get("/businesses/{id}", 80)
+                .content(testBusiness.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+
+        this.mvc.perform(getBusinessRequest)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable()) // We expect a 406 response
+                .andReturn();
+    }
 
 
     /**
      * Tries to add an administrator to a business by calling the /businesses/{id}/makeAdministrator endpoint
-     * Checks that the user is added as an administrator
+     * Expects 200 response
      */
     @Test
-    @Order(7)
-    void addAdministrator() throws Exception {
+    void addAdministrator_200() throws Exception {
 
         JSONObject testUserJson = new JSONObject();
         testUserJson.put("userId", testUser.getId());
@@ -357,24 +368,19 @@ class BusinessControllerTest {
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
                 .andExpect(status().isOk());
 
-        //Check that add administrator method called with user 2
-        ArgumentCaptor<User> addedAdministratorCaptor = ArgumentCaptor.forClass(User.class);
-        verify(testBusiness).addAdministrator(addedAdministratorCaptor.capture());
-
-        User addedAdmin = addedAdministratorCaptor.getValue();
-
-        Assertions.assertEquals(testUser.getEmail(), addedAdmin.getEmail());
-
     }
 
 
     /**
      * Tries to add an administrator to a business when they are already an administrator
-     * Checks that a AdministratorAlreadyExistsException is sent, a 400 response
+     * Expects a 400 response
      */
     @Test
-    @Order(8)
-    void addSameAdministrator() throws Exception {
+    void addSameAdministrator_400() throws Exception {
+
+        Mockito.doThrow(new AdministratorAlreadyExistsException(testUser.getId(), testBusiness.getId()))
+                .when(businessService)
+                .addAdministrator(Mockito.any(AddOrRemoveBusinessAdminDTO.class));
 
         given(testBusiness.getAdministrators()).willReturn(List.of(testUser));
 
@@ -389,22 +395,22 @@ class BusinessControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult addAdminResponse = this.mvc.perform(addAdminRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
-                .andReturn();
+        this.mvc.perform(addAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()); // We expect a 400 response
 
-        String returnedExceptionString = addAdminResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new AdministratorAlreadyExistsException(testUser.getId(), testBusiness.getId()).getMessage(), returnedExceptionString);
     }
 
 
     /**
      * Tries to add an administrator to a business when the user issuing the request is not a primary administrator
-     * Checks that a ForbiddenPrimaryAdministratorActionException is sent, a 403 response
+     * Expects a 403 response
      */
     @Test
-    @Order(9)
-    void addAdministratorWhenNotPrimaryAdmin() throws Exception {
+    void addAdministratorWhenNotPrimaryAdmin_403() throws Exception {
+
+        Mockito.doThrow(new ForbiddenPrimaryAdministratorActionException(testBusiness.getId()))
+                .when(businessService)
+                .addAdministrator(Mockito.any(AddOrRemoveBusinessAdminDTO.class));
 
         JSONObject primaryAdmin = new JSONObject();
         primaryAdmin.put("userId", testPrimaryAdmin.getId());
@@ -416,22 +422,21 @@ class BusinessControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("DaveSims@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult addAdminResponse = this.mvc.perform(addAdminRequest)
-                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 403 response
-                .andReturn();
-
-        String returnedExceptionString = addAdminResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new ForbiddenPrimaryAdministratorActionException(testBusiness.getId()).getMessage(), returnedExceptionString);
+        this.mvc.perform(addAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden()); // We expect a 403 response
     }
 
 
     /**
      * Tries to remove the primary administrator of a business by calling the /businesses/{id}/removeAdministrator endpoint
-     * Checks that a CantRemoveAdministratorException is sent, a 400 response
+     * Expects a 400 response
      */
     @Test
-    @Order(10)
-    void removePrimaryAdministrator() throws Exception {
+    void removePrimaryAdministrator_400() throws Exception {
+
+        Mockito.doThrow(new CantRemoveAdministratorException(testPrimaryAdmin.getId(), testBusiness.getId()))
+                .when(businessService)
+                .removeAdministrator(Mockito.any(AddOrRemoveBusinessAdminDTO.class));
 
         //Trying to remove the primary administrator
         JSONObject primaryAdmin = new JSONObject();
@@ -444,24 +449,17 @@ class BusinessControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult removeAdminResponse = this.mvc.perform(removeAdminRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
-                .andReturn();
-
-        String returnedExceptionString = removeAdminResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new CantRemoveAdministratorException(testPrimaryAdmin.getId(), testBusiness.getId()).getMessage(), returnedExceptionString);
+        this.mvc.perform(removeAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()); // We expect a 400 response
     }
 
 
     /**
      * Tries to remove an administrator of a business by calling the /businesses/{id}/removeAdministrator endpoint
-     * Checks that the user is removed as an administrator
+     * Expects 200 response
      */
     @Test
-    @Order(11)
-    void removeAdministrator() throws Exception {
-
-        given(testBusiness.getAdministrators()).willReturn(List.of(testUser));
+    void removeAdministrator_200() throws Exception {
 
         JSONObject admin = new JSONObject();
         admin.put("userId", testUser.getId());
@@ -471,27 +469,22 @@ class BusinessControllerTest {
                 .content(admin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")));
-
-        //Check that remove administrator method called with user 2
-        //This actually throws NoUserExistsException when run
-        ArgumentCaptor<User> removedAdministratorCaptor = ArgumentCaptor.forClass(User.class);
-        verify(testBusiness).removeAdministrator(removedAdministratorCaptor.capture());
-
-        User removedAdmin = removedAdministratorCaptor.getValue();
-
-        Assertions.assertEquals(testUser.getEmail(), removedAdmin.getEmail());
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
+                .andExpect(MockMvcResultMatchers.status().isOk()); // We expect a 200 response
 
     }
 
 
     /**
      * Tries to remove a user as administrator to a business when they are not an administrator
-     * Checks that a CantRemoveAdministratorException is sent, a 400 response
+     * Expects a 400 response
      */
     @Test
-    @Order(12)
-    void removeNonExistentAdministrator() throws Exception {
+    void removeNonExistentAdministrator_400() throws Exception {
+
+        Mockito.doThrow(new UserNotAdministratorException(testUser.getId(), testBusiness.getId()))
+                .when(businessService)
+                .removeAdministrator(Mockito.any(AddOrRemoveBusinessAdminDTO.class));
 
         //Trying to remove a user who is not an admin (The user that was just removed as an admin in the previous test)
         JSONObject user = new JSONObject();
@@ -504,22 +497,21 @@ class BusinessControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult removeAdminResponse = this.mvc.perform(removeAdminRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
-                .andReturn();
-
-        String returnedExceptionString = removeAdminResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new UserNotAdministratorException(testUser.getId(), testBusiness.getId()).getMessage(), returnedExceptionString);
+        this.mvc.perform(removeAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()); // We expect a 400 response
     }
 
 
     /**
      * Tries to remove an administrator of a business when the logged in user is not the primary administrator
-     * Checks that a CantRemoveAdministratorException is sent, a 403 response
+     * Expects a 403 response
      */
     @Test
-    @Order(13)
-    void removeAdministratorWhenNotPrimaryAdmin() throws Exception {
+    void removeAdministratorWhenNotPrimaryAdmin_403() throws Exception {
+
+        Mockito.doThrow(new ForbiddenPrimaryAdministratorActionException(testBusiness.getId()))
+                .when(businessService)
+                .removeAdministrator(Mockito.any(AddOrRemoveBusinessAdminDTO.class));
 
         JSONObject primaryAdmin = new JSONObject();
         primaryAdmin.put("userId", testPrimaryAdmin.getId());
@@ -531,11 +523,7 @@ class BusinessControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("DaveSims@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult removeAdminResponse = this.mvc.perform(removeAdminRequest)
-                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 400 response
-                .andReturn();
-
-        String returnedExceptionString = removeAdminResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new ForbiddenPrimaryAdministratorActionException(testBusiness.getId()).getMessage(), returnedExceptionString);
+        this.mvc.perform(removeAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden()); // We expect a 403 response
     }
 }

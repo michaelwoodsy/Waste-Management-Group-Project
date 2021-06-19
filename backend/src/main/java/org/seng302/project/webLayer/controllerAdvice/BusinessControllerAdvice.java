@@ -98,7 +98,7 @@ public class BusinessControllerAdvice {
 
     /**
      * Exception thrown by the removeAdministrator() function in BusinessController
-     * when a user tries to remove an administrator when they dont exist.
+     * when a user tries to remove an administrator when they aren't an admin.
      *
      * @return a 400 response with an appropriate message
      */

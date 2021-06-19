@@ -13,11 +13,17 @@ import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.AddBusinessDTO;
+import org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO;
+import org.seng302.project.serviceLayer.exceptions.NoBusinessExistsException;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
+import org.seng302.project.serviceLayer.exceptions.register.UserUnderageException;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +31,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-public class BusinessServiceTest {
+class BusinessServiceTest {
 
     @Autowired
     private BusinessService businessService;
@@ -100,8 +106,8 @@ public class BusinessServiceTest {
         businessService.createBusiness(requestDTO);
 
         ArgumentCaptor<Address> addressArgumentCaptor = ArgumentCaptor.forClass(Address.class);
-        //2 addresses saved in this test: one for DGAA (as part of DGAA check on startup), one for this business
-        verify(addressRepository, times(2)).save(addressArgumentCaptor.capture());
+        //Sometimes 2 addresses saved in this test: one for DGAA (as part of DGAA check on startup), one for this business
+        verify(addressRepository, atLeast(1)).save(addressArgumentCaptor.capture());
 
         ArgumentCaptor<Business> businessArgumentCaptor = ArgumentCaptor.forClass(Business.class);
         verify(businessRepository).save(businessArgumentCaptor.capture());
@@ -118,10 +124,134 @@ public class BusinessServiceTest {
         Assertions.assertEquals("jimsmith@gmail.com", createdBusiness.getAdministrators().get(0).getEmail());
     }
 
-    //Create business with non-existent user id
+    /**
+     * Tries creating a business as a user that doesn't exist
+     * Expects a NoUserExistsException
+     */
+    @Test
+    void createBusiness_nonExistentCreator() {
+        given(userRepository.findById(600)).willReturn(Optional.empty());
 
-    //Create business with underage user
+        AddBusinessDTO requestDTO = new AddBusinessDTO(
+                "Lumbridge General Store",
+                "A one-stop shop for all your adventuring needs",
+                businessAddress,
+                "Accommodation and Food Services",
+                600
+        );
 
-    //
+        Assertions.assertThrows(NoUserExistsException.class,
+                () -> businessService.createBusiness(requestDTO));
+    }
 
+
+    /**
+     * Tries creating a business as a user under 16
+     * Expects a UserUnderageException
+     */
+    @Test
+    void createBusiness_underageUser() {
+        testPrimaryAdmin.setDateOfBirth("2015-04-28");
+
+        AddBusinessDTO requestDTO = new AddBusinessDTO(
+                "Lumbridge General Store",
+                "A one-stop shop for all your adventuring needs",
+                businessAddress,
+                "Accommodation and Food Services",
+                testPrimaryAdmin.getId()
+        );
+
+        Assertions.assertThrows(UserUnderageException.class,
+                () -> businessService.createBusiness(requestDTO));
+    }
+
+
+    /**
+     * Tries to get a business by calling the service method
+     * Checks that we retrieve the correct business
+     */
+    @Test
+    void getBusiness() {
+
+        Business returnedBusiness = businessService.getBusiness(1);
+
+        Assertions.assertEquals(1, returnedBusiness.getId());
+        Assertions.assertEquals("Lumbridge General Store", returnedBusiness.getName());
+        Assertions.assertEquals(testPrimaryAdmin.getId(), returnedBusiness.getPrimaryAdministratorId());
+        Assertions.assertEquals("A one-stop shop for all your adventuring needs", returnedBusiness.getDescription());
+        Assertions.assertEquals("Accommodation and Food Services", returnedBusiness.getBusinessType());
+    }
+
+    /**
+     * Tries to get a business that doesn't exist
+     * checks correct exception thrown
+     */
+    @Test
+    void getNonexistentBusiness() {
+        given(businessRepository.findById(200)).willReturn(Optional.empty());
+
+        Assertions.assertThrows(NoBusinessExistsException.class,
+                () -> businessService.getBusiness(200));
+    }
+
+
+    /**
+     * Tries to add an admin
+     * Checks that the user is added as an administrator
+     */
+    @Test
+    void addAdministrator() {
+
+        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
+                2
+        );
+        requestDTO.setBusinessId(testBusiness.getId());
+        requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
+        businessService.addAdministrator(requestDTO);
+
+        //Check that add administrator method called with user 2
+        ArgumentCaptor<User> addedAdministratorCaptor = ArgumentCaptor.forClass(User.class);
+        verify(testBusiness).addAdministrator(addedAdministratorCaptor.capture());
+
+        User addedAdmin = addedAdministratorCaptor.getValue();
+
+        Assertions.assertEquals(testUser.getEmail(), addedAdmin.getEmail());
+    }
+
+
+    /**
+     * Tries to remove an admin
+     * Checks that the administrator is removed
+     */
+    @Test
+    void removeAdministrator() {
+
+        testBusiness.addAdministrator(testUser);
+        given(userRepository.findById(2)).willReturn(Optional.of(testUser));
+
+        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
+                2
+        );
+        requestDTO.setBusinessId(testBusiness.getId());
+        requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
+        businessService.removeAdministrator(requestDTO);
+
+        //Check that remove administrator method called with user 2
+        ArgumentCaptor<User> removedAdministratorCaptor = ArgumentCaptor.forClass(User.class);
+        verify(testBusiness).removeAdministrator(removedAdministratorCaptor.capture());
+
+        User removedAdmin = removedAdministratorCaptor.getValue();
+
+        Assertions.assertEquals(testUser.getEmail(), removedAdmin.getEmail());
+    }
+
+    //TODO: addSameAdministrator
+
+    //TODO: addAdministratorWhenNotPrimaryAdmin
+
+    //TODO: removePrimaryAdministrator
+
+    //TODO: removeNonExistentAdministrator
+
+    //TODO: removeAdministratorWhenNotPrimaryAdmin
 }
