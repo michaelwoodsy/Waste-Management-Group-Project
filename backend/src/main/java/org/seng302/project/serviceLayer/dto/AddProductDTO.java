@@ -29,7 +29,8 @@ public class AddProductDTO {
     private Integer businessId;
     private AppUserDetails appUser;
 
-    public AddProductDTO(String id, String name, String description, String manufacturer, Double recommendedRetailPrice) {
+    public AddProductDTO(String id, String name, String description, String manufacturer,
+                         Double recommendedRetailPrice) {
         this.id = id;
         this.name = name;
         this.description = description;

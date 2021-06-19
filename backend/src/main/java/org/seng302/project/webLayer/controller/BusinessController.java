@@ -2,28 +2,24 @@ package org.seng302.project.webLayer.controller;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.AddBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
-import org.seng302.project.serviceLayer.exceptions.register.InvalidAddressException;
-import org.seng302.project.serviceLayer.exceptions.register.UserUnderageException;
-import org.seng302.project.serviceLayer.util.DateArithmetic;
+import org.seng302.project.serviceLayer.service.BusinessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.security.Principal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Optional;
+
 
 /**
  * REST controller for handling requests to do with businesses.
@@ -31,104 +27,31 @@ import java.util.Optional;
 @RestController
 public class BusinessController {
 
+    private final BusinessService businessService;
+
     private static final Logger logger = LoggerFactory.getLogger(BusinessController.class.getName());
     private final BusinessRepository businessRepository;
-    private final AddressRepository addressRepository;
     private final UserRepository userRepository;
 
     @Autowired
-    public BusinessController(BusinessRepository businessRepository,
-                              AddressRepository addressRepository,
+    public BusinessController(BusinessService businessService,
+            BusinessRepository businessRepository,
                               UserRepository userRepository) {
+        this.businessService = businessService;
         this.businessRepository = businessRepository;
-        this.addressRepository = addressRepository;
         this.userRepository = userRepository;
     }
 
 
     /**
      * Creates a new business account.
-     * Handles cases that may result in an error.
      *
-     * @param newBusiness request body in the form of a User object
+     * @param requestDTO DTO with fields for Business to be created
      */
     @PostMapping("/businesses")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createBusiness(@RequestBody Business newBusiness) {
-        logger.info("Request to create business");
-        try {
-
-            String userEmail = "";
-
-            //If the primary administrator id is not an id of a user
-            if (userRepository.findById(newBusiness.getPrimaryAdministratorId()).isEmpty()) {
-                NoUserExistsException exception = new NoUserExistsException(newBusiness.getPrimaryAdministratorId());
-                logger.error(exception.getMessage());
-                throw exception;
-            } else {
-                Optional<User> currUser = userRepository.findById(newBusiness.getPrimaryAdministratorId());
-                currUser.ifPresent(newBusiness::addAdministrator);
-                if(currUser.isPresent()) userEmail = currUser.get().getEmail();
-            }
-
-            User currentUser = userRepository.findByEmail(userEmail).get(0);
-
-            //If the current user is less than 16 years old
-            Date dateOfBirthDate;
-            Date currentDate = new Date();
-            try {
-                dateOfBirthDate = new SimpleDateFormat("yyyy-MM-dd").parse(currentUser.getDateOfBirth());
-            } catch (ParseException parseException) {
-                InvalidDateException invalidDateException = new InvalidDateException();
-                logger.warn(invalidDateException.getMessage());
-                throw invalidDateException;
-            } catch (Exception exception) {
-                logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
-                throw exception;
-            }
-
-            if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) < 16) {
-                UserUnderageException underageException = new UserUnderageException("a business", 16);
-                logger.warn(underageException.getMessage());
-                throw underageException;
-            }
-
-
-            //If any of the required fields are empty
-            if (newBusiness.getName().equals("") ||
-                    newBusiness.getAddress().getCountry().equals("") ||
-                    newBusiness.getBusinessType().equals("")) {
-                RequiredFieldsMissingException exception = new RequiredFieldsMissingException();
-                logger.error(exception.getMessage());
-                throw exception;
-            }
-
-            //Check if address has a street number with no street name
-            if (    (newBusiness.getAddress().getStreetName() == null || newBusiness.getAddress().getStreetName().equals("")) &&
-                    (newBusiness.getAddress().getStreetNumber() != null && !newBusiness.getAddress().getStreetNumber().equals(""))) {
-                InvalidAddressException addressException = new InvalidAddressException();
-                logger.error(addressException.getMessage());
-                throw addressException;
-            }
-
-            // If business type is not one of the specified business types
-            if (!newBusiness.getBusinessType().equals("Accommodation and Food Services") &&
-                    !newBusiness.getBusinessType().equals("Retail Trade") &&
-                    !newBusiness.getBusinessType().equals("Charitable organisation") &&
-                    !newBusiness.getBusinessType().equals("Non-profit organisation")) {
-                NoBusinessTypeExistsException exception = new NoBusinessTypeExistsException(newBusiness.getBusinessType());
-                logger.error(exception.getMessage());
-                throw exception;
-            }
-            addressRepository.save(newBusiness.getAddress());
-            businessRepository.save(newBusiness);
-            logger.info(String.format("Successful creation of business %d", newBusiness.getId()));
-        } catch (NoUserExistsException | RequiredFieldsMissingException | NoBusinessTypeExistsException handledException) {
-            throw handledException;
-        } catch (Exception unexpectedException) {
-            logger.error(String.format("Unexpected error while creating business: %s", unexpectedException.getMessage()));
-            throw unexpectedException;
-        }
+    public void createBusiness(@Valid @RequestBody AddBusinessDTO requestDTO) {
+        businessService.createBusiness(requestDTO);
     }
 
     /**
@@ -141,7 +64,7 @@ public class BusinessController {
     @GetMapping("/businesses/{id}")
     public Business getBusiness(@PathVariable int id) {
 
-        logger.info(String.format("Request to get business %d", id));
+        logger.info("Request to get business {}", id);
         try {
             return businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
         } catch (NoBusinessExistsException noBusinessExistsException) {

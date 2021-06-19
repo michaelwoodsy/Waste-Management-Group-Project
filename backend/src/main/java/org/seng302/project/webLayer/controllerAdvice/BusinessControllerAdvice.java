@@ -62,16 +62,6 @@ public class BusinessControllerAdvice {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Exception thrown by the createBusiness() function in BusinessController
-     * when a user tries to create a business with a business type that is not valid.
-     *
-     * @return a 400 response with an appropriate message
-     */
-    @ExceptionHandler(NoBusinessTypeExistsException.class)
-    public ResponseEntity<String> invalidBusinessType(NoBusinessTypeExistsException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
 
     /**
      * Exception thrown by the addNewAdministrator() function in BusinessController

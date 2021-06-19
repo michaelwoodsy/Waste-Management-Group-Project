@@ -16,6 +16,7 @@ import org.seng302.project.serviceLayer.exceptions.businessAdministrator.Adminis
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
+import org.seng302.project.serviceLayer.service.BusinessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -66,6 +67,9 @@ class BusinessControllerTest {
 
     @Autowired
     private BusinessController businessController;
+
+    @MockBean
+    private BusinessService businessService;
 
     private User testPrimaryAdmin;
     private User testUser;
@@ -120,11 +124,10 @@ class BusinessControllerTest {
 
     /**
      * Creates the test business from the API by calling the POST '/businesses' endpoint.
-     * Checks that the new business and its address are saved
+     * Expects a 201 response
      */
     @Test
-    @Order(1)
-    void createTestBusiness() throws Exception {
+    void createBusiness_validFields_201() throws Exception {
 
         JSONObject testBusinessJson = getTestBusiness();
 
@@ -138,53 +141,34 @@ class BusinessControllerTest {
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
                 .andExpect(status().isCreated());
 
-        // This captures the arguments given to the mocked repository
-        ArgumentCaptor<Address> addressArgumentCaptor = ArgumentCaptor.forClass(Address.class);
-        verify(addressRepository).save(addressArgumentCaptor.capture());
-
-        ArgumentCaptor<Business> businessArgumentCaptor = ArgumentCaptor.forClass(Business.class);
-        verify(businessRepository).save(businessArgumentCaptor.capture());
-
-        Business createdBusiness = businessArgumentCaptor.getValue();
-
-        Assertions.assertEquals(testPrimaryAdmin.getId(), createdBusiness.getPrimaryAdministratorId());
-        Assertions.assertEquals(testPrimaryAdmin.getId(), createdBusiness.getAdministrators().get(0).getId());
-        Assertions.assertEquals("Lumbridge General Store", createdBusiness.getName());
-
-        Assertions.assertEquals("A one-stop shop for all your adventuring needs", createdBusiness.getDescription());
-        Assertions.assertEquals("New Zealand", createdBusiness.getAddress().getCountry());
-        Assertions.assertEquals("Accommodation and Food Services", createdBusiness.getBusinessType());
-        Assertions.assertEquals("jimsmith@gmail.com", createdBusiness.getAdministrators().get(0).getEmail());
-
     }
 
 
     /**
      * Tries creating a business with missing required field: name
-     * Checks that we receive a 400 response.
+     * Checks that we receive a 400 response with message from DTO
      */
     @Test
-    @Order(2)
-    void tryNameFieldEmpty() throws Exception {
+    void createBusiness_nameFieldEmpty_400() throws Exception {
 
         JSONObject testBusiness = getTestBusiness();
         testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
 
         //Name field empty
         testBusiness.put("name", "");
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
+        RequestBuilder postBusinessRequest = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+        MvcResult postUserResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new RequiredFieldsMissingException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("Business name is a mandatory field", returnedExceptionString);
     }
 
 
@@ -193,65 +177,64 @@ class BusinessControllerTest {
      * Checks that we receive a 400 response.
      */
     @Test
-    @Order(3)
-    void tryAddressFieldEmpty() throws Exception {
+    void createBusiness_addressFieldEmpty_400() throws Exception {
 
         JSONObject testAddress = new JSONObject();
         testAddress.put("country", "");
         JSONObject testBusiness = getTestBusiness();
         testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
         testBusiness.put("address", testAddress);
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
+        RequestBuilder postBusinessRequest = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+        MvcResult postUserResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new RequiredFieldsMissingException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("Address format is incorrect. A country must be included." +
+                " If a street number is given, a street name must be provided", returnedExceptionString);
     }
 
 
     /**
      * Tries creating a business with missing required field: businessType
-     * Checks that we receive a 400 response.
+     * Checks that we receive a 400 response with a message from the DTO
      */
     @Test
-    @Order(4)
-    void tryTypeFieldEmpty() throws Exception {
+    void createBusiness_typeFieldEmpty_400() throws Exception {
 
         JSONObject testBusiness = getTestBusiness();
         testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
 
         testBusiness.put("businessType", "");
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
+        RequestBuilder postBusinessRequest = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+        MvcResult postUserResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new RequiredFieldsMissingException().getMessage(), returnedExceptionString);
+        Assertions.assertTrue(returnedExceptionString.equals("Business type is a mandatory field") ||
+                returnedExceptionString.equals("Invalid business type provided"));
     }
 
 
     /**
      * Tries creating a business with all required fields missing: name, address, type
-     * Checks that we receive a 400 response.
+     * Checks that we receive a 400 response with a message from the DTO
      */
     @Test
-    @Order(5)
-    void tryAllRequiredFieldsEmpty() throws Exception {
+    void createBusiness_allRequiredFieldsEmpty_400() throws Exception {
 
         JSONObject testAddress = new JSONObject();
         testAddress.put("country", "");
@@ -261,25 +244,83 @@ class BusinessControllerTest {
         testBusiness.put("address", testAddress);
         testBusiness.put("businessType", "");
 
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
+        RequestBuilder postBusinessRequest = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
 
-        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+        this.mvc.perform(postBusinessRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+    }
+
+    /**
+     * Tries creating a business with an invalid business type
+     * Checks that we receive a 400 response with a message from the DTO
+     */
+    @Test
+    void createBusiness_invalidType_400() throws Exception {
+
+        JSONObject testBusiness = getTestBusiness();
+        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
+
+        testBusiness.put("businessType", "My New Type");
+        RequestBuilder postBusinessRequest = MockMvcRequestBuilders
+                .post("/businesses")
+                .content(testBusiness.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postUserResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new RequiredFieldsMissingException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("Invalid business type provided", returnedExceptionString);
     }
+
+
+
+    /**
+     * Tries creating a business where address has a street number but no street name
+     * Checks that we receive a 400 response with a message from the DTO
+     */
+    @Test
+    void createBusiness_streetNumberNoStreetName_400() throws Exception {
+
+        JSONObject testBusiness = getTestBusiness();
+        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
+
+        JSONObject testAddress = new JSONObject();
+        testAddress.put("streetNumber", "17");
+        testAddress.put("streetName", "");
+
+        testBusiness.put("address", testAddress);
+
+        RequestBuilder postBusinessRequest = MockMvcRequestBuilders
+                .post("/businesses")
+                .content(testBusiness.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+
+        MvcResult postUserResponse = this.mvc.perform(postBusinessRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        Assertions.assertEquals("Address format is incorrect. A country must be included." +
+                " If a street number is given, a street name must be provided", returnedExceptionString);
+    }
+
 
 
     /**
      * Tries to get a business by calling the /businesses/{id} endpoint
-     * Checks that we retrieve the correct user
+     * Checks that we retrieve the correct business
      */
     @Test
     @Order(6)
@@ -293,6 +334,8 @@ class BusinessControllerTest {
         Assertions.assertEquals("A one-stop shop for all your adventuring needs", returnedBusiness.getDescription());
         Assertions.assertEquals("Accommodation and Food Services", returnedBusiness.getBusinessType());
     }
+
+
 
 
     /**
