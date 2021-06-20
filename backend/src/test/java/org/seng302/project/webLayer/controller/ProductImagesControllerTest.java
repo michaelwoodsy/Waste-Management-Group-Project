@@ -8,6 +8,7 @@ import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,6 +24,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,6 +42,9 @@ class ProductImagesControllerTest {
 
     @MockBean
     private ProductRepository productRepository;
+
+    @MockBean
+    private ImageRepository imageRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -99,6 +104,7 @@ class ProductImagesControllerTest {
         image5.setId(5);
         Image image6 = new Image("image6.jpg", "image6_thumbnail.jpg" );
         image6.setId(6);
+        given(imageRepository.findAll()).willReturn(List.of(image4, image5, image6));
         given(testProduct.getImages()).willReturn(List.of(image4, image5, image6));
         given(productRepository.findByIdAndBusinessId("PP1", 1)).willReturn(Optional.of(testProduct));
 
@@ -190,7 +196,6 @@ class ProductImagesControllerTest {
      */
     @Test
     void setPrimaryImage_noImageExists() throws Exception {
-
         given(productRepository.save(any(Product.class))).willReturn(testProduct);
 
         mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
@@ -199,4 +204,57 @@ class ProductImagesControllerTest {
                 .andExpect(status().isNotAcceptable());
     }
 
+    @Test
+    void deleteImage_requestByBusinessAdmin_success() throws Exception {
+        mockMvc.perform(delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
+                testBusiness.getId(), testProduct.getId(), 5)
+                .with(user(new AppUserDetails(businessAdmin))))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deleteImage_requestByGAA_success() throws Exception {
+        mockMvc.perform(delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
+                testBusiness.getId(), testProduct.getId(), 5)
+                .with(user(new AppUserDetails(systemAdmin))))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deleteImage_notAdmin() throws Exception {
+        mockMvc.perform(delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
+                testBusiness.getId(), testProduct.getId(), 5)
+                .with(user(new AppUserDetails(otherUser))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteImage_noBusinessExists() throws Exception {
+        given(businessRepository.findById(4)).willReturn(Optional.empty());
+
+        mockMvc.perform(delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
+                4, testProduct.getId(), 5)
+                .with(user(new AppUserDetails(businessAdmin))))
+                .andExpect(status().isNotAcceptable());
+    }
+
+    @Test
+    void deleteImage_noProductExists() throws Exception {
+        given(productRepository.findByIdAndBusinessId("NotAProduct", 1)).willReturn(Optional.empty());
+
+        mockMvc.perform(delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
+                testBusiness.getId(), 1, 5)
+                .with(user(new AppUserDetails(businessAdmin))))
+                .andExpect(status().isNotAcceptable());
+    }
+
+    @Test
+    void deleteImage_noImageExists() throws Exception {
+        given(productRepository.save(any(Product.class))).willReturn(testProduct);
+
+        mockMvc.perform(delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
+                testBusiness.getId(), testProduct.getId(), 7)
+                .with(user(new AppUserDetails(businessAdmin))))
+                .andExpect(status().isNotAcceptable());
+    }
 }

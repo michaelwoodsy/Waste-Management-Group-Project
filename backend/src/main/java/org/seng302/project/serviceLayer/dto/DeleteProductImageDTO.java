@@ -1,5 +1,6 @@
 package org.seng302.project.serviceLayer.dto;
 
+import com.sun.xml.bind.v2.TODO;
 import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.ImageRepository;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 public class DeleteProductImageDTO {
 
@@ -81,12 +83,16 @@ public class DeleteProductImageDTO {
             if (imageToReplace != null) {
                 product.setPrimaryImageId(imageToReplace.getId());
             }
+            /* Can't use yet because images are not currently added properly
             String filename = imageToDelete.getFilename();
-            var imagePath = Paths.get("../media/" + filename);
+            var imagePath = Paths.get(filename);
             Files.delete(imagePath);
-
+             */
+            //TODO: Figure out how to get images to delete from repository properly
+            product.removeImage(imageToDelete);
             imageRepository.delete(imageToDelete);
             productRepository.save(product);
+            logger.info("{}", productRepository.findByIdAndBusinessId("PP1", 1));
         } else {
             throw new NoProductImageWithIdException(productId, imageId);
         }
