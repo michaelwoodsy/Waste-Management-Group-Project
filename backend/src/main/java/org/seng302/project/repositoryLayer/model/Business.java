@@ -3,7 +3,7 @@ package org.seng302.project.repositoryLayer.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -90,7 +90,7 @@ public class Business {
         if (userIsAdmin(admin.getId())) {
             this.administrators.remove(admin);
         } else {
-            throw new NoUserExistsException(admin.getId());
+            throw new UserNotAdministratorException(admin.getId(), id);
         }
     }
 
