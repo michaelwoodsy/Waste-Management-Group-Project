@@ -3,14 +3,9 @@ package org.seng302.project.webLayer.controller;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.Business;
-import org.seng302.project.repositoryLayer.repository.AddressRepository;
-import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
@@ -18,23 +13,19 @@ import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRem
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.seng302.project.serviceLayer.service.BusinessService;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -43,18 +34,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 
 
-@WebMvcTest(BusinessController.class)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
+@AutoConfigureMockMvc
 class BusinessControllerTest {
-
-
-    @MockBean
-    private UserRepository userRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @MockBean
-    private BusinessRepository businessRepository;
 
     @Autowired
     private MockMvc mvc;
@@ -69,17 +53,11 @@ class BusinessControllerTest {
     @BeforeEach
     public void setup() {
 
-        //TODO: take these out
-
         //Mock a test user to be used as business primary admin
         testPrimaryAdmin = new User("Jim", "Smith", "", "", "",
                 "jimsmith@gmail.com", "1999-04-27", "",
                 null, "1337-H%nt3r2");
-
         testPrimaryAdmin.setId(1);
-        testPrimaryAdmin.setPassword(passwordEncoder.encode(testPrimaryAdmin.getPassword()));
-        given(userRepository.findByEmail("jimsmith@gmail.com")).willReturn(List.of(testPrimaryAdmin));
-        given(userRepository.findById(1)).willReturn(Optional.of(testPrimaryAdmin));
 
         //Mock a different test user
         testUser = new User("Dave", "Sims", "", "", "",
@@ -87,25 +65,19 @@ class BusinessControllerTest {
                 null, "1337-H%nt3r2");
 
         testUser.setId(2);
-        testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
-        given(userRepository.findByEmail("DaveSims@gmail.com")).willReturn(List.of(testUser));
-        given(userRepository.findById(2)).willReturn(Optional.of(testUser));
 
         //Mock a test business
         //Spy on this business so we can check when methods on the business object are called
-        testBusiness = Mockito.spy(new Business("Lumbridge General Store", "A one-stop shop for all your adventuring needs",
-                null, "Accommodation and Food Services", 1));
+        testBusiness = new Business("Lumbridge General Store", "A one-stop shop for all your adventuring needs",
+                null, "Accommodation and Food Services", 1);
         testBusiness.setId(1);
-        given(businessRepository.findByName("Lumbridge General Store")).willReturn(List.of(testBusiness));
-        given(businessRepository.findById(1)).willReturn(Optional.of(testBusiness));
-
     }
 
     private JSONObject getTestBusiness() throws JSONException {
         JSONObject testAddress = new JSONObject();
         testAddress.put("country", "New Zealand");
         JSONObject testBusinessJson = new JSONObject();
-        testBusinessJson.put("primaryAdministratorId", 20);
+        testBusinessJson.put("primaryAdministratorId", 1);
         testBusinessJson.put("name", "Lumbridge General Store");
         testBusinessJson.put("description", "A one-stop shop for all your adventuring needs");
         testBusinessJson.put("address", testAddress);
@@ -121,19 +93,18 @@ class BusinessControllerTest {
      */
     @Test
     void createBusiness_validFields_201() throws Exception {
-
         JSONObject testBusinessJson = getTestBusiness();
 
         testBusinessJson.put("primaryAdministratorId", testPrimaryAdmin.getId());
 
-        mvc.perform(MockMvcRequestBuilders
+        RequestBuilder request = MockMvcRequestBuilders
                 .post("/businesses")
                 .content(testBusinessJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
-                .andExpect(status().isCreated());
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
+        mvc.perform(request).andExpect(status().isCreated());
     }
 
 
@@ -154,7 +125,7 @@ class BusinessControllerTest {
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         MvcResult postBusinessResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
@@ -182,7 +153,7 @@ class BusinessControllerTest {
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         MvcResult postBusinessResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
@@ -210,7 +181,7 @@ class BusinessControllerTest {
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         MvcResult postBusinessResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
@@ -242,7 +213,7 @@ class BusinessControllerTest {
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
@@ -265,7 +236,7 @@ class BusinessControllerTest {
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         MvcResult postBusinessResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
@@ -298,7 +269,7 @@ class BusinessControllerTest {
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         MvcResult postBusinessResponse = this.mvc.perform(postBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
@@ -321,7 +292,7 @@ class BusinessControllerTest {
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testUser)));
 
                 mvc.perform(getBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isOk()); // We expect a 200 response
@@ -342,11 +313,10 @@ class BusinessControllerTest {
                 .content(testBusiness.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         this.mvc.perform(getBusinessRequest)
-                .andExpect(MockMvcResultMatchers.status().isNotAcceptable()) // We expect a 406 response
-                .andReturn();
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable()); // We expect a 406 response
     }
 
 
@@ -360,14 +330,15 @@ class BusinessControllerTest {
         JSONObject testUserJson = new JSONObject();
         testUserJson.put("userId", testUser.getId());
 
-        mvc.perform(MockMvcRequestBuilders
+        RequestBuilder request = MockMvcRequestBuilders
                 .put(String.format("/businesses/%d/makeAdministrator", testBusiness.getId()))
                 .content(testUserJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
-                .andExpect(status().isOk());
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
+        this.mvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
 
@@ -382,8 +353,6 @@ class BusinessControllerTest {
                 .when(businessService)
                 .addAdministrator(Mockito.any(AddOrRemoveBusinessAdminDTO.class));
 
-        given(testBusiness.getAdministrators()).willReturn(List.of(testUser));
-
         JSONObject newAdmin = new JSONObject();
         newAdmin.put("userId", testUser.getId());
 
@@ -393,7 +362,7 @@ class BusinessControllerTest {
                 .content(newAdmin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         this.mvc.perform(addAdminRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()); // We expect a 400 response
@@ -420,7 +389,7 @@ class BusinessControllerTest {
                 .content(primaryAdmin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("DaveSims@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testUser)));
 
         this.mvc.perform(addAdminRequest)
                 .andExpect(MockMvcResultMatchers.status().isForbidden()); // We expect a 403 response
@@ -447,7 +416,7 @@ class BusinessControllerTest {
                 .content(primaryAdmin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         this.mvc.perform(removeAdminRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()); // We expect a 400 response
@@ -464,14 +433,15 @@ class BusinessControllerTest {
         JSONObject admin = new JSONObject();
         admin.put("userId", testUser.getId());
 
-        mvc.perform(MockMvcRequestBuilders
+        RequestBuilder removeAdminRequest = MockMvcRequestBuilders
                 .put(String.format("/businesses/%d/removeAdministrator", testBusiness.getId()))
                 .content(admin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2")))
-                .andExpect(MockMvcResultMatchers.status().isOk()); // We expect a 200 response
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
+        this.mvc.perform(removeAdminRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
 
@@ -495,7 +465,7 @@ class BusinessControllerTest {
                 .content(user.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("jimsmith@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         this.mvc.perform(removeAdminRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()); // We expect a 400 response
@@ -521,7 +491,7 @@ class BusinessControllerTest {
                 .content(primaryAdmin.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("DaveSims@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testUser)));
 
         this.mvc.perform(removeAdminRequest)
                 .andExpect(MockMvcResultMatchers.status().isForbidden()); // We expect a 403 response

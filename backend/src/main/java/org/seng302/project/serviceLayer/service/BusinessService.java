@@ -43,6 +43,34 @@ public class BusinessService {
         this.userRepository = userRepository;
     }
 
+
+    /**
+     * Checks if the user creating the business
+     * is at least 16 years old
+     * Throws an exception if they aren't
+     * @param currentUser the user we are checking the age of
+     */
+    private void checkBusinessCreatorAge(User currentUser) {
+        Date dateOfBirthDate;
+        var currentDate = new Date();
+        try {
+            dateOfBirthDate = new SimpleDateFormat("yyyy-MM-dd").parse(currentUser.getDateOfBirth());
+        } catch (ParseException parseException) {
+            var invalidDateException = new InvalidDateException();
+            logger.warn(invalidDateException.getMessage());
+            throw invalidDateException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
+            throw exception;
+        }
+
+        if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) < 16) {
+            var underageException = new UserUnderageException("a business", 16);
+            logger.warn(underageException.getMessage());
+            throw underageException;
+        }
+    }
+
     /**
      * Creates a new business account.
      *
@@ -52,14 +80,12 @@ public class BusinessService {
         logger.info("Request to create business");
 
         try {
-
             var userEmail = "";
             String businessName = requestDTO.getName();
             String description = requestDTO.getDescription();
             var address = requestDTO.getAddress();
             String businessType = requestDTO.getBusinessType();
             Integer primaryAdministratorId = requestDTO.getPrimaryAdministratorId();
-
 
             var newBusiness = new Business(businessName, description, address, businessType, primaryAdministratorId);
 
@@ -75,26 +101,7 @@ public class BusinessService {
             }
 
             var currentUser = userRepository.findByEmail(userEmail).get(0);
-
-            //If the current user is less than 16 years old
-            Date dateOfBirthDate;
-            var currentDate = new Date();
-            try {
-                dateOfBirthDate = new SimpleDateFormat("yyyy-MM-dd").parse(currentUser.getDateOfBirth());
-            } catch (ParseException parseException) {
-                var invalidDateException = new InvalidDateException();
-                logger.warn(invalidDateException.getMessage());
-                throw invalidDateException;
-            } catch (Exception exception) {
-                logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
-                throw exception;
-            }
-
-            if (DateArithmetic.getDiffYears(dateOfBirthDate, currentDate) < 16) {
-                var underageException = new UserUnderageException("a business", 16);
-                logger.warn(underageException.getMessage());
-                throw underageException;
-            }
+            checkBusinessCreatorAge(currentUser);
 
             addressRepository.save(address);
             businessRepository.save(newBusiness);
@@ -128,6 +135,23 @@ public class BusinessService {
         }
 
     }
+
+    /**
+     * Finds the person making a request to add/remove
+     * a business admin
+     * Throws an exception if they are not a primary admin of the business
+     * or if they are not a GAA/DGAA
+     */
+    private void checkAdminRequestMaker(String appUserEmail, Business currBusiness) {
+        var loggedInUser = userRepository.findByEmail(appUserEmail).get(0);
+
+        if (!loggedInUser.getId().equals(currBusiness.getPrimaryAdministratorId()) && !loggedInUser.isGAA()) {
+            var exception = new ForbiddenPrimaryAdministratorActionException(currBusiness.getId());
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+    }
+
     /**
      * Adds an admin to a business
      *
@@ -144,16 +168,9 @@ public class BusinessService {
 
             var currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
             var currBusiness = businessRepository.findById(requestDTO.getBusinessId()).orElseThrow(() -> new NoBusinessExistsException(businessId));
-            var loggedInUser = userRepository.findByEmail(requestDTO.getAppUser().getUsername()).get(0);
+            checkAdminRequestMaker(requestDTO.getAppUser().getUsername(), currBusiness);
 
-            //Checks if the user preforming the action is the primary administrator of the business or a GAA
-            if (!loggedInUser.getId().equals(currBusiness.getPrimaryAdministratorId()) && !loggedInUser.isGAA()) {
-                var exception = new ForbiddenPrimaryAdministratorActionException(businessId);
-                logger.error(exception.getMessage());
-                throw exception;
-            }
-
-            //Checks if the user us already an administrator
+            //Checks if the user is already an administrator
             if (currBusiness.getAdministrators().contains(currUser)) {
                 var exception = new AdministratorAlreadyExistsException(userId, businessId);
                 logger.warn(exception.getMessage());
@@ -187,42 +204,26 @@ public class BusinessService {
 
             var currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
             var currBusiness = businessRepository.findById(businessId).orElseThrow(() -> new NoBusinessExistsException(businessId));
-            var loggedInUser = userRepository.findByEmail(requestDTO.getAppUser().getUsername()).get(0);
-
-            //Checks if the user preforming the action is the primary administrator of the business or a GAA
-            if (!loggedInUser.getId().equals(currBusiness.getPrimaryAdministratorId()) && !loggedInUser.isGAA()) {
-                var exception = new ForbiddenPrimaryAdministratorActionException(businessId);
-                logger.error(exception.getMessage());
-                throw exception;
-            }
+            checkAdminRequestMaker(requestDTO.getAppUser().getUsername(), currBusiness);
 
             //Checks if user trying to be removed is the primary administrator
             if (userId.equals(currBusiness.getPrimaryAdministratorId())) {
-                var exception = new CantRemoveAdministratorException(userId, businessId);
-                logger.error(exception.getMessage());
-                throw exception;
+                throw new CantRemoveAdministratorException(userId, businessId);
             }
 
             //Checks if the user is not an administrator
             if (!currBusiness.getAdministrators().contains(currUser)) {
-                var exception = new UserNotAdministratorException(userId, businessId);
-                logger.error(exception.getMessage());
-                throw exception;
+                throw new UserNotAdministratorException(userId, businessId);
             }
 
-            try {
-                currBusiness.removeAdministrator(currUser);
-            } catch (UserNotAdministratorException exception) {
-                logger.error(exception.getMessage());
-                throw exception;
-            }
-
+            currBusiness.removeAdministrator(currUser);
             businessRepository.save(currBusiness);
 
             logger.info("Successfully removed administrator {} from business {}", currUser.getId(), currBusiness.getId());
 
         } catch (NoBusinessExistsException | ForbiddenPrimaryAdministratorActionException | CantRemoveAdministratorException
                 | UserNotAdministratorException | NoUserExistsException handledException) {
+            logger.error(handledException.getMessage());
             throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while removing business administrator: %s",

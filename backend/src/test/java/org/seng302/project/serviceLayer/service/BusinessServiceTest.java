@@ -16,6 +16,10 @@ import org.seng302.project.serviceLayer.dto.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.exceptions.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.register.UserUnderageException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -219,6 +222,49 @@ class BusinessServiceTest {
     }
 
 
+
+    /**
+     * Tries to add an admin that is already an admin
+     * Expects a AdministratorAlreadyExistsException
+     */
+    @Test
+    void addExistingAdmin() {
+        testBusiness.addAdministrator(testUser);
+        given(userRepository.findById(2)).willReturn(Optional.of(testUser));
+
+        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
+                2
+        );
+        requestDTO.setBusinessId(testBusiness.getId());
+        requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
+
+        Assertions.assertThrows(AdministratorAlreadyExistsException.class,
+                ()-> businessService.addAdministrator(requestDTO));
+
+    }
+
+
+    /**
+     * Random user tries to add an admin
+     * Expects a ForbiddenPrimaryAdministratorActionException
+     */
+    @Test
+    void addAdministratorWhenNotPrimaryAdmin() {
+
+        given(userRepository.findById(2)).willReturn(Optional.of(testUser));
+
+        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
+                2
+        );
+        requestDTO.setBusinessId(testBusiness.getId());
+        requestDTO.setAppUser(new AppUserDetails(testUser));
+
+        Assertions.assertThrows(ForbiddenPrimaryAdministratorActionException.class,
+                ()-> businessService.addAdministrator(requestDTO));
+
+    }
+
+
     /**
      * Tries to remove an admin
      * Checks that the administrator is removed
@@ -245,13 +291,61 @@ class BusinessServiceTest {
         Assertions.assertEquals(testUser.getEmail(), removedAdmin.getEmail());
     }
 
-    //TODO: addSameAdministrator
+    /**
+     * Tries to remove the primary admin
+     * from administrating the business
+     * Expect a CantRemoveAdministratorException
+     */
+    @Test
+    void removePrimaryAdministrator() {
+        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
+                1
+        );
+        requestDTO.setBusinessId(testBusiness.getId());
+        requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
 
-    //TODO: addAdministratorWhenNotPrimaryAdmin
+        Assertions.assertThrows(CantRemoveAdministratorException.class,
+                ()-> businessService.removeAdministrator(requestDTO));
 
-    //TODO: removePrimaryAdministrator
+    }
 
-    //TODO: removeNonExistentAdministrator
+    /**
+     * Tries to remove someone who is not an admin
+     * from administrating the business
+     * Expect a UserNotAdministratorException
+     */
+    @Test
+    void removeNonExistentAdministrator() {
+        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
+                2
+        );
+        requestDTO.setBusinessId(testBusiness.getId());
+        requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
 
-    //TODO: removeAdministratorWhenNotPrimaryAdmin
+        Assertions.assertThrows(UserNotAdministratorException.class,
+                ()-> businessService.removeAdministrator(requestDTO));
+    }
+
+    /**
+     * Random user tries to remove
+     * from administrating the business
+     *
+     * Expect a ForbiddenPrimaryAdministratorActionException
+     */
+    @Test
+    void removeAdministratorWhenNotPrimaryAdmin() {
+
+        testBusiness.addAdministrator(testUser);
+        given(userRepository.findById(2)).willReturn(Optional.of(testUser));
+
+        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
+                2
+        );
+        requestDTO.setBusinessId(testBusiness.getId());
+        requestDTO.setAppUser(new AppUserDetails(testUser));
+
+        Assertions.assertThrows(ForbiddenPrimaryAdministratorActionException.class,
+                ()-> businessService.removeAdministrator(requestDTO));
+
+    }
 }

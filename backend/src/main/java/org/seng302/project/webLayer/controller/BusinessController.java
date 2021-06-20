@@ -1,5 +1,6 @@
 package org.seng302.project.webLayer.controller;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.AddBusinessDTO;
@@ -56,21 +57,15 @@ public class BusinessController {
      * Service method handles cases that may result in an error
      *
      * @param id   Id of the business to add an administrator to
-     * @param requestDTO request body containing the id of the user to make an administrator
+     * @param requestBody request body containing the id of the user to make an administrator
      * @param appUser the user making the request
      */
     @PutMapping("/businesses/{id}/makeAdministrator")
     @ResponseStatus(HttpStatus.OK)
-    public void addNewAdministrator(@PathVariable int id, @Valid @RequestBody AddOrRemoveBusinessAdminDTO requestDTO,
+    public void addNewAdministrator(@PathVariable int id, @RequestBody JSONObject requestBody,
                                     @AuthenticationPrincipal AppUserDetails appUser) {
-        //TODO: Currently only returns 400 responses because:
-        // [org.springframework.http.converter.HttpMessageNotReadableException:
-        // JSON parse error: Cannot construct instance of `org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO`
-        // (although at least one Creator exists): cannot deserialize from Object value (no delegate- or property-based Creator);
-        // nested exception is com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot construct instance of
-        // `org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO` (although at least one Creator exists):
-        // cannot deserialize from Object value (no delegate- or property-based Creator)
-
+        Integer userId = (Integer) requestBody.getAsNumber("userId");
+        var requestDTO = new AddOrRemoveBusinessAdminDTO(userId);
         requestDTO.setBusinessId(id);
         requestDTO.setAppUser(appUser);
         businessService.addAdministrator(requestDTO);
@@ -82,22 +77,15 @@ public class BusinessController {
      * Service method handles cases that may result in an error
      *
      * @param id   Id of the business to remove an administrator from
-     * @param requestDTO request body containing the user id of administrator to remove
+     * @param requestBody request body containing the user id of administrator to remove
      * @param appUser the user making the request
      */
     @PutMapping("/businesses/{id}/removeAdministrator")
     @ResponseStatus(HttpStatus.OK)
-    public void removeAdministrator(@PathVariable int id, @Valid @RequestBody AddOrRemoveBusinessAdminDTO requestDTO,
+    public void removeAdministrator(@PathVariable int id, @RequestBody JSONObject requestBody,
                                     @AuthenticationPrincipal AppUserDetails appUser) {
-
-        //TODO: Currently only returns 400 responses because:
-        // [org.springframework.http.converter.HttpMessageNotReadableException:
-        // JSON parse error: Cannot construct instance of `org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO`
-        // (although at least one Creator exists): cannot deserialize from Object value (no delegate- or property-based Creator);
-        // nested exception is com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot construct instance of
-        // `org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO` (although at least one Creator exists):
-        // cannot deserialize from Object value (no delegate- or property-based Creator)
-
+        Integer userId = (Integer) requestBody.getAsNumber("userId");
+        var requestDTO = new AddOrRemoveBusinessAdminDTO(userId);
         requestDTO.setBusinessId(id);
         requestDTO.setAppUser(appUser);
         businessService.removeAdministrator(requestDTO);
