@@ -49,6 +49,11 @@ public class DeleteProductImageDTO {
         this.appUser = appUser;
     }
 
+    /**
+     * Called by the deleteImage() method in ProductImagesController.
+     * Handles the business logic for deleting a product image,
+     * throws exceptions up to the controller to handle
+     */
     public void executeRequest() throws IOException {
         logger.info("Request to delete image for product {} of business {}", productId, businessId);
 

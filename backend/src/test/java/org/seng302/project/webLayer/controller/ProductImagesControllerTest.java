@@ -204,6 +204,11 @@ class ProductImagesControllerTest {
                 .andExpect(status().isNotAcceptable());
     }
 
+    /**
+     * Tests successful deleting of a product's image.
+     * Request made by business admin.
+     * Expect 200 response and the product's image to be deleted.
+     */
     @Test
     void deleteImage_requestByBusinessAdmin_success() throws Exception {
         mockMvc.perform(delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
@@ -212,6 +217,11 @@ class ProductImagesControllerTest {
                 .andExpect(status().isOk());
     }
 
+    /**
+     * Tests successful deleting of a product's image.
+     * Request made by GAA.
+     * Expect 200 response and the product's image to be deleted.
+     */
     @Test
     void deleteImage_requestByGAA_success() throws Exception {
         mockMvc.perform(delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
@@ -220,6 +230,11 @@ class ProductImagesControllerTest {
                 .andExpect(status().isOk());
     }
 
+    /**
+     * Tests that request to delete a product image fails
+     * if request made by someone that isn't a business admin.
+     * Expect 403 response
+     */
     @Test
     void deleteImage_notAdmin() throws Exception {
         mockMvc.perform(delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
@@ -228,6 +243,11 @@ class ProductImagesControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests that request to delete a product image fails
+     * for invalid businessId.
+     * Expect 406 response
+     */
     @Test
     void deleteImage_noBusinessExists() throws Exception {
         given(businessRepository.findById(4)).willReturn(Optional.empty());
@@ -238,6 +258,11 @@ class ProductImagesControllerTest {
                 .andExpect(status().isNotAcceptable());
     }
 
+    /**
+     * Tests that request to delete a product image fails
+     * for invalid productId.
+     * Expect 406 response
+     */
     @Test
     void deleteImage_noProductExists() throws Exception {
         given(productRepository.findByIdAndBusinessId("NotAProduct", 1)).willReturn(Optional.empty());
@@ -248,6 +273,11 @@ class ProductImagesControllerTest {
                 .andExpect(status().isNotAcceptable());
     }
 
+    /**
+     * Tests that request to delete a product image fails
+     * for invalid imageId.
+     * Expect 406 response
+     */
     @Test
     void deleteImage_noImageExists() throws Exception {
         given(productRepository.save(any(Product.class))).willReturn(testProduct);

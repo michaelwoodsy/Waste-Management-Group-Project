@@ -69,6 +69,9 @@ public class ProductImagesController {
 
     }
 
+    /**
+     * Handles request to delete product image.
+     */
     @DeleteMapping("/businesses/{businessId}/products/{productId}/images/{imageId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteImage(@PathVariable int businessId, @PathVariable String productId, @PathVariable int imageId, @AuthenticationPrincipal AppUserDetails appUser) throws IOException {
