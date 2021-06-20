@@ -50,6 +50,7 @@
           <strong>Keywords<span class="required">*</span></strong>
            (Separate keywords with a comma no spaces)
         </label>
+        <KeywordInput  />
         <input id="keywords" v-model="keywords" :class="{'form-control': true, 'is-invalid': msg.keywords}"
                placeholder="Enter the Keywords"
                required maxlength="255" type="text">
@@ -74,10 +75,14 @@
 
 <script>
 import Alert from "@/components/Alert";
+import KeywordInput from "@/components/marketplace/KeywordInput";
 
 export default {
   name: "CreateCardPage",
-  components: {Alert},
+  components: {
+    Alert,
+    KeywordInput
+  },
   data() {
     return {
       PageTitle: 'Create a new card',
