@@ -48,17 +48,43 @@
       <div class="form-group row">
         <label for="keywordValue">
           <strong>Keywords<span class="required">*</span></strong>
+          (Keywords must be 25 characters or less)
         </label>
-        <input id="keywordValue" v-model="keywordValue"  :class="{'form-control': true, 'is-invalid': msg.keywords}"
+        <input id="keywordValue" v-model="keywordValue"
+               :class="{'form-control': true, 'is-invalid': msg.keywords}"
                placeholder="Enter the Keywords"
-               required maxlength="255" type="text"
+               required maxlength="25" type="text"
                style="margin-bottom: 2px"
+               autocomplete="off"
+               data-toggle="dropdown"
+               @input="filterKeywords"
                @keyup.space="addKeyword"/>
+        <div class="dropdown-menu overflow-auto" id="dropdown">
+          <p class="text-muted dropdown-item left-padding mb-0 disabled"
+             v-if="keywordValue.length == 0"
+          >
+            Start typing...
+          </p>
+
+          <p class="text-muted dropdown-item left-padding mb-0 disabled"
+             v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
+          >
+            No results found.
+          </p>
+
+          <a class="dropdown-item pointer left-padding"
+             v-for="keyword in filteredKeywords"
+             v-else
+             :key="keyword"
+             @click="setKeyword(keyword)">
+            <span>{{ keyword }}</span>
+          </a>
+        </div>
         <div class="keyword" v-for="(keyword, index) in keywords" style="padding: 2px"
              :key="'keyword' + index">
           <button class="btn btn-primary">
             <span>{{  keyword  }}</span>
-            <span @click="removeKeyword(index)"><i class="bi bi-x"></i></span>
+            <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
           </button>
         </div>
         <span class="invalid-feedback">{{ msg.keywords }}</span>
@@ -105,7 +131,17 @@ export default {
       cancel: false,
       submit: false,
       keywordValue: '',
-      keywords: []
+      keywords: [],
+      testKeywords: [
+          'Fun',
+          'Party',
+          'Cars',
+          'Fortnite',
+          'Apples',
+          'Bananas',
+          'Test'
+      ],
+      filteredKeywords: []
     };
   },
   methods: {
@@ -142,7 +178,7 @@ export default {
      * Will edit keywords to be correct, remove spaces (Comma separated string FOR NOW)
      */
     validateKeywords(){
-      if (this.keywords.length == 0){
+      if (this.keywords.length === 0){
         this.msg.keywords = 'Please enter one or more keywords'
         this.valid = false
       }
@@ -200,7 +236,8 @@ export default {
     * Adds a keyword to the list of keywords
     */
     addKeyword() {
-      if(!(this.keywordValue == '' || this.keywordValue == ' ') && !this.keywords.includes(this.keywordValue)) {
+      this.keywordValue = this.keywordValue.trim()
+      if(!(this.keywordValue === '' || this.keywordValue === ' ') && !this.keywords.includes(this.keywordValue)) {
         this.keywords.push(this.keywordValue);
       }
       this.keywordValue = '';
@@ -212,6 +249,21 @@ export default {
      */
     removeKeyword(index) {
       this.keywords.splice(index, 1)
+    },
+
+    filterKeywords() {
+      if (this.keywordValue.length > 0) {
+        this.filteredKeywords = this.testKeywords.filter(keywordValue => {
+          return keywordValue.toLowerCase().startsWith(this.keywordValue.toLowerCase())
+        })
+      } else {
+        this.filteredKeywords = []
+      }
+    },
+
+    setKeyword(keyword) {
+      this.keywordValue = keyword
+      this.addKeyword()
     }
   }
 }
