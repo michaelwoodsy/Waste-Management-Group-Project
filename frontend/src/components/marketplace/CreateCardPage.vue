@@ -46,14 +46,21 @@
 
       <!-- Keywords -->
       <div class="form-group row">
-        <label for="keywords">
+        <label for="keywordValue">
           <strong>Keywords<span class="required">*</span></strong>
-           (Separate keywords with a comma no spaces)
         </label>
-        <KeywordInput  />
-        <input id="keywords" v-model="keywords" :class="{'form-control': true, 'is-invalid': msg.keywords}"
+        <input id="keywordValue" v-model="keywordValue"  :class="{'form-control': true, 'is-invalid': msg.keywords}"
                placeholder="Enter the Keywords"
-               required maxlength="255" type="text">
+               required maxlength="255" type="text"
+               style="margin-bottom: 2px"
+               @keyup.space="addKeyword"/>
+        <div class="keyword" v-for="(keyword, index) in keywords" style="padding: 2px"
+             :key="'keyword' + index">
+          <button class="btn btn-primary">
+            <span>{{  keyword  }}</span>
+            <span @click="removeKeyword(index)"><i class="bi bi-x"></i></span>
+          </button>
+        </div>
         <span class="invalid-feedback">{{ msg.keywords }}</span>
       </div>
 
@@ -75,13 +82,11 @@
 
 <script>
 import Alert from "@/components/Alert";
-import KeywordInput from "@/components/marketplace/KeywordInput";
 
 export default {
   name: "CreateCardPage",
   components: {
     Alert,
-    KeywordInput
   },
   data() {
     return {
@@ -90,7 +95,6 @@ export default {
       section: '', //Required
       title: '', //Required
       description: '',
-      keywords: '',
       msg: {
         section: null,
         title: null,
@@ -99,7 +103,9 @@ export default {
       },
       valid: true,
       cancel: false,
-      submit: false
+      submit: false,
+      keywordValue: '',
+      keywords: []
     };
   },
   methods: {
@@ -136,21 +142,9 @@ export default {
      * Will edit keywords to be correct, remove spaces (Comma separated string FOR NOW)
      */
     validateKeywords(){
-      if (this.keywords === '' || this.keywords === null){
+      if (this.keywords.length == 0){
         this.msg.keywords = 'Please enter one or more keywords'
         this.valid = false
-      } else if(this.keywords.includes(', ') || this.keywords.includes(' ')){
-        //Remove the leading and trailing white spaces
-        this.keywords = this.keywords.replace(/^\s+|\s+$/g, '')
-        //Remove any multiple commas
-        this.keywords = this.keywords.replace(/,+/g, ',')
-        //Remove white spaces after comma
-        this.keywords = this.keywords.replace(/,\s+/g, ',')
-        //Replace white spaces between words with hyphens
-        this.keywords = this.keywords.replace(/\s/g, '-')
-        this.msg.keywords = null
-      }else {
-        this.msg.keywords = null
       }
     },
 
@@ -194,11 +188,30 @@ export default {
             : err
       });
     },
+
     /**
      * Closes the popup window to create a card
      */
     close() {
       this.$emit('refresh-cards');
+    },
+
+    /**
+    * Adds a keyword to the list of keywords
+    */
+    addKeyword() {
+      if(!(this.keywordValue == '' || this.keywordValue == ' ') && !this.keywords.includes(this.keywordValue)) {
+        this.keywords.push(this.keywordValue);
+      }
+      this.keywordValue = '';
+    },
+
+    /**
+     * Removes a keyword from the list of keywords
+     * @param index Index of the keyword in the keyword list
+     */
+    removeKeyword(index) {
+      this.keywords.splice(index, 1)
     }
   }
 }
