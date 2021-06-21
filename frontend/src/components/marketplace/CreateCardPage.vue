@@ -50,6 +50,7 @@
           <strong>Keywords<span class="required">*</span></strong>
           (Keywords must be 25 characters or less)
         </label>
+        <!-- Keyword Input -->
         <input id="keywordValue" v-model="keywordValue"
                :class="{'form-control': true, 'is-invalid': msg.keywords}"
                placeholder="Enter the Keywords"
@@ -59,19 +60,21 @@
                data-toggle="dropdown"
                @input="filterKeywords"
                @keyup.space="addKeyword"/>
+        <!-- Autocomplete dropdown -->
         <div class="dropdown-menu overflow-auto" id="dropdown">
+          <!-- If no user input -->
           <p class="text-muted dropdown-item left-padding mb-0 disabled"
              v-if="keywordValue.length == 0"
           >
             Start typing...
           </p>
-
+          <!-- If no matches -->
           <p class="text-muted dropdown-item left-padding mb-0 disabled"
              v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
           >
             No results found.
           </p>
-
+          <!-- If there are matches -->
           <a class="dropdown-item pointer left-padding"
              v-for="keyword in filteredKeywords"
              v-else
@@ -80,6 +83,7 @@
             <span>{{ keyword }}</span>
           </a>
         </div>
+        <!-- Keyword Bubbles -->
         <div class="keyword" v-for="(keyword, index) in keywords" style="padding: 2px"
              :key="'keyword' + index">
           <button class="btn btn-primary">
@@ -131,7 +135,7 @@ export default {
       cancel: false,
       submit: false,
       keywordValue: '',
-      keywords: [],
+      keywords: [], //Required
       testKeywords: [
           'Fun',
           'Party',
@@ -251,6 +255,9 @@ export default {
       this.keywords.splice(index, 1)
     },
 
+    /**
+     * Filters autocomplete options based on the user's input for a keyword.
+     */
     filterKeywords() {
       if (this.keywordValue.length > 0) {
         this.filteredKeywords = this.testKeywords.filter(keywordValue => {
@@ -261,6 +268,11 @@ export default {
       }
     },
 
+    /**
+     * Adds a keyword to the list of keywords if the keyword was selecting from the
+     * autocomplete list rather than by pressing the spacebar
+     * @param keyword Keyword to be added to keyword list
+     */
     setKeyword(keyword) {
       this.keywordValue = keyword
       this.addKeyword()
