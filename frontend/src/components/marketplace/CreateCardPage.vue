@@ -64,7 +64,7 @@
         <div class="dropdown-menu overflow-auto" id="dropdown">
           <!-- If no user input -->
           <p class="text-muted dropdown-item left-padding mb-0 disabled"
-             v-if="keywordValue.length == 0"
+             v-if="keywordValue.length === 0"
           >
             Start typing...
           </p>
@@ -78,9 +78,9 @@
           <a class="dropdown-item pointer left-padding"
              v-for="keyword in filteredKeywords"
              v-else
-             :key="keyword"
-             @click="setKeyword(keyword)">
-            <span>{{ keyword }}</span>
+             :key="keyword.id"
+             @click="setKeyword(keyword.name)">
+            <span>{{ keyword.name }}</span>
           </a>
         </div>
         <!-- Keyword Bubbles -->
@@ -137,13 +137,41 @@ export default {
       keywordValue: '',
       keywords: [], //Required
       testKeywords: [
-          'Fun',
-          'Party',
-          'Cars',
-          'Fortnite',
-          'Apples',
-          'Bananas',
-          'Test'
+        {
+          id: 1,
+          name: 'Fun',
+          created: '2021-07-15T05:10:00Z'
+        },
+        {
+          id: 2,
+          name: 'Party',
+          created: '2021-07-15T05:10:00Z'
+        },
+        {
+          id: 3,
+          name: 'Cars',
+          created: '2021-07-15T05:10:00Z'
+        },
+        {
+          id: 4,
+          name: 'Fortnite',
+          created: '2021-07-15T05:10:00Z'
+        },
+        {
+          id: 5,
+          name: 'Bananas',
+          created: '2021-07-15T05:10:00Z'
+        },
+        {
+          id: 6,
+          name: 'Apples',
+          created: '2021-07-15T05:10:00Z'
+        },
+        {
+          id: 7,
+          name: 'Donuts',
+          created: '2021-07-15T05:10:00Z'
+        }
       ],
       filteredKeywords: []
     };
@@ -261,7 +289,7 @@ export default {
     filterKeywords() {
       if (this.keywordValue.length > 0) {
         this.filteredKeywords = this.testKeywords.filter(keywordValue => {
-          return keywordValue.toLowerCase().startsWith(this.keywordValue.toLowerCase())
+          return keywordValue.name.toLowerCase().startsWith(this.keywordValue.toLowerCase())
         })
       } else {
         this.filteredKeywords = []
