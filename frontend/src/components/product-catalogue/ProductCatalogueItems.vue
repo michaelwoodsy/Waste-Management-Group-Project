@@ -65,8 +65,8 @@
           >
             <th scope="row">{{ product.id }}</th>
             <td>
-              <img alt="productImage" class="ui-icon-image"
-                   :src="getImage('/media/asparagus_thumbnail.jpg')">
+              <img alt="productImage"
+                   :src="getImageURL('/media/defaults/defaultProduct_thumbnail.jpg')">
             </td>
             <td style="word-break: break-word; width: 40%">
               {{ product.name }}
@@ -131,11 +131,11 @@
                   <div class="carousel-inner">
                     <!--   Image 1   -->
                     <div class="carousel-item active">
-                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProduct2.jpg" alt="ProductImage">
+                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL('/media/defaults/defaultProduct2.jpg')" alt="ProductImage">
                     </div>
                     <!--   Image 2   -->
                     <div class="carousel-item">
-                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProduct3.jpg" alt="ProductImage">
+                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL('/media/defaults/defaultProduct3.jpg')" alt="ProductImage">
                     </div>
                   </div>
                   <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
@@ -267,14 +267,8 @@ export default {
     /**
      * Retrieves the image specified by the path
      */
-    async getImage(path) {
-      await Images.getImage(path).then((res) => {
-        console.log(res.data)
-        return res.data
-      })
-          .catch((err) => {
-            console.log(err)
-          })
+    getImageURL(path) {
+      return Images.getImageURL(path)
     },
     /**
      * Updates order direction

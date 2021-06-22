@@ -209,5 +209,5 @@ export const Images = {
      * Retrieves the image at the path.
      * @param path Path to the image
      */
-    getImage: (path) => instance.get(path, {})
+    getImageURL: (path) => SERVER_URL + path.slice(1)
 }
