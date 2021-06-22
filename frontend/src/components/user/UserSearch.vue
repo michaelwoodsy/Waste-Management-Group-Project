@@ -239,7 +239,7 @@ export default {
       return this.users.length
     },
     /**
-     * Returns whether the currentley logged in user is the DGAA
+     * Returns whether the currently logged in user is the DGAA
      * @returns {boolean|*}
      */
     isActingAsAdmin() {

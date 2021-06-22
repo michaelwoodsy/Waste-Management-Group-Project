@@ -51,15 +51,77 @@ Component on Search page for searching businesses
                 :total-count="totalCount"
             />
           </div>
+
+          <!--    Order By   -->
+          <div class="overflow-auto">
+            <table class="table table-hover">
+              <thead>
+              <tr>
+                <!--    ID    -->
+                <th class="pointer" scope="col" @click="orderResults('id')">
+                  <p class="d-inline">Id</p>
+                  <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
+                </th>
+
+                <!--    First Name    -->
+                <th class="pointer" scope="col" @click="orderResults('name')">
+                  <p class="d-inline">Name</p>
+                  <p v-if="orderCol === 'name'" class="d-inline">{{ orderDirArrow }}</p>
+                </th>
+
+                <!--    Business Type    -->
+                <th class="pointer" scope="col" @click="orderResults('businessType')">
+                  <p class="d-inline">Type</p>
+                  <p v-if="orderCol === 'businessType'" class="d-inline">{{ orderDirArrow }}</p>
+                </th>
+
+                <!--    Address    -->
+                <th class="pointer" scope="col" @click="orderResults('address')">
+                  <p class="d-inline">Address</p>
+                  <p v-if="orderCol === 'address'" class="d-inline">{{ orderDirArrow }}</p>
+                </th>
+              </tr>
+              </thead>
+
+              <!--    Business Information    -->
+              <tbody v-if="!loading">
+              <tr v-for="business in paginatedBusinesses"
+                  v-bind:key="business.id"
+                  class="pointer"
+                  @click="viewBusiness(business.id)"
+              >
+                <th scope="row">
+                  {{ business.id }}
+                </th>
+                <td>{{ business.name }}</td>
+                <td>{{ business.businessType }}</td>
+                <td>{{ formattedAddress(business.address) }}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
+      <div v-if="loading" class="row">
+        <div class="col-12 text-center">
+          <p class="text-muted">Loading...</p>
+        </div>
+      </div>
 
-
-
-
-
+      <!--    Result Information    -->
+      <div class="row">
+        <div class="col-12">
+          <pagination
+              :current-page.sync="page"
+              :items-per-page="resultsPerPage"
+              :total-items="totalCount"
+              class="mx-auto"
+          />
+        </div>
+      </div>
     </div>
+
   </page-wrapper>
 </template>
 
@@ -67,6 +129,7 @@ Component on Search page for searching businesses
 import ShowingResultsText from "@/components/ShowingResultsText";
 import PageWrapper from "@/components/PageWrapper";
 import Alert from "@/components/Alert";
+import Pagination from "@/components/Pagination";
 
 export default {
   name: "BusinessSearch",
@@ -74,6 +137,7 @@ export default {
     PageWrapper,
     ShowingResultsText,
     Alert,
+    Pagination
   },
   data() {
     return {
@@ -87,6 +151,7 @@ export default {
       loading: false
     }
   },
+
   computed: {
     /**
      * Check if user is logged in
@@ -94,6 +159,60 @@ export default {
      */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
+    },
+
+    /**
+     * Checks which direction (ascending or descending) the order by should be
+     * @returns {string}
+     */
+    orderDirArrow() {
+      if (this.orderDirection) {
+        return '↓'
+      }
+      return '↑'
+    },
+
+    /**
+     * Sort Businesses Logic
+     * @returns {[]|*[]}
+     */
+    sortedBusinesses() {
+      if (this.orderCol === null) {
+        return this.businesses
+      }
+
+      // Create new businesses array and sort
+      let newBusinesses = [...this.businesses];
+      // Order direction multiplier for sorting
+      const orderDir = (this.orderDirection ? 1 : -1);
+
+      // Sort businesses if there are any
+      if (newBusinesses.length > 0) {
+        // Sort businesses
+        newBusinesses.sort((a, b) => {
+          return orderDir * this.sortAlpha(a, b)
+        });
+      }
+
+      return newBusinesses
+    },
+
+    /**
+     * Paginate the businesses
+     * @returns {*[]|*[]}
+     */
+    paginatedBusinesses() {
+      let newBusinesses = this.sortedBusinesses;
+
+      // Sort businesses if there are any
+      if (newBusinesses.length > 0) {
+        // Splice the results to showing size
+        const startIndex = this.resultsPerPage * (this.page - 1);
+        const endIndex = this.resultsPerPage * this.page;
+        newBusinesses = newBusinesses.slice(startIndex, endIndex)
+      }
+
+      return newBusinesses
     },
 
     /**
@@ -105,9 +224,147 @@ export default {
     },
   },
   methods: {
+    /**
+     * Search Logic
+     */
     search() {
-      //TODO: implement me
-    }
+      this.blurSearch()
+      this.businesses = []
+      this.loading = true;
+      this.page = 1
+
+      //To mimic as if retrieved from database
+      setTimeout(this.fillTable, 1000)
+
+      /** Do properly when backend set up
+      this.blurSearch();
+      this.users = [];
+      this.loading = true;
+      this.page = 1;
+
+      User.getUsers(this.searchTerm)
+          .then((res) => {
+            this.error = null;
+            this.users = res.data;
+            this.loading = false;
+          })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
+       */
+    },
+
+    /**
+     * Fills the table with the test data provided.
+     * Should be removed when backend is sorted
+     */
+    fillTable() {
+      this.error = null;
+      this.businesses = [
+        {
+          id: 1,
+          name: "Myrtle's Muffins",    //Required
+          description: 'Tasty muffins by Myrtle',
+          address: {  //Required
+            streetNumber: '',
+            streetName: '',
+            city: 'Christchurch',
+            region: 'Canterbury',
+            country: 'New Zealand',
+            postcode: '8022',
+          },
+          businessType: 'Accommodation and Food Services'
+        },
+        {
+          id: 2,
+          name: "Tinned Food Mart",    //Required
+          description: 'The perfect place to purchase your non-perishables',
+          address: {  //Required
+            streetNumber: '',
+            streetName: '',
+            city: 'Christchurch',
+            region: 'Canterbury',
+            country: 'New Zealand',
+            postcode: '8021',
+          },
+          businessType: 'Accommodation and Food Services'
+        },
+        {
+          id: 3,
+          name: "Layla's Jam & Pickles",    //Required
+          description: 'Get your indulgent fruit jams here.',
+          address: {  //Required
+            streetNumber: '',
+            streetName: '',
+            city: 'Kerikeri',
+            region: '',
+            country: 'New Zealand',
+            postcode: '0245',
+          },
+          businessType: 'Retail Trade'
+        },
+      ]
+      this.loading = false;
+    },
+
+    /**
+     * Blurs the search.
+     */
+    blurSearch() {
+      document.getElementById('search').blur()
+    },
+
+    /**
+     * Function to order search results by specific column
+     * @param col column to be sorted by
+     */
+    orderResults(col) {
+      // Remove the ordering if the column is clicked and the arrow is down
+      if (this.orderCol === col && this.orderDirection) {
+        this.orderCol = null;
+        this.orderDirection = false;
+        return
+      }
+
+      // Updated order direction if the new column is the same as what is currently clicked
+      this.orderDirection = this.orderCol === col;
+      this.orderCol = col;
+    },
+
+    // Function for sorting a list by orderCol alphabetically
+    sortAlpha(a, b) {
+      if (a[this.orderCol] === null) {
+        return -1
+      }
+      if (b[this.orderCol] === null) {
+        return 1
+      }
+      if (a[this.orderCol] < b[[this.orderCol]]) {
+        return 1;
+      }
+      if (a[this.orderCol] > b[[this.orderCol]]) {
+        return -1;
+      }
+      return 0;
+    },
+
+    /**
+     * Formats address of business by using their address object
+     * @param address object that stores the business' home address
+     * @returns {string}
+     */
+    formattedAddress(address) {
+      return this.$root.$data.address.formatAddress(address)
+    },
+
+    /**
+     * Router link to the clicked business' profile page
+     * @param id
+     */
+    viewBusiness(id) {
+      this.$router.push({name: 'viewBusiness', params: {businessId: id}})
+    },
   }
 }
 </script>
@@ -116,6 +373,10 @@ export default {
 .col-centered {
   margin: 0 auto;
   float: none;
+}
+
+.pointer {
+  cursor: pointer;
 }
 
 </style>
