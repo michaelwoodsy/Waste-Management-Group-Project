@@ -38,6 +38,9 @@
 
       <!-- Page Content -->
       <div class="col-12 col-md-8 p-3">
+
+        <img :src="'http://localhost:9599/media/asparagus_thumbnail.jpg'">
+
         <div class="text-center">
           <h1><span v-if="isActingAsUser">Hello </span>{{ actorName }}</h1>
           <hr>

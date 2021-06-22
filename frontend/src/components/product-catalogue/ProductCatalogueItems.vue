@@ -66,7 +66,7 @@
             <th scope="row">{{ product.id }}</th>
             <td>
               <img alt="productImage" class="ui-icon-image"
-                   src="@/../../media/defaults/defaultProduct_thumbnail.jpg">
+                   :src="getImage('/media/asparagus_thumbnail.jpg')">
             </td>
             <td style="word-break: break-word; width: 40%">
               {{ product.name }}
@@ -162,7 +162,7 @@
 <script>
 import ShowingResultsText from "../ShowingResultsText";
 import Pagination from "../Pagination";
-import {Business} from '@/Api';
+import {Business, Images} from '@/Api';
 
 export default {
   name: "CatalogueItems",
@@ -186,7 +186,8 @@ export default {
       loading: false,
       createNewProduct: false,
       isViewingImages: false,
-      productViewing: null
+      productViewing: null,
+      image: null
     }
   },
   mounted() {
@@ -263,6 +264,18 @@ export default {
     }
   },
   methods: {
+    /**
+     * Retrieves the image specified by the path
+     */
+    async getImage(path) {
+      await Images.getImage(path).then((res) => {
+        console.log(res.data)
+        return res.data
+      })
+          .catch((err) => {
+            console.log(err)
+          })
+    },
     /**
      * Updates order direction
      * @param col column to be ordered
