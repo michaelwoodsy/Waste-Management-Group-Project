@@ -4,11 +4,11 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
-import org.seng302.project.web_layer.controller.CardController;
-import org.seng302.project.repository_layer.model.Card;
-import org.seng302.project.repository_layer.repository.CardRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
-import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.webLayer.controller.CardController;
+import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class MarketplaceSectionDisplaySteps {

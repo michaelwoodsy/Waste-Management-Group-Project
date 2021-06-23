@@ -1,10 +1,10 @@
 package org.seng302.project;
 
 import lombok.Data;
-import org.seng302.project.repository_layer.model.Address;
-import org.seng302.project.repository_layer.model.Business;
-import org.seng302.project.repository_layer.model.Product;
-import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repositoryLayer.model.Address;
+import org.seng302.project.repositoryLayer.model.Business;
+import org.seng302.project.repositoryLayer.model.Product;
+import org.seng302.project.repositoryLayer.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;

@@ -1,107 +1,165 @@
 package org.seng302.project.webLayer.controller;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.repositoryLayer.repository.BusinessRepository;
-import org.seng302.project.repositoryLayer.repository.ProductRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.mockito.Mockito;
+import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repositoryLayer.model.Business;
+import org.seng302.project.repositoryLayer.model.Product;
+import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.serviceLayer.dto.AddProductImageDTO;
+import org.seng302.project.serviceLayer.dto.AddProductImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.SetPrimaryProductImageDTO;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
+import org.seng302.project.serviceLayer.service.ProductImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ProductImagesController.class)
-class ProductImagesControllerTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+class ProductImagesControllerTest extends AbstractInitializer {
 
     @Autowired
     private MockMvc mockMvc;
-
     @MockBean
-    private UserRepository userRepository;
+    private ProductImageService productImageService;
 
-    @MockBean
-    private BusinessRepository businessRepository;
-
-    @MockBean
-    private ProductRepository productRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    private User businessAdmin;
-    private User systemAdmin;
-    private User otherUser;
+    private User testUser;
+    private User testUserBusinessAdmin;
+    private User testSystemAdmin;
     private Business testBusiness;
     private Product testProduct;
+    private MockMultipartFile testFile;
 
     @BeforeEach
-    void setup() {
-        //Mock a business admin
-        businessAdmin = new User("Business", "Admin", "", "",
-                "I am a business admin", "admin@business.com", "1999-07-28",
-                "+64 123 4567", null, "Th1s1sMyBusiness");
+    public void setup() {
+        this.initialise();
+        testUser = this.getTestUser();
+        testUserBusinessAdmin = this.getTestUserBusinessAdmin();
+        testSystemAdmin = this.getTestSystemAdmin();
+        testBusiness = this.getTestBusiness();
+        testProduct = this.getTestProduct();
+        testFile = this.getTestFile();
+    }
 
-        businessAdmin.setId(1);
-        businessAdmin.setPassword(passwordEncoder.encode(businessAdmin.getPassword()));
-        given(userRepository.findByEmail("admin@business.com")).willReturn(List.of(businessAdmin));
-        given(userRepository.findById(1)).willReturn(Optional.of(businessAdmin));
+    /**
+     * Tests that trying to add a new product image when not logged in returns a status 401
+     */
+    @Test
+    void addProductImage_notLoggedIn_returnsStatus401() throws Exception {
+        RequestBuilder postProductImageRequest = MockMvcRequestBuilders
+                .multipart("/businesses/{businessId}/products/{productId}/images",
+                        testBusiness.getId(),
+                        testProduct.getId())
+                .file(testFile);
 
-        //Mock a system admin
-        systemAdmin = new User("System", "Admin", "", "",
-                "I am a system admin", "admin@resale.com", "1999-07-28",
-                "+64 123 4567", null, "Th1s1sMyApplication");
+        mockMvc.perform(postProductImageRequest).andExpect(status().isUnauthorized());
+    }
 
-        systemAdmin.setId(2);
-        systemAdmin.setRole("globalApplicationAdmin");
-        systemAdmin.setPassword(passwordEncoder.encode(systemAdmin.getPassword()));
-        given(userRepository.findByEmail("admin@resale.com")).willReturn(List.of(systemAdmin));
-        given(userRepository.findById(2)).willReturn(Optional.of(systemAdmin));
+    /**
+     * Tests that a status code 403 is returned when a user is not a business admin or system admin.
+     */
+    @Test
+    void addProductImage_notAdmin_returnStatus403() throws Exception {
+        Mockito.when(productImageService.addProductImage(Mockito.any(AddProductImageDTO.class)))
+                .thenThrow(new ForbiddenAdministratorActionException(testBusiness.getId()));
 
-        //Mock a different user
-        otherUser = new User("Random", "User", "", "",
-                "I am a random user", "random@gmail.com", "1999-07-28",
-                "+64 123 4567", null, "JustAUser123");
+        RequestBuilder request = MockMvcRequestBuilders
+                .multipart("/businesses/{businessId}/products/{productId}/images",
+                        testBusiness.getId(),
+                        testProduct.getId())
+                .file(testFile)
+                .with(user(new AppUserDetails(testUser)));
 
-        otherUser.setId(3);
-        otherUser.setPassword(passwordEncoder.encode(otherUser.getPassword()));
-        given(userRepository.findByEmail("random@gmail.com")).willReturn(List.of(otherUser));
-        given(userRepository.findById(3)).willReturn(Optional.of(otherUser));
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
 
-        //Mock a business
-        testBusiness = new Business("Food with Photos", "Images to accompany your food",
-                null, "Retail Trade", 1);
-        testBusiness.setId(1);
-        given(businessRepository.findByName("Food with Photos")).willReturn(List.of(testBusiness));
-        given(businessRepository.findById(1)).willReturn(Optional.of(testBusiness));
+    /**
+     * Tests that adding a new image as a business admin results in a success.
+     */
+    @Test
+    void addProductImage_asAdmin_success() throws Exception {
+        Mockito.when(productImageService.addProductImage(Mockito.any(AddProductImageDTO.class)))
+                .thenReturn(new AddProductImageResponseDTO(1));
 
-        //Mock a product with images
-        testProduct = spy(new Product("PP1", "Potatoes & Pictures", "Delicious spuds with some shots",
-                "Food with Photos", 5.00, 1));
-        Image image4 = new Image("image4.jpg", "image4_thumbnail.jpg" );
-        image4.setId(4);
-        Image image5 = new Image("image5.jpg", "image5_thumbnail.jpg" );
-        image5.setId(5);
-        Image image6 = new Image("image6.jpg", "image6_thumbnail.jpg" );
-        image6.setId(6);
-        given(testProduct.getImages()).willReturn(List.of(image4, image5, image6));
-        given(productRepository.findByIdAndBusinessId("PP1", 1)).willReturn(Optional.of(testProduct));
+        RequestBuilder request = MockMvcRequestBuilders
+                .multipart("/businesses/{businessId}/products/{productId}/images",
+                        testBusiness.getId(),
+                        testProduct.getId())
+                .file(testFile)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
 
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that adding a new image as a system admin results in a success.
+     */
+    @Test
+    void addProductImage_asSystemAdmin_success() throws Exception {
+        Mockito.when(productImageService.addProductImage(Mockito.any(AddProductImageDTO.class)))
+                .thenReturn(new AddProductImageResponseDTO(1));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .multipart("/businesses/{businessId}/products/{productId}/images",
+                        testBusiness.getId(),
+                        testProduct.getId())
+                .file(testFile)
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that a 406 status is returned when a business does not exists.
+     */
+    @Test
+    void addProductImage_noBusinessExists() throws Exception {
+        Mockito.when(productImageService.addProductImage(Mockito.any(AddProductImageDTO.class)))
+                .thenThrow(new BusinessNotFoundException(4));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .multipart("/businesses/{businessId}/products/{productId}/images",
+                        4,
+                        testProduct.getId(),
+                        2)
+                .file(testFile)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that a 406 status is returned when a product does not exists.
+     */
+    @Test
+    void addProductImage_noProductExists() throws Exception {
+        Mockito.when(productImageService.addProductImage(Mockito.any(AddProductImageDTO.class)))
+                .thenThrow(new ProductNotFoundException("NotAProduct", testBusiness.getId()));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .multipart("/businesses/{businessId}/products/{productId}/images",
+                        testBusiness.getId(),
+                        "NotAProduct",
+                        2)
+                .file(testFile)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
     }
 
     /**
@@ -111,15 +169,14 @@ class ProductImagesControllerTest {
      */
     @Test
     void setPrimaryImage_requestByBusinessAdmin_success() throws Exception {
-        mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                testBusiness.getId(), testProduct.getId(), 5)
-                .with(user(new AppUserDetails(businessAdmin))))
-                .andExpect(status().isOk());
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
+                        testBusiness.getId(),
+                        testProduct.getId(),
+                        2)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
 
-        ArgumentCaptor<Integer> imageIdArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(testProduct).setPrimaryImageId(imageIdArgumentCaptor.capture());
-
-        Assertions.assertEquals(5, imageIdArgumentCaptor.getValue());
+        mockMvc.perform(request).andExpect(status().isOk());
     }
 
     /**
@@ -129,15 +186,14 @@ class ProductImagesControllerTest {
      */
     @Test
     void setPrimaryImage_requestByGAA_success() throws Exception {
-        mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                testBusiness.getId(), testProduct.getId(), 5)
-                .with(user(new AppUserDetails(systemAdmin))))
-                .andExpect(status().isOk());
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
+                        testBusiness.getId(),
+                        testProduct.getId(),
+                        2)
+                .with(user(new AppUserDetails(testSystemAdmin)));
 
-        ArgumentCaptor<Integer> imageIdArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(testProduct).setPrimaryImageId(imageIdArgumentCaptor.capture());
-
-        Assertions.assertEquals(5, imageIdArgumentCaptor.getValue());
+        mockMvc.perform(request).andExpect(status().isOk());
     }
 
     /**
@@ -147,10 +203,17 @@ class ProductImagesControllerTest {
      */
     @Test
     void setPrimaryImage_notAdmin() throws Exception {
-        mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                testBusiness.getId(), testProduct.getId(), 5)
-                .with(user(new AppUserDetails(otherUser))))
-                .andExpect(status().isForbidden());
+        doThrow(new ForbiddenAdministratorActionException(testBusiness.getId()))
+                .when(productImageService).setPrimaryImage(Mockito.any(SetPrimaryProductImageDTO.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
+                        testBusiness.getId(),
+                        testProduct.getId(),
+                        2)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
     }
 
     /**
@@ -160,12 +223,17 @@ class ProductImagesControllerTest {
      */
     @Test
     void setPrimaryImage_noBusinessExists() throws Exception {
-        given(businessRepository.findById(4)).willReturn(Optional.empty());
+        doThrow(new BusinessNotFoundException(4))
+                .when(productImageService).setPrimaryImage(Mockito.any(SetPrimaryProductImageDTO.class));
 
-        mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                4, testProduct.getId(), 5)
-                .with(user(new AppUserDetails(businessAdmin))))
-                .andExpect(status().isNotAcceptable());
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
+                        4,
+                        testProduct.getId(),
+                        2)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
     }
 
     /**
@@ -175,12 +243,17 @@ class ProductImagesControllerTest {
      */
     @Test
     void setPrimaryImage_noProductExists() throws Exception {
-        given(productRepository.findByIdAndBusinessId("NotAProduct", 1)).willReturn(Optional.empty());
+        doThrow(new ProductNotFoundException("NotAProduct", testBusiness.getId()))
+                .when(productImageService).setPrimaryImage(Mockito.any(SetPrimaryProductImageDTO.class));
 
-        mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                testBusiness.getId(), "NotAProduct", 5)
-                .with(user(new AppUserDetails(businessAdmin))))
-                .andExpect(status().isNotAcceptable());
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
+                        testBusiness.getId(),
+                        "NotAProduct",
+                        2)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
     }
 
     /**
@@ -190,13 +263,16 @@ class ProductImagesControllerTest {
      */
     @Test
     void setPrimaryImage_noImageExists() throws Exception {
+        doThrow(new ProductImageNotFoundException(testProduct.getId(), 7))
+                .when(productImageService).setPrimaryImage(Mockito.any(SetPrimaryProductImageDTO.class));
 
-        given(productRepository.save(any(Product.class))).willReturn(testProduct);
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
+                        testBusiness.getId(),
+                        testProduct.getId(),
+                        7)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
 
-        mockMvc.perform(put("/businesses/{businessId}/products/{productId}/images/{imageId}/makeprimary",
-                testBusiness.getId(), testProduct.getId(), 7)
-                .with(user(new AppUserDetails(businessAdmin))))
-                .andExpect(status().isNotAcceptable());
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
     }
-
 }
