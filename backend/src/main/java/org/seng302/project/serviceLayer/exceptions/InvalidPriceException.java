@@ -1,12 +1,13 @@
 package org.seng302.project.serviceLayer.exceptions;
 
 
-import org.seng302.project.webLayer.controller.ProductCatalogueController;
 
 /**
- * Exception triggered when trying to create a product without an id.
+ * Exception triggered when trying give an InventoryItem
+ * or SaleListing a negative price.
  *
- * @see ProductCatalogueController
+ * Can be deleted once the InventoryItemController and
+ * SaleListingController is DTOs with the @ValidPrice annotation
  */
 public class InvalidPriceException extends RuntimeException {
     public InvalidPriceException(String field) {

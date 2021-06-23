@@ -29,7 +29,7 @@
           </li>
           <!-- Users search link -->
           <li v-if="isLoggedIn" class="nav-item">
-            <router-link class="nav-link text-white" to="/users/search">Users</router-link>
+            <router-link class="nav-link text-white" to="/search">Search</router-link>
           </li>
           <!-- Marketplace link -->
           <li v-if="isLoggedIn" class="nav-item">

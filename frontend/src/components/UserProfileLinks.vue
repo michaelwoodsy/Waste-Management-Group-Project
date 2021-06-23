@@ -8,7 +8,7 @@
       <img
           alt="profile"
           class="profile-image rounded-circle"
-          src="../../public/profile.png"
+          src="@/../../media/defaults/defaultProfile_thumbnail.jpg"
       />
       <!-- Users name -->
       <span>{{ actorName }}</span>
@@ -27,7 +27,7 @@
             @click="actAsBusiness(business)"
         >
           <img alt="profile" class="profile-image-sm rounded-circle"
-               src="../../public/profile.png">
+               src="@/../../media/defaults/defaultProfile_thumbnail.jpg">
           {{ business.name }}
         </a>
         <div class="dropdown-divider"/>
@@ -43,7 +43,7 @@
             @click="actAsUser(user)"
         >
           <img alt="profile" class="profile-image-sm rounded-circle"
-               src="../../public/profile.png">
+               src="@/../../media/defaults/defaultProfile_thumbnail.jpg">
           {{ user.firstName }} {{ user.lastName }}
           <span class="badge badge-danger admin-badge" v-if="isGAA">ADMIN</span>
           <span class="badge badge-danger admin-badge" v-else-if="isDGAA">DGAA</span>
