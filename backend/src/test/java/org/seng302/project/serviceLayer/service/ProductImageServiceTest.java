@@ -1,4 +1,4 @@
-package org.seng302.project.serviceLayer;
+package org.seng302.project.serviceLayer.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

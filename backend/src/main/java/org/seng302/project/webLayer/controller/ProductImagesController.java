@@ -17,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 public class ProductImagesController {
 
@@ -29,11 +31,20 @@ public class ProductImagesController {
         this.productImageService = productImageService;
     }
 
+    /**
+     * Handles request to add a new image for a product
+     * @param businessId ID of the business
+     * @param productId ID of the product the image is being added to
+     * @param user The user requesting to add the image
+     * @param imageFile The image file
+     * @return TheResponseDTO if an image is added successfully, containing the image ID
+     */
     @PostMapping("/businesses/{businessId}/products/{productId}/images")
+    @ResponseStatus(HttpStatus.CREATED)
     public AddProductImageResponseDTO addImage(@PathVariable Integer businessId,
                                                @PathVariable String productId,
                                                @AuthenticationPrincipal AppUserDetails user,
-                                               @RequestParam("file") MultipartFile imageFile) {
+                                               @RequestParam("file") MultipartFile imageFile) throws IOException {
         var requestDTO = new AddProductImageDTO(businessId, productId, user, imageFile);
         return productImageService.addProductImage(requestDTO);
     }

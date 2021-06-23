@@ -9,6 +9,7 @@ import org.seng302.project.serviceLayer.dto.AddProductImageResponseDTO;
 import org.seng302.project.serviceLayer.dto.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductImageInvalidException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
@@ -17,6 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.UUID;
 
 @Service
@@ -40,7 +45,40 @@ public class ProductImageService {
         this.imageUtil = imageUtil;
     }
 
-    public AddProductImageResponseDTO addProductImage(AddProductImageDTO dto) {
+    /**
+     * Called by the addImage method in ProductImagesController.
+     * Handles the business logic for adding an image for a product,
+     * throws exceptions up to the controller to handle
+     * @param dto RequestDTO containing necessary details for adding an image
+     * @return ResponseDTO, confirming a successful request, which is sent to the controller
+     */
+    public AddProductImageResponseDTO addProductImage(AddProductImageDTO dto) throws IOException {
+        logger.info("Request to add an image image for product {} of business {}", dto.getProductId(), dto.getBusinessId());
+
+        String fileType = dto.getImageFile().getContentType();
+        if (fileType == null || !fileType.contains("image")) {
+            throw new ProductImageInvalidException();
+        }
+
+        InputStream imageInputStream = dto.getImageFile().getInputStream();
+        BufferedImage imageInput = ImageIO.read(imageInputStream);
+
+        var currBusiness = businessRepository.findById(dto.getBusinessId()).orElseThrow(() -> new BusinessNotFoundException(dto.getBusinessId()));
+
+        //Check if user making request is business admin/gaa/dgaa
+        String userEmail = dto.getAppUser().getUsername();
+        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+        if (!(currBusiness.userIsAdmin(loggedInUser.getId()) ||
+                currBusiness.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
+            throw new ForbiddenAdministratorActionException(dto.getBusinessId());
+        }
+
+        var product = productRepository.findByIdAndBusinessId(dto.getProductId(), dto.getBusinessId())
+                .orElseThrow(() -> new ProductNotFoundException(dto.getProductId(), dto.getBusinessId()));
+
+        var productImages = product.getImages();
+
         String imageFileName = UUID.randomUUID().toString();
         return new AddProductImageResponseDTO(1);
     }
