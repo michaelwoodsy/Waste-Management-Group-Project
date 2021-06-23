@@ -1,4 +1,4 @@
-package org.seng302.project.service_layer.util;
+package org.seng302.project.serviceLayer.util;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -50,6 +50,7 @@ public class SpringEnvironment {
         if (activeProfile.contains("test")) {
             TEST_DATA = false;
         }
+
     }
 
 }

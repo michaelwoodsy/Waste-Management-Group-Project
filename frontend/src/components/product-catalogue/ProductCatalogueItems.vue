@@ -24,6 +24,9 @@
               <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
             </th>
 
+            <!--    Product Image    -->
+            <th></th>
+
             <!--    Full Name    -->
             <th class="pointer" scope="col" @click="orderResults('name')">
               <p class="d-inline">Product Info</p>
@@ -50,6 +53,8 @@
 
             <!--    Edit button column    -->
             <th scope="col"></th>
+            <!--    view images button column    -->
+            <th scope="col"></th>
           </tr>
           </thead>
 
@@ -59,6 +64,10 @@
               v-bind:key="product.id"
           >
             <th scope="row">{{ product.id }}</th>
+            <td>
+              <img alt="productImage" class="ui-icon-image"
+                   src="@/../../media/defaults/defaultProduct_thumbnail.jpg">
+            </td>
             <td style="word-break: break-word; width: 40%">
               {{ product.name }}
               <span v-if="product.description" style="font-size: small"><br/>{{ product.description }}</span>
@@ -66,9 +75,12 @@
             <td>{{ product.manufacturer }}</td>
             <td>{{ formatPrice(product.recommendedRetailPrice) }}</td>
             <td>{{ new Date(product.created).toDateString() }}</td>
-            <td v-if="!selectingItem" style="color: blue; cursor: pointer;"
-                @click="editProduct(product.id)">
-              Edit
+            <td v-if="!selectingItem">
+              <button class="btn btn-primary" @click="editProduct(product.id)">Edit</button>
+            </td>
+            <td v-if="!selectingItem">
+              <button class="btn btn-primary" data-target="#viewImages" data-toggle="modal"
+                      @click="changeViewedProduct(product)">View Images</button>
             </td>
             <td v-if="selectingItem">
               <button class="btn btn-primary" @click="selectProduct(product.id)">Select</button>
@@ -102,6 +114,48 @@
       </div>
     </div>
 
+    <!--   Product images modal   -->
+    <div v-if="isViewingImages" id="viewImages" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{productViewing.name}}'s Images</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="isViewingImages=false">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row" style="height: 500px">
+              <div class="col col-12 justify-content-center">
+                <div id="imageCarousel" class="carousel slide" data-ride="carousel">
+                  <div class="carousel-inner">
+                    <!--   Image 1   -->
+                    <div class="carousel-item active">
+                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProduct2.jpg" alt="ProductImage">
+                    </div>
+                    <!--   Image 2   -->
+                    <div class="carousel-item">
+                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProduct3.jpg" alt="ProductImage">
+                    </div>
+                  </div>
+                  <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                  <a class="carousel-control-next" href="#imageCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
   </div>
 </template>
 
@@ -130,7 +184,9 @@ export default {
       resultsPerPage: 10,
       page: 1,
       loading: false,
-      createNewProduct: false
+      createNewProduct: false,
+      isViewingImages: false,
+      productViewing: null
     }
   },
   mounted() {
@@ -248,6 +304,14 @@ export default {
      */
     editProduct(id) {
       this.$router.push({name: 'editProduct', params: {businessId: this.businessId, productId: id}})
+    },
+
+    /**
+     * Sets the viewing product in order to view the products images
+     */
+    changeViewedProduct(product) {
+      this.productViewing = product
+      this.isViewingImages = true
     },
 
     selectProduct(id) {

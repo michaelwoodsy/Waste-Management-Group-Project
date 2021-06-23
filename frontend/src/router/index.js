@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from './custom-router'
 
 import Landing from '../components/Landing'
-import UserSearch from '../components/user/UserSearch'
 import RegisterPage from "../components/RegisterPage";
 import LoginPage from "../components/LoginPage";
 import Home from "../components/Home";
@@ -15,6 +14,7 @@ import InventoryPage from "../components/inventory/InventoryPage";
 import SaleListings from "../components/sale-listing/SaleListings";
 import EditInventoryItemPage from "../components/inventory/EditInventoryItemPage";
 import Marketplace from "../components/marketplace/Marketplace";
+import Search from "@/components/Search";
 
 const routes = [
     {
@@ -23,9 +23,9 @@ const routes = [
         component: Landing
     },
     {
-        path: '/users/search',
-        name: 'users',
-        component: UserSearch
+        path: '/search',
+        name: 'search',
+        component: Search
     },
     {
         path: '/users/:userId',
