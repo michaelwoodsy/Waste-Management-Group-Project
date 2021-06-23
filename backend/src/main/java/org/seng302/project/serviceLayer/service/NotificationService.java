@@ -35,7 +35,6 @@ public class NotificationService {
      * @return List of notifications assigned to the user.
      */
     public List<Notification> getNotifications(Integer userId, AppUserDetails appUser) {
-        List<Notification> res = null;
         try {
             logger.info("Request to get all notifications for user {}", userId);
 
@@ -52,6 +51,7 @@ public class NotificationService {
             throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while retrieving user's notifications: %s", unhandledException.getMessage()));
+            throw unhandledException;
         }
     }
 }
