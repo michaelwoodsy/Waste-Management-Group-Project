@@ -186,6 +186,10 @@
                             @click="removeImage(image.url)">
                       Remove
                     </button>
+                    <button class="btn btn-primary ml-1 my-1 pad1"
+                            @click="makeImagePrimary(image.url)">
+                      Make Primary
+                    </button>
                   </div>
 
                 </div>
@@ -262,7 +266,13 @@ export default {
       priceBlur: false,
       nameBlur: false,
       triedIds: [], // List of ids tested for uniqueness
-      images: [], //TODO: prefill with product's existing images
+      images: [
+          {
+            id: 1000,
+            filename: '/media/defaults/defaultProduct.jpg',
+            thumbnailFilename: '/media/defaults/defaultProduct_thumbnail.jpg'
+          }
+      ], //TODO: prefill with product's existing images
       imagesEdited: false
     }
   },
@@ -496,6 +506,16 @@ export default {
         return image.url !== imageUrl;
       })
     },
+
+    /**
+     * Called to make the image the primary image of the product.
+     * Calls the make primary image endpoint.
+     * @param image the image to make primary
+     */
+    makeImagePrimary(image) {
+      console.log(image)
+    },
+
     /**
      * Makes requests to add the product's images
      */

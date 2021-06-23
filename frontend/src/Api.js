@@ -203,3 +203,11 @@ export const Card = {
      */
     getCard: (cardId) => instance.get(`cards/${cardId}`, {})
 };
+
+export const Images = {
+    /**
+     * Retrieves the image at the path.
+     * @param path Path to the image
+     */
+    getImageURL: (path) => SERVER_URL + path.slice(1)
+}
