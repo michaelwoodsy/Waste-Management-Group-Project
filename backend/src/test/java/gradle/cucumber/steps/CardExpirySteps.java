@@ -197,7 +197,6 @@ public class CardExpirySteps {
 
     @Then("The card is automatically deleted and a notification is created")
     public void the_card_is_automatically_deleted_and_a_notification_is_created() {
-
         //Manually calls the removeCardsAfter24Hrs method as it is on a timer
         cardController.removeCardsAfter24Hrs();
         Optional<Card> returnedCard = cardRepository.findById(testCardId);
@@ -211,6 +210,5 @@ public class CardExpirySteps {
 
         //notification exists
         Assertions.assertTrue(returnedNotification.isPresent());
-
     }
 }
