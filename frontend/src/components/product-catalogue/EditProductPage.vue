@@ -183,14 +183,42 @@
                          alt="Uploaded product image"
                     />
                     <button class="btn btn-danger ml-1 my-1 pad1"
-                            @click="removeImage(image.url)">
+                            type="button"
+                            :data-target="'#removeImageModal'"
+                            data-toggle="modal">
                       Remove
                     </button>
-                  </div>
 
+                    <!-- Remove Image modal -->
+                    <div :id="'removeImageModal'" class="modal fade" role="dialog" tabindex="-1">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+
+                          <!-- Title section of modal -->
+                          <div class="modal-header">
+                            <h5 class="modal-title">Delete Image</h5>
+                            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                              <span ref="close" aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+
+                          <!-- Body section of modal -->
+                          <div class="modal-body">
+                            <p>Do you really want to remove this image?</p>
+                          </div>
+
+                          <!-- Footer / button section of modal -->
+                          <div class="modal-footer">
+                            <button class="btn btn-danger" type="button" @click="removeImage(image.id)">Delete</button>
+                            <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-
             </form>
           </div>
         </div>
@@ -263,7 +291,7 @@ export default {
       nameBlur: false,
       triedIds: [], // List of ids tested for uniqueness
       images: [], //TODO: prefill with product's existing images
-      imagesEdited: false
+      imagesEdited: false,
     }
   },
 
@@ -486,15 +514,23 @@ export default {
     },
     /**
      * Called by the remove button next to an uploaded image.
+     * Calls the API to make a request to delete an image from the backend.
      * Removes the image from the frontend's list of images.
-     * @param imageUrl the url of the image to be removed
+     * @param imageId the ID of the image to be removed
      */
-    removeImage(imageUrl) {
+    removeImage(imageId) {
       this.imagesEdited = true
-      //TODO: get this to call delete endpoint if image stored on backend
-      this.images = this.images.filter(function(image) {
-        return image.url !== imageUrl;
-      })
+
+      Business.removeProductImage(this.businessId, this.newProduct.id, imageId)
+          .then(() => {
+            //Remove the deleted image from the list of images on screen
+            this.images = this.images.filter(function(image) {
+              return image.id !== imageId;
+            })
+          })
+          .catch((err) => {
+            this.errorMessage = err.response.data.message || err;
+          })
     },
     /**
      * Makes requests to add the product's images
