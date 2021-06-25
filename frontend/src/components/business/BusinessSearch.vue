@@ -54,7 +54,8 @@ Component on Search page for searching businesses
 
           <!--    Order By   -->
           <div class="overflow-auto">
-            <table class="table table-hover">
+            <table class="table table-hover"
+                   aria-label="Table showing business search results">
               <thead>
               <tr>
                 <!--    ID    -->
@@ -242,7 +243,7 @@ export default {
       this.loading = true;
       this.page = 1;
 
-      User.getUsers(this.searchTerm)
+      Business.getBusinesses(this.searchTerm)
           .then((res) => {
             this.error = null;
             this.users = res.data;
@@ -264,9 +265,9 @@ export default {
       this.businesses = [
         {
           id: 1,
-          name: "Myrtle's Muffins",    //Required
+          name: "Myrtle's Muffins",
           description: 'Tasty muffins by Myrtle',
-          address: {  //Required
+          address: {
             streetNumber: '',
             streetName: '',
             city: 'Christchurch',
@@ -278,9 +279,9 @@ export default {
         },
         {
           id: 2,
-          name: "Tinned Food Mart",    //Required
+          name: "Tinned Food Mart",
           description: 'The perfect place to purchase your non-perishables',
-          address: {  //Required
+          address: {
             streetNumber: '',
             streetName: '',
             city: 'Christchurch',
@@ -292,9 +293,9 @@ export default {
         },
         {
           id: 3,
-          name: "Layla's Jam & Pickles",    //Required
+          name: "Layla's Jam & Pickles",
           description: 'Get your indulgent fruit jams here.',
-          address: {  //Required
+          address: {
             streetNumber: '',
             streetName: '',
             city: 'Kerikeri',

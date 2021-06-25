@@ -47,7 +47,9 @@
 
           <!--    Order By   -->
           <div class="overflow-auto">
-            <table class="table table-hover">
+            <table class="table table-hover"
+                   aria-label="Table showing user search results"
+            >
               <thead>
               <tr>
                 <!--    ID    -->
