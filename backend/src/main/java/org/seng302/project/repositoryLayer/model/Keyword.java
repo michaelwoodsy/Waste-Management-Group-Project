@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
 public class Keyword {
 
-    private Integer Id;
+    private Integer id;
     private String name;
     private LocalDateTime created = LocalDateTime.now();
 
@@ -26,7 +26,7 @@ public class Keyword {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
     @Column(name = "keyword_id")
     public Integer getId() {
-        return this.Id;
+        return this.id;
     }
 
 
