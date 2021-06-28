@@ -178,7 +178,16 @@ export const Business = {
      * @param businessId The ID of the business in the database
      * @param data The listing data
      */
-    createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data)
+    createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data),
+
+    /**
+     * Sends a request to make a specific image the primary image of a specific product in the catalogue
+     * @param businessId The ID of the business in the database
+     * @param productId The ID of the product in the database
+     * @param imageId The ID of the image for the product in the database
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    makePrimaryProductImage: (businessId, productId, imageId) => instance.put(`businesses/${businessId}/products/${productId}/images/${imageId}/makeprimary`)
 };
 
 export const Marketplace = {

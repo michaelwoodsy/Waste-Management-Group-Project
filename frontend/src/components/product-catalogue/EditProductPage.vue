@@ -187,7 +187,7 @@
                       Remove
                     </button>
                     <button class="btn btn-primary ml-1 my-1 pad1"
-                            @click="makeImagePrimary(image.url)">
+                            @click="makeImagePrimary(image.id)">
                       Make Primary
                     </button>
                   </div>
@@ -271,8 +271,14 @@ export default {
             id: 1000,
             filename: '/media/defaults/defaultProduct.jpg',
             thumbnailFilename: '/media/defaults/defaultProduct_thumbnail.jpg'
-          }
+          },
+        {
+          id: 1001,
+          filename: '/media/defaults/defaultProduct2.jpg',
+          thumbnailFilename: '/media/defaults/defaultProduct2_thumbnail.jpg'
+        }
       ], //TODO: prefill with product's existing images
+      newPrimaryImageId: null,
       imagesEdited: false
     }
   },
@@ -404,6 +410,9 @@ export default {
       Business.editProduct(this.businessId, this.productId, this.newProduct)
           .then(() => {
             this.addImages()
+            if (this.newPrimaryImageId !== null) {
+              Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.newPrimaryImageId)
+            }
             this.submitError = null
             this.success = true
             this.submitting = false
@@ -509,21 +518,23 @@ export default {
 
     /**
      * Called to make the image the primary image of the product.
-     * Calls the make primary image endpoint.
-     * @param image the image to make primary
+     * @param imageId the id of the image to make primary
      */
-    makeImagePrimary(image) {
-      console.log(image)
+    makeImagePrimary(imageId) {
+      this.imagesEdited = true
+      this.newPrimaryImageId = imageId
     },
 
     /**
      * Makes requests to add the product's images
      */
     addImages() {
-      //TODO: get this to only add images that didn't previously exist for product
       for (const image of this.images) {
-        this.$root.$data.business.addProductImage(
-            this.businessId, this.newProduct.id, image.file)
+        //Id is null if it was just added
+        if (image.id === null) {
+          this.$root.$data.business.addProductImage(
+              this.businessId, this.newProduct.id, image.file)
+        }
       }
     }
   }
