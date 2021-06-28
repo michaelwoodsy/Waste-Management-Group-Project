@@ -11,6 +11,9 @@ public class ValidBusinessTypeValidator implements ConstraintValidator<ValidBusi
         return type.equals("Accommodation and Food Services") ||
                 type.equals("Retail Trade") ||
                 type.equals("Charitable organisation") ||
-                type.equals("Non-profit organisation");
+                type.equals("Non-profit organisation") ||
+                type.equals(""); // Type can be empty for searching,
+                // use @NotEmpty annotation in DTO if required
+
     }
 }

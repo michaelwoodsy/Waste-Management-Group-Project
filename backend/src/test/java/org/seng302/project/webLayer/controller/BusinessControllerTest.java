@@ -6,7 +6,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO;
+import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
@@ -188,8 +188,7 @@ class BusinessControllerTest {
                 .andReturn();
 
         String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
-        Assertions.assertTrue(returnedExceptionString.equals("Business type is a mandatory field") ||
-                returnedExceptionString.equals("Invalid business type provided"));
+        Assertions.assertEquals("Business type is a mandatory field", returnedExceptionString);
     }
 
 

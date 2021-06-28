@@ -2,8 +2,9 @@ package org.seng302.project.webLayer.controller;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO;
-import org.seng302.project.serviceLayer.dto.AddBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
+import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
 import org.seng302.project.serviceLayer.service.BusinessService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 /**
@@ -89,6 +91,29 @@ public class BusinessController {
         requestDTO.setBusinessId(id);
         requestDTO.setAppUser(appUser);
         businessService.removeAdministrator(requestDTO);
+    }
+
+    /**
+     * Receives a request containing a search query to search businesses by name and retrieves a list
+     * of businesses based on the query.
+     *
+     *
+     *
+     * @param searchQuery business's name, or part of their name
+     * @return 200 response with (potentially empty) list of businesses or
+     * 400 if invalid business type provided or
+     * 401 if not authenticated.
+     */
+    @GetMapping("/businesses/search")
+    public List<Business> searchBusiness(@RequestParam("searchQuery") String searchQuery,
+                                         @RequestParam("businessType") String businessType) {
+
+        if (businessType == null) {
+            businessType = "";
+        }
+        SearchBusinessDTO searchBusinessDTO = new SearchBusinessDTO(searchQuery, businessType);
+
+        return businessService.searchBusiness(searchBusinessDTO);
     }
 
 }

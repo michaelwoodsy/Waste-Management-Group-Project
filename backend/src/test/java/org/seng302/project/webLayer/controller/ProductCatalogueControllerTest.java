@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.serviceLayer.dto.AddProductDTO;
+import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.service.ProductCatalogueService;
