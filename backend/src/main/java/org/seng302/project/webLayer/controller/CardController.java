@@ -65,7 +65,6 @@ public class CardController {
             // check required fields
             if (section == null || section.isEmpty() ||
                     title == null || title.isEmpty() ||
-                    keywords == null || keywords.isEmpty() ||
                     !json.containsKey("creatorId")) {
                 RequiredFieldsMissingException requiredFieldsMissingException = new RequiredFieldsMissingException();
                 logger.warn(requiredFieldsMissingException.getMessage());
@@ -73,10 +72,11 @@ public class CardController {
             }
 
             // check if loggedInUser has the same ID as the creator id provided, otherwise check loggedInUser is GAA
-            if (!loggedInUser.getId().equals(creatorId)) {
-                if (!loggedInUser.getRole().equals("globalApplicationAdmin") || !loggedInUser.getRole().equals("defaultGlobalApplicationAdmin")) {
-                    throw new ForbiddenCardActionException();
-                }
+            if (!loggedInUser.getId().equals(creatorId) && (
+                    !loggedInUser.getRole().equals("globalApplicationAdmin")
+                            || !loggedInUser.getRole().equals("defaultGlobalApplicationAdmin")
+            )) {
+                throw new ForbiddenCardActionException();
             }
 
             //check that listed card creator exists.
@@ -135,7 +135,7 @@ public class CardController {
     @ResponseStatus(HttpStatus.OK)
     public Card getCard(@PathVariable int id) {
 
-        logger.info(String.format("Request to get card with id %d", id));
+        logger.info("Request to get card with id {}", id);
         try {
             return cardRepository.findById(id).orElseThrow(() -> new NoCardExistsException(id));
         } catch (NoCardExistsException noCardExistsException) {
@@ -156,7 +156,7 @@ public class CardController {
     @GetMapping("/cards")
     public List<Card> getAllCards(@RequestParam String section) {
         try {
-            logger.info(String.format("Request to get all cards by section: %s", section));
+            logger.info("Request to get all cards by section: {}", section);
 
             // Check if the section is invalid
             if (!("Exchange".equals(section) ||
@@ -184,7 +184,7 @@ public class CardController {
     @ResponseStatus(HttpStatus.OK)
     public void extendCardDisplayPeriod(@PathVariable int id, @AuthenticationPrincipal AppUserDetails appUser) {
 
-        logger.info(String.format("Request to extend display period of card with id %d", id));
+        logger.info("Request to extend display period of card with id {}", id);
         try {
             User loggedInUser = getLoggedInUser(appUser);
 
@@ -224,7 +224,7 @@ public class CardController {
     @DeleteMapping("/cards/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteCard(@PathVariable int id, @AuthenticationPrincipal AppUserDetails appUser) {
-        logger.info(String.format("Request to delete card with id %d", id));
+        logger.info("Request to delete card with id {}", id);
         try {
             //406 if card cannot be found (NoCardExistsException)
             Optional<Card> cardOptional = cardRepository.findById(id);
@@ -235,10 +235,10 @@ public class CardController {
 
             //403 if card is not yours or you aren't DGAA/GAA (ForbiddenCardActionException)
             User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
-            if (!requestMaker.getId().equals(retrievedCard.getCreator().getId())) {
-                if (requestMaker.getRole().equals("user")) {
-                    throw new ForbiddenCardActionException();
-                }
+            if (!requestMaker.getId().equals(retrievedCard.getCreator().getId()) &&
+                    requestMaker.getRole().equals("user")
+            ) {
+                throw new ForbiddenCardActionException();
             }
 
             //200 if card successfully deleted
@@ -263,7 +263,7 @@ public class CardController {
     @ResponseStatus(HttpStatus.OK)
     public List<Card> getAllCardsByUser(@PathVariable Integer id) {
         // Log the request
-        logger.info(String.format("Request to get cards by user with id %d", id));
+        logger.info("Request to get cards by user with id {}", id);
 
         try {
             // Try get the user, and check they exist
