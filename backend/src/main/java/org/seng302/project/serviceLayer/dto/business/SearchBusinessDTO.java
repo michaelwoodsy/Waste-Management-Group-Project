@@ -3,6 +3,7 @@ package org.seng302.project.serviceLayer.dto.business;
 import lombok.Data;
 import org.seng302.project.serviceLayer.dto.validators.ValidBusinessType;
 
+
 /**
  * DTO for a request to search for businesses
  */

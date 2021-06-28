@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -246,7 +247,7 @@ public class BusinessService {
      * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
      * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
      */
-    public List<Business> searchBusiness(SearchBusinessDTO requestDTO) {
+    public List<Business> searchBusiness(@Valid SearchBusinessDTO requestDTO) {
         logger.info("Request to search businesses with searchQuery: {} and businessType: {}",
                 requestDTO.getSearchQuery(), requestDTO.getBusinessType());
 

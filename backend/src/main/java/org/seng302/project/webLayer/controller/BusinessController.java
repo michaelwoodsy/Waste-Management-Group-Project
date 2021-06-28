@@ -106,11 +106,12 @@ public class BusinessController {
      */
     @GetMapping("/businesses/search")
     public List<Business> searchBusiness(@RequestParam("searchQuery") String searchQuery,
-                                         @RequestParam("businessType") String businessType) {
+                                         @RequestParam(name = "businessType", required = false) String businessType) {
 
         if (businessType == null) {
             businessType = "";
         }
+
         SearchBusinessDTO searchBusinessDTO = new SearchBusinessDTO(searchQuery, businessType);
 
         return businessService.searchBusiness(searchBusinessDTO);

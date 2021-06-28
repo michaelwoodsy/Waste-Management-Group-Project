@@ -14,6 +14,7 @@ import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
+import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
@@ -26,12 +27,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+
 
 @SpringBootTest
 class BusinessServiceTest {
@@ -347,5 +350,58 @@ class BusinessServiceTest {
         Assertions.assertThrows(ForbiddenPrimaryAdministratorActionException.class,
                 ()-> businessService.removeAdministrator(requestDTO));
 
+    }
+
+    /**
+     * Tests that searching a business by exact name succeeds
+     */
+    @Test
+    void searchBusiness_exactNameMatch() {
+        given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness));
+
+        SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(), "");
+
+        List<Business> retrievedBusinesses = businessService.searchBusiness(requestDTO);
+
+        Assertions.assertEquals(1, retrievedBusinesses.size());
+        Assertions.assertEquals(testBusiness.getName(), retrievedBusinesses.get(0).getName());
+    }
+
+    /**
+     * Tests that when there are multiple matches by name,
+     * filtering them by business type works
+     */
+    @Test
+    void searchBusiness_filterByType() {
+        Business otherBusiness = new Business(testBusiness.getName(), "A one-stop shop for all your adventuring needs",
+                null, "Retail Trade", 1);
+
+        given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness, otherBusiness));
+
+        SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(),
+                testBusiness.getBusinessType()); //"Accommodation and Food Services"
+
+        List<Business> retrievedBusinesses = businessService.searchBusiness(requestDTO);
+
+        Assertions.assertEquals(1, retrievedBusinesses.size());
+        Assertions.assertEquals(testBusiness.getBusinessType(), retrievedBusinesses.get(0).getBusinessType());
+    }
+
+
+
+    /**
+     * Tries to search for a business with a valid query and invalid type
+     * Expects a MethodArgumentNotValidException (that results in a 400 response)
+     */
+    @Test
+    void searchBusiness_invalidType_methodArgumentNotValidException() {
+
+        given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness));
+
+        SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(), "Not a Type");
+
+        //TODO: this fails
+        Assertions.assertThrows(MethodArgumentNotValidException.class,
+                () -> businessService.searchBusiness(requestDTO));
     }
 }
