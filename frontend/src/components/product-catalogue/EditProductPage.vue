@@ -186,8 +186,15 @@
                             @click="removeImage(image.url)">
                       Remove
                     </button>
+<!--                    If the image cant be made primary because it is not uploaded yet-->
+                    <button class="btn btn-secondary disabled ml-1 my-1 pad1"
+                            v-if="image.id === undefined"
+                            type="button" @click="makeImagePrimary(null)">
+                      Make Primary
+                    </button>
                     <button class="btn btn-primary ml-1 my-1 pad1"
-                            @click="makeImagePrimary(image.id)">
+                            v-else-if="image.id !== currentPrimaryImageId"
+                            type="button" @click="makeImagePrimary(image.id)">
                       Make Primary
                     </button>
                   </div>
@@ -197,6 +204,12 @@
 
             </form>
           </div>
+        </div>
+        <div v-if="primaryImageError !== null" class="alert alert-warning alert-dismissible fade show" role="alert">
+          {{primaryImageError}}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
 
         <!-- Row for fixes message -->
@@ -276,9 +289,14 @@ export default {
           id: 1001,
           filename: '/media/defaults/defaultProduct2.jpg',
           thumbnailFilename: '/media/defaults/defaultProduct2_thumbnail.jpg'
+        },
+        {
+          filename: '/media/defaults/defaultProduct2.jpg',
+          thumbnailFilename: '/media/defaults/defaultProduct2_thumbnail.jpg'
         }
       ], //TODO: prefill with product's existing images
-      newPrimaryImageId: null,
+      currentPrimaryImageId: null,
+      primaryImageError: null,
       imagesEdited: false
     }
   },
@@ -410,7 +428,7 @@ export default {
       Business.editProduct(this.businessId, this.productId, this.newProduct)
           .then(() => {
             this.addImages()
-            if (this.newPrimaryImageId !== null) {
+            if (this.currentPrimaryImageId !== this.product.primaryImageId) {
               Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.newPrimaryImageId)
             }
             this.submitError = null
@@ -521,8 +539,14 @@ export default {
      * @param imageId the id of the image to make primary
      */
     makeImagePrimary(imageId) {
+      if (imageId === null) {
+        this.primaryImageError = "This image is not on our servers yet. Please save changes before making this image Primary"
+        return
+      } else {
+        this.primaryImageError = null
+      }
       this.imagesEdited = true
-      this.newPrimaryImageId = imageId
+      this.currentPrimaryImageId = imageId
     },
 
     /**
