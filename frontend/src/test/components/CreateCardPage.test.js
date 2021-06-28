@@ -69,14 +69,21 @@ describe('validate Title method tests', () => {
         wrapper.vm.$data.valid = true
     })
 
-    test("Test no title", () => {
+    test("Test empty title", () => {
         wrapper.vm.$data.title = ''
         wrapper.vm.validateTitle()
         expect(wrapper.vm.$data.msg.title).toStrictEqual('Please enter a title')
         expect(wrapper.vm.$data.valid).toBeFalsy()
     })
 
-    test("Test no title", () => {
+    test("Test space title", () => {
+        wrapper.vm.$data.title = ' '
+        wrapper.vm.validateTitle()
+        expect(wrapper.vm.$data.msg.title).toStrictEqual('Please enter a title')
+        expect(wrapper.vm.$data.valid).toBeFalsy()
+    })
+
+    test("Test null title", () => {
         wrapper.vm.$data.title = null
         wrapper.vm.validateTitle()
         expect(wrapper.vm.$data.msg.title).toStrictEqual('Please enter a title')
@@ -100,16 +107,16 @@ describe('validate Keywords method tests', () => {
         wrapper.vm.$data.keywords = [];
     })
 
+    //We now expect an empty keyword list to be valid
     test("Test empty keyword list", () => {
         wrapper.vm.$data.keywords = []
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.msg.keywords).toStrictEqual('Please enter one or more keywords')
-        expect(wrapper.vm.$data.valid).toBeFalsy()
+        expect(wrapper.vm.$data.keywords).toStrictEqual([])
+        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
+        expect(wrapper.vm.$data.valid).toBeTruthy()
     })
 
     test("Test keyword list with 1 item", () => {
         wrapper.vm.$data.keywords = ["test"]
-        wrapper.vm.validateKeywords()
         expect(wrapper.vm.$data.keywords).toStrictEqual(["test"])
         expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
         expect(wrapper.vm.$data.valid).toBeTruthy()

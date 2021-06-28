@@ -39,9 +39,10 @@
       <!-- Description -->
       <div class="form-group row">
         <label for="description"><strong>Description</strong></label>
-        <input id="description" v-model="description" :class="{'form-control': true, 'is-invalid': false}"
+        <textarea id="description" v-model="description" :class="{'form-control': true, 'is-invalid': false}"
                placeholder="Enter the description"
                required maxlength="255" type="text">
+        </textarea>
       </div>
 
       <!-- Keywords -->
@@ -135,7 +136,7 @@ export default {
       cancel: false,
       submit: false,
       keywordValue: '',
-      keywords: [], //Required
+      keywords: [],
       testKeywords: [
         {
           id: 1,
@@ -197,6 +198,9 @@ export default {
      * Cannot be empty
      */
     validateTitle(){
+      if (this.title != null) {
+        this.title = this.title.trim()
+      }
       if (this.title === '' || this.title === null){
         this.msg.title = 'Please enter a title'
         this.valid = false
@@ -206,23 +210,11 @@ export default {
     },
 
     /**
-     * Validate the keywords input
-     * Will edit keywords to be correct, remove spaces (Comma separated string FOR NOW)
-     */
-    validateKeywords(){
-      if (this.keywords.length === 0){
-        this.msg.keywords = 'Please enter one or more keywords'
-        this.valid = false
-      }
-    },
-
-    /**
      * Check all inputs are valid, if not show error message otherwise add card to marketplace
      */
     checkInputs(){
       this.validateSection()
       this.validateTitle()
-      this.validateKeywords()
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
