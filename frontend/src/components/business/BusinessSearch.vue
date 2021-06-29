@@ -76,6 +76,7 @@ Component on Search page for searching businesses
 import ShowingResultsText from "@/components/ShowingResultsText";
 import PageWrapper from "@/components/PageWrapper";
 import Alert from "@/components/Alert";
+import {Business} from "@/Api";
 
 export default {
   name: "BusinessSearch",
@@ -119,6 +120,34 @@ export default {
       //TODO: implement me
       //If businessType is either 'Any type' or empty string, then
       //leave out optional businessType query param in the request.
+      this.loading = true;
+      this.page = 1;
+
+      if(this.businessType === 'Any type' || this.businessType === ''){
+        Business.getBusinesses(this.searchTerm)
+            .then((res) => {
+              this.error = null;
+              this.businesses = res.data;
+              this.loading = false;
+              console.log(this.businesses)
+            })
+            .catch((err) => {
+              this.error = err;
+              this.loading = false;
+            })
+      } else {
+        Business.getBusinesses(this.searchTerm, this.businessType)
+            .then((res) => {
+              this.error = null;
+              this.businesses = res.data;
+              this.loading = false;
+              console.log(this.businesses)
+            })
+            .catch((err) => {
+              this.error = err;
+              this.loading = false;
+            })
+      }
     }
   }
 }
