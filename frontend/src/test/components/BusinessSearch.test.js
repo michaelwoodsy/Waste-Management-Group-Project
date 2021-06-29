@@ -42,7 +42,7 @@ describe('Jest tests for the BusinessSearch component', () => {
         const options = wrapper.find('select').findAll('option')
         options.at(1).setSelected()
         await wrapper.vm.$nextTick()
-        expect(wrapper.vm.$data.businessType).toEqual("")
+        expect(wrapper.vm.$data.businessType).toEqual("Any type")
     })
 
     // Test that selecting Accommodation and Food Services for business type sets businessType to Accommodation and Food Services

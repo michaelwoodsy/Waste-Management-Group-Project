@@ -44,8 +44,8 @@ Component on Search page for searching businesses
           <select id="businessType" v-model="businessType" class="form-control"
                   required style="width:100%" type="text">
             <option disabled hidden selected value>Filter by business type</option>
-            <!--    Empty option to choose not to filter by business type    -->
-            <option></option>
+            <!--    'Any type' option to choose not to filter by business type    -->
+            <option>Any type</option>
             <option>Accommodation and Food Services</option>
             <option>Retail Trade</option>
             <option>Charitable organisation</option>
@@ -117,6 +117,8 @@ export default {
   methods: {
     search() {
       //TODO: implement me
+      //If businessType is either 'Any type' or empty string, then
+      //leave out optional businessType query param in the request.
     }
   }
 }
