@@ -178,9 +178,13 @@
                         @mouseover="image.hover = true"
                         @mouseleave="image.hover = false"
                   >
-                    <img width="250"
+                    <img v-if="image.id === undefined" width="250"
                          :src="image.url"
                          alt="Uploaded product image"
+                    />
+                    <img v-else width="250"
+                         :src="getImageURL(image.filename)"
+                         alt="Current product image"
                     />
                     <button class="btn btn-danger ml-1 my-1 pad1"
                             @click="removeImage(image.url)">
@@ -191,6 +195,11 @@
                             v-if="image.id === undefined"
                             type="button" @click="makeImagePrimary(null)">
                       Make Primary
+                    </button>
+                    <button class="btn btn-primary ml-1 my-1 pad1 disabled"
+                            v-else-if="image.id === currentPrimaryImageId"
+                            type="button">
+                      Already Primary
                     </button>
                     <button class="btn btn-primary ml-1 my-1 pad1"
                             v-else-if="image.id !== currentPrimaryImageId"
@@ -256,7 +265,7 @@
 import LoginRequired from "@/components/LoginRequired";
 import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
-import {Business} from "@/Api";
+import {Business, Images} from "@/Api";
 import PageWrapper from "@/components/PageWrapper";
 
 export default {
@@ -279,6 +288,7 @@ export default {
       priceBlur: false,
       nameBlur: false,
       triedIds: [], // List of ids tested for uniqueness
+      //Test Image Data
       images: [
           {
             id: 1000,
@@ -287,10 +297,6 @@ export default {
           },
         {
           id: 1001,
-          filename: '/media/defaults/defaultProduct2.jpg',
-          thumbnailFilename: '/media/defaults/defaultProduct2_thumbnail.jpg'
-        },
-        {
           filename: '/media/defaults/defaultProduct2.jpg',
           thumbnailFilename: '/media/defaults/defaultProduct2_thumbnail.jpg'
         }
@@ -407,6 +413,12 @@ export default {
   },
   methods: {
     /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
+    },
+    /**
      * Validates the users inputs, then sends the data to the api.
      */
     submit() {
@@ -429,7 +441,7 @@ export default {
           .then(() => {
             this.addImages()
             if (this.currentPrimaryImageId !== this.product.primaryImageId) {
-              Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.newPrimaryImageId)
+              Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.currentPrimaryImageId)
             }
             this.submitError = null
             this.success = true
@@ -536,6 +548,7 @@ export default {
 
     /**
      * Called to make the image the primary image of the product.
+     * Sets the variable currentPrimaryImage, which is then sent to the backend when the save changes button is clicked
      * @param imageId the id of the image to make primary
      */
     makeImagePrimary(imageId) {
@@ -546,6 +559,7 @@ export default {
         this.primaryImageError = null
       }
       this.imagesEdited = true
+      //Sets the new primary image to be set when the user clicks the save changes button
       this.currentPrimaryImageId = imageId
     },
 
