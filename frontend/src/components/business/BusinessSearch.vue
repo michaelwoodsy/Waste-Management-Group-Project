@@ -3,6 +3,7 @@ BusinessSearch.vue
 Component on Search page for searching businesses
 -->
 
+
 <template>
   <page-wrapper>
 
