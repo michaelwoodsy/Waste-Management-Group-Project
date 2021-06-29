@@ -13,6 +13,7 @@ import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.specification.BusinessSpecifications;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
@@ -27,8 +28,9 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -358,7 +360,8 @@ class BusinessServiceTest {
      */
     @Test
     void searchBusiness_exactNameMatch() {
-        given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness));
+        given(businessRepository.findAll(any(Specification.class)))
+                .willReturn(List.of(testBusiness));
 
         SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(), null);
 
@@ -377,7 +380,8 @@ class BusinessServiceTest {
         Business otherBusiness = new Business(testBusiness.getName(), "A one-stop shop for all your adventuring needs",
                 null, "Retail Trade", 1);
 
-        given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness, otherBusiness));
+        given(businessRepository.findAll(any(Specification.class)))
+                .willReturn(List.of(testBusiness, otherBusiness));
 
         SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(),
                 BusinessType.getType(testBusiness.getBusinessType())); //"Accommodation and Food Services"
