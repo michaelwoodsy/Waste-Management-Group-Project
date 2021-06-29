@@ -2,7 +2,6 @@ package org.seng302.project.serviceLayer.service;
 
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
@@ -259,7 +258,7 @@ public class BusinessService {
         if (requestDTO.getBusinessType() != null) {
             var filteredBusinesses = new ArrayList<Business>();
             for (Business business: retrievedBusinesses) {
-                if (BusinessType.valueOf(business.getBusinessType()).equals(requestDTO.getBusinessType())) {
+                if (requestDTO.getBusinessType().matchesType(business.getBusinessType())) {
                     filteredBusinesses.add(business);
                 }
             }

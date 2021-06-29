@@ -380,7 +380,7 @@ class BusinessServiceTest {
         given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness, otherBusiness));
 
         SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(),
-                BusinessType.valueOf(testBusiness.getBusinessType())); //"Accommodation and Food Services"
+                BusinessType.getType(testBusiness.getBusinessType())); //"Accommodation and Food Services"
 
         List<Business> retrievedBusinesses = businessService.searchBusiness(requestDTO);
 

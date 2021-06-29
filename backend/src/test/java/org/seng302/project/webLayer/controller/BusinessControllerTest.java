@@ -532,7 +532,6 @@ class BusinessControllerTest {
         given(businessService.searchBusiness(any(SearchBusinessDTO.class)))
                 .willReturn(List.of(testBusiness));
 
-        //TODO: this test fails
         RequestBuilder searchBusinessRequest = MockMvcRequestBuilders
                 .get("/businesses/search?searchQuery=General&businessType={businessType}", testBusiness.getBusinessType())
                 .contentType(MediaType.APPLICATION_JSON)

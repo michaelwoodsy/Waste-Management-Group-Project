@@ -6,6 +6,7 @@ import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
+import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.service.BusinessService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,16 +109,17 @@ public class BusinessController {
     @GetMapping("/businesses/search")
     public List<Business> searchBusiness(@RequestParam("searchQuery") String searchQuery,
                                          @RequestParam(name = "businessType", required = false)
-                                                 //Could make this type BusinessType (instead of string)
-                                                 //and catch MethodArgumentNotValidException
                                                  String businessTypeParam) {
 
         BusinessType businessType = null;
         if (businessTypeParam != null) {
-            businessType = BusinessType.valueOf(businessTypeParam);
+            if (BusinessType.checkType(businessTypeParam)) {
+                businessType = BusinessType.getType(businessTypeParam);
+            } else {
+                throw new BadRequestException("Invalid business type provided");
+            }
         }
 
-        //TODO: throw correct exception
         var searchBusinessDTO = new SearchBusinessDTO(searchQuery, businessType);
 
         return businessService.searchBusiness(searchBusinessDTO);
