@@ -2,6 +2,7 @@ package org.seng302.project.serviceLayer.service;
 
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
@@ -235,6 +236,25 @@ public class BusinessService {
         }
     }
 
+    /**
+     * Filters businesses based on a given business type
+     * @param retrievedBusinesses list of businesses found by specifications
+     * @param businessType the business type to filter by e.g. RETAIL_TRADE
+     */
+    public List<Business> filterBusinesses(List<Business> retrievedBusinesses, BusinessType businessType) {
+        //In DTO, businessType is either a valid type or null
+        if (businessType != null) {
+            var filteredBusinesses = new ArrayList<Business>();
+            for (Business business: retrievedBusinesses) {
+                if (businessType.matchesType(business.getBusinessType())) {
+                    filteredBusinesses.add(business);
+                }
+            }
+            return filteredBusinesses;
+        } else {
+            return retrievedBusinesses;
+        }
+    }
 
     /**
      * Searches for business based on name and type
@@ -250,7 +270,6 @@ public class BusinessService {
         logger.info("Request to search businesses with searchQuery: {} and businessType: {}",
                 requestDTO.getSearchQuery(), requestDTO.getBusinessType());
 
-        //TODO: refactor this into more than one method
         try {
             String searchQuery = requestDTO.getSearchQuery();
             List<Business> retrievedBusinesses;
@@ -289,22 +308,9 @@ public class BusinessService {
 
                 logger.info("Retrieved {} businesses", result.size());
                 retrievedBusinesses = new ArrayList<>(result);
-
             }
 
-            //Filter by business type
-            //In DTO, businessType is either a valid type or null
-            if (requestDTO.getBusinessType() != null) {
-                var filteredBusinesses = new ArrayList<Business>();
-                for (Business business: retrievedBusinesses) {
-                    if (requestDTO.getBusinessType().matchesType(business.getBusinessType())) {
-                        filteredBusinesses.add(business);
-                    }
-                }
-                return filteredBusinesses;
-            } else {
-                return retrievedBusinesses;
-            }
+            return filterBusinesses(retrievedBusinesses, requestDTO.getBusinessType());
 
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while searching businesses: %s", exception.getMessage()));
