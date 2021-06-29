@@ -1,4 +1,4 @@
-package org.seng302.project.serviceLayer.dto;
+package org.seng302.project.serviceLayer.dto.product;
 
 import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
