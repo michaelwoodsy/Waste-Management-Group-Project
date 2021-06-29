@@ -6,7 +6,7 @@ servers:
     
 info:
   description: API specification for the SENG302 2021 project
-  version: 3.0.1
+  version: 3.1.1
   title: Wasteless
   contact:
     email: seng302@canterbury.ac.nz
@@ -40,6 +40,7 @@ tags:
   - name: 'UCM5: Find my cards'
   - name: 'UCM6: Keyword management'
   - name: 'UCM7: Keyword search'
+  - name: 'U23: Search for business'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -1132,6 +1133,47 @@ paths:
                   $ref: '#/components/schemas/Card'
         '400': 
           $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+
+  '/businesses/search':
+    get:
+      tags:
+        - 'U23: Search for business'
+        - 'Business Accounts'
+      summary: 'Search for businesses by some criteria, for now: their name'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - in: query
+          name: searchQuery
+          schema:
+            type: string
+          required: true
+          description: 'Criteria to search businesses for, e.g: business’s full name or part of a name'
+        - in: query
+          name: businessType
+          description: |-
+              Only include businesses of this type (id).
+
+              Only valid business types are allowed.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request successful, a (possibly empty) list of businesses is returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Business'
+        '400':
+          description: Bad Request, businessType is not a valid business type
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
