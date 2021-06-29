@@ -2,6 +2,7 @@ package org.seng302.project.serviceLayer.service;
 
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
@@ -22,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -247,7 +247,7 @@ public class BusinessService {
      * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
      * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
      */
-    public List<Business> searchBusiness(@Valid SearchBusinessDTO requestDTO) {
+    public List<Business> searchBusiness(SearchBusinessDTO requestDTO) {
         logger.info("Request to search businesses with searchQuery: {} and businessType: {}",
                 requestDTO.getSearchQuery(), requestDTO.getBusinessType());
 
@@ -255,11 +255,11 @@ public class BusinessService {
         List<Business> retrievedBusinesses = businessRepository.findByName(requestDTO.getSearchQuery());
 
         //Filter by business type
-        //In DTO, businessType is either a valid type or empty string
-        if (!requestDTO.getBusinessType().equals("")) {
+        //In DTO, businessType is either a valid type or null
+        if (requestDTO.getBusinessType() != null) {
             var filteredBusinesses = new ArrayList<Business>();
             for (Business business: retrievedBusinesses) {
-                if (business.getBusinessType().equals(requestDTO.getBusinessType())) {
+                if (BusinessType.valueOf(business.getBusinessType()).equals(requestDTO.getBusinessType())) {
                     filteredBusinesses.add(business);
                 }
             }

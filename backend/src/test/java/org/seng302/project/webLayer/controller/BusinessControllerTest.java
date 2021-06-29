@@ -193,7 +193,9 @@ class BusinessControllerTest {
                 .andReturn();
 
         String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("Business type is a mandatory field", returnedExceptionString);
+        Assertions.assertTrue(returnedExceptionString.equals("Business type is a mandatory field") ||
+                returnedExceptionString.equals("Invalid business type provided"));
+
     }
 
 
@@ -530,15 +532,38 @@ class BusinessControllerTest {
         given(businessService.searchBusiness(any(SearchBusinessDTO.class)))
                 .willReturn(List.of(testBusiness));
 
+        //TODO: this test fails
         RequestBuilder searchBusinessRequest = MockMvcRequestBuilders
-                // %20 encodes a space character in a URL
-                .get("/businesses/search?searchQuery=General&businessType=Accommodation%20and%20Food%20Services")
+                .get("/businesses/search?searchQuery=General&businessType={businessType}", testBusiness.getBusinessType())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
         this.mvc.perform(searchBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isOk());
+
+    }
+
+    /**
+     * Tries to search for a business with a valid query and invalid type
+     * Expects a 400 response
+     */
+    @Test
+    void searchBusiness_invalidType_400() throws Exception {
+
+        RequestBuilder searchBusinessRequest = MockMvcRequestBuilders
+                // %20 encodes a space character in a URL
+                .get("/businesses/search?searchQuery=General&businessType=Not%20a%20Type")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postBusinessResponse = this.mvc.perform(searchBusinessRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
+                .andReturn();
+
+        String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
+        Assertions.assertEquals("Invalid business type provided", returnedExceptionString);
 
     }
 

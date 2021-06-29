@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
@@ -359,7 +360,7 @@ class BusinessServiceTest {
     void searchBusiness_exactNameMatch() {
         given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness));
 
-        SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(), "");
+        SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(), null);
 
         List<Business> retrievedBusinesses = businessService.searchBusiness(requestDTO);
 
@@ -379,7 +380,7 @@ class BusinessServiceTest {
         given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness, otherBusiness));
 
         SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(),
-                testBusiness.getBusinessType()); //"Accommodation and Food Services"
+                BusinessType.valueOf(testBusiness.getBusinessType())); //"Accommodation and Food Services"
 
         List<Business> retrievedBusinesses = businessService.searchBusiness(requestDTO);
 
@@ -387,21 +388,4 @@ class BusinessServiceTest {
         Assertions.assertEquals(testBusiness.getBusinessType(), retrievedBusinesses.get(0).getBusinessType());
     }
 
-
-
-    /**
-     * Tries to search for a business with a valid query and invalid type
-     * Expects a MethodArgumentNotValidException (that results in a 400 response)
-     */
-    @Test
-    void searchBusiness_invalidType_methodArgumentNotValidException() {
-
-        given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness));
-
-        SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(), "Not a Type");
-
-        //TODO: this fails
-        Assertions.assertThrows(MethodArgumentNotValidException.class,
-                () -> businessService.searchBusiness(requestDTO));
-    }
 }

@@ -1,7 +1,7 @@
 package org.seng302.project.serviceLayer.dto.business;
 
 import lombok.Data;
-import org.seng302.project.serviceLayer.dto.validators.ValidBusinessType;
+import org.seng302.project.repositoryLayer.model.types.BusinessType;
 
 
 /**
@@ -12,10 +12,9 @@ public class SearchBusinessDTO {
 
     private String searchQuery;
 
-    @ValidBusinessType
-    private String businessType;
+    private BusinessType businessType;
 
-    public SearchBusinessDTO(String searchQuery, String businessType) {
+    public SearchBusinessDTO(String searchQuery, BusinessType businessType) {
         this.searchQuery = searchQuery;
         this.businessType = businessType;
     }

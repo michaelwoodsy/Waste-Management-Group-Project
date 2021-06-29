@@ -2,6 +2,7 @@ package org.seng302.project.webLayer.controller;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
@@ -106,13 +107,18 @@ public class BusinessController {
      */
     @GetMapping("/businesses/search")
     public List<Business> searchBusiness(@RequestParam("searchQuery") String searchQuery,
-                                         @RequestParam(name = "businessType", required = false) String businessType) {
+                                         @RequestParam(name = "businessType", required = false)
+                                                 //Could make this type BusinessType (instead of string)
+                                                 //and catch MethodArgumentNotValidException
+                                                 String businessTypeParam) {
 
-        if (businessType == null) {
-            businessType = "";
+        BusinessType businessType = null;
+        if (businessTypeParam != null) {
+            businessType = BusinessType.valueOf(businessTypeParam);
         }
 
-        SearchBusinessDTO searchBusinessDTO = new SearchBusinessDTO(searchQuery, businessType);
+        //TODO: throw correct exception
+        var searchBusinessDTO = new SearchBusinessDTO(searchQuery, businessType);
 
         return businessService.searchBusiness(searchBusinessDTO);
     }
