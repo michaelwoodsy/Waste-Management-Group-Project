@@ -9,13 +9,15 @@ import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.AddBusinessDTO;
-import org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO;
+import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
+import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
+import org.seng302.project.serviceLayer.exceptions.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
-import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
@@ -26,12 +28,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+
 
 @SpringBootTest
 class BusinessServiceTest {
@@ -193,7 +197,7 @@ class BusinessServiceTest {
     void getNonexistentBusiness() {
         given(businessRepository.findById(200)).willReturn(Optional.empty());
 
-        Assertions.assertThrows(BusinessNotFoundException.class,
+        Assertions.assertThrows(NoBusinessExistsException.class,
                 () -> businessService.getBusiness(200));
     }
 
@@ -348,4 +352,40 @@ class BusinessServiceTest {
                 ()-> businessService.removeAdministrator(requestDTO));
 
     }
+
+    /**
+     * Tests that searching a business by exact name succeeds
+     */
+    @Test
+    void searchBusiness_exactNameMatch() {
+        given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness));
+
+        SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(), null);
+
+        List<Business> retrievedBusinesses = businessService.searchBusiness(requestDTO);
+
+        Assertions.assertEquals(1, retrievedBusinesses.size());
+        Assertions.assertEquals(testBusiness.getName(), retrievedBusinesses.get(0).getName());
+    }
+
+    /**
+     * Tests that when there are multiple matches by name,
+     * filtering them by business type works
+     */
+    @Test
+    void searchBusiness_filterByType() {
+        Business otherBusiness = new Business(testBusiness.getName(), "A one-stop shop for all your adventuring needs",
+                null, "Retail Trade", 1);
+
+        given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness, otherBusiness));
+
+        SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(),
+                BusinessType.getType(testBusiness.getBusinessType())); //"Accommodation and Food Services"
+
+        List<Business> retrievedBusinesses = businessService.searchBusiness(requestDTO);
+
+        Assertions.assertEquals(1, retrievedBusinesses.size());
+        Assertions.assertEquals(testBusiness.getBusinessType(), retrievedBusinesses.get(0).getBusinessType());
+    }
+
 }

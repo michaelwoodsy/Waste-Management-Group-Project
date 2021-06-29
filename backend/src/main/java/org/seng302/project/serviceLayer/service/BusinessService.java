@@ -5,8 +5,9 @@ import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO;
-import org.seng302.project.serviceLayer.dto.AddBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
+import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.InvalidDateException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
@@ -23,7 +24,9 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -230,6 +233,38 @@ public class BusinessService {
                     unhandledException.getMessage()));
             throw unhandledException;
         }
+    }
 
+
+    /**
+     * Searches for business based on name and type
+     *
+     * @param requestDTO DTO with a searchQuery to match a business name
+     *                   and a (possibly empty) business type
+     *
+     * Regular expression for splitting search query taken from linked website.
+     * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
+     * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
+     */
+    public List<Business> searchBusiness(SearchBusinessDTO requestDTO) {
+        logger.info("Request to search businesses with searchQuery: {} and businessType: {}",
+                requestDTO.getSearchQuery(), requestDTO.getBusinessType());
+
+        //TODO: use specifications and string splitting like in SearchController
+        List<Business> retrievedBusinesses = businessRepository.findByName(requestDTO.getSearchQuery());
+
+        //Filter by business type
+        //In DTO, businessType is either a valid type or null
+        if (requestDTO.getBusinessType() != null) {
+            var filteredBusinesses = new ArrayList<Business>();
+            for (Business business: retrievedBusinesses) {
+                if (requestDTO.getBusinessType().matchesType(business.getBusinessType())) {
+                    filteredBusinesses.add(business);
+                }
+            }
+            return filteredBusinesses;
+        } else {
+            return retrievedBusinesses;
+        }
     }
 }
