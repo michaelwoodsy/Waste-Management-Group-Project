@@ -37,8 +37,8 @@ describe('Jest tests for the BusinessSearch component', () => {
         expect(wrapper.vm.$data.businessType).toEqual("")
     })
 
-    // Test that selecting the empty option for business type sets businessType to empty string
-    test('Selecting empty business type option sets businessType to empty string',async () => {
+    // Test that selecting the "Any type" option for business type sets businessType to "Any type"
+    test('Selecting empty business type option sets businessType to "Any type"',async () => {
         const options = wrapper.find('select').findAll('option')
         options.at(1).setSelected()
         await wrapper.vm.$nextTick()
