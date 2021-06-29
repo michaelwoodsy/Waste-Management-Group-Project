@@ -117,9 +117,6 @@ export default {
   },
   methods: {
     search() {
-      //TODO: implement me
-      //If businessType is either 'Any type' or empty string, then
-      //leave out optional businessType query param in the request.
       this.loading = true;
       this.page = 1;
 
@@ -129,7 +126,10 @@ export default {
               this.error = null;
               this.businesses = res.data;
               this.loading = false;
-              console.log(this.businesses)
+              //TODO: Remove this when you are able to view businesses in table
+              for(let business of this.businesses){
+                console.log(business.name)
+              }
             })
             .catch((err) => {
               this.error = err;
@@ -141,7 +141,10 @@ export default {
               this.error = null;
               this.businesses = res.data;
               this.loading = false;
-              console.log(this.businesses)
+              //TODO: Remove this when you are able to view businesses in table
+              for(let business of this.businesses){
+                console.log(business.name)
+              }
             })
             .catch((err) => {
               this.error = err;
