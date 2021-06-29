@@ -9,7 +9,7 @@ import org.seng302.project.repositoryLayer.model.Product;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.AddProductImageDTO;
 import org.seng302.project.serviceLayer.dto.AddProductImageResponseDTO;
-import org.seng302.project.serviceLayer.dto.SetPrimaryProductImageDTO;
+import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-class ProductImagesControllerTest extends AbstractInitializer {
+class ProductImageControllerTest extends AbstractInitializer {
 
     @Autowired
     private MockMvc mockMvc;

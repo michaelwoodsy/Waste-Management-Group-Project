@@ -13,12 +13,11 @@ import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.SetPrimaryProductImageDTO;
+import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
-import org.seng302.project.serviceLayer.service.ProductImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -63,11 +62,11 @@ public class ProductImageServiceTest extends AbstractInitializer {
         given(userRepository.findById(3)).willReturn(Optional.of(testUserBusinessAdmin));
         given(businessRepository.findByName("Test Business")).willReturn(List.of(testBusiness));
         given(businessRepository.findById(1)).willReturn(Optional.of(testBusiness));
-        Image image1 = new Image("image1.jpg", "image1_thumbnail.jpg" );
+        Image image1 = new Image("image1.jpg", "image1_thumbnail.jpg");
         image1.setId(1);
-        Image image2 = new Image("image2.jpg", "image2_thumbnail.jpg" );
+        Image image2 = new Image("image2.jpg", "image2_thumbnail.jpg");
         image2.setId(2);
-        Image image3 = new Image("image3.jpg", "image3_thumbnail.jpg" );
+        Image image3 = new Image("image3.jpg", "image3_thumbnail.jpg");
         image3.setId(3);
 
         given(testProduct.getImages()).willReturn(List.of(image1, image2, image3));

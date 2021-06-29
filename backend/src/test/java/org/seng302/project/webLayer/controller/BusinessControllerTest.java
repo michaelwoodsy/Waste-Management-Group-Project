@@ -2,13 +2,15 @@ package org.seng302.project.webLayer.controller;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
-import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
@@ -253,7 +255,6 @@ class BusinessControllerTest {
     }
 
 
-
     /**
      * Tries creating a business where address has a street number but no street name
      * Checks that we receive a 400 response with a message from the DTO
@@ -300,7 +301,7 @@ class BusinessControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
-                mvc.perform(getBusinessRequest)
+        mvc.perform(getBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isOk()); // We expect a 200 response
 
     }
@@ -311,7 +312,7 @@ class BusinessControllerTest {
      */
     @Test
     void getNonExistentBusiness_406() throws Exception {
-        Mockito.doThrow(new NoBusinessExistsException(80)).when(businessService)
+        Mockito.doThrow(new BusinessNotFoundException(80)).when(businessService)
                 .getBusiness(any(Integer.class));
 
         RequestBuilder getBusinessRequest = MockMvcRequestBuilders
