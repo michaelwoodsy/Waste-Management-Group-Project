@@ -1,8 +1,8 @@
 package org.seng302.project.webLayer.controller;
 
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.serviceLayer.dto.AddProductDTO;
-import org.seng302.project.serviceLayer.dto.EditProductDTO;
+import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
+import org.seng302.project.serviceLayer.dto.product.EditProductDTO;
 import org.seng302.project.serviceLayer.service.ProductCatalogueService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;

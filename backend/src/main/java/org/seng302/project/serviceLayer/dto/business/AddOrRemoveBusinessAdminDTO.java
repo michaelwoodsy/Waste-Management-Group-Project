@@ -1,4 +1,4 @@
-package org.seng302.project.serviceLayer.dto;
+package org.seng302.project.serviceLayer.dto.business;
 
 import lombok.Data;
 import org.seng302.project.webLayer.authentication.AppUserDetails;

@@ -1,4 +1,4 @@
-package org.seng302.project.serviceLayer.dto;
+package org.seng302.project.serviceLayer.dto.product;
 
 import lombok.Data;
 import org.seng302.project.serviceLayer.dto.validators.ValidPrice;
