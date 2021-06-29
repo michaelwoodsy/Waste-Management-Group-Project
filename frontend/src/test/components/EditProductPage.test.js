@@ -213,16 +213,30 @@ describe("Edit Product Images Test",  () => {
     // Test that we can remove an uploaded image
     test('Removing an image from the frontend list', () => {
         wrapper.vm.$data.images = [{
+            id: 1234,
             url: "image.png",
             file: ""
             }, {
+            id: 12345,
             url: "other_image.jpg",
             file: ""
         }]
-        wrapper.vm.removeImage("image.png")
+        wrapper.vm.removeImageFromList(wrapper.vm.$data.images[0])
         expect(wrapper.vm.$data.images).toEqual([{
+            id: 12345,
             url: "other_image.jpg",
             file: ""
         }])
+    })
+
+    // Test that we can remove the last image that has been uploaded
+    test('Removing the last image from the frontend list', () => {
+        wrapper.vm.$data.images = [{
+            id: 1234,
+            url: "image.png",
+            file: ""
+        }]
+        wrapper.vm.removeImageFromList(wrapper.vm.$data.images[0])
+        expect(wrapper.vm.$data.images).toEqual([])
     })
 })

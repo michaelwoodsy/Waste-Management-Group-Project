@@ -196,7 +196,7 @@
 
                           <!-- Title section of modal -->
                           <div class="modal-header">
-                            <h5 class="modal-title">Delete Image</h5>
+                            <h5 class="modal-title">Remove Image</h5>
                             <button aria-label="Close" class="close" data-dismiss="modal" type="button">
                               <span ref="close" aria-hidden="true">&times;</span>
                             </button>
@@ -209,7 +209,7 @@
 
                           <!-- Footer / button section of modal -->
                           <div class="modal-footer">
-                            <button class="btn btn-danger" type="button" @click="removeImage(image.id)">Delete</button>
+                            <button class="btn btn-danger" data-dismiss="modal" type="button" @click="removeImage(image)">Remove</button>
                             <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
                           </div>
 
@@ -516,22 +516,39 @@ export default {
      * Called by the remove button next to an uploaded image.
      * Calls the API to make a request to delete an image from the backend.
      * Removes the image from the frontend's list of images.
-     * @param imageId the ID of the image to be removed
+     * @param deletedImage the image to be removed
      */
-    removeImage(imageId) {
+    removeImage(deletedImage) {
       this.imagesEdited = true
-
-      Business.removeProductImage(this.businessId, this.newProduct.id, imageId)
-          .then(() => {
-            //Remove the deleted image from the list of images on screen
-            this.images = this.images.filter(function(image) {
-              return image.id !== imageId;
+      //If image has already been uploaded
+      if(deletedImage.id){
+        Business.removeProductImage(this.businessId, this.newProduct.id, deletedImage.id)
+            .then(() => {
+              this.removeImageFromList(deletedImage)
             })
-          })
-          .catch((err) => {
-            this.errorMessage = err.response.data.message || err;
-          })
+            .catch((err) => {
+              this.errorMessage = err.response.data.message || err;
+            })
+      } else {
+        //If the image has just been uploaded and then is removed
+        console.log(this.images)
+
+        this.removeImageFromList(deletedImage)
+        console.log(this.images)
+      }
     },
+
+    /**
+     * Used to remove the image from the list that is visible to the user
+     *@param removedImage the image to be removed
+     */
+    removeImageFromList(removedImage){
+      //Remove the deleted image from the list of images on screen
+      this.images = this.images.filter(function(image) {
+        return image.id !== removedImage.id;
+      })
+    },
+
     /**
      * Makes requests to add the product's images
      */
