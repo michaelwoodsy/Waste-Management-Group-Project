@@ -80,6 +80,7 @@ public class ProductImageService {
 
         try {
             var imageInput = imageUtil.readImageFromMultipartFile(dto.getImageFile());
+            //TODO: change this so that we can save png and other images file types we're given
             String imageFileName = UUID.randomUUID() + ".jpg";
             String imageFilePath = "src/main/resources/public/media/" + imageFileName;
             imageUtil.saveImage(imageInput, imageFilePath);

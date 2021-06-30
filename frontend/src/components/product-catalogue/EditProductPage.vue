@@ -523,10 +523,15 @@ export default {
      */
     imageUpload (event) {
       const files = event.target.files
+
+      const formData = new FormData()
+      formData.append("file", files[0])
+
       const fileReader = new FileReader()
       console.log(`File with name ${files[0].name} uploaded`)
       fileReader.addEventListener('load', () => {
         this.images.push({
+          data: formData,
           url: fileReader.result,
           file: files[0]
         })
@@ -571,7 +576,7 @@ export default {
         //Id is undefined if it was just added
         if (image.id == null) {
           Business.addProductImage(
-              this.businessId, this.newProduct.id, image.file)
+              this.businessId, this.newProduct.id, image.data)
         }
       }
     }
