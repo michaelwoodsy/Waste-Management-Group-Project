@@ -30,6 +30,7 @@ public class ProductImageController {
     }
 
     @PostMapping("/businesses/{businessId}/products/{productId}/images")
+    @ResponseStatus(HttpStatus.CREATED)
     public AddProductImageResponseDTO addImage(@PathVariable Integer businessId,
                                                @PathVariable String productId,
                                                @AuthenticationPrincipal AppUserDetails user,

@@ -105,11 +105,14 @@ class ProductImageServiceTest extends AbstractInitializer {
                 testImageFile
         );
         AddProductImageResponseDTO responseDTO = productImageService.addProductImage(dto);
-        System.out.println(testProduct.getImages());
         Assertions.assertEquals(4, testProduct.getImages().size());
         String imageFileName = testProduct.getImages().get(3).getFilename();
         File imageFile = new File("src/main/resources/public" + imageFileName);
         Assertions.assertTrue(imageFile.delete());
+
+        String thumbnailFileName = testProduct.getImages().get(3).getThumbnailFilename();
+        File thumbnailFile = new File("src/main/resources/public" + thumbnailFileName);
+        Assertions.assertTrue(thumbnailFile.delete());
     }
 
     /**
@@ -136,6 +139,10 @@ class ProductImageServiceTest extends AbstractInitializer {
         String imageFileName = testProduct.getImages().get(3).getFilename();
         File imageFile = new File("src/main/resources/public" + imageFileName);
         Assertions.assertTrue(imageFile.delete());
+
+        String thumbnailFileName = testProduct.getImages().get(3).getThumbnailFilename();
+        File thumbnailFile = new File("src/main/resources/public" + thumbnailFileName);
+        Assertions.assertTrue(thumbnailFile.delete());
     }
 
     /**
