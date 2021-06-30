@@ -3,14 +3,26 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.json.JSONArray;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.Keyword;
+import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 public class KeywordManagementSteps {
@@ -18,6 +30,12 @@ public class KeywordManagementSteps {
     private final KeywordRepository keywordRepository;
 
     private MockMvc mockMvc;
+
+    private User testUser;
+
+    private RequestBuilder searchKeywordRequest;
+
+
 
     @Autowired
     public KeywordManagementSteps(
@@ -36,6 +54,9 @@ public class KeywordManagementSteps {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
+
+        testUser = new User("Test", "User", "", "", "I'm a test user", "testuser@gmail.com",
+                "2000-07-28", "123 123 1234", null, "SecurePassword789");
 
         keywordRepository.deleteAll();
     }
@@ -83,28 +104,45 @@ public class KeywordManagementSteps {
 
     @When("The user enters {string} as a partial keyword")
     public void the_user_enters_as_a_partial_keyword(String partialKeyword) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        searchKeywordRequest = MockMvcRequestBuilders
+                .get("/keywords/search?searchQuery={searchQuery}", partialKeyword)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
     }
 
     @Then("The keyword {string} is included as a potential match")
-    public void the_keyword_is_included_as_a_potential_match(String keyword) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void the_keyword_is_included_as_a_potential_match(String keyword) throws Exception {
+        MvcResult searchResult = this.mockMvc.perform(searchKeywordRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        String searchResultString = searchResult.getResponse().getContentAsString();
+        JSONArray searchResultArray = new JSONArray(searchResultString);
+
+        Assertions.assertEquals(keyword, searchResultArray.getJSONObject(0).getString("name"));
     }
 
     //AC4
 
     @Given("There is no keyword {string}")
     public void there_is_no_keyword(String keyword) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        List<Keyword> keywordsWithName = keywordRepository.findByName(keyword);
+
+        Assertions.assertEquals(0, keywordsWithName.size());
     }
 
     @When("There are no matches")
-    public void there_are_no_matches() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void there_are_no_matches() throws Exception {
+        MvcResult searchResult = this.mockMvc.perform(searchKeywordRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        String searchResultString = searchResult.getResponse().getContentAsString();
+        JSONArray searchResultArray = new JSONArray(searchResultString);
+
+        Assertions.assertEquals(0, searchResultArray.length());
     }
 
 //    @Then("It is possible to add {string} as a new keyword")
