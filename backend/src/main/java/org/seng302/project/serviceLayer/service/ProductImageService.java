@@ -83,7 +83,9 @@ public class ProductImageService {
             String imageFileName = UUID.randomUUID() + ".jpg";
             String imageFilePath = "src/main/resources/public/media/" + imageFileName;
             imageUtil.saveImage(imageInput, imageFilePath);
-            var image = new Image(imageFileName, null);
+            String thumbnailPath = imageUtil.createThumbnail(imageFilePath);
+
+            var image = new Image(imageFileName, thumbnailPath);
             imageRepository.save(image);
             product.addImage(image);
             productRepository.save(product);
@@ -110,8 +112,7 @@ public class ProductImageService {
         String userEmail = dto.getAppUser().getUsername();
         var loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
-        if (!(currBusiness.userIsAdmin(loggedInUser.getId()) ||
-                currBusiness.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
+        if (!currBusiness.userCanDoAction(loggedInUser)) {
             throw new ForbiddenAdministratorActionException(dto.getBusinessId());
         }
 

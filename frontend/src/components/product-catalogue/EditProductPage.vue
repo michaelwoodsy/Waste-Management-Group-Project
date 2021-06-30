@@ -568,9 +568,9 @@ export default {
      */
     addImages() {
       for (const image of this.images) {
-        //Id is null if it was just added
-        if (image.id === null) {
-          this.$root.$data.business.addProductImage(
+        //Id is undefined if it was just added
+        if (image.id == null) {
+          Business.addProductImage(
               this.businessId, this.newProduct.id, image.file)
         }
       }

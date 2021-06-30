@@ -125,7 +125,7 @@ class ProductImageControllerTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that a 406 status is returned when a business does not exists.
+     * Tests that a 406 status is returned when a business does not exist.
      */
     @Test
     void addProductImage_noBusinessExists() throws Exception {
@@ -165,7 +165,7 @@ class ProductImageControllerTest extends AbstractInitializer {
     /**
      * Tests successful setting of a product's primary image.
      * Request made by business admin.
-     * Expect 200 response and the product's primary image to be updated.
+     * Expect 200 response
      */
     @Test
     void setPrimaryImage_requestByBusinessAdmin_success() throws Exception {
@@ -182,7 +182,7 @@ class ProductImageControllerTest extends AbstractInitializer {
     /**
      * Tests successful setting of a product's primary image.
      * Request made by system admin.
-     * Expect 200 response and the product's primary image to be updated.
+     * Expect 200 response
      */
     @Test
     void setPrimaryImage_requestByGAA_success() throws Exception {
