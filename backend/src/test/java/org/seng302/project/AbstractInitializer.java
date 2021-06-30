@@ -1,27 +1,35 @@
 package org.seng302.project;
 
 import lombok.Data;
-import org.seng302.project.repositoryLayer.model.Address;
-import org.seng302.project.repositoryLayer.model.Business;
-import org.seng302.project.repositoryLayer.model.Product;
-import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public abstract class AbstractInitializer {
 
     @Autowired
     protected BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private ImageUtil imageUtil;
 
     private User testUser;
     private User testSystemAdmin;
     private User testUserBusinessAdmin;
     private Business testBusiness;
     private Product testProduct;
+    private List<Image> testImages;
     private MockMultipartFile testFile;
+    private MockMultipartFile testImageFile;
 
     public void initialise() {
         this.initialiseTestUser();
@@ -29,7 +37,8 @@ public abstract class AbstractInitializer {
         this.initialiseTestUserBusinessAdmin();
         this.initialiseTestBusiness();
         this.initialiseTestProduct();
-        this.initialiseTestFile();
+        this.initialiseTestImages();
+        this.initialiseTestFiles();
     }
 
     public void initialiseTestUser() {
@@ -106,12 +115,39 @@ public abstract class AbstractInitializer {
                 1);
     }
 
-    public void initialiseTestFile() {
+    public void initialiseTestImages() {
+        Image image1 = new Image("image1.jpg", "image1_thumbnail.jpg");
+        image1.setId(1);
+        Image image2 = new Image("image2.jpg", "image2_thumbnail.jpg");
+        image2.setId(2);
+        Image image3 = new Image("image3.jpg", "image3_thumbnail.jpg");
+        image3.setId(3);
+        testImages = new ArrayList<>();
+        testImages.addAll(List.of(image1, image2, image3));
+    }
+
+    public void initialiseTestFiles() {
         testFile = new MockMultipartFile(
                 "file",
                 "file.txt",
                 MediaType.TEXT_PLAIN_VALUE,
-                "file".getBytes());
+                "file".getBytes()
+        );
+
+        File imagePath = new File("src/test/resources/asparagus.jpg");
+        byte[] imageContent;
+        try {
+            imageContent = Files.readAllBytes(imagePath.toPath());
+        } catch (IOException exception) {
+            imageContent = "image".getBytes();
+        }
+
+        testImageFile = new MockMultipartFile(
+                "image",
+                "image.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                imageContent
+        );
     }
 
 }

@@ -2,6 +2,7 @@ package org.seng302.project.serviceLayer.service;
 
 import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
+import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.AddProductImageDTO;
@@ -18,11 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,16 +30,19 @@ public class ProductImageService {
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
     private final ProductRepository productRepository;
+    private final ImageRepository imageRepository;
     private final ImageUtil imageUtil;
 
     @Autowired
     public ProductImageService(UserRepository userRepository,
                                BusinessRepository businessRepository,
                                ProductRepository productRepository,
+                               ImageRepository imageRepository,
                                ImageUtil imageUtil) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
+        this.imageRepository = imageRepository;
         this.imageUtil = imageUtil;
     }
 
@@ -62,15 +62,6 @@ public class ProductImageService {
             throw new ProductImageInvalidException();
         }
 
-        try {
-            InputStream imageInputStream = dto.getImageFile().getInputStream();
-            BufferedImage imageInput = ImageIO.read(imageInputStream);
-        } catch (IOException exception) {
-            logger.error(exception.getMessage());
-        }
-
-        String imageFileName = UUID.randomUUID().toString() + ".jpg";
-
         var currBusiness = businessRepository.findById(dto.getBusinessId()).orElseThrow(
                 () -> new BusinessNotFoundException(dto.getBusinessId())
         );
@@ -83,12 +74,26 @@ public class ProductImageService {
             throw new ForbiddenAdministratorActionException(dto.getBusinessId());
         }
 
-        var product = productRepository.findByIdAndBusinessId(dto.getProductId(), dto.getBusinessId())
+        var product = productRepository
+                .findByIdAndBusinessId(dto.getProductId(), dto.getBusinessId())
                 .orElseThrow(() -> new ProductNotFoundException(dto.getProductId(), dto.getBusinessId()));
 
-        List<Image> productImages = product.getImages();
+        try {
+            var imageInput = imageUtil.readImageFromMultipartFile(dto.getImageFile());
+            String imageFileName = UUID.randomUUID() + ".jpg";
+            String imageFilePath = "src/main/resources/public/media/" + imageFileName;
+            imageUtil.saveImage(imageInput, imageFilePath);
+            var image = new Image(imageFileName, null);
+            imageRepository.save(image);
+            product.addImage(image);
+            productRepository.save(product);
+            return new AddProductImageResponseDTO(image.getId());
+        } catch (IOException ex) {
+            var exception = new ProductImageInvalidException();
+            logger.error(exception.getMessage());
+            throw exception;
+        }
 
-        return new AddProductImageResponseDTO(1);
     }
 
     /**

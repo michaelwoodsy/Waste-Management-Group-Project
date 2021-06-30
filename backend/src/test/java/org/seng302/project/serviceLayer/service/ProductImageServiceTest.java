@@ -11,8 +11,11 @@ import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.model.Product;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
+import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.AddProductImageDTO;
+import org.seng302.project.serviceLayer.dto.AddProductImageResponseDTO;
 import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -22,14 +25,16 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.MockMultipartFile;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
-public class ProductImageServiceTest extends AbstractInitializer {
+class ProductImageServiceTest extends AbstractInitializer {
 
     @Autowired
     private ProductImageService productImageService;
@@ -39,21 +44,33 @@ public class ProductImageServiceTest extends AbstractInitializer {
     private BusinessRepository businessRepository;
     @MockBean
     private ProductRepository productRepository;
+    @MockBean
+    private ImageRepository imageRepository;
 
     private User testUser;
     private User testSystemAdmin;
     private User testUserBusinessAdmin;
     private Business testBusiness;
     private Product testProduct;
+    private MockMultipartFile testImageFile;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.initialise();
         testUser = this.getTestUser();
         testSystemAdmin = this.getTestSystemAdmin();
         testUserBusinessAdmin = this.getTestUserBusinessAdmin();
         testBusiness = this.getTestBusiness();
         testProduct = Mockito.spy(this.getTestProduct());
+        testProduct.setImages(this.getTestImages());
+        testImageFile = this.getTestImageFile();
+        this.mocks();
+    }
+
+    /**
+     * Sets up mocks used by multiple tests.
+     */
+    void mocks() {
         given(userRepository.findByEmail("john.smith@gmail.com")).willReturn(List.of(testUser));
         given(userRepository.findById(1)).willReturn(Optional.of(testUser));
         given(userRepository.findByEmail("admin@resale.com")).willReturn(List.of(testSystemAdmin));
@@ -62,22 +79,72 @@ public class ProductImageServiceTest extends AbstractInitializer {
         given(userRepository.findById(3)).willReturn(Optional.of(testUserBusinessAdmin));
         given(businessRepository.findByName("Test Business")).willReturn(List.of(testBusiness));
         given(businessRepository.findById(1)).willReturn(Optional.of(testBusiness));
-        Image image1 = new Image("image1.jpg", "image1_thumbnail.jpg");
-        image1.setId(1);
-        Image image2 = new Image("image2.jpg", "image2_thumbnail.jpg");
-        image2.setId(2);
-        Image image3 = new Image("image3.jpg", "image3_thumbnail.jpg");
-        image3.setId(3);
-
-        given(testProduct.getImages()).willReturn(List.of(image1, image2, image3));
         given(productRepository.findByIdAndBusinessId("TEST-PROD", 1)).willReturn(Optional.of(testProduct));
+    }
+
+    /**
+     * Tests that an image is successfully created and added to the product.
+     */
+    @Test
+    void addProductImage_withBusinessAdmin_success() {
+        Mockito.when(imageRepository.save(Mockito.any(Image.class)))
+                .thenAnswer(invocation -> null);
+
+        AddProductImageDTO dto = new AddProductImageDTO(
+                testBusiness.getId(),
+                testProduct.getId(),
+                new AppUserDetails(testUserBusinessAdmin),
+                testImageFile
+        );
+        AddProductImageResponseDTO responseDTO = productImageService.addProductImage(dto);
+        System.out.println(testProduct.getImages());
+        Assertions.assertEquals(4, testProduct.getImages().size());
+        String imageFileName = testProduct.getImages().get(3).getFilename();
+        File imageFile = new File("src/main/resources/public/media/" + imageFileName);
+        Assertions.assertTrue(imageFile.delete());
+    }
+
+    /**
+     * Tests that an image is successfully created and added to the product.
+     */
+    @Test
+    void addProductImage_withSystemAdmin_success() {
+        Mockito.when(imageRepository.save(Mockito.any(Image.class)))
+                .thenAnswer(invocation -> null);
+
+        AddProductImageDTO dto = new AddProductImageDTO(
+                testBusiness.getId(),
+                testProduct.getId(),
+                new AppUserDetails(testSystemAdmin),
+                testImageFile
+        );
+        AddProductImageResponseDTO responseDTO = productImageService.addProductImage(dto);
+        Assertions.assertEquals(4, testProduct.getImages().size());
+        String imageFileName = testProduct.getImages().get(3).getFilename();
+        File imageFile = new File("src/main/resources/public/media/" + imageFileName);
+        Assertions.assertTrue(imageFile.delete());
+    }
+
+    /**
+     * Tests that the correct exception is thrown if a user is not an admin and tries to add a new image.
+     */
+    @Test
+    void addProductImage_withNotAdmin_throwsException() {
+        AddProductImageDTO dto = new AddProductImageDTO(
+                testBusiness.getId(),
+                testProduct.getId(),
+                new AppUserDetails(testUser),
+                testImageFile
+        );
+        Assertions.assertThrows(ForbiddenAdministratorActionException.class,
+                () -> productImageService.addProductImage(dto));
     }
 
     /**
      * Tests that setting a primary image as a business admin results in a success.
      */
     @Test
-    public void setPrimaryImage_withBusinessAdmin_success() {
+    void setPrimaryImage_withBusinessAdmin_success() {
         SetPrimaryProductImageDTO dto = new SetPrimaryProductImageDTO(
                 testBusiness.getId(),
                 testProduct.getId(),
@@ -95,7 +162,7 @@ public class ProductImageServiceTest extends AbstractInitializer {
      * Tests that setting a primary image as a system admin results in a success.
      */
     @Test
-    public void setPrimaryImage_withSystemAdmin_success() {
+    void setPrimaryImage_withSystemAdmin_success() {
         SetPrimaryProductImageDTO dto = new SetPrimaryProductImageDTO(
                 testBusiness.getId(),
                 testProduct.getId(),
@@ -113,7 +180,7 @@ public class ProductImageServiceTest extends AbstractInitializer {
      * Tests that setting a primary image as a user who is not an admin results in an error.
      */
     @Test
-    public void setPrimaryImage_notAdmin_throwsException() {
+    void setPrimaryImage_notAdmin_throwsException() {
         SetPrimaryProductImageDTO dto = new SetPrimaryProductImageDTO(
                 testBusiness.getId(),
                 testProduct.getId(),
@@ -128,7 +195,7 @@ public class ProductImageServiceTest extends AbstractInitializer {
      * Tests that the correct exception is thrown if a business does not exist.
      */
     @Test
-    public void setPrimaryImage_noBusinessExists() {
+    void setPrimaryImage_noBusinessExists() {
         given(businessRepository.findById(4)).willReturn(Optional.empty());
         SetPrimaryProductImageDTO dto = new SetPrimaryProductImageDTO(
                 4,
@@ -144,7 +211,7 @@ public class ProductImageServiceTest extends AbstractInitializer {
      * Tests that the correct exception is thrown if a product does not exist.
      */
     @Test
-    public void setPrimaryImage_noProductExists() {
+    void setPrimaryImage_noProductExists() {
         given(productRepository.findByIdAndBusinessId("NotAProduct", 1)).willReturn(Optional.empty());
         SetPrimaryProductImageDTO dto = new SetPrimaryProductImageDTO(
                 testBusiness.getId(),
@@ -160,7 +227,7 @@ public class ProductImageServiceTest extends AbstractInitializer {
      * Tests that the correct exception is thrown if a particular image does not exist.
      */
     @Test
-    public void setPrimaryImage_noImageExists() {
+    void setPrimaryImage_noImageExists() {
         SetPrimaryProductImageDTO dto = new SetPrimaryProductImageDTO(
                 testBusiness.getId(),
                 testProduct.getId(),

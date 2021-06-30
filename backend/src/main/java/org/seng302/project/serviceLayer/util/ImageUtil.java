@@ -3,6 +3,7 @@ package org.seng302.project.serviceLayer.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -61,6 +62,25 @@ public class ImageUtil {
         return originalBufferedImage;
     }
 
+    /**
+     * Returns a BufferedImage object obtained from a multipart file.
+     *
+     * @param file The multipart file to get image from.
+     * @return BufferedImage of the multipart file.
+     * @throws IOException an exception thrown for input/output error.
+     */
+    public BufferedImage readImageFromMultipartFile(MultipartFile file) throws IOException {
+        BufferedImage image;
+        try {
+            var imageInputStream = file.getInputStream();
+            image = ImageIO.read(imageInputStream);
+            imageInputStream.close();
+        } catch (IOException exception) {
+            logger.error("IO exception occurred while trying to read image.");
+            throw exception;
+        }
+        return image;
+    }
 
     /**
      * Scales the original image down to 10% larger than the thumbnail width of 150px
