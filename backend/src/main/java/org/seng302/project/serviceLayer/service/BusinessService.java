@@ -9,7 +9,7 @@ import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO
 import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.InvalidDateException;
-import org.seng302.project.serviceLayer.exceptions.NoBusinessExistsException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
@@ -128,10 +128,10 @@ public class BusinessService {
     public Business getBusiness(Integer id) {
         logger.info("Request to get business {}", id);
         try {
-            return businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
-        } catch (NoBusinessExistsException noBusinessExistsException) {
-            logger.warn(noBusinessExistsException.getMessage());
-            throw noBusinessExistsException;
+            return businessRepository.findById(id).orElseThrow(() -> new BusinessNotFoundException(id));
+        } catch (BusinessNotFoundException businessNotFoundException) {
+            logger.warn(businessNotFoundException.getMessage());
+            throw businessNotFoundException;
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while getting business: %s", exception.getMessage()));
             throw exception;
@@ -170,7 +170,7 @@ public class BusinessService {
                     userId, businessId);
 
             var currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
-            var currBusiness = businessRepository.findById(requestDTO.getBusinessId()).orElseThrow(() -> new NoBusinessExistsException(businessId));
+            var currBusiness = businessRepository.findById(requestDTO.getBusinessId()).orElseThrow(() -> new BusinessNotFoundException(businessId));
             checkAdminRequestMaker(requestDTO.getAppUser().getUsername(), currBusiness);
 
             //Checks if the user is already an administrator
@@ -184,7 +184,7 @@ public class BusinessService {
             businessRepository.save(currBusiness);
 
             logger.info("Successfully added Administrator {} to business {}", currUser.getId(), currBusiness.getId());
-        } catch (NoUserExistsException | NoBusinessExistsException | ForbiddenPrimaryAdministratorActionException |
+        } catch (NoUserExistsException | BusinessNotFoundException | ForbiddenPrimaryAdministratorActionException |
                 AdministratorAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
@@ -206,7 +206,7 @@ public class BusinessService {
             logger.info("Request to remove user with id {} from administering business with id {}", userId, businessId);
 
             var currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
-            var currBusiness = businessRepository.findById(businessId).orElseThrow(() -> new NoBusinessExistsException(businessId));
+            var currBusiness = businessRepository.findById(businessId).orElseThrow(() -> new BusinessNotFoundException(businessId));
             checkAdminRequestMaker(requestDTO.getAppUser().getUsername(), currBusiness);
 
             //Checks if user trying to be removed is the primary administrator
@@ -224,7 +224,7 @@ public class BusinessService {
 
             logger.info("Successfully removed administrator {} from business {}", currUser.getId(), currBusiness.getId());
 
-        } catch (NoBusinessExistsException | ForbiddenPrimaryAdministratorActionException | CantRemoveAdministratorException
+        } catch (BusinessNotFoundException | ForbiddenPrimaryAdministratorActionException | CantRemoveAdministratorException
                 | UserNotAdministratorException | NoUserExistsException handledException) {
             logger.error(handledException.getMessage());
             throw handledException;
