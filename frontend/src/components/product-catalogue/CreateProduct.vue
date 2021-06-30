@@ -72,7 +72,7 @@
               type="file"
               style="display: none"
               ref="fileInput"
-              accept="image/*"
+              accept="image/png, image/jpeg"
               @change="imageUpload"/>
 
           <div v-for="image in images"
