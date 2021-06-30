@@ -89,10 +89,10 @@ class ProductImageControllerTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that adding a new image as a business admin results in a success.
+     * Tests that adding a new image as a business admin results in a 201 response
      */
     @Test
-    void addProductImage_asAdmin_success() throws Exception {
+    void addProductImage_asAdmin_created201() throws Exception {
         Mockito.when(productImageService.addProductImage(Mockito.any(AddProductImageDTO.class)))
                 .thenReturn(new AddProductImageResponseDTO(1));
 
@@ -103,14 +103,14 @@ class ProductImageControllerTest extends AbstractInitializer {
                 .file(testFile)
                 .with(user(new AppUserDetails(testUserBusinessAdmin)));
 
-        mockMvc.perform(request).andExpect(status().isOk());
+        mockMvc.perform(request).andExpect(status().isCreated());
     }
 
     /**
-     * Tests that adding a new image as a system admin results in a success.
+     * Tests that adding a new image as a system admin results in a 201 response
      */
     @Test
-    void addProductImage_asSystemAdmin_success() throws Exception {
+    void addProductImage_asSystemAdmin_created201() throws Exception {
         Mockito.when(productImageService.addProductImage(Mockito.any(AddProductImageDTO.class)))
                 .thenReturn(new AddProductImageResponseDTO(1));
 
@@ -121,7 +121,7 @@ class ProductImageControllerTest extends AbstractInitializer {
                 .file(testFile)
                 .with(user(new AppUserDetails(testSystemAdmin)));
 
-        mockMvc.perform(request).andExpect(status().isOk());
+        mockMvc.perform(request).andExpect(status().isCreated());
     }
 
     /**
