@@ -3,15 +3,50 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.BeforeEach;
+import org.seng302.project.repositoryLayer.model.Keyword;
+import org.seng302.project.repositoryLayer.repository.KeywordRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 public class KeywordManagementSteps {
+
+    private final KeywordRepository keywordRepository;
+
+    private MockMvc mockMvc;
+
+    @Autowired
+    public KeywordManagementSteps(
+            KeywordRepository keywordRepository) {
+        this.keywordRepository = keywordRepository;
+    }
+
+    /**
+     * Set up MockMvc, and test user & businesses
+     * @param context Autowired WebApplicationContext for MockMvc
+     */
+    @BeforeEach
+    @Autowired
+    public void setup(WebApplicationContext context) {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+
+        keywordRepository.deleteAll();
+    }
+
 
     //AC1/AC2
 
     @Given("The keyword {string} exists")
     public void the_keyword_exists(String keyword) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        Keyword existingKeyword = new Keyword(keyword);
+        keywordRepository.save(existingKeyword);
     }
 //
 //    @When("A user creates a card and adds the keyword {string}")
