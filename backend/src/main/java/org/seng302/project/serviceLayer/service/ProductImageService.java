@@ -83,7 +83,8 @@ public class ProductImageService {
             String imageFileName = UUID.randomUUID() + ".jpg";
             String imageFilePath = "src/main/resources/public/media/" + imageFileName;
             imageUtil.saveImage(imageInput, imageFilePath);
-            var image = new Image(imageFileName, null);
+            imageUtil.createThumbnail(imageFilePath);
+            var image = new Image("/media/"+imageFileName, "/media/"+imageFileName.replace(".jpg", "_thumbnail.jpg"));
             imageRepository.save(image);
             product.addImage(image);
             productRepository.save(product);
