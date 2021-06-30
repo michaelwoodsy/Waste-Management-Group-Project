@@ -148,8 +148,9 @@ public class ImageUtil {
      * @throws IOException an exception that is thrown by the ImageIO writer
      */
     public void saveImage(BufferedImage image, String filepath) throws IOException {
+        String format = filepath.split("\\.(?=([a-zA-Z]*)$)")[1].toUpperCase();
         try {
-            ImageIO.write(image, "JPG", new File(filepath));
+            ImageIO.write(image, format, new File(filepath));
         }
         catch (IOException ioe) {
             logger.error("Error writing image to file");
