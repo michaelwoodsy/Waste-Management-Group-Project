@@ -134,7 +134,7 @@ public abstract class AbstractInitializer {
                 "file".getBytes()
         );
 
-        File imagePath = new File("src/test/resources/asparagus.jpg");
+        File imagePath = new File("src/test/resources/public/media/asparagus.jpg");
         byte[] imageContent;
         try {
             imageContent = Files.readAllBytes(imagePath.toPath());

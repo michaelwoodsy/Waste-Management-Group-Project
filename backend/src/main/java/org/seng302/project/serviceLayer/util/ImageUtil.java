@@ -41,8 +41,9 @@ public class ImageUtil {
         filepathBits[0] = filepathBits[0] + "_thumbnail";
         var thumbnailPath = String.join(".", filepathBits);
         saveImage(thumbnailBufferedImage, thumbnailPath);
+        System.out.println(filepathBits[0]);
 
-        return thumbnailPath;
+        return thumbnailPath.substring(thumbnailPath.indexOf("/media/"));
     }
 
 

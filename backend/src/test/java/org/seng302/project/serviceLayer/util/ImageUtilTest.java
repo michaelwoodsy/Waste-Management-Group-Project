@@ -33,10 +33,10 @@ class ImageUtilTest extends AbstractInitializer {
     @Test
     void testCreateThumbnail() throws IOException {
         //create new thumbnail, current working directory is team-200/src/main/resources/public
-        imageUtil.createThumbnail("src/test/resources/asparagus.jpg");
+        imageUtil.createThumbnail("src/test/resources/public/media/asparagus.jpg");
 
         //assert new thumbnail exists
-        File newThumbnail = new File("src/test/resources/asparagus_thumbnail.jpg");
+        File newThumbnail = new File("src/test/resources/public/media/asparagus_thumbnail.jpg");
         Assertions.assertTrue(newThumbnail.exists());
         Assertions.assertTrue(newThumbnail.delete());
     }

@@ -87,7 +87,7 @@ public class ProductImageService {
             imageUtil.saveImage(imageInput, imageFilePath);
             String thumbnailPath = imageUtil.createThumbnail(imageFilePath);
 
-            var image = new Image(imageFileName, thumbnailPath);
+            var image = new Image("/media/" + imageFileName, thumbnailPath);
             imageRepository.save(image);
             product.addImage(image);
             productRepository.save(product);
