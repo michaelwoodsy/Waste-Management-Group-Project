@@ -26,14 +26,14 @@ class ImageUtilTest {
     @Test
     void testCreateThumbnail() throws IOException {
         //delete existing thumbnail if it exists
-        File existingThumbnail = new File("../media/asparagus_thumbnail.jpg");
+        File existingThumbnail = new File("../backend/src/main/resources/public/media/asparagus_thumbnail.jpg");
         existingThumbnail.delete(); //Returns false if file does not exist
 
-        //create new thumbnail, current working directory is team-200/backend
-        imageUtil.createThumbnail("../media/asparagus.jpg");
+        //create new thumbnail, current working directory is team-200/src/main/resources/public
+        imageUtil.createThumbnail("../backend/src/main/resources/public/media/asparagus.jpg");
 
         //assert new thumbnail exists
-        File newThumbnail = new File("../media/asparagus_thumbnail.jpg");
+        File newThumbnail = new File("../backend/src/main/resources/public/media/asparagus_thumbnail.jpg");
         Assertions.assertTrue(newThumbnail.exists());
 
     }
