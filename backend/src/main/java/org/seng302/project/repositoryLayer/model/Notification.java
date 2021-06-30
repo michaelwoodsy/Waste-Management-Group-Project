@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  */
 @Data // generate setters and getters for all fields (lombok pre-processor)
 @NoArgsConstructor // generate a no-args constructor needed by JPA (lombok pre-processor)
-@Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
+@MappedSuperclass
 public class Notification {
 
     private Integer id;
@@ -20,7 +20,7 @@ public class Notification {
 
     /**
      * Constructor for creating a new Notification object.
-     * @param message                     Message details of notification.
+     * @param message Message details of notification.
      */
     public Notification(String message) {
         this.message = message;
