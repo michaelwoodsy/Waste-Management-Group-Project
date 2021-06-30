@@ -80,11 +80,14 @@ public class ProductImageService {
 
         try {
             var imageInput = imageUtil.readImageFromMultipartFile(dto.getImageFile());
-            String imageFileName = UUID.randomUUID() + ".jpg";
+            String extension = fileType.split("/")[1];
+            logger.info("New image has extension: {}", extension);
+            String imageFileName = UUID.randomUUID() + "." + extension;
             String imageFilePath = "src/main/resources/public/media/" + imageFileName;
             imageUtil.saveImage(imageInput, imageFilePath);
-            imageUtil.createThumbnail(imageFilePath);
-            var image = new Image("/media/"+imageFileName, "/media/"+imageFileName.replace(".jpg", "_thumbnail.jpg"));
+            String thumbnailPath = imageUtil.createThumbnail(imageFilePath);
+
+            var image = new Image("/media/" + imageFileName, thumbnailPath);
             imageRepository.save(image);
             product.addImage(image);
             productRepository.save(product);
@@ -111,8 +114,7 @@ public class ProductImageService {
         String userEmail = dto.getAppUser().getUsername();
         var loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
-        if (!(currBusiness.userIsAdmin(loggedInUser.getId()) ||
-                currBusiness.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
+        if (!currBusiness.userCanDoAction(loggedInUser)) {
             throw new ForbiddenAdministratorActionException(dto.getBusinessId());
         }
 

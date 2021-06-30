@@ -27,8 +27,9 @@ public class ImageUtil {
      * https://www.techcoil.com/blog/how-to-create-a-thumbnail-of-an-image-in-java-without-using-external-libraries/
      *  @param filepath The filepath of the image we are
      *                  trying to create a thumbnail for
+     * @return the filepath where the thumbnail was saved
      */
-    public void createThumbnail(String filepath) throws IOException {
+    public String createThumbnail(String filepath) throws IOException {
         var originalBufferedImage = readImageFromFile(filepath);
         var resizedBufferImage = scaleImage(originalBufferedImage);
         var thumbnailBufferedImage = cropImage(resizedBufferImage);
@@ -40,6 +41,8 @@ public class ImageUtil {
         filepathBits[0] = filepathBits[0] + "_thumbnail";
         var thumbnailPath = String.join(".", filepathBits);
         saveImage(thumbnailBufferedImage, thumbnailPath);
+
+        return thumbnailPath.substring(thumbnailPath.indexOf("/media/"));
     }
 
 
@@ -145,8 +148,9 @@ public class ImageUtil {
      * @throws IOException an exception that is thrown by the ImageIO writer
      */
     public void saveImage(BufferedImage image, String filepath) throws IOException {
+        String format = filepath.split("\\.(?=([a-zA-Z]*)$)")[1].toUpperCase();
         try {
-            ImageIO.write(image, "JPG", new File(filepath));
+            ImageIO.write(image, format, new File(filepath));
         }
         catch (IOException ioe) {
             logger.error("Error writing image to file");

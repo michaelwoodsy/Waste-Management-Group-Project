@@ -172,7 +172,7 @@
                       type="file"
                       style="display: none"
                       ref="fileInput"
-                      accept="image/*"
+                      accept="image/png, image/jpeg"
                       @change="imageUpload"/>
 
                   <div v-for="image in images"
@@ -531,7 +531,6 @@ export default {
       const formData = new FormData()
       formData.append("file", files[0])
 
-      console.log(formData)
       const fileReader = new FileReader()
       console.log(`File with name ${files[0].name} uploaded`)
       fileReader.addEventListener('load', () => {
@@ -578,9 +577,9 @@ export default {
      */
     addImages() {
       for (const image of this.images) {
-        //Id is null if it was just added
-        if (image.id === undefined) {
-          this.$root.$data.business.addProductImage(
+        //Id is undefined if it was just added
+        if (image.id == null) {
+          Business.addProductImage(
               this.businessId, this.newProduct.id, image.data)
         }
       }

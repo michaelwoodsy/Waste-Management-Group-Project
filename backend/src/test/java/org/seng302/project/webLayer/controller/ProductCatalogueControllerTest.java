@@ -83,7 +83,7 @@ class ProductCatalogueControllerTest {
 
     /**
      * Tries to get the business products as a logged in owner.
-     * Expects a 200 OK response, and product present.
+     * Expects a 200 OK response
      */
     @Test
     void getProducts_200Response() throws Exception {

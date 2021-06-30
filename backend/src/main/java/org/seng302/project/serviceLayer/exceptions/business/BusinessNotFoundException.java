@@ -11,7 +11,7 @@ import org.seng302.project.webLayer.controller.BusinessController;
 public class BusinessNotFoundException extends NotAcceptableException {
 
     public BusinessNotFoundException(Integer id) {
-        super(String.format("NoBusinessExistsException: no business with id %d exists.", id));
+        super(String.format("BusinessNotFoundException: no business with id %d exists.", id));
     }
 
 }
