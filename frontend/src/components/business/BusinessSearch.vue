@@ -116,6 +116,9 @@ export default {
     },
   },
   methods: {
+    /**
+     * This is the search logic, has two different calls that can be made. With and without businessType
+     */
     search() {
       this.loading = true;
       this.page = 1;
@@ -123,13 +126,7 @@ export default {
       if(this.businessType === 'Any type' || this.businessType === ''){
         Business.getBusinesses(this.searchTerm)
             .then((res) => {
-              this.error = null;
-              this.businesses = res.data;
-              this.loading = false;
-              //TODO: Remove this when you are able to view businesses in table
-              for(let business of this.businesses){
-                console.log(business.name)
-              }
+              this.loadSearch(res)
             })
             .catch((err) => {
               this.error = err;
@@ -138,20 +135,29 @@ export default {
       } else {
         Business.getBusinesses(this.searchTerm, this.businessType)
             .then((res) => {
-              this.error = null;
-              this.businesses = res.data;
-              this.loading = false;
-              //TODO: Remove this when you are able to view businesses in table
-              for(let business of this.businesses){
-                console.log(business.name)
-              }
+              this.loadSearch(res)
             })
             .catch((err) => {
               this.error = err;
               this.loading = false;
             })
       }
+    },
+
+    /**
+     * Takes the response from the search request and saves them into a variable
+     * @param res This is the response from the business search
+     */
+    loadSearch(res){
+      this.error = null;
+      this.businesses = res.data;
+      this.loading = false;
+      //TODO: Remove this when you are able to view businesses in table
+      for(let business of this.businesses){
+        console.log(business.name)
+      }
     }
+
   }
 }
 </script>
