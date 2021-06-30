@@ -1,6 +1,8 @@
 <template>
   <page-wrapper>
 
+    <img :src="getImageURL('/media/testFile.jpg')">
+
     <!-- Check if the user is logged in -->
     <login-required
         v-if="!isLoggedIn"
@@ -478,6 +480,7 @@ export default {
             if (!this.product) {
               this.errorMessage = `There is no product with id ${this.productId}.`
             }
+            this.images = this.images.concat(this.product.images)
             this.newProduct = {...this.product}
             this.loading = false
           })
@@ -499,6 +502,7 @@ export default {
       this.submitError = null
       this.success = false
       this.product = null
+      this.images = []
       this.newProduct = null
       this.idBlur = false
       this.nameBlur = false
@@ -523,10 +527,16 @@ export default {
      */
     imageUpload (event) {
       const files = event.target.files
+
+      const formData = new FormData()
+      formData.append("file", files[0])
+
+      console.log(formData)
       const fileReader = new FileReader()
       console.log(`File with name ${files[0].name} uploaded`)
       fileReader.addEventListener('load', () => {
         this.images.push({
+          data: formData,
           url: fileReader.result,
           file: files[0]
         })
@@ -569,9 +579,9 @@ export default {
     addImages() {
       for (const image of this.images) {
         //Id is null if it was just added
-        if (image.id === null) {
+        if (image.id === undefined) {
           this.$root.$data.business.addProductImage(
-              this.businessId, this.newProduct.id, image.file)
+              this.businessId, this.newProduct.id, image.data)
         }
       }
     }
