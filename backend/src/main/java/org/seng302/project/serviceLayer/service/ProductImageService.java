@@ -69,6 +69,8 @@ public class ProductImageService {
             logger.error(exception.getMessage());
         }
 
+        String imageFileName = UUID.randomUUID().toString() + ".jpg";
+
         var currBusiness = businessRepository.findById(dto.getBusinessId()).orElseThrow(
                 () -> new BusinessNotFoundException(dto.getBusinessId())
         );
@@ -77,8 +79,7 @@ public class ProductImageService {
         String userEmail = dto.getAppUser().getUsername();
         var loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
-        if (!(currBusiness.userIsAdmin(loggedInUser.getId()) ||
-                currBusiness.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
+        if (!currBusiness.userCanDoAction(loggedInUser)) {
             throw new ForbiddenAdministratorActionException(dto.getBusinessId());
         }
 
@@ -87,7 +88,6 @@ public class ProductImageService {
 
         List<Image> productImages = product.getImages();
 
-        String imageFileName = UUID.randomUUID().toString();
         return new AddProductImageResponseDTO(1);
     }
 

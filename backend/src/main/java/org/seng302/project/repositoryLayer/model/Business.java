@@ -109,4 +109,14 @@ public class Business {
         return false;
     }
 
+    /**
+     * Returns true if a user can do an admin action for this business.
+     *
+     * @param user the user trying to do an admin action.
+     * @return true if the user is allowed to do the action, false otherwise.
+     */
+    public boolean userCanDoAction(User user) {
+        return user.isGAA() || primaryAdministratorId.equals(user.getId()) || userIsAdmin(user.getId());
+    }
+
 }
