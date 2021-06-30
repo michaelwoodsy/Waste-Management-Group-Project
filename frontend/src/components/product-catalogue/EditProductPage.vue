@@ -1,8 +1,6 @@
 <template>
   <page-wrapper>
 
-    <img :src="getImageURL('/media/testFile.jpg')">
-
     <!-- Check if the user is logged in -->
     <login-required
         v-if="!isLoggedIn"

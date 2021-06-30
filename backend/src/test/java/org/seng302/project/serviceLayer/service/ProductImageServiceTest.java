@@ -107,11 +107,11 @@ class ProductImageServiceTest extends AbstractInitializer {
         AddProductImageResponseDTO responseDTO = productImageService.addProductImage(dto);
         Assertions.assertEquals(4, testProduct.getImages().size());
         String imageFileName = testProduct.getImages().get(3).getFilename();
-        File imageFile = new File("src/main/resources/public" + imageFileName);
+        File imageFile = new File("build/resources/main/public" + imageFileName);
         Assertions.assertTrue(imageFile.delete());
 
         String thumbnailFileName = testProduct.getImages().get(3).getThumbnailFilename();
-        File thumbnailFile = new File("src/main/resources/public" + thumbnailFileName);
+        File thumbnailFile = new File("build/resources/main/public" + thumbnailFileName);
         Assertions.assertTrue(thumbnailFile.delete());
     }
 
@@ -137,11 +137,11 @@ class ProductImageServiceTest extends AbstractInitializer {
         AddProductImageResponseDTO responseDTO = productImageService.addProductImage(dto);
         Assertions.assertEquals(4, testProduct.getImages().size());
         String imageFileName = testProduct.getImages().get(3).getFilename();
-        File imageFile = new File("src/main/resources/public" + imageFileName);
+        File imageFile = new File("build/resources/main/public" + imageFileName);
         Assertions.assertTrue(imageFile.delete());
 
         String thumbnailFileName = testProduct.getImages().get(3).getThumbnailFilename();
-        File thumbnailFile = new File("src/main/resources/public" + thumbnailFileName);
+        File thumbnailFile = new File("build/resources/main/public" + thumbnailFileName);
         Assertions.assertTrue(thumbnailFile.delete());
     }
 
