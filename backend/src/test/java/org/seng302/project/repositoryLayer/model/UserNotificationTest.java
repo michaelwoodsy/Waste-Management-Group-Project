@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * Unit tests for UserNotification class
  */
 @SpringBootTest
-class NotificationTest {
+class UserNotificationTest {
 
     /**
      * Creates an example test UserNotification
