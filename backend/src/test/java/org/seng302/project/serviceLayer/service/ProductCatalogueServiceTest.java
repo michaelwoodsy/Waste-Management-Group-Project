@@ -13,6 +13,7 @@ import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
 import org.seng302.project.serviceLayer.dto.product.EditProductDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -148,7 +149,7 @@ class ProductCatalogueServiceTest {
         given(businessRepository.findById(4)).willReturn(Optional.empty());
 
         AppUserDetails userDetails = new AppUserDetails(user);
-        Assertions.assertThrows(NoBusinessExistsException.class,
+        Assertions.assertThrows(BusinessNotFoundException.class,
                 () -> productCatalogueService.getBusinessesProducts(4, userDetails));
     }
 

@@ -16,8 +16,8 @@ import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
-import org.seng302.project.serviceLayer.exceptions.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
@@ -28,13 +28,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.verify;
 
 
 @SpringBootTest
@@ -102,7 +102,7 @@ class BusinessServiceTest {
     @Test
     void createBusiness_success() {
 
-        AddBusinessDTO requestDTO = new AddBusinessDTO (
+        AddBusinessDTO requestDTO = new AddBusinessDTO(
                 "Lumbridge General Store",
                 "A one-stop shop for all your adventuring needs",
                 businessAddress,
@@ -197,7 +197,7 @@ class BusinessServiceTest {
     void getNonexistentBusiness() {
         given(businessRepository.findById(200)).willReturn(Optional.empty());
 
-        Assertions.assertThrows(NoBusinessExistsException.class,
+        Assertions.assertThrows(BusinessNotFoundException.class,
                 () -> businessService.getBusiness(200));
     }
 
@@ -226,7 +226,6 @@ class BusinessServiceTest {
     }
 
 
-
     /**
      * Tries to add an admin that is already an admin
      * Expects a AdministratorAlreadyExistsException
@@ -243,7 +242,7 @@ class BusinessServiceTest {
         requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
 
         Assertions.assertThrows(AdministratorAlreadyExistsException.class,
-                ()-> businessService.addAdministrator(requestDTO));
+                () -> businessService.addAdministrator(requestDTO));
 
     }
 
@@ -264,7 +263,7 @@ class BusinessServiceTest {
         requestDTO.setAppUser(new AppUserDetails(testUser));
 
         Assertions.assertThrows(ForbiddenPrimaryAdministratorActionException.class,
-                ()-> businessService.addAdministrator(requestDTO));
+                () -> businessService.addAdministrator(requestDTO));
 
     }
 
@@ -309,7 +308,7 @@ class BusinessServiceTest {
         requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
 
         Assertions.assertThrows(CantRemoveAdministratorException.class,
-                ()-> businessService.removeAdministrator(requestDTO));
+                () -> businessService.removeAdministrator(requestDTO));
 
     }
 
@@ -327,13 +326,13 @@ class BusinessServiceTest {
         requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
 
         Assertions.assertThrows(UserNotAdministratorException.class,
-                ()-> businessService.removeAdministrator(requestDTO));
+                () -> businessService.removeAdministrator(requestDTO));
     }
 
     /**
      * Random user tries to remove
      * from administrating the business
-     *
+     * <p>
      * Expect a ForbiddenPrimaryAdministratorActionException
      */
     @Test
@@ -349,7 +348,7 @@ class BusinessServiceTest {
         requestDTO.setAppUser(new AppUserDetails(testUser));
 
         Assertions.assertThrows(ForbiddenPrimaryAdministratorActionException.class,
-                ()-> businessService.removeAdministrator(requestDTO));
+                () -> businessService.removeAdministrator(requestDTO));
 
     }
 

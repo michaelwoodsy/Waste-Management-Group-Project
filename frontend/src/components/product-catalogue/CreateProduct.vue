@@ -72,7 +72,7 @@
               type="file"
               style="display: none"
               ref="fileInput"
-              accept="image/*"
+              accept="image/png, image/jpeg"
               @change="imageUpload"/>
 
           <div v-for="image in images"
@@ -283,10 +283,15 @@ export default {
      */
     imageUpload (event) {
       const files = event.target.files
+
+      const formData = new FormData()
+      formData.append("file", files[0])
+
       const fileReader = new FileReader()
       console.log(`File with name ${files[0].name} uploaded`)
       fileReader.addEventListener('load', () => {
         this.images.push({
+          data: formData,
           url: fileReader.result,
           file: files[0],
         })
@@ -311,7 +316,7 @@ export default {
     addImages() {
       for (const image of this.images) {
         this.$root.$data.business.addProductImage(
-            this.businessId, this.id, image.file)
+            this.businessId, this.id, image.data)
       }
     }
   }
