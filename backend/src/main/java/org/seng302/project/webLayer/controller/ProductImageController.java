@@ -33,7 +33,7 @@ public class ProductImageController {
     public AddProductImageResponseDTO addImage(@PathVariable Integer businessId,
                                                @PathVariable String productId,
                                                @AuthenticationPrincipal AppUserDetails user,
-                                               @RequestParam("file") MultipartFile imageFile) {
+                                               @RequestParam(value = "file") MultipartFile imageFile) {
         var requestDTO = new AddProductImageDTO(businessId, productId, user, imageFile);
         return productImageService.addProductImage(requestDTO);
     }
