@@ -7,13 +7,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDateTime;
 
 /**
- * Unit tests for Notification class
+ * Unit tests for UserNotification class
  */
 @SpringBootTest
-class NotificationTest {
+class UserNotificationTest {
 
     /**
-     * Creates an example test Notification
+     * Creates an example test UserNotification
      * Then checks all of the attributes of the new notification.
      */
     @Test
@@ -23,7 +23,7 @@ class NotificationTest {
                 "1999-04-27", "+64 3 555 0129", null,
                 "1337-H%nt3r2");
 
-        Notification testNotification = new Notification(testAssignedUser, "Your user profile needs updating!");
+        UserNotification testNotification = new UserNotification(testAssignedUser, "Your user profile needs updating!");
 
         Assertions.assertNull(testNotification.getId());
         Assertions.assertNull(testNotification.getUser().getId());
