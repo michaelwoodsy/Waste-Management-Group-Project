@@ -28,6 +28,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,6 +53,7 @@ class ProductImageServiceTest extends AbstractInitializer {
     private User testUserBusinessAdmin;
     private Business testBusiness;
     private Product testProduct;
+    private List<Image> testImages;
     private MockMultipartFile testImageFile;
 
     @BeforeEach
@@ -61,8 +63,9 @@ class ProductImageServiceTest extends AbstractInitializer {
         testSystemAdmin = this.getTestSystemAdmin();
         testUserBusinessAdmin = this.getTestUserBusinessAdmin();
         testBusiness = this.getTestBusiness();
+        testImages = this.getTestImages();
         testProduct = Mockito.spy(this.getTestProduct());
-        testProduct.setImages(this.getTestImages());
+        testProduct.setImages(new ArrayList<>(testImages));
         testImageFile = this.getTestImageFile();
         this.mocks();
     }
@@ -88,7 +91,12 @@ class ProductImageServiceTest extends AbstractInitializer {
     @Test
     void addProductImage_withBusinessAdmin_success() {
         Mockito.when(imageRepository.save(Mockito.any(Image.class)))
-                .thenAnswer(invocation -> null);
+                .thenAnswer(invocation -> {
+                    Image image = invocation.getArgument(0);
+                    image.setId(4);
+                    testImages.add(image);
+                    return image;
+                });
 
         AddProductImageDTO dto = new AddProductImageDTO(
                 testBusiness.getId(),
@@ -110,7 +118,12 @@ class ProductImageServiceTest extends AbstractInitializer {
     @Test
     void addProductImage_withSystemAdmin_success() {
         Mockito.when(imageRepository.save(Mockito.any(Image.class)))
-                .thenAnswer(invocation -> null);
+                .thenAnswer(invocation -> {
+                    Image image = invocation.getArgument(0);
+                    image.setId(4);
+                    testImages.add(image);
+                    return image;
+                });
 
         AddProductImageDTO dto = new AddProductImageDTO(
                 testBusiness.getId(),
