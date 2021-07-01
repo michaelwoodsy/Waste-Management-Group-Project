@@ -91,12 +91,11 @@ Page for displaying the marketplace.
         <div class="col form-group text-center">
           <label class="d-inline-block option-label" for="order-select">Matching Keywords</label>
           <br>
-          <!--TODO: style keywords with spacing -->
           <!--TODO: make collapsible because there will be a lot of keyowrds -->
           <label
               v-for="keyword in keywords"
               :key="keyword.id"
-              class="keyword"
+              class="ml-2 keyword"
           >
             <input type="checkbox" :id="keyword.id" />
             {{keyword.name}}
