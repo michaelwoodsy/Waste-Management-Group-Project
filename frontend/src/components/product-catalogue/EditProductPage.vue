@@ -243,8 +243,18 @@
               Cancel
             </button>
 
+            <!-- Saving changes button
+            Shows when product is being saved (useful for images which take a while to upload) -->
+            <button v-if="submitting"
+                    disabled
+                    class="btn btn-primary ml-1 my-1 float-right"
+                    type="button"
+            >
+              Saving changes
+            </button>
+
             <!-- Save Changes button -->
-            <button
+            <button v-else
                 :disabled="!changesMade"
                 class="btn btn-primary ml-1 my-1 float-right"
                 type="button"
@@ -289,18 +299,7 @@ export default {
       nameBlur: false,
       triedIds: [], // List of ids tested for uniqueness
       //Test Image Data
-      images: [
-          {
-            id: 1000,
-            filename: '/media/defaults/defaultProduct.jpg',
-            thumbnailFilename: '/media/defaults/defaultProduct_thumbnail.jpg'
-          },
-        {
-          id: 1001,
-          filename: '/media/defaults/defaultProduct2.jpg',
-          thumbnailFilename: '/media/defaults/defaultProduct2_thumbnail.jpg'
-        }
-      ], //TODO: prefill with product's existing images
+      images: [],
       currentPrimaryImageId: null,
       primaryImageError: null,
       imagesEdited: false
@@ -421,7 +420,7 @@ export default {
     /**
      * Validates the users inputs, then sends the data to the api.
      */
-    submit() {
+    async submit() {
       // Set id as blurred in case the id was not unique
       this.idBlur = true
 
@@ -437,15 +436,19 @@ export default {
 
       // Submit changes to api
       this.submitting = true;
-      Business.editProduct(this.businessId, this.productId, this.newProduct)
+      await Business.editProduct(this.businessId, this.productId, this.newProduct)
           .then(() => {
             this.addImages()
-            if (this.currentPrimaryImageId !== this.product.primaryImageId) {
-              Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.currentPrimaryImageId)
-            }
-            this.submitError = null
-            this.success = true
-            this.submitting = false
+                .then(() => {
+              if (this.currentPrimaryImageId !== this.product.primaryImageId) {
+                Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.currentPrimaryImageId)
+              }
+            })
+                .then(() => {
+              this.submitError = null
+              this.success = true
+              this.submitting = false
+            })
           })
           .catch((err) => {
             // Display the response error message if there is one
@@ -477,9 +480,12 @@ export default {
             this.product = res.data.find(prod => prod.id === this.productId.toString())
             if (!this.product) {
               this.errorMessage = `There is no product with id ${this.productId}.`
+            } else {
+              this.currentPrimaryImageId = this.product.primaryImageId
+              this.images = this.product.images
+              this.newProduct = {...this.product}
+              this.loading = false
             }
-            this.newProduct = {...this.product}
-            this.loading = false
           })
           .catch((err) => {
             this.errorMessage = err.response.data.message || err;
@@ -500,6 +506,7 @@ export default {
       this.success = false
       this.product = null
       this.images = []
+      this.currentPrimaryImageId = null
       this.newProduct = null
       this.idBlur = false
       this.nameBlur = false
@@ -572,11 +579,11 @@ export default {
     /**
      * Makes requests to add the product's images
      */
-    addImages() {
+    async addImages() {
       for (const image of this.images) {
         //Id is undefined if it was just added
         if (image.id == null) {
-          Business.addProductImage(
+          await Business.addProductImage(
               this.businessId, this.newProduct.id, image.data)
         }
       }

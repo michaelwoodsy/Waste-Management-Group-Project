@@ -47,6 +47,10 @@ public class Product {
      */
     public void addImage(Image newImage){
         this.images.add(newImage);
+        //Checks if the new image is the first in the list, and makes it the primary image
+        if (images.size() == 1) {
+            primaryImageId = newImage.getId();
+        }
     }
 
     /**
