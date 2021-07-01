@@ -195,6 +195,10 @@ export default {
      * Add a new card to the marketplace
      */
     addCard() {
+      //TODO: for each keyword in keywords, call API search to see if keyword exist on backend.
+      //TODO: If keyword doesn't exist on backend, make call to create it
+
+      //TODO: add keyword ids to this call
       this.$root.$data.user.createCard(
           {
             "creatorId": this.$root.$data.user.state.actingAs.id,
