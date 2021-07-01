@@ -123,25 +123,19 @@ export default {
       this.loading = true;
       this.page = 1;
 
-      if(this.businessType === 'Any type' || this.businessType === ''){
-        Business.getBusinesses(this.searchTerm)
-            .then((res) => {
-              this.loadSearch(res)
-            })
-            .catch((err) => {
-              this.error = err;
-              this.loading = false;
-            })
-      } else {
-        Business.getBusinesses(this.searchTerm, this.businessType)
-            .then((res) => {
-              this.loadSearch(res)
-            })
-            .catch((err) => {
-              this.error = err;
-              this.loading = false;
-            })
+      if(this.businessType === 'Any type' || this.businessType === '') {
+        this.businessType = null;
       }
+
+      Business.getBusinesses(this.searchTerm, this.businessType)
+          .then((res) => {
+            this.loadSearch(res)
+          })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
+
     },
 
     /**
