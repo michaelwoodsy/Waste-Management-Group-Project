@@ -9,6 +9,14 @@ import org.springframework.data.jpa.domain.Specification;
 public class UserSpecifications {
 
     /**
+     * Private constructor for this utility class to hide the implicit public one.
+     * Recommendation from SonarLint.
+     */
+    private UserSpecifications() {
+        throw new IllegalStateException("Utility class, UserSpecifications, shouldn't be instantiated");
+    }
+
+    /**
      * Specification to find a user based on a queried name.
      * Matches exact names.
      *
