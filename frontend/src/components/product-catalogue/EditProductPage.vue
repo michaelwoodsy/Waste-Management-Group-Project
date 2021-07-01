@@ -478,7 +478,6 @@ export default {
             if (!this.product) {
               this.errorMessage = `There is no product with id ${this.productId}.`
             }
-            this.images = this.images.concat(this.product.images)
             this.newProduct = {...this.product}
             this.loading = false
           })
