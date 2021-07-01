@@ -303,5 +303,13 @@ describe('Tests selection of keywords', () => {
         expect(wrapper.vm.$data.selectedKeywords[0]).toBe(wrapper.vm.$data.keywordOptions[0].id)
     })
 
+    test("Tests that the sortKeywordOptions method works", () => {
+        wrapper.vm.sortKeywordOptions()
+        expect(wrapper.vm.$data.keywordOptions[0].name).toBe("Apples")
+        expect(wrapper.vm.$data.keywordOptions[1].name).toBe("Bananas")
+        expect(wrapper.vm.$data.keywordOptions[2].name).toBe("Fruit")
+
+    })
+
 });
 

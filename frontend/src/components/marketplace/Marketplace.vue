@@ -89,21 +89,28 @@ Page for displaying the marketplace.
       <div class="row form justify-content-center">
         <!-- Combobox for filtering by keyword -->
         <div class="col form-group text-center">
-          <label class="d-inline-block option-label" for="order-select">Matching Keywords</label>
-          <br>
-          <!--TODO: make collapsible because there will be a lot of keyowrds -->
-          <label
-              v-for="keyword in keywordOptions"
-              :key="keyword.id"
-              class="ml-2 keyword"
-          >
-            <input type="checkbox" :id="keyword.id" @click="setKeywordSelect(keyword)" />
-            {{keyword.name}}
-          </label>
-          <br>
-          <button class="btn btn-primary ml-2">
-            Apply
+          <!-- Collapsible because there will be a lot of keywords -->
+          <label class="d-inline-block option-label" for="order-select"></label>
+          <div id="keywords" class="collapse">
+            <label
+                v-for="keyword in keywordOptions"
+                :key="keyword.id"
+                class="ml-2 keyword"
+            >
+              <input type="checkbox" :id="keyword.id" @click="setKeywordSelect(keyword)" />
+              {{keyword.name}}
+            </label>
+            <br>
+            <button class="btn btn-primary ml-2">
+              Apply
+            </button>
+          </div>
+          <button data-target="#keywords" class="btn btn-outline-secondary m-2"
+                  data-toggle="collapse" @click="toggleKeywordList">
+            <span v-if="!showKeywords">Filter By Keywords <em class="bi bi-arrow-down"/></span>
+            <span v-else>Hide Keywords <em class="bi bi-arrow-up"/></span>
           </button>
+
         </div>
 
 
@@ -153,6 +160,7 @@ export default {
       order: 'created-asc',
       resultsPerPage: 10,
       page: 1,
+      showKeywords: false,
       keywordOptions: [],
       selectedKeywords: []
     }
@@ -160,7 +168,8 @@ export default {
 
   mounted() {
     this.changePage(this.tabSelected)
-    this.populateKeywords()
+    this.populateKeywordOptions()
+    this.sortKeywordOptions()
   },
 
   computed: {
@@ -255,12 +264,24 @@ export default {
 
     /** Function for sorting a list of cards by created date **/
     sortCreatedDate(a, b) {
-      return (a.created < b.created) ? -1 : ((a.created > b.created) ? 1 : 0)
+      if (a.created < b.created) {
+        return -1
+      }
+      if ((a.created > b.created)) {
+        return 1
+      }
+      return 0
     },
 
     /** Function for sorting a list by title alphabetically **/
     sortTitle(a, b) {
-      return (a.title < b.title) ? -1 : ((a.title > b.title) ? 1 : 0)
+        if (a.title < b.title) {
+          return -1
+        }
+        if ((a.title > b.title)) {
+          return 1
+        }
+        return 0
     },
 
     /** Function for sorting a list by location alphabetically **/
@@ -320,10 +341,11 @@ export default {
           })
     },
     /**
-     * Populates the keywords shown to filter by
+     * Populates the keyword options shown to filter by
      * Currently uses hard coded test data
      */
-    populateKeywords() {
+    populateKeywordOptions() {
+
       //TODO: actually get keywords from backend
       this.keywordOptions = [
         {
@@ -361,8 +383,59 @@ export default {
         {
           id: 9,
           name: "Potatoes"
+        },
+        {
+          id: 10,
+          name: "Chips"
+        },
+        {
+          id: 11,
+          name: "Pies"
+        },
+        {
+          id: 12,
+          name: "Oranges"
+        },
+        {
+          id: 13,
+          name: "Celery"
+        },
+        {
+          id: 14,
+          name: "Pumpkins"
+        },
+        {
+          id: 15,
+          name: "Apricots"
+        },
+        {
+          id: 16,
+          name: "Cherries"
+        },
+        {
+          id: 17,
+          name: "Pears"
+        },
+        {
+          id: 18,
+          name: "Strawberries"
         }
       ]
+    },
+    /**
+     * Sorts keywordOptions alphabetically by name
+     */
+    sortKeywordOptions() {
+      this.keywordOptions.sort((a, b) => {
+            if (a.name < b.name) {
+              return -1
+            }
+            if ((a.name > b.name)) {
+              return 1
+            }
+            return 0
+          }
+      )
     },
     /**
      * Toggles whether a keyword is selected to be filtered by
@@ -375,7 +448,14 @@ export default {
           return keywordId !== keyword.id
         })
       }
-    }
+    },
+
+    /**
+     * Toggles the showKeywords field
+     */
+    toggleKeywordList() {
+      this.showKeywords = !this.showKeywords
+    },
   }
 }
 
