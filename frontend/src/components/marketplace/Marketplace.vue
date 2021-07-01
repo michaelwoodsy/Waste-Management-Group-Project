@@ -61,11 +61,11 @@ Page for displaying the marketplace.
         </div>
       </div>
 
-      <!-- Div above results -->
+      <!-- Div above results for ordering -->
       <div class="row form justify-content-center">
         <div class="col form-group text-center">
           <!-- Combobox and label for ordering -->
-          <label class="d-inline-block" for="order-select">Order By</label>
+          <label class="d-inline-block option-label" for="order-select">Order By</label>
           <select id="order-select"
                   v-model="order"
                   class="form-control ml-2 d-inline-block w-auto">
@@ -84,6 +84,33 @@ Page for displaying the marketplace.
           />
         </div>
       </div>
+
+      <!-- Div above results for filtering -->
+      <div class="row form justify-content-center">
+        <!-- Combobox for filtering by keyword -->
+        <div class="col form-group text-center">
+          <label class="d-inline-block option-label" for="order-select">Matching Keywords</label>
+          <br>
+          <!--TODO: style keywords with spacing -->
+          <!--TODO: make collapsible because there will be a lot of keyowrds -->
+          <label
+              v-for="keyword in keywords"
+              :key="keyword.id"
+              class="keyword"
+          >
+            <input type="checkbox" :id="keyword.id" />
+            {{keyword.name}}
+          </label>
+          <br>
+          <button class="btn btn-primary ml-2">
+            Apply
+          </button>
+        </div>
+
+
+
+      </div>
+
 
       <!-- Div with cards -->
       <div class="row row-cols-1 row-cols-lg-2">
@@ -126,12 +153,14 @@ export default {
       error: "",
       order: 'created-asc',
       resultsPerPage: 10,
-      page: 1
+      page: 1,
+      keywords: []
     }
   },
 
   mounted() {
     this.changePage(this.tabSelected)
+    this.populateKeywords()
   },
 
   computed: {
@@ -290,6 +319,51 @@ export default {
             this.error = err;
           })
     },
+    /**
+     * Populates the keywords shown to filter by
+     * Currently uses hard coded test data
+     */
+    populateKeywords() {
+      //TODO: actually get keywords from backend
+      this.keywords = [
+        {
+          id: 1,
+          name: "Fruit"
+        },
+        {
+          id: 2,
+          name: "Apples"
+        },
+        {
+          id: 3,
+          name: "Bananas"
+        },
+        {
+          id: 4,
+          name: "Peaches"
+        },
+        {
+          id: 5,
+          name: "Vegetables"
+        },
+        {
+          id: 6,
+          name: "Carrots"
+        },
+        {
+          id: 7,
+          name: "Plums"
+        },
+        {
+          id: 8,
+          name: "Beans"
+        },
+        {
+          id: 9,
+          name: "Potatoes"
+        }
+      ]
+    }
   }
 }
 
@@ -300,9 +374,14 @@ export default {
 .nav-item {
   font-size: 20px;
 }
-
 .row {
   margin-bottom: 20px;
+}
+.option-label {
+  font-size: 18px;
+}
+.keyword {
+  font-size: 16px;
 }
 
 </style>
