@@ -93,7 +93,7 @@ Page for displaying the marketplace.
           <br>
           <!--TODO: make collapsible because there will be a lot of keyowrds -->
           <label
-              v-for="keyword in keywords"
+              v-for="keyword in keywordOptions"
               :key="keyword.id"
               class="ml-2 keyword"
           >
@@ -153,7 +153,8 @@ export default {
       order: 'created-asc',
       resultsPerPage: 10,
       page: 1,
-      keywords: []
+      keywordOptions: [],
+      selectedKeywords: []
     }
   },
 
@@ -324,7 +325,7 @@ export default {
      */
     populateKeywords() {
       //TODO: actually get keywords from backend
-      this.keywords = [
+      this.keywordOptions = [
         {
           id: 1,
           name: "Fruit"
@@ -366,11 +367,14 @@ export default {
     /**
      * Toggles whether a keyword is selected to be filtered by
      */
-    //TODO: change this to add/remove keywords to/from selectedKeywords list
-        //Means that we only have to check selectedKeywords list instead of whole keywords list when making API call
     setKeywordSelect(keyword) {
-      //keyword.selected is either undefined, true or false
-      keyword.selected = !(keyword.selected != null && keyword.selected === true);
+      if (!this.selectedKeywords.includes(keyword.id)) {
+        this.selectedKeywords.push(keyword.id)
+      } else {
+        this.selectedKeywords = this.selectedKeywords.filter((keywordId) => {
+          return keywordId !== keyword.id
+        })
+      }
     }
   }
 }

@@ -265,7 +265,7 @@ describe('Tests selection of keywords', () => {
         })
         wrapper.vm.$data.error = ""
         wrapper.vm.$data.isLoggedIn = true
-        wrapper.vm.$data.keywords = [
+        wrapper.vm.$data.keywordOptions = [
             {
                 id: 1,
                 name: "Fruit"
@@ -279,28 +279,28 @@ describe('Tests selection of keywords', () => {
                 name: "Bananas"
             },
         ]
+        wrapper.vm.$data.selectedKeywords = []
     });
 
-    test("Tests that keyword.selected is undefined before any checkbox interaction", () => {
-        expect(wrapper.vm.$data.keywords[0].selected).toBe(undefined)
-        expect(wrapper.vm.$data.keywords[1].selected).toBe(undefined)
-        expect(wrapper.vm.$data.keywords[2].selected).toBe(undefined)
+    test("Tests that selectedKeywords is empty before any checkbox interaction", () => {
+        expect(wrapper.vm.$data.selectedKeywords.length).toBe(0)
     })
 
-    test("Tests that selecting one keyword sets keyword.selected to true and leaves the others unaffected", () => {
+    test("Tests that selecting one keyword adds the keyword to selectedKeywords", () => {
+        wrapper.vm.setKeywordSelect(wrapper.vm.$data.keywordOptions[0])
 
-        wrapper.vm.setKeywordSelect(wrapper.vm.$data.keywords[0])
-
-        expect(wrapper.vm.$data.keywords[0].selected).toBe(true)
-        expect(wrapper.vm.$data.keywords[1].selected).toBe(undefined)
-        expect(wrapper.vm.$data.keywords[2].selected).toBe(undefined)
+        expect(wrapper.vm.$data.selectedKeywords.length).toBe(1)
+        expect(wrapper.vm.$data.selectedKeywords[0]).toBe(wrapper.vm.$data.keywordOptions[0].id)
     })
 
-    test("Tests that selecting then deselecting one keyword sets the keyword.selected to false ", () => {
-        wrapper.vm.setKeywordSelect(wrapper.vm.$data.keywords[0])
-        wrapper.vm.setKeywordSelect(wrapper.vm.$data.keywords[0])
+    test("Tests that selecting then deselecting one keyword results in the keyword not being in selectedKeywords", () => {
+        wrapper.vm.setKeywordSelect(wrapper.vm.$data.keywordOptions[0])
 
-        expect(wrapper.vm.$data.keywords[1].selected).toBe(false)
+        wrapper.vm.setKeywordSelect(wrapper.vm.$data.keywordOptions[1])
+        wrapper.vm.setKeywordSelect(wrapper.vm.$data.keywordOptions[1])
+
+        expect(wrapper.vm.$data.selectedKeywords.length).toBe(1)
+        expect(wrapper.vm.$data.selectedKeywords[0]).toBe(wrapper.vm.$data.keywordOptions[0].id)
     })
 
 });
