@@ -34,7 +34,7 @@ public class KeywordController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AddKeywordResponseDTO addKeyword(@Valid @RequestBody AddKeywordDTO dto) {
-        return null;
+        return keywordService.addKeyword(dto.getName());
     }
 
 }
