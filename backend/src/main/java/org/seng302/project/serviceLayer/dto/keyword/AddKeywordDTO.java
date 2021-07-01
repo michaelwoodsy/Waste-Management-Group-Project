@@ -1,6 +1,7 @@
 package org.seng302.project.serviceLayer.dto.keyword;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -9,6 +10,7 @@ import javax.validation.constraints.Size;
  * DTO for adding a new keyword to the system keyword list.
  */
 @Data
+@NoArgsConstructor
 public class AddKeywordDTO {
 
     @NotEmpty(message = "Keyword name is a required field.")

@@ -15,7 +15,6 @@ import org.seng302.project.serviceLayer.service.KeywordService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -29,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Test class for performing unit tests for the KeywordController class and its methods.
  */
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 class KeywordControllerTest extends AbstractInitializer {
 
@@ -65,7 +64,7 @@ class KeywordControllerTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that attempting to add a keyword with no name results in a 400 response.
+     * Tests that attempting to add a keyword with invalid name results in a 400 response.
      */
     @ParameterizedTest
     @NullAndEmptySource

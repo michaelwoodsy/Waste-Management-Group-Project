@@ -31,7 +31,7 @@ public class KeywordController {
      * @param dto Object containing the name of the new keyword to add.
      * @return a response object with the ID of the keyword that has been added.
      */
-    @PostMapping
+    @PostMapping("/keywords")
     @ResponseStatus(HttpStatus.CREATED)
     public AddKeywordResponseDTO addKeyword(@Valid @RequestBody AddKeywordDTO dto) {
         return keywordService.addKeyword(dto.getName());
