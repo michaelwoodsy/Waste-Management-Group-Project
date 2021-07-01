@@ -1,126 +1,81 @@
 package org.seng302.project.repositoryLayer.model;
 
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.types.BusinessType;
-import org.seng302.project.repositoryLayer.repository.AddressRepository;
-import org.seng302.project.repositoryLayer.repository.BusinessRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDateTime;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
- * Tests related to the Business class.
+ * Test class for unit testing methods of Business class.
  */
 @SpringBootTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class BusinessTest {
+class BusinessTest extends AbstractInitializer {
 
-    @Autowired
-    private BusinessRepository businessRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private AddressRepository addressRepository;
+    private User testUser;
+    private User testUserBusinessAdmin;
+    private User testSystemAdmin;
+    private Business testBusiness;
 
-    /**
-     * Basic test to check Business class functionality.
-     */
-    @Test
-    @Order(1)
-    public void testCreateBusiness() {
-        Address testAddress = new Address("5", "Lab Test Ave", "Christchurch", null, "New Zealand", null);
-        Business testBusiness = new Business("Test Business", "This business is a test.", testAddress,
-                "Retail Trade", 1);
-
-        assertNull(testBusiness.getId());
-        assertEquals("Test Business", testBusiness.getName());
-        assertEquals("This business is a test.", testBusiness.getDescription());
-        assertEquals(testAddress, testBusiness.getAddress());
-        assertEquals("Retail Trade", testBusiness.getBusinessType());
-        assertEquals(1, testBusiness.getPrimaryAdministratorId());
-        assertTrue(testBusiness.getCreated().isBefore(LocalDateTime.now()) || testBusiness.getCreated().isEqual(LocalDateTime.now()));
-        assertTrue(testBusiness.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-        assertTrue(BusinessType.checkType(testBusiness.getBusinessType()));
+    @BeforeEach
+    void setup() {
+        this.initialise();
+        this.testUser = this.getTestUser();
+        this.testUserBusinessAdmin = this.getTestUserBusinessAdmin();
+        this.testSystemAdmin = this.getTestSystemAdmin();
+        this.testBusiness = this.getTestBusiness();
     }
 
     /**
-     * Test to ensure only valid business types are accepted.
+     * Tests that only valid business types are valid.
      */
     @Test
-    @Order(2)
-    public void testBusinessTypes() {
-        assertTrue(BusinessType.checkType("Accommodation and Food Services"));
-        assertTrue(BusinessType.checkType("Retail Trade"));
-        assertTrue(BusinessType.checkType("Charitable organisation"));
-        assertTrue(BusinessType.checkType("Non-profit organisation"));
-        assertFalse(BusinessType.checkType("Fake business type"));
+    void testBusinessTypes() {
+        Assertions.assertTrue(BusinessType.checkType("Accommodation and Food Services"));
+        Assertions.assertTrue(BusinessType.checkType("Retail Trade"));
+        Assertions.assertTrue(BusinessType.checkType("Charitable organisation"));
+        Assertions.assertTrue(BusinessType.checkType("Non-profit organisation"));
+        Assertions.assertFalse(BusinessType.checkType("Fake business type"));
     }
 
     /**
-     * Test to save Business to repository and then retrieve
+     * Tests that userIsAdmin method returns false when given ID of user who is not an admin.
      */
     @Test
-    @Order(3)
-    public void testBusinessRepository() {
-        Address testAddress = new Address("5", "Lab Test Ave", "Christchurch", null, "New Zealand", null);
-        Business testBusiness = new Business("Test Business", "This business is a test.", testAddress,
-                "Retail Trade", 1);
-        addressRepository.save(testAddress);
-        businessRepository.save(testBusiness);
-        Business retrievedBusiness = businessRepository.findByName("Test Business").get(0);
-
-        assertNotNull(retrievedBusiness.getId());
-        assertEquals("Test Business", retrievedBusiness.getName());
-        assertEquals("This business is a test.", retrievedBusiness.getDescription());
-        assertEquals(testAddress, retrievedBusiness.getAddress());
-        assertEquals("Retail Trade", retrievedBusiness.getBusinessType());
-        assertEquals(1, retrievedBusiness.getPrimaryAdministratorId());
-        //TODO: the below line sometimes fails
-        assertTrue(retrievedBusiness.getCreated().isBefore(LocalDateTime.now()));
-        assertTrue(retrievedBusiness.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-        assertTrue(BusinessType.checkType(retrievedBusiness.getBusinessType()));
+    void userIsAdmin_withNotAdmin_false() {
+        Assertions.assertFalse(testBusiness.userIsAdmin(testUser.getId()));
     }
 
     /**
-     * Tests adding a User to Business admin list
+     * Tests that userIsAdmin method returns true when given ID of user who is a business admin.
      */
     @Test
-    @Order(4)
-    public void testUserBusinessRelation() {
-        Business testBusiness = businessRepository.findByName("Test Business").get(0);
-        Address testUserAddress = new Address(null, null, null, null, "New Zealand", null);
-        User testUser = new User("John", "Smith", "Josh", "Jonny",
-                "Likes long walks on the beach", "jonnyj99@gmail.com",
-                "1999-04-27", "+64 3 555 0129", testUserAddress,
-                "1337-H%nt3r2");
-        addressRepository.save(testUserAddress);
-        userRepository.save(testUser);
-
-        assertEquals(0, testBusiness.getAdministrators().size());
-        assertEquals(0, testUser.getBusinessesAdministered().size());
-
-        testUser = userRepository.findByEmail("jonnyj99@gmail.com").get(0);
-        testBusiness = businessRepository.findByName("Test Business").get(0);
-
-        testBusiness.addAdministrator(testUser);
-        businessRepository.save(testBusiness);
-
-        User retrievedUser = userRepository.findByEmail("jonnyj99@gmail.com").get(0);
-        Business retrievedBusiness = businessRepository.findByName("Test Business").get(0);
-
-        assertEquals(1, retrievedBusiness.getAdministrators().size());
-        assertEquals(1, retrievedUser.getBusinessesAdministered().size());
-        assertTrue(retrievedBusiness.userIsAdmin(retrievedUser.getId()));
-        assertTrue(retrievedUser.businessIsAdministered(retrievedBusiness.getId()));
-        assertEquals("John", retrievedBusiness.getAdministrators().get(0).getFirstName());
-        assertEquals("Test Business", retrievedUser.getBusinessesAdministered().get(0).getName());
+    void userIsAdmin_withBusinessAdmin_true() {
+        Assertions.assertTrue(testBusiness.userIsAdmin(testUserBusinessAdmin.getId()));
     }
 
+    /**
+     * Tests that userCanDoAction method returns false when given a user who is not a GAA or business admin.
+     */
+    @Test
+    void testUserCanDoAction_withNotAdmin_false() {
+        Assertions.assertFalse(testBusiness.userCanDoAction(testUser));
+    }
+
+    /**
+     * Tests that userCanDoAction method returns true when given a business admin.
+     */
+    @Test
+    void testUserCanDoAction_withBusinessAdmin_true() {
+        Assertions.assertTrue(testBusiness.userCanDoAction(testUserBusinessAdmin));
+    }
+
+    /**
+     * Tests that userCanDoAction method returns true when given a GAA.
+     */
+    @Test
+    void testUserCanDoAction_withSystemAdmin_true() {
+        Assertions.assertTrue(testBusiness.userCanDoAction(testSystemAdmin));
+    }
 }

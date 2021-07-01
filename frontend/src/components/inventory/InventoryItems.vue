@@ -84,7 +84,7 @@
             <td>{{ item.product.id }}</td>
             <td>
               <img alt="productImage" class="ui-icon-image"
-                   src="@/../../media/defaults/defaultProduct_thumbnail.jpg">
+                   :src="getImageURL('/media/defaults/defaultProduct_thumbnail.jpg')">
             </td>
             <td>
               <span v-if="!selectingItem">{{ item.quantity }}</span>
@@ -152,11 +152,11 @@
                   <div class="carousel-inner">
                     <!--   Image 1   -->
                     <div class="carousel-item active">
-                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProduct2.jpg" alt="ProductImage">
+                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL('/media/defaults/defaultProduct2.jpg')" alt="ProductImage">
                     </div>
                     <!--   Image 2   -->
                     <div class="carousel-item">
-                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProduct3.jpg" alt="ProductImage">
+                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL('/media/defaults/defaultProduct3.jpg')" alt="ProductImage">
                     </div>
                   </div>
                   <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
@@ -182,7 +182,7 @@
 <script>
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
-import {Business} from "@/Api";
+import {Business, Images} from "@/Api";
 
 export default {
   name: "InventoryItems",
@@ -285,6 +285,12 @@ export default {
     }
   },
   methods: {
+    /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
+    },
     /**
      * Updates order direction
      * @param col column to be ordered
