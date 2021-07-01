@@ -65,7 +65,7 @@ Page for displaying the marketplace.
       <div class="row form justify-content-center">
         <div class="col form-group text-center">
           <!-- Combobox and label for ordering -->
-          <label class="d-inline-block option-label" for="order-select">Order By</label>
+          <label class="d-inline-block" for="order-select">Order By</label>
           <select id="order-select"
                   v-model="order"
                   class="form-control ml-2 d-inline-block w-auto">
@@ -90,7 +90,6 @@ Page for displaying the marketplace.
         <!-- Combobox for filtering by keyword -->
         <div class="col form-group text-center">
           <!-- Collapsible because there will be a lot of keywords -->
-          <label class="d-inline-block option-label" for="order-select"></label>
           <div id="keywords" class="collapse">
             <label
                 v-for="keyword in keywordOptions"
@@ -468,9 +467,6 @@ export default {
 }
 .row {
   margin-bottom: 20px;
-}
-.option-label {
-  font-size: 18px;
 }
 .keyword {
   font-size: 16px;
