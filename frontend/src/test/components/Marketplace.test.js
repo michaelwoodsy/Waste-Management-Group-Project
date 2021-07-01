@@ -247,3 +247,61 @@ describe('Pagination, ordering and deletion tests', () => {
 
 })
 
+/**
+ * Tests for the keyword checkboxes
+ */
+describe('Tests selection of keywords', () => {
+
+    beforeEach(async () => {
+        wrapper = await shallowMount(Marketplace, {
+            computed: {
+                isLoggedIn() {
+                    return true
+                },
+                actingAsUser() {
+                    return true
+                }
+            }
+        })
+        wrapper.vm.$data.error = ""
+        wrapper.vm.$data.isLoggedIn = true
+        wrapper.vm.$data.keywords = [
+            {
+                id: 1,
+                name: "Fruit"
+            },
+            {
+                id: 2,
+                name: "Apples"
+            },
+            {
+                id: 3,
+                name: "Bananas"
+            },
+        ]
+    });
+
+    test("Tests that keyword.selected is undefined before any checkbox interaction", () => {
+        expect(wrapper.vm.$data.keywords[0].selected).toBe(undefined)
+        expect(wrapper.vm.$data.keywords[1].selected).toBe(undefined)
+        expect(wrapper.vm.$data.keywords[2].selected).toBe(undefined)
+    })
+
+    test("Tests that selecting one keyword sets keyword.selected to true and leaves the others unaffected", () => {
+
+        wrapper.vm.setKeywordSelect(wrapper.vm.$data.keywords[0])
+
+        expect(wrapper.vm.$data.keywords[0].selected).toBe(true)
+        expect(wrapper.vm.$data.keywords[1].selected).toBe(undefined)
+        expect(wrapper.vm.$data.keywords[2].selected).toBe(undefined)
+    })
+
+    test("Tests that selecting then deselecting one keyword sets the keyword.selected to false ", () => {
+        wrapper.vm.setKeywordSelect(wrapper.vm.$data.keywords[0])
+        wrapper.vm.setKeywordSelect(wrapper.vm.$data.keywords[0])
+
+        expect(wrapper.vm.$data.keywords[1].selected).toBe(false)
+    })
+
+});
+

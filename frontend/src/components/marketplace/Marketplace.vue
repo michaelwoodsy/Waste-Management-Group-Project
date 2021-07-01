@@ -97,7 +97,7 @@ Page for displaying the marketplace.
               :key="keyword.id"
               class="ml-2 keyword"
           >
-            <input type="checkbox" :id="keyword.id" />
+            <input type="checkbox" :id="keyword.id" @click="setKeywordSelect(keyword)" />
             {{keyword.name}}
           </label>
           <br>
@@ -362,6 +362,15 @@ export default {
           name: "Potatoes"
         }
       ]
+    },
+    /**
+     * Toggles whether a keyword is selected to be filtered by
+     */
+    //TODO: change this to add/remove keywords to/from selectedKeywords list
+        //Means that we only have to check selectedKeywords list instead of whole keywords list when making API call
+    setKeywordSelect(keyword) {
+      //keyword.selected is either undefined, true or false
+      keyword.selected = !(keyword.selected != null && keyword.selected === true);
     }
   }
 }
