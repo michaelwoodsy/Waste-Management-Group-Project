@@ -59,7 +59,7 @@
                style="margin-bottom: 2px"
                autocomplete="off"
                data-toggle="dropdown"
-               @input="filterKeywords"
+               @input="searchKeywords"
                @keyup.space="addKeyword"/>
         <!-- Autocomplete dropdown -->
         <div class="dropdown-menu overflow-auto" id="dropdown">
@@ -113,6 +113,7 @@
 
 <script>
 import Alert from "@/components/Alert";
+import {Keyword} from "@/Api";
 
 export default {
   name: "CreateCardPage",
@@ -137,43 +138,6 @@ export default {
       submit: false,
       keywordValue: '',
       keywords: [],
-      testKeywords: [
-        {
-          id: 1,
-          name: 'Fun',
-          created: '2021-07-15T05:10:00Z'
-        },
-        {
-          id: 2,
-          name: 'Party',
-          created: '2021-07-15T05:10:00Z'
-        },
-        {
-          id: 3,
-          name: 'Cars',
-          created: '2021-07-15T05:10:00Z'
-        },
-        {
-          id: 4,
-          name: 'Fortnite',
-          created: '2021-07-15T05:10:00Z'
-        },
-        {
-          id: 5,
-          name: 'Bananas',
-          created: '2021-07-15T05:10:00Z'
-        },
-        {
-          id: 6,
-          name: 'Apples',
-          created: '2021-07-15T05:10:00Z'
-        },
-        {
-          id: 7,
-          name: 'Donuts',
-          created: '2021-07-15T05:10:00Z'
-        }
-      ],
       filteredKeywords: []
     };
   },
@@ -261,10 +225,14 @@ export default {
     */
     addKeyword() {
       this.keywordValue = this.keywordValue.trim()
-      if(!(this.keywordValue === '' || this.keywordValue === ' ') && !this.keywords.includes(this.keywordValue)) {
-        this.keywords.push(this.keywordValue);
+      if((this.keywordValue === '' || this.keywordValue === ' ')
+          || this.keywords.includes(this.keywordValue)) {
+        this.keywordValue = '';
       }
-      this.keywordValue = '';
+      if (this.keywordValue.length > 2) {
+        this.keywords.push(this.keywordValue);
+        this.keywordValue = '';
+      }
     },
 
     /**
@@ -278,10 +246,18 @@ export default {
     /**
      * Filters autocomplete options based on the user's input for a keyword.
      */
-    filterKeywords() {
-      if (this.keywordValue.length > 0) {
-        this.filteredKeywords = this.testKeywords.filter(keywordValue => {
-          return keywordValue.name.toLowerCase().startsWith(this.keywordValue.toLowerCase())
+    async searchKeywords() {
+      if (this.keywordValue.length > 2) {
+        await Keyword.searchKeywords(this.keywordValue)
+        .then((response) => {
+          this.filteredKeywords = response.data;
+          console.log(this.filteredKeywords);
+        })
+        .catch((err) => {
+          this.msg.errorChecks = err.response
+              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+              : err
+
         })
       } else {
         this.filteredKeywords = []

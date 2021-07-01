@@ -213,6 +213,15 @@ export const Card = {
     getCard: (cardId) => instance.get(`cards/${cardId}`, {})
 };
 
+export const Keyword = {
+
+    /**
+     * Searches keywords for matches to a partial keyword
+     * @param partialKeyword the string to search by
+     */
+    searchKeywords: (partialKeyword) => instance.get(`keywords/search`, {params: {'searchQuery': partialKeyword}})
+}
+
 export const Images = {
     /**
      * Retrieves the image at the path.

@@ -760,5 +760,22 @@
       "description": "Have been given a lot of oranges and looking for something else, there's only so many oranges a man can eat",
       "keywords": "food, fruit"
     }
+  ],
+  "keywords": [
+    {
+      "name": "Apples"
+    },
+    {
+      "name": "Bananas"
+    },
+    {
+      "name": "Pineapples"
+    },
+    {
+      "name": "Fruit"
+    },
+    {
+      "name": "Vegetables"
+    }
   ]
 }
