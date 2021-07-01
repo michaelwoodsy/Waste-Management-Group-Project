@@ -13,7 +13,6 @@ import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.repositoryLayer.specification.BusinessSpecifications;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
@@ -35,6 +34,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
