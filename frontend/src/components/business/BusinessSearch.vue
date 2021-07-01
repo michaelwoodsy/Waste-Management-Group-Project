@@ -117,7 +117,7 @@ export default {
   },
   methods: {
     /**
-     * This is the search logic, has two different calls that can be made. With and without businessType
+     * This is the search logic, that handles a call with or without businessType
      */
     search() {
       this.loading = true;
