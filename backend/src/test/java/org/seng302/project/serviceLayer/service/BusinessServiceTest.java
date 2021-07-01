@@ -27,11 +27,14 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
@@ -332,7 +335,7 @@ class BusinessServiceTest {
     /**
      * Random user tries to remove
      * from administrating the business
-     * <p>
+     *
      * Expect a ForbiddenPrimaryAdministratorActionException
      */
     @Test
@@ -357,7 +360,8 @@ class BusinessServiceTest {
      */
     @Test
     void searchBusiness_exactNameMatch() {
-        given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness));
+        given(businessRepository.findAll(any(Specification.class)))
+                .willReturn(List.of(testBusiness));
 
         SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(), null);
 
@@ -376,7 +380,8 @@ class BusinessServiceTest {
         Business otherBusiness = new Business(testBusiness.getName(), "A one-stop shop for all your adventuring needs",
                 null, "Retail Trade", 1);
 
-        given(businessRepository.findByName(testBusiness.getName())).willReturn(List.of(testBusiness, otherBusiness));
+        given(businessRepository.findAll(any(Specification.class)))
+                .willReturn(List.of(testBusiness, otherBusiness));
 
         SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(),
                 BusinessType.getType(testBusiness.getBusinessType())); //"Accommodation and Food Services"
