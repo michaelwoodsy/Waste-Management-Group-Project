@@ -192,20 +192,39 @@ export default {
     },
 
     /**
+     * Gets the keyword IDs for the keywords of a card.
+     * Creates a new keyword if one doesn't exist.
+     */
+    async getKeywordIds() {
+      const keywordIds = []
+      for (const keyword of this.keywords) {
+        const response = await Keyword.searchKeywords(keyword)
+        if (response.data.length === 0) {
+          const keywordId = (await Keyword.createKeyword(keyword)).data['keywordId']
+          keywordIds.push(keywordId)
+        } else {
+          for (const result of response.data) {
+            if (result['name'] === keyword) {
+              keywordIds.push(result['id'])
+            }
+          }
+        }
+      }
+      return keywordIds
+    },
+
+    /**
      * Add a new card to the marketplace
      */
-    addCard() {
-      //TODO: for each keyword in keywords, call API search to see if keyword exist on backend.
-      //TODO: If keyword doesn't exist on backend, make call to create it
-
-      //TODO: add keyword ids to this call
+    async addCard() {
+      const keywordIds = await this.getKeywordIds()
       this.$root.$data.user.createCard(
           {
             "creatorId": this.$root.$data.user.state.actingAs.id,
             "section": this.section,
             "title": this.title,
             "description": this.description,
-            "keywords": this.keywords
+            "keywords": keywordIds
           }
       ).then(() => {
         this.$refs.close.click();
