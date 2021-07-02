@@ -6,9 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,7 +22,7 @@ public class Card {
     private String section;
     private String title;
     private String description;
-    private List<Keyword> keywords = new ArrayList<>();
+    private Set<Keyword> keywords = new HashSet<>();
     private LocalDateTime created = LocalDateTime.now();
     private LocalDateTime displayPeriodEnd = created.plusWeeks(2); // Display period is currently set at 2 weeks in Backlog
 
@@ -36,7 +34,7 @@ public class Card {
      * @param title                       Title of the card.
      * @param description                 Description of the card.
      */
-    public Card(User creator, String section, String title, String description, List<Keyword> keywords) {
+    public Card(User creator, String section, String title, String description, Set<Keyword> keywords) {
         this.creator = creator;
         this.section = section;
         this.title = title;
@@ -70,17 +68,9 @@ public class Card {
             inverseJoinColumns = @JoinColumn(name = "keyword_id")
     )
     public Set<Keyword> getKeywords() {
-        return new HashSet(this.keywords);
+        return this.keywords;
     }
 
-    /**
-     * A setter for keywords required for keywords
-     * to stop the above getter from having an error
-     * @param keywords a Set of keywords
-     */
-    public void setKeywords(Set<Keyword> keywords) {
-        this.keywords = new ArrayList(keywords);
-    }
 
     /**
      * Checks if a user has permission to edit the card

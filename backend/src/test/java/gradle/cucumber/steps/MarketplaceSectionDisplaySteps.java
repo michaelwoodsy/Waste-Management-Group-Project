@@ -46,7 +46,7 @@ public class MarketplaceSectionDisplaySteps {
                 "Likes long walks on the beach", "testEmail@email.com", "1999-04-27",
                 "+64 3 555 0129", null, "Password123");
         userRepository.save(user);
-        Card newCard = new Card(user, section, title, description, Collections.emptyList());
+        Card newCard = new Card(user, section, title, description, Collections.emptySet());
         cardRepository.save(newCard);
         cardId = newCard.getId();
     }

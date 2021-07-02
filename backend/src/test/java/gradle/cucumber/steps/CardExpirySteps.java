@@ -114,7 +114,8 @@ public class CardExpirySteps {
 
     @Given("A user has created a card")
     public void a_user_has_created_a_card() {
-        testCard = new Card(cardCreator, "ForSale", "Beetle Juice", "Beetle juice from Bob", Collections.emptyList());
+        testCard = new Card(cardCreator, "ForSale", "Beetle Juice", "Beetle juice from Bob",
+                Collections.emptySet());
         testCardId = cardRepository.save(testCard).getId();
     }
 

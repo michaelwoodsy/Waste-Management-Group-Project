@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -26,10 +27,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,7 +40,6 @@ public class CardCreationSteps {
     private User testUser;
     private Card testCard;
     private CreateCardDTO createCardDTO;
-    private List<Keyword> savedKeywords = new ArrayList<>();
 
     private String testUserEmail;
     private String testUserPassword;
@@ -51,6 +48,7 @@ public class CardCreationSteps {
     private String testCardSection;
     private Address testAddress;
     private MockMvc mockMvc;
+    List<String> keywordNames;
 
     private ResultActions reqResult;
 
@@ -61,16 +59,20 @@ public class CardCreationSteps {
     private final CardRepository cardRepository;
     private final ObjectMapper objectMapper;
 
+    private final KeywordRepository keywordRepository;
+
     @Autowired
     public CardCreationSteps(UserRepository userRepository,
                              BCryptPasswordEncoder passwordEncoder,
                              AddressRepository addressRepository,
                              CardRepository cardRepository,
+                             KeywordRepository keywordRepository,
                              ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.addressRepository = addressRepository;
         this.cardRepository = cardRepository;
+        this.keywordRepository = keywordRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -124,12 +126,10 @@ public class CardCreationSteps {
 
     @When("A user creates a card to be displayed in the {string} section")
     public void a_user_creates_a_card_to_be_displayed_in_the_section(String section) throws Exception {
-        createCardDTO = new CreateCardDTO(testUserId, section, "1982 Lada Samara", "description", Collections.emptyList());
 
-        System.out.println(testUserId);
-        System.out.println(testUser.getId());
+        createCardDTO = new CreateCardDTO(testUserId, section, "1982 Lada Samara", "Beige, suitable for a hen house. " +
+                "Fair condition. Some rust. As is, where is. Will swap for budgerigar.", Collections.emptyList());
 
-        // Make the actual request
         reqResult = mockMvc.perform(MockMvcRequestBuilders
                 .post("/cards")
                 .content(objectMapper.writeValueAsString(createCardDTO))
@@ -141,7 +141,6 @@ public class CardCreationSteps {
     @Then("The card is successfully created")
     public void the_card_is_successfully_created() throws Exception {
         MvcResult result = reqResult
-                .andExpect(status().isCreated())
                 .andReturn();
 
         JSONObject jsonObject = new JSONObject(result.getResponse().getContentAsString());
@@ -232,14 +231,20 @@ public class CardCreationSteps {
     //AC5
 
     @When("A user creates a card with keywords: {string}, {string}, {string}, and {string}")
-    public void a_user_creates_a_card_with_keywords_and(String keyword1, String keyword2, String keyword3,
-                                                        String keyword4) throws Exception {
-        createCardDTO = new CreateCardDTO(testUserId,
-                "ForSale",
-                "1982 Lada Samara",
-                "description",
-                Collections.emptyList());
-        // TODO: Fix test to use given keywords
+    public void a_user_creates_a_card_with_keywords_and(String keywordName1, String keywordName2, String keywordName3,
+                                                        String keywordName4) throws Exception {
+        keywordNames = List.of(keywordName1, keywordName2, keywordName3, keywordName4);
+
+        Integer keywordId1 = keywordRepository.save(new Keyword(keywordName1)).getId();
+        Integer keywordId2 = keywordRepository.save(new Keyword(keywordName2)).getId();
+        Integer keywordId3 = keywordRepository.save(new Keyword(keywordName3)).getId();
+        Integer keywordId4 = keywordRepository.save(new Keyword(keywordName4)).getId();
+
+        createCardDTO = new CreateCardDTO(testUserId, "ForSale", "1982 Lada Samara",
+                "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. " +
+                        "Will swap for budgerigar.",
+                List.of(keywordId1, keywordId2, keywordId3, keywordId4));
+
         reqResult = mockMvc.perform(MockMvcRequestBuilders
                 .post("/cards")
                 .content(objectMapper.writeValueAsString(createCardDTO))
@@ -260,9 +265,14 @@ public class CardCreationSteps {
         Optional<Card> retrievedCard = cardRepository.findById(testCardId);
         Assertions.assertTrue(retrievedCard.isPresent());
 
-        List<Keyword> retrievedKeywords = new ArrayList(retrievedCard.get().getKeywords());
-        //TODO: fix this
-        Assertions.assertEquals(retrievedKeywords.get(0).getName(), savedKeywords);
+        Set<Keyword> retrievedKeywords = retrievedCard.get().getKeywords();
+        List<String> retrievedKeywordNames = new ArrayList<>();
+        retrievedKeywords.forEach(keyword -> retrievedKeywordNames.add(keyword.getName()));
+
+        Assertions.assertTrue(retrievedKeywordNames.contains(keywordNames.get(0)));
+        Assertions.assertTrue(retrievedKeywordNames.contains(keywordNames.get(1)));
+        Assertions.assertTrue(retrievedKeywordNames.contains(keywordNames.get(2)));
+        Assertions.assertTrue(retrievedKeywordNames.contains(keywordNames.get(3)));
     }
 
     //AC6

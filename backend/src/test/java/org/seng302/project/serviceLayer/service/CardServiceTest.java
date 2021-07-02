@@ -58,12 +58,14 @@ class CardServiceTest extends AbstractInitializer {
 
         // Create mock cards
         // Card 1
-        testUsersCard1 = new Card(testUser, "ForSale", "Test Card", "Test card description", Collections.emptyList());
+        testUsersCard1 = new Card(testUser, "ForSale", "Test Card", "Test card description",
+                Collections.emptySet());
         testUsersCard1.setId(1);
         given(cardRepository.findById(testUsersCard1.getId())).willReturn(Optional.of(testUsersCard1));
 
         // Card 2
-        testUsersCard2 = new Card(testUser, "Wanted", "Test Card 2", "Test card 2 description", Collections.emptyList());
+        testUsersCard2 = new Card(testUser, "Wanted", "Test Card 2", "Test card 2 description",
+                Collections.emptySet());
         testUsersCard2.setId(2);
         given(cardRepository.findById(testUsersCard2.getId())).willReturn(Optional.of(testUsersCard2));
 
@@ -94,7 +96,7 @@ class CardServiceTest extends AbstractInitializer {
     void getAllCardsByUser_allCardsReturned() {
         // Create, and mock, an expired card
         Card expiredCard = new Card(testUser, "Wanted", "Test Card 2", "Test card 2 description",
-                Collections.emptyList());
+                Collections.emptySet());
         expiredCard.setId(4);
         LocalDateTime timeInPast = LocalDateTime.now().minus(2, ChronoUnit.HOURS);
         expiredCard.setDisplayPeriodEnd(timeInPast);

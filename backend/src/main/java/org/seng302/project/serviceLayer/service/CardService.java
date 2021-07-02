@@ -22,9 +22,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Service class with methods for handling community marketplace cards.
@@ -74,7 +72,11 @@ public class CardService {
                 throw noUserExistsException;
             }
 
-            List<Keyword> keywords = keywordRepository.findAllById(dto.getKeywordIds());
+
+            Set<Keyword> keywords = Collections.emptySet();
+            if (dto.getKeywordIds() != null) {
+                keywords = new HashSet<>(keywordRepository.findAllById(dto.getKeywordIds()));
+            }
 
             var newCard = new Card(creator.get(), dto.getSection(), dto.getTitle(), dto.getDescription(), keywords);
             Integer cardId = cardRepository.save(newCard).getId();
