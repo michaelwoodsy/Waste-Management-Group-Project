@@ -35,12 +35,13 @@ public class TestDataRunner {
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
     private final CardRepository cardRepository;
+    private final ImageRepository imageRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public TestDataRunner(UserRepository userRepository, BusinessRepository businessRepository, AddressRepository addressRepository,
                           ProductRepository productRepository, InventoryItemRepository inventoryItemRepository,
-                          SaleListingRepository saleListingRepository, CardRepository cardRepository,
+                          SaleListingRepository saleListingRepository, CardRepository cardRepository, ImageRepository imageRepository,
                           BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
@@ -49,6 +50,7 @@ public class TestDataRunner {
         this.addressRepository = addressRepository;
         this.saleListingRepository = saleListingRepository;
         this.cardRepository = cardRepository;
+        this.imageRepository = imageRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -71,6 +73,10 @@ public class TestDataRunner {
         // Insert test product data.
         if (productRepository.count() == 0) {
             insertTestProducts((JSONArray) data.get("products"));
+        }
+        // Insert test product image data.
+        if (imageRepository.count() == 0) {
+            insertTestProductImages((JSONArray) data.get("productImages"));
         }
         // Insert test inventoryItem data.
         if (inventoryItemRepository.count() == 0) {
@@ -190,6 +196,35 @@ public class TestDataRunner {
         logger.info("Finished adding sample data to product repository");
         logger.info(String.format("Added %d entries to product repository", productRepository.count()));
     }
+
+    /**
+     * Inserts test product images to the database.
+     *
+     * @param productImageData JSONArray of product Image data.
+     */
+    public void insertTestProductImages(JSONArray productImageData) {
+        logger.info("Adding sample data to product images repository");
+        for (Object object : productImageData) {
+            JSONObject jsonProductImage = (JSONObject) object;
+
+
+            Optional<Product> testProductOptions = productRepository.findByIdAndBusinessId(
+                    jsonProductImage.getAsString("productId"),1);
+            if (testProductOptions.isPresent()) {
+                Product testProduct = testProductOptions.get();
+                Image testImage = new Image(
+                        jsonProductImage.getAsString("filename"), jsonProductImage.getAsString("thumbnailFilename")
+                );
+                imageRepository.save(testImage);
+                testProduct.addImage(testImage);
+                productRepository.save(testProduct);
+            }
+
+        }
+        logger.info("Finished adding sample data to product image repository");
+        logger.info(String.format("Added %d entries to product image repository", imageRepository.count()));
+    }
+
 
     /**
      * Inserts test inventory item data to the database.

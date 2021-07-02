@@ -574,6 +574,44 @@
       "businessId": 3
     }
   ],
+  "productImages": [
+    {
+      "productId": "BANANA",
+      "businessId": "",
+      "filename": "/media/BananaMuffins1.jpg",
+      "thumbnailFilename": "/media/BananaMuffins1_thumbnail.jpg"
+    },
+    {
+      "productId": "BANANA",
+      "filename": "/media/BananaMuffins2.jpg",
+      "thumbnailFilename": "/media/BananaMuffins2_thumbnail.jpg"
+    },
+    {
+      "productId": "BANANA",
+      "filename": "/media/BananaMuffins3.jpg",
+      "thumbnailFilename": "/media/BananaMuffins3_thumbnail.jpg"
+    },
+    {
+      "productId": "CHOC-CHIP",
+      "filename": "/media/ChocMuffins1.jpg",
+      "thumbnailFilename": "/media/ChocMuffins1_thumbnail.jpg"
+    },
+    {
+      "productId": "CHOC-CHIP",
+      "filename": "/media/ChocMuffins2.jpg",
+      "thumbnailFilename": "/media/ChocMuffins2_thumbnail.jpg"
+    },
+    {
+      "productId": "CHOC-CHIP",
+      "filename": "/media/ChocMuffins3.jpg",
+      "thumbnailFilename": "/media/ChocMuffins3_thumbnail.jpg"
+    },
+    {
+      "productId": "CHOC-CHIP",
+      "filename": "/media/ChocMuffins4.jpg",
+      "thumbnailFilename": "/media/ChocMuffins4_thumbnail.jpg"
+    }
+  ],
   "inventoryItems": [
     {
       "productId": "CHOC-CHIP",
