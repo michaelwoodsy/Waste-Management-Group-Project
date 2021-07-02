@@ -1,10 +1,13 @@
 package org.seng302.project.repositoryLayer.model;
 
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Card class for storing created marketplace cards.
@@ -19,7 +22,8 @@ public class Card {
     private String section;
     private String title;
     private String description;
-    private String keywords;
+    private List<Keyword> keywords = new ArrayList<>();
+    //TODO: keywordIds list
     private LocalDateTime created = LocalDateTime.now();
     private LocalDateTime displayPeriodEnd = created.plusWeeks(2); // Display period is currently set at 2 weeks in Backlog
 
@@ -31,7 +35,7 @@ public class Card {
      * @param title                       Title of the card.
      * @param description                 Description of the card.
      */
-    public Card(User creator, String section, String title, String description, String keywords) {
+    public Card(User creator, String section, String title, String description, List<Keyword> keywords) {
         this.creator = creator;
         this.section = section;
         this.title = title;
@@ -57,5 +61,16 @@ public class Card {
     @JoinColumn(name = "user_id")
     public User getCreator() {
         return this.creator;
+    }
+
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "card_has_keyword",
+            joinColumns = @JoinColumn(name = "card_id"),
+            inverseJoinColumns = @JoinColumn(name = "keyword_id")
+    )
+    public List<Keyword> getKeywords() {
+        return this.keywords;
     }
 }

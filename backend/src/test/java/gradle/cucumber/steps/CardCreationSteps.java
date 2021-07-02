@@ -5,6 +5,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -143,7 +145,10 @@ public class CardCreationSteps {
 
         JSONObject jsonObject = new JSONObject(result.getResponse().getContentAsString());
         Integer testCardId = jsonObject.getInt("cardId");
-        Integer retrievedCardId = cardRepository.findById(testCardId).get().getId();
+        Optional<Card> retrievedCard = cardRepository.findById(testCardId);
+        Assertions.assertTrue(retrievedCard.isPresent());
+
+        Integer retrievedCardId = retrievedCard.get().getId();
         Assertions.assertEquals(testCardId, retrievedCardId);
 
     }
@@ -152,7 +157,7 @@ public class CardCreationSteps {
     @Given("A card exists")
     public void a_card_exists() {
         a_user_exists();
-        testCard = new Card(testUser, "ForSale", "Beetle Juice", "Beetle juice from Bob", "");
+        testCard = new Card(testUser, "ForSale", "Beetle Juice", "Beetle juice from Bob", null);
         testCardId = cardRepository.save(testCard).getId();
     }
 
@@ -227,12 +232,14 @@ public class CardCreationSteps {
 
     @When("A user creates a card with keywords: {string}, {string}, {string}, and {string}")
     public void a_user_creates_a_card_with_keywords_and(String string, String string2, String string3, String string4) throws Exception {
+        //TODO: change this to list of keywordIds
         String keywords = string + string2 + string3 + string4;
         savedKeyword = keywords;
         testCardJson.put("creatorId", testUserId);
         testCardJson.put("section", "ForSale");
         testCardJson.put("title", "1982 Lada Samara");
-        testCardJson.put("keywords", keywords);
+
+        testCardJson.put("keywordIds", keywords);
         testCardJson.put("description",
                 "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
 
@@ -254,8 +261,11 @@ public class CardCreationSteps {
         JSONObject jsonObject = new JSONObject(result.getResponse().getContentAsString());
         Integer testCardId = jsonObject.getInt("cardId");
 
-        String retrievedKeywords = cardRepository.findById(testCardId).get().getKeywords();
-        Assertions.assertEquals(retrievedKeywords, savedKeyword);
+        Optional<Card> retrievedCard = cardRepository.findById(testCardId);
+        Assertions.assertTrue(retrievedCard.isPresent());
+
+        List<Keyword> retrievedKeywords = retrievedCard.get().getKeywords();
+        Assertions.assertEquals(retrievedKeywords.get(0).getName(), savedKeyword);
     }
 
     //AC6
@@ -263,7 +273,7 @@ public class CardCreationSteps {
     public void a_card_exists_in_the_section(String string) {
         testCardSection = string;
         a_user_exists();
-        testCard = new Card(testUser, testCardSection, "Beetle Juice", "Beetle juice from Bob", "");
+        testCard = new Card(testUser, testCardSection, "Beetle Juice", "Beetle juice from Bob", null);
         testCardId = cardRepository.save(testCard).getId();
     }
 
