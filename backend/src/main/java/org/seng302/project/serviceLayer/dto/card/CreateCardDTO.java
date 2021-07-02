@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.seng302.project.serviceLayer.dto.validators.ValidMarketplaceSection;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -16,11 +17,13 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateCardDTO {
 
-    @NotEmpty
+    @NotNull
     private Integer creatorId;
+
     @NotEmpty
     @ValidMarketplaceSection
     private String section;
+
     @NotEmpty
     private String title;
     private String description;

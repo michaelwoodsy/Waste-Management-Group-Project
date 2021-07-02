@@ -7,6 +7,9 @@ public class ValidMarketplaceSectionValidator implements ConstraintValidator<Val
 
     @Override
     public boolean isValid(String section, ConstraintValidatorContext context) {
+        if (section == null) {
+            return false;
+        }
         return section.equals("ForSale") || section.equals("Wanted") || section.equals("Exchange");
     }
 

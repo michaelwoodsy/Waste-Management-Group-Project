@@ -58,6 +58,11 @@ public class Card {
     }
 
 
+    /**
+     * This returns a SET (not a List) of the card's keywords
+     * It returns a Set because returning a List results in a MultipleBagFetchException
+     * @return a Set of the card's keywords
+     */
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "card_has_keyword",
@@ -66,6 +71,15 @@ public class Card {
     )
     public Set<Keyword> getKeywords() {
         return new HashSet(this.keywords);
+    }
+
+    /**
+     * A setter for keywords required for keywords
+     * to stop the above getter from having an error
+     * @param keywords a Set of keywords
+     */
+    public void setKeywords(Set<Keyword> keywords) {
+        this.keywords = new ArrayList(keywords);
     }
 
     /**
