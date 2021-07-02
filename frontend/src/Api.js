@@ -108,6 +108,15 @@ export const Business = {
         businessType
     }),
 
+    /**
+     * Get back all businesses with a certain search term and business type
+     * @param searchTerm Criteria to search businesses for, e.g: businesses full name or part of a name
+     * @param businessSearchType Criteria to limit the search for only businesses with this type
+     * @returns {Promise<AxiosResponse<any>>} Response from request
+     */
+    getBusinesses: (searchTerm, businessSearchType) => instance.get('businesses/search', {params: {'searchQuery': searchTerm,
+        'businessType': businessSearchType}}),
+
     /*
      * Retrieves the data for a given business
      */
@@ -212,6 +221,15 @@ export const Card = {
      */
     getCard: (cardId) => instance.get(`cards/${cardId}`, {})
 };
+
+export const Keyword = {
+
+    /**
+     * Searches keywords for matches to a partial keyword
+     * @param partialKeyword the string to search by
+     */
+    searchKeywords: (partialKeyword) => instance.get(`keywords/search`, {params: {'searchQuery': partialKeyword}})
+}
 
 export const Images = {
     /**
