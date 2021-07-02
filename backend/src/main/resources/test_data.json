@@ -730,35 +730,35 @@
       "section": "ForSale",
       "title": "5 Bunches of Bananas",
       "description": "Just really need to get rid of lots of bananas",
-      "keywords": "food, fruit"
+      "keywords": [1, 2]
     },
     {
       "creatorId": 1,
       "section": "Wanted",
       "title": "Looking for plums",
       "description": "Wanting to make a plum cake but need more plums",
-      "keywords": "food, fruit"
+      "keywords": [1, 2]
     },
     {
       "creatorId": 1,
       "section": "Wanted",
       "title": "MotorCycle Tire",
       "description": "Got a hole in my tire, need a cheap used one",
-      "keywords": "vehicle, motorbike-parts"
+      "keywords": [3, 4]
     },
     {
       "creatorId": 1,
       "section": "Exchange",
       "title": "Apples for Oranges",
       "description": "Have a lot of apples I don't want, could do with some oranges though",
-      "keywords": "food, fruit"
+      "keywords": [1, 2]
     },
     {
       "creatorId": 1,
       "section": "Exchange",
       "title": "Oranges for other fruit",
       "description": "Have been given a lot of oranges and looking for something else, there's only so many oranges a man can eat",
-      "keywords": "food, fruit"
+      "keywords": [1, 2]
     }
   ],
   "keywords": [

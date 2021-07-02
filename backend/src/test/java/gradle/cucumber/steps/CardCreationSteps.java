@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +39,7 @@ public class CardCreationSteps {
     private User testUser;
     private Card testCard;
     private JSONObject testCardJson = new JSONObject();
-    private String savedKeyword;
+    private List<Keyword> savedKeywords = new ArrayList<>();
 
     private String testUserEmail;
     private String testUserPassword;
@@ -231,14 +232,13 @@ public class CardCreationSteps {
     //AC5
 
     @When("A user creates a card with keywords: {string}, {string}, {string}, and {string}")
-    public void a_user_creates_a_card_with_keywords_and(String string, String string2, String string3, String string4) throws Exception {
-        //TODO: change this to list of keywordIds
-        String keywords = string + string2 + string3 + string4;
-        savedKeyword = keywords;
+    public void a_user_creates_a_card_with_keywords_and(String keyword1, String keyword2, String keyword3,
+                                                        String keyword4) throws Exception {
         testCardJson.put("creatorId", testUserId);
         testCardJson.put("section", "ForSale");
         testCardJson.put("title", "1982 Lada Samara");
 
+        //TODO: fix this
         testCardJson.put("keywordIds", keywords);
         testCardJson.put("description",
                 "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
@@ -265,7 +265,8 @@ public class CardCreationSteps {
         Assertions.assertTrue(retrievedCard.isPresent());
 
         List<Keyword> retrievedKeywords = retrievedCard.get().getKeywords();
-        Assertions.assertEquals(retrievedKeywords.get(0).getName(), savedKeyword);
+        //TODO: fix this
+        Assertions.assertEquals(retrievedKeywords.get(0).getName(), savedKeywords);
     }
 
     //AC6

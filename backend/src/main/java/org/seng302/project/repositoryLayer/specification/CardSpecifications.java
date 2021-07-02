@@ -1,6 +1,7 @@
 package org.seng302.project.repositoryLayer.specification;
 
 import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.model.Keyword;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -18,11 +19,11 @@ public class CardSpecifications {
     /**
      * Specification to find a card based on a keywordId.
      *
-     * @param keywordId keyword to search by.
+     * @param keyword keyword to search by.
      * @return new specification to use when querying repository.
      */
-    public static Specification<Card> hasKeyword(Integer keywordId) {
+    public static Specification<Card> hasKeyword(Keyword keyword) {
         return ((root, query, builder) ->
-                builder.isMember(keywordId, root.get("keywordIds")));
+                builder.isMember(keyword, root.get("keywords")));
     }
 }

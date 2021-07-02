@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -82,15 +83,17 @@ public class TestDataRunner {
         if (saleListingRepository.count() == 0) {
             insertTestSaleListings((JSONArray) data.get("saleListings"));
         }
+        //Insert keyword data
+        if (keywordRepository.count() == 0) {
+            insertTestKeywords((JSONArray) data.get("keywords"));
+        }
+
         //Insert card data
         if (cardRepository.count() == 0) {
             insertTestCards((JSONArray) data.get("cards"));
         }
 
-        //Insert keyword data
-        if (keywordRepository.count() == 0) {
-            insertTestKeywords((JSONArray) data.get("keywords"));
-        }
+
     }
 
     /**
@@ -261,6 +264,25 @@ public class TestDataRunner {
     }
 
     /**
+     * Inserts test keyword data to the database.
+     *
+     * @param keywordData JSONArray of sale listing data.
+     */
+    public void insertTestKeywords(JSONArray keywordData) {
+        logger.info("Adding sample data to keyword repository");
+
+        for (Object object : keywordData) {
+            JSONObject jsonKeyword = (JSONObject) object;
+            Keyword testKeyword = new Keyword(
+                    jsonKeyword.getAsString("name")
+            );
+            keywordRepository.save(testKeyword);
+        }
+        logger.info("Finished adding sample data to keyword repository");
+        logger.info("Added {} entries to keyword repository", keywordRepository.count());
+    }
+
+    /**
      * Inserts test card data to the database.
      *
      * @param cardsData JSONArray of sale listing data.
@@ -271,6 +293,7 @@ public class TestDataRunner {
         for (Object object : cardsData) {
             JSONObject jsonCard = (JSONObject) object;
             Optional<User> testUserOptions = userRepository.findById(jsonCard.getAsNumber("creatorId").intValue());
+            List<Keyword> keywords = keywordRepository.findAllById((List<Integer>) jsonCard.get("keywords"));
             if (testUserOptions.isPresent()) {
                 User testUser = testUserOptions.get();
 
@@ -279,7 +302,7 @@ public class TestDataRunner {
                         jsonCard.getAsString("section"),
                         jsonCard.getAsString("title"),
                         jsonCard.getAsString("description"),
-                        jsonCard.getAsString("keywords")
+                        keywords
                 );
 
                 cardRepository.save(testCard);
@@ -298,24 +321,7 @@ public class TestDataRunner {
         logger.info("Added {} entries to card repository", cardRepository.count());
     }
 
-    /**
-     * Inserts test keyword data to the database.
-     *
-     * @param keywordData JSONArray of sale listing data.
-     */
-    public void insertTestKeywords(JSONArray keywordData) {
-        logger.info("Adding sample data to keyword repository");
 
-        for (Object object : keywordData) {
-            JSONObject jsonKeyword = (JSONObject) object;
-            Keyword testKeyword = new Keyword(
-                    jsonKeyword.getAsString("name")
-            );
-            keywordRepository.save(testKeyword);
-        }
-        logger.info("Finished adding sample data to keyword repository");
-        logger.info("Added {} entries to keyword repository", keywordRepository.count());
-    }
 
 
 }

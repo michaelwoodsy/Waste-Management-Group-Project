@@ -86,6 +86,7 @@ public class CardController {
                 throw noUserExistsException;
             }
 
+            //TODO: change to make list of keywords then call constructor
             Card newCard = new Card(creator.get(), section, title, description, keywords);
             Integer cardId = cardRepository.save(newCard).getId();
             JSONObject response = new JSONObject();
