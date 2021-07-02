@@ -65,4 +65,14 @@ public class Card {
     public List<Keyword> getKeywords() {
         return this.keywords;
     }
+
+    /**
+     * Checks if a user has permission to edit the card
+     *
+     * @param user user trying to edit the card
+     * @return true if the user can edit the card
+     */
+    public boolean userCanEdit(User user) {
+        return user.isGAA() || user.getId().equals(this.creator.getId());
+    }
 }
