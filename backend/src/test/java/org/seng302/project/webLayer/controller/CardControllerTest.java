@@ -3,8 +3,12 @@ package org.seng302.project.webLayer.controller;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.card.ForbiddenCardActionException;
 import org.seng302.project.serviceLayer.exceptions.card.NoCardExistsException;
 import org.seng302.project.serviceLayer.service.CardService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -15,10 +19,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -130,6 +137,44 @@ class CardControllerTest extends AbstractInitializer {
     void extendCardDisplayPeriod_checkUnauthenticatedRequest() throws Exception {
         mockMvc.perform(put("/cards/{id}/extenddisplayperiod", 1))
                 .andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * 403 response for extending a card's display period
+     */
+    @Test
+    void testExtendCard_forbidden403() throws Exception {
+        doThrow(new ForbiddenCardActionException()).when(cardService)
+                .extendCardDisplayPeriod(any(Integer.class), any(AppUserDetails.class));
+
+        RequestBuilder extendCardRequest = MockMvcRequestBuilders
+                .put("/cards/{id}/extenddisplayperiod", 18)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(extendCardRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 403 response
+                .andReturn();
+    }
+
+    /**
+     * 406 response for deleting a card
+     * When a card doesn't exist
+     */
+    @Test
+    void deleteCard_cardDoesntExist_406() throws Exception {
+        doThrow(new NoCardExistsException(1)).when(cardService)
+                .deleteCard(any(Integer.class), any(AppUserDetails.class));
+
+        RequestBuilder deleteCardRequest = MockMvcRequestBuilders
+                .delete("/cards/{id}/", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+       mockMvc.perform(deleteCardRequest)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable()); // We expect a 406 response
     }
 
     /**

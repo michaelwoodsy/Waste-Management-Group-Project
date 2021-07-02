@@ -50,13 +50,13 @@ public class CardService {
      * Service method for creating a new card
      *
      * @param dto DTO containing card creation parameters
-     * @return a response DTO containing the new cards ID
+     * @return a response DTO containing the new card's ID
      */
     public CreateCardResponseDTO createCard(CreateCardDTO dto, AppUserDetails appUser) {
         try {
             logger.info("Request to create card");
 
-            User loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
+            var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
             Optional<User> creator = userRepository.findById(dto.getCreatorId());
 
             // check if loggedInUser has the same ID as the creator id provided, otherwise check loggedInUser is GAA
@@ -69,14 +69,14 @@ public class CardService {
 
             //check that listed card creator exists.
             if (creator.isEmpty()) {
-                NoUserExistsException noUserExistsException = new NoUserExistsException(dto.getCreatorId());
+                var noUserExistsException = new NoUserExistsException(dto.getCreatorId());
                 logger.warn(noUserExistsException.getMessage());
                 throw noUserExistsException;
             }
 
             List<Keyword> keywords = keywordRepository.findAllById(dto.getKeywordIds());
 
-            Card newCard = new Card(creator.get(), dto.getSection(), dto.getTitle(), dto.getDescription(), keywords);
+            var newCard = new Card(creator.get(), dto.getSection(), dto.getTitle(), dto.getDescription(), keywords);
             Integer cardId = cardRepository.save(newCard).getId();
             return new CreateCardResponseDTO(cardId);
         } catch (NoUserExistsException | RequiredFieldsMissingException expectedException) {
@@ -96,7 +96,7 @@ public class CardService {
     public GetCardResponseDTO getCard(Integer cardId) {
         logger.info("Request to get card with id {}", cardId);
         try {
-            Card card = cardRepository.findById(cardId).orElseThrow(() -> new NoCardExistsException(cardId));
+            var card = cardRepository.findById(cardId).orElseThrow(() -> new NoCardExistsException(cardId));
             return new GetCardResponseDTO(card);
         } catch (NoCardExistsException noCardExistsException) {
             logger.warn(noCardExistsException.getMessage());
@@ -144,21 +144,21 @@ public class CardService {
     public void extendCardDisplayPeriod(Integer cardId, AppUserDetails appUser) {
         logger.info("Request to extend display period of card with id {}", cardId);
         try {
-            User loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
+            var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
 
             // Get card from repository
             Optional<Card> foundCard = cardRepository.findById(cardId);
             // Check if the card exists
             if (foundCard.isEmpty()) {
-                NoCardExistsException exception = new NoCardExistsException(cardId);
+                var exception = new NoCardExistsException(cardId);
                 logger.warn(exception.getMessage());
                 throw exception;
             }
-            Card cardToExtend = foundCard.get();
+            var cardToExtend = foundCard.get();
 
             //Checks if the logged in user is allowed to edit this card
             if (!cardToExtend.userCanEdit(loggedInUser)) {
-                ForbiddenCardActionException exception = new ForbiddenCardActionException();
+                var exception = new ForbiddenCardActionException();
                 logger.warn(exception.getMessage());
                 throw exception;
             }
@@ -189,7 +189,7 @@ public class CardService {
             if (cardOptional.isEmpty()) {
                 throw new NoCardExistsException(cardId);
             }
-            Card retrievedCard = cardOptional.get();
+            var retrievedCard = cardOptional.get();
 
             //403 if card is not yours or you aren't DGAA/GAA (ForbiddenCardActionException)
             User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
@@ -222,7 +222,7 @@ public class CardService {
             if (optionalUser.isEmpty()) {
                 throw new NoUserExistsException(userId);
             }
-            User user = optionalUser.get();
+            var user = optionalUser.get();
 
             List<Card> cards = cardRepository.findAllByCreator(user);
             List<GetCardResponseDTO> response = new ArrayList<>();
