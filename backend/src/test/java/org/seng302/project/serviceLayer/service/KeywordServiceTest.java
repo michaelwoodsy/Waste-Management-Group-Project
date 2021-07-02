@@ -9,18 +9,13 @@ import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.serviceLayer.dto.keyword.AddKeywordDTO;
 import org.seng302.project.serviceLayer.dto.keyword.AddKeywordResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.keyword.KeywordExistsException;
-import org.seng302.project.repositoryLayer.model.Keyword;
-import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
