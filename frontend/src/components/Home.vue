@@ -65,11 +65,32 @@
             </div>
           </div>
         </div>
-
+        <!-- Notification Section -->
+        <div>
+          <!-- Collapse and Expand button  -->
+          <button data-target="#collapseNotifications" class="btn btn-primary"
+                  data-toggle="collapse">
+            Notifications
+          </button>
+          <!-- Notifications -->
+          <div class="collapse" id="collapseNotifications">
+            <div class="card card-body">
+              <ul v-for="notification in notifications" v-bind:key="notification.card">
+                <div class="card-header">
+                  {{notification.title}}
+                </div>
+                <div class="card card-body">
+                  Message: {{notification.message}}
+                  <br>
+                  Created: {{notification.created}}
+                  <br>
+                  Card: {{notification.card}}
+                </div>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div class="col-md-1 col-lg-2 p-3"></div>
-
     </div>
 
   </div>
@@ -99,6 +120,17 @@ export default {
     return {
       cards: [],
       hideImages: true,
+      //Test data
+      notifications: [
+        {title: "Card Expiry",
+         message: "This card is about to expire",
+         created: "2/07/2021 4:34pm",
+         card: "Looking for plums"},
+        {title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"}
+      ],
       error: ""
     }
   },
