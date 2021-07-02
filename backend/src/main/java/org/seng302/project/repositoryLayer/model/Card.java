@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Card class for storing created marketplace cards.
@@ -62,8 +64,8 @@ public class Card {
             joinColumns = @JoinColumn(name = "card_id"),
             inverseJoinColumns = @JoinColumn(name = "keyword_id")
     )
-    public List<Keyword> getKeywords() {
-        return this.keywords;
+    public Set<Keyword> getKeywords() {
+        return new HashSet(this.keywords);
     }
 
     /**

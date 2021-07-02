@@ -6,6 +6,7 @@ import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,7 +32,7 @@ public class GetCardResponseDTO {
         this.displayPeriodEnd = card.getDisplayPeriodEnd();
         this.title = card.getTitle();
         this.description = card.getDescription();
-        this.keywords = card.getKeywords();
+        this.keywords = new ArrayList(card.getKeywords());
     }
 
 }

@@ -239,7 +239,7 @@ public class CardCreationSteps {
                 "1982 Lada Samara",
                 "description",
                 Collections.emptyList());
-        // TODO: Fix test
+        // TODO: Fix test to use given keywords
         reqResult = mockMvc.perform(MockMvcRequestBuilders
                 .post("/cards")
                 .content(objectMapper.writeValueAsString(createCardDTO))
@@ -260,7 +260,7 @@ public class CardCreationSteps {
         Optional<Card> retrievedCard = cardRepository.findById(testCardId);
         Assertions.assertTrue(retrievedCard.isPresent());
 
-        List<Keyword> retrievedKeywords = retrievedCard.get().getKeywords();
+        List<Keyword> retrievedKeywords = new ArrayList(retrievedCard.get().getKeywords());
         //TODO: fix this
         Assertions.assertEquals(retrievedKeywords.get(0).getName(), savedKeywords);
     }

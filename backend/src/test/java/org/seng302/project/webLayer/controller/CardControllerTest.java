@@ -69,8 +69,6 @@ class CardControllerTest extends AbstractInitializer {
     @MockBean
     private UserRepository userRepository;
 
-    @Autowired
-    private CardController cardController;
 
     @BeforeEach
     void setup() {
