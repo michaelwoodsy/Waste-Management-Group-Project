@@ -52,11 +52,11 @@ public class CardService {
      * @param dto DTO containing card creation parameters
      * @return a response DTO containing the new cards ID
      */
-    public CreateCardResponseDTO createCard(CreateCardDTO dto) {
+    public CreateCardResponseDTO createCard(CreateCardDTO dto, AppUserDetails appUser) {
         try {
             logger.info("Request to create card");
 
-            User loggedInUser = userRepository.findByEmail(dto.getAppUser().getUsername()).get(0);
+            User loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
             Optional<User> creator = userRepository.findById(dto.getCreatorId());
 
             // check if loggedInUser has the same ID as the creator id provided, otherwise check loggedInUser is GAA

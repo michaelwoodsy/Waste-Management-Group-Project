@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.seng302.project.serviceLayer.dto.validators.ValidMarketplaceSection;
-import org.seng302.project.webLayer.authentication.AppUserDetails;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
@@ -14,6 +13,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class CreateCardDTO {
 
     @NotEmpty
@@ -25,6 +25,5 @@ public class CreateCardDTO {
     private String title;
     private String description;
     private List<Integer> keywordIds;
-    private AppUserDetails appUser;
 
 }

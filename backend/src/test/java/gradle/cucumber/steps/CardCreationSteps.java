@@ -1,5 +1,6 @@
 package gradle.cucumber.steps;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -13,6 +14,7 @@ import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -25,6 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +41,7 @@ public class CardCreationSteps {
 
     private User testUser;
     private Card testCard;
-    private JSONObject testCardJson = new JSONObject();
+    private CreateCardDTO createCardDTO;
     private List<Keyword> savedKeywords = new ArrayList<>();
 
     private String testUserEmail;
@@ -56,17 +59,19 @@ public class CardCreationSteps {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AddressRepository addressRepository;
     private final CardRepository cardRepository;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public CardCreationSteps(UserRepository userRepository,
                              BCryptPasswordEncoder passwordEncoder,
                              AddressRepository addressRepository,
-                             CardRepository cardRepository) {
-
+                             CardRepository cardRepository,
+                             ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.addressRepository = addressRepository;
         this.cardRepository = cardRepository;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -119,12 +124,7 @@ public class CardCreationSteps {
 
     @When("A user creates a card to be displayed in the {string} section")
     public void a_user_creates_a_card_to_be_displayed_in_the_section(String section) throws Exception {
-        testCardJson.put("creatorId", testUserId);
-        testCardJson.put("section", section);
-        testCardJson.put("title", "1982 Lada Samara");
-        testCardJson.put("keywords", "word");
-        testCardJson.put("description",
-                "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
+        createCardDTO = new CreateCardDTO(testUserId, section, "1982 Lada Samara", "description", Collections.emptyList());
 
         System.out.println(testUserId);
         System.out.println(testUser.getId());
@@ -132,7 +132,7 @@ public class CardCreationSteps {
         // Make the actual request
         reqResult = mockMvc.perform(MockMvcRequestBuilders
                 .post("/cards")
-                .content(testCardJson.toString())
+                .content(objectMapper.writeValueAsString(createCardDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser))));
@@ -234,19 +234,15 @@ public class CardCreationSteps {
     @When("A user creates a card with keywords: {string}, {string}, {string}, and {string}")
     public void a_user_creates_a_card_with_keywords_and(String keyword1, String keyword2, String keyword3,
                                                         String keyword4) throws Exception {
-        testCardJson.put("creatorId", testUserId);
-        testCardJson.put("section", "ForSale");
-        testCardJson.put("title", "1982 Lada Samara");
-
-        //TODO: fix this
-        testCardJson.put("keywordIds", keywords);
-        testCardJson.put("description",
-                "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
-
-        // Make the actual request
+        createCardDTO = new CreateCardDTO(testUserId,
+                "ForSale",
+                "1982 Lada Samara",
+                "description",
+                Collections.emptyList());
+        // TODO: Fix test
         reqResult = mockMvc.perform(MockMvcRequestBuilders
                 .post("/cards")
-                .content(testCardJson.toString())
+                .content(objectMapper.writeValueAsString(createCardDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser))));

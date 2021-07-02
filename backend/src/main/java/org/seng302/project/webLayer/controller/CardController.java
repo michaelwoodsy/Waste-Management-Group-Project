@@ -36,8 +36,7 @@ public class CardController {
     @PostMapping("/cards")
     @ResponseStatus(HttpStatus.CREATED)
     public CreateCardResponseDTO createCard(@RequestBody @Valid CreateCardDTO dto, @AuthenticationPrincipal AppUserDetails appUser) {
-        dto.setAppUser(appUser);
-        return cardService.createCard(dto);
+        return cardService.createCard(dto, appUser);
     }
 
     /**
