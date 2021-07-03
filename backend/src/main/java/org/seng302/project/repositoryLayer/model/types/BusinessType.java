@@ -33,4 +33,29 @@ public enum BusinessType {
         return validType;
     }
 
+    /**
+     * Gets the BusinessType enum object based on a String business type
+     *
+     * @param type the type to return the enum object of. e.g., "Retail Trade"
+     * @return BusinessType that matches the string value e.g., "RETAIL_TRADE"
+     */
+    public static BusinessType getType(String type) {
+        for (BusinessType businessType : BusinessType.values()) {
+            if (businessType.type.equals(type)) {
+                return businessType;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns true if a BusinessType enum object matches a string type
+     *
+     * @param type string value of the type to check e.g., "Retail Trade"
+     * @return true if the enum object matches the string type.
+     */
+    public boolean matchesType(String type) {
+        return this.type.equals(type);
+    }
+
 }

@@ -4,7 +4,9 @@ import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.serviceLayer.exceptions.product.NoProductExistsException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +64,7 @@ public class InventoryItemController {
             User loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
 
             if (business == null) {
-                NoBusinessExistsException noBusinessException = new NoBusinessExistsException(businessId);
+                BusinessNotFoundException noBusinessException = new BusinessNotFoundException(businessId);
                 logger.warn(noBusinessException.getMessage());
                 throw noBusinessException;
             } else if (!business.userIsAdmin(loggedInUser.getId()) && !loggedInUser.isGAA()) {
@@ -73,7 +75,7 @@ public class InventoryItemController {
 
             return inventoryItemRepository.findAllByBusinessId(businessId);
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException exception) {
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException exception) {
             throw exception;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while getting business inventory: %s",
@@ -106,7 +108,7 @@ public class InventoryItemController {
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
+                BusinessNotFoundException exception = new BusinessNotFoundException(businessId);
                 logger.warn(exception.getMessage());
                 throw exception;
             }
@@ -281,7 +283,7 @@ public class InventoryItemController {
                     formatter.format(expiryDate));
 
             inventoryItemRepository.save(inventoryItem);
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException | MissingProductIdException |
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException | MissingProductIdException |
                 NoProductExistsException | MissingInventoryItemExpiryException |
                 InvalidQuantityException | ItemExpiredException | InvalidDateException |
                 InvalidManufactureDateException | InvalidSellByDateException | NumberFormatException |
@@ -320,7 +322,7 @@ public class InventoryItemController {
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                NoBusinessExistsException exception = new NoBusinessExistsException(businessId);
+                BusinessNotFoundException exception = new BusinessNotFoundException(businessId);
                 logger.warn(exception.getMessage());
                 throw exception;
             }
@@ -539,7 +541,7 @@ public class InventoryItemController {
                 item.setProduct(product);
             }
             inventoryItemRepository.save(item);
-        } catch (NoBusinessExistsException | NoProductExistsException | MissingProductIdException |
+        } catch (BusinessNotFoundException | NoProductExistsException | MissingProductIdException |
                 ForbiddenAdministratorActionException | InvalidPriceException | InvalidManufactureDateException |
                 InvalidSellByDateException | ItemExpiredException | InvalidBestBeforeDateException |
                 MissingInventoryItemExpiryException | InvalidQuantityException handledException) {

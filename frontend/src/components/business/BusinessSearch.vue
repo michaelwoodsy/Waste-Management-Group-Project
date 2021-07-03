@@ -25,7 +25,8 @@ Component on Search page for searching businesses
 
       <!--    Search Input    -->
       <div class="row mb-2">
-        <div class="col-12 col-sm-8 col-lg-6 col-xl-4 col-centered">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-5">
           <div class="input-group">
             <input id="search"
                    v-model="searchTerm"
@@ -37,6 +38,19 @@ Component on Search page for searching businesses
               <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
             </div>
           </div>
+        </div>
+        <!--    Select business type    -->
+        <div class="col-sm-4">
+          <select id="businessType" v-model="businessType" class="form-control"
+                  required style="width:100%" type="text">
+            <option disabled hidden selected value>Filter by business type</option>
+            <!--    'Any type' option to choose not to filter by business type    -->
+            <option>Any type</option>
+            <option>Accommodation and Food Services</option>
+            <option>Retail Trade</option>
+            <option>Charitable organisation</option>
+            <option>Non-profit organisation</option>
+          </select>
         </div>
       </div>
 
@@ -143,6 +157,7 @@ export default {
   data() {
     return {
       searchTerm: "",
+      businessType: "",
       businesses: [],
       error: null,
       orderCol: null,
@@ -229,6 +244,8 @@ export default {
      * Search Logic
      */
     search() {
+      //If businessType is either 'Any type' or empty string, then
+      //leave out optional businessType query param in the request.
       this.blurSearch()
       this.businesses = []
       this.loading = true;

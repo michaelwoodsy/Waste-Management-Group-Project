@@ -58,6 +58,9 @@
                   <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
 
+                <!--    User Image    -->
+                <th></th>
+
                 <!--    First Name    -->
                 <th class="pointer" scope="col" @click="orderResults('firstName')">
                   <p class="d-inline">Firstname</p>
@@ -103,6 +106,10 @@
                   <span v-else-if="isActingAsAdmin && user.role === 'defaultGlobalApplicationAdmin'"
                         class="badge badge-danger admin-badge">DGAA</span>
                 </th>
+                <td>
+                  <img alt="productImage"
+                       :src="getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')">
+                </td>
                 <td>{{ nameAndNickname(user) }}</td>
                 <td>{{ user.middleName }}</td>
                 <td>{{ user.lastName }}</td>
@@ -140,7 +147,7 @@
 </template>
 
 <script>
-import {User} from '@/Api'
+import {Images, User} from '@/Api'
 import LoginRequired from '../LoginRequired'
 import ShowingResultsText from "../ShowingResultsText";
 import Pagination from "../Pagination";
@@ -269,6 +276,13 @@ export default {
             this.error = err;
             this.loading = false;
           })
+    },
+
+    /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
     },
 
     /**
