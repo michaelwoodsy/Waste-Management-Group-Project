@@ -17,7 +17,6 @@ import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -295,7 +294,13 @@ public class TestDataRunner {
         for (Object object : cardsData) {
             JSONObject jsonCard = (JSONObject) object;
             Optional<User> testUserOptions = userRepository.findById(jsonCard.getAsNumber("creatorId").intValue());
-            Set<Keyword> keywords = new HashSet(keywordRepository.findAllById((List<Integer>) jsonCard.get("keywords")));
+            JSONArray keywordArray = (JSONArray) jsonCard.get("keywords");
+            Set<Keyword> keywords = new HashSet<>();
+            for (Object keywordId : keywordArray) {
+                Integer keywordIdInt = ((Long) keywordId).intValue();
+                Optional<Keyword> keywordOptional = keywordRepository.findById(keywordIdInt);
+                keywordOptional.ifPresent(keywords::add);
+            }
             if (testUserOptions.isPresent()) {
                 var testUser = testUserOptions.get();
 
