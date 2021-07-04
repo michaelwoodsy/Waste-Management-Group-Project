@@ -68,8 +68,13 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <!-- Description -->
         <p class="card-text">{{ cardData.description }}</p>
         <hr/>
-        <!-- Keywords -->
-        <p class="card-text"><strong>Keywords:</strong><br>{{ cardData.keywords }}</p>
+        <!-- Keyword Bubbles -->
+          <button class="btn btn-primary mr-2"
+                  v-for="(keyword, index) in cardData.keywords"
+                  :key="'keyword' + index">
+            {{  keyword.name  }}
+          </button>
+
         <hr/>
       </div>
 
@@ -162,6 +167,7 @@ export default {
       hoursToExpire: '',
       minutesToExpire: '',
       secondsToExpire: '',
+      keywords: []
     }
   },
 
