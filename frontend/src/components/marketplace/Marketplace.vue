@@ -90,7 +90,7 @@ Page for displaying the marketplace.
         <div class="col form-group text-center">
           <label class="d-inline-block" for="order-select">Filter By Keywords</label>
           <!-- Keyword Input -->
-          <input id="keywordValue" v-model="keywordValue"
+          <input id="keywordSearchValue" v-model="keywordValue"
                  class="form-control ml-2 d-inline-block w-auto"
                  placeholder="Enter Keywords"
                  required maxlength="25" type="text"
