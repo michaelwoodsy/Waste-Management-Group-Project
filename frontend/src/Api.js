@@ -122,13 +122,6 @@ export const Business = {
      */
     getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
 
-    /**
-     * Gets business data from the backend, which is filtered by the searchTerm and type (if provided)
-     * @param searchTerm business search term
-     * @param type the business type
-     * @returns {Promise<AxiosResponse<any>>} response containing businesses matching the criteria
-     */
-    getBusinesses: (searchTerm, type) => instance.get('businesses/search', {params: {'searchQuery': searchTerm, 'businessType': type}}),
 
     /*
      *  Removes a user with id userId from administering the business with id businessId
