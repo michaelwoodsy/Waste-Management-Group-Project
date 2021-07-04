@@ -92,7 +92,7 @@ Page for displaying the marketplace.
           <!-- Keyword Input -->
           <input id="keywordValue" v-model="keywordValue"
                  class="form-control ml-2 d-inline-block w-auto"
-                 placeholder="Enter the Keywords"
+                 placeholder="Enter Keywords"
                  required maxlength="25" type="text"
                  style="margin-bottom: 2px"
                  autocomplete="off"
@@ -126,9 +126,11 @@ Page for displaying the marketplace.
             </a>
           </div>
           <!-- Keyword Bubbles -->
-          <div class="keyword" v-for="(keyword, index) in keywords" style="padding: 2px"
-               :key="'keyword' + index">
-            <button class="btn btn-primary d-inline-block">
+          <div class="keyword">
+            <button
+                class="btn btn-primary d-inline-block m-2"
+                v-for="(keyword, index) in keywords"
+                :key="'keyword' + index">
               <span>{{  keyword  }}</span>
               <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
             </button>
