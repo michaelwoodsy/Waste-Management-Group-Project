@@ -137,6 +137,9 @@ Component on Search page for searching businesses
       </div>
     </div>
 
+    <div v-if="viewBusinessModal" id="viewBusiness" class="modal fade" data-backdrop="static">
+
+    </div>
   </page-wrapper>
 </template>
 
