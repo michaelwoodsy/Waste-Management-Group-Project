@@ -103,6 +103,8 @@ Component on Search page for searching businesses
               <tr v-for="business in paginatedBusinesses"
                   v-bind:key="business.id"
                   class="pointer"
+                  data-target="#viewBusinessModal"
+                  data-toggle="modal"
                   @click="viewBusiness(business.id)"
               >
                 <th scope="row">
@@ -137,9 +139,19 @@ Component on Search page for searching businesses
       </div>
     </div>
 
-    <div v-if="viewBusinessModal" id="viewBusiness" class="modal fade" data-backdrop="static">
-
+    <div v-if="viewBusinessModal" id="viewBusinessModal" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-body">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="viewBusinessModal=false">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <business-profile-page-modal :id="viewBusinessModalId"></business-profile-page-modal>
+          </div>
+        </div>
+      </div>
     </div>
+
   </page-wrapper>
 </template>
 
@@ -149,10 +161,12 @@ import PageWrapper from "@/components/PageWrapper";
 import Alert from "@/components/Alert";
 import Pagination from "@/components/Pagination";
 import {Business} from "@/Api";
+import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 
 export default {
   name: "BusinessSearch",
   components: {
+    BusinessProfilePageModal,
     PageWrapper,
     ShowingResultsText,
     Alert,
@@ -164,6 +178,7 @@ export default {
       businessType: "",
       businesses: [],
       viewBusinessModal: false,
+      viewBusinessModalId: null,
       error: null,
       orderCol: null,
       orderDirection: false, // False -> Ascending
@@ -334,7 +349,8 @@ export default {
      * @param id
      */
     viewBusiness(id) {
-      this.$router.push({name: 'viewBusiness', params: {businessId: id}})
+      this.viewBusinessModalId = id
+      this.viewBusinessModal = true
     },
   }
 }
