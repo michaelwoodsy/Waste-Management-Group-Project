@@ -91,14 +91,17 @@ Page for displaying the marketplace.
           <label class="d-inline-block" for="order-select">Filter By Keywords</label>
           <!-- Keyword Input -->
           <input id="keywordValue" v-model="keywordValue"
-                 :class="{'form-control': true, 'is-invalid': msg.keywords}"
+                 class="form-control ml-2 d-inline-block w-auto"
                  placeholder="Enter the Keywords"
                  required maxlength="25" type="text"
                  style="margin-bottom: 2px"
                  autocomplete="off"
                  data-toggle="dropdown"
-                 @input="filterKeywords"
+                 @input="searchKeywords"
                  @keyup.space="addKeyword"/>
+          <button class="btn btn-primary ml-2">
+            Apply
+          </button>
           <!-- Autocomplete dropdown -->
           <div class="dropdown-menu overflow-auto" id="dropdown">
             <!-- If no user input -->
@@ -125,7 +128,7 @@ Page for displaying the marketplace.
           <!-- Keyword Bubbles -->
           <div class="keyword" v-for="(keyword, index) in keywords" style="padding: 2px"
                :key="'keyword' + index">
-            <button class="btn btn-primary">
+            <button class="btn btn-primary d-inline-block">
               <span>{{  keyword  }}</span>
               <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
             </button>
@@ -161,7 +164,7 @@ import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import CreateCardPage from "@/components/marketplace/CreateCardPage";
 import PageWrapper from "@/components/PageWrapper";
-import { User } from "@/Api";
+import {Keyword, User} from "@/Api";
 
 export default {
   name: "Marketplace",
@@ -176,9 +179,9 @@ export default {
       order: 'created-asc',
       resultsPerPage: 10,
       page: 1,
-      showKeywords: false,
-      keywordOptions: [],
-      selectedKeywords: []
+      keywordValue: '',
+      keywords: [],
+      filteredKeywords: []
     }
   },
 
@@ -359,10 +362,14 @@ export default {
      */
     addKeyword() {
       this.keywordValue = this.keywordValue.trim()
-      if(!(this.keywordValue === '' || this.keywordValue === ' ') && !this.keywords.includes(this.keywordValue)) {
-        this.keywords.push(this.keywordValue);
+      if((this.keywordValue === '' || this.keywordValue === ' ')
+          || this.keywords.includes(this.keywordValue)) {
+        this.keywordValue = '';
       }
-      this.keywordValue = '';
+      if (this.keywordValue.length > 2) {
+        this.keywords.push(this.keywordValue);
+        this.keywordValue = '';
+      }
     },
 
     /**
@@ -376,11 +383,15 @@ export default {
     /**
      * Filters autocomplete options based on the user's input for a keyword.
      */
-    filterKeywords() {
-      if (this.keywordValue.length > 0) {
-        this.filteredKeywords = this.testKeywords.filter(keywordValue => {
-          return keywordValue.name.toLowerCase().startsWith(this.keywordValue.toLowerCase())
-        })
+    async searchKeywords() {
+      if (this.keywordValue.length > 2) {
+        await Keyword.searchKeywords(this.keywordValue)
+            .then((response) => {
+              this.filteredKeywords = response.data;
+            })
+            .catch((err) => {
+              console.log(err)
+            })
       } else {
         this.filteredKeywords = []
       }
@@ -395,6 +406,7 @@ export default {
       this.keywordValue = keyword
       this.addKeyword()
     }
+
   }
 }
 
