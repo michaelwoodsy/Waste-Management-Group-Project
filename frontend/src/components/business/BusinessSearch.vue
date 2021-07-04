@@ -145,6 +145,7 @@ import ShowingResultsText from "@/components/ShowingResultsText";
 import PageWrapper from "@/components/PageWrapper";
 import Alert from "@/components/Alert";
 import Pagination from "@/components/Pagination";
+import {Business} from "@/Api";
 
 export default {
   name: "BusinessSearch",
@@ -159,6 +160,7 @@ export default {
       searchTerm: "",
       businessType: "",
       businesses: [],
+      viewBusinessModal: false,
       error: null,
       orderCol: null,
       orderDirection: false, // False -> Ascending
@@ -244,86 +246,34 @@ export default {
      * Search Logic
      */
     search() {
-      //If businessType is either 'Any type' or empty string, then
-      //leave out optional businessType query param in the request.
       this.blurSearch()
       this.businesses = []
       this.loading = true;
       this.page = 1
 
-      //To mimic as if retrieved from database
-      setTimeout(this.fillTable, 1000)
-
-      /** Do properly when backend set up
-      this.blurSearch();
-      this.users = [];
-      this.loading = true;
-      this.page = 1;
-
-      Business.getBusinesses(this.searchTerm)
-          .then((res) => {
-            this.error = null;
-            this.users = res.data;
-            this.loading = false;
-          })
-          .catch((err) => {
-            this.error = err;
-            this.loading = false;
-          })
-       */
-    },
-
-    /**
-     * Fills the table with the test data provided.
-     * Should be removed when backend is sorted
-     */
-    fillTable() {
-      this.error = null;
-      this.businesses = [
-        {
-          id: 1,
-          name: "Myrtle's Muffins",
-          description: 'Tasty muffins by Myrtle',
-          address: {
-            streetNumber: '',
-            streetName: '',
-            city: 'Christchurch',
-            region: 'Canterbury',
-            country: 'New Zealand',
-            postcode: '8022',
-          },
-          businessType: 'Accommodation and Food Services'
-        },
-        {
-          id: 2,
-          name: "Tinned Food Mart",
-          description: 'The perfect place to purchase your non-perishables',
-          address: {
-            streetNumber: '',
-            streetName: '',
-            city: 'Christchurch',
-            region: 'Canterbury',
-            country: 'New Zealand',
-            postcode: '8021',
-          },
-          businessType: 'Accommodation and Food Services'
-        },
-        {
-          id: 3,
-          name: "Layla's Jam & Pickles",
-          description: 'Get your indulgent fruit jams here.',
-          address: {
-            streetNumber: '',
-            streetName: '',
-            city: 'Kerikeri',
-            region: '',
-            country: 'New Zealand',
-            postcode: '0245',
-          },
-          businessType: 'Retail Trade'
-        },
-      ]
-      this.loading = false;
+      if (this.businessType === 'Any type' || this.businessType === '') {
+        Business.getBusinesses(this.searchTerm)
+            .then((res) => {
+              this.error = null;
+              this.businesses = res.data;
+              this.loading = false;
+            })
+            .catch((err) => {
+              this.error = err;
+              this.loading = false;
+            })
+      } else {
+        Business.getBusinesses(this.searchTerm, this.businessType)
+            .then((res) => {
+              this.error = null;
+              this.businesses = res.data;
+              this.loading = false;
+            })
+            .catch((err) => {
+              this.error = err;
+              this.loading = false;
+            })
+      }
     },
 
     /**
@@ -388,10 +338,6 @@ export default {
 </script>
 
 <style scoped>
-.col-centered {
-  margin: 0 auto;
-  float: none;
-}
 
 .pointer {
   cursor: pointer;

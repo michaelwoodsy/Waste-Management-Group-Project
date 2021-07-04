@@ -168,6 +168,7 @@ export default {
     return {
       searchTerm: "",
       users: [],
+      viewUserModal: false,
       error: null,
       orderCol: null,
       orderDirection: false, // False -> Ascending
