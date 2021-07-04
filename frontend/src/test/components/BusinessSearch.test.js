@@ -12,22 +12,22 @@ const VueTestUtils = require('@vue/test-utils')
 
 let loggedIn = true
 // Will become the fake vue instance
-let wrapper;
+let wrapper
+
 let computed = {
     isLoggedIn() {
         return loggedIn
     },
 }
 
-// Setup before each test
-beforeEach(() => {
-    wrapper = VueTestUtils.shallowMount(BusinessSearch, {
-        stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-        computed
-    })
-});
-
 describe('Jest tests for the BusinessSearch component', () => {
+    // Setup before each test
+    beforeEach(() => {
+        wrapper = VueTestUtils.shallowMount(BusinessSearch, {
+            stubs: ['router-link', 'router-view', "login-required", "admin-required"],
+            computed
+        })
+    });
 
     // Test that not selecting a business type sets businessType to empty string
     test('Not selecting a business type sets businessType to empty string',async () => {
@@ -56,5 +56,5 @@ describe('Jest tests for the BusinessSearch component', () => {
         await wrapper.vm.$nextTick()
         expect(wrapper.vm.$data.businessType).toEqual("Accommodation and Food Services")
     })
-
 })
+
