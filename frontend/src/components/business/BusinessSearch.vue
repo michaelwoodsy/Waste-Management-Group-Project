@@ -345,7 +345,7 @@ export default {
     },
 
     /**
-     * Router link to the clicked business' profile page
+     * Turns popup modal to view  business on
      * @param id
      */
     viewBusiness(id) {

@@ -97,6 +97,8 @@
               <tr v-for="user in paginatedUsers"
                   v-bind:key="user.id"
                   class="pointer"
+                  data-target="#viewUserModal"
+                  data-toggle="modal"
                   @click="viewUser(user.id)"
               >
                 <th scope="row">
@@ -139,6 +141,19 @@
           />
         </div>
       </div>
+
+      <div v-if="viewUserModal" id="viewUserModal" class="modal fade" data-backdrop="static">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-body">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="viewUserModal=false">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <profile-page-modal :id="viewUserModalId"></profile-page-modal>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <login-required v-else page="search users"/>
@@ -153,10 +168,12 @@ import ShowingResultsText from "../ShowingResultsText";
 import Pagination from "../Pagination";
 import Alert from '../Alert'
 import PageWrapper from "@/components/PageWrapper";
+import ProfilePageModal from "@/components/user/ProfilePageModal";
 
 export default {
   name: "UserSearch",
   components: {
+    ProfilePageModal,
     PageWrapper,
     LoginRequired,
     Alert,
@@ -169,6 +186,7 @@ export default {
       searchTerm: "",
       users: [],
       viewUserModal: false,
+      viewUserModalId: null,
       error: null,
       orderCol: null,
       orderDirection: false, // False -> Ascending
@@ -341,7 +359,8 @@ export default {
      * @param id
      */
     viewUser(id) {
-      this.$router.push({name: 'viewUser', params: {userId: id}})
+      this.viewUserModalId = id
+      this.viewUserModal = true
     },
 
     /**

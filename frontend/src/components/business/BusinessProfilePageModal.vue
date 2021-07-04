@@ -83,8 +83,20 @@
                     {{ admin.firstName }} {{ admin.lastName }}
                   </router-link>
                 </td>
+                <td v-if="isPrimaryAdmin && (primaryAdminId !== admin.id)">
+                  <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;"
+                     v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
+                </td>
               </tr>
             </table>
+          </div>
+        </div>
+        <div class="row">
+          <div v-if="removedAdmin" class="col text-center">
+            <p style="color: green">{{ removedAdmin }}</p>
+          </div>
+          <div v-if="error" class="col text-center">
+            <p style="color: red">{{ error }}</p>
           </div>
         </div>
       </div>
@@ -94,6 +106,59 @@
       <router-link data-dismiss="modal" :to="`businesses/${this.businessId}/listings`" class="btn btn-outline-primary mx-2">
         View Business's Listings
       </router-link>
+    </div>
+
+    <div v-if="$root.$data.user.canDoAdminAction()" class="row justify-content-center">
+      <router-link data-dismiss="modal" :to="`businesses/${this.businessId}/products`" class="btn btn-outline-danger mr-2">
+        View Product Catalogue
+      </router-link>
+      <router-link data-dismiss="modal" :to="`businesses/${this.businessId}/inventory`" class="btn btn-outline-danger mr-2">
+        View Inventory
+      </router-link>
+      <button class="btn btn-outline-danger" data-target="#addAdministrator" data-toggle="modal">Add Administrator
+      </button>
+
+
+      <div id="addAdministrator" aria-hidden="true" aria-labelledby="addAdministratorLabel" class="modal fade"
+           role="dialog" tabindex="-1">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 id="addAdministratorLabel" class="modal-title">Add Administrator</h5>
+              <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-row">
+                <!--    User ID    -->
+                <label for="userId">
+                  <strong>User ID</strong>
+                </label>
+                <br/>
+                <input id="userId" v-model="addAdministratorUserId"
+                       :class="{'form-control': true, 'is-invalid': addAdministratorError}"
+                       placeholder="ID of the user you want to make administrator"
+                       required style="width:100%" type="number">
+                <!--   Error message for userId input   -->
+                <span class="invalid-feedback text-left">{{ addAdministratorError }}</span>
+
+                <div v-if="addAdministratorSuccess" class="col text-center mb-2">
+                  <p style="color: green">{{ addAdministratorSuccess }}</p>
+                </div>
+
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-block btn-danger" style="width: 40%; margin:0 10px"
+                      v-on:click="addAdministrator">
+                Add Administrator
+              </button>
+              <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="row">
@@ -158,7 +223,6 @@ export default {
     }
   },
   mounted() {
-    console.log(this.id)
     Business.getBusinessData(this.id).then((response) => this.profile(response))
   },
   computed: {
@@ -223,6 +287,49 @@ export default {
       this.dateJoined = response.data.created
       this.timeCalculator(Date.parse(this.dateJoined))
       this.dateJoined = this.dateJoined.substring(0, 10)
+    },
+
+    /**
+     * Function to remove an administrator from the business.
+     * uses the removeAdministrator method in the Business api.js file to send a request to the backend
+     * @param userId id of the user removing as admin
+     * @param firstName first name of the user removing as admin
+     * @param lastName last name of the user removing as admin
+     */
+    async removeAdministrator(userId, firstName, lastName) {
+
+      try {
+        await Business.removeAdministrator(this.id, userId)
+        this.removedAdmin = `Removed ${firstName} ${lastName} from administering business`
+        //Reload the data
+        Business.getBusinessData(this.businessId).then((response) => this.profile(response))
+      } catch (err) {
+        this.error = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+            : err
+      }
+    },
+
+    /**
+     * Method to add a user with id addAdministratorUserId to the administrators of the business.
+     * Used when a GAA or DGAA wants to add a user as admin to the business
+     */
+    async addAdministrator() {
+      this.addAdministratorError = null
+      this.addAdministratorSuccess = null
+      if (this.addAdministratorUserId === null) {
+        this.addAdministratorError = "Please enter a User ID"
+      }
+      try {
+        await Business.addAdministrator(Number(this.businessId), Number(this.addAdministratorUserId))
+        this.addAdministratorSuccess = `Added user with id ${this.addAdministratorUserId} to administrators of business with id ${this.businessId}`
+        //Reload the data
+        Business.getBusinessData(this.businessId).then((response) => this.profile(response))
+      } catch (err) {
+        this.addAdministratorError = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+            : err
+      }
     },
 
     /**
