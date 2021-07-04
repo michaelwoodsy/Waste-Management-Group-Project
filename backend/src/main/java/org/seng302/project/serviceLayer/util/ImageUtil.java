@@ -30,6 +30,7 @@ public class ImageUtil {
      * @return the filepath where the thumbnail was saved
      */
     public String createThumbnail(String filepath) throws IOException {
+        logger.info("Creating thumbnail for file: {}", filepath);
         var originalBufferedImage = readImageFromFile(filepath);
         var resizedBufferImage = scaleImage(originalBufferedImage);
         var thumbnailBufferedImage = cropImage(resizedBufferImage);

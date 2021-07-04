@@ -1,10 +1,13 @@
 package org.seng302.project.repositoryLayer.model;
 
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Card class for storing created marketplace cards.
@@ -19,7 +22,7 @@ public class Card {
     private String section;
     private String title;
     private String description;
-    private String keywords;
+    private Set<Keyword> keywords = new HashSet<>();
     private LocalDateTime created = LocalDateTime.now();
     private LocalDateTime displayPeriodEnd = created.plusWeeks(2); // Display period is currently set at 2 weeks in Backlog
 
@@ -31,19 +34,12 @@ public class Card {
      * @param title                       Title of the card.
      * @param description                 Description of the card.
      */
-    public Card(User creator, String section, String title, String description, String keywords) {
+    public Card(User creator, String section, String title, String description, Set<Keyword> keywords) {
         this.creator = creator;
         this.section = section;
         this.title = title;
         this.description = description;
         this.keywords = keywords;
-    }
-
-    public Card(User creator, String section, String title, String description) {
-        this.creator = creator;
-        this.section = section;
-        this.title = title;
-        this.description = description;
     }
 
     @Id // this field (attribute) is the primary key of the table
@@ -57,5 +53,32 @@ public class Card {
     @JoinColumn(name = "user_id")
     public User getCreator() {
         return this.creator;
+    }
+
+
+    /**
+     * This returns a SET (not a List) of the card's keywords
+     * It returns a Set because returning a List results in a MultipleBagFetchException
+     * @return a Set of the card's keywords
+     */
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "card_has_keyword",
+            joinColumns = @JoinColumn(name = "card_id"),
+            inverseJoinColumns = @JoinColumn(name = "keyword_id")
+    )
+    public Set<Keyword> getKeywords() {
+        return this.keywords;
+    }
+
+
+    /**
+     * Checks if a user has permission to edit the card
+     *
+     * @param user user trying to edit the card
+     * @return true if the user can edit the card
+     */
+    public boolean userCanEdit(User user) {
+        return user.isGAA() || user.getId().equals(this.creator.getId());
     }
 }
