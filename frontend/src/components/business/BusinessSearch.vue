@@ -261,7 +261,7 @@ export default {
   },
   methods: {
     /**
-     * Search Logic
+     * This is the search logic, that handles a call with or without businessType
      */
     search() {
       this.blurSearch()
@@ -270,28 +270,18 @@ export default {
       this.page = 1
 
       if (this.businessType === 'Any type' || this.businessType === '') {
-        Business.getBusinesses(this.searchTerm)
-            .then((res) => {
-              this.error = null;
-              this.businesses = res.data;
-              this.loading = false;
-            })
-            .catch((err) => {
-              this.error = err;
-              this.loading = false;
-            })
-      } else {
-        Business.getBusinesses(this.searchTerm, this.businessType)
-            .then((res) => {
-              this.error = null;
-              this.businesses = res.data;
-              this.loading = false;
-            })
-            .catch((err) => {
-              this.error = err;
-              this.loading = false;
-            })
+        this.businessType = null;
       }
+      Business.getBusinesses(this.searchTerm, this.businessType)
+          .then((res) => {
+            this.error = null;
+            this.businesses = res.data;
+            this.loading = false;
+          })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
     },
 
     /**

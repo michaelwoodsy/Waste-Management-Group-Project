@@ -4,7 +4,6 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
-import org.seng302.project.MainApplicationRunner;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.*;
 import org.slf4j.Logger;
@@ -17,7 +16,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Class containing functions to populate test database with test data.
@@ -26,7 +27,7 @@ import java.util.Optional;
 @Component
 public class TestDataRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(MainApplicationRunner.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(TestDataRunner.class.getName());
     private static final JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
@@ -35,12 +36,14 @@ public class TestDataRunner {
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
     private final CardRepository cardRepository;
+    private final KeywordRepository keywordRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public TestDataRunner(UserRepository userRepository, BusinessRepository businessRepository, AddressRepository addressRepository,
                           ProductRepository productRepository, InventoryItemRepository inventoryItemRepository,
                           SaleListingRepository saleListingRepository, CardRepository cardRepository,
+                          KeywordRepository keywordRepository,
                           BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
@@ -50,6 +53,7 @@ public class TestDataRunner {
         this.saleListingRepository = saleListingRepository;
         this.cardRepository = cardRepository;
         this.passwordEncoder = passwordEncoder;
+        this.keywordRepository = keywordRepository;
     }
 
     /**
@@ -80,9 +84,17 @@ public class TestDataRunner {
         if (saleListingRepository.count() == 0) {
             insertTestSaleListings((JSONArray) data.get("saleListings"));
         }
+        //Insert keyword data
+        if (keywordRepository.count() == 0) {
+            insertTestKeywords((JSONArray) data.get("keywords"));
+        }
+
+        //Insert card data
         if (cardRepository.count() == 0) {
             insertTestCards((JSONArray) data.get("cards"));
         }
+
+
     }
 
     /**
@@ -95,7 +107,7 @@ public class TestDataRunner {
         for (Object object : userData) {
             JSONObject jsonUser = (JSONObject) object;
             JSONObject jsonAddress = (JSONObject) jsonUser.get("homeAddress");
-            Address address = new Address(
+            var address = new Address(
                     jsonAddress.getAsString("streetNumber"),
                     jsonAddress.getAsString("streetName"),
                     jsonAddress.getAsString("city"),
@@ -104,7 +116,7 @@ public class TestDataRunner {
                     jsonAddress.getAsString("postcode")
             );
             addressRepository.save(address);
-            User newUser = new User(
+            var newUser = new User(
                     jsonUser.getAsString("firstName"),
                     jsonUser.getAsString("lastName"),
                     jsonUser.getAsString("middleName"),
@@ -120,7 +132,7 @@ public class TestDataRunner {
         }
 
         logger.info("Finished adding sample data to user repository");
-        logger.info(String.format("Added %d entries to user repository", userRepository.count()));
+        logger.info("Added {} entries to user repository", userRepository.count());
     }
 
     /**
@@ -133,7 +145,7 @@ public class TestDataRunner {
         for (Object object : businessData) {
             JSONObject jsonBusiness = (JSONObject) object;
             JSONObject jsonAddress = (JSONObject) jsonBusiness.get("address");
-            Address address = new Address(
+            var address = new Address(
                     jsonAddress.getAsString("streetNumber"),
                     jsonAddress.getAsString("streetName"),
                     jsonAddress.getAsString("city"),
@@ -143,7 +155,7 @@ public class TestDataRunner {
             );
             addressRepository.save(address);
             Integer primaryAdminId = jsonBusiness.getAsNumber("primaryAdministratorId").intValue();
-            Business testBusiness = new Business(
+            var testBusiness = new Business(
                     jsonBusiness.getAsString("name"),
                     jsonBusiness.getAsString("description"),
                     address,
@@ -164,7 +176,7 @@ public class TestDataRunner {
         }
 
         logger.info("Finished adding sample data to business repository");
-        logger.info(String.format("Added %d entries to business repository", businessRepository.count()));
+        logger.info("Added {} entries to business repository", businessRepository.count());
     }
 
     /**
@@ -176,7 +188,7 @@ public class TestDataRunner {
         logger.info("Adding sample data to product repository");
         for (Object object : productData) {
             JSONObject jsonProduct = (JSONObject) object;
-            Product testProduct = new Product(
+            var testProduct = new Product(
                     jsonProduct.getAsString("id"),
                     jsonProduct.getAsString("name"),
                     jsonProduct.getAsString("description"),
@@ -188,7 +200,7 @@ public class TestDataRunner {
             productRepository.save(testProduct);
         }
         logger.info("Finished adding sample data to product repository");
-        logger.info(String.format("Added %d entries to product repository", productRepository.count()));
+        logger.info("Added {} entries to product repository", productRepository.count());
     }
 
     /**
@@ -204,8 +216,8 @@ public class TestDataRunner {
                     jsonInventoryItem.getAsString("productId"),
                     jsonInventoryItem.getAsNumber("businessId").intValue());
             if (testProductOptions.isPresent()) {
-                Product testProduct = testProductOptions.get();
-                InventoryItem testInventoryItem = new InventoryItem(
+                var testProduct = testProductOptions.get();
+                var testInventoryItem = new InventoryItem(
                         testProduct,
                         jsonInventoryItem.getAsNumber("quantity").intValue(),
                         jsonInventoryItem.getAsNumber("pricePerItem") != null ?
@@ -221,7 +233,7 @@ public class TestDataRunner {
             }
         }
         logger.info("Finished adding sample data to inventory item repository");
-        logger.info(String.format("Added %d entries to inventory item repository", inventoryItemRepository.count()));
+        logger.info("Added {} entries to inventory item repository", inventoryItemRepository.count());
     }
 
     /**
@@ -236,7 +248,7 @@ public class TestDataRunner {
             Optional<InventoryItem> testItemOptions = inventoryItemRepository.findById(jsonSaleListing.getAsNumber("inventoryItemId").intValue());
             if (testItemOptions.isPresent()) {
                 InventoryItem testItem = testItemOptions.get();
-                SaleListing testListing = new SaleListing(
+                var testListing = new SaleListing(
                         jsonSaleListing.getAsNumber("businessId").intValue(),
                         testItem,
                         jsonSaleListing.getAsNumber("price").doubleValue(),
@@ -249,7 +261,26 @@ public class TestDataRunner {
 
         }
         logger.info("Finished adding sample data to sale listing repository");
-        logger.info(String.format("Added %d entries to sale listing repository", saleListingRepository.count()));
+        logger.info("Added {} entries to sale listing repository", saleListingRepository.count());
+    }
+
+    /**
+     * Inserts test keyword data to the database.
+     *
+     * @param keywordData JSONArray of sale listing data.
+     */
+    public void insertTestKeywords(JSONArray keywordData) {
+        logger.info("Adding sample data to keyword repository");
+
+        for (Object object : keywordData) {
+            JSONObject jsonKeyword = (JSONObject) object;
+            var testKeyword = new Keyword(
+                    jsonKeyword.getAsString("name")
+            );
+            keywordRepository.save(testKeyword);
+        }
+        logger.info("Finished adding sample data to keyword repository");
+        logger.info("Added {} entries to keyword repository", keywordRepository.count());
     }
 
     /**
@@ -263,15 +294,22 @@ public class TestDataRunner {
         for (Object object : cardsData) {
             JSONObject jsonCard = (JSONObject) object;
             Optional<User> testUserOptions = userRepository.findById(jsonCard.getAsNumber("creatorId").intValue());
+            JSONArray keywordArray = (JSONArray) jsonCard.get("keywords");
+            Set<Keyword> keywords = new HashSet<>();
+            for (Object keywordId : keywordArray) {
+                Integer keywordIdInt = ((Long) keywordId).intValue();
+                Optional<Keyword> keywordOptional = keywordRepository.findById(keywordIdInt);
+                keywordOptional.ifPresent(keywords::add);
+            }
             if (testUserOptions.isPresent()) {
-                User testUser = testUserOptions.get();
+                var testUser = testUserOptions.get();
 
-                Card testCard = new Card(
+                var testCard = new Card(
                         testUser,
                         jsonCard.getAsString("section"),
                         jsonCard.getAsString("title"),
                         jsonCard.getAsString("description"),
-                        jsonCard.getAsString("keywords")
+                        keywords
                 );
 
                 cardRepository.save(testCard);
@@ -287,7 +325,10 @@ public class TestDataRunner {
         }
 
         logger.info("Finished adding sample data to card repository");
-        logger.info(String.format("Added %d entries to card repository", cardRepository.count()));
+        logger.info("Added {} entries to card repository", cardRepository.count());
     }
+
+
+
 
 }
