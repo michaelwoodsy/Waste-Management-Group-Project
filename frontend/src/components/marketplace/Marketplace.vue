@@ -85,35 +85,52 @@ Page for displaying the marketplace.
         </div>
       </div>
 
-      <!-- Div above results for filtering -->
+      <!-- Div above results for filtering by keywords -->
       <div class="row form justify-content-center">
-        <!-- Combobox for filtering by keyword -->
         <div class="col form-group text-center">
-          <!-- Collapsible because there will be a lot of keywords -->
-          <div id="keywords" class="collapse">
-            <label
-                v-for="keyword in keywordOptions"
-                :key="keyword.id"
-                class="ml-2 keyword"
+          <label class="d-inline-block" for="order-select">Filter By Keywords</label>
+          <!-- Keyword Input -->
+          <input id="keywordValue" v-model="keywordValue"
+                 :class="{'form-control': true, 'is-invalid': msg.keywords}"
+                 placeholder="Enter the Keywords"
+                 required maxlength="25" type="text"
+                 style="margin-bottom: 2px"
+                 autocomplete="off"
+                 data-toggle="dropdown"
+                 @input="filterKeywords"
+                 @keyup.space="addKeyword"/>
+          <!-- Autocomplete dropdown -->
+          <div class="dropdown-menu overflow-auto" id="dropdown">
+            <!-- If no user input -->
+            <p class="text-muted dropdown-item left-padding mb-0 disabled"
+               v-if="keywordValue.length === 0"
             >
-              <input type="checkbox" :id="keyword.id" @click="setKeywordSelect(keyword)" />
-              {{keyword.name}}
-            </label>
-            <br>
-            <button class="btn btn-primary ml-2">
-              Apply
+              Start typing...
+            </p>
+            <!-- If no matches -->
+            <p class="text-muted dropdown-item left-padding mb-0 disabled"
+               v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
+            >
+              No results found.
+            </p>
+            <!-- If there are matches -->
+            <a class="dropdown-item pointer left-padding"
+               v-for="keyword in filteredKeywords"
+               v-else
+               :key="keyword.id"
+               @click="setKeyword(keyword.name)">
+              <span>{{ keyword.name }}</span>
+            </a>
+          </div>
+          <!-- Keyword Bubbles -->
+          <div class="keyword" v-for="(keyword, index) in keywords" style="padding: 2px"
+               :key="'keyword' + index">
+            <button class="btn btn-primary">
+              <span>{{  keyword  }}</span>
+              <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
             </button>
           </div>
-          <button data-target="#keywords" class="btn btn-outline-secondary m-2"
-                  data-toggle="collapse" @click="toggleKeywordList">
-            <span v-if="!showKeywords">Filter By Keywords <em class="bi bi-arrow-down"/></span>
-            <span v-else>Hide Keywords <em class="bi bi-arrow-up"/></span>
-          </button>
-
         </div>
-
-
-
       </div>
 
 
@@ -167,8 +184,6 @@ export default {
 
   mounted() {
     this.changePage(this.tabSelected)
-    this.populateKeywordOptions()
-    this.sortKeywordOptions()
   },
 
   computed: {
@@ -340,121 +355,46 @@ export default {
           })
     },
     /**
-     * Populates the keyword options shown to filter by
-     * Currently uses hard coded test data
+     * Adds a keyword to the list of keywords
      */
-    populateKeywordOptions() {
+    addKeyword() {
+      this.keywordValue = this.keywordValue.trim()
+      if(!(this.keywordValue === '' || this.keywordValue === ' ') && !this.keywords.includes(this.keywordValue)) {
+        this.keywords.push(this.keywordValue);
+      }
+      this.keywordValue = '';
+    },
 
-      //TODO: actually get keywords from backend
-      this.keywordOptions = [
-        {
-          id: 1,
-          name: "Fruit"
-        },
-        {
-          id: 2,
-          name: "Apples"
-        },
-        {
-          id: 3,
-          name: "Bananas"
-        },
-        {
-          id: 4,
-          name: "Peaches"
-        },
-        {
-          id: 5,
-          name: "Vegetables"
-        },
-        {
-          id: 6,
-          name: "Carrots"
-        },
-        {
-          id: 7,
-          name: "Plums"
-        },
-        {
-          id: 8,
-          name: "Beans"
-        },
-        {
-          id: 9,
-          name: "Potatoes"
-        },
-        {
-          id: 10,
-          name: "Chips"
-        },
-        {
-          id: 11,
-          name: "Pies"
-        },
-        {
-          id: 12,
-          name: "Oranges"
-        },
-        {
-          id: 13,
-          name: "Celery"
-        },
-        {
-          id: 14,
-          name: "Pumpkins"
-        },
-        {
-          id: 15,
-          name: "Apricots"
-        },
-        {
-          id: 16,
-          name: "Cherries"
-        },
-        {
-          id: 17,
-          name: "Pears"
-        },
-        {
-          id: 18,
-          name: "Strawberries"
-        }
-      ]
-    },
     /**
-     * Sorts keywordOptions alphabetically by name
+     * Removes a keyword from the list of keywords
+     * @param index Index of the keyword in the keyword list
      */
-    sortKeywordOptions() {
-      this.keywordOptions.sort((a, b) => {
-            if (a.name < b.name) {
-              return -1
-            }
-            if ((a.name > b.name)) {
-              return 1
-            }
-            return 0
-          }
-      )
+    removeKeyword(index) {
+      this.keywords.splice(index, 1)
     },
+
     /**
-     * Toggles whether a keyword is selected to be filtered by
+     * Filters autocomplete options based on the user's input for a keyword.
      */
-    setKeywordSelect(keyword) {
-      if (!this.selectedKeywords.includes(keyword.id)) {
-        this.selectedKeywords.push(keyword.id)
-      } else {
-        this.selectedKeywords = this.selectedKeywords.filter((keywordId) => {
-          return keywordId !== keyword.id
+    filterKeywords() {
+      if (this.keywordValue.length > 0) {
+        this.filteredKeywords = this.testKeywords.filter(keywordValue => {
+          return keywordValue.name.toLowerCase().startsWith(this.keywordValue.toLowerCase())
         })
+      } else {
+        this.filteredKeywords = []
       }
     },
 
     /**
-     * Toggles the showKeywords field
+     * Adds a keyword to the list of keywords if the keyword was selecting from the
+     * autocomplete list rather than by pressing the spacebar
+     * @param keyword Keyword to be added to keyword list
      */
-    toggleKeywordList() {
-      this.showKeywords = !this.showKeywords
-    },
+    setKeyword(keyword) {
+      this.keywordValue = keyword
+      this.addKeyword()
+    }
   }
 }
 
