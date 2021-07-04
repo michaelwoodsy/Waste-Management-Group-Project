@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 /**
- * UserNotification class for storing user's system notifications.
+ * AdminNotification class for storing notifications for system administrators.
  */
 @Data // generate setters and getters for all fields (lombok pre-processor)
 @EqualsAndHashCode(callSuper = true)

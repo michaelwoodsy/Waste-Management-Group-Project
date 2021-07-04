@@ -151,22 +151,22 @@ public class KeywordManagementSteps {
 //        throw new io.cucumber.java.PendingException();
 //    }
 //
-//    //AC5
-//
-//    @When("The new keyword {string} is created")
-//    public void the_new_keyword_is_created(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("A system admin notification is created for the new keyword {string}")
-//    public void a_system_admin_notification_is_created_for_the_new_keyword(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    //AC6
-//
+    //AC5
+
+    @When("The new keyword {string} is created")
+    public void the_new_keyword_is_created(String keyword) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new io.cucumber.java.PendingException();
+    }
+
+    @Then("A system admin notification is created for the new keyword {string}")
+    public void a_system_admin_notification_is_created_for_the_new_keyword(String keyword) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new io.cucumber.java.PendingException();
+    }
+
+    //AC6
+
 //    @Given("A card with the keyword {string} exists")
 //    public void a_card_with_the_keyword_exists(String keyword) {
 //        // Write code here that turns the phrase above into concrete actions

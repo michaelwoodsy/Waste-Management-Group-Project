@@ -25,11 +25,11 @@ Feature: UCM6 - Keyword management
     And There are no matches
 #    Then It is possible to add "Bananas" as a new keyword
 #
-#
-#  Scenario: AC5: To prevent abuse, system administrators are notified when a new keyword is added.
-#    Given There is no keyword "Cabbages"
-#    When The new keyword "Cabbages" is created
-#    Then A system admin notification is created for the new keyword "Cabbages"
+
+  Scenario: AC5: To prevent abuse, system administrators are notified when a new keyword is added.
+    Given There is no keyword "Cabbages"
+    When The new keyword "Cabbages" is created
+    Then A system admin notification is created for the new keyword "Cabbages"
 #
 #
 #  Scenario: AC6: Only system administrators can delete a keyword.
