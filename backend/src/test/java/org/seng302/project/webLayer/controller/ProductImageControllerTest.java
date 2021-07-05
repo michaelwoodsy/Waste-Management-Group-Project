@@ -277,6 +277,11 @@ class ProductImageControllerTest extends AbstractInitializer {
         mockMvc.perform(request).andExpect(status().isNotAcceptable());
     }
 
+    /**
+     * Tests that request to delete a product image fails
+     * when a user is not logged in.
+     * Expect 401 response
+     */
     @Test
     void deleteProductImage_notLoggedIn_returnsStatus401() throws Exception {
         RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
@@ -288,6 +293,11 @@ class ProductImageControllerTest extends AbstractInitializer {
         mockMvc.perform(deleteProductImageRequest).andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests that request to delete a product image fails
+     * when a user is neither an admin nor a GAA.
+     * Expect 401 response
+     */
     @Test
     void deleteProductImage_notAdmin_returnsStatus403() throws Exception {
         doThrow(new ForbiddenAdministratorActionException(testBusiness.getId()))
@@ -303,6 +313,11 @@ class ProductImageControllerTest extends AbstractInitializer {
         mockMvc.perform(deleteProductImageRequest).andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests that request to delete a product image fails
+     * when the business does not exist
+     * Expect 406 response
+     */
     @Test
     void deleteProductImage_noBusinessExists_returnsStatus406() throws Exception {
         doThrow(new BusinessNotFoundException(4))
@@ -318,6 +333,11 @@ class ProductImageControllerTest extends AbstractInitializer {
         mockMvc.perform(deleteProductImageRequest).andExpect(status().isNotAcceptable());
     }
 
+    /**
+     * Tests that request to delete a product image fails
+     * when the product does not exist
+     * Expect 406 response
+     */
     @Test
     void deleteProductImage_noProductExists_returnsStatus406() throws Exception {
         doThrow(new ProductNotFoundException("NotAProduct", testBusiness.getId()))
@@ -333,6 +353,11 @@ class ProductImageControllerTest extends AbstractInitializer {
         mockMvc.perform(deleteProductImageRequest).andExpect(status().isNotAcceptable());
     }
 
+    /**
+     * Tests that request to delete a product image fails
+     * when the image does not exist
+     * Expect 406 response
+     */
     @Test
     void deleteProductImage_noImageExists_returnsStatus406() throws Exception {
         doThrow(new ProductImageNotFoundException(testProduct.getId(), 7))
@@ -349,6 +374,11 @@ class ProductImageControllerTest extends AbstractInitializer {
         mockMvc.perform(deleteProductImageRequest).andExpect(status().isNotAcceptable());
     }
 
+    /**
+     * Tests that request to delete a product image is successful
+     * when the user is a business admin
+     * Expect 200 response
+     */
     @Test
     void deleteProductImage_asAdmin_ok200() throws Exception {
         RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
@@ -361,6 +391,11 @@ class ProductImageControllerTest extends AbstractInitializer {
         mockMvc.perform(deleteProductImageRequest).andExpect(status().isOk());
     }
 
+    /**
+     * Tests that request to delete a product image is successful
+     * when the user is a GAA
+     * Expect 200 response
+     */
     @Test
     void deleteProductImage_asGAA_ok200() throws Exception {
         RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
