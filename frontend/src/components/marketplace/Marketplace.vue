@@ -97,9 +97,10 @@ Page for displaying the marketplace.
                  style="margin-bottom: 2px"
                  autocomplete="off"
                  data-toggle="dropdown"
-                 @input="searchKeywords"
-                 @keyup.space="addKeyword"/>
-          <button class="btn btn-primary ml-2">
+                 @input="searchKeywords"/>
+          <button
+              :class="{disabled: keywords.length <= 0}"
+              class="btn btn-primary ml-2" @click="searchCards">
             Apply
           </button>
           <!-- Autocomplete dropdown -->
@@ -121,7 +122,7 @@ Page for displaying the marketplace.
                v-for="keyword in filteredKeywords"
                v-else
                :key="keyword.id"
-               @click="setKeyword(keyword.name)">
+               @click="setKeyword(keyword)">
               <span>{{ keyword.name }}</span>
             </a>
           </div>
@@ -131,7 +132,7 @@ Page for displaying the marketplace.
                 class="btn btn-primary d-inline-block m-2"
                 v-for="(keyword, index) in keywords"
                 :key="'keyword' + index">
-              <span>{{  keyword  }}</span>
+              <span>{{  keyword.name  }}</span>
               <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
             </button>
           </div>
@@ -166,7 +167,7 @@ import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import CreateCardPage from "@/components/marketplace/CreateCardPage";
 import PageWrapper from "@/components/PageWrapper";
-import {Keyword, User} from "@/Api";
+import {Keyword, User, Card} from "@/Api";
 
 export default {
   name: "Marketplace",
@@ -362,14 +363,18 @@ export default {
     /**
      * Adds a keyword to the list of keywords
      */
-    addKeyword() {
+    addKeyword(keyword) {
       this.keywordValue = this.keywordValue.trim()
       if((this.keywordValue === '' || this.keywordValue === ' ')
           || this.keywords.includes(this.keywordValue)) {
         this.keywordValue = '';
       }
       if (this.keywordValue.length > 2) {
-        this.keywords.push(this.keywordValue);
+        this.keywords.push(
+            {
+              id: keyword.id,
+              name: this.keywordValue
+            });
         this.keywordValue = '';
       }
     },
@@ -405,8 +410,33 @@ export default {
      * @param keyword Keyword to be added to keyword list
      */
     setKeyword(keyword) {
-      this.keywordValue = keyword
-      this.addKeyword()
+      this.keywordValue = keyword.name
+      this.addKeyword(keyword)
+    },
+
+    /**
+     * Searches for cards by calling backend api endpoint and
+     */
+    async searchCards() {
+      //return if there are no keywords to search for
+      if (this.keywords.length <= 0) return
+
+      let apiParams = '?'
+      for (const keyword of this.keywords) {
+        apiParams += `keywordIds=${keyword.id}&`
+      }
+      apiParams += `section=${this.tabSelected}&`
+      //TODO: Include this part of the query when it's task is done
+      apiParams += `union=false`
+
+      await Card.searchCards(apiParams)
+          .then((res) => {
+            this.error = "";
+            this.cards = res.data
+          })
+          .catch((err) => {
+            this.error = err;
+          })
     }
 
   }

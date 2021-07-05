@@ -220,7 +220,14 @@ export const Card = {
      * Retrieves all the data for a given card
      * @param cardId The ID of the card in the database
      */
-    getCard: (cardId) => instance.get(`cards/${cardId}`, {})
+    getCard: (cardId) => instance.get(`cards/${cardId}`, {}),
+
+    /**
+     * Searches for cards by keyword
+     * @param params parameters to search by, the keywords, the section, and whether to match all keywords or only some
+     * @returns {Promise<AxiosResponse<any>>} Response from request
+     */
+    searchCards: (params) => instance.get(`cards/search/${params}`, {})
 };
 
 export const Keyword = {
