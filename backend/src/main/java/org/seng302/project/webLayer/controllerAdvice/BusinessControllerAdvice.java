@@ -2,6 +2,7 @@ package org.seng302.project.webLayer.controllerAdvice;
 
 
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
@@ -35,8 +36,8 @@ public class BusinessControllerAdvice {
      *
      * @return a 406 response with an appropriate message
      */
-    @ExceptionHandler(NoBusinessExistsException.class)
-    public ResponseEntity<String> businessDoesNotExist(NoBusinessExistsException ex) {
+    @ExceptionHandler(BusinessNotFoundException.class)
+    public ResponseEntity<String> businessDoesNotExist(BusinessNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
 

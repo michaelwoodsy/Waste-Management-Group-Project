@@ -7,26 +7,22 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Notification class for storing user's system notifications.
+ * Parent class for all notifications
  */
 @Data // generate setters and getters for all fields (lombok pre-processor)
 @NoArgsConstructor // generate a no-args constructor needed by JPA (lombok pre-processor)
-@Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
+@MappedSuperclass
 public class Notification {
 
     private Integer id;
-    private User user;
     private String message;
     private LocalDateTime created = LocalDateTime.now();
 
     /**
      * Constructor for creating a new Notification object.
-     *
-     * @param user                        User to which notification is assigned to.
-     * @param message                     Message details of notification.
+     * @param message Message details of notification.
      */
-    public Notification(User user, String message) {
-        this.user = user;
+    public Notification(String message) {
         this.message = message;
     }
 
@@ -37,9 +33,5 @@ public class Notification {
         return this.id;
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    public User getUser() {
-        return this.user;
-    }
+
 }

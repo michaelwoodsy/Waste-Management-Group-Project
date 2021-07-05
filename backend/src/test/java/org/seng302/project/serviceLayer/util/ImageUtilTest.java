@@ -3,20 +3,26 @@ package org.seng302.project.serviceLayer.util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.seng302.project.serviceLayer.util.ImageUtil;
+import org.seng302.project.AbstractInitializer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-class ImageUtilTest {
-
+@SpringBootTest
+class ImageUtilTest extends AbstractInitializer {
 
     private ImageUtil imageUtil;
-
+    private MockMultipartFile testImageFile;
 
     @BeforeEach
-    public void init() {
-        imageUtil = new ImageUtil();
+    void setup() {
+        this.initialise();
+        this.imageUtil = this.getImageUtil();
+        this.testImageFile = this.getTestImageFile();
     }
 
     /**
@@ -26,16 +32,22 @@ class ImageUtilTest {
      */
     @Test
     void testCreateThumbnail() throws IOException {
-        //delete existing thumbnail if it exists
-        File existingThumbnail = new File("../media/asparagus_thumbnail.jpg");
-        existingThumbnail.delete(); //Returns false if file does not exist
-
-        //create new thumbnail, current working directory is team-200/backend
-        imageUtil.createThumbnail("../media/asparagus.jpg");
+        //create new thumbnail, current working directory is team-200/src/main/resources/public
+        imageUtil.createThumbnail("src/test/resources/public/media/asparagus.jpg");
 
         //assert new thumbnail exists
-        File newThumbnail = new File("../media/asparagus_thumbnail.jpg");
+        File newThumbnail = new File("src/test/resources/public/media/asparagus_thumbnail.jpg");
         Assertions.assertTrue(newThumbnail.exists());
-
+        Assertions.assertTrue(newThumbnail.delete());
     }
+
+    /**
+     * Tests that a BufferedImage is successfully read from a multipart file.
+     */
+    @Test
+    void readFromMultipartFile() throws IOException {
+        BufferedImage image = imageUtil.readImageFromMultipartFile(testImageFile);
+        Assertions.assertNotNull(image);
+    }
+
 }

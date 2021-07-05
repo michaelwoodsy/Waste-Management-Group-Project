@@ -44,6 +44,11 @@ let computed = {
         return true
     }
 }
+let methods = {
+    getImageURL(path) {
+        return path
+    }
+}
 
 // Mock the business api module, once implemented
 jest.mock('@/Api', () => ({
@@ -79,7 +84,8 @@ jest.mock('@/Api', () => ({
 beforeEach(() => {
     wrapper = VueTestUtils.shallowMount(EditProductPage, {
         stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-        computed
+        computed,
+        methods
     })
 });
 
@@ -102,7 +108,8 @@ describe('EditProductPage Component Tests', () => {
         loggedIn = false;
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-            computed
+            computed,
+            methods
         })
         expect(wrapper.findComponent({name: 'login-required'}).exists()).toBeTruthy()
     })
@@ -112,7 +119,8 @@ describe('EditProductPage Component Tests', () => {
         businessId = 3;
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-            computed
+            computed,
+            methods
         })
         expect(wrapper.findComponent({name: 'admin-required'}).exists()).toBeTruthy()
     })
@@ -131,7 +139,8 @@ describe('EditProductPage Component Tests', () => {
         productId = "Non existent";
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required", "alert"],
-            computed
+            computed,
+            methods
         })
         await Vue.nextTick() // Otherwise the loading ... message is displayed
 
@@ -180,7 +189,8 @@ describe('EditProductPage Component Tests', () => {
         wrapper = await VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
             computed: {...computed, idValid() {return false}, nameValid() {return false},
-                priceValid() {return false}}
+                priceValid() {return false}},
+            methods
         })
         await wrapper.setData({nameBlur: true, priceBlur: true, idBlur: true}) // Set the elements as being blurred
 
@@ -224,5 +234,11 @@ describe("Edit Product Images Test",  () => {
             url: "other_image.jpg",
             file: ""
         }])
+    })
+
+    // Test that calling makePrimaryImage changes the primary image
+    test('Making a imageId the new primary image id', () => {
+        wrapper.vm.makeImagePrimary(1001)
+        expect(wrapper.vm.$data.currentPrimaryImageId).toEqual(1001)
     })
 })
