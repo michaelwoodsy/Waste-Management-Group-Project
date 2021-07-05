@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileNotFoundException;
 
@@ -70,6 +71,7 @@ public class MainApplicationRunner implements ApplicationRunner {
      * By overriding the run method, we tell Spring to run this code at startup. See
      * https://dzone.com/articles/spring-boot-applicationrunner-and-commandlinerunne
      */
+    @Transactional
     @Override
     public void run(ApplicationArguments args) {
         logger.info("Startup application with {}", args);

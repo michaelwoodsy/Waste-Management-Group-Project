@@ -15,13 +15,13 @@ import java.io.IOException;
 @SpringBootTest
 class ImageUtilTest extends AbstractInitializer {
 
+    @Autowired
     private ImageUtil imageUtil;
     private MockMultipartFile testImageFile;
 
     @BeforeEach
     void setup() {
         this.initialise();
-        this.imageUtil = this.getImageUtil();
         this.testImageFile = this.getTestImageFile();
     }
 

@@ -4,12 +4,15 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
+import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
 import org.seng302.project.webLayer.controller.CardController;
 import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.repositoryLayer.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Collections;
 
 public class MarketplaceSectionDisplaySteps {
 
@@ -21,7 +24,7 @@ public class MarketplaceSectionDisplaySteps {
     private String cardDescription;
     private String cardSection;
     private Integer cardId;
-    private Card retrivedCard;
+    private GetCardResponseDTO retrivedCard;
 
     @Autowired
     public MarketplaceSectionDisplaySteps(
@@ -43,7 +46,7 @@ public class MarketplaceSectionDisplaySteps {
                 "Likes long walks on the beach", "testEmail@email.com", "1999-04-27",
                 "+64 3 555 0129", null, "Password123");
         userRepository.save(user);
-        Card newCard = new Card(user, section, title, description);
+        Card newCard = new Card(user, section, title, description, Collections.emptySet());
         cardRepository.save(newCard);
         cardId = newCard.getId();
     }

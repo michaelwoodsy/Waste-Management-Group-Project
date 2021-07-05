@@ -117,13 +117,13 @@
           <p>Primary Administrator of: </p>
         </div>
         <div class="col-6">
-          <table>
+          <table aria-label="Businesses this user administers">
             <tr v-for="(business, index) in primaryAdminOf" :key="index">
-              <td>
+              <th id="business-name" class="font-weight-normal">
                 <router-link :to="`/businesses/${business.id}`" class="nav-link p-0">
                   {{ business.name }}
                 </router-link>
-              </td>
+              </th>
             </tr>
           </table>
         </div>
