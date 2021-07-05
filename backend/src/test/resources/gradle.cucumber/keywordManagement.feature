@@ -32,16 +32,16 @@ Feature: UCM6 - Keyword management
 #    Then A system admin notification is created for the new keyword "Cabbages"
 #
 #
-#  Scenario: AC6: Only system administrators can delete a keyword.
-#    In this case, the keyword is removed from the list and from any cards it appears on.
-#    Given A card with the keyword "Random" exists
-#    When A system admin deletes the keyword "Random"
-#    Then The keyword "Random" no longer exists
-#    And The card no longer has the keyword "Random"
-#
-#  Scenario: AC6: Only system administrators can delete a keyword.
-#  In this case, the keyword is removed from the list and from any cards it appears on.
-#    Given A card with the keyword "Random" exists
-#    When A regular user tries to delete the keyword "Random"
-#    Then The keyword "Random" still exists
-#    And The card still has the keyword "Random"
+  Scenario: AC6: Only system administrators can delete a keyword.
+    In this case, the keyword is removed from the list and from any cards it appears on.
+    Given A card with the keyword "Random" exists
+    When A system admin deletes the keyword "Random"
+    Then The keyword "Random" no longer exists
+    And The card no longer has the keyword "Random"
+
+  Scenario: AC6: Only system administrators can delete a keyword.
+  In this case, the keyword is removed from the list and from any cards it appears on.
+    Given A card with the keyword "Random" exists
+    When A regular user tries to delete the keyword "Random"
+    Then The keyword "Random" still exists
+    And The card still has the keyword "Random"

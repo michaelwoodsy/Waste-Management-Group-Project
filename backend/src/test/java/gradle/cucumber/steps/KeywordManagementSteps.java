@@ -6,9 +6,12 @@ import io.cucumber.java.en.When;
 import org.json.JSONArray;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
+import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -20,7 +23,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -29,9 +34,17 @@ public class KeywordManagementSteps {
 
     private final KeywordRepository keywordRepository;
 
+    private final CardRepository cardRepository;
+
+    private final UserRepository userRepository;
+
     private MockMvc mockMvc;
 
     private User testUser;
+
+    private User adminUser;
+
+    private Card testCard;
 
     private RequestBuilder searchKeywordRequest;
 
@@ -39,8 +52,12 @@ public class KeywordManagementSteps {
 
     @Autowired
     public KeywordManagementSteps(
-            KeywordRepository keywordRepository) {
+            KeywordRepository keywordRepository,
+            CardRepository cardRepository,
+            UserRepository userRepository) {
         this.keywordRepository = keywordRepository;
+        this.cardRepository = cardRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -50,6 +67,10 @@ public class KeywordManagementSteps {
     @BeforeEach
     @Autowired
     public void setup(WebApplicationContext context) {
+        cardRepository.deleteAll();
+        userRepository.deleteAll();
+        keywordRepository.deleteAll();
+
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
@@ -58,7 +79,13 @@ public class KeywordManagementSteps {
         testUser = new User("Test", "User", "", "", "I'm a test user", "testuser@gmail.com",
                 "2000-07-28", "123 123 1234", null, "SecurePassword789");
 
-        keywordRepository.deleteAll();
+        adminUser = new User("Admin", "User", "", "", "I'm a admin user", "testadminuser@gmail.com",
+                "2000-07-28", "123 123 1234", null, "SecurePassword789");
+        adminUser.setRole("globalApplicationAdmin");
+
+        // Save the test users
+        testUser = userRepository.save(testUser);
+        adminUser = userRepository.save(adminUser);
     }
 
 
@@ -165,47 +192,70 @@ public class KeywordManagementSteps {
 //        throw new io.cucumber.java.PendingException();
 //    }
 //
-//    //AC6
-//
-//    @Given("A card with the keyword {string} exists")
-//    public void a_card_with_the_keyword_exists(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @When("A system admin deletes the keyword {string}")
-//    public void a_system_admin_deletes_the_keyword(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The keyword {string} no longer exists")
-//    public void the_keyword_no_longer_exists(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The card no longer has the keyword {string}")
-//    public void the_card_no_longer_has_the_keyword(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @When("A regular user tries to delete the keyword {string}")
-//    public void a_regular_user_tries_to_delete_the_keyword(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The keyword {string} still exists")
-//    public void the_keyword_still_exists(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The card still has the keyword {string}")
-//    public void the_card_still_has_the_keyword(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
+    //AC6
+
+    @Given("A card with the keyword {string} exists")
+    @Transactional
+    public void a_card_with_the_keyword_exists(String keyword) {
+
+        // Create the keyword
+        Keyword word = new Keyword(keyword);
+        word = keywordRepository.save(word);
+
+        // Create the card with the keyword
+        testCard = new Card(testUser, "Test", "Test", "test", Set.of(word));
+        testCard = cardRepository.save(testCard);
+    }
+
+    @When("A system admin deletes the keyword {string}")
+    public void a_system_admin_deletes_the_keyword(String keyword) throws Exception {
+        int keywordId = keywordRepository.findByName(keyword).get(0).getId();
+        searchKeywordRequest = MockMvcRequestBuilders
+                .delete("/keywords/{id}", keywordId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(adminUser)));
+
+        this.mockMvc.perform(searchKeywordRequest);
+    }
+
+    @Then("The keyword {string} no longer exists")
+    public void the_keyword_no_longer_exists(String keyword) {
+        List<Keyword> matchingKeywords = keywordRepository.findByName(keyword);
+        Assertions.assertEquals(0, matchingKeywords.size());
+    }
+
+    @Then("The card no longer has the keyword {string}")
+    public void the_card_no_longer_has_the_keyword(String keyword) {
+        testCard = cardRepository.findById(testCard.getId()).get();
+        // Check all the keywords that card has are not the same as the keyword
+        for (Keyword word : testCard.getKeywords()) {
+            Assertions.assertNotEquals(keyword, word.getName());
+        }
+    }
+
+    @When("A regular user tries to delete the keyword {string}")
+    public void a_regular_user_tries_to_delete_the_keyword(String keyword) throws Exception {
+        int keywordId = keywordRepository.findByName(keyword).get(0).getId();
+        searchKeywordRequest = MockMvcRequestBuilders
+                .delete("/keywords/{id}", keywordId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        this.mockMvc.perform(searchKeywordRequest);
+    }
+
+    @Then("The keyword {string} still exists")
+    public void the_keyword_still_exists(String keyword) {
+        List<Keyword> matchingKeywords = keywordRepository.findByName(keyword);
+        Assertions.assertEquals(1, matchingKeywords.size());
+    }
+
+    @Then("The card still has the keyword {string}")
+    public void the_card_still_has_the_keyword(String keyword) {
+        testCard = cardRepository.findById(testCard.getId()).get();
+        Keyword word = keywordRepository.findByName(keyword).get(0);
+        Assertions.assertTrue(testCard.getKeywords().contains(word));
+    }
 }
