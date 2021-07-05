@@ -104,7 +104,7 @@ Page for displaying the marketplace.
             Apply
           </button>
           <span class="custom-control custom-switch m-2">
-            <input type="checkbox" class="custom-control-input" id="any-all-keyword-switch">
+            <input v-model="keywordUnion" type="checkbox" class="custom-control-input" id="any-all-keyword-switch">
             <label class="custom-control-label" for="any-all-keyword-switch">Match all</label>
           </span>
           <!-- Autocomplete dropdown -->
@@ -187,6 +187,7 @@ export default {
       resultsPerPage: 10,
       page: 1,
       keywordValue: '',
+      keywordUnion: false,
       keywords: [],
       filteredKeywords: []
     }
@@ -419,7 +420,7 @@ export default {
     },
 
     /**
-     * Searches for cards by calling backend api endpoint and
+     * Searches for cards by calling backend api endpoint and displaying the cards returned
      */
     async searchCards() {
       //return if there are no keywords to search for
@@ -430,8 +431,8 @@ export default {
         apiParams += `keywordIds=${keyword.id}&`
       }
       apiParams += `section=${this.tabSelected}&`
-      //TODO: Include this part of the query when it's task is done
-      apiParams += `union=false`
+      //union=false is match ALL, union=true is match ANY
+      apiParams += `union=${!this.keywordUnion}`
 
       await Card.searchCards(apiParams)
           .then((res) => {
