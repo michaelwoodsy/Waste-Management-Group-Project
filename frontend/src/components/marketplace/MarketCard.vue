@@ -91,7 +91,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
           <span v-else>Hide Details <em class="bi bi-arrow-up"/></span>
         </button>
         <!-- Button to expand area to send a message to the creator -->
-        <button v-if="!isCardCreator"
+        <button v-if="!isCardCreator && actingAsUser"
                 :data-target="'#cardMessage' + cardData.id"
                 class="btn btn-sm btn-outline-primary ml-3"
                 data-toggle="collapse"
@@ -118,7 +118,11 @@ Eg, <market-card @card-deleted="someMethod" ... />
           <span v-if="messageError" class="invalid-feedback">Please enter a message to send</span>
           <span v-if="messageSent" class="valid-feedback">Message sent!</span>
         </div>
-        <button class="btn btn-sm btn-primary" @click="sendMessage">Send Message</button>
+        <button class="btn btn-sm btn-primary"
+                @click="sendMessage"
+                :disabled="!message">
+          Send Message
+        </button>
       </div>
 
     </div>
@@ -258,6 +262,11 @@ export default {
     expired() {
       const now = new Date();
       return now >= new Date(this.cardData.displayPeriodEnd);
+    },
+
+    /** Returns true if a user is acting as a user and not a business **/
+    actingAsUser() {
+      return this.$root.$data.user.state.actingAs.type === 'user'
     }
   },
   methods: {
