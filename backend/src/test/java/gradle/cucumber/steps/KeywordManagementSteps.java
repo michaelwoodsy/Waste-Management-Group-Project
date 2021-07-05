@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
-import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
@@ -18,7 +17,6 @@ import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
 import org.seng302.project.serviceLayer.dto.keyword.AddKeywordDTO;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -92,24 +90,17 @@ public class KeywordManagementSteps extends AbstractInitializer {
                 .build();
 
         testUser = this.getTestUser();
-        List<User> user = userRepository.findByEmail(testUser.getEmail());
-        if (user.isEmpty()) {
-            testUser.setId(null);
-            testUser.setHomeAddress(null);
-            testUser = userRepository.save(testUser);
-        } else {
-            testUser = user.get(0);
-        }
-        adminUser = new User("Admin", "User", "", "", "I'm a admin user", "testadminuser@gmail.com",
-                "2000-07-28", "123 123 1234", null, "SecurePassword789");
-        adminUser.setRole("globalApplicationAdmin");
+        testUser.setId(null);
+        testUser.setHomeAddress(null);
+
+        adminUser = this.getTestSystemAdmin();
+        adminUser.setId(null);
+        adminUser.setHomeAddress(null);
 
         // Save the test users
         testUser = userRepository.save(testUser);
         adminUser = userRepository.save(adminUser);
-
     }
-
 
     //AC1/AC2
 

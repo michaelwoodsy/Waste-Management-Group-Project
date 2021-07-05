@@ -1,11 +1,10 @@
 package org.seng302.project.webLayer.controller;
 
 import org.seng302.project.repositoryLayer.model.Keyword;
-import org.seng302.project.serviceLayer.dto.keyword.AddKeywordDTO;
-import org.seng302.project.serviceLayer.dto.keyword.AddKeywordResponseDTO;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.serviceLayer.dto.keyword.AddKeywordDTO;
+import org.seng302.project.serviceLayer.dto.keyword.AddKeywordResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenDGAAActionException;
 import org.seng302.project.serviceLayer.service.KeywordService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,14 +24,14 @@ import java.util.List;
 @RestController
 public class KeywordController {
 
+    private static final Logger logger = LoggerFactory.getLogger(KeywordController.class.getName());
     private final KeywordService keywordService;
     private final UserRepository userRepository; // wont be needed once user controller is refactored
-    private static final Logger logger = LoggerFactory.getLogger(KeywordController.class.getName());
 
     @Autowired
     public KeywordController(KeywordService keywordService, UserRepository userRepository) {
         this.keywordService = keywordService;
-        this. userRepository = userRepository;
+        this.userRepository = userRepository;
     }
 
     /**
