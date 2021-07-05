@@ -3,6 +3,7 @@ package org.seng302.project.serviceLayer.service;
 import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.specification.KeywordSpecifications;
+import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,23 @@ public class KeywordService {
             return new ArrayList<>(matchingKeywords);
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while searching keywords: %s", exception.getMessage()));
+            throw exception;
+        }
+    }
+
+    /**
+     * Deletes a keyword with the corresponding ID.
+     * @param keywordId ID of the keyword to delete.
+     */
+    public void deleteKeyword(Integer keywordId) {
+        try {
+            throw new NotAcceptableException(String.format("No keyword exists with ID %s", keywordId));
+
+        } catch (NotAcceptableException exception) {
+            logger.warn(exception.getMessage());
+            throw exception;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while deleting keyword: %s", exception.getMessage()));
             throw exception;
         }
     }

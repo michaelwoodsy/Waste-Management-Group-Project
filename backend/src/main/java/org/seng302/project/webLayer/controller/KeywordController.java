@@ -2,12 +2,11 @@ package org.seng302.project.webLayer.controller;
 
 import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.serviceLayer.service.KeywordService;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -36,5 +35,11 @@ public class KeywordController {
         return keywordService.searchKeywords(searchQuery);
     }
 
+    @DeleteMapping("/keywords/{keywordId}")
+    public void deleteKeyword(
+            @PathVariable("keywordId") Integer keywordId,
+            @AuthenticationPrincipal AppUserDetails appUser) {
+
+    }
 
 }
