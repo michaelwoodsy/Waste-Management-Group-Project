@@ -2,8 +2,10 @@ package org.seng302.project.serviceLayer.service;
 
 import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.Keyword;
+import org.seng302.project.repositoryLayer.model.NewKeywordNotification;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
+import org.seng302.project.repositoryLayer.repository.NewKeywordNotificationRepository;
 import org.seng302.project.repositoryLayer.specification.KeywordSpecifications;
 import org.seng302.project.serviceLayer.dto.keyword.AddKeywordResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
@@ -25,11 +27,14 @@ public class KeywordService {
     private static final Logger logger = LoggerFactory.getLogger(KeywordService.class.getName());
     private final KeywordRepository keywordRepository;
     private final CardRepository cardRepository;
+    private final NewKeywordNotificationRepository newKeywordNotificationRepository;
 
     @Autowired
-    public KeywordService(KeywordRepository keywordRepository, CardRepository cardRepository) {
+    public KeywordService(KeywordRepository keywordRepository, CardRepository cardRepository,
+                          NewKeywordNotificationRepository newKeywordNotificationRepository) {
         this.keywordRepository = keywordRepository;
         this.cardRepository = cardRepository;
+        this.newKeywordNotificationRepository = newKeywordNotificationRepository;
     }
 
     /**
@@ -49,6 +54,10 @@ public class KeywordService {
 
             var keyword = new Keyword(name);
             keyword = keywordRepository.save(keyword);
+
+            var adminNotification = new NewKeywordNotification(keyword);
+            newKeywordNotificationRepository.save(adminNotification);
+
             return new AddKeywordResponseDTO(keyword.getId());
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while searching keywords: %s", exception.getMessage()));

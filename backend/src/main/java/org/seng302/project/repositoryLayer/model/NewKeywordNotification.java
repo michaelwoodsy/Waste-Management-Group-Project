@@ -22,11 +22,10 @@ public class NewKeywordNotification extends AdminNotification {
     /**
      * Constructor for creating a new NewKeywordNotification object.
      *
-     * @param message                     Message details of notification.
      * @param keyword                     Keyword this notification is about.
      */
-    public NewKeywordNotification(String message, Keyword keyword) {
-        super(message);
+    public NewKeywordNotification(Keyword keyword) {
+        super(String.format("New keyword created with the name: %s", keyword.getName()));
         this.keyword = keyword;
     }
 
