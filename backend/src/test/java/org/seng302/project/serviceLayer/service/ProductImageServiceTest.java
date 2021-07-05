@@ -16,6 +16,7 @@ import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
 import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -258,4 +259,68 @@ class ProductImageServiceTest extends AbstractInitializer {
                 () -> productImageService.setPrimaryImage(dto));
     }
 
+    @Test
+    void deleteImage_notAdmin_throwsException() {
+        DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
+                testBusiness.getId(),
+                testProduct.getId(),
+                2,
+                new AppUserDetails(testUser)
+        );
+        Assertions.assertThrows(ForbiddenAdministratorActionException.class,
+                () -> productImageService.deleteImage(deleteProductImageDTO));
+    }
+
+    @Test
+    void deleteImage_noBusinessExists_throwsException() {
+        given(businessRepository.findById(4)).willReturn(Optional.empty());
+        DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
+                4,
+                testProduct.getId(),
+                2,
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+        Assertions.assertThrows(BusinessNotFoundException.class,
+                () -> productImageService.deleteImage(deleteProductImageDTO));
+    }
+
+    @Test
+    void deleteImage_noProductExists_throwsException() {
+        given(productRepository.findByIdAndBusinessId("NotAProduct", 1)).willReturn(Optional.empty());
+        DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
+                testBusiness.getId(),
+                "NotAProduct",
+                2,
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+        Assertions.assertThrows(ProductNotFoundException.class,
+                () -> productImageService.deleteImage(deleteProductImageDTO));
+    }
+
+    @Test
+    void deleteImage_noImageExists_throwsException() {
+        DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
+                testBusiness.getId(),
+                testProduct.getId(),
+                7,
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+        Assertions.assertThrows(ProductImageNotFoundException.class,
+                () -> productImageService.deleteImage(deleteProductImageDTO));
+    }
+
+    /*
+    @Test
+    void deleteImage_withBusinessAdmin_success() {
+        DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
+                testBusiness.getId(),
+                testProduct.getId(),
+                2,
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+        productImageService.deleteImage(deleteProductImageDTO);
+
+        Assertions.assertEquals(2, testProduct.getImages().size());
+    }
+    */
 }

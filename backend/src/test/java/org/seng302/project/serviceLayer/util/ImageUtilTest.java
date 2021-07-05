@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 
@@ -50,4 +52,10 @@ class ImageUtilTest extends AbstractInitializer {
         Assertions.assertNotNull(image);
     }
 
+    @Test
+    void testDeleteImageFile() throws IOException{
+        File tempFile = File.createTempFile("test", ".jpg", new File("src/test/resources/public/media/"));
+        imageUtil.deleteImage(tempFile.getAbsolutePath());
+        Assertions.assertFalse(tempFile.exists());
+    }
 }
