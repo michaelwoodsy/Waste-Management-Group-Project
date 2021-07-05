@@ -220,11 +220,11 @@ export default {
       const keywordIds = await this.getKeywordIds()
       this.$root.$data.user.createCard(
           {
-            "creatorId": this.$root.$data.user.state.actingAs.id,
-            "section": this.section,
-            "title": this.title,
-            "description": this.description,
-            "keywords": keywordIds
+            creatorId: this.$root.$data.user.state.actingAs.id,
+            section: this.section,
+            title: this.title,
+            description: this.description,
+            keywordIds: keywordIds
           }
       ).then(() => {
         this.$refs.close.click();
