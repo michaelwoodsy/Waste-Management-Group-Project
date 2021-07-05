@@ -61,7 +61,7 @@ Page for displaying the marketplace.
         </div>
       </div>
 
-      <!-- Div above results -->
+      <!-- Div above results for ordering -->
       <div class="row form justify-content-center">
         <div class="col form-group text-center">
           <!-- Combobox and label for ordering -->
@@ -84,6 +84,60 @@ Page for displaying the marketplace.
           />
         </div>
       </div>
+
+      <!-- Div above results for filtering by keywords -->
+      <div class="row form justify-content-center">
+        <div class="col form-group text-center">
+          <label class="d-inline-block" for="order-select">Filter By Keywords</label>
+          <!-- Keyword Input -->
+          <input id="keywordSearchValue" v-model="keywordValue"
+                 class="form-control ml-2 d-inline-block w-auto"
+                 placeholder="Enter Keywords"
+                 required maxlength="25" type="text"
+                 style="margin-bottom: 2px"
+                 autocomplete="off"
+                 data-toggle="dropdown"
+                 @input="searchKeywords"
+                 @keyup.space="addKeyword"/>
+          <button class="btn btn-primary ml-2">
+            Apply
+          </button>
+          <!-- Autocomplete dropdown -->
+          <div class="dropdown-menu overflow-auto" id="dropdown">
+            <!-- If no user input -->
+            <p class="text-muted dropdown-item left-padding mb-0 disabled"
+               v-if="keywordValue.length === 0"
+            >
+              Start typing...
+            </p>
+            <!-- If no matches -->
+            <p class="text-muted dropdown-item left-padding mb-0 disabled"
+               v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
+            >
+              No results found.
+            </p>
+            <!-- If there are matches -->
+            <a class="dropdown-item pointer left-padding"
+               v-for="keyword in filteredKeywords"
+               v-else
+               :key="keyword.id"
+               @click="setKeyword(keyword.name)">
+              <span>{{ keyword.name }}</span>
+            </a>
+          </div>
+          <!-- Keyword Bubbles -->
+          <div class="keyword">
+            <button
+                class="btn btn-primary d-inline-block m-2"
+                v-for="(keyword, index) in keywords"
+                :key="'keyword' + index">
+              <span>{{  keyword  }}</span>
+              <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
 
       <!-- Div with cards -->
       <div class="row row-cols-1 row-cols-lg-2">
@@ -112,7 +166,7 @@ import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import CreateCardPage from "@/components/marketplace/CreateCardPage";
 import PageWrapper from "@/components/PageWrapper";
-import { User } from "@/Api";
+import {Keyword, User} from "@/Api";
 
 export default {
   name: "Marketplace",
@@ -126,7 +180,10 @@ export default {
       error: "",
       order: 'created-asc',
       resultsPerPage: 10,
-      page: 1
+      page: 1,
+      keywordValue: '',
+      keywords: [],
+      filteredKeywords: []
     }
   },
 
@@ -226,12 +283,24 @@ export default {
 
     /** Function for sorting a list of cards by created date **/
     sortCreatedDate(a, b) {
-      return (a.created < b.created) ? -1 : ((a.created > b.created) ? 1 : 0)
+      if (a.created < b.created) {
+        return -1
+      }
+      if ((a.created > b.created)) {
+        return 1
+      }
+      return 0
     },
 
     /** Function for sorting a list by title alphabetically **/
     sortTitle(a, b) {
-      return (a.title < b.title) ? -1 : ((a.title > b.title) ? 1 : 0)
+        if (a.title < b.title) {
+          return -1
+        }
+        if ((a.title > b.title)) {
+          return 1
+        }
+        return 0
     },
 
     /** Function for sorting a list by location alphabetically **/
@@ -290,6 +359,56 @@ export default {
             this.error = err;
           })
     },
+    /**
+     * Adds a keyword to the list of keywords
+     */
+    addKeyword() {
+      this.keywordValue = this.keywordValue.trim()
+      if((this.keywordValue === '' || this.keywordValue === ' ')
+          || this.keywords.includes(this.keywordValue)) {
+        this.keywordValue = '';
+      }
+      if (this.keywordValue.length > 2) {
+        this.keywords.push(this.keywordValue);
+        this.keywordValue = '';
+      }
+    },
+
+    /**
+     * Removes a keyword from the list of keywords
+     * @param index Index of the keyword in the keyword list
+     */
+    removeKeyword(index) {
+      this.keywords.splice(index, 1)
+    },
+
+    /**
+     * Filters autocomplete options based on the user's input for a keyword.
+     */
+    async searchKeywords() {
+      if (this.keywordValue.length > 2) {
+        await Keyword.searchKeywords(this.keywordValue)
+            .then((response) => {
+              this.filteredKeywords = response.data;
+            })
+            .catch((err) => {
+              console.log(err)
+            })
+      } else {
+        this.filteredKeywords = []
+      }
+    },
+
+    /**
+     * Adds a keyword to the list of keywords if the keyword was selecting from the
+     * autocomplete list rather than by pressing the spacebar
+     * @param keyword Keyword to be added to keyword list
+     */
+    setKeyword(keyword) {
+      this.keywordValue = keyword
+      this.addKeyword()
+    }
+
   }
 }
 
@@ -300,9 +419,11 @@ export default {
 .nav-item {
   font-size: 20px;
 }
-
 .row {
   margin-bottom: 20px;
+}
+.keyword {
+  font-size: 16px;
 }
 
 </style>
