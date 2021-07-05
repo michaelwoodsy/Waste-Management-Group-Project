@@ -99,9 +99,15 @@ Page for displaying the marketplace.
                  data-toggle="dropdown"
                  @input="searchKeywords"
                  @keyup.space="addKeyword"/>
+
+
           <button class="btn btn-primary ml-2">
             Apply
           </button>
+          <span class="custom-control custom-switch m-2">
+            <input type="checkbox" class="custom-control-input" id="any-all-keyword-switch">
+            <label class="custom-control-label" for="any-all-keyword-switch">Match all</label>
+          </span>
           <!-- Autocomplete dropdown -->
           <div class="dropdown-menu overflow-auto" id="dropdown">
             <!-- If no user input -->
