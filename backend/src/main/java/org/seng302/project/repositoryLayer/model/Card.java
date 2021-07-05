@@ -71,6 +71,14 @@ public class Card {
         return this.keywords;
     }
 
+    /**
+     * Removes the keyword from the keywords set.
+     * @param keyword Keyword to remove.
+     */
+    public void removeKeyword(Keyword keyword) {
+        this.keywords.remove(keyword);
+    }
+
 
     /**
      * Checks if a user has permission to edit the card
