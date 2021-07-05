@@ -58,6 +58,12 @@ public class KeywordController {
         return keywordService.searchKeywords(searchQuery);
     }
 
+    /**
+     * Deletes a keyword, and removes it from all cards.
+     *
+     * @param keywordId Id of the keyword to delete.
+     * @param appUser The current logged in user.
+     */
     @DeleteMapping("/keywords/{keywordId}")
     public void deleteKeyword(
             @PathVariable("keywordId") Integer keywordId,
