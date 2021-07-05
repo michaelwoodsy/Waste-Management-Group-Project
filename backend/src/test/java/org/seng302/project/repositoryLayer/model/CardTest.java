@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 
 /**
@@ -28,7 +29,8 @@ class CardTest {
                 "1337-H%nt3r2");
 
         Card testCard = new Card(testCardCreator, "ForSale", "1982 Lada Samara",
-                "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
+                "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
+                Collections.emptySet());
 
         Assertions.assertNull(testCard.getId());
         Assertions.assertNull(testCard.getCreator().getId());

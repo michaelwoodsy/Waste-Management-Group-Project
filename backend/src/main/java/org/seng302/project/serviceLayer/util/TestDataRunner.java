@@ -16,7 +16,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Class containing functions to populate test database with test data.
@@ -82,15 +84,17 @@ public class TestDataRunner {
         if (saleListingRepository.count() == 0) {
             insertTestSaleListings((JSONArray) data.get("saleListings"));
         }
+        //Insert keyword data
+        if (keywordRepository.count() == 0) {
+            insertTestKeywords((JSONArray) data.get("keywords"));
+        }
+
         //Insert card data
         if (cardRepository.count() == 0) {
             insertTestCards((JSONArray) data.get("cards"));
         }
 
-        //Insert keyword data
-        if (keywordRepository.count() == 0) {
-            insertTestKeywords((JSONArray) data.get("keywords"));
-        }
+
     }
 
     /**
@@ -103,7 +107,7 @@ public class TestDataRunner {
         for (Object object : userData) {
             JSONObject jsonUser = (JSONObject) object;
             JSONObject jsonAddress = (JSONObject) jsonUser.get("homeAddress");
-            Address address = new Address(
+            var address = new Address(
                     jsonAddress.getAsString("streetNumber"),
                     jsonAddress.getAsString("streetName"),
                     jsonAddress.getAsString("city"),
@@ -112,7 +116,7 @@ public class TestDataRunner {
                     jsonAddress.getAsString("postcode")
             );
             addressRepository.save(address);
-            User newUser = new User(
+            var newUser = new User(
                     jsonUser.getAsString("firstName"),
                     jsonUser.getAsString("lastName"),
                     jsonUser.getAsString("middleName"),
@@ -141,7 +145,7 @@ public class TestDataRunner {
         for (Object object : businessData) {
             JSONObject jsonBusiness = (JSONObject) object;
             JSONObject jsonAddress = (JSONObject) jsonBusiness.get("address");
-            Address address = new Address(
+            var address = new Address(
                     jsonAddress.getAsString("streetNumber"),
                     jsonAddress.getAsString("streetName"),
                     jsonAddress.getAsString("city"),
@@ -151,7 +155,7 @@ public class TestDataRunner {
             );
             addressRepository.save(address);
             Integer primaryAdminId = jsonBusiness.getAsNumber("primaryAdministratorId").intValue();
-            Business testBusiness = new Business(
+            var testBusiness = new Business(
                     jsonBusiness.getAsString("name"),
                     jsonBusiness.getAsString("description"),
                     address,
@@ -184,7 +188,7 @@ public class TestDataRunner {
         logger.info("Adding sample data to product repository");
         for (Object object : productData) {
             JSONObject jsonProduct = (JSONObject) object;
-            Product testProduct = new Product(
+            var testProduct = new Product(
                     jsonProduct.getAsString("id"),
                     jsonProduct.getAsString("name"),
                     jsonProduct.getAsString("description"),
@@ -212,8 +216,8 @@ public class TestDataRunner {
                     jsonInventoryItem.getAsString("productId"),
                     jsonInventoryItem.getAsNumber("businessId").intValue());
             if (testProductOptions.isPresent()) {
-                Product testProduct = testProductOptions.get();
-                InventoryItem testInventoryItem = new InventoryItem(
+                var testProduct = testProductOptions.get();
+                var testInventoryItem = new InventoryItem(
                         testProduct,
                         jsonInventoryItem.getAsNumber("quantity").intValue(),
                         jsonInventoryItem.getAsNumber("pricePerItem") != null ?
@@ -244,7 +248,7 @@ public class TestDataRunner {
             Optional<InventoryItem> testItemOptions = inventoryItemRepository.findById(jsonSaleListing.getAsNumber("inventoryItemId").intValue());
             if (testItemOptions.isPresent()) {
                 InventoryItem testItem = testItemOptions.get();
-                SaleListing testListing = new SaleListing(
+                var testListing = new SaleListing(
                         jsonSaleListing.getAsNumber("businessId").intValue(),
                         testItem,
                         jsonSaleListing.getAsNumber("price").doubleValue(),
@@ -261,6 +265,25 @@ public class TestDataRunner {
     }
 
     /**
+     * Inserts test keyword data to the database.
+     *
+     * @param keywordData JSONArray of sale listing data.
+     */
+    public void insertTestKeywords(JSONArray keywordData) {
+        logger.info("Adding sample data to keyword repository");
+
+        for (Object object : keywordData) {
+            JSONObject jsonKeyword = (JSONObject) object;
+            var testKeyword = new Keyword(
+                    jsonKeyword.getAsString("name")
+            );
+            keywordRepository.save(testKeyword);
+        }
+        logger.info("Finished adding sample data to keyword repository");
+        logger.info("Added {} entries to keyword repository", keywordRepository.count());
+    }
+
+    /**
      * Inserts test card data to the database.
      *
      * @param cardsData JSONArray of sale listing data.
@@ -271,15 +294,22 @@ public class TestDataRunner {
         for (Object object : cardsData) {
             JSONObject jsonCard = (JSONObject) object;
             Optional<User> testUserOptions = userRepository.findById(jsonCard.getAsNumber("creatorId").intValue());
+            JSONArray keywordArray = (JSONArray) jsonCard.get("keywords");
+            Set<Keyword> keywords = new HashSet<>();
+            for (Object keywordId : keywordArray) {
+                Integer keywordIdInt = ((Long) keywordId).intValue();
+                Optional<Keyword> keywordOptional = keywordRepository.findById(keywordIdInt);
+                keywordOptional.ifPresent(keywords::add);
+            }
             if (testUserOptions.isPresent()) {
-                User testUser = testUserOptions.get();
+                var testUser = testUserOptions.get();
 
-                Card testCard = new Card(
+                var testCard = new Card(
                         testUser,
                         jsonCard.getAsString("section"),
                         jsonCard.getAsString("title"),
                         jsonCard.getAsString("description"),
-                        jsonCard.getAsString("keywords")
+                        keywords
                 );
 
                 cardRepository.save(testCard);
@@ -298,24 +328,7 @@ public class TestDataRunner {
         logger.info("Added {} entries to card repository", cardRepository.count());
     }
 
-    /**
-     * Inserts test keyword data to the database.
-     *
-     * @param keywordData JSONArray of sale listing data.
-     */
-    public void insertTestKeywords(JSONArray keywordData) {
-        logger.info("Adding sample data to keyword repository");
 
-        for (Object object : keywordData) {
-            JSONObject jsonKeyword = (JSONObject) object;
-            Keyword testKeyword = new Keyword(
-                    jsonKeyword.getAsString("name")
-            );
-            keywordRepository.save(testKeyword);
-        }
-        logger.info("Finished adding sample data to keyword repository");
-        logger.info("Added {} entries to keyword repository", keywordRepository.count());
-    }
 
 
 }
