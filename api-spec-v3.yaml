@@ -1222,6 +1222,8 @@ paths:
           description: Bad Request
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
       requestBody:
         content:
           application/json:
@@ -1263,6 +1265,10 @@ paths:
                   $ref: '#/components/schemas/Message'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned if anyone but the user with id userId, or GAA attempts to get users messages.'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
 
 
   '/users/{userId}/messages/{messageId}':
@@ -1296,6 +1302,10 @@ paths:
           description: Message successfully deleted
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned if anyone but the user with id userId, or GAA attempts to delete users messages.'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
 
 components:
   securitySchemes:
