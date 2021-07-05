@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "PUT /card/{id} editing all fields",
+			"name": "PUT /cards/{id} editing all fields",
 			"request": {
 				"method": "PUT",
 				"header": [],
@@ -35,7 +35,7 @@
 			"response": []
 		},
 		{
-			"name": "PUT /card/{id} editing just section",
+			"name": "PUT /cards/{id} editing just section",
 			"request": {
 				"method": "PUT",
 				"header": [],
@@ -64,7 +64,7 @@
 			"response": []
 		},
 		{
-			"name": "PUT /card/{id} editing just title",
+			"name": "PUT /cards/{id} editing just title",
 			"request": {
 				"method": "PUT",
 				"header": [],
@@ -93,7 +93,7 @@
 			"response": []
 		},
 		{
-			"name": "PUT /card/{id} editing just description",
+			"name": "PUT /cards/{id} editing just description",
 			"request": {
 				"method": "PUT",
 				"header": [],
@@ -122,7 +122,7 @@
 			"response": []
 		},
 		{
-			"name": "PUT /card/{id} editing just keywords",
+			"name": "PUT /cards/{id} editing just keywords",
 			"request": {
 				"method": "PUT",
 				"header": [],
