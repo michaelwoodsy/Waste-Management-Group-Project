@@ -6,8 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.Keyword;
+import org.seng302.project.repositoryLayer.model.NewKeywordNotification;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
+import org.seng302.project.repositoryLayer.repository.NewKeywordNotificationRepository;
 import org.seng302.project.serviceLayer.dto.keyword.AddKeywordDTO;
 import org.seng302.project.serviceLayer.dto.keyword.AddKeywordResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
@@ -41,6 +43,8 @@ class KeywordServiceTest {
 
     @MockBean
     private CardRepository cardRepository;
+    @MockBean
+    private NewKeywordNotificationRepository newKeywordNotificationRepository;
 
     @BeforeEach
     void setup() {
@@ -67,6 +71,12 @@ class KeywordServiceTest {
         AddKeywordResponseDTO responseDTO = keywordService.addKeyword(dto.getName());
         Assertions.assertEquals(1, responseDTO.getKeywordId());
         Assertions.assertEquals(1, keywords.size());
+
+        ArgumentCaptor<NewKeywordNotification> adminNotificationArgumentCaptor = ArgumentCaptor
+                .forClass(NewKeywordNotification.class);
+        Mockito.verify(newKeywordNotificationRepository).save(adminNotificationArgumentCaptor.capture());
+        Keyword notificationKeyword = adminNotificationArgumentCaptor.getValue().getKeyword();
+        Assertions.assertEquals("TestKeyword", notificationKeyword.getName());
     }
 
     /**
@@ -83,8 +93,9 @@ class KeywordServiceTest {
                 });
 
         AddKeywordDTO dto = new AddKeywordDTO("TestKeyword");
+        String dtoName = dto.getName();
         Assertions.assertThrows(KeywordExistsException.class,
-                () -> keywordService.addKeyword(dto.getName()));
+                () -> keywordService.addKeyword(dtoName));
     }
 
     /**
