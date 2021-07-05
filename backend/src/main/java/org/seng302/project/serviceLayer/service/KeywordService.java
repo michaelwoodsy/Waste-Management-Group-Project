@@ -1,6 +1,8 @@
 package org.seng302.project.serviceLayer.service;
 
+import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.Keyword;
+import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.specification.KeywordSpecifications;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
@@ -9,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 
 /**
@@ -19,10 +22,12 @@ public class KeywordService {
 
     private static final Logger logger = LoggerFactory.getLogger(KeywordService.class.getName());
     private final KeywordRepository keywordRepository;
+    private final CardRepository cardRepository;
 
     @Autowired
-    public KeywordService(KeywordRepository keywordRepository) {
+    public KeywordService(KeywordRepository keywordRepository, CardRepository cardRepository) {
         this.keywordRepository = keywordRepository;
+        this.cardRepository = cardRepository;
     }
 
     /**
@@ -49,6 +54,7 @@ public class KeywordService {
      * Deletes a keyword with the corresponding ID.
      * @param keywordId ID of the keyword to delete.
      */
+    @Transactional
     public void deleteKeyword(Integer keywordId) {
         try {
             // Get keyword from the repository
@@ -61,8 +67,16 @@ public class KeywordService {
                 throw exception;
             }
 
+            var keyword = foundKeyword.get();
+
+            // Delete any associations in cards
+            for (Card card : cardRepository.findAllByKeywordsContaining(keyword)) {
+                card.removeKeyword(keyword);
+                cardRepository.save(card);
+            }
+
             // Delete the keyword
-            keywordRepository.delete(foundKeyword.get());
+            keywordRepository.delete(keyword);
 
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while deleting keyword: %s", exception.getMessage()));
