@@ -1366,11 +1366,10 @@ components:
           type: object
           allOf:
             - $ref: '#/components/schemas/Card'
-        senderId:
-          type: integer
-          example: 600
-          readOnly: true
-          description: Id of the user that sent the message
+        sender:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/User'
 
 
     Keyword:
