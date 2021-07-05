@@ -259,6 +259,9 @@ class ProductImageServiceTest extends AbstractInitializer {
                 () -> productImageService.setPrimaryImage(dto));
     }
 
+    /**
+     * Tests that deleting a product image as a user who is not an admin results in an error.
+     */
     @Test
     void deleteImage_notAdmin_throwsException() {
         DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
@@ -271,6 +274,9 @@ class ProductImageServiceTest extends AbstractInitializer {
                 () -> productImageService.deleteImage(deleteProductImageDTO));
     }
 
+    /**
+     * Tests that deleting a product image for a business that does not exist results in an error.
+     */
     @Test
     void deleteImage_noBusinessExists_throwsException() {
         given(businessRepository.findById(4)).willReturn(Optional.empty());
@@ -284,6 +290,9 @@ class ProductImageServiceTest extends AbstractInitializer {
                 () -> productImageService.deleteImage(deleteProductImageDTO));
     }
 
+    /**
+     * Tests that deleting a product image for a product that does not exist results in an error.
+     */
     @Test
     void deleteImage_noProductExists_throwsException() {
         given(productRepository.findByIdAndBusinessId("NotAProduct", 1)).willReturn(Optional.empty());
@@ -297,6 +306,9 @@ class ProductImageServiceTest extends AbstractInitializer {
                 () -> productImageService.deleteImage(deleteProductImageDTO));
     }
 
+    /**
+     * Tests that deleting a product image for an image that does not exist results in an error.
+     */
     @Test
     void deleteImage_noImageExists_throwsException() {
         DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(

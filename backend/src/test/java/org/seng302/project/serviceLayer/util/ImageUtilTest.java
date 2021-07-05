@@ -52,6 +52,10 @@ class ImageUtilTest extends AbstractInitializer {
         Assertions.assertNotNull(image);
     }
 
+    /**
+     * Tests that when given a valid filepath the deleteFile function
+     * successfully deletes an image
+     */
     @Test
     void testDeleteImageFile() throws IOException{
         File tempFile = File.createTempFile("test", ".jpg", new File("src/test/resources/public/media/"));
