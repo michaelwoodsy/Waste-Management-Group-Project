@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.Keyword;
+import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ class KeywordServiceTest {
 
     @MockBean
     private KeywordRepository keywordRepository;
+
+    @MockBean
+    private CardRepository cardRepository;
 
 
     /**
