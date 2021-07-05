@@ -1,14 +1,20 @@
 package org.seng302.project.webLayer.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repositoryLayer.model.Keyword;
+import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.keyword.AddKeywordDTO;
+import org.seng302.project.serviceLayer.dto.keyword.AddKeywordResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
-import org.seng302.project.serviceLayer.exceptions.card.NoCardExistsException;
 import org.seng302.project.serviceLayer.service.KeywordService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +32,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for performing unit tests for the KeywordController class and its methods.
@@ -35,10 +42,12 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 class KeywordControllerTest extends AbstractInitializer {
 
     @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
     private MockMvc mockMvc;
-
     @MockBean
     private KeywordService keywordService;
+    private User testUser;
 
     @MockBean
     private UserRepository userRepository;
@@ -48,10 +57,70 @@ class KeywordControllerTest extends AbstractInitializer {
      */
     @BeforeEach
     void setup() {
-        initialise();
+        this.initialise();
+        testUser = this.getTestUser();
         // Mock user repository to return the logged in user
         when(userRepository.findByEmail(getTestUser().getEmail())).thenReturn(List.of(getTestUser()));
         when(userRepository.findByEmail(getTestSystemAdmin().getEmail())).thenReturn(List.of(getTestSystemAdmin()));
+
+    }
+
+    /**
+     * Tests that attempting to add a new keyword when not logged in results in a 401 response.
+     */
+    @Test
+    void addKeyword_notLoggedIn_returnStatus401() throws Exception {
+        AddKeywordDTO dto = new AddKeywordDTO("TestKeyword");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/keywords")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto))
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * Tests that attempting to add a keyword with invalid name results in a 400 response.
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"kw", "KeywordKeywordKeywordKeywordKeyword"})
+    void addKeyword_invalidName_returnStatus400(String string) throws Exception {
+        AddKeywordDTO dto = new AddKeywordDTO(string);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/keywords")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto))
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests that attempting to add a valid keyword results in success.
+     */
+    @Test
+    void addKeyword_validKeyword_success() throws Exception {
+        Mockito.when(keywordService.addKeyword(Mockito.any(String.class)))
+                .thenReturn(new AddKeywordResponseDTO(1));
+
+        AddKeywordDTO dto = new AddKeywordDTO("NewKeyword");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/keywords")
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(status().isCreated());
     }
 
     /**

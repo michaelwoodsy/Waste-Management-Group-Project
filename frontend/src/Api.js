@@ -226,6 +226,13 @@ export const Card = {
 export const Keyword = {
 
     /**
+     * Request to create a new keyword.
+     *
+     * @param name the new keyword to add.
+     */
+    createKeyword: (name) => instance.post('keywords', {name}),
+
+    /**
      * Searches keywords for matches to a partial keyword
      * @param partialKeyword the string to search by
      */

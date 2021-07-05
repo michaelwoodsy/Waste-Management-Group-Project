@@ -1,16 +1,16 @@
 Feature: UCM6 - Keyword management
 
-#  Scenario: AC1/AC2: When creating a card, a user can add one or more keywords.
-#    The keywords may be selected from a system-wide list.
-#    Given The keyword "Apples" exists
-#    When A user creates a card and adds the keyword "Apples"
-#    Then The card is created with the keyword "Apples"
-#
-#  Scenario: AC1/AC2: When creating a card, a user can add one or more keywords.
-#    The keywords may be selected from a system-wide list.
-#    Given The keyword "Apples" and the keyword "Free" exists
-#    When A user creates a card and adds the keywords "Apples" and "Free"
-#    Then The card is created with the keywords "Apples" and "Free"
+  Scenario: AC1/AC2: When creating a card, a user can add one or more keywords.
+    The keywords may be selected from a system-wide list.
+    Given The keyword "Apples" exists
+    When A user creates a card and adds the keyword "Apples"
+    Then The card is created with the keyword "Apples"
+
+  Scenario: AC1/AC2: When creating a card, a user can add one or more keywords.
+    The keywords may be selected from a system-wide list.
+    Given The keyword "Apples" and the keyword "Free" exists
+    When A user creates a card and adds the keywords "Apples" and "Free"
+    Then The card is created with the keywords "Apples" and "Free"
 
   Scenario: AC3: The user can also enter keywords via the keyboard.
     In this case, an autocomplete feature indicates potential matches.
@@ -23,9 +23,9 @@ Feature: UCM6 - Keyword management
     Given There is no keyword "Bananas"
     When The user enters "Bananas" as a partial keyword
     And There are no matches
-#    Then It is possible to add "Bananas" as a new keyword
-#
-#
+    Then It is possible to add "Bananas" as a new keyword
+
+
 #  Scenario: AC5: To prevent abuse, system administrators are notified when a new keyword is added.
 #    Given There is no keyword "Cabbages"
 #    When The new keyword "Cabbages" is created

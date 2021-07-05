@@ -1,17 +1,22 @@
 package gradle.cucumber.steps;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONArray;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
+import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
+import org.seng302.project.serviceLayer.dto.keyword.AddKeywordDTO;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -30,13 +35,12 @@ import java.util.Set;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
-public class KeywordManagementSteps {
-
-    private final KeywordRepository keywordRepository;
-
-    private final CardRepository cardRepository;
+public class KeywordManagementSteps extends AbstractInitializer {
 
     private final UserRepository userRepository;
+    private final KeywordRepository keywordRepository;
+    private final CardRepository cardRepository;
+    private final ObjectMapper objectMapper;
 
     private MockMvc mockMvc;
 
@@ -47,26 +51,35 @@ public class KeywordManagementSteps {
     private Card testCard;
 
     private RequestBuilder searchKeywordRequest;
+    private RequestBuilder newKeywordRequest;
+    private RequestBuilder newCardRequest;
 
+    private CreateCardDTO createCardDTO;
+
+    private Keyword retrievedKeyword;
+    private Card retrievedCard;
 
 
     @Autowired
-    public KeywordManagementSteps(
-            KeywordRepository keywordRepository,
-            CardRepository cardRepository,
-            UserRepository userRepository) {
+    public KeywordManagementSteps(UserRepository userRepository,
+                                  KeywordRepository keywordRepository,
+                                  CardRepository cardRepository,
+                                  ObjectMapper objectMapper) {
+        this.userRepository = userRepository;
         this.keywordRepository = keywordRepository;
         this.cardRepository = cardRepository;
-        this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
     }
 
     /**
      * Set up MockMvc, and test user & businesses
+     *
      * @param context Autowired WebApplicationContext for MockMvc
      */
     @BeforeEach
     @Autowired
     public void setup(WebApplicationContext context) {
+        this.initialise();
         cardRepository.deleteAll();
         userRepository.deleteAll();
         keywordRepository.deleteAll();
@@ -76,56 +89,114 @@ public class KeywordManagementSteps {
                 .apply(springSecurity())
                 .build();
 
-        testUser = new User("Test", "User", "", "", "I'm a test user", "testuser@gmail.com",
-                "2000-07-28", "123 123 1234", null, "SecurePassword789");
+        testUser = this.getTestUser();
+        testUser.setId(null);
+        testUser.setHomeAddress(null);
 
-        adminUser = new User("Admin", "User", "", "", "I'm a admin user", "testadminuser@gmail.com",
-                "2000-07-28", "123 123 1234", null, "SecurePassword789");
-        adminUser.setRole("globalApplicationAdmin");
+        adminUser = this.getTestSystemAdmin();
+        adminUser.setId(null);
+        adminUser.setHomeAddress(null);
 
         // Save the test users
         testUser = userRepository.save(testUser);
         adminUser = userRepository.save(adminUser);
     }
 
-
     //AC1/AC2
 
     @Given("The keyword {string} exists")
     public void the_keyword_exists(String keyword) {
-        Keyword existingKeyword = new Keyword(keyword);
-        keywordRepository.save(existingKeyword);
+        if (keywordRepository.findByName(keyword).isEmpty()) {
+            keywordRepository.save(new Keyword(keyword));
+        }
+        Assertions.assertFalse(keywordRepository.findByName(keyword).isEmpty());
     }
-//
-//    @When("A user creates a card and adds the keyword {string}")
-//    public void a_user_creates_a_card_and_adds_the_keyword(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The card is created with the keyword {string}")
-//    public void the_card_is_created_with_the_keyword(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Given("The keyword {string} and the keyword {string} exists")
-//    public void the_keyword_and_the_keyword_exists(String keyword1, String keyword2) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @When("A user creates a card and adds the keywords {string} and {string}")
-//    public void a_user_creates_a_card_and_adds_the_keywords_and(String keyword1, String keyword2) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The card is created with the keywords {string} and {string}")
-//    public void the_card_is_created_with_the_keywords_and(String keyword1, String keyword2) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
+
+    @When("A user creates a card and adds the keyword {string}")
+    public void a_user_creates_a_card_and_adds_the_keyword(String keyword) {
+        retrievedKeyword = keywordRepository.findByName(keyword).get(0);
+
+        createCardDTO = new CreateCardDTO();
+        createCardDTO.setCreatorId(testUser.getId());
+        createCardDTO.setTitle("New Card");
+        createCardDTO.setDescription("Some Description");
+        createCardDTO.setSection("ForSale");
+        createCardDTO.setKeywordIds(List.of(retrievedKeyword.getId()));
+    }
+
+    @Then("The card is created with the keyword {string}")
+    public void the_card_is_created_with_the_keyword(String keyword) throws Exception {
+        newCardRequest = MockMvcRequestBuilders
+                .post("/cards")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createCardDTO))
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult result = mockMvc.perform(newCardRequest)
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andReturn();
+        CreateCardResponseDTO response = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                CreateCardResponseDTO.class);
+
+        retrievedCard = cardRepository.findById(response.getCardId()).orElseThrow();
+        retrievedKeyword = keywordRepository.findByName(keyword).get(0);
+        Assertions.assertTrue(retrievedCard.getKeywords().contains(retrievedKeyword));
+    }
+
+    @Given("The keyword {string} and the keyword {string} exists")
+    public void the_keyword_and_the_keyword_exists(String firstKeyword, String secondKeyword) {
+        if (keywordRepository.findByName(firstKeyword).isEmpty()) {
+            keywordRepository.save(new Keyword(firstKeyword));
+        }
+        if (keywordRepository.findByName(secondKeyword).isEmpty()) {
+            keywordRepository.save(new Keyword(secondKeyword));
+        }
+        Assertions.assertFalse(keywordRepository.findByName(firstKeyword).isEmpty());
+        Assertions.assertFalse(keywordRepository.findByName(secondKeyword).isEmpty());
+    }
+
+    @When("A user creates a card and adds the keywords {string} and {string}")
+    public void a_user_creates_a_card_and_adds_the_keywords_and(String firstKeywordString, String secondKeywordString) {
+        Keyword firstKeyword = keywordRepository.findByName(firstKeywordString).get(0);
+        Keyword secondKeyword = keywordRepository.findByName(secondKeywordString).get(0);
+
+        createCardDTO = new CreateCardDTO();
+        createCardDTO.setCreatorId(testUser.getId());
+        createCardDTO.setTitle("Another New Card");
+        createCardDTO.setDescription("Some Description");
+        createCardDTO.setSection("ForSale");
+        createCardDTO.setKeywordIds(List.of(firstKeyword.getId(), secondKeyword.getId()));
+    }
+
+    @Then("The card is created with the keywords {string} and {string}")
+    public void the_card_is_created_with_the_keywords_and(String firstKeywordString,
+                                                          String secondKeywordString) throws Exception {
+        newCardRequest = MockMvcRequestBuilders
+                .post("/cards")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createCardDTO))
+                .with(user(new AppUserDetails(testUser)));
+        System.out.println(createCardDTO);
+        System.out.println(testUser);
+
+        MvcResult result = mockMvc.perform(newCardRequest)
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andReturn();
+        System.out.println(result.getResponse().getContentAsString());
+        System.out.println("Hello");
+        CreateCardResponseDTO response = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                CreateCardResponseDTO.class);
+
+        retrievedCard = cardRepository.findById(response.getCardId()).orElseThrow();
+        Keyword firstKeyword = keywordRepository.findByName(firstKeywordString).get(0);
+        Keyword secondKeyword = keywordRepository.findByName(secondKeywordString).get(0);
+        Assertions.assertTrue(retrievedCard.getKeywords().contains(firstKeyword));
+        Assertions.assertTrue(retrievedCard.getKeywords().contains(secondKeyword));
+    }
 
     //AC3
 
@@ -172,12 +243,17 @@ public class KeywordManagementSteps {
         Assertions.assertEquals(0, searchResultArray.length());
     }
 
-//    @Then("It is possible to add {string} as a new keyword")
-//    public void it_is_possible_to_add_as_a_new_keyword(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
+    @Then("It is possible to add {string} as a new keyword")
+    public void it_is_possible_to_add_as_a_new_keyword(String keyword) throws Exception {
+        newKeywordRequest = MockMvcRequestBuilders
+                .post("/keywords")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new AddKeywordDTO(keyword)))
+                .with(user(new AppUserDetails(testUser)));
+        mockMvc.perform(newKeywordRequest).andExpect(MockMvcResultMatchers.status().isCreated());
+    }
+
 //    //AC5
 //
 //    @When("The new keyword {string} is created")

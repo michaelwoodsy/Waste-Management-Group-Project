@@ -5,7 +5,9 @@ import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.specification.KeywordSpecifications;
+import org.seng302.project.serviceLayer.dto.keyword.AddKeywordResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.keyword.KeywordExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,30 @@ public class KeywordService {
     }
 
     /**
+     * Method which adds a new keyword to the keyword repository.
+     *
+     * @param name String name of the keyword to add.
+     * @return an object containing the ID of the keyword that has been added.
+     */
+    public AddKeywordResponseDTO addKeyword(String name) {
+        try {
+            List<Keyword> keywords = keywordRepository.findByName(name);
+            if (!keywords.isEmpty()) {
+                var exception = new KeywordExistsException(name);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            var keyword = new Keyword(name);
+            keyword = keywordRepository.save(keyword);
+            return new AddKeywordResponseDTO(keyword.getId());
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while searching keywords: %s", exception.getMessage()));
+            throw exception;
+        }
+    }
+
+    /**
      * Searches for keywords that include the string partialKeyword
      *
      * @param partialKeyword string to search by
@@ -52,6 +78,7 @@ public class KeywordService {
 
     /**
      * Deletes a keyword with the corresponding ID.
+     *
      * @param keywordId ID of the keyword to delete.
      */
     @Transactional
