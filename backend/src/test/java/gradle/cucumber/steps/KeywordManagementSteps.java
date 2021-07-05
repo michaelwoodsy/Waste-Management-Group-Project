@@ -67,6 +67,10 @@ public class KeywordManagementSteps {
     @BeforeEach
     @Autowired
     public void setup(WebApplicationContext context) {
+        cardRepository.deleteAll();
+        userRepository.deleteAll();
+        keywordRepository.deleteAll();
+
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
@@ -75,13 +79,13 @@ public class KeywordManagementSteps {
         testUser = new User("Test", "User", "", "", "I'm a test user", "testuser@gmail.com",
                 "2000-07-28", "123 123 1234", null, "SecurePassword789");
 
-        adminUser = new User("Admin", "User", "", "", "I'm a admin user", "testuser@gmail.com",
+        adminUser = new User("Admin", "User", "", "", "I'm a admin user", "testadminuser@gmail.com",
                 "2000-07-28", "123 123 1234", null, "SecurePassword789");
         adminUser.setRole("globalApplicationAdmin");
 
-        cardRepository.deleteAll();
-        userRepository.deleteAll();
-        keywordRepository.deleteAll();
+        // Save the test users
+        testUser = userRepository.save(testUser);
+        adminUser = userRepository.save(adminUser);
     }
 
 
@@ -193,8 +197,6 @@ public class KeywordManagementSteps {
     @Given("A card with the keyword {string} exists")
     @Transactional
     public void a_card_with_the_keyword_exists(String keyword) {
-        // Save the test user
-        testUser = userRepository.save(testUser);
 
         // Create the keyword
         Keyword word = new Keyword(keyword);

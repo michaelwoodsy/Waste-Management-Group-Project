@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Keyword;
+import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.card.NoCardExistsException;
 import org.seng302.project.serviceLayer.service.KeywordService;
@@ -19,6 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -37,14 +40,19 @@ class KeywordControllerTest extends AbstractInitializer {
     @MockBean
     private KeywordService keywordService;
 
+    @MockBean
+    private UserRepository userRepository;
+
     /**
      * Initialises entities from AbstractInitializer
      */
     @BeforeEach
     void setup() {
         initialise();
+        // Mock user repository to return the logged in user
+        when(userRepository.findByEmail(getTestUser().getEmail())).thenReturn(List.of(getTestUser()));
+        when(userRepository.findByEmail(getTestSystemAdmin().getEmail())).thenReturn(List.of(getTestSystemAdmin()));
     }
-
 
     /**
      * Tests that we get a 200 response when searching for keywords
@@ -136,7 +144,7 @@ class KeywordControllerTest extends AbstractInitializer {
         mockMvc.perform(MockMvcRequestBuilders
                 .delete("/keywords/1")
                 .with(user(new AppUserDetails(getTestSystemAdmin()))))
-                .andExpect(MockMvcResultMatchers.status().isAccepted());
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     /**

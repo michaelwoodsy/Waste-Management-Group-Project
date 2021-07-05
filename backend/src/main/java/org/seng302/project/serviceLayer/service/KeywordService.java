@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Service class with methods for handling Keywords
@@ -54,11 +51,19 @@ public class KeywordService {
      */
     public void deleteKeyword(Integer keywordId) {
         try {
-            throw new NotAcceptableException(String.format("No keyword exists with ID %s", keywordId));
+            // Get keyword from the repository
+            Optional<Keyword> foundKeyword = keywordRepository.findById(keywordId);
 
-        } catch (NotAcceptableException exception) {
-            logger.warn(exception.getMessage());
-            throw exception;
+            // Check if the keyword exists
+            if (foundKeyword.isEmpty()) {
+                var exception = new NotAcceptableException(String.format("No keyword exists with ID %s", keywordId));
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+
+            // Delete the keyword
+            keywordRepository.delete(foundKeyword.get());
+
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while deleting keyword: %s", exception.getMessage()));
             throw exception;
