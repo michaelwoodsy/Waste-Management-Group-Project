@@ -9,6 +9,7 @@ import org.seng302.project.repositoryLayer.model.Product;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
 import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -274,5 +275,101 @@ class ProductImageControllerTest extends AbstractInitializer {
                 .with(user(new AppUserDetails(testUserBusinessAdmin)));
 
         mockMvc.perform(request).andExpect(status().isNotAcceptable());
+    }
+
+    @Test
+    void deleteProductImage_notLoggedIn_returnsStatus401() throws Exception {
+        RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                        testBusiness.getId(),
+                        testProduct.getId(),
+                        2);
+
+        mockMvc.perform(deleteProductImageRequest).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deleteProductImage_notAdmin_returnsStatus403() throws Exception {
+        doThrow(new ForbiddenAdministratorActionException(testBusiness.getId()))
+                .when(productImageService).deleteImage(Mockito.any(DeleteProductImageDTO.class));
+
+        RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                        testBusiness.getId(),
+                        testProduct.getId(),
+                        2)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(deleteProductImageRequest).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteProductImage_noBusinessExists_returnsStatus406() throws Exception {
+        doThrow(new BusinessNotFoundException(4))
+                .when(productImageService).deleteImage(Mockito.any(DeleteProductImageDTO.class));
+
+        RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                        4,
+                        testProduct.getId(),
+                        2)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(deleteProductImageRequest).andExpect(status().isNotAcceptable());
+    }
+
+    @Test
+    void deleteProductImage_noProductExists_returnsStatus406() throws Exception {
+        doThrow(new ProductNotFoundException("NotAProduct", testBusiness.getId()))
+                .when(productImageService).deleteImage(Mockito.any(DeleteProductImageDTO.class));
+
+        RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                        testBusiness.getId(),
+                        "NotAProduct",
+                        2)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(deleteProductImageRequest).andExpect(status().isNotAcceptable());
+    }
+
+    @Test
+    void deleteProductImage_noImageExists_returnsStatus406() throws Exception {
+        doThrow(new ProductImageNotFoundException(testProduct.getId(), 7))
+                .when(productImageService).deleteImage(Mockito.any(DeleteProductImageDTO.class));
+
+
+        RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                        testBusiness.getId(),
+                        testProduct.getId(),
+                        2)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(deleteProductImageRequest).andExpect(status().isNotAcceptable());
+    }
+
+    @Test
+    void deleteProductImage_asAdmin_ok200() throws Exception {
+        RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                        testBusiness.getId(),
+                        testProduct.getId(),
+                        2)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(deleteProductImageRequest).andExpect(status().isOk());
+    }
+
+    @Test
+    void deleteProductImage_asGAA_ok200() throws Exception {
+        RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                        testBusiness.getId(),
+                        testProduct.getId(),
+                        2)
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(deleteProductImageRequest).andExpect(status().isOk());
     }
 }
