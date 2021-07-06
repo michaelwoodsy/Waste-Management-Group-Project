@@ -29,7 +29,7 @@ public class Message {
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "receiver_id")
     public User getReceiver() {
         return this.receiver;
     }
@@ -41,7 +41,7 @@ public class Message {
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "sender_id")
     public User getSender() {
         return this.sender;
     }
