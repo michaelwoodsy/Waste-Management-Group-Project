@@ -7,6 +7,7 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.service.MessageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -98,8 +100,8 @@ class MessageControllerTest extends AbstractInitializer {
     //TODO: this actually gives a 201
     @Test
     void createMessage_missingField_400() throws Exception {
-        doThrow(new BadRequestException("Message is missing 'text' field")).when(messageService)
-                .createMessage(any(CreateMessageDTO.class), any(AppUserDetails.class));
+        when(messageService.createMessage(any(CreateMessageDTO.class), any(AppUserDetails.class)))
+                .thenThrow(new BadRequestException("Message is missing 'text' field"));
 
         JSONObject requestBody = new JSONObject();
 
@@ -121,8 +123,8 @@ class MessageControllerTest extends AbstractInitializer {
     //TODO: this actually gives a 201
     @Test
     void createMessage_nonexistentUserOrCard_406() throws Exception {
-        doThrow(new NotAcceptableException("There is no card with the id '250'")).when(messageService)
-                .createMessage(any(CreateMessageDTO.class), any(AppUserDetails.class));
+        when(messageService.createMessage(any(CreateMessageDTO.class), any(AppUserDetails.class)))
+                .thenThrow(new NotAcceptableException("There is no card that exists with the id '250'"));
 
         JSONObject requestBody = new JSONObject();
 
