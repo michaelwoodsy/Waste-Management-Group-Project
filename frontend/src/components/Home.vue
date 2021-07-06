@@ -66,28 +66,22 @@
           </div>
         </div>
         <!-- Notification Section -->
-        <div>
           <!-- Collapse and Expand button  -->
-          <button data-target="#collapseNotifications" class="btn btn-primary"
-                  data-toggle="collapse">
-            Notifications
-          </button>
+<!--          <button data-target="#collapseNotifications" class="btn btn-primary"-->
+<!--                  data-toggle="collapse">-->
+<!--            Notifications-->
+<!--          </button>-->
           <!-- Notifications -->
-          <div class="collapse" id="collapseNotifications">
-            <div class="card card-body">
-              <ul v-for="notification in notifications" v-bind:key="notification.card">
-                <div class="card-header">
-                  {{notification.title}}
-                </div>
-                <div class="card card-body">
-                  Message: {{notification.message}}
-                  <br>
-                  Created: {{notification.created}}
-                  <br>
-                  Card: {{notification.card}}
-                </div>
-              </ul>
-            </div>
+        <div class="toast">
+          <div class="toast-header" data-autohide="false">
+            <strong >Bootstrap</strong>
+            <small>11 mins ago</small>
+            <button type="button" class="ml-2 mb-1 close">
+              <span aria-hidden="false">&times;</span>
+            </button>
+          </div>
+          <div class="toast-body">
+            Hello, world! This is a toast message.
           </div>
         </div>
       </div>
@@ -95,13 +89,13 @@
 
   </div>
 </template>
-
 <script>
 
 import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/marketplace/MarketCard";
 import Alert from "@/components/Alert";
 import {User} from "@/Api";
+
 
 export default {
   name: "Home",
