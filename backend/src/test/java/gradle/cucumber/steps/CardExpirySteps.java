@@ -9,6 +9,7 @@ import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.service.CardService;
 import org.seng302.project.webLayer.controller.CardController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -54,7 +56,7 @@ public class CardExpirySteps {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AddressRepository addressRepository;
     private final CardRepository cardRepository;
-    private final CardController cardController;
+    private final CardService cardService;
 
     private RequestBuilder deleteCardRequest;
 
@@ -64,12 +66,12 @@ public class CardExpirySteps {
                            AddressRepository addressRepository,
                            BCryptPasswordEncoder passwordEncoder,
                            CardRepository cardRepository,
-                           CardController cardController) {
+                           CardService cardService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.passwordEncoder = passwordEncoder;
         this.cardRepository = cardRepository;
-        this.cardController = cardController;
+        this.cardService = cardService;
     }
 
     /**
@@ -112,7 +114,8 @@ public class CardExpirySteps {
 
     @Given("A user has created a card")
     public void a_user_has_created_a_card() {
-        testCard = new Card(cardCreator, "ForSale", "Beetle Juice", "Beetle juice from Bob");
+        testCard = new Card(cardCreator, "ForSale", "Beetle Juice", "Beetle juice from Bob",
+                Collections.emptySet());
         testCardId = cardRepository.save(testCard).getId();
     }
 
@@ -195,7 +198,7 @@ public class CardExpirySteps {
     public void the_card_is_automatically_deleted() {
 
         //Manually calls the removeCardsAfter24Hrs method as it is on a timer
-        cardController.removeCardsAfter24Hrs();
+        cardService.removeCardsAfter24Hrs();
         Optional<Card> returnedCard = cardRepository.findById(testCardId);
 
         //Card was deleted

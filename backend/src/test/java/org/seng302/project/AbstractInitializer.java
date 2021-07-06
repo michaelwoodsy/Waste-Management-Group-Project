@@ -2,7 +2,6 @@ package org.seng302.project;
 
 import lombok.Data;
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -19,8 +18,6 @@ public abstract class AbstractInitializer {
 
     @Autowired
     protected BCryptPasswordEncoder passwordEncoder;
-    @Autowired
-    private ImageUtil imageUtil;
 
     private User testUser;
     private User testSystemAdmin;
