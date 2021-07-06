@@ -60,6 +60,9 @@ public class SpringEnvironment {
      * Sets the media folder path based on the spring profile
      */
     public String getMediaFolderPath() {
+        if (activeProfile.contains("test")) {
+            return "build/resources/test/public";
+        }
         /*
         if (activeProfile.contains("local")) {
             return "build/resources/main/public";
