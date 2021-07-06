@@ -83,7 +83,7 @@ public class ProductImageService {
             String extension = fileType.split("/")[1];
             logger.info("New image has extension: {}", extension);
             String imageFileName = UUID.randomUUID() + "." + extension;
-            String imageFilePath = "build/resources/main/public/media/" + imageFileName;
+            String imageFilePath = "media/" + imageFileName;
             imageUtil.saveImage(imageInput, imageFilePath);
             String thumbnailPath = imageUtil.createThumbnail(imageFilePath);
 
