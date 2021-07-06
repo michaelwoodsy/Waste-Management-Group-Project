@@ -84,12 +84,14 @@ Eg, <market-card @card-deleted="someMethod" ... />
       </div>
 
       <div class="text-right">
+
         <!-- Button toggles card details -->
         <button :data-target="'#cardDetails' + cardData.id" class="btn btn-sm btn-outline-secondary"
                 data-toggle="collapse" @click="toggleDetails">
           <span v-if="!showDetails">View Details <em class="bi bi-arrow-down"/></span>
           <span v-else>Hide Details <em class="bi bi-arrow-up"/></span>
         </button>
+
         <!-- Button to expand area to send a message to the creator -->
         <button v-if="!isCardCreator && actingAsUser"
                 :data-target="'#cardMessage' + cardData.id"
@@ -98,6 +100,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
                 @click="clearMessage">
           Message Creator
         </button>
+
         <!-- Delete button -->
         <button
             v-if="canEditCard && !expired"
@@ -107,6 +110,17 @@ Eg, <market-card @card-deleted="someMethod" ... />
         >
           Delete
         </button>
+
+        <!-- Edit button -->
+        <button
+            v-if="canEditCard && !expired"
+            :data-target="'#editCard' + cardData.id" data-toggle="modal"
+            class="btn btn-sm btn-outline-primary float-right ml-3"
+            @click="editCard"
+        >
+          Edit
+        </button>
+
       </div>
 
       <div :id="'cardMessage' + cardData.id" class="collapse text-right">
@@ -125,16 +139,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
         </button>
       </div>
 
-      <!-- Edit button -->
-      <button
-          v-if="canEditCard && !expired"
-          :data-target="'#editCard' + cardData.id" data-toggle="modal"
-          class="btn btn-outline-primary d-inline float-right mr-2"
-          @click="editCard"
-      >
-        Edit
-      </button>
-
+      <!-- Edit modal -->
       <div :id="'editCard' + cardData.id" :key="this.editCurrentCard" class="modal fade" data-backdrop="static">
         <div class="modal-dialog">
           <div class="modal-content">
