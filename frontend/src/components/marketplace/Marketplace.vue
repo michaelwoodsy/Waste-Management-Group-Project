@@ -98,16 +98,19 @@ Page for displaying the marketplace.
                  autocomplete="off"
                  data-toggle="dropdown"
                  @input="searchKeywords"/>
+          <!-- Button to apply keyword filter -->
           <button
               :class="{disabled: keywords.length <= 0}"
               class="btn btn-primary ml-2" @click="searchCards">
             Apply
           </button>
+          <!-- Button to clear keyword filter -->
           <button
               v-if="keywords.length > 0"
               class="btn btn-danger ml-2" @click="clearFilter">
             Clear
           </button>
+          <!-- Checkbox to select whether all a card must match all keywords -->
           <span class="custom-control custom-switch m-2">
             <input v-model="keywordUnion" type="checkbox" class="custom-control-input" id="any-all-keyword-switch">
             <label class="custom-control-label" for="any-all-keyword-switch">Match all</label>
@@ -449,6 +452,10 @@ export default {
           })
     },
 
+    /**
+     * Clears all the keywords from the list of filtered keywords and returns all the cards
+     * for the selected tab
+     */
     async clearFilter() {
       this.keywords = []
       this.getCards(this.tabSelected)
