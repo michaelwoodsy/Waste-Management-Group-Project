@@ -10,9 +10,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.Keyword;
+import org.seng302.project.repositoryLayer.model.NewKeywordNotification;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
+import org.seng302.project.repositoryLayer.repository.NewKeywordNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
@@ -30,6 +32,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -40,6 +43,7 @@ public class KeywordManagementSteps extends AbstractInitializer {
     private final UserRepository userRepository;
     private final KeywordRepository keywordRepository;
     private final CardRepository cardRepository;
+    private final NewKeywordNotificationRepository newKeywordNotificationRepository;
     private final ObjectMapper objectMapper;
 
     private MockMvc mockMvc;
@@ -64,10 +68,12 @@ public class KeywordManagementSteps extends AbstractInitializer {
     public KeywordManagementSteps(UserRepository userRepository,
                                   KeywordRepository keywordRepository,
                                   CardRepository cardRepository,
+                                  NewKeywordNotificationRepository newKeywordNotificationRepository,
                                   ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.keywordRepository = keywordRepository;
         this.cardRepository = cardRepository;
+        this.newKeywordNotificationRepository = newKeywordNotificationRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -82,7 +88,6 @@ public class KeywordManagementSteps extends AbstractInitializer {
         this.initialise();
         cardRepository.deleteAll();
         userRepository.deleteAll();
-        keywordRepository.deleteAll();
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -254,20 +259,29 @@ public class KeywordManagementSteps extends AbstractInitializer {
         mockMvc.perform(newKeywordRequest).andExpect(MockMvcResultMatchers.status().isCreated());
     }
 
-//    //AC5
-//
-//    @When("The new keyword {string} is created")
-//    public void the_new_keyword_is_created(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("A system admin notification is created for the new keyword {string}")
-//    public void a_system_admin_notification_is_created_for_the_new_keyword(String keyword) {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
+    //AC5
+
+    @When("The new keyword {string} is created")
+    public void the_new_keyword_is_created(String keyword) throws Exception {
+        newKeywordRequest = MockMvcRequestBuilders
+                .post("/keywords")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new AddKeywordDTO(keyword)))
+                .with(user(new AppUserDetails(testUser)));
+        mockMvc.perform(newKeywordRequest).andExpect(MockMvcResultMatchers.status().isCreated());
+    }
+
+    @Then("A system admin notification is created for the new keyword {string}")
+    public void a_system_admin_notification_is_created_for_the_new_keyword(String keyword) {
+        List<NewKeywordNotification> adminNotifications =  newKeywordNotificationRepository.findAll();
+
+        //There is also a NewKeywordNotification for "Bananas" at this point in the Cucumber tests.
+        Assertions.assertEquals(2, adminNotifications.size());
+        //"Bananas" is first, then "Cabbages"
+        Assertions.assertEquals(keyword, adminNotifications.get(1).getKeyword().getName());
+    }
+
     //AC6
 
     @Given("A card with the keyword {string} exists")
@@ -303,7 +317,9 @@ public class KeywordManagementSteps extends AbstractInitializer {
 
     @Then("The card no longer has the keyword {string}")
     public void the_card_no_longer_has_the_keyword(String keyword) {
-        testCard = cardRepository.findById(testCard.getId()).get();
+        Optional<Card> cardOptional = cardRepository.findById(testCard.getId());
+        Assertions.assertTrue(cardOptional.isPresent());
+        testCard = cardOptional.get();
         // Check all the keywords that card has are not the same as the keyword
         for (Keyword word : testCard.getKeywords()) {
             Assertions.assertNotEquals(keyword, word.getName());
@@ -330,7 +346,9 @@ public class KeywordManagementSteps extends AbstractInitializer {
 
     @Then("The card still has the keyword {string}")
     public void the_card_still_has_the_keyword(String keyword) {
-        testCard = cardRepository.findById(testCard.getId()).get();
+        Optional<Card> cardOptional = cardRepository.findById(testCard.getId());
+        Assertions.assertTrue(cardOptional.isPresent());
+        testCard = cardOptional.get();
         Keyword word = keywordRepository.findByName(keyword).get(0);
         Assertions.assertTrue(testCard.getKeywords().contains(word));
     }
