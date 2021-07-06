@@ -140,9 +140,7 @@ class ProductImageServiceTest extends AbstractInitializer {
         AddProductImageResponseDTO responseDTO = productImageService.addProductImage(dto);
         Assertions.assertEquals(4, testProduct.getImages().size());
         String imageFileName = testProduct.getImages().get(3).getFilename();
-        System.out.println(imageFileName);
         File imageFile = new File(springEnvironment.getMediaFolderPath() + imageFileName);
-        System.out.println(imageFile);
         Assertions.assertTrue(imageFile.delete());
 
         String thumbnailFileName = testProduct.getImages().get(3).getThumbnailFilename();

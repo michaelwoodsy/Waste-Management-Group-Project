@@ -63,17 +63,17 @@ public class SpringEnvironment {
         if (activeProfile.contains("test")) {
             return "build/resources/test/public";
         }
-        /*
-        if (activeProfile.contains("local")) {
+        else if (activeProfile.contains("local")) {
             return "build/resources/main/public";
         }
         else {
             //Returns the path to the directory with the media folder in it, removes the starting substring 'file:'
             return mediaFolderPathList.get(0).substring(mediaFolderPathList.get(0).indexOf(":") + 1);
         }
-        */
+
+
         //return mediaFolderPathList.get(0).substring(mediaFolderPathList.get(0).indexOf(":") + 1);
-        return "build/resources/main/public";
+        //return "build/resources/main/public";
     }
 
 }
