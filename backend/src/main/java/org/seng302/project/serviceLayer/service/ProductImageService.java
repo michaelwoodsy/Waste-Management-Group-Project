@@ -14,6 +14,7 @@ import org.seng302.project.serviceLayer.exceptions.product.ProductImageInvalidEx
 import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
+import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,18 +33,21 @@ public class ProductImageService {
     private final ProductRepository productRepository;
     private final ImageRepository imageRepository;
     private final ImageUtil imageUtil;
+    private final SpringEnvironment springEnvironment;
 
     @Autowired
     public ProductImageService(UserRepository userRepository,
                                BusinessRepository businessRepository,
                                ProductRepository productRepository,
                                ImageRepository imageRepository,
-                               ImageUtil imageUtil) {
+                               ImageUtil imageUtil,
+                               SpringEnvironment springEnvironment) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
         this.imageRepository = imageRepository;
         this.imageUtil = imageUtil;
+        this.springEnvironment = springEnvironment;
     }
 
     /**
@@ -55,6 +59,7 @@ public class ProductImageService {
      * @return ResponseDTO, confirming a successful request, which is sent to the controller
      */
     public AddProductImageResponseDTO addProductImage(AddProductImageDTO dto) {
+        System.out.println(springEnvironment.getMediaFolderPath());
         logger.info("Request to add an image image for product {} of business {}", dto.getProductId(), dto.getBusinessId());
 
         String fileType = dto.getImageFile().getContentType();
@@ -83,7 +88,7 @@ public class ProductImageService {
             String extension = fileType.split("/")[1];
             logger.info("New image has extension: {}", extension);
             String imageFileName = UUID.randomUUID() + "." + extension;
-            String imageFilePath = "media/" + imageFileName;
+            String imageFilePath = springEnvironment.getMediaFolderPath() + "/media/" + imageFileName;
             imageUtil.saveImage(imageInput, imageFilePath);
             String thumbnailPath = imageUtil.createThumbnail(imageFilePath);
 

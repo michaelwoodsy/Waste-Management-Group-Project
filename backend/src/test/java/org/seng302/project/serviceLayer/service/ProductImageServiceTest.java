@@ -21,6 +21,7 @@ import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundExce
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
+import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,6 +40,8 @@ class ProductImageServiceTest extends AbstractInitializer {
 
     @Autowired
     private ProductImageService productImageService;
+    @Autowired
+    private SpringEnvironment springEnvironment;
     @MockBean
     private UserRepository userRepository;
     @MockBean
@@ -107,11 +110,11 @@ class ProductImageServiceTest extends AbstractInitializer {
         AddProductImageResponseDTO responseDTO = productImageService.addProductImage(dto);
         Assertions.assertEquals(4, testProduct.getImages().size());
         String imageFileName = testProduct.getImages().get(3).getFilename();
-        File imageFile = new File("." + imageFileName);
+        File imageFile = new File(springEnvironment.getMediaFolderPath() + imageFileName);
         Assertions.assertTrue(imageFile.delete());
 
         String thumbnailFileName = testProduct.getImages().get(3).getThumbnailFilename();
-        File thumbnailFile = new File("." + thumbnailFileName);
+        File thumbnailFile = new File(springEnvironment.getMediaFolderPath() + thumbnailFileName);
         Assertions.assertTrue(thumbnailFile.delete());
     }
 
@@ -138,12 +141,12 @@ class ProductImageServiceTest extends AbstractInitializer {
         Assertions.assertEquals(4, testProduct.getImages().size());
         String imageFileName = testProduct.getImages().get(3).getFilename();
         System.out.println(imageFileName);
-        File imageFile = new File("." + imageFileName);
+        File imageFile = new File(springEnvironment.getMediaFolderPath() + imageFileName);
         System.out.println(imageFile);
         Assertions.assertTrue(imageFile.delete());
 
         String thumbnailFileName = testProduct.getImages().get(3).getThumbnailFilename();
-        File thumbnailFile = new File("." + thumbnailFileName);
+        File thumbnailFile = new File(springEnvironment.getMediaFolderPath() + thumbnailFileName);
         System.out.println(thumbnailFile);
         Assertions.assertTrue(thumbnailFile.delete());
     }
