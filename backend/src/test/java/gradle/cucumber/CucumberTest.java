@@ -5,6 +5,7 @@ import io.cucumber.junit.CucumberOptions;
 import org.junit.runner.RunWith;
 import org.seng302.project.Main;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 
@@ -20,5 +21,6 @@ import org.springframework.test.context.ContextConfiguration;
 )
 @SpringBootTest
 @ContextConfiguration(classes = Main.class)
+@ActiveProfiles(value = {"test"})
 public class CucumberTest {
 }

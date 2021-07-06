@@ -61,7 +61,7 @@ Page for displaying the marketplace.
         </div>
       </div>
 
-      <!-- Div above results -->
+      <!-- Div above results for ordering -->
       <div class="row form justify-content-center">
         <div class="col form-group text-center">
           <!-- Combobox and label for ordering -->
@@ -84,6 +84,65 @@ Page for displaying the marketplace.
           />
         </div>
       </div>
+
+      <!-- Div above results for filtering by keywords -->
+      <div class="row form justify-content-center">
+        <div class="col form-group text-center">
+          <label class="d-inline-block" for="order-select">Filter By Keywords</label>
+          <!-- Keyword Input -->
+          <input id="keywordSearchValue" v-model="keywordValue"
+                 class="form-control ml-2 d-inline-block w-auto"
+                 placeholder="Enter Keywords"
+                 required maxlength="25" type="text"
+                 style="margin-bottom: 2px"
+                 autocomplete="off"
+                 data-toggle="dropdown"
+                 @input="searchKeywords"/>
+          <button
+              :class="{disabled: keywords.length <= 0}"
+              class="btn btn-primary ml-2" @click="searchCards">
+            Apply
+          </button>
+          <span class="custom-control custom-switch m-2">
+            <input v-model="keywordUnion" type="checkbox" class="custom-control-input" id="any-all-keyword-switch">
+            <label class="custom-control-label" for="any-all-keyword-switch">Match all</label>
+          </span>
+          <!-- Autocomplete dropdown -->
+          <div class="dropdown-menu overflow-auto" id="dropdown">
+            <!-- If no user input -->
+            <p class="text-muted dropdown-item left-padding mb-0 disabled"
+               v-if="keywordValue.length === 0"
+            >
+              Start typing...
+            </p>
+            <!-- If no matches -->
+            <p class="text-muted dropdown-item left-padding mb-0 disabled"
+               v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
+            >
+              No results found.
+            </p>
+            <!-- If there are matches -->
+            <a class="dropdown-item pointer left-padding"
+               v-for="keyword in filteredKeywords"
+               v-else
+               :key="keyword.id"
+               @click="setKeyword(keyword)">
+              <span>{{ keyword.name }}</span>
+            </a>
+          </div>
+          <!-- Keyword Bubbles -->
+          <div class="keyword">
+            <button
+                class="btn btn-primary d-inline-block m-2"
+                v-for="(keyword, index) in keywords"
+                :key="'keyword' + index">
+              <span>{{  keyword.name  }}</span>
+              <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
 
       <!-- Div with cards -->
       <div class="row row-cols-1 row-cols-lg-2">
@@ -112,7 +171,7 @@ import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import CreateCardPage from "@/components/marketplace/CreateCardPage";
 import PageWrapper from "@/components/PageWrapper";
-import { User } from "@/Api";
+import {Keyword, User, Card} from "@/Api";
 
 export default {
   name: "Marketplace",
@@ -126,7 +185,11 @@ export default {
       error: "",
       order: 'created-asc',
       resultsPerPage: 10,
-      page: 1
+      page: 1,
+      keywordValue: '',
+      keywordUnion: false,
+      keywords: [],
+      filteredKeywords: []
     }
   },
 
@@ -226,12 +289,24 @@ export default {
 
     /** Function for sorting a list of cards by created date **/
     sortCreatedDate(a, b) {
-      return (a.created < b.created) ? -1 : ((a.created > b.created) ? 1 : 0)
+      if (a.created < b.created) {
+        return -1
+      }
+      if ((a.created > b.created)) {
+        return 1
+      }
+      return 0
     },
 
     /** Function for sorting a list by title alphabetically **/
     sortTitle(a, b) {
-      return (a.title < b.title) ? -1 : ((a.title > b.title) ? 1 : 0)
+        if (a.title < b.title) {
+          return -1
+        }
+        if ((a.title > b.title)) {
+          return 1
+        }
+        return 0
     },
 
     /** Function for sorting a list by location alphabetically **/
@@ -290,6 +365,85 @@ export default {
             this.error = err;
           })
     },
+    /**
+     * Adds a keyword to the list of keywords
+     */
+    addKeyword(keyword) {
+      this.keywordValue = this.keywordValue.trim()
+      if((this.keywordValue === '' || this.keywordValue === ' ')
+          || this.keywords.includes(this.keywordValue)) {
+        this.keywordValue = '';
+      }
+      if (this.keywordValue.length > 2) {
+        this.keywords.push(
+            {
+              id: keyword.id,
+              name: this.keywordValue
+            });
+        this.keywordValue = '';
+      }
+    },
+
+    /**
+     * Removes a keyword from the list of keywords
+     * @param index Index of the keyword in the keyword list
+     */
+    removeKeyword(index) {
+      this.keywords.splice(index, 1)
+    },
+
+    /**
+     * Filters autocomplete options based on the user's input for a keyword.
+     */
+    async searchKeywords() {
+      if (this.keywordValue.length > 2) {
+        await Keyword.searchKeywords(this.keywordValue)
+            .then((response) => {
+              this.filteredKeywords = response.data;
+            })
+            .catch((err) => {
+              console.log(err)
+            })
+      } else {
+        this.filteredKeywords = []
+      }
+    },
+
+    /**
+     * Adds a keyword to the list of keywords if the keyword was selecting from the
+     * autocomplete list rather than by pressing the spacebar
+     * @param keyword Keyword to be added to keyword list
+     */
+    setKeyword(keyword) {
+      this.keywordValue = keyword.name
+      this.addKeyword(keyword)
+    },
+
+    /**
+     * Searches for cards by calling backend api endpoint and displaying the cards returned
+     */
+    async searchCards() {
+      //return if there are no keywords to search for
+      if (this.keywords.length <= 0) return
+
+      let apiParams = '?'
+      for (const keyword of this.keywords) {
+        apiParams += `keywordIds=${keyword.id}&`
+      }
+      apiParams += `section=${this.tabSelected}&`
+      //union=false is match ALL, union=true is match ANY
+      apiParams += `union=${!this.keywordUnion}`
+
+      await Card.searchCards(apiParams)
+          .then((res) => {
+            this.error = "";
+            this.cards = res.data
+          })
+          .catch((err) => {
+            this.error = err;
+          })
+    }
+
   }
 }
 
@@ -300,9 +454,11 @@ export default {
 .nav-item {
   font-size: 20px;
 }
-
 .row {
   margin-bottom: 20px;
+}
+.keyword {
+  font-size: 16px;
 }
 
 </style>

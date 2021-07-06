@@ -1,8 +1,28 @@
 import '@jest/globals'
 import {shallowMount} from "@vue/test-utils"
 import CreateCardPage from "@/components/marketplace/CreateCardPage"
+import {Keyword} from "@/Api"
 
 let wrapper
+
+const keywords = [
+    {
+        'id': 1,
+        'name': 'Apple'
+    },
+    {
+        'id': 2,
+        'name': 'Banana'
+    },
+    {
+        'id': 3,
+        'name': 'Chocolate'
+    }
+]
+
+let currentKeywords = []
+
+jest.mock('@/Api')
 
 describe('validate Section method tests', () => {
 
@@ -183,3 +203,49 @@ describe('validate Create button', () => {
     })
 })
 
+describe('Tests for getKeywordIds method', () => {
+
+    beforeEach(() => {
+        currentKeywords = [...keywords]
+        Keyword.createKeyword.mockImplementation(jest.fn((name) => {
+            const id = currentKeywords.length + 1
+            currentKeywords.push({
+                id: id,
+                name: name
+            })
+            return {
+                data: {
+                    keywordId: id
+                }
+            }
+        }))
+        Keyword.searchKeywords.mockImplementation(jest.fn((name) => {
+            const result = []
+            for (const keyword of currentKeywords) {
+                if (keyword['name'].includes(name)) {
+                    result.push(keyword)
+                }
+            }
+            return {
+                data: result
+            }
+        }))
+    })
+
+    test('Creating a card with current keywords results in their IDs being added', async () => {
+        wrapper.vm.$data.keywords = ['Apple', 'Chocolate']
+        const result = await wrapper.vm.getKeywordIds()
+        expect(result.length).toStrictEqual(2)
+        expect(result).toContain(1)
+        expect(result).toContain(3)
+    })
+
+    test('Creating a card with a new keyword adds the new keyword to the keyword list', async () => {
+        wrapper.vm.$data.keywords = ['Apple', 'Cherry']
+        const result = await wrapper.vm.getKeywordIds()
+        expect(currentKeywords.length).toStrictEqual(4)
+        expect(result.length).toStrictEqual(2)
+        expect(result).toContain(4)
+    })
+
+})

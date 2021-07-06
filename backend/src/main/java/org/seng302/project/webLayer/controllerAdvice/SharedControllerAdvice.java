@@ -2,10 +2,10 @@ package org.seng302.project.webLayer.controllerAdvice;
 
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.regex.Pattern;
@@ -31,8 +31,7 @@ public class SharedControllerAdvice {
         //Gets the useful bit of the error message e.g. "Product name is a mandatory field"
         var pattern = Pattern.compile("]]; default message \\[(.*?)]");
         var matcher = pattern.matcher(ex.getMessage());
-        if (matcher.find())
-        {
+        if (matcher.find()) {
             responseString = matcher.group(1);
         }
 

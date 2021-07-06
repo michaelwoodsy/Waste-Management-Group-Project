@@ -108,10 +108,20 @@ export const Business = {
         businessType
     }),
 
+    /**
+     * Get back all businesses with a certain search term and business type
+     * @param searchTerm Criteria to search businesses for, e.g: businesses full name or part of a name
+     * @param businessSearchType Criteria to limit the search for only businesses with this type
+     * @returns {Promise<AxiosResponse<any>>} Response from request
+     */
+    getBusinesses: (searchTerm, businessSearchType) => instance.get('businesses/search', {params: {'searchQuery': searchTerm,
+        'businessType': businessSearchType}}),
+
     /*
      * Retrieves the data for a given business
      */
     getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
+
 
     /*
      *  Removes a user with id userId from administering the business with id businessId
@@ -210,8 +220,31 @@ export const Card = {
      * Retrieves all the data for a given card
      * @param cardId The ID of the card in the database
      */
-    getCard: (cardId) => instance.get(`cards/${cardId}`, {})
+    getCard: (cardId) => instance.get(`cards/${cardId}`, {}),
+
+    /**
+     * Searches for cards by keyword
+     * @param params parameters to search by, the keywords, the section, and whether to match all keywords or only some
+     * @returns {Promise<AxiosResponse<any>>} Response from request
+     */
+    searchCards: (params) => instance.get(`cards/search/${params}`, {})
 };
+
+export const Keyword = {
+
+    /**
+     * Request to create a new keyword.
+     *
+     * @param name the new keyword to add.
+     */
+    createKeyword: (name) => instance.post('keywords', {name}),
+
+    /**
+     * Searches keywords for matches to a partial keyword
+     * @param partialKeyword the string to search by
+     */
+    searchKeywords: (partialKeyword) => instance.get(`keywords/search`, {params: {'searchQuery': partialKeyword}})
+}
 
 export const Images = {
     /**

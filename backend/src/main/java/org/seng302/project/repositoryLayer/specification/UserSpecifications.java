@@ -4,7 +4,8 @@ import org.seng302.project.repositoryLayer.model.User;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
- * Class containing specification that we can search the database with.
+ * Class containing specifications that we can
+ * search for users in the database with.
  */
 public class UserSpecifications {
 

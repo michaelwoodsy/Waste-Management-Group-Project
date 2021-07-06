@@ -84,13 +84,13 @@
               <p>Administrators: </p>
             </div>
             <div class="col-6">
-              <table>
+              <table aria-label="Administrators of this business">
                 <tr v-for="(admin, index) in administrators" :key="index">
-                  <td>
+                  <th id="administrator-name" class="font-weight-normal">
                     <router-link :to="`/users/${admin.id}`" class="nav-link p-0">
                       {{ admin.firstName }} {{ admin.lastName }}
                     </router-link>
-                  </td>
+                  </th>
                   <td v-if="isPrimaryAdmin && (primaryAdminId !== admin.id)">
                     <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;"
                        v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
