@@ -79,6 +79,9 @@ describe('Testing the MarketCard component', () => {
                 },
                 userId() {
                     return 1
+                },
+                actingAsUser() {
+                    return true
                 }
             }
         })
