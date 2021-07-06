@@ -124,7 +124,6 @@ export default {
   data() {
     return {
       modalTitle: 'Edit card',
-      creatorId: '', //Required
       section: '', //Required
       title: '', //Required
       description: '',
@@ -205,7 +204,7 @@ export default {
       } else {
         this.msg.errorChecks = null;
         console.log('No errors');
-        this.addCard()
+        this.editCard()
       }
     },
 
@@ -235,8 +234,13 @@ export default {
      * Saves the changes from editing the card
      */
     async editCard() {
-      // const keywordIds = await this.getKeywordIds()
-      //TODO: call endpoint
+      const keywordIds = await this.getKeywordIds()
+      await Card.editCard(this.cardId, {
+        "section": this.section,
+        "title": this.title,
+        "description": this.description,
+        "keywordIds": keywordIds
+      })
     },
 
     /**
