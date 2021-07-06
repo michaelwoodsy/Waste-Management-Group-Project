@@ -103,6 +103,11 @@ Page for displaying the marketplace.
               class="btn btn-primary ml-2" @click="searchCards">
             Apply
           </button>
+          <button
+              v-if="keywords.length > 0"
+              class="btn btn-danger ml-2" @click="clearFilter">
+            Clear
+          </button>
           <span class="custom-control custom-switch m-2">
             <input v-model="keywordUnion" type="checkbox" class="custom-control-input" id="any-all-keyword-switch">
             <label class="custom-control-label" for="any-all-keyword-switch">Match all</label>
@@ -442,6 +447,11 @@ export default {
           .catch((err) => {
             this.error = err;
           })
+    },
+
+    async clearFilter() {
+      this.keywords = []
+      this.getCards(this.tabSelected)
     }
 
   }
