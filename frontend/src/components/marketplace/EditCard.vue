@@ -4,7 +4,7 @@
     <!-- Page title -->
     <div class="row mb-4">
       <div class="col text-center">
-        <h2>{{ PageTitle }}</h2>
+        <h2>{{ modalTitle }}</h2>
       </div>
     </div>
 
@@ -13,17 +13,17 @@
       <!-- Section -->
       <div class="form-group row">
         <label for="section"><strong>Section<span class="required">*</span></strong></label>
-          <select id="section" v-model="section" :class="{'form-control': true, 'is-invalid': msg.section}" >
-            <option value="ForSale">
-              For Sale
-            </option>
-            <option value="Wanted">
-              Wanted
-            </option>
-            <option value="Exchange">
-              Exchange
-            </option>
-          </select>
+        <select id="section" v-model="section" :class="{'form-control': true, 'is-invalid': msg.section}" >
+          <option value="ForSale">
+            For Sale
+          </option>
+          <option value="Wanted">
+            Wanted
+          </option>
+          <option value="Exchange">
+            Exchange
+          </option>
+        </select>
         <span class="invalid-feedback">{{ msg.section }}</span>
       </div>
 
@@ -40,8 +40,8 @@
       <div class="form-group row">
         <label for="description"><strong>Description</strong></label>
         <textarea id="description" v-model="description" :class="{'form-control': true, 'is-invalid': false}"
-               placeholder="Enter the description"
-               required maxlength="255" type="text">
+                  placeholder="Enter the description"
+                  required maxlength="255" type="text">
         </textarea>
       </div>
 
@@ -95,11 +95,11 @@
         <span class="invalid-feedback">{{ msg.keywords }}</span>
       </div>
 
-      <!-- Create Card button -->
+      <!-- Save Changes button -->
       <div class="form-group row mb-0">
         <div class="btn-group" style="width: 100%">
           <button id="cancelButton" ref="close" class="btn btn-secondary col-4" data-dismiss="modal" v-on:click="cancel=true" @click="close">Cancel</button>
-          <button id="createButton" class="btn btn-primary col-8" v-on:click="submit=true" @click="checkInputs">Create Card</button>
+          <button id="saveButton" class="btn btn-primary col-8" v-on:click="submit=true" @click="checkInputs">Save Changes</button>
         </div>
         <!-- Show an error if required fields are missing -->
         <div v-if="msg.errorChecks" class="error-box">
@@ -113,16 +113,17 @@
 
 <script>
 import Alert from "@/components/Alert";
-import {Keyword} from "@/Api";
+import {Card, Keyword} from "@/Api";
 
 export default {
-  name: "CreateCardPage",
+  name: "EditCard",
   components: {
     Alert,
   },
+  props: ['cardId'],
   data() {
     return {
-      PageTitle: 'Create a new card',
+      modalTitle: 'Edit card',
       creatorId: '', //Required
       section: '', //Required
       title: '', //Required
@@ -141,7 +142,24 @@ export default {
       filteredKeywords: []
     };
   },
+  async mounted() {
+    await this.prefillFields();
+  },
   methods: {
+    /**
+     * Prefills all fields with the card's existing values
+     */
+    async prefillFields() {
+      const response = await Card.getCard(this.cardId)
+      this.section = response.data.section
+      this.title = response.data.title
+      this.description = response.data.description
+      response.data.keywords.forEach((keywordObject) => {
+        this.keywords.push(keywordObject.name)
+      })
+
+
+    },
     /**
      * Validate the section input
      * Must select one of the 3 available sections
@@ -214,26 +232,11 @@ export default {
     },
 
     /**
-     * Add a new card to the marketplace
+     * Saves the changes from editing the card
      */
-    async addCard() {
-      const keywordIds = await this.getKeywordIds()
-      this.$root.$data.user.createCard(
-          {
-            creatorId: this.$root.$data.user.state.actingAs.id,
-            section: this.section,
-            title: this.title,
-            description: this.description,
-            keywordIds: keywordIds
-          }
-      ).then(() => {
-        this.$refs.close.click();
-        this.close();
-      }).catch((err) => {
-        this.msg.errorChecks = err.response
-            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-            : err
-      });
+    async editCard() {
+      // const keywordIds = await this.getKeywordIds()
+      //TODO: call endpoint
     },
 
     /**
@@ -244,8 +247,8 @@ export default {
     },
 
     /**
-    * Adds a keyword to the list of keywords
-    */
+     * Adds a keyword to the list of keywords
+     */
     addKeyword() {
       this.keywordValue = this.keywordValue.trim()
       if((this.keywordValue === '' || this.keywordValue === ' ')
@@ -272,15 +275,15 @@ export default {
     async searchKeywords() {
       if (this.keywordValue.length > 2) {
         await Keyword.searchKeywords(this.keywordValue)
-        .then((response) => {
-          this.filteredKeywords = response.data;
-        })
-        .catch((err) => {
-          this.msg.errorChecks = err.response
-              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-              : err
+            .then((response) => {
+              this.filteredKeywords = response.data;
+            })
+            .catch((err) => {
+              this.msg.errorChecks = err.response
+                  ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+                  : err
 
-        })
+            })
       } else {
         this.filteredKeywords = []
       }

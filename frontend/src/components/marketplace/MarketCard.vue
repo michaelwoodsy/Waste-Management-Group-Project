@@ -9,9 +9,9 @@ Eg, <market-card @card-deleted="someMethod" ... />
 @prop hideImage: Boolean, when true will not display the card image.
 -->
 <template>
-  <div :class="{'border-danger': expired && showExpired && canDeleteCard}" class="card shadow card-size">
+  <div :class="{'border-danger': expired && showExpired && canEditCard}" class="card shadow card-size">
 
-    <div v-if="expired && showExpired && canDeleteCard" class="card-header">
+    <div v-if="expired && showExpired && canEditCard" class="card-header">
       <div class="row align-items-center">
         <div class="col-7">
           <p class="text-danger d-inline">This card has recently expired</p>
@@ -80,7 +80,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
       <!-- Delete button -->
       <button
-          v-if="canDeleteCard && !expired"
+          v-if="canEditCard && !expired"
           :data-target="'#deleteModal' + cardData.id"
           style="margin-left: 10px"
           class="btn btn-outline-danger d-inline float-right"
@@ -94,6 +94,26 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <span v-if="!showDetails">View Details <em class="bi bi-arrow-down"/></span>
         <span v-else>Hide Details <em class="bi bi-arrow-up"/></span>
       </button>
+
+      <!-- Edit button -->
+      <button
+          v-if="canEditCard && !expired"
+          :data-target="'#editCard' + cardData.id" data-toggle="modal"
+          class="btn btn-outline-primary d-inline float-right mr-2"
+          @click="editCard"
+      >
+        Edit
+      </button>
+
+      <div :id="'editCard' + cardData.id" :key="this.editCurrentCard" class="modal fade" data-backdrop="static">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <edit-card :card-id="cardData.id"></edit-card>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </div>
 
@@ -135,10 +155,12 @@ Eg, <market-card @card-deleted="someMethod" ... />
 import {getTimeDiffStr} from "@/utils/dateTime";
 import {Card, Marketplace} from "@/Api";
 import Alert from "@/components/Alert";
+import EditCard from "@/components/marketplace/EditCard";
 
 export default {
   name: "MarketCard",
   components: {
+    EditCard,
     Alert
   },
   props: {
@@ -167,7 +189,8 @@ export default {
       hoursToExpire: '',
       minutesToExpire: '',
       secondsToExpire: '',
-      keywords: []
+      keywords: [],
+      editCurrentCard: false
     }
   },
 
@@ -216,7 +239,7 @@ export default {
     },
 
     /** True if the logged in user is the creator of the card or an admin **/
-    canDeleteCard() {
+    canEditCard() {
       return this.isCardCreator || this.canDoAdminAction
     },
 
@@ -308,7 +331,14 @@ export default {
       if (this.timeUntilExpiry().timeLeft > 0) {
         requestAnimationFrame(this.updateTimer)
       }
-    }
+    },
+
+    /**
+     * Takes user to modal to edit card
+     */
+    editCard() {
+      this.editCurrentCard = true;
+    },
   }
 }
 </script>
