@@ -6,14 +6,14 @@ import "@jest/globals";
 import MarketCard from '@/components/marketplace/MarketCard';
 import {mount} from "@vue/test-utils";
 import '@/Api';
-import {Card, Marketplace} from '@/Api';
+import {Card, Marketplace, User} from '@/Api';
 
 // Mock the api module
 jest.mock("@/Api");
 
 // Mock the dateTime module
 jest.mock('@/utils/dateTime', () => ({
-    'getTimeDiffStr' () {
+    'getTimeDiffStr'() {
         return "2d"
     }
 }));
@@ -79,6 +79,9 @@ describe('Testing the MarketCard component', () => {
                 },
                 userId() {
                     return 1
+                },
+                actingAsUser() {
+                    return true
                 }
             }
         })
@@ -109,7 +112,17 @@ describe('Testing the MarketCard component', () => {
     test("Tests the isCardOwner property", () => {
         const isCardCreator = MarketCard.computed.isCardCreator
         // Function for mocking the 'this' state
-        const mockThis = (id) => ({"cardData": mockedGetResponse.data, "$root": {"$data": {"user": {isUser (userId) {return userId === id}}}}})
+        const mockThis = (id) => ({
+            "cardData": mockedGetResponse.data, "$root": {
+                "$data": {
+                    "user": {
+                        isUser(userId) {
+                            return userId === id
+                        }
+                    }
+                }
+            }
+        })
 
         expect(isCardCreator.call(mockThis(100))).toBeTruthy()
         expect(isCardCreator.call(mockThis(2))).toBeFalsy()
@@ -140,7 +153,7 @@ describe('Testing the MarketCard component', () => {
     })
 
     test('Test time until expiry computed method', () => {
-        const now =  new Date()
+        const now = new Date()
         const displayEnd = new Date("2021-07-29T05:10:00Z")
         expect(wrapper.vm.timeUntilExpiry().timeLeft).toEqual(displayEnd.getTime() - now.getTime())
     })
@@ -191,6 +204,32 @@ describe('Testing the MarketCard component', () => {
         await wrapper.vm.$nextTick()
 
         expect(wrapper.emitted('card-extended')).toBeTruthy()
+    })
+
+    test("Send message method gives error message when text field is empty", async () => {
+        wrapper.vm.$data.message = ""
+        await wrapper.vm.sendMessage()
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.$data.messageError).toBeTruthy()
+        expect(wrapper.vm.$data.messageSent).toBeFalsy()
+    })
+
+    test("Send message method succeeds when a valid message is given", async () => {
+        User.sendCardMessage.mockImplementationOnce(jest.fn(() => {
+            return {
+                data: {
+                    messageId: 1
+                }
+            }
+        }))
+
+        wrapper.vm.$data.message = "This is a valid message"
+        await wrapper.vm.sendMessage()
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.vm.$data.messageError).toBeFalsy()
+        expect(wrapper.vm.$data.messageSent).toBeTruthy()
     })
 
 })
