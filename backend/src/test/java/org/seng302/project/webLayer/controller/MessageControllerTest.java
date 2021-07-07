@@ -7,7 +7,6 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
-import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.service.MessageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -22,7 +21,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -67,7 +65,7 @@ class MessageControllerTest extends AbstractInitializer {
                 .content(requestBody.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(user(testUser.getEmail()));
+                .with(user(new AppUserDetails(testUser)));
 
         mockMvc.perform(createMessageRequest).andExpect(status().isCreated());
 
@@ -97,7 +95,6 @@ class MessageControllerTest extends AbstractInitializer {
     /**
      * Tests that a 400 response is given when the text field is missing
      */
-    //TODO: this actually gives a 201
     @Test
     void createMessage_missingField_400() throws Exception {
         when(messageService.createMessage(any(CreateMessageDTO.class), any(AppUserDetails.class)))
@@ -111,7 +108,7 @@ class MessageControllerTest extends AbstractInitializer {
                 .content(requestBody.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(user(testUser.getEmail()));
+                .with(user(new AppUserDetails(testUser)));
 
         mockMvc.perform(createMessageRequest).andExpect(status().isBadRequest());
     }
@@ -120,7 +117,6 @@ class MessageControllerTest extends AbstractInitializer {
     /**
      * Tests that a 406 response is given when the user or card doesn't exist
      */
-    //TODO: this actually gives a 201
     @Test
     void createMessage_nonexistentUserOrCard_406() throws Exception {
         when(messageService.createMessage(any(CreateMessageDTO.class), any(AppUserDetails.class)))
@@ -134,7 +130,7 @@ class MessageControllerTest extends AbstractInitializer {
                 .content(requestBody.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(user(testUser.getEmail()));
+                .with(user(new AppUserDetails(testUser)));
 
         mockMvc.perform(createMessageRequest).andExpect(status().isNotAcceptable());
     }

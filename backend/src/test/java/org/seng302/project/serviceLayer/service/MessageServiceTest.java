@@ -83,7 +83,6 @@ class MessageServiceTest extends AbstractInitializer {
         CreateMessageDTO requestDTO = new CreateMessageDTO(
                 testReceiver.getId(), testCard.getId(), testMessage.getText());
 
-
         Mockito.when(messageRepository.save(Mockito.any(Message.class)))
                 .thenReturn(testMessage);
 
