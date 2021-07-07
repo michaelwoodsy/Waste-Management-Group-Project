@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.Address;
-import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Tests related to the DGAA
  */
 @SpringBootTest
-public class DGAATest {
+class DGAATest {
 
     private final UserRepository userRepository = Mockito.mock(UserRepository.class);
     private final AddressRepository addressRepository = Mockito.mock(AddressRepository.class);
@@ -36,7 +36,7 @@ public class DGAATest {
     private String defaultPassword = "password";
 
     @BeforeEach
-    public void init() {
+    void init() {
         dgaaChecker = new DGAAChecker(addressRepository, userRepository, springEnvironment, passwordEncoder);
         dgaaChecker.setUserRepository(userRepository);
         dgaaChecker.setAddressRepository(addressRepository);
@@ -44,8 +44,8 @@ public class DGAATest {
 
         Mockito.when(userRepository.save(Mockito.any(User.class)))
                 .thenAnswer(invocation -> {
-                    Object[] args = invocation.getArguments();
-                    userList.add((User) args[0]);
+                    User user = invocation.getArgument(0);
+                    userList.add(user);
                     return null;
                 });
         Mockito.when(userRepository.findByRole(dgaaRole))
@@ -63,7 +63,7 @@ public class DGAATest {
      * Test that no DGAA is found before one has been created
      */
     @Test
-    public void testDGAACheckerWithNonexistentDGAA() {
+    void testDGAACheckerWithNonexistentDGAA() {
         Assertions.assertTrue(userRepository.findByRole(dgaaRole).isEmpty());
         Assertions.assertFalse(dgaaChecker.dgaaExists());
     }
@@ -72,7 +72,7 @@ public class DGAATest {
      * Tests that when a DGAA is created, it is found
      */
     @Test
-    public void testDGAACheckerWithExistingDGAA() {
+    void testDGAACheckerWithExistingDGAA() {
         Address dgaaAddress = new Address("", "", "", "", "New Zealand", "");
 
         User dgaa = new User("Admin", "Admin", "Admin", "Admin",
@@ -92,7 +92,7 @@ public class DGAATest {
      * Test that the default global application admin is created with username and password set by environment.
      */
     @Test
-    public void testCreateDefaultAdmin() {
+    void testCreateDefaultAdmin() {
         User defaultAdmin = dgaaChecker.createDGAA();
         assertEquals(defaultEmail, defaultAdmin.getEmail());
         assertTrue(passwordEncoder.matches(defaultPassword, defaultAdmin.getPassword()));
@@ -103,7 +103,7 @@ public class DGAATest {
      * Tests that a new DGAA is successfully added to user repository when not present.
      */
     @Test
-    public void testCreateDefaultAdminAndAddToRepository() {
+    void testCreateDefaultAdminAndAddToRepository() {
         dgaaChecker.dgaaCheck();
         Assertions.assertFalse(userRepository.findByRole(dgaaRole).isEmpty());
     }

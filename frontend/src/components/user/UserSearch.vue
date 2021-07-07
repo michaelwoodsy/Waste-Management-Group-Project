@@ -47,7 +47,9 @@
 
           <!--    Order By   -->
           <div class="overflow-auto">
-            <table class="table table-hover">
+            <table class="table table-hover"
+                   aria-label="Table showing user search results"
+            >
               <thead>
               <tr>
                 <!--    ID    -->
@@ -55,6 +57,9 @@
                   <p class="d-inline">Id</p>
                   <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
+
+                <!--    User Image    -->
+                <th></th>
 
                 <!--    First Name    -->
                 <th class="pointer" scope="col" @click="orderResults('firstName')">
@@ -92,6 +97,8 @@
               <tr v-for="user in paginatedUsers"
                   v-bind:key="user.id"
                   class="pointer"
+                  data-target="#viewUserModal"
+                  data-toggle="modal"
                   @click="viewUser(user.id)"
               >
                 <th scope="row">
@@ -101,6 +108,10 @@
                   <span v-else-if="isActingAsAdmin && user.role === 'defaultGlobalApplicationAdmin'"
                         class="badge badge-danger admin-badge">DGAA</span>
                 </th>
+                <td>
+                  <img alt="productImage"
+                       :src="getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')">
+                </td>
                 <td>{{ nameAndNickname(user) }}</td>
                 <td>{{ user.middleName }}</td>
                 <td>{{ user.lastName }}</td>
@@ -130,6 +141,19 @@
           />
         </div>
       </div>
+
+      <div v-if="viewUserModal" id="viewUserModal" class="modal fade" data-backdrop="static">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-body">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="viewUserModal=false">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <profile-page-modal :id="viewUserModalId"></profile-page-modal>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <login-required v-else page="search users"/>
@@ -138,16 +162,18 @@
 </template>
 
 <script>
-import {User} from '@/Api'
+import {Images, User} from '@/Api'
 import LoginRequired from '../LoginRequired'
 import ShowingResultsText from "../ShowingResultsText";
 import Pagination from "../Pagination";
 import Alert from '../Alert'
 import PageWrapper from "@/components/PageWrapper";
+import ProfilePageModal from "@/components/user/ProfilePageModal";
 
 export default {
   name: "UserSearch",
   components: {
+    ProfilePageModal,
     PageWrapper,
     LoginRequired,
     Alert,
@@ -159,6 +185,8 @@ export default {
     return {
       searchTerm: "",
       users: [],
+      viewUserModal: false,
+      viewUserModalId: null,
       error: null,
       orderCol: null,
       orderDirection: false, // False -> Ascending
@@ -239,7 +267,7 @@ export default {
       return this.users.length
     },
     /**
-     * Returns whether the currentley logged in user is the DGAA
+     * Returns whether the currently logged in user is the DGAA
      * @returns {boolean|*}
      */
     isActingAsAdmin() {
@@ -267,6 +295,13 @@ export default {
             this.error = err;
             this.loading = false;
           })
+    },
+
+    /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
     },
 
     /**
@@ -324,7 +359,8 @@ export default {
      * @param id
      */
     viewUser(id) {
-      this.$router.push({name: 'viewUser', params: {userId: id}})
+      this.viewUserModalId = id
+      this.viewUserModal = true
     },
 
     /**

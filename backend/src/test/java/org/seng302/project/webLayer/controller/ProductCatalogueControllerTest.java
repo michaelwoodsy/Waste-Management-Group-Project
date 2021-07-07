@@ -6,8 +6,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.serviceLayer.dto.AddProductDTO;
+import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.service.ProductCatalogueService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -82,7 +83,7 @@ class ProductCatalogueControllerTest {
 
     /**
      * Tries to get the business products as a logged in owner.
-     * Expects a 200 OK response, and product present.
+     * Expects a 200 OK response
      */
     @Test
     void getProducts_200Response() throws Exception {
@@ -102,7 +103,7 @@ class ProductCatalogueControllerTest {
 
         Mockito.when(productCatalogueService.getBusinessesProducts(Mockito.any(Integer.class),
                 Mockito.any(AppUserDetails.class)))
-                .thenThrow(new NoBusinessExistsException(businessId));
+                .thenThrow(new BusinessNotFoundException(businessId));
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/businesses/{id}/products", businessId + 999999)

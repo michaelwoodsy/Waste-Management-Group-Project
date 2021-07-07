@@ -2,7 +2,7 @@ Feature: UCM2 - Card Creation
 
   Scenario: AC1: I can create a card to be displayed in one of the three sections.
     Given A user exists
-    When A user creates a card to be displayed in the "For Sale" section
+    When A user creates a card to be displayed in the "ForSale" section
     Then The card is successfully created
 
   Scenario: AC1: I can create a card to be displayed in one of the three sections.

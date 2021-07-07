@@ -22,10 +22,10 @@
       <div class="row">
         <div class="col-12 text-center mb-2">
           <img
-              alt="profile"
+              alt="profile image"
               class="profile-image rounded-circle"
               style="max-width: 300px"
-              src="@/../../media/defaults/defaultProfile.jpg"
+              :src="getImageURL('/media/defaults/defaultProfile.jpg')"
           />
         </div>
       </div>
@@ -117,13 +117,13 @@
           <p>Primary Administrator of: </p>
         </div>
         <div class="col-6">
-          <table>
+          <table aria-label="Businesses this user administers">
             <tr v-for="(business, index) in primaryAdminOf" :key="index">
-              <td>
+              <th id="business-name" class="font-weight-normal">
                 <router-link :to="`/businesses/${business.id}`" class="nav-link p-0">
                   {{ business.name }}
                 </router-link>
-              </td>
+              </th>
             </tr>
           </table>
         </div>
@@ -172,11 +172,11 @@
             <div class="carousel-inner">
               <!--   Image 1   -->
               <div class="carousel-item active">
-                <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProfile.jpg" alt="User Image">
+                <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL('/media/defaults/defaultProfile.jpg')" alt="User Image">
               </div>
               <!--   Image 2   -->
               <div class="carousel-item">
-                <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" src="@/../../media/defaults/defaultProfile.jpg" alt="User Image">
+                <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL('/media/defaults/defaultProfile.jpg')" alt="User Image">
               </div>
             </div>
             <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
@@ -211,7 +211,7 @@
 
 <script>
 
-import {Business, User} from '@/Api'
+import {Business, Images, User} from '@/Api'
 import LoginRequired from "../LoginRequired"
 import Alert from "@/components/Alert";
 import PageWrapper from "@/components/PageWrapper";
@@ -332,6 +332,13 @@ export default {
       this.dateJoined = this.dateJoined.substring(0, 10)
       this.businessesAdministered = response.data.businessesAdministered
       this.setPrimaryAdminList()
+    },
+
+    /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
     },
 
     /**

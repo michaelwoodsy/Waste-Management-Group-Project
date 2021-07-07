@@ -88,7 +88,22 @@ export const User = {
      * @param userId User ID to get cards from
      * @returns {Promise<AxiosResponse<any>>} response containing user's cards
      */
-    getCards: (userId) => instance.get(`users/${userId}/cards`)
+    getCards: (userId) => instance.get(`users/${userId}/cards`),
+
+    /**
+     * Sends a message to a user regarding a card.
+     *
+     * @param userId ID of the user to send the message to.
+     * @param cardId ID of the card the message is about.
+     * @param message The contents of the message
+     * @returns {Promise<AxiosResponse<any>>} response containing message ID.
+     */
+    sendCardMessage: (userId, cardId, message) => instance.post(
+        `users/${userId}/cards/${cardId}/messages`,
+        {
+            message: message
+        }
+    )
 
 };
 
@@ -108,10 +123,24 @@ export const Business = {
         businessType
     }),
 
+    /**
+     * Get back all businesses with a certain search term and business type
+     * @param searchTerm Criteria to search businesses for, e.g: businesses full name or part of a name
+     * @param businessSearchType Criteria to limit the search for only businesses with this type
+     * @returns {Promise<AxiosResponse<any>>} Response from request
+     */
+    getBusinesses: (searchTerm, businessSearchType) => instance.get('businesses/search', {
+        params: {
+            'searchQuery': searchTerm,
+            'businessType': businessSearchType
+        }
+    }),
+
     /*
      * Retrieves the data for a given business
      */
     getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
+
 
     /*
      *  Removes a user with id userId from administering the business with id businessId
@@ -187,7 +216,16 @@ export const Business = {
      * @param imageId The ID of the image for the product in the database
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
-    removeProductImage: (businessId, productId, imageId) => instance.delete(`businesses/${businessId}/products/${productId}/images/${imageId}`)
+    removeProductImage: (businessId, productId, imageId) => instance.delete(`businesses/${businessId}/products/${productId}/images/${imageId}`),
+
+    /**
+     * Sends a request to make a specific image the primary image of a specific product in the catalogue
+     * @param businessId The ID of the business in the database
+     * @param productId The ID of the product in the database
+     * @param imageId The ID of the image for the product in the database
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    makePrimaryProductImage: (businessId, productId, imageId) => instance.put(`businesses/${businessId}/products/${productId}/images/${imageId}/makeprimary`)
 };
 
 export const Marketplace = {
@@ -210,5 +248,43 @@ export const Card = {
      * Retrieves all the data for a given card
      * @param cardId The ID of the card in the database
      */
-    getCard: (cardId) => instance.get(`cards/${cardId}`, {})
+    getCard: (cardId) => instance.get(`cards/${cardId}`, {}),
+
+    /**
+     * Searches for cards by keyword
+     * @param params parameters to search by, the keywords, the section, and whether to match all keywords or only some
+     * @returns {Promise<AxiosResponse<any>>} Response from request
+     */
+    searchCards: (params) => instance.get(`cards/search/${params}`, {}),
+
+    /**
+     * Edits a card
+     * @param cardId the id of the card to be edited
+     * @param newCardData the new data for the card
+     */
+    editCard: (cardId, newCardData) => instance.put(`cards/${cardId}`, newCardData)
 };
+
+export const Keyword = {
+
+    /**
+     * Request to create a new keyword.
+     *
+     * @param name the new keyword to add.
+     */
+    createKeyword: (name) => instance.post('keywords', {name}),
+
+    /**
+     * Searches keywords for matches to a partial keyword
+     * @param partialKeyword the string to search by
+     */
+    searchKeywords: (partialKeyword) => instance.get(`keywords/search`, {params: {'searchQuery': partialKeyword}})
+}
+
+export const Images = {
+    /**
+     * Retrieves the image at the path.
+     * @param path Path to the image
+     */
+    getImageURL: (path) => SERVER_URL + path.slice(1)
+}

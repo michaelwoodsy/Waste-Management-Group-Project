@@ -4,9 +4,18 @@ import org.seng302.project.repositoryLayer.model.User;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
- * Class containing specification that we can search the database with.
+ * Class containing specifications that we can
+ * search for users in the database with.
  */
 public class UserSpecifications {
+
+    /**
+     * Private constructor for this utility class to hide the implicit public one.
+     * Recommendation from SonarLint.
+     */
+    private UserSpecifications() {
+        throw new IllegalStateException("Utility class, UserSpecifications, shouldn't be instantiated");
+    }
 
     /**
      * Specification to find a user based on a queried name.

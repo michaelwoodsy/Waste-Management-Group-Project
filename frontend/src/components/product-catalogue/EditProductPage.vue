@@ -170,7 +170,7 @@
                       type="file"
                       style="display: none"
                       ref="fileInput"
-                      accept="image/*"
+                      accept="image/png, image/jpeg"
                       @change="imageUpload"/>
 
                   <div v-for="image in images"
@@ -178,15 +178,35 @@
                         @mouseover="image.hover = true"
                         @mouseleave="image.hover = false"
                   >
-                    <img width="250"
+                    <img v-if="image.id === undefined" width="250"
                          :src="image.url"
                          alt="Uploaded product image"
+                    />
+                    <img v-else width="250"
+                         :src="getImageURL(image.filename)"
+                         alt="Current product image"
                     />
                     <button class="btn btn-danger ml-1 my-1 pad1"
                             type="button"
                             :data-target="'#removeImageModal'"
                             data-toggle="modal">
                       Remove
+                    </button>
+<!--                    If the image cant be made primary because it is not uploaded yet-->
+                    <button class="btn btn-secondary disabled ml-1 my-1 pad1"
+                            v-if="image.id === undefined"
+                            type="button" @click="makeImagePrimary(null)">
+                      Make Primary
+                    </button>
+                    <button class="btn btn-primary ml-1 my-1 pad1 disabled"
+                            v-else-if="image.id === currentPrimaryImageId"
+                            type="button">
+                      Already Primary
+                    </button>
+                    <button class="btn btn-primary ml-1 my-1 pad1"
+                            v-else-if="image.id !== currentPrimaryImageId"
+                            type="button" @click="makeImagePrimary(image.id)">
+                      Make Primary
                     </button>
 
                     <!-- Remove Image modal -->
@@ -221,6 +241,12 @@
               </div>
             </form>
           </div>
+        </div>
+        <div v-if="primaryImageError !== null" class="alert alert-warning alert-dismissible fade show" role="alert">
+          {{primaryImageError}}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
 
         <!-- Row for fixes message -->
@@ -267,7 +293,7 @@
 import LoginRequired from "@/components/LoginRequired";
 import AdminRequired from "@/components/AdminRequired";
 import Alert from "@/components/Alert";
-import {Business} from "@/Api";
+import {Business, Images} from "@/Api";
 import PageWrapper from "@/components/PageWrapper";
 
 export default {
@@ -290,8 +316,22 @@ export default {
       priceBlur: false,
       nameBlur: false,
       triedIds: [], // List of ids tested for uniqueness
-      images: [], //TODO: prefill with product's existing images
-      imagesEdited: false,
+      //Test Image Data
+      images: [
+          {
+            id: 1000,
+            filename: '/media/defaults/defaultProduct.jpg',
+            thumbnailFilename: '/media/defaults/defaultProduct_thumbnail.jpg'
+          },
+        {
+          id: 1001,
+          filename: '/media/defaults/defaultProduct2.jpg',
+          thumbnailFilename: '/media/defaults/defaultProduct2_thumbnail.jpg'
+        }
+      ], //TODO: prefill with product's existing images
+      currentPrimaryImageId: null,
+      primaryImageError: null,
+      imagesEdited: false
     }
   },
 
@@ -401,6 +441,12 @@ export default {
   },
   methods: {
     /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
+    },
+    /**
      * Validates the users inputs, then sends the data to the api.
      */
     submit() {
@@ -422,6 +468,9 @@ export default {
       Business.editProduct(this.businessId, this.productId, this.newProduct)
           .then(() => {
             this.addImages()
+            if (this.currentPrimaryImageId !== this.product.primaryImageId) {
+              Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.currentPrimaryImageId)
+            }
             this.submitError = null
             this.success = true
             this.submitting = false
@@ -502,10 +551,15 @@ export default {
      */
     imageUpload (event) {
       const files = event.target.files
+
+      const formData = new FormData()
+      formData.append("file", files[0])
+
       const fileReader = new FileReader()
       console.log(`File with name ${files[0].name} uploaded`)
       fileReader.addEventListener('load', () => {
         this.images.push({
+          data: formData,
           url: fileReader.result,
           file: files[0]
         })
@@ -549,14 +603,34 @@ export default {
       })
     },
 
+
+    /**
+     * Called to make the image the primary image of the product.
+     * Sets the variable currentPrimaryImage, which is then sent to the backend when the save changes button is clicked
+     * @param imageId the id of the image to make primary
+     */
+    makeImagePrimary(imageId) {
+      if (imageId === null) {
+        this.primaryImageError = "This image is not on our servers yet. Please save changes before making this image Primary"
+        return
+      } else {
+        this.primaryImageError = null
+      }
+      this.imagesEdited = true
+      //Sets the new primary image to be set when the user clicks the save changes button
+      this.currentPrimaryImageId = imageId
+    },
+
     /**
      * Makes requests to add the product's images
      */
     addImages() {
-      //TODO: get this to only add images that didn't previously exist for product
       for (const image of this.images) {
-        this.$root.$data.business.addProductImage(
-            this.businessId, this.newProduct.id, image.file)
+        //Id is undefined if it was just added
+        if (image.id == null) {
+          Business.addProductImage(
+              this.businessId, this.newProduct.id, image.data)
+        }
       }
     }
   }
