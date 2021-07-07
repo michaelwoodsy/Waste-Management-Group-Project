@@ -334,8 +334,12 @@ class ProductImageServiceTest extends AbstractInitializer {
                 2,
                 new AppUserDetails(testUserBusinessAdmin)
         );
+        File tempFile = new File("src/main/resources/public/media/image2.jpg");
+        File tempFileThumbnail = new File("src/main/resources/public/media/image2_thumbnail.jpg");
+
         ImageUtil imageUtil = Mockito.spy(new ImageUtil());
-        Mockito.doNothing().when(imageUtil).deleteImage(any(String.class));
+        Mockito.doNothing().when(imageUtil).deleteImage(tempFile.getPath());
+        Mockito.doNothing().when(imageUtil).deleteImage(tempFileThumbnail.getPath());
 
         productImageService.deleteImage(deleteProductImageDTO);
 
