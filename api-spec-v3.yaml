@@ -6,7 +6,7 @@ servers:
 
 info:
   description: API specification for the SENG302 2021 project
-  version: 3.2.1
+  version: 3.3.1
   title: Wasteless
   contact:
     email: seng302@canterbury.ac.nz
@@ -43,6 +43,7 @@ tags:
   - name: 'UCM8: Contacting other marketplace users'
   - name: 'U23: Search for business'
   - name: 'UCM9: Edit card'
+  - name: 'U28: Product search'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -1216,6 +1217,7 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
+
   '/users/{userId}/cards/{cardId}/messages':
     post:
       tags:
@@ -1462,6 +1464,68 @@ paths:
           description: 'Forbidden: returned if someone who is not a GAA attempts to delete an admin notification'
         406:
           $ref: '#components/responses/NotAcceptableError'
+
+  '/businesses/{businessId}/products/search':
+    get:
+      tags:
+        - 'U28: Product search'
+        - 'Catalogue / Products'
+      summary: 'Search for product by any of the product text fields'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - in: query
+          name: searchQuery
+          schema:
+            type: string
+          required: true
+          description: 'Criteria to search product by, e.g: part of the product id or name'
+      responses:
+        '200':
+          description: Request successful, a (possibly empty) list of products is returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - matchingId
+                - matchingName
+                - matchingDescription
+                - matchingManufacturer
+              properties:
+                matchingId:
+                  type: boolean
+                  description: Whether the Id field is being searched by
+                  example: false
+                matchingName:
+                  type: boolean
+                  description: Whether the Name field is being searched by
+                  example: true
+                matchingDescription:
+                  type: boolean
+                  description: Whether the Description field is being searched by
+                  example: false
+                matchingManufacturer:
+                  type: boolean
+                  description: Whether the Manufacturer field is being searched by
+                  example: false
+
 
 components:
   securitySchemes:
