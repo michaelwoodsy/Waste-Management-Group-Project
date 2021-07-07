@@ -188,8 +188,7 @@
                     />
                     <button class="btn btn-danger ml-1 my-1 pad1"
                             type="button"
-                            :data-target="'#removeImageModal'"
-                            data-toggle="modal">
+                            @click="removeImage(image)">
                       Remove
                     </button>
 <!--                    If the image cant be made primary because it is not uploaded yet-->
@@ -208,34 +207,6 @@
                             type="button" @click="makeImagePrimary(image.id)">
                       Make Primary
                     </button>
-
-                    <!-- Remove Image modal -->
-                    <div :id="'removeImageModal'" class="modal fade" role="dialog" tabindex="-1">
-                      <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-
-                          <!-- Title section of modal -->
-                          <div class="modal-header">
-                            <h5 class="modal-title">Remove Image</h5>
-                            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-                              <span ref="close" aria-hidden="true">&times;</span>
-                            </button>
-                          </div>
-
-                          <!-- Body section of modal -->
-                          <div class="modal-body">
-                            <p>Do you really want to remove this image?</p>
-                          </div>
-
-                          <!-- Footer / button section of modal -->
-                          <div class="modal-footer">
-                            <button class="btn btn-danger" data-dismiss="modal" type="button" @click="removeImage(image)">Remove</button>
-                            <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
-                          </div>
-
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -328,7 +299,7 @@ export default {
           filename: '/media/defaults/defaultProduct2.jpg',
           thumbnailFilename: '/media/defaults/defaultProduct2_thumbnail.jpg'
         }
-      ], //TODO: prefill with product's existing images
+      ],
       currentPrimaryImageId: null,
       primaryImageError: null,
       imagesEdited: false
@@ -566,29 +537,30 @@ export default {
       })
       fileReader.readAsDataURL(files[0])
     },
+
     /**
      * Called by the remove button next to an uploaded image.
      * Calls the API to make a request to delete an image from the backend.
      * Removes the image from the frontend's list of images.
-     * @param deletedImage the image to be removed
+     * @param imageRemoving the image to be removed
      */
-    removeImage(deletedImage) {
-      this.imagesEdited = true
-      //If image has already been uploaded
-      if(deletedImage.id){
-        Business.removeProductImage(this.businessId, this.newProduct.id, deletedImage.id)
-            .then(() => {
-              this.removeImageFromList(deletedImage)
-            })
-            .catch((err) => {
-              this.errorMessage = err.response.data.message || err;
-            })
-      } else {
-        //If the image has just been uploaded and then is removed
-        console.log(this.images)
-
-        this.removeImageFromList(deletedImage)
-        console.log(this.images)
+    removeImage(imageRemoving) {
+      if (confirm("Do you really want to remove this image?\nThis action cannot be undone.")) {
+        this.imagesEdited = true
+        //If image has already been uploaded
+        if(imageRemoving.id){
+          Business.removeProductImage(this.businessId, this.newProduct.id, imageRemoving.id)
+              .then(() => {
+                this.removeImageFromList(imageRemoving)
+              })
+              .catch((err) => {
+                this.errorMessage = err.response.data.message || err;
+              })
+        } else {
+          //If the image has just been uploaded and then is removed
+          this.removeImageFromList(imageRemoving)
+          console.log(this.images)
+        }
       }
     },
 
@@ -599,10 +571,9 @@ export default {
     removeImageFromList(removedImage){
       //Remove the deleted image from the list of images on screen
       this.images = this.images.filter(function(image) {
-        return image.id !== removedImage.id;
+        return image !== removedImage;
       })
     },
-
 
     /**
      * Called to make the image the primary image of the product.
