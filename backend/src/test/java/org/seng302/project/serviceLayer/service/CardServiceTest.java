@@ -231,6 +231,9 @@ class CardServiceTest extends AbstractInitializer {
         Assertions.assertEquals(testUsersCard1.getCreator().getEmail(), createdCard.getCreator().getEmail());
     }
 
+    /**
+     * Searching for cards with correct inputs returns a list of correct size
+     */
     @Test
     void searchCard_validInput_returnsList() {
         Mockito.when(keywordRepository.findById(Mockito.any(Integer.class)))
@@ -251,6 +254,10 @@ class CardServiceTest extends AbstractInitializer {
         Assertions.assertEquals(2, result.size());
     }
 
+    /**
+     * Searching for cards with an invalid section input
+     * @param section The section to search cards in
+     */
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"invalidSection"})
@@ -260,6 +267,10 @@ class CardServiceTest extends AbstractInitializer {
                 () -> cardService.searchCards(section, keywordIds, true));
     }
 
+    /**
+     * Searching for cards with invalid keyword IDs (null and empty)
+     * @param keywordIds The keyword IDs used to search with
+     */
     @ParameterizedTest
     @NullAndEmptySource
     void searchCard_invalidKeywordIds_throwsException(List<Integer> keywordIds) {
@@ -267,6 +278,9 @@ class CardServiceTest extends AbstractInitializer {
                 () -> cardService.searchCards("ForSale", keywordIds, true));
     }
 
+    /**
+     * Searching for cards with invalid (does not exist) keyword IDs
+     */
     @Test
     void searchCard_keywordIdNonExistent_throwsException() {
         Mockito.when(keywordRepository.findById(Mockito.any(Integer.class)))
@@ -285,6 +299,9 @@ class CardServiceTest extends AbstractInitializer {
                 () -> cardService.searchCards("ForSale", keywordIds, true));
     }
 
+    /**
+     * Searching for a card with invalid union input
+     */
     @Test
     void searchCard_unionNull_throwsException() {
         List<Integer> keywordIds = List.of(1, 2);

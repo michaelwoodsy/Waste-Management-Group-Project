@@ -16,6 +16,11 @@ public class CardSpecifications {
         throw new IllegalStateException("Utility class, CardSpecifications, shouldn't be instantiated");
     }
 
+    /**
+     * Specification to find a card based on a section
+     * @param section section to search by
+     * @return new specification to use when querying repository.
+     */
     public static Specification<Card> inSection(String section) {
         return ((root, query, builder) ->
                 builder.like(builder.toString(root.get("section")), section));

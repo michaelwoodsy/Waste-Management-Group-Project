@@ -97,6 +97,13 @@ public class CardController {
         return cardService.getAllCardsByUser(id);
     }
 
+    /**
+     * Endpoint to get all cards that fit the search query
+     * @param section The section to search by
+     * @param keywordIds The list of keyword IDs to search by
+     * @param union Option to match the search with all or some of the inputs
+     * @return List of cards that fit the search criteria
+     */
     @GetMapping("/cards/search")
     @ResponseStatus(HttpStatus.OK)
     public List<GetCardResponseDTO> searchCards(

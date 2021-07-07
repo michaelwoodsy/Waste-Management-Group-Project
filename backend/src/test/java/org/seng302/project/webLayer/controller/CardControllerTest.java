@@ -257,6 +257,9 @@ class CardControllerTest extends AbstractInitializer {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Check a 200 is returned when the request is valid
+     */
     @Test
     void searchCard_successful_200() throws Exception {
         Mockito.when(cardService.searchCards(
@@ -270,6 +273,9 @@ class CardControllerTest extends AbstractInitializer {
         mockMvc.perform(request).andExpect(status().isOk());
     }
 
+    /**
+     * Check a 400 is returned when there is an invalid request
+     */
     @Test
     void searchCard_badRequest_400() throws Exception {
         Mockito.when(cardService.searchCards(
@@ -283,6 +289,9 @@ class CardControllerTest extends AbstractInitializer {
         mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 
+    /**
+     * Check a 401 is returned when there is no logged in user
+     */
     @Test
     void searchCard_notLoggedIn_401() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
