@@ -1,3 +1,5 @@
+// initialize and show Bootstrap 4 toast
+$('.toast').toast('show');
 <template>
   <div class="container-fluid">
 
@@ -65,36 +67,66 @@
             </div>
           </div>
         </div>
-        <!-- Notification Section -->
-          <!-- Collapse and Expand button  -->
-<!--          <button data-target="#collapseNotifications" class="btn btn-primary"-->
-<!--                  data-toggle="collapse">-->
-<!--            Notifications-->
-<!--          </button>-->
-          <!-- Notifications -->
-        <div class="toast">
-          <div class="toast-header" data-autohide="false">
-            <strong >Bootstrap</strong>
-            <small>11 mins ago</small>
-            <button type="button" class="ml-2 mb-1 close">
-              <span aria-hidden="false">&times;</span>
-            </button>
+      </div>
+
+
+      <!-- Notification Section -->
+      <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" aria-label="notificationSidebar">
+          <div class="sidebar-header">
+            <h3>Notifications</h3>
           </div>
-          <div class="toast-body">
-            Hello, world! This is a toast message.
-          </div>
+          <!-- Example Links -->
+          <ul class="list-unstyled components">
+            <li class="active">
+              <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Home</a>
+              <ul class="collapse list-unstyled" id="homeSubmenu">
+                <li>
+                  <a href="#">Home 1</a>
+                </li>
+                <li>
+                  <a href="#">Home 2</a>
+                </li>
+                <li>
+                  <a href="#">Home 3</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="#">About</a>
+            </li>
+            <li>
+              <a href="#">Portfolio</a>
+            </li>
+            <li>
+              <a href="#">Contact</a>
+            </li>
+          </ul>
+        </nav>
+        <!-- Page Content -->
+        <div id="content">
+          <nav class="navbar navbar-expand-lg navbar-light bg-light" aria-label="collapseButton">
+            <div class="container-fluid">
+
+              <button type="button" id="sidebarCollapse" class="btn btn-block btn-primary">
+                <em class="fas fa-align-left"></em>
+                <span>Toggle Notifications</span>
+              </button>
+
+            </div>
+          </nav>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 <script>
-
 import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/marketplace/MarketCard";
 import Alert from "@/components/Alert";
 import {User} from "@/Api";
+import $ from 'jquery';
 
 
 export default {
@@ -109,6 +141,11 @@ export default {
   },
   async mounted() {
     await this.getCardData();
+    $(document).ready(function (){
+      $('#sidebarCollapse').on('click', function () {
+        $('#sidebar').toggleClass('active')
+      })
+    })
   },
   data() {
     return {
@@ -259,5 +296,24 @@ export default {
 </script>
 
 <style scoped>
-
+.wrapper {
+  display: flex;
+  align-items: stretch;
+}
+#sidebar {
+  width: 0;
+  position: absolute;
+  overflow-y: hidden;
+  top: 120px;
+  left: 100%;
+  height: auto;
+  z-index: 999;
+  background: #343a40;
+  color: #fff;
+  transition: all 0.3s;
+}
+#sidebar.active {
+  margin-left: -250px;
+  width: 250px;
+}
 </style>
