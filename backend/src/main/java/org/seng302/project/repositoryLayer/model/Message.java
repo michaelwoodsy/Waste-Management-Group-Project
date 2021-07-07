@@ -21,6 +21,13 @@ public class Message {
     private Card card;
     private User sender;
 
+    public Message(String text, User receiver, Card card, User sender) {
+        this.text = text;
+        this.receiver = receiver;
+        this.card = card;
+        this.sender = sender;
+    }
+
     @Id // this field (attribute) is the primary key of the table
     @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
     @Column(name = "message_id")

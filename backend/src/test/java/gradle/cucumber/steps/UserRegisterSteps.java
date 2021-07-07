@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.MessageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.webLayer.controller.UserController;
 import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
@@ -23,6 +24,7 @@ public class UserRegisterSteps {
     private final UserController userController;
     private final AddressRepository addressRepository;
     private final CardRepository cardRepository;
+    private final MessageRepository messageRepository;
     private Integer existingRegisteredEmailExceptionCount = 0;
     private Integer requiredFieldsMissingExceptionCount = 0;
     private Integer invalidEmailExceptionCount = 0;
@@ -31,11 +33,13 @@ public class UserRegisterSteps {
     public UserRegisterSteps(UserRepository userRepository,
                              UserController userController,
                              AddressRepository addressRepository,
-                             CardRepository cardRepository) {
+                             CardRepository cardRepository,
+                             MessageRepository messageRepository) {
         this.userRepository = userRepository;
         this.userController = userController;
         this.addressRepository = addressRepository;
         this.cardRepository = cardRepository;
+        this.messageRepository = messageRepository;
     }
 
     /**
@@ -58,6 +62,7 @@ public class UserRegisterSteps {
 
     @Given("I am trying to register as a new User")
     public void i_am_trying_to_register_as_a_new_user() {
+        messageRepository.deleteAll();
         cardRepository.deleteAll();
         userRepository.deleteAll();
         addressRepository.deleteAll();
