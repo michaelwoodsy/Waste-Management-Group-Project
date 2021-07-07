@@ -245,4 +245,14 @@ describe('Pagination, ordering and deletion tests', () => {
         expect(wrapper.vm.filteredCards.every((card) => new Date(card.displayPeriodEnd) > Date.now())).toBeTruthy()
     })
 
+    test("Checking that the clear button on the keyword search clears all the keywords", async () => {
+        wrapper.vm.$data.keywords = ["Fruit", "Bananas"]
+        await wrapper.vm.clearFilter()
+        expect(wrapper.vm.$data.keywords).toStrictEqual([])
+    });
+
+    test("Checking that the clear button returns all the cards", async () => {
+        await wrapper.vm.clearFilter()
+        expect(wrapper.vm.$data.cards.length).toStrictEqual(3)
+    });
 })
