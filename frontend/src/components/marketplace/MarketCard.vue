@@ -18,10 +18,10 @@ Eg, <market-card @card-deleted="someMethod" ... />
         </div>
         <div class="col-5 text-right">
           <button class="btn btn-sm btn-outline-primary d-inline" @click="extendCard">Extend</button>
-          <button class="btn btn-sm btn-outline-danger d-inline"
-                  style="margin-left: 10px"
+          <button :data-target="'#deleteModal' + cardData.id"
+                  class="btn btn-sm btn-outline-danger d-inline"
                   data-toggle="modal"
-                  :data-target="'#deleteModal' + cardData.id">
+                  style="margin-left: 10px">
             Delete
           </button>
         </div>
@@ -39,7 +39,8 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
       <div v-if="isCardCreator">
         <!-- Shows expiry time of a particular card -->
-        <p v-if="daysToExpire > 0 || hoursToExpire > 0 || minutesToExpire > 0 || secondsToExpire > 0" class="float-right small">
+        <p v-if="daysToExpire > 0 || hoursToExpire > 0 || minutesToExpire > 0 || secondsToExpire > 0"
+           class="float-right small">
           Card expires in:
           <span v-if="daysToExpire > 0">{{ daysToExpire }}d </span>
           <span v-if="hoursToExpire > 0">{{ hoursToExpire }}h </span>
@@ -49,6 +50,10 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <p v-else class="text-danger float-right small mb-1">
           Card has expired
         </p>
+      </div>
+
+      <div v-else>
+
       </div>
 
       <!-- Card Title -->
@@ -69,31 +74,56 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <p class="card-text">{{ cardData.description }}</p>
         <hr/>
         <!-- Keyword Bubbles -->
-          <button class="btn btn-primary mr-2"
-                  v-for="(keyword, index) in cardData.keywords"
-                  :key="'keyword' + index">
-            {{  keyword.name  }}
-          </button>
+        <button v-for="(keyword, index) in cardData.keywords"
+                :key="'keyword' + index"
+                class="btn btn-sm btn-primary mr-2">
+          {{ keyword.name }}
+        </button>
 
         <hr/>
       </div>
 
-      <!-- Delete button -->
-      <button
-          v-if="canDeleteCard && !expired"
-          :data-target="'#deleteModal' + cardData.id"
-          style="margin-left: 10px"
-          class="btn btn-outline-danger d-inline float-right"
-          data-toggle="modal"
-      >
-        Delete
-      </button>
+      <div class="text-right">
+        <!-- Button toggles card details -->
+        <button :data-target="'#cardDetails' + cardData.id" class="btn btn-sm btn-outline-secondary"
+                data-toggle="collapse" @click="toggleDetails">
+          <span v-if="!showDetails">View Details <em class="bi bi-arrow-down"/></span>
+          <span v-else>Hide Details <em class="bi bi-arrow-up"/></span>
+        </button>
+        <!-- Button to expand area to send a message to the creator -->
+        <button v-if="!isCardCreator && actingAsUser"
+                :data-target="'#cardMessage' + cardData.id"
+                class="btn btn-sm btn-outline-primary ml-3"
+                data-toggle="collapse"
+                @click="clearMessage">
+          Message Creator
+        </button>
+        <!-- Delete button -->
+        <button
+            v-if="canDeleteCard && !expired"
+            :data-target="'#deleteModal' + cardData.id"
+            class="btn btn-sm btn-outline-danger ml-3"
+            data-toggle="modal"
+        >
+          Delete
+        </button>
+      </div>
 
-      <button :data-target="'#cardDetails' + cardData.id" class="btn btn-outline-secondary float-right"
-              data-toggle="collapse" @click="toggleDetails">
-        <span v-if="!showDetails">View Details <em class="bi bi-arrow-down"/></span>
-        <span v-else>Hide Details <em class="bi bi-arrow-up"/></span>
-      </button>
+      <div :id="'cardMessage' + cardData.id" class="collapse text-right">
+        <hr/>
+        <!-- Description -->
+        <div class="input-group mb-3">
+          <textarea v-model="message" :class="{'is-invalid': messageError, 'is-valid': messageSent}"
+                    class="form-control" maxlength="255" placeholder="Enter a message"/>
+          <span v-if="messageError" class="invalid-feedback">Please enter a message to send</span>
+          <span v-if="messageSent" class="valid-feedback">Message sent!</span>
+        </div>
+        <button class="btn btn-sm btn-primary"
+                @click="sendMessage"
+                :disabled="!message">
+          Send Message
+        </button>
+      </div>
 
     </div>
 
@@ -133,7 +163,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
 <script>
 import {getTimeDiffStr} from "@/utils/dateTime";
-import {Card, Marketplace} from "@/Api";
+import {Card, Marketplace, User} from "@/Api";
 import Alert from "@/components/Alert";
 
 export default {
@@ -167,7 +197,10 @@ export default {
       hoursToExpire: '',
       minutesToExpire: '',
       secondsToExpire: '',
-      keywords: []
+      keywords: [],
+      message: null,
+      messageError: false,
+      messageSent: false
     }
   },
 
@@ -229,6 +262,11 @@ export default {
     expired() {
       const now = new Date();
       return now >= new Date(this.cardData.displayPeriodEnd);
+    },
+
+    /** Returns true if a user is acting as a user and not a business **/
+    actingAsUser() {
+      return this.$root.$data.user.state.actingAs.type === 'user'
     }
   },
   methods: {
@@ -254,6 +292,34 @@ export default {
         console.error(error)
       }
     },
+
+    /**
+     * Sends a message to the creator of a card.
+     */
+    async sendMessage() {
+      if (!this.message) {
+        this.messageError = true
+      } else {
+        try {
+          await User.sendCardMessage(this.userId, this.cardData.id, this.message)
+          this.messageError = false
+          this.messageSent = true
+          this.message = null
+        } catch (error) {
+          this.error = error
+        }
+      }
+    },
+
+    /**
+     * Clears the message box and associated errors.
+     */
+    clearMessage() {
+      this.message = null
+      this.messageSent = false
+      this.messageError = false
+    },
+
     /** Deletes this card, emitting an event on success **/
     deleteCard() {
       // Reset error flag

@@ -42,6 +42,7 @@ tags:
   - name: 'UCM7: Keyword search'
   - name: 'U23: Search for business'
   - name: 'UCM8: Contacting other marketplace users'
+  - name: 'UCM9: Edit card'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -934,6 +935,36 @@ paths:
           description: 'Forbidden: Returned when a user tries to delete a card that they are not the creator of AND the user is not a GAA'
         '406': 
           $ref: '#/components/responses/NotAcceptableError'
+    put:
+      tags:
+        - 'UCM9: Edit card'
+        - 'Cards / community marketplace'
+      summary: Modify an existing card
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: id
+          in: path
+          description: The id of the card to edit.
+          required: true
+          schema:
+            type: integer
+            example: 500
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Card'
+      responses:
+        '200':
+          description: Card updated successfully
+        '400':
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+        '403':
+          description: 'Forbidden: Returned when a user tries to update a card they are not the creator of AND the user is not a global application admin'
   
   '/cards/{id}/extenddisplayperiod':
     put:
@@ -949,7 +980,7 @@ paths:
           schema:
             type: integer
             example: 500
-      security: 
+      security:
         - CookieAuth:
           - user
           - globalApplicationAdmin
@@ -961,7 +992,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           description: 'Forbidden: Returned when a user who is neither the creator of the card, nor a GAA, tries to extend the display period of the card.'
-        '406': 
+        '406':
           $ref: '#/components/responses/NotAcceptableError'
           
   '/users/{id}/cards':
@@ -1308,6 +1339,7 @@ paths:
           description: 'Forbidden: Returned if anyone but the user with id userId, or GAA attempts to delete users messages.'
         '406':
           $ref: '#/components/responses/NotAcceptableError'
+
 
 components:
   securitySchemes:
