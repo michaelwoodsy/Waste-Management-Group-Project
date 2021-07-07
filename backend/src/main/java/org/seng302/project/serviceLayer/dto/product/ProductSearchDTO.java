@@ -2,7 +2,8 @@ package org.seng302.project.serviceLayer.dto.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NonNull;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * DTO for a request to search a business's products
@@ -11,13 +12,13 @@ import lombok.NonNull;
 @AllArgsConstructor
 public class ProductSearchDTO {
 
-    @NonNull
+    @NotNull
     private boolean matchingId;
-    @NonNull
+    @NotNull
     private boolean matchingName;
-    @NonNull
+    @NotNull
     private boolean matchingDescription;
-    @NonNull
+    @NotNull
     private boolean matchingManufacturer;
 
 }

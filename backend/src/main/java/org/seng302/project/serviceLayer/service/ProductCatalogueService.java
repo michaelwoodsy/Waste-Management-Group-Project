@@ -283,6 +283,24 @@ public class ProductCatalogueService {
      */
     public List<Product> searchProducts(Integer businessId, ProductSearchDTO requestDTO, AppUserDetails appUser) {
 
+        var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
+
+        Optional<Business> businessResult = businessRepository.findById(businessId);
+
+        if (businessResult.isEmpty()) {
+            var exception = new NotAcceptableException(String.format("There is no business that exists with the id '%d'",
+                    businessId));
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+        var business = businessResult.get();
+
+        if (!business.userCanDoAction(loggedInUser)) {
+            var exception = new ForbiddenAdministratorActionException(businessId);
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
         //TODO: use specifications
 
         return Collections.emptyList();
