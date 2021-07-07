@@ -31,6 +31,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +53,8 @@ class ProductImageServiceTest extends AbstractInitializer {
     private ProductRepository productRepository;
     @MockBean
     private ImageRepository imageRepository;
+    @MockBean
+    private ImageUtil imageUtil;
 
     private User testUser;
     private User testSystemAdmin;
@@ -325,25 +328,25 @@ class ProductImageServiceTest extends AbstractInitializer {
                 () -> productImageService.deleteImage(deleteProductImageDTO));
     }
 
-    /*
+
     @Test
-    void deleteImage_withBusinessAdmin_success() throws IOException {
+    void deleteImage_withBusinessAdmin_success() throws IOException, NoSuchFieldException {
         DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
                 testBusiness.getId(),
                 testProduct.getId(),
                 2,
                 new AppUserDetails(testUserBusinessAdmin)
         );
-        File tempFile = new File("src/main/resources/public/media/image2.jpg");
-        File tempFileThumbnail = new File("src/main/resources/public/media/image2_thumbnail.jpg");
+//        File tempFile = new File("src/main/resources/public/media/image2.jpg");
+//        File tempFileThumbnail = new File("src/main/resources/public/media/image2_thumbnail.jpg");
 
-        ImageUtil imageUtil = Mockito.spy(new ImageUtil());
-        Mockito.doNothing().when(imageUtil).deleteImage(tempFile.getPath());
-        Mockito.doNothing().when(imageUtil).deleteImage(tempFileThumbnail.getPath());
+//        ImageUtil imageUtil = Mockito.mock(ImageUtil);
+//        Mockito.doNothing().when(imageUtil).deleteImage(tempFile.getPath());
+//        Mockito.doNothing().when(imageUtil).deleteImage(tempFileThumbnail.getPath());
 
         productImageService.deleteImage(deleteProductImageDTO);
 
         Assertions.assertEquals(2, testProduct.getImages().size());
     }
-     */
+
 }
