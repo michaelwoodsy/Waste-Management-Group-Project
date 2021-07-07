@@ -210,6 +210,15 @@ export const Business = {
     createListing: (businessId, data) => instance.post(`businesses/${businessId}/listings`, data),
 
     /**
+     * Sends a request to delete a specific image for a specific product in the catalogue
+     * @param businessId The ID of the business in the database
+     * @param productId The ID of the product in the database
+     * @param imageId The ID of the image for the product in the database
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    removeProductImage: (businessId, productId, imageId) => instance.delete(`businesses/${businessId}/products/${productId}/images/${imageId}`),
+
+    /**
      * Sends a request to make a specific image the primary image of a specific product in the catalogue
      * @param businessId The ID of the business in the database
      * @param productId The ID of the product in the database
