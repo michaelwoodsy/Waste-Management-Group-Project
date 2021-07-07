@@ -104,17 +104,14 @@ Page for displaying the marketplace.
               class="btn btn-primary ml-2" @click="searchCards">
             Apply
           </button>
-          <!-- Button to clear keyword filter -->
-          <button
-              v-if="keywords.length > 0"
-              class="btn btn-danger ml-2" @click="clearFilter">
-            Clear
-          </button>
-          <!-- Checkbox to select whether all a card must match all keywords -->
-          <span class="custom-control custom-switch m-2">
+
+          <!-- Checkbox to select whether all a cards must match all keywords -->
+          <span
+              class="custom-control custom-switch m-2">
             <input v-model="keywordUnion" type="checkbox" class="custom-control-input" id="any-all-keyword-switch">
             <label class="custom-control-label" for="any-all-keyword-switch">Match all</label>
           </span>
+
           <!-- Autocomplete dropdown -->
           <div class="dropdown-menu overflow-auto" id="dropdown">
             <!-- If no user input -->
@@ -148,6 +145,11 @@ Page for displaying the marketplace.
               <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
             </button>
           </div>
+          <!-- Button to clear keyword filter -->
+          <button  v-if="keywords.length > 0"
+                   class="btn btn-danger ml-5" @click="clearFilter">
+            Clear Keywords
+          </button>
         </div>
       </div>
 
