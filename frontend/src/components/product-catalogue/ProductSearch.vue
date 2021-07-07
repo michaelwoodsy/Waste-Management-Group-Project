@@ -23,7 +23,7 @@
     <!-- Checkboxes for selecting which fields to match -->
     <div class="row form justify-content-center">
       <div class="col form-group text-center">
-        <label class="d-inline-block option-label mt-2">Matching Fields</label>
+        <label class="d-inline-block fields-title mt-2">Matching Fields</label>
         <br>
         <label v-for="field in fieldOptions"
                v-bind:key="field.name">
@@ -89,7 +89,7 @@ export default {
 
 <style scoped>
 
-.option-label {
+.fields-title {
   font-size: 18px;
 }
 
