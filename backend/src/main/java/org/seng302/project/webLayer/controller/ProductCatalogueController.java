@@ -85,7 +85,6 @@ public class ProductCatalogueController {
     @GetMapping("/businesses/{businessId}/products/search")
     @ResponseStatus(HttpStatus.OK)
     public List<Product> searchProducts(@PathVariable Integer businessId,
-                                        //TODO: NotNull validation isn't working here
                                         @Valid @RequestBody ProductSearchDTO requestDTO,
                                         @AuthenticationPrincipal AppUserDetails appUser) {
         return productCatalogueService.searchProducts(businessId, requestDTO, appUser);

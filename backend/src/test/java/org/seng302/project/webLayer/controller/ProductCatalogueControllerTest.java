@@ -476,11 +476,9 @@ class ProductCatalogueControllerTest {
     }
 
 
-
     /**
      * Tests that a product search with missing request body fields gives a 400 response
      */
-    //TODO: This gives a 200
     @Test
     void searchProducts_missingFields_400() throws Exception {
         JSONObject requestBody = new JSONObject();

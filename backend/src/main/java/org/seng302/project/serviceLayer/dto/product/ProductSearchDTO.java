@@ -13,12 +13,12 @@ import javax.validation.constraints.NotNull;
 public class ProductSearchDTO {
 
     @NotNull
-    private boolean matchingId;
+    private Boolean matchingId;
     @NotNull
-    private boolean matchingName;
+    private Boolean matchingName;
     @NotNull
-    private boolean matchingDescription;
+    private Boolean matchingDescription;
     @NotNull
-    private boolean matchingManufacturer;
+    private Boolean matchingManufacturer;
 
 }
