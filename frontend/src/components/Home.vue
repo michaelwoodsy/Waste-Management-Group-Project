@@ -78,37 +78,28 @@ $('.toast').toast('show');
             <h3>Notifications</h3>
           </div>
           <!-- Example Links -->
-          <ul class="list-unstyled components">
-            <li class="active">
-              <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Home</a>
-              <ul class="collapse list-unstyled" id="homeSubmenu">
-                <li>
-                  <a href="#">Home 1</a>
-                </li>
-                <li>
-                  <a href="#">Home 2</a>
-                </li>
-                <li>
-                  <a href="#">Home 3</a>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <a href="#">About</a>
-            </li>
-            <li>
-              <a href="#">Portfolio</a>
-            </li>
-            <li>
-              <a href="#">Contact</a>
-            </li>
-          </ul>
+          <!--  TODO:  Add different versions for each notification type      -->
+          <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false"
+               v-for="notification in notifications" v-bind:key="notification.id" >
+            <div class="toast-header">
+              <strong class="mr-auto">{{notification.title}}</strong>
+              <small>{{notification.created}}</small>
+              <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" @click="removeNotification(notification)">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="toast-body text-black-50">
+              {{notification.message}}
+              <br>
+              Card: {{notification.card}}
+            </div>
+          </div>
         </nav>
         <!-- Page Content -->
         <div id="content">
           <nav class="navbar navbar-expand-lg navbar-light bg-light" aria-label="collapseButton">
             <div class="container-fluid">
-
+              <!-- Button -->
               <button type="button" id="sidebarCollapse" class="btn btn-block btn-primary">
                 <em class="fas fa-align-left"></em>
                 <span>Toggle Notifications</span>
@@ -146,6 +137,7 @@ export default {
         $('#sidebar').toggleClass('active')
       })
     })
+    $('.toast').toast('show')
   },
   data() {
     return {
@@ -153,11 +145,13 @@ export default {
       hideImages: true,
       //Test data
       notifications: [
-        {title: "Card Expiry",
-         message: "This card is about to expire",
-         created: "2/07/2021 4:34pm",
-         card: "Looking for plums"},
-        {title: "Card Expiry",
+        { id: 0,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "2/07/2021 4:34pm",
+          card: "Looking for plums"},
+        { id: 1,
+          title: "Card Expiry",
           message: "This card is about to expire",
           created: "1/07/2021 6:37pm",
           card: "Apples for Oranges"}
@@ -289,6 +283,14 @@ export default {
           this.cards[index].displayPeriodEnd = newDate
         }
       }
+    },
+
+    // TODO: Implement deleting notifications with backend
+    removeNotification(notificationId){
+      //Remove the notification from the list that is shown
+      this.notifications = this.notifications.filter(function(notification) {
+        return notification.id !== notificationId.id;
+      })
     }
   }
 }
@@ -306,7 +308,7 @@ export default {
   overflow-y: hidden;
   top: 120px;
   left: 100%;
-  height: auto;
+  height: 100%;
   z-index: 999;
   background: #343a40;
   color: #fff;
