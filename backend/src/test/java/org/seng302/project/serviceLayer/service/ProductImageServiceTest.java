@@ -334,9 +334,10 @@ class ProductImageServiceTest extends AbstractInitializer {
                 2,
                 new AppUserDetails(testUserBusinessAdmin)
         );
+        ImageUtil imageUtil = Mockito.spy(new ImageUtil());
+        Mockito.doNothing().when(imageUtil).deleteImage(any(String.class));
+
         productImageService.deleteImage(deleteProductImageDTO);
-        ImageUtil imageUtil = Mockito.spy(ImageUtil.class);
-        Mockito.doNothing().when(imageUtil).deleteImage(any());
 
         Assertions.assertEquals(2, testProduct.getImages().size());
     }
