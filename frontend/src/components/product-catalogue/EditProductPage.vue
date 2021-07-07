@@ -187,7 +187,8 @@
                          alt="Current product image"
                     />
                     <button class="btn btn-danger ml-1 my-1 pad1"
-                            @click="removeImage(image.url)">
+                            type="button"
+                            @click="removeImage(image)">
                       Remove
                     </button>
 <!--                    If the image cant be made primary because it is not uploaded yet-->
@@ -207,10 +208,8 @@
                       Make Primary
                     </button>
                   </div>
-
                 </div>
               </div>
-
             </form>
           </div>
         </div>
@@ -300,7 +299,7 @@ export default {
           filename: '/media/defaults/defaultProduct2.jpg',
           thumbnailFilename: '/media/defaults/defaultProduct2_thumbnail.jpg'
         }
-      ], //TODO: prefill with product's existing images
+      ],
       currentPrimaryImageId: null,
       primaryImageError: null,
       imagesEdited: false
@@ -538,16 +537,41 @@ export default {
       })
       fileReader.readAsDataURL(files[0])
     },
+
     /**
      * Called by the remove button next to an uploaded image.
+     * Calls the API to make a request to delete an image from the backend.
      * Removes the image from the frontend's list of images.
-     * @param imageUrl the url of the image to be removed
+     * @param imageRemoving the image to be removed
      */
-    removeImage(imageUrl) {
-      this.imagesEdited = true
-      //TODO: get this to call delete endpoint if image stored on backend
+    removeImage(imageRemoving) {
+      if (confirm("Do you really want to remove this image?\nThis action cannot be undone.")) {
+        this.imagesEdited = true
+        //If image has already been uploaded
+        if(imageRemoving.id){
+          Business.removeProductImage(this.businessId, this.newProduct.id, imageRemoving.id)
+              .then(() => {
+                this.removeImageFromList(imageRemoving)
+              })
+              .catch((err) => {
+                this.errorMessage = err.response.data.message || err;
+              })
+        } else {
+          //If the image has just been uploaded and then is removed
+          this.removeImageFromList(imageRemoving)
+          console.log(this.images)
+        }
+      }
+    },
+
+    /**
+     * Used to remove the image from the list that is visible to the user
+     *@param removedImage the image to be removed
+     */
+    removeImageFromList(removedImage){
+      //Remove the deleted image from the list of images on screen
       this.images = this.images.filter(function(image) {
-        return image.url !== imageUrl;
+        return image !== removedImage;
       })
     },
 
