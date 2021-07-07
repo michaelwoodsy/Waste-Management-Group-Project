@@ -1,3 +1,6 @@
+<!-- Product Search component used in the Product Catalogue
+  for business admin to search their products -->
+
 <template>
   <page-wrapper>
     <!--    Search Input    -->
@@ -25,7 +28,9 @@
         <label v-for="field in fieldOptions"
                v-bind:key="field.name">
           <input type="checkbox" class="ml-2"
-                 v-model="field.checked" v-bind:id="field.name"/>
+                 v-model="field.checked" v-bind:id="field.name"
+                 @click="toggleFieldChecked(field)"
+          />
           {{ field.name }}
         </label>
       </div>
@@ -65,6 +70,16 @@ export default {
     }
   },
   methods: {
+    /**
+     * Toggles whether a field is selected to be searched by
+     */
+    toggleFieldChecked(field) {
+      field.checked = !(field.checked);
+    },
+
+    /**
+     * Applies the user's search input
+     */
     search() {
       //TODO: implement me
     }
