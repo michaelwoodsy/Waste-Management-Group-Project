@@ -96,4 +96,14 @@ public class CardController {
     public List<GetCardResponseDTO> getAllCardsByUser(@PathVariable Integer id) {
         return cardService.getAllCardsByUser(id);
     }
+
+    @GetMapping("/cards/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<GetCardResponseDTO> searchCards(
+            @RequestParam String section,
+            @RequestParam List<Integer> keywordIds,
+            @RequestParam Boolean union
+    ) {
+        return cardService.searchCards(section, keywordIds, union);
+    }
 }

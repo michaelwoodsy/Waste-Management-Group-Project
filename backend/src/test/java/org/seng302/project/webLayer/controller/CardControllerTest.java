@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.card.ForbiddenCardActionException;
@@ -23,6 +24,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
@@ -252,4 +256,39 @@ class CardControllerTest extends AbstractInitializer {
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void searchCard_successful_200() throws Exception {
+        Mockito.when(cardService.searchCards(
+                Mockito.any(String.class), Mockito.any(List.class), Mockito.any(Boolean.class))
+        ).thenReturn(Collections.emptyList());
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/cards/search?section=ForSale&keywordIds=1&union=true")
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    @Test
+    void searchCard_badRequest_400() throws Exception {
+        Mockito.when(cardService.searchCards(
+                Mockito.any(String.class), Mockito.any(List.class), Mockito.any(Boolean.class))
+        ).thenThrow(new BadRequestException("Test exception"));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/cards/search?section=ForSale&keywordIds=1&union=true")
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void searchCard_notLoggedIn_401() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/cards/search?section=ForSale&keywordIds=1&union=true");
+
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+    }
+
 }
