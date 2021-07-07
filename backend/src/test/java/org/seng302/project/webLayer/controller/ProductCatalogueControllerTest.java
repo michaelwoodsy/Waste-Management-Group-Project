@@ -447,6 +447,13 @@ class ProductCatalogueControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
     }
+
+    //TODO: product search tests
+    //200
+    //400
+    //401
+    //403
+    //406
 }
 
 

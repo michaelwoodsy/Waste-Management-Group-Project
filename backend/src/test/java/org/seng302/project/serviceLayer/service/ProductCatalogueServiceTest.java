@@ -309,4 +309,9 @@ class ProductCatalogueServiceTest {
         Assertions.assertEquals(2.50, inventoryItemProduct.getRecommendedRetailPrice());
     }
 
+    //TODO: product search tests
+
+    //Forbidden exception if appUser not admin
+    //BusinessNotFoundException/NotAcceptableException
+
 }

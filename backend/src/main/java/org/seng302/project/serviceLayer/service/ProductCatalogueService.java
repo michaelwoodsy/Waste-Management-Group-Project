@@ -9,6 +9,7 @@ import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
 import org.seng302.project.serviceLayer.dto.product.EditProductDTO;
+import org.seng302.project.serviceLayer.dto.product.ProductSearchDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -19,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -268,6 +271,21 @@ public class ProductCatalogueService {
                     unhandledException.getMessage()));
             throw unhandledException;
         }
+
+    }
+
+
+    /**
+     * Searches a business's catalogue for products
+     * @param businessId id of the business to search products of
+     * @param requestDTO request body containing which fields to search by
+     * @param appUser the user making the request
+     */
+    public List<Product> searchProducts(Integer businessId, ProductSearchDTO requestDTO, AppUserDetails appUser) {
+
+        //TODO: use specifications
+
+        return Collections.emptyList();
 
     }
 
