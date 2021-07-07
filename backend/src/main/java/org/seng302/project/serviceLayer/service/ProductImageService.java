@@ -8,8 +8,6 @@ import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageResponseDTO;
 import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
-import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
-import org.seng302.project.serviceLayer.dto.product.AddProductImageResponseDTO;
 import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -187,6 +185,13 @@ public class ProductImageService {
             String imageFilePath = "src/main/resources/public/media/" + filename;
             String thumbnailFilePath = "src/main/resources/public/media/" + thumbnailFileName;
 
+            product.removeImage(imageToDelete);
+            if (imageToReplace != null) {
+                product.setPrimaryImageId(imageToReplace.getId());
+            }
+            productRepository.save(product);
+            imageRepository.delete(imageToDelete);
+
             try {
                 imageUtil.deleteImage(imageFilePath);
                 imageUtil.deleteImage(thumbnailFilePath);
@@ -195,13 +200,6 @@ public class ProductImageService {
                 logger.error(exception.getMessage());
                 throw exception;
             }
-
-            product.removeImage(imageToDelete);
-            if (imageToReplace != null) {
-                product.setPrimaryImageId(imageToReplace.getId());
-            }
-            productRepository.save(product);
-            imageRepository.delete(imageToDelete);
         } else {
             throw new ProductImageNotFoundException(dto.getProductId(), dto.getImageId());
         }

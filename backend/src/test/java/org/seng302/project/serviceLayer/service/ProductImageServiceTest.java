@@ -17,13 +17,12 @@ import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageResponseDTO;
 import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
-import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
-import org.seng302.project.serviceLayer.dto.product.AddProductImageResponseDTO;
 import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
+import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,10 +30,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
@@ -325,7 +327,7 @@ class ProductImageServiceTest extends AbstractInitializer {
 
     /*
     @Test
-    void deleteImage_withBusinessAdmin_success() {
+    void deleteImage_withBusinessAdmin_success() throws IOException {
         DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
                 testBusiness.getId(),
                 testProduct.getId(),
@@ -333,8 +335,10 @@ class ProductImageServiceTest extends AbstractInitializer {
                 new AppUserDetails(testUserBusinessAdmin)
         );
         productImageService.deleteImage(deleteProductImageDTO);
+        ImageUtil imageUtil = Mockito.spy(ImageUtil.class);
+        Mockito.doNothing().when(imageUtil).deleteImage(any());
 
         Assertions.assertEquals(2, testProduct.getImages().size());
     }
-    */
+     */
 }
