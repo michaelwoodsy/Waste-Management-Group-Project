@@ -74,7 +74,7 @@ describe('Testing the MarketCard component', () => {
                 isCardCreator() {
                     return false
                 },
-                canDeleteCard() {
+                canEditCard() {
                     return false
                 },
                 userId() {
