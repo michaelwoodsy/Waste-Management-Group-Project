@@ -1515,7 +1515,7 @@ paths:
                   example: false
                 matchingName:
                   type: boolean
-                  description: Whether the Id field is being searched by
+                  description: Whether the Name field is being searched by
                   example: true
                 matchingDescription:
                   type: boolean
