@@ -32,7 +32,7 @@ public class GetCardResponseDTO {
         this.displayPeriodEnd = card.getDisplayPeriodEnd();
         this.title = card.getTitle();
         this.description = card.getDescription();
-        this.keywords = new ArrayList(card.getKeywords());
+        this.keywords = new ArrayList<>(card.getKeywords());
     }
 
 }

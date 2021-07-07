@@ -88,7 +88,22 @@ export const User = {
      * @param userId User ID to get cards from
      * @returns {Promise<AxiosResponse<any>>} response containing user's cards
      */
-    getCards: (userId) => instance.get(`users/${userId}/cards`)
+    getCards: (userId) => instance.get(`users/${userId}/cards`),
+
+    /**
+     * Sends a message to a user regarding a card.
+     *
+     * @param userId ID of the user to send the message to.
+     * @param cardId ID of the card the message is about.
+     * @param message The contents of the message
+     * @returns {Promise<AxiosResponse<any>>} response containing message ID.
+     */
+    sendCardMessage: (userId, cardId, message) => instance.post(
+        `users/${userId}/cards/${cardId}/messages`,
+        {
+            message: message
+        }
+    )
 
 };
 
@@ -114,8 +129,12 @@ export const Business = {
      * @param businessSearchType Criteria to limit the search for only businesses with this type
      * @returns {Promise<AxiosResponse<any>>} Response from request
      */
-    getBusinesses: (searchTerm, businessSearchType) => instance.get('businesses/search', {params: {'searchQuery': searchTerm,
-        'businessType': businessSearchType}}),
+    getBusinesses: (searchTerm, businessSearchType) => instance.get('businesses/search', {
+        params: {
+            'searchQuery': searchTerm,
+            'businessType': businessSearchType
+        }
+    }),
 
     /*
      * Retrieves the data for a given business
@@ -220,7 +239,21 @@ export const Card = {
      * Retrieves all the data for a given card
      * @param cardId The ID of the card in the database
      */
-    getCard: (cardId) => instance.get(`cards/${cardId}`, {})
+    getCard: (cardId) => instance.get(`cards/${cardId}`, {}),
+
+    /**
+     * Searches for cards by keyword
+     * @param params parameters to search by, the keywords, the section, and whether to match all keywords or only some
+     * @returns {Promise<AxiosResponse<any>>} Response from request
+     */
+    searchCards: (params) => instance.get(`cards/search/${params}`, {}),
+
+    /**
+     * Edits a card
+     * @param cardId the id of the card to be edited
+     * @param newCardData the new data for the card
+     */
+    editCard: (cardId, newCardData) => instance.put(`cards/${cardId}`, newCardData)
 };
 
 export const Keyword = {

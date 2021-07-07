@@ -97,17 +97,21 @@ Page for displaying the marketplace.
                  style="margin-bottom: 2px"
                  autocomplete="off"
                  data-toggle="dropdown"
-                 @input="searchKeywords"
-                 @keyup.space="addKeyword"/>
-
-
-          <button class="btn btn-primary ml-2">
+                 @input="searchKeywords"/>
+          <!-- Button to apply keyword filter -->
+          <button
+              :class="{disabled: keywords.length <= 0}"
+              class="btn btn-primary ml-2" @click="searchCards">
             Apply
           </button>
-          <span class="custom-control custom-switch m-2">
-            <input type="checkbox" class="custom-control-input" id="any-all-keyword-switch">
+
+          <!-- Checkbox to select whether all a cards must match all keywords -->
+          <span
+              class="custom-control custom-switch m-2">
+            <input v-model="keywordUnion" type="checkbox" class="custom-control-input" id="any-all-keyword-switch">
             <label class="custom-control-label" for="any-all-keyword-switch">Match all</label>
           </span>
+
           <!-- Autocomplete dropdown -->
           <div class="dropdown-menu overflow-auto" id="dropdown">
             <!-- If no user input -->
@@ -127,7 +131,7 @@ Page for displaying the marketplace.
                v-for="keyword in filteredKeywords"
                v-else
                :key="keyword.id"
-               @click="setKeyword(keyword.name)">
+               @click="setKeyword(keyword)">
               <span>{{ keyword.name }}</span>
             </a>
           </div>
@@ -137,10 +141,15 @@ Page for displaying the marketplace.
                 class="btn btn-primary d-inline-block m-2"
                 v-for="(keyword, index) in keywords"
                 :key="'keyword' + index">
-              <span>{{  keyword  }}</span>
+              <span>{{  keyword.name  }}</span>
               <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
             </button>
           </div>
+          <!-- Button to clear keyword filter -->
+          <button  v-if="keywords.length > 0"
+                   class="btn btn-danger ml-5" @click="clearFilter">
+            Clear Keywords
+          </button>
         </div>
       </div>
 
@@ -172,7 +181,7 @@ import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import CreateCardPage from "@/components/marketplace/CreateCardPage";
 import PageWrapper from "@/components/PageWrapper";
-import {Keyword, User} from "@/Api";
+import {Keyword, User, Card} from "@/Api";
 
 export default {
   name: "Marketplace",
@@ -188,6 +197,7 @@ export default {
       resultsPerPage: 10,
       page: 1,
       keywordValue: '',
+      keywordUnion: false,
       keywords: [],
       filteredKeywords: []
     }
@@ -368,14 +378,18 @@ export default {
     /**
      * Adds a keyword to the list of keywords
      */
-    addKeyword() {
+    addKeyword(keyword) {
       this.keywordValue = this.keywordValue.trim()
       if((this.keywordValue === '' || this.keywordValue === ' ')
           || this.keywords.includes(this.keywordValue)) {
         this.keywordValue = '';
       }
       if (this.keywordValue.length > 2) {
-        this.keywords.push(this.keywordValue);
+        this.keywords.push(
+            {
+              id: keyword.id,
+              name: this.keywordValue
+            });
         this.keywordValue = '';
       }
     },
@@ -411,8 +425,42 @@ export default {
      * @param keyword Keyword to be added to keyword list
      */
     setKeyword(keyword) {
-      this.keywordValue = keyword
-      this.addKeyword()
+      this.keywordValue = keyword.name
+      this.addKeyword(keyword)
+    },
+
+    /**
+     * Searches for cards by calling backend api endpoint and displaying the cards returned
+     */
+    async searchCards() {
+      //return if there are no keywords to search for
+      if (this.keywords.length <= 0) return
+
+      let apiParams = '?'
+      for (const keyword of this.keywords) {
+        apiParams += `keywordIds=${keyword.id}&`
+      }
+      apiParams += `section=${this.tabSelected}&`
+      //union=false is match ALL, union=true is match ANY
+      apiParams += `union=${!this.keywordUnion}`
+
+      await Card.searchCards(apiParams)
+          .then((res) => {
+            this.error = "";
+            this.cards = res.data
+          })
+          .catch((err) => {
+            this.error = err;
+          })
+    },
+
+    /**
+     * Clears all the keywords from the list of filtered keywords and returns all the cards
+     * for the selected tab
+     */
+    async clearFilter() {
+      this.keywords = []
+      this.getCards(this.tabSelected)
     }
 
   }
