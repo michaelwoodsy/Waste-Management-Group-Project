@@ -567,7 +567,6 @@ export default {
         } else {
           //If the image has just been uploaded and then is removed
           this.removeImageFromList(imageRemoving)
-          console.log(this.images)
         }
       }
     },
