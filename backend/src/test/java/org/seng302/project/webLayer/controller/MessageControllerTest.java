@@ -134,4 +134,29 @@ class MessageControllerTest extends AbstractInitializer {
 
         mockMvc.perform(createMessageRequest).andExpect(status().isNotAcceptable());
     }
+
+    @Test
+    void getMessages_success200() throws Exception {
+
+    }
+
+    @Test
+    void getMessages_notLoggedIn_throws401() throws Exception {
+
+    }
+
+    @Test
+    void getMessages_wrongUser_throws403() throws Exception {
+
+    }
+
+    @Test
+    void getMessages_GAAWrongUser_throws403() throws Exception {
+
+    }
+
+    @Test
+    void getMessages_nonExistentUser_throws406() throws Exception {
+
+    }
 }

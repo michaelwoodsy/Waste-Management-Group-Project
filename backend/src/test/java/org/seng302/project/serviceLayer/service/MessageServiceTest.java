@@ -174,4 +174,19 @@ class MessageServiceTest extends AbstractInitializer {
 
     }
 
+    @Test
+    void getMessages_success() {
+
+    }
+
+    @Test
+    void getMessages_notValidUser_error() {
+
+    }
+
+    @Test
+    void getMessages_nonExistentUser_error() {
+
+    }
+
 }
