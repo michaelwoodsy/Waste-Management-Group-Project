@@ -287,7 +287,7 @@ class ProductImageControllerTest extends AbstractInitializer {
     @Test
     void deleteProductImage_notLoggedIn_returnsStatus401() throws Exception {
         RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
-                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
                         testBusiness.getId(),
                         testProduct.getId(),
                         2);
@@ -298,7 +298,7 @@ class ProductImageControllerTest extends AbstractInitializer {
     /**
      * Tests that request to delete a product image fails
      * when a user is neither an admin nor a GAA.
-     * Expect 401 response
+     * Expect 403 response
      */
     @Test
     void deleteProductImage_notAdmin_returnsStatus403() throws Exception {
@@ -306,7 +306,7 @@ class ProductImageControllerTest extends AbstractInitializer {
                 .when(productImageService).deleteImage(Mockito.any(DeleteProductImageDTO.class));
 
         RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
-                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
                         testBusiness.getId(),
                         testProduct.getId(),
                         2)
@@ -326,7 +326,7 @@ class ProductImageControllerTest extends AbstractInitializer {
                 .when(productImageService).deleteImage(Mockito.any(DeleteProductImageDTO.class));
 
         RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
-                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
                         4,
                         testProduct.getId(),
                         2)
@@ -346,7 +346,7 @@ class ProductImageControllerTest extends AbstractInitializer {
                 .when(productImageService).deleteImage(Mockito.any(DeleteProductImageDTO.class));
 
         RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
-                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
                         testBusiness.getId(),
                         "NotAProduct",
                         2)
@@ -367,10 +367,10 @@ class ProductImageControllerTest extends AbstractInitializer {
 
 
         RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
-                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
                         testBusiness.getId(),
                         testProduct.getId(),
-                        2)
+                        7)
                 .with(user(new AppUserDetails(testUserBusinessAdmin)));
 
         mockMvc.perform(deleteProductImageRequest).andExpect(status().isNotAcceptable());
@@ -384,7 +384,7 @@ class ProductImageControllerTest extends AbstractInitializer {
     @Test
     void deleteProductImage_asAdmin_ok200() throws Exception {
         RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
-                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
                         testBusiness.getId(),
                         testProduct.getId(),
                         2)
@@ -401,7 +401,7 @@ class ProductImageControllerTest extends AbstractInitializer {
     @Test
     void deleteProductImage_asGAA_ok200() throws Exception {
         RequestBuilder deleteProductImageRequest = MockMvcRequestBuilders
-                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}/delete",
+                .delete("/businesses/{businessId}/products/{productId}/images/{imageId}",
                         testBusiness.getId(),
                         testProduct.getId(),
                         2)

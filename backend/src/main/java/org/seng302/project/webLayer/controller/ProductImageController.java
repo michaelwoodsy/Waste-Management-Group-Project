@@ -3,8 +3,6 @@ package org.seng302.project.webLayer.controller;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageResponseDTO;
 import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
-import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
-import org.seng302.project.serviceLayer.dto.product.AddProductImageResponseDTO;
 import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -66,7 +64,7 @@ public class ProductImageController {
     /**
      * Handles request to delete an image for a product.
      */
-    @DeleteMapping("/businesses/{businessId}/products/{productId}/images/{imageId}/delete")
+    @DeleteMapping("/businesses/{businessId}/products/{productId}/images/{imageId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteImage(@PathVariable int businessId, @PathVariable String productId,
                             @PathVariable int imageId, @AuthenticationPrincipal AppUserDetails appUser) {

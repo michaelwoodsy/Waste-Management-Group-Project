@@ -318,6 +318,13 @@ class ProductImageServiceTest extends AbstractInitializer {
     }
 
 
+    /**
+     * Tests the success case for deleting a product image.
+     * Expects the imageUtil.deleteImage() to be called twice,
+     * once for the image file, once for the thumbnail file.
+     *
+     * @throws IOException exception thrown by imageUtil.deleteImage()
+     */
     @Test
     void deleteImage_withBusinessAdmin_success() throws IOException {
         DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(

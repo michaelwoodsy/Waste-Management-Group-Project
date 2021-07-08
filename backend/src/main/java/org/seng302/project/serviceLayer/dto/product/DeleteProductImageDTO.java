@@ -3,6 +3,11 @@ package org.seng302.project.serviceLayer.dto.product;
 import lombok.Data;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 
+/**
+ * DTO for a request to the
+ * DELETE '/businesses/{businessId}/products/{productId}/images/{imageId}'
+ * endpoint
+ */
 @Data
 public class DeleteProductImageDTO {
 

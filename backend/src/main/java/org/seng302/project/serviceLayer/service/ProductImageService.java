@@ -34,6 +34,8 @@ public class ProductImageService {
     private final ImageRepository imageRepository;
     private final ImageUtil imageUtil;
 
+    private static final String IMAGE_DIRECTORY = "src/main/resources/public/media/";
+
     @Autowired
     public ProductImageService(UserRepository userRepository,
                                BusinessRepository businessRepository,
@@ -84,7 +86,7 @@ public class ProductImageService {
             String extension = fileType.split("/")[1];
             logger.info("New image has extension: {}", extension);
             String imageFileName = UUID.randomUUID() + "." + extension;
-            String imageFilePath = "src/main/resources/public/media/" + imageFileName;
+            String imageFilePath = IMAGE_DIRECTORY + imageFileName;
             imageUtil.saveImage(imageInput, imageFilePath);
             String thumbnailPath = imageUtil.createThumbnail(imageFilePath);
 
@@ -164,16 +166,16 @@ public class ProductImageService {
         //Check if image exists for product
         var productImages = product.getImages();
         Image imageToDelete = null;
-        Image imageToReplace = null;
+        Image newPrimaryImage = null;
         var imageInProductImages = false;
         for (Image image : productImages) {
             if (image.getId().equals(dto.getImageId())) {
                 imageInProductImages = true;
                 imageToDelete = image;
-                break;
             } else {
-                if (imageToReplace == null) {
-                    imageToReplace = image;
+                //Assign a candidate for new primary image
+                if (newPrimaryImage == null) {
+                    newPrimaryImage = image;
                 }
             }
         }
@@ -182,12 +184,14 @@ public class ProductImageService {
             String filename = imageToDelete.getFilename();
             String thumbnailFileName = imageToDelete.getThumbnailFilename();
 
-            String imageFilePath = "src/main/resources/public/media/" + filename;
-            String thumbnailFilePath = "src/main/resources/public/media/" + thumbnailFileName;
+            String imageFilePath = IMAGE_DIRECTORY + filename;
+            String thumbnailFilePath = IMAGE_DIRECTORY + thumbnailFileName;
 
             product.removeImage(imageToDelete);
-            if (imageToReplace != null) {
-                product.setPrimaryImageId(imageToReplace.getId());
+
+            //Reassign primary image if necessary
+            if (newPrimaryImage != null && dto.getImageId().equals(product.getPrimaryImageId())) {
+                product.setPrimaryImageId(newPrimaryImage.getId());
             }
             productRepository.save(product);
             imageRepository.delete(imageToDelete);
