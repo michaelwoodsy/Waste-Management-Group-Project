@@ -9,7 +9,7 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
- * DTO for creating a card.
+ * DTO for editing a card.
  */
 @Data
 @NoArgsConstructor

@@ -241,7 +241,7 @@ public class CardService {
     }
 
     /**
-     * Service method that edits the card with id
+     * Service method for editing a card
      *
      * @param cardId id of the card to edit
      * @param dto dto of the edited card
