@@ -52,8 +52,6 @@ public class Product {
     /**
      * Function used to remove an image from the list of images associated with a product
      */
-    public void removeImage(Image image){
-        this.images.remove(image);
-    }
+    public void removeImage(Image image){ this.images.remove(image); }
 
 }
