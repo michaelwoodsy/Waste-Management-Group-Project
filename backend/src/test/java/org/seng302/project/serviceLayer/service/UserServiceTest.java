@@ -1,26 +1,25 @@
 package org.seng302.project.serviceLayer.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.domain.Specification;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * UserService unit tests
  */
 @SpringBootTest
-public class UserServiceTest extends AbstractInitializer {
+class UserServiceTest extends AbstractInitializer {
 
     @Autowired
     private UserService userService;
@@ -28,19 +27,31 @@ public class UserServiceTest extends AbstractInitializer {
     @MockBean
     private UserRepository userRepository;
 
-//    @BeforeEach
-//    void setup() {
-//        when(userRepository).
-//    }
-
     /**
-     * Tests the searchUsers calls the repository
+     * Checks the user repository is called the correct amount of times when a simple and non-quoted search
      */
     @Test
-    void searchUsers_simple_callsRepository() {
-        // Mock the repository returning 1500 users
-        List<User> manyUsers = new ArrayList<>(Collections.nCopies(1500, getTestUser()));
+    void searchUsers_singleNameQuery_usesContainsSpec() {
+        // Mock the findAll method to return an empty list
+        when(userRepository.findAll()).thenReturn(List.of());
+
+        userService.searchUsers("Tom");
+
+        // findAll will be called twice if a simple and non quoted search is made, check the repository was called twice
+        verify(userRepository, times(2)).findAll(any(Specification.class));
     }
 
+    /**
+     * Checks the user repository is called the correct amount of times when it's a simple and quoted query string
+     */
+    @Test
+    void searchUsers_quotedNameQuery_notUseContainsSpec() {
+        // Mock the findAll method to return an empty list
+        when(userRepository.findAll()).thenReturn(List.of());
 
+        userService.searchUsers("\"Tom\"");
+
+        // check the repository was called once
+        verify(userRepository, times(1)).findAll(any(Specification.class));
+    }
 }

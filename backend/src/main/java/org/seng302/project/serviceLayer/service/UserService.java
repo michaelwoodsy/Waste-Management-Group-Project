@@ -64,6 +64,7 @@ public class UserService {
                 boolean searchContains = false;
                 String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
 
+                // Iterate over the names in the search and check if they are quoted
                 for (String name : names) {
                     if (Pattern.matches("^\".*\"$", name)) {
                         name = name.replaceAll("\"", "");
@@ -75,17 +76,13 @@ public class UserService {
                     }
                 }
 
+                // query the repository and add to results set
                 result.addAll(userRepository.findAll(hasSpec));
                 if (searchContains) {
                     result.addAll(userRepository.findAll(containsSpec));
                 }
 
-//                for (User currUser : result) {
-//                    //Do this so the return is not an infinite loop of businesses and users
-//                    for (Business business : currUser.getBusinessesAdministered()) {
-//                        business.setAdministrators(new ArrayList<>());
-//                    }
-//                }
+                // convert set to a list
                 users = new ArrayList<>(result);
             }
         }
