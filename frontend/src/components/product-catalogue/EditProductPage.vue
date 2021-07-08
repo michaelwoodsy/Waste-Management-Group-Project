@@ -188,10 +188,47 @@
                     />
                     <button class="btn btn-danger ml-1 my-1 pad1"
                             type="button"
-                            @click="removeImage(image)">
-                      Remove
+                            :data-target="'#removeImageModal'"
+                            data-toggle="modal"
+                            @click="changeDeletingImage(image)">
+
+                    Remove
                     </button>
-<!--                    If the image cant be made primary because it is not uploaded yet-->
+
+
+
+                    <!-- Remove Image modal -->
+                    <div :id="'removeImageModal'" class="modal fade" role="dialog" tabindex="-1">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+
+                          <!-- Title section of modal -->
+                          <div class="modal-header">
+                            <h5 class="modal-title">Remove Image</h5>
+                            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                              <span ref="close" aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+
+                          <!-- Body section of modal -->
+                          <div class="modal-body">
+                            <p>Do you really want to remove this image?</p>
+                          </div>
+
+                          <!-- Footer / button section of modal -->
+                          <div class="modal-footer">
+                            <button class="btn btn-danger" data-dismiss="modal" type="button" @click="removeImage(imageWantingToDelete)">Remove</button>
+                            <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+
+
+
+
+                    <!--                    If the image cant be made primary because it is not uploaded yet-->
                     <button class="btn btn-secondary disabled ml-1 my-1 pad1"
                             v-if="image.id === undefined"
                             type="button" @click="makeImagePrimary(null)">
@@ -299,6 +336,7 @@ export default {
       triedIds: [], // List of ids tested for uniqueness
       //Test Image Data
       images: [],
+      imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
       currentPrimaryImageId: null,
       primaryImageError: null,
       imagesEdited: false
@@ -553,31 +591,29 @@ export default {
      * @param imageRemoving the image to be removed
      */
     removeImage(imageRemoving) {
-      if (confirm("Do you really want to remove this image?\nThis action cannot be undone.")) {
-        this.imagesEdited = true
-        //If image has already been uploaded
-        if(imageRemoving.id){
-          Business.removeProductImage(this.businessId, this.newProduct.id, imageRemoving.id)
-              .then(() => {
-                this.removeImageFromList(imageRemoving)
-              })
-              .catch((err) => {
-                this.errorMessage = err.response.data.message || err;
-              })
-        } else {
-          //If the image has just been uploaded and then is removed
-          this.removeImageFromList(imageRemoving)
-        }
+      this.imagesEdited = true
+      //If image has already been uploaded
+      if(imageRemoving.id){
+        Business.removeProductImage(this.businessId, this.newProduct.id, imageRemoving.id)
+            .then(() => {
+              this.removeImageFromList(imageRemoving)
+            })
+            .catch((err) => {
+              this.errorMessage = err.response.data.message || err;
+            })
+      } else {
+        //If the image has just been uploaded and then is removed
+        this.removeImageFromList(imageRemoving)
+      }
 
-        //If the removing image is the primary image, a new one is set on the backend. this is updating to show that.
-        if (this.product.primaryImageId === imageRemoving.id &&
-            this.currentPrimaryImageId === imageRemoving.id &&
-            this.images.length !== 0) {
-          for (const image of this.images) {
-            if (image.id !== undefined && image.id !== imageRemoving.id) {
-              this.currentPrimaryImageId = image.id
-              break
-            }
+      //If the removing image is the primary image, a new one is set on the backend. this is updating to show that.
+      if (this.product.primaryImageId === imageRemoving.id &&
+          this.currentPrimaryImageId === imageRemoving.id &&
+          this.images.length !== 0) {
+        for (const image of this.images) {
+          if (image.id !== undefined && image.id !== imageRemoving.id) {
+            this.currentPrimaryImageId = image.id
+            break
           }
         }
       }
@@ -622,6 +658,10 @@ export default {
               this.businessId, this.newProduct.id, image.data)
         }
       }
+    },
+
+    changeDeletingImage(image) {
+      this.imageWantingToDelete = image
     }
   }
 }
