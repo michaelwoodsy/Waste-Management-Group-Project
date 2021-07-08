@@ -10,6 +10,8 @@ import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
+import org.seng302.project.serviceLayer.exceptions.user.UserNotFoundException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,8 +87,39 @@ public class MessageService {
      * @return List of the given user's messages (if they have any)
      */
     public List<Message> getMessages(Integer userId, AppUserDetails appUser) {
-        List<Message> userMessages =  messageRepository.findAllByReceiver(userRepository.findById(userId).get());
-        return userMessages;
+        try{
+            logger.info("Request to get messages for user with id {}", userId);
+
+            // Get the logged in user from the users email
+            String userEmail = appUser.getUsername();
+            var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+            // Get the user whose messages we want
+            Optional<User> userResult = userRepository.findById(userId);
+
+            // Check if the user exists
+            if (userResult.isEmpty()) {
+                var exception = new UserNotFoundException(userId);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+            // We know user exists so retrieve user properly
+            var user = userResult.get();
+
+            // Check if the logged in user is the same user whose messages we are retrieving
+            if (!loggedInUser.getId().equals(user.getId())) {
+                var exception = new ForbiddenUserException(userId);
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+
+            // Get the user's messages
+            return messageRepository.findAllByReceiver(user);
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while getting a user's messages: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
     }
 }
 
