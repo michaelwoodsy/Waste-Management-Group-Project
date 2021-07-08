@@ -77,6 +77,13 @@ public class MessageService {
         return new CreateMessageResponseDTO(messageId);
     }
 
+    /**
+     * Method that gets all the messages for a given user. Only the given logged in
+     * user can view their own messages.
+     * @param userId The ID of the user whose messages we are retrieving
+     * @param appUser The user currently logged in
+     * @return List of the given user's messages (if they have any)
+     */
     public List<Message> getMessages(Integer userId, AppUserDetails appUser) {
         List<Message> userMessages =  messageRepository.findAllByReceiver(userRepository.findById(userId).get());
         return userMessages;

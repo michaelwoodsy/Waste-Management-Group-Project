@@ -135,26 +135,45 @@ class MessageControllerTest extends AbstractInitializer {
         mockMvc.perform(createMessageRequest).andExpect(status().isNotAcceptable());
     }
 
+    /**
+     * Tests that a 200 response on a successful retrieval of a user's messages
+     */
     @Test
     void getMessages_success200() throws Exception {
 
     }
 
+    /**
+     * Tests that a 401 response is thrown when a user tries to retrieve
+     * a user's messages and they're not logged in.
+     */
     @Test
     void getMessages_notLoggedIn_throws401() throws Exception {
 
     }
 
+    /**
+     * Tests that a 403 response is thrown when a user tries to retrieve
+     * a user's messages and it's not their own messages.
+     */
     @Test
     void getMessages_wrongUser_throws403() throws Exception {
 
     }
 
+    /**
+     * Tests that a 403 response is thrown when a GAA tries to retrieve
+     * a user's messages and it's not their own messages.
+     */
     @Test
     void getMessages_GAAWrongUser_throws403() throws Exception {
 
     }
 
+    /**
+     * Tests that a 406 response is thrown when a user tries to retrieve
+     * a user's messages for a user that does not exist.
+     */
     @Test
     void getMessages_nonExistentUser_throws406() throws Exception {
 

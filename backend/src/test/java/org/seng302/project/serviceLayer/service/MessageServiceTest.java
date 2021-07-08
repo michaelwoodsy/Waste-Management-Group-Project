@@ -174,16 +174,28 @@ class MessageServiceTest extends AbstractInitializer {
 
     }
 
+    /**
+     * Tests the successful retrieval of the currently
+     * logged in user's messages
+     */
     @Test
     void getMessages_success() {
 
     }
 
+    /**
+     * Tests that retrieving messages for a user that is
+     * not the currently logged in user throws an exception
+     */
     @Test
     void getMessages_notValidUser_error() {
 
     }
 
+    /**
+     * Tests that retrieving messages for a non-existent user
+     * throws an exception
+     */
     @Test
     void getMessages_nonExistentUser_error() {
 

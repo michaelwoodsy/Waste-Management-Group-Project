@@ -41,6 +41,12 @@ public class MessageController {
         return messageService.createMessage(requestDTO, appUser);
     }
 
+    /**
+     * GET method for requests to retrieve a user's messages
+     * @param userId The ID of the user whose messages we are retrieving
+     * @param appUser The user currently logged in
+     * @return List of the given user's messages (if they have any)
+     */
     @GetMapping("/users/{userId}/messages")
     @ResponseStatus(HttpStatus.OK)
     public List<Message> getUserMessages(@PathVariable Integer userId,
