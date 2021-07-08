@@ -568,6 +568,18 @@ export default {
           //If the image has just been uploaded and then is removed
           this.removeImageFromList(imageRemoving)
         }
+
+        //If the removing image is the primary image, a new one is set on the backend. this is updating to show that.
+        if (this.product.primaryImageId === imageRemoving.id &&
+            this.currentPrimaryImageId === imageRemoving.id &&
+            this.images.length !== 0) {
+          for (const image of this.images) {
+            if (image.id !== undefined && image.id !== imageRemoving.id) {
+              this.currentPrimaryImageId = image.id
+              break
+            }
+          }
+        }
       }
     },
 

@@ -36,8 +36,6 @@ public class ProductImageService {
     private final ImageUtil imageUtil;
     private final SpringEnvironment springEnvironment;
 
-    private static final String IMAGE_DIRECTORY = "src/main/resources/public/media/";
-
     @Autowired
     public ProductImageService(UserRepository userRepository,
                                BusinessRepository businessRepository,
@@ -62,7 +60,6 @@ public class ProductImageService {
      * @return ResponseDTO, confirming a successful request, which is sent to the controller
      */
     public AddProductImageResponseDTO addProductImage(AddProductImageDTO dto) {
-        System.out.println(springEnvironment.getMediaFolderPath());
         logger.info("Request to add an image image for product {} of business {}", dto.getProductId(), dto.getBusinessId());
 
         String fileType = dto.getImageFile().getContentType();
@@ -186,11 +183,9 @@ public class ProductImageService {
         }
 
         if (imageInProductImages) {
-            String filename = imageToDelete.getFilename();
-            String thumbnailFileName = imageToDelete.getThumbnailFilename();
 
-            String imageFilePath = IMAGE_DIRECTORY + filename;
-            String thumbnailFilePath = IMAGE_DIRECTORY + thumbnailFileName;
+            String imageFilePath = springEnvironment.getMediaFolderPath() + imageToDelete.getFilename();
+            String thumbnailFilePath = springEnvironment.getMediaFolderPath() + imageToDelete.getThumbnailFilename();
 
             product.removeImage(imageToDelete);
 
