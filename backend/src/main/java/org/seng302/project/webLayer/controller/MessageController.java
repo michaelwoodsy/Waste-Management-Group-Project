@@ -1,6 +1,7 @@
 package org.seng302.project.webLayer.controller;
 
 import net.minidev.json.JSONObject;
+import org.seng302.project.repositoryLayer.model.Message;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageResponseDTO;
 import org.seng302.project.serviceLayer.service.MessageService;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Rest controller for Messages.
@@ -37,4 +40,13 @@ public class MessageController {
         var requestDTO = new CreateMessageDTO(userId, cardId, text);
         return messageService.createMessage(requestDTO, appUser);
     }
+
+    @GetMapping("/users/{userId}/messages")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Message> getUserMessages(@PathVariable Integer userId,
+                                         @AuthenticationPrincipal AppUserDetails appUser) {
+        return messageService.getMessages(userId, appUser);
+    }
+
+
 }

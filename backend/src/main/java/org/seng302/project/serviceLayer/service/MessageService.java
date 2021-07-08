@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -74,6 +75,11 @@ public class MessageService {
         Integer messageId = messageRepository.save(newMessage).getId();
 
         return new CreateMessageResponseDTO(messageId);
+    }
+
+    public List<Message> getMessages(Integer userId, AppUserDetails appUser) {
+        List<Message> userMessages =  messageRepository.findAllByReceiver(userRepository.findById(userId).get());
+        return userMessages;
     }
 }
 
