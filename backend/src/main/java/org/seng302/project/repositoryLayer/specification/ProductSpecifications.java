@@ -18,19 +18,6 @@ public class ProductSpecifications {
         throw new IllegalStateException("Utility class, ProductSpecifications, shouldn't be instantiated");
     }
 
-    /**
-     * Specification to find products based on a queried id
-     * Matches exact ids.
-     *
-     * @param productId string to search by.
-     * @return new specification to use when querying repository.
-     */
-    public static Specification<Product> hasId(String productId) {
-
-        return ((root, query, builder) ->
-                builder.like(builder.lower(root.get("id")), productId));
-
-    }
 
     /**
      * Specification to find products based on a queried id
@@ -46,19 +33,6 @@ public class ProductSpecifications {
 
     }
 
-    /**
-     * Specification to find products based on a queried name
-     * Matches exact names.
-     *
-     * @param productName string to search by.
-     * @return new specification to use when querying repository.
-     */
-    public static Specification<Product> hasName(String productName) {
-
-        return ((root, query, builder) ->
-                builder.like(builder.lower(root.get("name")), productName));
-
-    }
 
     /**
      * Specification to find products based on a queried name
@@ -74,19 +48,6 @@ public class ProductSpecifications {
 
     }
 
-    /**
-     * Specification to find products based on a queried description
-     * Matches exact descriptions.
-     *
-     * @param productDescription string to search by.
-     * @return new specification to use when querying repository.
-     */
-    public static Specification<Product> hasDescription(String productDescription) {
-
-        return ((root, query, builder) ->
-                builder.like(builder.lower(root.get("description")), productDescription));
-
-    }
 
     /**
      * Specification to find products based on a queried description
@@ -102,19 +63,6 @@ public class ProductSpecifications {
 
     }
 
-    /**
-     * Specification to find products based on a queried manufacturer
-     * Matches exact manufacturers.
-     *
-     * @param productManufacturer string to search by.
-     * @return new specification to use when querying repository.
-     */
-    public static Specification<Product> hasManufacturer(String productManufacturer) {
-
-        return ((root, query, builder) ->
-                builder.like(builder.lower(root.get("manufacturer")), productManufacturer));
-
-    }
 
     /**
      * Specification to find products based on a queried manufacturer
