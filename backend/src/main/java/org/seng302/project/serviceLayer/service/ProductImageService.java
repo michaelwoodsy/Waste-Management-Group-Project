@@ -7,6 +7,7 @@ import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
 import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -34,6 +35,8 @@ public class ProductImageService {
     private final ImageRepository imageRepository;
     private final ImageUtil imageUtil;
     private final SpringEnvironment springEnvironment;
+
+    private static final String IMAGE_DIRECTORY = "src/main/resources/public/media/";
 
     @Autowired
     public ProductImageService(UserRepository userRepository,
@@ -144,4 +147,70 @@ public class ProductImageService {
         }
     }
 
+    /**
+     * Called by the deleteImage() method in ProductImagesController.
+     * Handles the business logic for deleting a product image,
+     * throws exceptions up to the controller to handle
+     */
+    public void deleteImage(DeleteProductImageDTO dto) {
+        logger.info("Request to delete image for product {} of business {}", dto.getProductId(), dto.getBusinessId());
+
+        var currBusiness = businessRepository.findById(dto.getBusinessId()).orElseThrow(() -> new BusinessNotFoundException(dto.getBusinessId()));
+
+        //Check if user making request is business admin/gaa/dgaa
+        String userEmail = dto.getAppUser().getUsername();
+        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+        if (!currBusiness.userCanDoAction(loggedInUser)) {
+            throw new ForbiddenAdministratorActionException(dto.getBusinessId());
+        }
+
+        var product = productRepository.findByIdAndBusinessId(dto.getProductId(), dto.getBusinessId())
+                .orElseThrow(() -> new ProductNotFoundException(dto.getProductId(), dto.getBusinessId()));
+
+        //Check if image exists for product
+        var productImages = product.getImages();
+        Image imageToDelete = null;
+        Image newPrimaryImage = null;
+        var imageInProductImages = false;
+        for (Image image : productImages) {
+            if (image.getId().equals(dto.getImageId())) {
+                imageInProductImages = true;
+                imageToDelete = image;
+            } else {
+                //Assign a candidate for new primary image
+                if (newPrimaryImage == null) {
+                    newPrimaryImage = image;
+                }
+            }
+        }
+
+        if (imageInProductImages) {
+            String filename = imageToDelete.getFilename();
+            String thumbnailFileName = imageToDelete.getThumbnailFilename();
+
+            String imageFilePath = IMAGE_DIRECTORY + filename;
+            String thumbnailFilePath = IMAGE_DIRECTORY + thumbnailFileName;
+
+            product.removeImage(imageToDelete);
+
+            //Reassign primary image if necessary
+            if (newPrimaryImage != null && dto.getImageId().equals(product.getPrimaryImageId())) {
+                product.setPrimaryImageId(newPrimaryImage.getId());
+            }
+            productRepository.save(product);
+            imageRepository.delete(imageToDelete);
+
+            try {
+                imageUtil.deleteImage(imageFilePath);
+                imageUtil.deleteImage(thumbnailFilePath);
+            } catch (IOException ex) {
+                var exception = new ProductImageInvalidException();
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+        } else {
+            throw new ProductImageNotFoundException(dto.getProductId(), dto.getImageId());
+        }
+    }
 }

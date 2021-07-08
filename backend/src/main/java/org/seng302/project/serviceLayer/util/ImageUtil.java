@@ -10,6 +10,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Singleton class for image processing
@@ -155,6 +158,21 @@ public class ImageUtil {
         }
         catch (IOException ioe) {
             logger.error("Error writing image to file");
+            throw ioe;
+        }
+    }
+
+    /**
+     * Deletes the image from the disk
+     * @param filepath The file path where the image is to be deleted
+     * @throws IOException an exception that is thrown by the ImageIO writer
+     */
+    public void deleteImage(String filepath) throws IOException {
+        Path path = Paths.get(filepath);
+        try {
+            Files.delete(path);
+        } catch (IOException ioe) {
+            logger.error("Error deleting file");
             throw ioe;
         }
     }
