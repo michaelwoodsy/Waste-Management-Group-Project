@@ -1,10 +1,7 @@
 package org.seng302.project.serviceLayer.service;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repositoryLayer.model.Keyword;
-import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
