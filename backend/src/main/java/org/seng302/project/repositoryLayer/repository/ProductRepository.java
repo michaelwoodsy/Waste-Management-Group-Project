@@ -3,6 +3,7 @@ package org.seng302.project.repositoryLayer.repository;
 import org.seng302.project.repositoryLayer.model.Product;
 import org.seng302.project.repositoryLayer.model.ProductId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -11,7 +12,8 @@ import java.util.Optional;
 /**
  * Repository for interfacing with products in the database.
  */
-public interface ProductRepository extends JpaRepository<Product, ProductId> {
+public interface ProductRepository extends JpaRepository<Product, ProductId>,
+        JpaSpecificationExecutor<Product> {
 
     /**
      * Gets all products for a specific business.
