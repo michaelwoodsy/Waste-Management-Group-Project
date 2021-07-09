@@ -6,7 +6,7 @@ public class NotAcceptableException extends RuntimeException {
      * Exception for 406 responses
      */
     public NotAcceptableException(String message) {
-        super(message);
+        super("NotAcceptableException: " + message);
     }
 
 }
