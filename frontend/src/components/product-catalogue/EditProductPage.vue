@@ -498,9 +498,17 @@ export default {
       // Set the rrp typeof to Number even if its an empty string
       this.newProduct.recommendedRetailPrice = Number(this.newProduct.recommendedRetailPrice)
 
+      const newProductData = {
+        id: this.newProduct.id,
+        name: this.newProduct.name,
+        description: this.newProduct.description,
+        manufacturer: this.newProduct.manufacturer,
+        recommendedRetailPrice: this.newProduct.recommendedRetailPrice
+      }
+
       // Submit changes to api
       this.submitting = true;
-      await Business.editProduct(this.businessId, this.productId, this.newProduct)
+      await Business.editProduct(this.businessId, this.productId, newProductData)
           .then(() => {
             this.addImages()
                 .then(() => {
