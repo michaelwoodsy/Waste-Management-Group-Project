@@ -1,5 +1,3 @@
-// initialize and show Bootstrap 4 toast
-$('.toast').toast('show');
 <template>
   <div class="container-fluid">
 
@@ -10,7 +8,7 @@ $('.toast').toast('show');
 
     <div v-else class="row justify-content-between min-vh-100">
 
-      <!-- Side Bar -->
+      <!-- Side Bar Left-->
       <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
         <div>
           <h4 class="text-light">Quick Links</h4>
@@ -69,44 +67,32 @@ $('.toast').toast('show');
         </div>
       </div>
 
-
-      <!-- Notification Section -->
-      <div class="wrapper">
-        <!-- Sidebar -->
-        <nav id="sidebar" aria-label="notificationSidebar">
-          <div class="sidebar-header">
-            <h3>Notifications</h3>
+      <!-- Side Bar Right-->
+      <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
+        <div>
+          <h4 class="text-light">Notifications</h4>
+          <!-- Toggle Notifications Button -->
+          <button type="button" class="btn btn-block btn-primary" @click="toggleNotifications()">
+            <em class="bi bi-bell" v-if="notifications.length < 10">{{notifications.length}}</em>
+            <em class="bi bi-bell" v-else>9+</em>
+          </button>
+        </div>
+        <!-- Notifications -->
+        <!--  TODO:  Add different versions for each notification type      -->
+        <div class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false"
+             v-for="notification in notifications" v-bind:key="notification.id">
+          <div class="toast-header">
+            <strong class="mr-auto">{{notification.title}}</strong>
+            <small>{{notification.created}}</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" @click="removeNotification(notification)">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-          <!-- Example Links -->
-          <!--  TODO:  Add different versions for each notification type      -->
-          <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false"
-               v-for="notification in notifications" v-bind:key="notification.id" >
-            <div class="toast-header">
-              <strong class="mr-auto">{{notification.title}}</strong>
-              <small>{{notification.created}}</small>
-              <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" @click="removeNotification(notification)">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="toast-body text-black-50">
-              {{notification.message}}
-              <br>
-              Card: {{notification.card}}
-            </div>
+          <div class="toast-body text-black-50">
+            {{notification.message}}
+            <br>
+            Card: {{notification.card}}
           </div>
-        </nav>
-        <!-- Page Content -->
-        <div id="content">
-          <nav class="navbar navbar-expand-lg navbar-light bg-light" aria-label="collapseButton">
-            <div class="container-fluid">
-              <!-- Button -->
-              <button type="button" id="sidebarCollapse" class="btn btn-block btn-primary">
-                <em class="fas fa-align-left"></em>
-                <span>Toggle Notifications</span>
-              </button>
-
-            </div>
-          </nav>
         </div>
       </div>
     </div>
@@ -132,17 +118,12 @@ export default {
   },
   async mounted() {
     await this.getCardData();
-    $(document).ready(function (){
-      $('#sidebarCollapse').on('click', function () {
-        $('#sidebar').toggleClass('active')
-      })
-    })
-    $('.toast').toast('show')
   },
   data() {
     return {
       cards: [],
       hideImages: true,
+      hideNotifications: true,
       //Test data
       notifications: [
         { id: 0,
@@ -151,6 +132,61 @@ export default {
           created: "2/07/2021 4:34pm",
           card: "Looking for plums"},
         { id: 1,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"},
+        { id: 2,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "2/07/2021 4:34pm",
+          card: "Looking for plums"},
+        { id: 3,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"},
+        { id: 4,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "2/07/2021 4:34pm",
+          card: "Looking for plums"},
+        { id: 5,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"},
+        { id: 6,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "2/07/2021 4:34pm",
+          card: "Looking for plums"},
+        { id: 7,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"},
+        { id: 8,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"},
+        { id: 9,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "2/07/2021 4:34pm",
+          card: "Looking for plums"},
+        { id: 10,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"},
+        { id: 11,
+          title: "Card Expiry",
+          message: "This card is about to expire",
+          created: "2/07/2021 4:34pm",
+          card: "Looking for plums"},
+        { id: 12,
           title: "Card Expiry",
           message: "This card is about to expire",
           created: "1/07/2021 6:37pm",
@@ -242,6 +278,16 @@ export default {
 
   },
   methods: {
+    toggleNotifications() {
+      if(this.hideNotifications){
+        $('.toast').toast('show')
+        this.hideNotifications = false
+      } else {
+        $('.toast').toast('hide')
+        this.hideNotifications = true
+      }
+    },
+
     /**
      * Gets the user's cards so we can check for ones about to expire
      */
@@ -298,24 +344,4 @@ export default {
 </script>
 
 <style scoped>
-.wrapper {
-  display: flex;
-  align-items: stretch;
-}
-#sidebar {
-  width: 0;
-  position: absolute;
-  overflow-y: hidden;
-  top: 120px;
-  left: 100%;
-  height: 100%;
-  z-index: 999;
-  background: #343a40;
-  color: #fff;
-  transition: all 0.3s;
-}
-#sidebar.active {
-  margin-left: -250px;
-  width: 250px;
-}
 </style>
