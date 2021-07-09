@@ -84,7 +84,7 @@
           <div class="toast-header">
             <strong class="mr-auto">{{notification.title}}</strong>
             <small>{{notification.created}}</small>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" @click="removeNotification(notification)">
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" @click="removeNotification(notification.id)">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -176,21 +176,21 @@ export default {
           message: "This card is about to expire",
           created: "2/07/2021 4:34pm",
           card: "Looking for plums"},
-        { id: 10,
-          title: "Card Expiry",
-          message: "This card is about to expire",
-          created: "1/07/2021 6:37pm",
-          card: "Apples for Oranges"},
-        { id: 11,
-          title: "Card Expiry",
-          message: "This card is about to expire",
-          created: "2/07/2021 4:34pm",
-          card: "Looking for plums"},
-        { id: 12,
-          title: "Card Expiry",
-          message: "This card is about to expire",
-          created: "1/07/2021 6:37pm",
-          card: "Apples for Oranges"}
+        // { id: 10,
+        //   title: "Card Expiry",
+        //   message: "This card is about to expire",
+        //   created: "1/07/2021 6:37pm",
+        //   card: "Apples for Oranges"},
+        // { id: 11,
+        //   title: "Card Expiry",
+        //   message: "This card is about to expire",
+        //   created: "2/07/2021 4:34pm",
+        //   card: "Looking for plums"},
+        // { id: 12,
+        //   title: "Card Expiry",
+        //   message: "This card is about to expire",
+        //   created: "1/07/2021 6:37pm",
+        //   card: "Apples for Oranges"}
       ],
       error: ""
     }
@@ -330,13 +330,19 @@ export default {
         }
       }
     },
-
+    /**
+     * Remove a notification from the list of visible notifications
+     * @param notificationId the id of the notification that is to be removed
+     */
     // TODO: Implement deleting notifications with backend
     removeNotification(notificationId){
       //Remove the notification from the list that is shown
-      this.notifications = this.notifications.filter(function(notification) {
-        return notification.id !== notificationId.id;
-      })
+      for(const [index, notification] of this.notifications.entries()){
+        if(notification.id === notificationId){
+          console.log(index)
+          this.notifications.splice(index, 1)
+        }
+      }
     }
   }
 }
