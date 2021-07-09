@@ -3,11 +3,14 @@ package org.seng302.project.webLayer.controller;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
+import org.seng302.project.serviceLayer.exceptions.user.UserNotFoundException;
 import org.seng302.project.serviceLayer.service.MessageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,6 +46,8 @@ class MessageControllerTest extends AbstractInitializer {
 
     private User testUser;
 
+    private User testAdmin;
+
     /**
      * Initialises entities from AbstractInitializer
      */
@@ -49,6 +55,7 @@ class MessageControllerTest extends AbstractInitializer {
     void setup() {
         this.initialise();
         testUser = this.getTestUser();
+        testAdmin = this.getTestSystemAdmin();
     }
 
     /**
@@ -140,7 +147,12 @@ class MessageControllerTest extends AbstractInitializer {
      */
     @Test
     void getMessages_success200() throws Exception {
+        RequestBuilder getMessagesRequest = MockMvcRequestBuilders
+                .get("/users/{userId}/messages",
+                        testUser.getId())
+                .with(user(new AppUserDetails(testUser)));
 
+        mockMvc.perform(getMessagesRequest).andExpect(status().isOk());
     }
 
     /**
@@ -149,7 +161,11 @@ class MessageControllerTest extends AbstractInitializer {
      */
     @Test
     void getMessages_notLoggedIn_throws401() throws Exception {
+        RequestBuilder getMessagesRequest = MockMvcRequestBuilders
+                .get("/users/{userId}/messages",
+                        testUser.getId());
 
+        mockMvc.perform(getMessagesRequest).andExpect(status().isUnauthorized());
     }
 
     /**
@@ -158,7 +174,16 @@ class MessageControllerTest extends AbstractInitializer {
      */
     @Test
     void getMessages_wrongUser_throws403() throws Exception {
+        doThrow(new ForbiddenUserException(100))
+                .when(messageService)
+                .getMessages(Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
 
+        RequestBuilder getMessagesRequest = MockMvcRequestBuilders
+                .get("/users/{userId}/messages",
+                        100)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(getMessagesRequest).andExpect(status().isForbidden());
     }
 
     /**
@@ -167,7 +192,16 @@ class MessageControllerTest extends AbstractInitializer {
      */
     @Test
     void getMessages_GAAWrongUser_throws403() throws Exception {
+        doThrow(new ForbiddenUserException(100))
+                .when(messageService)
+                .getMessages(Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
 
+        RequestBuilder getMessagesRequest = MockMvcRequestBuilders
+                .get("/users/{userId}/messages",
+                        100)
+                .with(user(new AppUserDetails(testAdmin)));
+
+        mockMvc.perform(getMessagesRequest).andExpect(status().isForbidden());
     }
 
     /**
@@ -176,6 +210,15 @@ class MessageControllerTest extends AbstractInitializer {
      */
     @Test
     void getMessages_nonExistentUser_throws406() throws Exception {
+        doThrow(new UserNotFoundException(100))
+                .when(messageService)
+                .getMessages(Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
 
+        RequestBuilder getMessagesRequest = MockMvcRequestBuilders
+                .get("/users/{userId}/messages",
+                        100)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(getMessagesRequest).andExpect(status().isNotAcceptable());
     }
 }
