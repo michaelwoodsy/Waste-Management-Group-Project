@@ -274,7 +274,6 @@ export default {
         await Keyword.searchKeywords(this.keywordValue)
         .then((response) => {
           this.filteredKeywords = response.data;
-          console.log(this.filteredKeywords);
         })
         .catch((err) => {
           this.msg.errorChecks = err.response

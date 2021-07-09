@@ -108,8 +108,7 @@ describe('EditProductPage Component Tests', () => {
         loggedIn = false;
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-            computed,
-            methods
+            computed
         })
         expect(wrapper.findComponent({name: 'login-required'}).exists()).toBeTruthy()
     })
@@ -119,8 +118,7 @@ describe('EditProductPage Component Tests', () => {
         businessId = 3;
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-            computed,
-            methods
+            computed
         })
         expect(wrapper.findComponent({name: 'admin-required'}).exists()).toBeTruthy()
     })
@@ -139,8 +137,7 @@ describe('EditProductPage Component Tests', () => {
         productId = "Non existent";
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required", "alert"],
-            computed,
-            methods
+            computed
         })
         await Vue.nextTick() // Otherwise the loading ... message is displayed
 
@@ -223,17 +220,34 @@ describe("Edit Product Images Test",  () => {
     // Test that we can remove an uploaded image
     test('Removing an image from the frontend list', () => {
         wrapper.vm.$data.images = [{
+            id: 1234,
+            url: "image.png",
+            file: "",
+            data: ""
+            }, {
+            id: 12345,
+            url: "other_image.jpg",
+            file: "",
+            data: ""
+        }]
+        wrapper.vm.removeImageFromList(wrapper.vm.$data.images[0])
+        expect(wrapper.vm.$data.images).toEqual([{
+            id: 12345,
+            url: "other_image.jpg",
+            file: "",
+            data: ""
+        }])
+    })
+
+    // Test that we can remove the last image that has been uploaded
+    test('Removing the last image from the frontend list', () => {
+        wrapper.vm.$data.images = [{
+            id: 1234,
             url: "image.png",
             file: ""
-            }, {
-            url: "other_image.jpg",
-            file: ""
         }]
-        wrapper.vm.removeImage("image.png")
-        expect(wrapper.vm.$data.images).toEqual([{
-            url: "other_image.jpg",
-            file: ""
-        }])
+        wrapper.vm.removeImageFromList(wrapper.vm.$data.images[0])
+        expect(wrapper.vm.$data.images).toEqual([])
     })
 
     // Test that calling makePrimaryImage changes the primary image

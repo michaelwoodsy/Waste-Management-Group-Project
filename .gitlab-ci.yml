@@ -101,6 +101,7 @@ deploy-staging-backend:
     - ./gradlew bootJar
     - rm -rf /home/gitlab-runner/staging-backend/ || true
     - mkdir /home/gitlab-runner/staging-backend/
+    - mkdir -p /home/gitlab-runner/staging-media/media/ #Makes the media folder if it does not exist
     - cp -r ./build/libs /home/gitlab-runner/staging-backend
     - cp ../runner/staging-backend.sh /home/gitlab-runner/staging-backend.sh
     - rm -f /home/gitlab-runner/staging-backend/vars.txt || true
@@ -146,6 +147,7 @@ deploy-production-backend:
     - ./gradlew bootJar
     - rm -rf /home/gitlab-runner/production-backend/ || true
     - mkdir /home/gitlab-runner/production-backend/
+    - mkdir -p /home/gitlab-runner/production-media/media/ #Makes the media folder if it does not exist
     - cp -r ./build/libs /home/gitlab-runner/production-backend
     - cp ../runner/production-backend.sh /home/gitlab-runner/production-backend.sh
     - rm -f /home/gitlab-runner/production-backend/vars.txt || true

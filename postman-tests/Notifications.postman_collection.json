@@ -1,0 +1,173 @@
+{
+	"info": {
+		"_postman_id": "2e57937a-1f40-48ab-892a-ecdba9693f8a",
+		"name": "Notifications",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET /users/{userId}/notifications",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    pm.response.to.be.ok",
+							"})",
+							"",
+							"pm.test(\"Response body test\", () => {",
+							"    pm.response.to.have.body",
+							"    var responseBody = pm.response.json()",
+							"    pm.expect(responseBody).to.be.an('array')",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/users/:userId/notifications",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"users",
+						":userId",
+						"notifications"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE /users/{userId}/notifications/{notificationId}",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    pm.response.to.be.ok",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/users/:userId/notifications/:notificationId",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"users",
+						":userId",
+						"notifications",
+						":notificationId"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "1"
+						},
+						{
+							"key": "notificationId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /notifications",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    pm.response.to.be.ok",
+							"})",
+							"",
+							"pm.test(\"Response body test\", () => {",
+							"    pm.response.to.have.body",
+							"    var responseBody = pm.response.json()",
+							"    pm.expect(responseBody).to.be.an('array')",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/notifications",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"notifications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE /notifications/{notificationId}",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    pm.response.to.be.ok",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/notifications/:notificationId",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"notifications",
+						":notificationId"
+					],
+					"variable": [
+						{
+							"key": "notificationId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
