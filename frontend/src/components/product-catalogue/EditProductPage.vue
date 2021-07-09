@@ -231,7 +231,7 @@
                     <!--                    If the image cant be made primary because it is not uploaded yet-->
                     <button class="btn btn-secondary disabled ml-1 my-1 pad1"
                             v-if="image.id === undefined"
-                            type="button" @click="makeImagePrimary(null)">
+                            type="button" :data-target="'#cantMakePrimaryImageModal'" data-toggle="modal">
                       Make Primary
                     </button>
                     <button class="btn btn-primary ml-1 my-1 pad1 disabled"
@@ -244,17 +244,45 @@
                             type="button" @click="makeImagePrimary(image.id)">
                       Make Primary
                     </button>
+
+
+
+
+                    <!-- Can't make image primary information -->
+                    <div :id="'cantMakePrimaryImageModal'" class="modal fade" role="dialog" tabindex="-1">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+
+                          <!-- Title section of modal -->
+                          <div class="modal-header">
+                            <h5 class="modal-title">Information</h5>
+                            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                              <span ref="close" aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+
+                          <!-- Body section of modal -->
+                          <div class="modal-body">
+                            <p>This image is not on our servers yet. Please save changes before making this image Primary</p>
+                          </div>
+
+                          <!-- Footer / button section of modal -->
+                          <div class="modal-footer">
+                            <button class="btn btn-primary" data-dismiss="modal" type="button">Ok</button>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+
+
+
+
                   </div>
                 </div>
               </div>
             </form>
           </div>
-        </div>
-        <div v-if="primaryImageError !== null" class="alert alert-warning alert-dismissible fade show" role="alert">
-          {{primaryImageError}}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
 
         <!-- Row for fixes message -->
@@ -338,7 +366,6 @@ export default {
       images: [],
       imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
       currentPrimaryImageId: null,
-      primaryImageError: null,
       imagesEdited: false
     }
   },
@@ -636,12 +663,6 @@ export default {
      * @param imageId the id of the image to make primary
      */
     makeImagePrimary(imageId) {
-      if (imageId === null) {
-        this.primaryImageError = "This image is not on our servers yet. Please save changes before making this image Primary"
-        return
-      } else {
-        this.primaryImageError = null
-      }
       this.imagesEdited = true
       //Sets the new primary image to be set when the user clicks the save changes button
       this.currentPrimaryImageId = imageId
