@@ -33,6 +33,9 @@ public class SpringEnvironment {
     @Value("${spring.profiles.active}")
     private List<String> activeProfile;
 
+    @Value("${spring.web.resources.static-locations}")
+    private List<String> mediaFolderPathList;
+
     /**
      * Sets the environment based on spring profile
      */
@@ -51,6 +54,26 @@ public class SpringEnvironment {
             TEST_DATA = false;
         }
 
+    }
+
+    /**
+     * Sets the media folder path based on the spring profile
+     */
+    public String getMediaFolderPath() {
+        if (activeProfile.contains("test")) {
+            return "build/resources/test/public";
+        }
+        else if (activeProfile.contains("local")) {
+            return "build/resources/main/public";
+        }
+        else {
+            //Returns the path to the directory with the media folder in it, removes the starting substring 'file:'
+            return mediaFolderPathList.get(0).substring(mediaFolderPathList.get(0).indexOf(":") + 1);
+        }
+
+
+        //return mediaFolderPathList.get(0).substring(mediaFolderPathList.get(0).indexOf(":") + 1);
+        //return "build/resources/main/public";
     }
 
 }

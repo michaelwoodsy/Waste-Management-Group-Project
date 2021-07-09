@@ -15,6 +15,7 @@ import org.seng302.project.serviceLayer.exceptions.product.ProductImageInvalidEx
 import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
+import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,20 +34,21 @@ public class ProductImageService {
     private final ProductRepository productRepository;
     private final ImageRepository imageRepository;
     private final ImageUtil imageUtil;
-
-    private static final String IMAGE_DIRECTORY = "src/main/resources/public/media/";
+    private final SpringEnvironment springEnvironment;
 
     @Autowired
     public ProductImageService(UserRepository userRepository,
                                BusinessRepository businessRepository,
                                ProductRepository productRepository,
                                ImageRepository imageRepository,
-                               ImageUtil imageUtil) {
+                               ImageUtil imageUtil,
+                               SpringEnvironment springEnvironment) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
         this.imageRepository = imageRepository;
         this.imageUtil = imageUtil;
+        this.springEnvironment = springEnvironment;
     }
 
     /**
@@ -86,7 +88,7 @@ public class ProductImageService {
             String extension = fileType.split("/")[1];
             logger.info("New image has extension: {}", extension);
             String imageFileName = UUID.randomUUID() + "." + extension;
-            String imageFilePath = IMAGE_DIRECTORY + imageFileName;
+            String imageFilePath = springEnvironment.getMediaFolderPath() + "/media/" + imageFileName;
             imageUtil.saveImage(imageInput, imageFilePath);
             String thumbnailPath = imageUtil.createThumbnail(imageFilePath);
 
@@ -181,11 +183,9 @@ public class ProductImageService {
         }
 
         if (imageInProductImages) {
-            String filename = imageToDelete.getFilename();
-            String thumbnailFileName = imageToDelete.getThumbnailFilename();
 
-            String imageFilePath = IMAGE_DIRECTORY + filename;
-            String thumbnailFilePath = IMAGE_DIRECTORY + thumbnailFileName;
+            String imageFilePath = springEnvironment.getMediaFolderPath() + imageToDelete.getFilename();
+            String thumbnailFilePath = springEnvironment.getMediaFolderPath() + imageToDelete.getThumbnailFilename();
 
             product.removeImage(imageToDelete);
 

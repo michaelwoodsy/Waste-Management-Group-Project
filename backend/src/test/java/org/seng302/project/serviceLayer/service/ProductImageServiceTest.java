@@ -21,6 +21,7 @@ import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundExce
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
+import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,8 @@ class ProductImageServiceTest extends AbstractInitializer {
 
     @Autowired
     private ProductImageService productImageService;
+    @Autowired
+    private SpringEnvironment springEnvironment;
     @MockBean
     private UserRepository userRepository;
     @MockBean
