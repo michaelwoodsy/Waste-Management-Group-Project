@@ -1,0 +1,79 @@
+package org.seng302.project.serviceLayer.service;
+
+import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.model.Message;
+import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.MessageRepository;
+import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
+import org.seng302.project.serviceLayer.dto.message.CreateMessageResponseDTO;
+import org.seng302.project.serviceLayer.exceptions.BadRequestException;
+import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+/**
+ * Service class with methods for handling Messages
+ */
+@Service
+public class MessageService {
+
+    private static final Logger logger = LoggerFactory.getLogger(MessageService.class.getName());
+    private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
+    private final CardRepository cardRepository;
+
+    @Autowired
+    public MessageService(MessageRepository messageRepository,
+                          UserRepository userRepository,
+                          CardRepository cardRepository) {
+        this.messageRepository = messageRepository;
+        this.userRepository = userRepository;
+        this.cardRepository = cardRepository;
+    }
+
+    /**
+     * Creates a new message
+     * @param requestDTO containing the message text,
+     *                   the id of who the message is for
+     *                   and the id of the card the message is about
+     * @return CreateMessageResponseDTO containing the new message's id
+     */
+    public CreateMessageResponseDTO createMessage(CreateMessageDTO requestDTO, AppUserDetails appUser) {
+        logger.info("Request to create message about card with id {}", requestDTO.getCardId());
+
+        // Get the logged in user from the users email
+        String userEmail = appUser.getUsername();
+        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+        Optional<User> receivingUserOptional = userRepository.findById(requestDTO.getUserId());
+        if (receivingUserOptional.isEmpty()) {
+            throw new NotAcceptableException(String.format("There is no user that exists with the id %d",
+                    requestDTO.getUserId()));
+        }
+        var receivingUser = receivingUserOptional.get();
+
+        Optional<Card> cardOptional = cardRepository.findById(requestDTO.getCardId());
+        if (cardOptional.isEmpty()) {
+            throw new NotAcceptableException(String.format("There is no card that exists with the id %d",
+                    requestDTO.getCardId()));
+        }
+        var card = cardOptional.get();
+
+        if (requestDTO.getText() == null || requestDTO.getText().equals("")) {
+            throw new BadRequestException("Message is missing 'text' field");
+        }
+
+        var newMessage = new Message(requestDTO.getText(), receivingUser, card, loggedInUser);
+        Integer messageId = messageRepository.save(newMessage).getId();
+
+        return new CreateMessageResponseDTO(messageId);
+    }
+}
+

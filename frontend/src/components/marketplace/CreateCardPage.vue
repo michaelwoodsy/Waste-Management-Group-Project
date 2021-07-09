@@ -39,20 +39,59 @@
       <!-- Description -->
       <div class="form-group row">
         <label for="description"><strong>Description</strong></label>
-        <input id="description" v-model="description" :class="{'form-control': true, 'is-invalid': false}"
+        <textarea id="description" v-model="description" :class="{'form-control': true, 'is-invalid': false}"
                placeholder="Enter the description"
                required maxlength="255" type="text">
+        </textarea>
       </div>
 
       <!-- Keywords -->
       <div class="form-group row">
-        <label for="keywords">
+        <label for="keywordValue">
           <strong>Keywords<span class="required">*</span></strong>
-           (Separate keywords with a comma no spaces)
+          (Keywords must be 25 characters or less)
         </label>
-        <input id="keywords" v-model="keywords" :class="{'form-control': true, 'is-invalid': msg.keywords}"
+        <!-- Keyword Input -->
+        <input id="keywordValue" v-model="keywordValue"
+               :class="{'form-control': true, 'is-invalid': msg.keywords}"
                placeholder="Enter the Keywords"
-               required maxlength="255" type="text">
+               required maxlength="25" type="text"
+               style="margin-bottom: 2px"
+               autocomplete="off"
+               data-toggle="dropdown"
+               @input="searchKeywords"
+               @keyup.space="addKeyword"/>
+        <!-- Autocomplete dropdown -->
+        <div class="dropdown-menu overflow-auto" id="dropdown">
+          <!-- If no user input -->
+          <p class="text-muted dropdown-item left-padding mb-0 disabled"
+             v-if="keywordValue.length === 0"
+          >
+            Start typing...
+          </p>
+          <!-- If no matches -->
+          <p class="text-muted dropdown-item left-padding mb-0 disabled"
+             v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
+          >
+            No results found.
+          </p>
+          <!-- If there are matches -->
+          <a class="dropdown-item pointer left-padding"
+             v-for="keyword in filteredKeywords"
+             v-else
+             :key="keyword.id"
+             @click="setKeyword(keyword.name)">
+            <span>{{ keyword.name }}</span>
+          </a>
+        </div>
+        <!-- Keyword Bubbles -->
+        <div class="keyword" v-for="(keyword, index) in keywords" style="padding: 2px"
+             :key="'keyword' + index">
+          <button class="btn btn-primary">
+            <span>{{  keyword  }}</span>
+            <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
+          </button>
+        </div>
         <span class="invalid-feedback">{{ msg.keywords }}</span>
       </div>
 
@@ -74,10 +113,13 @@
 
 <script>
 import Alert from "@/components/Alert";
+import {Keyword} from "@/Api";
 
 export default {
   name: "CreateCardPage",
-  components: {Alert},
+  components: {
+    Alert,
+  },
   data() {
     return {
       PageTitle: 'Create a new card',
@@ -85,7 +127,6 @@ export default {
       section: '', //Required
       title: '', //Required
       description: '',
-      keywords: '',
       msg: {
         section: null,
         title: null,
@@ -94,7 +135,10 @@ export default {
       },
       valid: true,
       cancel: false,
-      submit: false
+      submit: false,
+      keywordValue: '',
+      keywords: [],
+      filteredKeywords: []
     };
   },
   methods: {
@@ -118,6 +162,9 @@ export default {
      * Cannot be empty
      */
     validateTitle(){
+      if (this.title != null) {
+        this.title = this.title.trim()
+      }
       if (this.title === '' || this.title === null){
         this.msg.title = 'Please enter a title'
         this.valid = false
@@ -127,35 +174,11 @@ export default {
     },
 
     /**
-     * Validate the keywords input
-     * Will edit keywords to be correct, remove spaces (Comma separated string FOR NOW)
-     */
-    validateKeywords(){
-      if (this.keywords === '' || this.keywords === null){
-        this.msg.keywords = 'Please enter one or more keywords'
-        this.valid = false
-      } else if(this.keywords.includes(', ') || this.keywords.includes(' ')){
-        //Remove the leading and trailing white spaces
-        this.keywords = this.keywords.replace(/^\s+|\s+$/g, '')
-        //Remove any multiple commas
-        this.keywords = this.keywords.replace(/,+/g, ',')
-        //Remove white spaces after comma
-        this.keywords = this.keywords.replace(/,\s+/g, ',')
-        //Replace white spaces between words with hyphens
-        this.keywords = this.keywords.replace(/\s/g, '-')
-        this.msg.keywords = null
-      }else {
-        this.msg.keywords = null
-      }
-    },
-
-    /**
      * Check all inputs are valid, if not show error message otherwise add card to marketplace
      */
     checkInputs(){
       this.validateSection()
       this.validateTitle()
-      this.validateKeywords()
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
@@ -169,16 +192,39 @@ export default {
     },
 
     /**
+     * Gets the keyword IDs for the keywords of a card.
+     * Creates a new keyword if one doesn't exist.
+     */
+    async getKeywordIds() {
+      const keywordIds = []
+      for (const keyword of this.keywords) {
+        const response = await Keyword.searchKeywords(keyword)
+        if (response.data.length === 0) {
+          const keywordId = (await Keyword.createKeyword(keyword)).data['keywordId']
+          keywordIds.push(keywordId)
+        } else {
+          for (const result of response.data) {
+            if (result['name'] === keyword) {
+              keywordIds.push(result['id'])
+            }
+          }
+        }
+      }
+      return keywordIds
+    },
+
+    /**
      * Add a new card to the marketplace
      */
-    addCard() {
+    async addCard() {
+      const keywordIds = await this.getKeywordIds()
       this.$root.$data.user.createCard(
           {
-            "creatorId": this.$root.$data.user.state.actingAs.id,
-            "section": this.section,
-            "title": this.title,
-            "description": this.description,
-            "keywords": this.keywords
+            creatorId: this.$root.$data.user.state.actingAs.id,
+            section: this.section,
+            title: this.title,
+            description: this.description,
+            keywordIds: keywordIds
           }
       ).then(() => {
         this.$refs.close.click();
@@ -189,11 +235,65 @@ export default {
             : err
       });
     },
+
     /**
      * Closes the popup window to create a card
      */
     close() {
       this.$emit('refresh-cards');
+    },
+
+    /**
+    * Adds a keyword to the list of keywords
+    */
+    addKeyword() {
+      this.keywordValue = this.keywordValue.trim()
+      if((this.keywordValue === '' || this.keywordValue === ' ')
+          || this.keywords.includes(this.keywordValue)) {
+        this.keywordValue = '';
+      }
+      if (this.keywordValue.length > 2) {
+        this.keywords.push(this.keywordValue);
+        this.keywordValue = '';
+      }
+    },
+
+    /**
+     * Removes a keyword from the list of keywords
+     * @param index Index of the keyword in the keyword list
+     */
+    removeKeyword(index) {
+      this.keywords.splice(index, 1)
+    },
+
+    /**
+     * Filters autocomplete options based on the user's input for a keyword.
+     */
+    async searchKeywords() {
+      if (this.keywordValue.length > 2) {
+        await Keyword.searchKeywords(this.keywordValue)
+        .then((response) => {
+          this.filteredKeywords = response.data;
+        })
+        .catch((err) => {
+          this.msg.errorChecks = err.response
+              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+              : err
+
+        })
+      } else {
+        this.filteredKeywords = []
+      }
+    },
+
+    /**
+     * Adds a keyword to the list of keywords if the keyword was selecting from the
+     * autocomplete list rather than by pressing the spacebar
+     * @param keyword Keyword to be added to keyword list
+     */
+    setKeyword(keyword) {
+      this.keywordValue = keyword
+      this.addKeyword()
     }
   }
 }

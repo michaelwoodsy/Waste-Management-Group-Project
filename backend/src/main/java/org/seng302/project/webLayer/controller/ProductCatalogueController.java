@@ -1,8 +1,9 @@
 package org.seng302.project.webLayer.controller;
 
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.serviceLayer.dto.AddProductDTO;
-import org.seng302.project.serviceLayer.dto.EditProductDTO;
+import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
+import org.seng302.project.serviceLayer.dto.product.EditProductDTO;
+import org.seng302.project.serviceLayer.dto.product.ProductSearchDTO;
 import org.seng302.project.serviceLayer.service.ProductCatalogueService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,20 @@ public class ProductCatalogueController {
         requestDTO.setProductId(productId);
         requestDTO.setAppUser(appUser);
         productCatalogueService.editProduct(requestDTO);
+    }
+
+    /**
+     * Searches a business's catalogue for products
+     * @param businessId id of the business to search products of
+     * @param requestDTO request body containing which fields to search by
+     * @param appUser the user making the request
+     */
+    @GetMapping("/businesses/{businessId}/products/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Product> searchProducts(@PathVariable Integer businessId,
+                                        @Valid @RequestBody ProductSearchDTO requestDTO,
+                                        @AuthenticationPrincipal AppUserDetails appUser) {
+        return productCatalogueService.searchProducts(businessId, requestDTO, appUser);
     }
 
 }

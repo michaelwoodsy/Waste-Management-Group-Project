@@ -3,12 +3,16 @@ package org.seng302.project.serviceLayer.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Singleton class for image processing
@@ -26,8 +30,10 @@ public class ImageUtil {
      * https://www.techcoil.com/blog/how-to-create-a-thumbnail-of-an-image-in-java-without-using-external-libraries/
      *  @param filepath The filepath of the image we are
      *                  trying to create a thumbnail for
+     * @return the filepath where the thumbnail was saved
      */
-    public void createThumbnail(String filepath) throws IOException {
+    public String createThumbnail(String filepath) throws IOException {
+        logger.info("Creating thumbnail for file: {}", filepath);
         var originalBufferedImage = readImageFromFile(filepath);
         var resizedBufferImage = scaleImage(originalBufferedImage);
         var thumbnailBufferedImage = cropImage(resizedBufferImage);
@@ -39,6 +45,8 @@ public class ImageUtil {
         filepathBits[0] = filepathBits[0] + "_thumbnail";
         var thumbnailPath = String.join(".", filepathBits);
         saveImage(thumbnailBufferedImage, thumbnailPath);
+
+        return thumbnailPath.substring(thumbnailPath.indexOf("/media/"));
     }
 
 
@@ -61,6 +69,25 @@ public class ImageUtil {
         return originalBufferedImage;
     }
 
+    /**
+     * Returns a BufferedImage object obtained from a multipart file.
+     *
+     * @param file The multipart file to get image from.
+     * @return BufferedImage of the multipart file.
+     * @throws IOException an exception thrown for input/output error.
+     */
+    public BufferedImage readImageFromMultipartFile(MultipartFile file) throws IOException {
+        BufferedImage image;
+        try {
+            var imageInputStream = file.getInputStream();
+            image = ImageIO.read(imageInputStream);
+            imageInputStream.close();
+        } catch (IOException exception) {
+            logger.error("IO exception occurred while trying to read image.");
+            throw exception;
+        }
+        return image;
+    }
 
     /**
      * Scales the original image down to 10% larger than the thumbnail width of 150px
@@ -125,11 +152,27 @@ public class ImageUtil {
      * @throws IOException an exception that is thrown by the ImageIO writer
      */
     public void saveImage(BufferedImage image, String filepath) throws IOException {
+        String format = filepath.split("\\.(?=([a-zA-Z]*)$)")[1].toUpperCase();
         try {
-            ImageIO.write(image, "JPG", new File(filepath));
+            ImageIO.write(image, format, new File(filepath));
         }
         catch (IOException ioe) {
             logger.error("Error writing image to file");
+            throw ioe;
+        }
+    }
+
+    /**
+     * Deletes the image from the disk
+     * @param filepath The file path where the image is to be deleted
+     * @throws IOException an exception that is thrown by the ImageIO writer
+     */
+    public void deleteImage(String filepath) throws IOException {
+        Path path = Paths.get(filepath);
+        try {
+            Files.delete(path);
+        } catch (IOException ioe) {
+            logger.error("Error deleting file");
             throw ioe;
         }
     }

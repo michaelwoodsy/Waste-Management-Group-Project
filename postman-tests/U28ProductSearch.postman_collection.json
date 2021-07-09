@@ -1,0 +1,77 @@
+{
+	"info": {
+		"_postman_id": "c4ebea26-743e-4bf1-8b8d-156a29dcd690",
+		"name": "U28 Product Search",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "200 GET /businesses/{businessId}/products/search",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"matchingId\": false,\r\n    \"matchingName\": true,\r\n    \"matchingDescription\": false,\r\n    \"matchingManufacturer\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9599/businesses/1/products/search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"businesses",
+						"1",
+						"products",
+						"search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "400 GET /businesses/{businessId}/products/search (missing required request body fields)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"matchingName\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9599/businesses/1/products/search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"businesses",
+						"1",
+						"products",
+						"search"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

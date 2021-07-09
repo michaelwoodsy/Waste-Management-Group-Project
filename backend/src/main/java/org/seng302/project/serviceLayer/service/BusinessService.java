@@ -2,13 +2,16 @@ package org.seng302.project.serviceLayer.service;
 
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.AddOrRemoveBusinessAdminDTO;
-import org.seng302.project.serviceLayer.dto.AddBusinessDTO;
+import org.seng302.project.repositoryLayer.specification.BusinessSpecifications;
+import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
+import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.InvalidDateException;
-import org.seng302.project.serviceLayer.exceptions.NoBusinessExistsException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
@@ -19,12 +22,13 @@ import org.seng302.project.serviceLayer.util.DateArithmetic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 public class BusinessService {
@@ -125,10 +129,10 @@ public class BusinessService {
     public Business getBusiness(Integer id) {
         logger.info("Request to get business {}", id);
         try {
-            return businessRepository.findById(id).orElseThrow(() -> new NoBusinessExistsException(id));
-        } catch (NoBusinessExistsException noBusinessExistsException) {
-            logger.warn(noBusinessExistsException.getMessage());
-            throw noBusinessExistsException;
+            return businessRepository.findById(id).orElseThrow(() -> new BusinessNotFoundException(id));
+        } catch (BusinessNotFoundException businessNotFoundException) {
+            logger.warn(businessNotFoundException.getMessage());
+            throw businessNotFoundException;
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while getting business: %s", exception.getMessage()));
             throw exception;
@@ -167,7 +171,7 @@ public class BusinessService {
                     userId, businessId);
 
             var currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
-            var currBusiness = businessRepository.findById(requestDTO.getBusinessId()).orElseThrow(() -> new NoBusinessExistsException(businessId));
+            var currBusiness = businessRepository.findById(requestDTO.getBusinessId()).orElseThrow(() -> new BusinessNotFoundException(businessId));
             checkAdminRequestMaker(requestDTO.getAppUser().getUsername(), currBusiness);
 
             //Checks if the user is already an administrator
@@ -181,7 +185,7 @@ public class BusinessService {
             businessRepository.save(currBusiness);
 
             logger.info("Successfully added Administrator {} to business {}", currUser.getId(), currBusiness.getId());
-        } catch (NoUserExistsException | NoBusinessExistsException | ForbiddenPrimaryAdministratorActionException |
+        } catch (NoUserExistsException | BusinessNotFoundException | ForbiddenPrimaryAdministratorActionException |
                 AdministratorAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
@@ -203,7 +207,7 @@ public class BusinessService {
             logger.info("Request to remove user with id {} from administering business with id {}", userId, businessId);
 
             var currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
-            var currBusiness = businessRepository.findById(businessId).orElseThrow(() -> new NoBusinessExistsException(businessId));
+            var currBusiness = businessRepository.findById(businessId).orElseThrow(() -> new BusinessNotFoundException(businessId));
             checkAdminRequestMaker(requestDTO.getAppUser().getUsername(), currBusiness);
 
             //Checks if user trying to be removed is the primary administrator
@@ -221,7 +225,7 @@ public class BusinessService {
 
             logger.info("Successfully removed administrator {} from business {}", currUser.getId(), currBusiness.getId());
 
-        } catch (NoBusinessExistsException | ForbiddenPrimaryAdministratorActionException | CantRemoveAdministratorException
+        } catch (BusinessNotFoundException | ForbiddenPrimaryAdministratorActionException | CantRemoveAdministratorException
                 | UserNotAdministratorException | NoUserExistsException handledException) {
             logger.error(handledException.getMessage());
             throw handledException;
@@ -230,6 +234,87 @@ public class BusinessService {
                     unhandledException.getMessage()));
             throw unhandledException;
         }
+    }
 
+    /**
+     * Filters businesses based on a given business type
+     * @param retrievedBusinesses list of businesses found by specifications
+     * @param businessType the business type to filter by e.g. RETAIL_TRADE
+     */
+    public List<Business> filterBusinesses(List<Business> retrievedBusinesses, BusinessType businessType) {
+        //In DTO, businessType is either a valid type or null
+        if (businessType != null) {
+            var filteredBusinesses = new ArrayList<Business>();
+            for (Business business: retrievedBusinesses) {
+                if (businessType.matchesType(business.getBusinessType())) {
+                    filteredBusinesses.add(business);
+                }
+            }
+            return filteredBusinesses;
+        } else {
+            return retrievedBusinesses;
+        }
+    }
+
+    /**
+     * Searches for business based on name and type
+     *
+     * @param requestDTO DTO with a searchQuery to match a business name
+     *                   and a (possibly empty) business type
+     *
+     * Regular expression for splitting search query taken from linked website.
+     * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
+     * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
+     */
+    public List<Business> searchBusiness(SearchBusinessDTO requestDTO) {
+        logger.info("Request to search businesses with searchQuery: {} and businessType: {}",
+                requestDTO.getSearchQuery(), requestDTO.getBusinessType());
+
+        try {
+            String searchQuery = requestDTO.getSearchQuery();
+            List<Business> retrievedBusinesses;
+
+            if (searchQuery.equals("")) {
+                retrievedBusinesses = businessRepository.findAll();
+                logger.info("Retrieved {} businesses", retrievedBusinesses.size());
+            } else {
+                Set<Business> result = new LinkedHashSet<>();
+
+                searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
+                String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
+
+                for (String conjunction : conjunctions) {
+                    Specification<Business> hasSpec = Specification.where(null);
+                    Specification<Business> containsSpec = Specification.where(null);
+                    var searchContains = false;
+                    String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
+
+                    for (String name : names) {
+                        if (Pattern.matches("^\".*\"$", name)) {
+                            name = name.replace("\"", "");
+                            hasSpec = hasSpec.and(BusinessSpecifications.hasName(name));
+                        } else {
+                            hasSpec = hasSpec.and(BusinessSpecifications.hasName(name));
+                            containsSpec = containsSpec.and(BusinessSpecifications.containsName(name));
+                            searchContains = true;
+                        }
+                    }
+
+                    result.addAll(businessRepository.findAll(hasSpec));
+                    if (searchContains) {
+                        result.addAll(businessRepository.findAll(containsSpec));
+                    }
+                }
+
+                logger.info("Retrieved {} businesses", result.size());
+                retrievedBusinesses = new ArrayList<>(result);
+            }
+
+            return filterBusinesses(retrievedBusinesses, requestDTO.getBusinessType());
+
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while searching businesses: %s", exception.getMessage()));
+            throw exception;
+        }
     }
 }

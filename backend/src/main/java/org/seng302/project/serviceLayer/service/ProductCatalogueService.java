@@ -7,16 +7,21 @@ import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.InventoryItemRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.AddProductDTO;
-import org.seng302.project.serviceLayer.dto.EditProductDTO;
+import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
+import org.seng302.project.serviceLayer.dto.product.EditProductDTO;
+import org.seng302.project.serviceLayer.dto.product.ProductSearchDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,7 +65,7 @@ public class ProductCatalogueService {
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                var exception = new NoBusinessExistsException(businessId);
+                var exception = new BusinessNotFoundException(businessId);
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -77,7 +82,7 @@ public class ProductCatalogueService {
             // Get the products for the businesses
             return productRepository.findAllByBusinessId(businessId);
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException handledException) {
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while getting business products: %s",
@@ -103,7 +108,7 @@ public class ProductCatalogueService {
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                var exception = new NoBusinessExistsException(requestDTO.getBusinessId());
+                var exception = new BusinessNotFoundException(requestDTO.getBusinessId());
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -144,7 +149,7 @@ public class ProductCatalogueService {
             var product = new Product(productId, name, description, manufacturer, recommendedRetailPrice, requestDTO.getBusinessId());
             productRepository.save(product);
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException
                 | ProductIdAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
@@ -179,7 +184,7 @@ public class ProductCatalogueService {
 
             // Check if the business exists
             if (businessResult.isEmpty()) {
-                var exception = new NoBusinessExistsException(requestDTO.getBusinessId());
+                var exception = new BusinessNotFoundException(requestDTO.getBusinessId());
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -198,7 +203,7 @@ public class ProductCatalogueService {
 
             // Check if the product exists
             if (productResult.isEmpty()) {
-                var exception = new NoProductExistsException(requestDTO.getProductId(), requestDTO.getBusinessId());
+                var exception = new ProductNotFoundException(requestDTO.getProductId(), requestDTO.getBusinessId());
                 logger.error(exception.getMessage());
                 throw exception;
             }
@@ -258,7 +263,7 @@ public class ProductCatalogueService {
                 productRepository.save(product);
             }
 
-        } catch (NoBusinessExistsException | ForbiddenAdministratorActionException |
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException |
                 ProductIdAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
@@ -266,6 +271,39 @@ public class ProductCatalogueService {
                     unhandledException.getMessage()));
             throw unhandledException;
         }
+
+    }
+
+
+    /**
+     * Searches a business's catalogue for products
+     * @param businessId id of the business to search products of
+     * @param requestDTO request body containing which fields to search by
+     * @param appUser the user making the request
+     */
+    public List<Product> searchProducts(Integer businessId, ProductSearchDTO requestDTO, AppUserDetails appUser) {
+
+        var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
+
+        Optional<Business> businessResult = businessRepository.findById(businessId);
+
+        if (businessResult.isEmpty()) {
+            var exception = new NotAcceptableException(String.format("There is no business that exists with the id '%d'",
+                    businessId));
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+        var business = businessResult.get();
+
+        if (!business.userCanDoAction(loggedInUser)) {
+            var exception = new ForbiddenAdministratorActionException(businessId);
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
+        //TODO: use specifications
+
+        return Collections.emptyList();
 
     }
 

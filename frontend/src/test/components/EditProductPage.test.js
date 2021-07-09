@@ -44,6 +44,11 @@ let computed = {
         return true
     }
 }
+let methods = {
+    getImageURL(path) {
+        return path
+    }
+}
 
 // Mock the business api module, once implemented
 jest.mock('@/Api', () => ({
@@ -79,7 +84,8 @@ jest.mock('@/Api', () => ({
 beforeEach(() => {
     wrapper = VueTestUtils.shallowMount(EditProductPage, {
         stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-        computed
+        computed,
+        methods
     })
 });
 
@@ -180,7 +186,8 @@ describe('EditProductPage Component Tests', () => {
         wrapper = await VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
             computed: {...computed, idValid() {return false}, nameValid() {return false},
-                priceValid() {return false}}
+                priceValid() {return false}},
+            methods
         })
         await wrapper.setData({nameBlur: true, priceBlur: true, idBlur: true}) // Set the elements as being blurred
 
@@ -213,16 +220,39 @@ describe("Edit Product Images Test",  () => {
     // Test that we can remove an uploaded image
     test('Removing an image from the frontend list', () => {
         wrapper.vm.$data.images = [{
+            id: 1234,
+            url: "image.png",
+            file: "",
+            data: ""
+            }, {
+            id: 12345,
+            url: "other_image.jpg",
+            file: "",
+            data: ""
+        }]
+        wrapper.vm.removeImageFromList(wrapper.vm.$data.images[0])
+        expect(wrapper.vm.$data.images).toEqual([{
+            id: 12345,
+            url: "other_image.jpg",
+            file: "",
+            data: ""
+        }])
+    })
+
+    // Test that we can remove the last image that has been uploaded
+    test('Removing the last image from the frontend list', () => {
+        wrapper.vm.$data.images = [{
+            id: 1234,
             url: "image.png",
             file: ""
-            }, {
-            url: "other_image.jpg",
-            file: ""
         }]
-        wrapper.vm.removeImage("image.png")
-        expect(wrapper.vm.$data.images).toEqual([{
-            url: "other_image.jpg",
-            file: ""
-        }])
+        wrapper.vm.removeImageFromList(wrapper.vm.$data.images[0])
+        expect(wrapper.vm.$data.images).toEqual([])
+    })
+
+    // Test that calling makePrimaryImage changes the primary image
+    test('Making a imageId the new primary image id', () => {
+        wrapper.vm.makeImagePrimary(1001)
+        expect(wrapper.vm.$data.currentPrimaryImageId).toEqual(1001)
     })
 })

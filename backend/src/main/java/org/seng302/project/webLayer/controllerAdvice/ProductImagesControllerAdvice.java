@@ -1,7 +1,7 @@
 package org.seng302.project.webLayer.controllerAdvice;
 
-import org.seng302.project.serviceLayer.exceptions.productImages.NoProductImageWithIdException;
-import org.seng302.project.serviceLayer.exceptions.productImages.ProductNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -20,8 +20,8 @@ public class ProductImagesControllerAdvice {
      *
      * @return a 406 response with an appropriate message
      */
-    @ExceptionHandler(NoProductImageWithIdException.class)
-    public ResponseEntity<String> noProductImageWithId(NoProductImageWithIdException ex) {
+    @ExceptionHandler(ProductImageNotFoundException.class)
+    public ResponseEntity<String> noProductImageWithId(ProductImageNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
 

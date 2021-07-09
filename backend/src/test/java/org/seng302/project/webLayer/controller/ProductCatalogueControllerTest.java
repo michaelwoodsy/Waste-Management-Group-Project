@@ -6,8 +6,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.serviceLayer.dto.AddProductDTO;
+import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
+import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
+import org.seng302.project.serviceLayer.dto.product.ProductSearchDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.service.ProductCatalogueService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -23,6 +26,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -82,7 +87,7 @@ class ProductCatalogueControllerTest {
 
     /**
      * Tries to get the business products as a logged in owner.
-     * Expects a 200 OK response, and product present.
+     * Expects a 200 OK response
      */
     @Test
     void getProducts_200Response() throws Exception {
@@ -102,7 +107,7 @@ class ProductCatalogueControllerTest {
 
         Mockito.when(productCatalogueService.getBusinessesProducts(Mockito.any(Integer.class),
                 Mockito.any(AppUserDetails.class)))
-                .thenThrow(new NoBusinessExistsException(businessId));
+                .thenThrow(new BusinessNotFoundException(businessId));
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/businesses/{id}/products", businessId + 999999)
@@ -445,6 +450,125 @@ class ProductCatalogueControllerTest {
         mockMvc.perform(putProductRequest)
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
+    }
+
+
+    /**
+     * Tests that a successful product search gives a 200 response
+     */
+    @Test
+    void searchProducts_success200() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("matchingId", true);
+        requestBody.put("matchingName", true);
+        requestBody.put("matchingDescription", true);
+        requestBody.put("matchingManufacturer", false);
+
+        RequestBuilder putProductRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/products/search?searchQuery=beans", businessId)
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+
+    /**
+     * Tests that a product search with missing request body fields gives a 400 response
+     */
+    @Test
+    void searchProducts_missingFields_400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("matchingId", true);
+        requestBody.put("matchingName", true);
+
+        RequestBuilder putProductRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/products/search?searchQuery=beans", businessId)
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tests that a product search without being logged in gives a 401 response
+     */
+    @Test
+    void searchProducts_notLoggedIn_401() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("matchingId", true);
+        requestBody.put("matchingName", true);
+        requestBody.put("matchingDescription", true);
+        requestBody.put("matchingManufacturer", false);
+
+        RequestBuilder putProductRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/products/search?searchQuery=beans", businessId)
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+
+    /**
+     * Tests that a product search from someone not an admin gives a 403 response
+     */
+    @Test
+    void searchProducts_notAdmin_403() throws Exception {
+        when(productCatalogueService.searchProducts(
+                any(Integer.class), any(ProductSearchDTO.class), any(AppUserDetails.class)))
+                .thenThrow(new ForbiddenAdministratorActionException(businessId));
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("matchingId", true);
+        requestBody.put("matchingName", true);
+        requestBody.put("matchingDescription", true);
+        requestBody.put("matchingManufacturer", false);
+
+        RequestBuilder putProductRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/products/search?searchQuery=beans", businessId)
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(user)));
+
+        mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+
+    /**
+     * Tests that a product search of non-existent business gives a 406 response
+     */
+    @Test
+    void searchProducts_nonExistentBusiness_406() throws Exception {
+        when(productCatalogueService.searchProducts(
+                any(Integer.class), any(ProductSearchDTO.class), any(AppUserDetails.class)))
+                .thenThrow(new NotAcceptableException("There is no business that exists with the id '500'"));
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("matchingId", true);
+        requestBody.put("matchingName", true);
+        requestBody.put("matchingDescription", true);
+        requestBody.put("matchingManufacturer", false);
+
+        RequestBuilder putProductRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/products/search?searchQuery=beans", 500)
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        mockMvc.perform(putProductRequest)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
 }
 
