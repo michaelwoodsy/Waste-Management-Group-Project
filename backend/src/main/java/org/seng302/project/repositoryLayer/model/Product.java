@@ -47,13 +47,15 @@ public class Product {
      */
     public void addImage(Image newImage){
         this.images.add(newImage);
+        //Checks if the new image is the first in the list, and makes it the primary image
+        if (images.size() == 1) {
+            primaryImageId = newImage.getId();
+        }
     }
 
     /**
      * Function used to remove an image from the list of images associated with a product
      */
-    public void removeImage(Image image){
-        this.images.remove(image);
-    }
+    public void removeImage(Image image){ this.images.remove(image); }
 
 }

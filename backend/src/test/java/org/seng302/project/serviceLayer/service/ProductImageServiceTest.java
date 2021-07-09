@@ -15,30 +15,36 @@ import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
-import org.seng302.project.serviceLayer.dto.product.AddProductImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
 import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
+import org.seng302.project.serviceLayer.util.SpringEnvironment;
+import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 
-import java.io.File;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 
 @SpringBootTest
 class ProductImageServiceTest extends AbstractInitializer {
 
     @Autowired
     private ProductImageService productImageService;
+    @Autowired
+    private SpringEnvironment springEnvironment;
     @MockBean
     private UserRepository userRepository;
     @MockBean
@@ -47,6 +53,8 @@ class ProductImageServiceTest extends AbstractInitializer {
     private ProductRepository productRepository;
     @MockBean
     private ImageRepository imageRepository;
+    @MockBean
+    private ImageUtil imageUtil;
 
     private User testUser;
     private User testSystemAdmin;
@@ -89,7 +97,7 @@ class ProductImageServiceTest extends AbstractInitializer {
      * Tests that an image is successfully created and added to the product.
      */
     @Test
-    void addProductImage_withBusinessAdmin_success() {
+    void addProductImage_withBusinessAdmin_success() throws IOException {
         Mockito.when(imageRepository.save(Mockito.any(Image.class)))
                 .thenAnswer(invocation -> {
                     Image image = invocation.getArgument(0);
@@ -104,22 +112,18 @@ class ProductImageServiceTest extends AbstractInitializer {
                 new AppUserDetails(testUserBusinessAdmin),
                 testImageFile
         );
-        AddProductImageResponseDTO responseDTO = productImageService.addProductImage(dto);
+        productImageService.addProductImage(dto);
         Assertions.assertEquals(4, testProduct.getImages().size());
-        String imageFileName = testProduct.getImages().get(3).getFilename();
-        File imageFile = new File("src/main/resources/public" + imageFileName);
-        Assertions.assertTrue(imageFile.delete());
-
-        String thumbnailFileName = testProduct.getImages().get(3).getThumbnailFilename();
-        File thumbnailFile = new File("src/main/resources/public" + thumbnailFileName);
-        Assertions.assertTrue(thumbnailFile.delete());
+        ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<BufferedImage> imageArgumentCaptor = ArgumentCaptor.forClass(BufferedImage.class);
+        Mockito.verify(imageUtil).saveImage(imageArgumentCaptor.capture(), imagePathCaptor.capture());
     }
 
     /**
      * Tests that an image is successfully created and added to the product.
      */
     @Test
-    void addProductImage_withSystemAdmin_success() {
+    void addProductImage_withSystemAdmin_success() throws IOException {
         Mockito.when(imageRepository.save(Mockito.any(Image.class)))
                 .thenAnswer(invocation -> {
                     Image image = invocation.getArgument(0);
@@ -134,15 +138,11 @@ class ProductImageServiceTest extends AbstractInitializer {
                 new AppUserDetails(testSystemAdmin),
                 testImageFile
         );
-        AddProductImageResponseDTO responseDTO = productImageService.addProductImage(dto);
+        productImageService.addProductImage(dto);
         Assertions.assertEquals(4, testProduct.getImages().size());
-        String imageFileName = testProduct.getImages().get(3).getFilename();
-        File imageFile = new File("src/main/resources/public" + imageFileName);
-        Assertions.assertTrue(imageFile.delete());
-
-        String thumbnailFileName = testProduct.getImages().get(3).getThumbnailFilename();
-        File thumbnailFile = new File("src/main/resources/public" + thumbnailFileName);
-        Assertions.assertTrue(thumbnailFile.delete());
+        ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<BufferedImage> imageArgumentCaptor = ArgumentCaptor.forClass(BufferedImage.class);
+        Mockito.verify(imageUtil).saveImage(imageArgumentCaptor.capture(), imagePathCaptor.capture());
     }
 
     /**
@@ -256,6 +256,93 @@ class ProductImageServiceTest extends AbstractInitializer {
         );
         Assertions.assertThrows(ProductImageNotFoundException.class,
                 () -> productImageService.setPrimaryImage(dto));
+    }
+
+    /**
+     * Tests that deleting a product image as a user who is not an admin results in an error.
+     */
+    @Test
+    void deleteImage_notAdmin_throwsException() {
+        DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
+                testBusiness.getId(),
+                testProduct.getId(),
+                2,
+                new AppUserDetails(testUser)
+        );
+        Assertions.assertThrows(ForbiddenAdministratorActionException.class,
+                () -> productImageService.deleteImage(deleteProductImageDTO));
+    }
+
+    /**
+     * Tests that deleting a product image for a business that does not exist results in an error.
+     */
+    @Test
+    void deleteImage_noBusinessExists_throwsException() {
+        given(businessRepository.findById(4)).willReturn(Optional.empty());
+        DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
+                4,
+                testProduct.getId(),
+                2,
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+        Assertions.assertThrows(BusinessNotFoundException.class,
+                () -> productImageService.deleteImage(deleteProductImageDTO));
+    }
+
+    /**
+     * Tests that deleting a product image for a product that does not exist results in an error.
+     */
+    @Test
+    void deleteImage_noProductExists_throwsException() {
+        given(productRepository.findByIdAndBusinessId("NotAProduct", 1)).willReturn(Optional.empty());
+        DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
+                testBusiness.getId(),
+                "NotAProduct",
+                2,
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+        Assertions.assertThrows(ProductNotFoundException.class,
+                () -> productImageService.deleteImage(deleteProductImageDTO));
+    }
+
+    /**
+     * Tests that deleting a product image for an image that does not exist results in an error.
+     */
+    @Test
+    void deleteImage_noImageExists_throwsException() {
+        DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
+                testBusiness.getId(),
+                testProduct.getId(),
+                7,
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+        Assertions.assertThrows(ProductImageNotFoundException.class,
+                () -> productImageService.deleteImage(deleteProductImageDTO));
+    }
+
+
+    /**
+     * Tests the success case for deleting a product image.
+     * Expects the imageUtil.deleteImage() to be called twice,
+     * once for the image file, once for the thumbnail file.
+     *
+     * @throws IOException exception thrown by imageUtil.deleteImage()
+     */
+    @Test
+    void deleteImage_withBusinessAdmin_success() throws IOException {
+        DeleteProductImageDTO deleteProductImageDTO = new DeleteProductImageDTO(
+                testBusiness.getId(),
+                testProduct.getId(),
+                2,
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+
+        productImageService.deleteImage(deleteProductImageDTO);
+
+        ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(imageUtil, times(2)).deleteImage(imagePathCaptor.capture());
+
+        Assertions.assertEquals(2, testProduct.getImages().size());
     }
 
 }
