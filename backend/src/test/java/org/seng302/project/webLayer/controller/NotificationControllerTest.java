@@ -1,6 +1,5 @@
 package org.seng302.project.webLayer.controller;
 
-import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -116,8 +115,6 @@ public class NotificationControllerTest extends AbstractInitializer {
 //
 //        List<UserNotification> userNotificationList = userNotificationRepository.findAllByUser(user);
 //
-//        JSONArray json = new JSONArray();
-//        json.addAll(userNotificationList);
 //        System.out.println(userNotificationList);
 //
 //    }

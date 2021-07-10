@@ -1,6 +1,5 @@
 package org.seng302.project.serviceLayer.service;
 
-import net.minidev.json.JSONArray;
 import org.seng302.project.repositoryLayer.model.UserNotification;
 import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
@@ -35,7 +34,7 @@ public class NotificationService {
      * @param appUser    AppUserDetails from spring security
      * @return List of notifications assigned to the user.
      */
-    public JSONArray getUserNotifications(Integer userId, AppUserDetails appUser) {
+    public List<UserNotification> getUserNotifications(Integer userId, AppUserDetails appUser) {
         try {
             logger.info("Request to get all notifications for user {}", userId);
 
@@ -45,11 +44,7 @@ public class NotificationService {
                 throw new ForbiddenNotificationActionException();
             }
 
-            List<UserNotification> userNotifications = userNotificationRepository.findAllByUser(loggedInUser);
-            var returnJson = new JSONArray();
-            returnJson.addAll(userNotifications);
-
-            return returnJson;
+            return userNotificationRepository.findAllByUser(loggedInUser);
 
         } catch (ForbiddenNotificationActionException handledException) {
             logger.error(handledException.getMessage());

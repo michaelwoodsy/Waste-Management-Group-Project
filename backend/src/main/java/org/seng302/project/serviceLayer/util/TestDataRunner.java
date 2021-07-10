@@ -40,12 +40,14 @@ public class TestDataRunner {
     private final KeywordRepository keywordRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    private final UserNotificationRepository userNotificationRepository;
+
     @Autowired
     public TestDataRunner(UserRepository userRepository, BusinessRepository businessRepository, AddressRepository addressRepository,
                           ProductRepository productRepository, InventoryItemRepository inventoryItemRepository,
                           ImageRepository imageRepository, SaleListingRepository saleListingRepository,
                           CardRepository cardRepository, KeywordRepository keywordRepository,
-                          BCryptPasswordEncoder passwordEncoder) {
+                          BCryptPasswordEncoder passwordEncoder, UserNotificationRepository userNotificationRepository) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
@@ -56,6 +58,7 @@ public class TestDataRunner {
         this.imageRepository = imageRepository;
         this.passwordEncoder = passwordEncoder;
         this.keywordRepository = keywordRepository;
+        this.userNotificationRepository = userNotificationRepository;
     }
 
     /**
@@ -348,6 +351,11 @@ public class TestDataRunner {
                 );
 
                 cardRepository.save(testCard);
+
+                if (jsonCard.getAsNumber("creatorId").intValue() == 1) {
+                    CardExpiryNotification expiryNotification = new CardExpiryNotification(testUser, "This is a test card expiry notification", testCard);
+                    userNotificationRepository.save(expiryNotification);
+                }
             }
         }
 
@@ -361,6 +369,7 @@ public class TestDataRunner {
 
         logger.info("Finished adding sample data to card repository");
         logger.info("Added {} entries to card repository", cardRepository.count());
+        logger.info("Added {} entries to user notification repository", userNotificationRepository.count());
     }
 
 
