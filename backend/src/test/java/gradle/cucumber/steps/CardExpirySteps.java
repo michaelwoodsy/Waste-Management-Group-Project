@@ -69,7 +69,7 @@ public class CardExpirySteps {
                            AddressRepository addressRepository,
                            BCryptPasswordEncoder passwordEncoder,
                            CardRepository cardRepository,
-                           CardService cardService) {
+                           CardService cardService,
                            NotificationRepository notificationRepository,
                            CardController cardController) {
         this.userRepository = userRepository;
@@ -188,33 +188,5 @@ public class CardExpirySteps {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(testGAAEmail, testGAAPassword));
-    }
-
-    //AC4
-
-    @When("The card has an expiry date of more than {int} hours ago")
-    public void the_card_has_an_expiry_date_of_more_than_hours_ago(Integer noActionLimit) {
-        //noActionLimit = 24 (hours)
-
-        //Make it so the test cards best before end is a day and a minute ago so it should be deleted
-        testCard.setDisplayPeriodEnd(LocalDateTime.now().minusHours(noActionLimit).minusMinutes(1));
-        cardRepository.save(testCard);
-    }
-
-    @Then("The card is automatically deleted and a notification is created")
-    public void the_card_is_automatically_deleted_and_a_notification_is_created() {
-        //Manually calls the removeCardsAfter24Hrs method as it is on a timer
-        cardService.removeCardsAfter24Hrs();
-        Optional<Card> returnedCard = cardRepository.findById(testCardId);
-
-        //Card was deleted
-        Assertions.assertTrue(returnedCard.isEmpty());
-
-        String message = String.format("Your expired card, '%s', has be automatically deleted from the Marketplace",
-                testCard.getTitle());
-        Optional<Notification> returnedNotification = notificationRepository.findByMessage(message);
-
-        //notification exists
-        Assertions.assertTrue(returnedNotification.isPresent());
     }
 }

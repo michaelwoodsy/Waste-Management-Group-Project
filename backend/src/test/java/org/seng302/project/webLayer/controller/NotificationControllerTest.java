@@ -55,13 +55,13 @@ public class NotificationControllerTest {
 
 
     /**
-     * Tries to get the user notifications when logged in user does not match user notitfications to be retrieved for..
+     * Tries to get the user notifications when logged in user does not match user notifications to be retrieved for..
      * Expects a 403 forbidden response.
      */
     @Test
     void getNotifications_Forbidden403() throws Exception {
         // check loggedInUser not match request UserId
-        Mockito.when(notificationService.getNotifications(Mockito.any(Integer.class),
+        Mockito.when(notificationService.getUserNotifications(Mockito.any(Integer.class),
                 Mockito.any(AppUserDetails.class)))
                 .thenThrow(new ForbiddenNotificationActionException());
 
