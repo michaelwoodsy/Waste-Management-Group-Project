@@ -77,6 +77,7 @@
             <em class="bi bi-bell" v-else>9+</em>
           </button>
         </div>
+        <br>
         <!-- Notifications -->
         <!--  TODO:  Add different versions for each notification type      -->
         <div class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false"
@@ -128,67 +129,67 @@ export default {
       notifications: [
         { id: 0,
           title: "Card Expiry",
-          message: "This card is about to expire",
+          message: "This card has expired",
           created: "2/07/2021 4:34pm",
           card: "Looking for plums"},
         { id: 1,
           title: "Card Expiry",
-          message: "This card is about to expire",
+          message: "This card has expired",
           created: "1/07/2021 6:37pm",
           card: "Apples for Oranges"},
         { id: 2,
           title: "Card Expiry",
-          message: "This card is about to expire",
+          message: "This card has expired",
           created: "2/07/2021 4:34pm",
           card: "Looking for plums"},
         { id: 3,
           title: "Card Expiry",
-          message: "This card is about to expire",
+          message: "This card has expired",
           created: "1/07/2021 6:37pm",
           card: "Apples for Oranges"},
         { id: 4,
           title: "Card Expiry",
-          message: "This card is about to expire",
+          message: "This card has expired",
           created: "2/07/2021 4:34pm",
           card: "Looking for plums"},
         { id: 5,
           title: "Card Expiry",
-          message: "This card is about to expire",
+          message: "This card has expired",
           created: "1/07/2021 6:37pm",
           card: "Apples for Oranges"},
         { id: 6,
           title: "Card Expiry",
-          message: "This card is about to expire",
+          message: "This card has expired",
           created: "2/07/2021 4:34pm",
           card: "Looking for plums"},
         { id: 7,
           title: "Card Expiry",
-          message: "This card is about to expire",
+          message: "This card has expired",
           created: "1/07/2021 6:37pm",
           card: "Apples for Oranges"},
         { id: 8,
           title: "Card Expiry",
-          message: "This card is about to expire",
+          message: "This card has expired",
           created: "1/07/2021 6:37pm",
           card: "Apples for Oranges"},
         { id: 9,
           title: "Card Expiry",
-          message: "This card is about to expire",
+          message: "This card has expired",
           created: "2/07/2021 4:34pm",
           card: "Looking for plums"},
         // { id: 10,
         //   title: "Card Expiry",
-        //   message: "This card is about to expire",
+        //   message: "This card has expired",
         //   created: "1/07/2021 6:37pm",
         //   card: "Apples for Oranges"},
         // { id: 11,
         //   title: "Card Expiry",
-        //   message: "This card is about to expire",
+        //   message: "This card has expired",
         //   created: "2/07/2021 4:34pm",
         //   card: "Looking for plums"},
         // { id: 12,
         //   title: "Card Expiry",
-        //   message: "This card is about to expire",
+        //   message: "This card has expired",
         //   created: "1/07/2021 6:37pm",
         //   card: "Apples for Oranges"}
       ],
@@ -322,7 +323,6 @@ export default {
      * @param id ID of card to update
      * @param newDate the new date to set on the card
      */
-    // TODO: May need to change when hooked up to backend
     extendCard(id, newDate) {
       for (let index = 0; index < this.cards.length; index++) {
         if (this.cards[index].id === id) {
@@ -350,4 +350,8 @@ export default {
 </script>
 
 <style scoped>
+
+.toast {
+  max-width: 100%;
+}
 </style>
