@@ -8,7 +8,7 @@
 
     <div v-else class="row justify-content-between min-vh-100">
 
-      <!-- Side Bar -->
+      <!-- Side Bar Left-->
       <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
         <div>
           <h4 class="text-light">Quick Links</h4>
@@ -65,22 +65,47 @@
             </div>
           </div>
         </div>
-
       </div>
 
-      <div class="col-md-1 col-lg-2 p-3"></div>
-
+      <!-- Side Bar Right-->
+      <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
+        <div>
+          <h4 class="text-light">Notifications</h4>
+          <!-- Toggle Notifications Button -->
+          <button type="button" class="btn btn-block btn-primary" @click="toggleNotifications()">
+            <em class="bi bi-bell" v-if="notifications.length < 10">{{notifications.length}}</em>
+            <em class="bi bi-bell" v-else>9+</em>
+          </button>
+        </div>
+        <br>
+        <!-- Notifications -->
+        <!--  TODO:  Add different versions for each notification type      -->
+        <div class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false"
+             v-for="notification in notifications" v-bind:key="notification.id">
+          <div class="toast-header">
+            <strong class="mr-auto">{{notification.title}}</strong>
+            <small>{{notification.created}}</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" @click="removeNotification(notification.id)">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="toast-body text-black-50">
+            {{notification.message}}
+            <br>
+            Card: {{notification.card}}
+          </div>
+        </div>
+      </div>
     </div>
-
   </div>
 </template>
-
 <script>
-
 import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/marketplace/MarketCard";
 import Alert from "@/components/Alert";
 import {User} from "@/Api";
+import $ from 'jquery';
+
 
 export default {
   name: "Home",
@@ -99,6 +124,75 @@ export default {
     return {
       cards: [],
       hideImages: true,
+      hideNotifications: true,
+      //Test data
+      notifications: [
+        { id: 0,
+          title: "Card Expiry",
+          message: "This card has expired",
+          created: "2/07/2021 4:34pm",
+          card: "Looking for plums"},
+        { id: 1,
+          title: "Card Expiry",
+          message: "This card has expired",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"},
+        { id: 2,
+          title: "Card Expiry",
+          message: "This card has expired",
+          created: "2/07/2021 4:34pm",
+          card: "Looking for plums"},
+        { id: 3,
+          title: "Card Expiry",
+          message: "This card has expired",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"},
+        { id: 4,
+          title: "Card Expiry",
+          message: "This card has expired",
+          created: "2/07/2021 4:34pm",
+          card: "Looking for plums"},
+        { id: 5,
+          title: "Card Expiry",
+          message: "This card has expired",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"},
+        { id: 6,
+          title: "Card Expiry",
+          message: "This card has expired",
+          created: "2/07/2021 4:34pm",
+          card: "Looking for plums"},
+        { id: 7,
+          title: "Card Expiry",
+          message: "This card has expired",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"},
+        { id: 8,
+          title: "Card Expiry",
+          message: "This card has expired",
+          created: "1/07/2021 6:37pm",
+          card: "Apples for Oranges"},
+        { id: 9,
+          title: "Card Expiry",
+          message: "This card has expired",
+          created: "2/07/2021 4:34pm",
+          card: "Looking for plums"},
+        // { id: 10,
+        //   title: "Card Expiry",
+        //   message: "This card has expired",
+        //   created: "1/07/2021 6:37pm",
+        //   card: "Apples for Oranges"},
+        // { id: 11,
+        //   title: "Card Expiry",
+        //   message: "This card has expired",
+        //   created: "2/07/2021 4:34pm",
+        //   card: "Looking for plums"},
+        // { id: 12,
+        //   title: "Card Expiry",
+        //   message: "This card has expired",
+        //   created: "1/07/2021 6:37pm",
+        //   card: "Apples for Oranges"}
+      ],
       error: ""
     }
   },
@@ -185,6 +279,16 @@ export default {
 
   },
   methods: {
+    toggleNotifications() {
+      if(this.hideNotifications){
+        $('.toast').toast('show')
+        this.hideNotifications = false
+      } else {
+        $('.toast').toast('hide')
+        this.hideNotifications = true
+      }
+    },
+
     /**
      * Gets the user's cards so we can check for ones about to expire
      */
@@ -219,11 +323,24 @@ export default {
      * @param id ID of card to update
      * @param newDate the new date to set on the card
      */
-    // TODO: May need to change when hooked up to backend
     extendCard(id, newDate) {
       for (let index = 0; index < this.cards.length; index++) {
         if (this.cards[index].id === id) {
           this.cards[index].displayPeriodEnd = newDate
+        }
+      }
+    },
+    /**
+     * Remove a notification from the list of visible notifications
+     * @param notificationId the id of the notification that is to be removed
+     */
+    // TODO: Implement deleting notifications with backend
+    removeNotification(notificationId){
+      //Remove the notification from the list that is shown
+      for(const [index, notification] of this.notifications.entries()){
+        if(notification.id === notificationId){
+          console.log(index)
+          this.notifications.splice(index, 1)
         }
       }
     }
@@ -234,4 +351,7 @@ export default {
 
 <style scoped>
 
+.toast {
+  max-width: 100%;
+}
 </style>
