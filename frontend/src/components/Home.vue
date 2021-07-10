@@ -84,7 +84,7 @@
              v-for="notification in notifications" v-bind:key="notification.id">
           <div class="toast-header">
             <strong class="mr-auto">{{notification.title}}</strong>
-            <small>{{notification.created}}</small>
+            <small>{{formatDateTime(notification.created)}}</small>
             <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" @click="removeNotification(notification.id)">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -92,7 +92,7 @@
           <div class="toast-body text-black-50">
             {{notification.message}}
             <br>
-            Card: {{notification.card}}
+            Card: {{notification.card.title}}
           </div>
         </div>
       </div>
@@ -118,7 +118,8 @@ export default {
     msg: String
   },
   async mounted() {
-    await this.getCardData();
+    await this.getCardData()
+    await this.getNotificationData()
   },
   data() {
     return {
@@ -126,73 +127,7 @@ export default {
       hideImages: true,
       hideNotifications: true,
       //Test data
-      notifications: [
-        { id: 0,
-          title: "Card Expiry",
-          message: "This card has expired",
-          created: "2/07/2021 4:34pm",
-          card: "Looking for plums"},
-        { id: 1,
-          title: "Card Expiry",
-          message: "This card has expired",
-          created: "1/07/2021 6:37pm",
-          card: "Apples for Oranges"},
-        { id: 2,
-          title: "Card Expiry",
-          message: "This card has expired",
-          created: "2/07/2021 4:34pm",
-          card: "Looking for plums"},
-        { id: 3,
-          title: "Card Expiry",
-          message: "This card has expired",
-          created: "1/07/2021 6:37pm",
-          card: "Apples for Oranges"},
-        { id: 4,
-          title: "Card Expiry",
-          message: "This card has expired",
-          created: "2/07/2021 4:34pm",
-          card: "Looking for plums"},
-        { id: 5,
-          title: "Card Expiry",
-          message: "This card has expired",
-          created: "1/07/2021 6:37pm",
-          card: "Apples for Oranges"},
-        { id: 6,
-          title: "Card Expiry",
-          message: "This card has expired",
-          created: "2/07/2021 4:34pm",
-          card: "Looking for plums"},
-        { id: 7,
-          title: "Card Expiry",
-          message: "This card has expired",
-          created: "1/07/2021 6:37pm",
-          card: "Apples for Oranges"},
-        { id: 8,
-          title: "Card Expiry",
-          message: "This card has expired",
-          created: "1/07/2021 6:37pm",
-          card: "Apples for Oranges"},
-        { id: 9,
-          title: "Card Expiry",
-          message: "This card has expired",
-          created: "2/07/2021 4:34pm",
-          card: "Looking for plums"},
-        // { id: 10,
-        //   title: "Card Expiry",
-        //   message: "This card has expired",
-        //   created: "1/07/2021 6:37pm",
-        //   card: "Apples for Oranges"},
-        // { id: 11,
-        //   title: "Card Expiry",
-        //   message: "This card has expired",
-        //   created: "2/07/2021 4:34pm",
-        //   card: "Looking for plums"},
-        // { id: 12,
-        //   title: "Card Expiry",
-        //   message: "This card has expired",
-        //   created: "1/07/2021 6:37pm",
-        //   card: "Apples for Oranges"}
-      ],
+      notifications: [],
       error: ""
     }
   },
@@ -279,6 +214,26 @@ export default {
 
   },
   methods: {
+    /**
+     * Takes a datetime in ISO format and formats it like dd/mm/yyy, hh:mm:ss PM
+     */
+    formatDateTime(dateTime) {
+      let date = new Date(dateTime)
+      let year = date.getFullYear()
+      let month = date.getMonth()+1
+      let day = date.getDate()
+
+      let hours = date.getHours()
+      let minutes = date.getMinutes()
+
+      if (day < 10)     day = '0' + day;
+      if (month < 10)   month = '0' + month;
+      if (hours < 10)   hours = '0' + hours;
+      if (minutes < 10) minutes = '0' + minutes;
+
+      return `${day}/${month}/${year} ${hours}:${minutes}`
+    },
+
     toggleNotifications() {
       if(this.hideNotifications){
         $('.toast').toast('show')
@@ -301,6 +256,21 @@ export default {
         this.error = error
       }
     },
+
+    /**
+     * Gets the user's notifications
+     */
+    async getNotificationData() {
+      try {
+        User.getNotifications(this.actor.id).then((res) => {
+          this.notifications = res.data
+        })
+      } catch (error) {
+        console.error(error)
+        this.error = error
+      }
+    },
+
     expired(card) {
       const now = new Date();
       if (now >= new Date(card.displayPeriodEnd)) {

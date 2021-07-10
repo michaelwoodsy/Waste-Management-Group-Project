@@ -103,7 +103,14 @@ export const User = {
         {
             message: message
         }
-    )
+    ),
+
+    /**
+     * Gets a user's notifications from the backend
+     * @param userId User ID to get notifications from
+     * @returns {Promise<AxiosResponse<any>>} response containing user's notifications
+     */
+    getNotifications: (userId) => instance.get(`users/${userId}/notifications`),
 
 };
 

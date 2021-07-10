@@ -29,11 +29,13 @@ public abstract class AbstractInitializer {
     private MockMultipartFile testFile;
     private MockMultipartFile testImageFile;
     private Card testCard;
+    private UserNotification testUserNotification;
 
     public void initialise() {
         this.initialiseTestUser();
         this.initialiseTestSystemAdmin();
         this.initialiseTestCard();
+        this.initialiseTestNotification();
         this.initialiseTestUserBusinessAdmin();
         this.initialiseTestBusiness();
         this.initialiseTestProduct();
@@ -83,6 +85,12 @@ public abstract class AbstractInitializer {
                 "New Card",
                 "This is a new Card",
                 Collections.emptySet());
+    }
+
+    public void initialiseTestNotification() {
+        testUserNotification = new UserNotification(
+                testUser,
+                "This is a notification message");
     }
 
     public void initialiseTestUserBusinessAdmin() {

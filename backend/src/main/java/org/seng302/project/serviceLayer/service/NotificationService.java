@@ -1,8 +1,10 @@
 package org.seng302.project.serviceLayer.service;
 
+import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.model.UserNotification;
 import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.notification.ForbiddenNotificationActionException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class NotificationService {
@@ -38,15 +41,21 @@ public class NotificationService {
         try {
             logger.info("Request to get all notifications for user {}", userId);
 
+            Optional<User> user = userRepository.findById(userId);
+
             // check if loggedInUser has the same ID as the user retrieving notifications
             var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
-            if (!loggedInUser.getId().equals(userId)) {
+            if (!loggedInUser.getId().equals(userId) && !loggedInUser.isGAA()) {
                 throw new ForbiddenNotificationActionException();
             }
 
-            return userNotificationRepository.findAllByUser(loggedInUser);
+            //check that the user exists.
+            if (user.isEmpty()) {
+                throw new NoUserExistsException(userId);
+            }
 
-        } catch (ForbiddenNotificationActionException handledException) {
+            return userNotificationRepository.findAllByUser(user.get());
+        } catch (ForbiddenNotificationActionException | NoUserExistsException handledException) {
             logger.error(handledException.getMessage());
             throw handledException;
         } catch (Exception unhandledException) {

@@ -83,6 +83,21 @@ public class NotificationControllerTest extends AbstractInitializer {
     }
 
     /**
+     * Tries to get the user notifications when logged in as system admin and when the userId does not exist
+     */
+    @Test
+    void getNotifications_FNotFound406() throws Exception {
+        // check loggedInUser not match request UserId
+        Mockito.when(notificationService.getUserNotifications(Mockito.any(Integer.class),
+                Mockito.any(AppUserDetails.class)))
+                .thenThrow(new ForbiddenNotificationActionException());
+
+        mockMvc.perform(get("/users/{userId}/notifications", testUser.getId())
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isForbidden());
+    }
+
+    /**
      * Checks a 200 response is sent when a valid request is made.
      */
     @Test
@@ -91,31 +106,4 @@ public class NotificationControllerTest extends AbstractInitializer {
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isOk());
     }
-
-    //This was just used for my own testing
-//    @Test
-//    void testRepo() {
-//        User user = this.getTestUser();
-//        Card testCard = this.getTestCard();
-//        cardRepository.save(testCard);
-//
-//        Card newCard = new Card(user, "Exchange", "Title", "description", Collections.emptySet());
-//        cardRepository.save(newCard);
-//
-//        CardExpiryNotification expiryNotification = new CardExpiryNotification(user, "This card has expired.", testCard);
-//        userNotificationRepository.save(expiryNotification);
-//
-//        CardExpiryNotification expiryNotification2 = new CardExpiryNotification(user, "This card has also expired.", newCard);
-//        userNotificationRepository.save(expiryNotification2);
-//
-//        UserNotification userNotification = new UserNotification(user, "This is a notification");
-//        userNotificationRepository.save(userNotification);
-//
-//
-//
-//        List<UserNotification> userNotificationList = userNotificationRepository.findAllByUser(user);
-//
-//        System.out.println(userNotificationList);
-//
-//    }
 }
