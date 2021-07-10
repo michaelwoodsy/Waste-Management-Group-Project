@@ -38,6 +38,18 @@ const cards = [
         ]
     }
 ]
+let notifications = [
+    { id: 0,
+        title: "Card Expiry",
+        message: "This card is about to expire",
+        created: "2/07/2021 4:34pm",
+        card: "Looking for plums"},
+    { id: 1,
+        title: "Card Expiry",
+        message: "This card is about to expire",
+        created: "1/07/2021 6:37pm",
+        card: "Apples for Oranges"}
+]
 
 describe('Jest tests for the home component', () => {
 
@@ -104,5 +116,13 @@ describe('Jest tests for the home component', () => {
         expect(wrapper.vm.expiredCards.length).toStrictEqual(0)
         expect(wrapper.vm.activeCards.length).toStrictEqual(1)
     })
+
+    test('Can remove notifications from the notifications list',  () => {
+        wrapper.vm.$data.notifications = notifications
+        expect(wrapper.vm.$data.notifications.length).toStrictEqual(2)
+        wrapper.vm.removeNotification(1)
+        expect(wrapper.vm.$data.notifications.length).toStrictEqual(1)
+    })
+
 
 })
