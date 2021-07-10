@@ -8,14 +8,8 @@ import org.json.JSONArray;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repositoryLayer.model.Card;
-import org.seng302.project.repositoryLayer.model.Keyword;
-import org.seng302.project.repositoryLayer.model.NewKeywordNotification;
-import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.repositoryLayer.repository.CardRepository;
-import org.seng302.project.repositoryLayer.repository.KeywordRepository;
-import org.seng302.project.repositoryLayer.repository.NewKeywordNotificationRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
 import org.seng302.project.serviceLayer.dto.keyword.AddKeywordDTO;
@@ -43,7 +37,7 @@ public class KeywordManagementSteps extends AbstractInitializer {
     private final UserRepository userRepository;
     private final KeywordRepository keywordRepository;
     private final CardRepository cardRepository;
-    private final NewKeywordNotificationRepository newKeywordNotificationRepository;
+    private final AdminNotificationRepository adminNotificationRepository;
     private final ObjectMapper objectMapper;
 
     private MockMvc mockMvc;
@@ -68,12 +62,12 @@ public class KeywordManagementSteps extends AbstractInitializer {
     public KeywordManagementSteps(UserRepository userRepository,
                                   KeywordRepository keywordRepository,
                                   CardRepository cardRepository,
-                                  NewKeywordNotificationRepository newKeywordNotificationRepository,
+                                  AdminNotificationRepository adminNotificationRepository,
                                   ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.keywordRepository = keywordRepository;
         this.cardRepository = cardRepository;
-        this.newKeywordNotificationRepository = newKeywordNotificationRepository;
+        this.adminNotificationRepository = adminNotificationRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -274,12 +268,15 @@ public class KeywordManagementSteps extends AbstractInitializer {
 
     @Then("A system admin notification is created for the new keyword {string}")
     public void a_system_admin_notification_is_created_for_the_new_keyword(String keyword) {
-        List<NewKeywordNotification> adminNotifications =  newKeywordNotificationRepository.findAll();
+        List<AdminNotification> adminNotifications =  adminNotificationRepository.findAll();
 
         //There is also a NewKeywordNotification for "Bananas" at this point in the Cucumber tests.
         Assertions.assertEquals(2, adminNotifications.size());
+        Assertions.assertEquals(NewKeywordNotification.class, adminNotifications.get(0).getClass());
+        Assertions.assertEquals(NewKeywordNotification.class, adminNotifications.get(1).getClass());
         //"Bananas" is first, then "Cabbages"
-        Assertions.assertEquals(keyword, adminNotifications.get(1).getKeyword().getName());
+        NewKeywordNotification keywordNotification = (NewKeywordNotification) adminNotifications.get(1);
+        Assertions.assertEquals(keyword, keywordNotification.getKeyword().getName());
     }
 
     //AC6

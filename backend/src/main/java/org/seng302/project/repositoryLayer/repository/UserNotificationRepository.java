@@ -1,6 +1,5 @@
 package org.seng302.project.repositoryLayer.repository;
 
-import org.seng302.project.repositoryLayer.model.Notification;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.model.UserNotification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,5 +13,5 @@ import java.util.List;
  */
 @RepositoryRestResource
 public interface UserNotificationRepository extends JpaRepository<UserNotification, Integer> {
-    List<Notification> findAllByUser(@Param("user") User user);
+    List<UserNotification> findAllByUser(@Param("user") User user);
 }

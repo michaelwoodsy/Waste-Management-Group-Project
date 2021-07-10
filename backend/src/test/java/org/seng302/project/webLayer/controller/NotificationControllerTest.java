@@ -1,10 +1,13 @@
 package org.seng302.project.webLayer.controller;
 
+import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.seng302.project.repositoryLayer.model.Address;
-import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
 import org.seng302.project.serviceLayer.exceptions.notification.ForbiddenNotificationActionException;
 import org.seng302.project.serviceLayer.service.NotificationService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -13,6 +16,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class NotificationControllerTest {
+public class NotificationControllerTest extends AbstractInitializer {
 
     private User testUser;
 
@@ -34,8 +40,15 @@ public class NotificationControllerTest {
     @MockBean
     private NotificationService notificationService;
 
+    @Autowired
+    private CardRepository cardRepository;
+
+    @Autowired
+    private UserNotificationRepository userNotificationRepository;
+
     @BeforeEach
-    public void initialise() {
+    public void setup() {
+        this.initialise();
         // Create the users
         Address testUserAddress = new Address(null, null, null, null, "New Zealand", null);
         testUser = new User("John", "Smith", "Bob", "Jonny",
@@ -74,9 +87,38 @@ public class NotificationControllerTest {
      * Checks a 200 response is sent when a valid request is made.
      */
     @Test
-    public void getAllCardsByUser_ValidRequest200() throws Exception {
+    void getAllCardsByUser_ValidRequest200() throws Exception {
         mockMvc.perform(get("/users/{userId}/notifications", testUser.getId())
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isOk());
     }
+
+    //This was just used for my own testing
+//    @Test
+//    void testRepo() {
+//        User user = this.getTestUser();
+//        Card testCard = this.getTestCard();
+//        cardRepository.save(testCard);
+//
+//        Card newCard = new Card(user, "Exchange", "Title", "description", Collections.emptySet());
+//        cardRepository.save(newCard);
+//
+//        CardExpiryNotification expiryNotification = new CardExpiryNotification(user, "This card has expired.", testCard);
+//        userNotificationRepository.save(expiryNotification);
+//
+//        CardExpiryNotification expiryNotification2 = new CardExpiryNotification(user, "This card has also expired.", newCard);
+//        userNotificationRepository.save(expiryNotification2);
+//
+//        UserNotification userNotification = new UserNotification(user, "This is a notification");
+//        userNotificationRepository.save(userNotification);
+//
+//
+//
+//        List<UserNotification> userNotificationList = userNotificationRepository.findAllByUser(user);
+//
+//        JSONArray json = new JSONArray();
+//        json.addAll(userNotificationList);
+//        System.out.println(userNotificationList);
+//
+//    }
 }
