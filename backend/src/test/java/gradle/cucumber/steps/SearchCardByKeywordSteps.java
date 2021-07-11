@@ -18,6 +18,7 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -40,7 +41,7 @@ public class SearchCardByKeywordSteps {
 
     private User testUser;
     private Integer keyword1Id;
-    private ResultActions result;
+    private MvcResult result;
     private JSONArray results;
     private MockMvc mockMvc;
 
@@ -124,7 +125,7 @@ public class SearchCardByKeywordSteps {
             cardRepository.save(newCard);
         }
         keyword1Id = keywordRepository.findByName("testKeyword").get(0).getId();
-        assertEquals(2, cardRepository.findAllBySection("Wanted").size());
+        assertEquals(3, cardRepository.findAllBySection("Wanted").size());
     }
 
     @When("I search for cards in the {string} section")
@@ -137,32 +138,33 @@ public class SearchCardByKeywordSteps {
                 .with(user(new AppUserDetails(testUser)));
 
         result = mockMvc.perform(getCardsReq)
-                .andExpect(MockMvcResultMatchers.status().isOk()); // We expect a 200 response
-
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn(); // We expect a 200 response
     }
 
     @Then("I am returned {int} cards")
     public void i_am_returned_cards(Integer cardCount) throws Exception {
-        result.andExpect(jsonPath("$..section", hasSize(cardCount)));
+        System.out.println(result.getResponse());
+        assertEquals(cardCount, result);
     }
 
 
-    @And("All returned cards are with section {string}")
-    public void allReturnedCardsAreWithSection(String desiredSection) throws Exception {
-        // Get the json result
-        String contentAsString = result.andReturn().getResponse().getContentAsString();
-        JSONArray results = new JSONArray(contentAsString);
-
-        // Iterate over the json results and check the creator email
-        for (int i = 0; i < results.length(); i++) {
-            // Get json for card
-            JSONObject cardJson = results.getJSONObject(i);
-
-            // Get the section on the card
-            String section = cardJson.getString("section");
-
-            // Check it is the desired section
-            assertEquals(section, desiredSection);
-        }
-    }
+//    @And("All returned cards are with section {string}")
+//    public void allReturnedCardsAreWithSection(String desiredSection) throws Exception {
+//        // Get the json result
+//        String contentAsString = result.andReturn().getResponse().getContentAsString();
+//        JSONArray results = new JSONArray(contentAsString);
+//
+//        // Iterate over the json results and check the creator email
+//        for (int i = 0; i < results.length(); i++) {
+//            // Get json for card
+//            JSONObject cardJson = results.getJSONObject(i);
+//
+//            // Get the section on the card
+//            String section = cardJson.getString("section");
+//
+//            // Check it is the desired section
+//            assertEquals(section, desiredSection);
+//        }
+//    }
 }
