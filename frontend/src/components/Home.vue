@@ -304,15 +304,14 @@ export default {
      * Remove a notification from the list of visible notifications
      * @param notificationId the id of the notification that is to be removed
      */
-    // TODO: Implement deleting notifications with backend
     removeNotification(notificationId){
-      //Remove the notification from the list that is shown
-      for(const [index, notification] of this.notifications.entries()){
-        if(notification.id === notificationId){
-          console.log(index)
-          this.notifications.splice(index, 1)
-        }
-      }
+      console.log(notificationId)
+      User.deleteNotification(this.actor.id, notificationId).then(() => {
+        this.getNotificationData()
+      }).catch((err) => {
+        this.error = err.response.data
+
+      })
     }
   }
 }
