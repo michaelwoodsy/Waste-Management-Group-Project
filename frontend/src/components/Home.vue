@@ -72,9 +72,9 @@
         <div>
           <h4 class="text-light">Notifications</h4>
           <!-- Toggle Notifications Button -->
-          <button type="button" class="btn btn-block btn-primary" @click="toggleNotifications()">
-            <em class="bi bi-bell" v-if="notifications.length < 10">{{notifications.length}}</em>
-            <em class="bi bi-bell" v-else>9+</em>
+          <button class="btn btn-block btn-primary" type="button" @click="toggleNotifications()">
+            <em v-if="notifications.length < 10" class="bi bi-bell">{{ notifications.length }}</em>
+            <em v-else class="bi bi-bell">9+</em>
           </button>
         </div>
         <br>
@@ -205,7 +205,7 @@ export default {
   },
   methods: {
     toggleNotifications() {
-      if(this.hideNotifications){
+      if (this.hideNotifications) {
         $('.toast').toast('show')
         this.hideNotifications = false
       } else {
@@ -266,10 +266,6 @@ export default {
     extendCard(id, newDate) {
       for (const [index, card] of this.cards.entries()) {
         if (card.id === id) {
-      for (const [index, card] of this.cards.entries()) {
-        console.log(card.id)
-        console.log(id)
-        if (card.id === id) {
           this.cards[index].displayPeriodEnd = newDate
         }
       }
@@ -278,15 +274,20 @@ export default {
      * Remove a notification from the list of visible notifications
      * @param notificationId the id of the notification that is to be removed
      */
-    removeNotification(notificationId){
-      console.log(notificationId)
-      User.deleteNotification(this.actor.id, notificationId).then(() => {
-        //Refresh notifications to reflect the deletion of a notification.
-        this.getNotificationData()
-      }).catch((err) => {
-        this.error = err.response.data
-
-      })
+    async removeNotification(notificationId) {
+      try {
+        await User.deleteNotification(this.actor.id, notificationId)
+        //Remove the notification from the list that is shown
+        for (const [index, notification] of this.notifications.entries()) {
+          if (notification.id === notificationId) {
+            console.log(index)
+            this.notifications.splice(index, 1)
+          }
+        }
+      } catch (error) {
+        console.error(error)
+        this.error = error
+      }
     }
   }
 }
