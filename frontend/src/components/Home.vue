@@ -8,7 +8,7 @@
 
     <div v-else class="row justify-content-between min-vh-100">
 
-      <!-- Side Bar -->
+      <!-- Side Bar Left-->
       <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
         <div>
           <h4 class="text-light">Quick Links</h4>
@@ -65,22 +65,47 @@
             </div>
           </div>
         </div>
-
       </div>
 
-      <div class="col-md-1 col-lg-2 p-3"></div>
-
+      <!-- Side Bar Right-->
+      <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
+        <div>
+          <h4 class="text-light">Notifications</h4>
+          <!-- Toggle Notifications Button -->
+          <button type="button" class="btn btn-block btn-primary" @click="toggleNotifications()">
+            <em class="bi bi-bell" v-if="notifications.length < 10">{{notifications.length}}</em>
+            <em class="bi bi-bell" v-else>9+</em>
+          </button>
+        </div>
+        <br>
+        <!-- Notifications -->
+        <!--  TODO:  Add different versions for each notification type      -->
+        <div class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false"
+             v-for="notification in notifications" v-bind:key="notification.id">
+          <div class="toast-header">
+            <strong class="mr-auto">{{notification.title}}</strong>
+            <small>{{formatDateTime(notification.created)}}</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" @click="removeNotification(notification.id)">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="toast-body text-black-50">
+            {{notification.message}}
+            <br>
+            Card: {{notification.card.title}}
+          </div>
+        </div>
+      </div>
     </div>
-
   </div>
 </template>
-
 <script>
-
 import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/marketplace/MarketCard";
 import Alert from "@/components/Alert";
 import {User} from "@/Api";
+import $ from 'jquery';
+
 
 export default {
   name: "Home",
@@ -93,12 +118,16 @@ export default {
     msg: String
   },
   async mounted() {
-    await this.getCardData();
+    await this.getCardData()
+    await this.getNotificationData()
   },
   data() {
     return {
       cards: [],
       hideImages: true,
+      hideNotifications: true,
+      //Test data
+      notifications: [],
       error: ""
     }
   },
@@ -186,6 +215,36 @@ export default {
   },
   methods: {
     /**
+     * Takes a datetime in ISO format and formats it like dd/mm/yyy, hh:mm:ss PM
+     */
+    formatDateTime(dateTime) {
+      let date = new Date(dateTime)
+      let year = date.getFullYear()
+      let month = date.getMonth()+1
+      let day = date.getDate()
+
+      let hours = date.getHours()
+      let minutes = date.getMinutes()
+
+      if (day < 10)     day = '0' + day;
+      if (month < 10)   month = '0' + month;
+      if (hours < 10)   hours = '0' + hours;
+      if (minutes < 10) minutes = '0' + minutes;
+
+      return `${day}/${month}/${year} ${hours}:${minutes}`
+    },
+
+    toggleNotifications() {
+      if(this.hideNotifications){
+        $('.toast').toast('show')
+        this.hideNotifications = false
+      } else {
+        $('.toast').toast('hide')
+        this.hideNotifications = true
+      }
+    },
+
+    /**
      * Gets the user's cards so we can check for ones about to expire
      */
     async getCardData() {
@@ -197,6 +256,21 @@ export default {
         this.error = error
       }
     },
+
+    /**
+     * Gets the user's notifications
+     */
+    async getNotificationData() {
+      try {
+        User.getNotifications(this.actor.id).then((res) => {
+          this.notifications = res.data
+        })
+      } catch (error) {
+        console.error(error)
+        this.error = error
+      }
+    },
+
     expired(card) {
       const now = new Date();
       if (now >= new Date(card.displayPeriodEnd)) {
@@ -219,13 +293,28 @@ export default {
      * @param id ID of card to update
      * @param newDate the new date to set on the card
      */
-    // TODO: May need to change when hooked up to backend
     extendCard(id, newDate) {
-      for (let index = 0; index < this.cards.length; index++) {
-        if (this.cards[index].id === id) {
+      for (const [index, card] of this.cards.entries()) {
+        console.log(card.id)
+        console.log(id)
+        if (card.id === id) {
           this.cards[index].displayPeriodEnd = newDate
         }
       }
+    },
+    /**
+     * Remove a notification from the list of visible notifications
+     * @param notificationId the id of the notification that is to be removed
+     */
+    removeNotification(notificationId){
+      console.log(notificationId)
+      User.deleteNotification(this.actor.id, notificationId).then(() => {
+        //Refresh notifications to reflect the deletion of a notification.
+        this.getNotificationData()
+      }).catch((err) => {
+        this.error = err.response.data
+
+      })
     }
   }
 }
@@ -234,4 +323,7 @@ export default {
 
 <style scoped>
 
+.toast {
+  max-width: 100%;
+}
 </style>

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.NotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.service.CardService;
 import org.seng302.project.webLayer.controller.CardController;
@@ -56,6 +57,8 @@ public class CardExpirySteps {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AddressRepository addressRepository;
     private final CardRepository cardRepository;
+    private final NotificationRepository notificationRepository;
+    private final CardController cardController;
     private final CardService cardService;
 
     private RequestBuilder deleteCardRequest;
@@ -66,11 +69,15 @@ public class CardExpirySteps {
                            AddressRepository addressRepository,
                            BCryptPasswordEncoder passwordEncoder,
                            CardRepository cardRepository,
-                           CardService cardService) {
+                           CardService cardService,
+                           NotificationRepository notificationRepository,
+                           CardController cardController) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.passwordEncoder = passwordEncoder;
         this.cardRepository = cardRepository;
+        this.notificationRepository = notificationRepository;
+        this.cardController = cardController;
         this.cardService = cardService;
     }
 
@@ -181,27 +188,5 @@ public class CardExpirySteps {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(testGAAEmail, testGAAPassword));
-    }
-
-    //AC4
-
-    @When("The card has an expiry date of more than {int} hours ago")
-    public void the_card_has_an_expiry_date_of_more_than_hours_ago(Integer noActionLimit) {
-        //noActionLimit = 24 (hours)
-
-        //Make it so the test cards best before end is a day and a minute ago so it should be deleted
-        testCard.setDisplayPeriodEnd(LocalDateTime.now().minusHours(noActionLimit).minusMinutes(1));
-        cardRepository.save(testCard);
-    }
-
-    @Then("The card is automatically deleted")
-    public void the_card_is_automatically_deleted() {
-
-        //Manually calls the removeCardsAfter24Hrs method as it is on a timer
-        cardService.removeCardsAfter24Hrs();
-        Optional<Card> returnedCard = cardRepository.findById(testCardId);
-
-        //Card was deleted
-        Assertions.assertTrue(returnedCard.isEmpty());
     }
 }
