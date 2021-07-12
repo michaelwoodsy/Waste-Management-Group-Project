@@ -89,8 +89,8 @@ public abstract class AbstractInitializer {
 
     public void initialiseTestUserNotification() {
         testUserNotification = new UserNotification(
-                testUser,
-                "This is a notification message");
+                "This is a notification message", testUser
+        );
         testUserNotification.setId(0);
     }
 

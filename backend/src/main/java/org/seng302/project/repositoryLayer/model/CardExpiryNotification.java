@@ -22,10 +22,10 @@ public class CardExpiryNotification extends UserNotification {
     /**
      * Constructor for creating a new CardExpiryNotification object.
      *
-     * @param card                     card this notification is about.
+     * @param card card this notification is about.
      */
-    public CardExpiryNotification(User user, String message,  Card card) {
-        super(user, message);
+    public CardExpiryNotification(User user, String message, Card card) {
+        super("cardExpiry", message, user);
         this.card = card;
     }
 

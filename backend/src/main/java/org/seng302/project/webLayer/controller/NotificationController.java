@@ -1,5 +1,6 @@
 package org.seng302.project.webLayer.controller;
 
+import org.seng302.project.repositoryLayer.model.AdminNotification;
 import org.seng302.project.repositoryLayer.model.UserNotification;
 import org.seng302.project.serviceLayer.dto.notifications.DeleteUserNotificationDTO;
 import org.seng302.project.serviceLayer.service.NotificationService;
@@ -47,5 +48,27 @@ public class NotificationController {
     public void deleteUserNotification(@PathVariable int userId, @PathVariable int notificationId, @AuthenticationPrincipal AppUserDetails appUser) {
         DeleteUserNotificationDTO dto = new DeleteUserNotificationDTO(userId, notificationId, appUser);
         notificationService.deleteUserNotification(dto);
+    }
+
+    /**
+     * Gets all admin notifications
+     *
+     * @param appUser The user making the request
+     * @return a list of all admin notifications
+     */
+    @GetMapping("/notifications")
+    public List<AdminNotification> getAdminNotifications(@AuthenticationPrincipal AppUserDetails appUser) {
+        return notificationService.getAdminNotifications(appUser);
+    }
+
+    /**
+     * Deletes an admin notification
+     *
+     * @param notificationId ID of the notification to delete
+     * @param appUser The user trying to delete the notification
+     */
+    @DeleteMapping("/notification/{notificationId}")
+    public void deleteAdminNotification(@PathVariable Integer notificationId, @AuthenticationPrincipal AppUserDetails appUser) {
+        notificationService.deleteAdminNotification(notificationId, appUser);
     }
 }

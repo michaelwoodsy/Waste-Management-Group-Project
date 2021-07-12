@@ -2038,6 +2038,7 @@ components:
       description: A notification entity for a specific user
       required:
         - id
+        - type
         - message
         - created
         - user
@@ -2047,6 +2048,13 @@ components:
           example: 100
           readOnly: true
           description: 'ID of the notification. Automatically generated and assigned by the server.'
+        type:
+          type: string
+          readOnly: true
+          description: 'The type of the notification'
+          enum:
+            - user
+            - cardExpiry
         message:
           type: string
           example: 'This is a notification'
@@ -2066,6 +2074,7 @@ components:
       description: A notification entity for a specific user
       required:
         - id
+        - type
         - message
         - created
       properties:
@@ -2074,6 +2083,13 @@ components:
           example: 100
           readOnly: true
           description: 'ID of the notification. Automatically generated and assigned by the server.'
+        type:
+          type: string
+          readOnly: true
+          description: 'The type of the notification'
+          enum:
+            - admin
+            - newKeyword
         message:
           type: string
           example: 'This is a notification'

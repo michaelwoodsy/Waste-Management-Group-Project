@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class Notification {
 
     private Integer id;
+    private String type;
     private String message;
     private LocalDateTime created = LocalDateTime.now();
 
@@ -22,7 +23,8 @@ public class Notification {
      * Constructor for creating a new Notification object.
      * @param message Message details of notification.
      */
-    public Notification(String message) {
+    public Notification(String type, String message) {
+        this.type = type;
         this.message = message;
     }
 
@@ -32,6 +34,5 @@ public class Notification {
     public Integer getId() {
         return this.id;
     }
-
 
 }

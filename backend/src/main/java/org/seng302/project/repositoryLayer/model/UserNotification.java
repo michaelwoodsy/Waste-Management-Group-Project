@@ -21,11 +21,23 @@ public class UserNotification extends Notification {
     /**
      * Constructor for creating a new UserNotification object.
      *
-     * @param user                        User to which notification is assigned to.
-     * @param message                     Message details of notification.
+     * @param message Message details of notification.
+     * @param user    User to which notification is assigned to.
      */
-    public UserNotification(User user, String message) {
-        super(message);
+    public UserNotification(String message, User user) {
+        super("user", message);
+        this.user = user;
+    }
+
+    /**
+     * Constructor allowing subclasses to set the type of the notification
+     *
+     * @param type    type of the notification
+     * @param message message details of the notification
+     * @param user    the user who the notification is for
+     */
+    public UserNotification(String type, String message, User user) {
+        super(type, message);
         this.user = user;
     }
 

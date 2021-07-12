@@ -1,5 +1,6 @@
 package org.seng302.project.serviceLayer.service;
 
+import org.seng302.project.repositoryLayer.model.AdminNotification;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.model.UserNotification;
 import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
@@ -102,6 +103,26 @@ public class NotificationService {
             logger.error(String.format("Unexpected error while deleting user's notification: %s", unhandledException.getMessage()));
             throw unhandledException;
         }
+
+    }
+
+    /**
+     * Gets all admin notifications from the repository and returns them
+     *
+     * @param appUser User attempting to get notifications
+     * @return a list of all admin notifications
+     */
+    public List<AdminNotification> getAdminNotifications(AppUserDetails appUser) {
+        return null;
+    }
+
+    /**
+     * Deletes an admin notification
+     *
+     * @param notificationId ID of the admin notification to delete
+     * @param appUser the User trying to delete the notification
+     */
+    public void deleteAdminNotification(Integer notificationId, AppUserDetails appUser) {
 
     }
 }
