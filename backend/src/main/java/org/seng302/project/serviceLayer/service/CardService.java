@@ -6,10 +6,12 @@ import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.specification.CardSpecifications;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
 import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
+import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.RequiredFieldsMissingException;
 import org.seng302.project.serviceLayer.exceptions.card.ForbiddenCardActionException;
@@ -19,6 +21,7 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -288,6 +291,57 @@ public class CardService {
             throw unexpectedException;
         }
     }
+
+    /**
+     * Searches for cards based on a section and keyword IDs
+     *
+     * @param section    the section to search cards in
+     * @param keywordIds the keyword IDs to search for cards with
+     * @param union      whether cards should match with any or all keywords
+     * @return a list of cards that matches the query
+     */
+    public List<GetCardResponseDTO> searchCards(String section, List<Integer> keywordIds, Boolean union) {
+        if (section == null || !List.of("ForSale", "Wanted", "Exchange").contains(section)) {
+            var exception = new BadRequestException("Bad Request: invalid section");
+            logger.warn(exception.getMessage());
+            throw exception;
+        }
+        if (keywordIds == null || keywordIds.isEmpty()) {
+            var exception = new BadRequestException("Bad Request: at least one keyword ID is required");
+            logger.warn(exception.getMessage());
+            throw exception;
+        }
+        if (union == null) {
+            var exception = new BadRequestException("Bad Request: union is a required parameter");
+            logger.warn(exception.getMessage());
+            throw exception;
+        }
+
+        Specification<Card> spec = Specification.where(null);
+        for (Integer keywordId : keywordIds) {
+            Optional<Keyword> keyword = keywordRepository.findById(keywordId);
+            if (keyword.isEmpty()) {
+                var exception = new BadRequestException("Bad Request: invalid keyword ID");
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+            if (union) {
+                spec = spec.or(CardSpecifications.hasKeyword(keyword.get()));
+            } else {
+                spec = spec.and(CardSpecifications.hasKeyword(keyword.get()));
+            }
+        }
+
+        spec = CardSpecifications.inSection(section).and(spec);
+
+        List<Card> cards = cardRepository.findAll(spec);
+        List<GetCardResponseDTO> response = new ArrayList<>();
+        for (Card card : cards) {
+            response.add(new GetCardResponseDTO(card));
+        }
+        return response;
+    }
+
 
     /**
      * Method that gets called every 60 seconds that removes all cards that have a display period end of more than a day ago
