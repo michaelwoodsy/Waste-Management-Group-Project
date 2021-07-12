@@ -35,7 +35,7 @@ public abstract class AbstractInitializer {
         this.initialiseTestUser();
         this.initialiseTestSystemAdmin();
         this.initialiseTestCard();
-        this.initialiseTestNotification();
+        this.initialiseTestUserNotification();
         this.initialiseTestUserBusinessAdmin();
         this.initialiseTestBusiness();
         this.initialiseTestProduct();
@@ -87,10 +87,11 @@ public abstract class AbstractInitializer {
                 Collections.emptySet());
     }
 
-    public void initialiseTestNotification() {
+    public void initialiseTestUserNotification() {
         testUserNotification = new UserNotification(
                 testUser,
                 "This is a notification message");
+        testUserNotification.setId(0);
     }
 
     public void initialiseTestUserBusinessAdmin() {
