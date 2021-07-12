@@ -1,10 +1,6 @@
 package org.seng302.project.serviceLayer.service;
 
-import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.repositoryLayer.repository.CardRepository;
-import org.seng302.project.repositoryLayer.repository.KeywordRepository;
-import org.seng302.project.repositoryLayer.repository.NewKeywordNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.repositoryLayer.specification.UserSpecifications;
 import org.seng302.project.serviceLayer.dto.user.UserResponseDTO;
