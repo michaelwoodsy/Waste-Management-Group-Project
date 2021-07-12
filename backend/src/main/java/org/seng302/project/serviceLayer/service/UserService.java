@@ -33,11 +33,10 @@ public class UserService {
 
     /**
      * Searches for users based on a search query string.
-     * Search results are limited to 1000 results.
      * Regular expression for splitting search query taken from linked website.
      *
      * @param searchQuery Query to search users by.
-     * @return List of first 1000 users matching the search query.
+     * @return List of users matching the search query.
      * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
      * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
      */
