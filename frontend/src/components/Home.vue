@@ -294,8 +294,10 @@ export default {
      * @param newDate the new date to set on the card
      */
     extendCard(id, newDate) {
-      for (let index = 0; index < this.cards.length; index++) {
-        if (this.cards[index].id === id) {
+      for (const [index, card] of this.cards.entries()) {
+        console.log(card.id)
+        console.log(id)
+        if (card.id === id) {
           this.cards[index].displayPeriodEnd = newDate
         }
       }
@@ -307,6 +309,7 @@ export default {
     removeNotification(notificationId){
       console.log(notificationId)
       User.deleteNotification(this.actor.id, notificationId).then(() => {
+        //Refresh notifications to reflect the deletion of a notification.
         this.getNotificationData()
       }).catch((err) => {
         this.error = err.response.data
