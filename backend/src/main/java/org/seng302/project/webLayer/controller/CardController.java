@@ -2,6 +2,7 @@ package org.seng302.project.webLayer.controller;
 
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
+import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
 import org.seng302.project.serviceLayer.service.CardService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -95,5 +96,16 @@ public class CardController {
     @ResponseStatus(HttpStatus.OK)
     public List<GetCardResponseDTO> getAllCardsByUser(@PathVariable Integer id) {
         return cardService.getAllCardsByUser(id);
+    }
+
+    /**
+     * Endpoint to edit a card
+     *
+     * @param id of the card to extend.
+     */
+    @PutMapping("/cards/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void editCard(@PathVariable int id, @RequestBody @Valid EditCardDTO dto, @AuthenticationPrincipal AppUserDetails appUser) {
+        cardService.editCard(id, dto, appUser);
     }
 }

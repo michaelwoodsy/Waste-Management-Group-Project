@@ -76,6 +76,17 @@ describe('Jest tests for the home component', () => {
                 isActingAsUser() {
                     return true
                 }
+            },
+            methods: {
+                removeNotification(notificationId){
+                    for(const [index, notification] of this.notifications.entries()){
+                        if(notification.id === notificationId){
+                            console.log(index)
+                            this.notifications.splice(index, 1)
+                        }
+                    }
+
+                }
             }
         })
 

@@ -266,6 +266,10 @@ export default {
     extendCard(id, newDate) {
       for (const [index, card] of this.cards.entries()) {
         if (card.id === id) {
+      for (const [index, card] of this.cards.entries()) {
+        console.log(card.id)
+        console.log(id)
+        if (card.id === id) {
           this.cards[index].displayPeriodEnd = newDate
         }
       }
@@ -274,15 +278,15 @@ export default {
      * Remove a notification from the list of visible notifications
      * @param notificationId the id of the notification that is to be removed
      */
-    // TODO: Implement deleting notifications with backend
     removeNotification(notificationId){
-      //Remove the notification from the list that is shown
-      for(const [index, notification] of this.notifications.entries()){
-        if(notification.id === notificationId){
-          console.log(index)
-          this.notifications.splice(index, 1)
-        }
-      }
+      console.log(notificationId)
+      User.deleteNotification(this.actor.id, notificationId).then(() => {
+        //Refresh notifications to reflect the deletion of a notification.
+        this.getNotificationData()
+      }).catch((err) => {
+        this.error = err.response.data
+
+      })
     }
   }
 }

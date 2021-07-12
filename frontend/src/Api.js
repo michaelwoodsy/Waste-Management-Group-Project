@@ -112,6 +112,13 @@ export const User = {
      */
     getNotifications: (userId) => instance.get(`users/${userId}/notifications`),
 
+    /**
+     * Deletes a user's notifications from the backend
+     * @param userId User ID to delete notifications from
+     * @param notificationId ID of the user notification to delete
+     */
+    deleteNotification: (userId, notificationId) => instance.delete(`users/${userId}/notifications/${notificationId}`),
+
 };
 
 export const Business = {
