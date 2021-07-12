@@ -3,6 +3,8 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.*;
@@ -88,6 +90,7 @@ public class CardExpirySteps {
     @BeforeEach
     @Autowired
     public void setup(WebApplicationContext context) {
+        userNotificationRepository.deleteAll();
         cardRepository.deleteAll();
         userRepository.deleteAll();
 
