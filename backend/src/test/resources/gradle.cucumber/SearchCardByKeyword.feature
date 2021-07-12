@@ -1,9 +1,9 @@
 Feature: UCM7 Keyword Search
   Scenario: AC1: Only cards from the current section will be searched.
     Given I am logged in with email "cardUser@gmail.com" with the following 3 cards exist with keywords:
-      | My Card       | Test card description   | Wanted  | cardUser@gmail.com      | testKeyword1 |
+      | My Card       | Test card description   | Wanted  | cardUser@gmail.com      | testKeyword |
       | My Other Card | Other card description  | Wanted | cardUser@gmail.com      | testKeyword |
-      | Your Card     | Your card description   | Wanted  | otherCardUser@gmail.com | testKeyword  |
+      | Your Card     | Your card description   | Wanted  | cardUser@gmail.com  | testKeyword  |
     When I search for cards in the "Wanted" section
     Then I am returned 2 cards
     And All returned cards are with section "Wanted"

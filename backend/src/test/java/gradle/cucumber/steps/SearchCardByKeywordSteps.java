@@ -41,7 +41,7 @@ public class SearchCardByKeywordSteps {
 
     private User testUser;
     private Integer keyword1Id;
-    private MvcResult result;
+    private ResultActions result;
     private JSONArray results;
     private MockMvc mockMvc;
 
@@ -92,6 +92,21 @@ public class SearchCardByKeywordSteps {
         }
     }
 
+    /**
+     * Creates the keyword if it's not already created.
+     * If it is already created, the keyword is returned.
+     * @return Keyword this is the keyword whether it exists or not
+     */
+    private Keyword createKeyword(Keyword keyword){
+        if(keywordRepository.findByName(keyword.getName()).size() > 0){
+            //Already Exists, return it
+            return(keywordRepository.findByName(keyword.getName()).get(0));
+        } else {
+            // Keyword does not exist return it so card can make it
+            return keyword;
+        }
+    }
+
     @Given("I am logged in with email {string} with the following 3 cards exist with keywords:")
     public void i_am_logged_in_with_email_with_the_following_3_cards_exist_with_keywords(String email, DataTable cardsTable) {
         // Create the logged in user
@@ -100,13 +115,15 @@ public class SearchCardByKeywordSteps {
                 "+64 3 555 0129", null, "");
         testUser.setEmail(email);
         testUser = createUser(testUser);
+
         Card newCard;
 
         // Create the cards
         List<List<String>> rows = cardsTable.asLists(String.class);
         for (List<String> cols : rows) {
+
             // Creat the card creator user
-            User owner = new User("John", "Smith", "Bob", "Jonny",
+            User owner = new User("Jane", "Doe", "Bob", "Jonny",
                     "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
                     "+64 3 555 0129", null, "");
             owner.setEmail(cols.get(3));
@@ -114,6 +131,8 @@ public class SearchCardByKeywordSteps {
 
             //Create Keyword
             Keyword keyword1 = new Keyword(cols.get(4));
+            keyword1 = createKeyword(keyword1);
+
             // Create the card and set values
             newCard = new Card();
             newCard.setTitle(cols.get(0));
@@ -124,13 +143,20 @@ public class SearchCardByKeywordSteps {
             // Save the card
             cardRepository.save(newCard);
         }
+        System.out.println("First Card");
+        System.out.println(cardRepository.findAllBySection("Wanted").get(0));
+        System.out.println("Second Card");
+        System.out.println(cardRepository.findAllBySection("Wanted").get(1));
+        //Get Id of keyword
         keyword1Id = keywordRepository.findByName("testKeyword").get(0).getId();
-        assertEquals(3, cardRepository.findAllBySection("Wanted").size());
+        //Check that the correct number of cards have been added to the repository in the correct section
+        assertEquals(2, cardRepository.findAllBySection("Wanted").size());
+        //Check that all cards have the keyword
+        assertEquals(3, cardRepository.findAllByKeywordsContaining(keywordRepository.findByName("testKeyword").get(0)).size());
     }
 
     @When("I search for cards in the {string} section")
     public void iSearchForCardsInTheSection(String section) throws Exception {
-
         RequestBuilder getCardsReq = MockMvcRequestBuilders
                 .get("/cards/search?keywordIds={keyword1Id}&section={section}&union=true", keyword1Id, section)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -138,14 +164,13 @@ public class SearchCardByKeywordSteps {
                 .with(user(new AppUserDetails(testUser)));
 
         result = mockMvc.perform(getCardsReq)
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn(); // We expect a 200 response
+                .andExpect(MockMvcResultMatchers.status().isOk()); // We expect a 200 response
     }
 
     @Then("I am returned {int} cards")
     public void i_am_returned_cards(Integer cardCount) throws Exception {
-        System.out.println(result.getResponse());
-        assertEquals(cardCount, result);
+        System.out.println(result.andReturn().getResponse().getContentAsString());
+        result.andExpect(jsonPath("$", hasSize(cardCount)));
     }
 
 
