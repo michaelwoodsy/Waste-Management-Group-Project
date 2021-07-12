@@ -5,6 +5,6 @@ package org.seng302.project.serviceLayer.exceptions;
  */
 public class BadRequestException extends RuntimeException {
     public BadRequestException(String message) {
-        super(message);
+        super("BadRequestException: " + message);
     }
 }

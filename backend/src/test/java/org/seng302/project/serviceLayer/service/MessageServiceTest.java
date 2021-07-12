@@ -15,6 +15,7 @@ import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,6 +47,7 @@ class MessageServiceTest extends AbstractInitializer {
     private User testReceiver;
     private Card testCard;
     private Message testMessage;
+    private Message testReceivedMessage;
 
     /**
      * Initialises entities from AbstractInitializer
@@ -56,6 +58,8 @@ class MessageServiceTest extends AbstractInitializer {
         testSender = this.getTestUser();
         Mockito.when(userRepository.findByEmail(testSender.getEmail()))
             .thenReturn(List.of(testSender));
+        Mockito.when(userRepository.findById(testSender.getId()))
+                .thenReturn(Optional.of(testSender));
 
         testReceiver = this.getTestUserBusinessAdmin();
         Mockito.when(userRepository.findById(testReceiver.getId()))
@@ -70,6 +74,10 @@ class MessageServiceTest extends AbstractInitializer {
         testMessage = new Message("Is this still available?", testReceiver, testCard, testSender);
         testMessage.setId(1);
 
+        testReceivedMessage = new Message("Yes it is still available", testSender, testCard, testReceiver);
+        testReceivedMessage.setId(2);
+        Mockito.when(messageRepository.findAllByReceiver(testSender))
+                .thenReturn(List.of(testReceivedMessage));
     }
 
 
@@ -172,6 +180,48 @@ class MessageServiceTest extends AbstractInitializer {
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> messageService.createMessage(requestDTO, appUser));
 
+    }
+
+    /**
+     * Tests the successful retrieval of the currently
+     * logged in user's messages
+     */
+    @Test
+    void getMessages_success() {
+        AppUserDetails appUser = new AppUserDetails(testSender);
+
+        List<Message> receivedMessages = messageService.getMessages(testSender.getId(), appUser);
+
+        Assertions.assertEquals(1, receivedMessages.size());
+
+        Assertions.assertEquals("Yes it is still available", receivedMessages.get(0).getText());
+        Assertions.assertEquals(testReceiver, receivedMessages.get(0).getSender());
+        Assertions.assertEquals(testCard, receivedMessages.get(0).getCard());
+        Assertions.assertEquals(testSender, receivedMessages.get(0).getReceiver());
+    }
+
+    /**
+     * Tests that retrieving messages for a user that is
+     * not the currently logged in user throws an exception
+     */
+    @Test
+    void getMessages_notValidUser_error() {
+       AppUserDetails appUser = new AppUserDetails(testSender);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> messageService.getMessages(100, appUser));
+    }
+
+    /**
+     * Tests that retrieving messages for a non-existent user
+     * throws an exception
+     */
+    @Test
+    void getMessages_nonExistentUser_error() {
+        AppUserDetails appUser = new AppUserDetails(testSender);
+
+        Assertions.assertThrows(ForbiddenUserException.class,
+                () -> messageService.getMessages(3, appUser));
     }
 
 }
