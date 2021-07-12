@@ -3,27 +3,20 @@ package org.seng302.project.serviceLayer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
-import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
-import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
+import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
-import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.card.NoCardExistsException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -47,7 +40,6 @@ class CardServiceTest extends AbstractInitializer {
     private User testUser;
     private Card testUsersCard1;
     private Card testUsersCard2;
-    private List<Card> testCards;
 
     @Autowired
     private CardService cardService;
@@ -56,26 +48,26 @@ class CardServiceTest extends AbstractInitializer {
     private CardRepository cardRepository;
 
     @MockBean
-    private KeywordRepository keywordRepository;
-
-    @MockBean
     private UserRepository userRepository;
 
     @BeforeEach
     void setup() {
         this.initialise();
         testUser = this.getTestUser();
-        testCards = this.getTestCards();
         given(userRepository.findByEmail(testUser.getEmail())).willReturn(List.of(testUser));
         given(userRepository.findById(testUser.getId())).willReturn(Optional.of(testUser));
 
         // Create mock cards
         // Card 1
-        testUsersCard1 = testCards.get(0);
+        testUsersCard1 = new Card(testUser, "ForSale", "Test Card", "Test card description",
+                Collections.emptySet());
+        testUsersCard1.setId(1);
         given(cardRepository.findById(testUsersCard1.getId())).willReturn(Optional.of(testUsersCard1));
 
         // Card 2
-        testUsersCard2 = testCards.get(1);
+        testUsersCard2 = new Card(testUser, "Wanted", "Test Card 2", "Test card 2 description",
+                Collections.emptySet());
+        testUsersCard2.setId(2);
         given(cardRepository.findById(testUsersCard2.getId())).willReturn(Optional.of(testUsersCard2));
 
     }
@@ -232,80 +224,47 @@ class CardServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Searching for cards with correct inputs returns a list of correct size
+     * Test editing a card that does not exist
      */
     @Test
-    void searchCard_validInput_returnsList() {
-        Mockito.when(keywordRepository.findById(Mockito.any(Integer.class)))
-                .thenAnswer(invocation -> {
-                    Integer keywordId = invocation.getArgument(0);
-                    for (Keyword keyword : getTestKeywords()) {
-                        if (keyword.getId().equals(keywordId)) {
-                            return Optional.of(keyword);
-                        }
-                    }
-                    return Optional.empty();
-                });
+    void testEditCardDoesNotExist() {
+        // Mock card with id 1 being empty
+        given(cardRepository.findById(1)).willReturn(Optional.empty());
 
-        Mockito.when(cardRepository.findAll(Mockito.any(Specification.class)))
-                .thenReturn(testCards);
+        EditCardDTO requestDTO = new EditCardDTO(
+                "ForSale",
+                "Title",
+                null,
+                Collections.emptyList());
 
-        List<GetCardResponseDTO> result = cardService.searchCards("ForSale", List.of(1, 2), true);
-        Assertions.assertEquals(2, result.size());
+        Assertions.assertThrows(NoCardExistsException.class,
+                () -> cardService.editCard(1, requestDTO, new AppUserDetails(testUser)));
     }
 
     /**
-     * Searching for cards with an invalid section input
-     * @param section The section to search cards in
-     */
-    @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {"invalidSection"})
-    void searchCard_invalidSection_throwsException(String section) {
-        List<Integer> keywordIds = List.of(1, 2);
-        Assertions.assertThrows(BadRequestException.class,
-                () -> cardService.searchCards(section, keywordIds, true));
-    }
-
-    /**
-     * Searching for cards with invalid keyword IDs (null and empty)
-     * @param keywordIds The keyword IDs used to search with
-     */
-    @ParameterizedTest
-    @NullAndEmptySource
-    void searchCard_invalidKeywordIds_throwsException(List<Integer> keywordIds) {
-        Assertions.assertThrows(BadRequestException.class,
-                () -> cardService.searchCards("ForSale", keywordIds, true));
-    }
-
-    /**
-     * Searching for cards with invalid (does not exist) keyword IDs
+     * Test editing a card that is successful
      */
     @Test
-    void searchCard_keywordIdNonExistent_throwsException() {
-        Mockito.when(keywordRepository.findById(Mockito.any(Integer.class)))
-                .thenAnswer(invocation -> {
-                    Integer keywordId = invocation.getArgument(0);
-                    for (Keyword keyword : getTestKeywords()) {
-                        if (keyword.getId().equals(keywordId)) {
-                            return Optional.of(keyword);
-                        }
-                    }
-                    return Optional.empty();
-                });
+    void testEditCardSuccess() {
 
-        List<Integer> keywordIds = List.of(1, 4);
-        Assertions.assertThrows(BadRequestException.class,
-                () -> cardService.searchCards("ForSale", keywordIds, true));
-    }
+        EditCardDTO requestDTO = new EditCardDTO(
+                "Exchange",
+                "Some Title",
+                null,
+                Collections.emptyList());
 
-    /**
-     * Searching for a card with invalid union input
-     */
-    @Test
-    void searchCard_unionNull_throwsException() {
-        List<Integer> keywordIds = List.of(1, 2);
-        Assertions.assertThrows(BadRequestException.class,
-                () -> cardService.searchCards("ForSale", keywordIds, null));
+        // Mock the save method on the cardRepository
+        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+
+        cardService.editCard(testUsersCard1.getId(), requestDTO, new AppUserDetails(testUser));
+
+        ArgumentCaptor<Card> cardArgumentCaptor = ArgumentCaptor.forClass(Card.class);
+        verify(cardRepository).save(cardArgumentCaptor.capture());
+        Card editedCard = cardArgumentCaptor.getValue();
+
+        Assertions.assertEquals(requestDTO.getTitle(), editedCard.getTitle());
+        Assertions.assertEquals(requestDTO.getDescription(), editedCard.getDescription());
+        Assertions.assertEquals(requestDTO.getSection(), editedCard.getSection());
+        Assertions.assertEquals(testUser.getEmail(), editedCard.getCreator().getEmail());
     }
 }

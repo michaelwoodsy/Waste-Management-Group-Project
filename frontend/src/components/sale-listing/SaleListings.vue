@@ -55,7 +55,7 @@
                 <thead>
                 <tr>
                   <!-- Product Image -->
-                  <th></th>
+                  <th scope="col"></th>
                   <!-- Product Info -->
                   <th class="pointer" scope="col" @click="orderResults('name')">
                     <p class="d-inline">Product Info</p>
@@ -89,7 +89,7 @@
                 <tr v-for="item in paginatedListings" v-bind:key="item.id">
                   <td>
                     <img alt="productImage" class="ui-icon-image"
-                         :src="getImageURL('/media/defaults/defaultProduct_thumbnail.jpg')">
+                         :src="getPrimaryImageThumbnail(item.inventoryItem.product)">
                   </td>
                   <td style="word-break: break-word; width: 50%">
                     {{ item.inventoryItem.product.name }}
@@ -153,17 +153,16 @@
             </button>
           </div>
           <div class="modal-body">
-            <div class="row" style="height: 500px">
+            <div v-if="productViewing.images.length === 0">
+              <p class="text-center"><strong>This Product has no Images</strong></p>
+            </div>
+            <div v-else class="row" style="height: 500px">
               <div class="col col-12 justify-content-center">
                 <div id="imageCarousel" class="carousel slide" data-ride="carousel">
                   <div class="carousel-inner">
-                    <!--   Image 1   -->
-                    <div class="carousel-item active">
-                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL('/media/defaults/defaultProduct2.jpg')" alt="ProductImage">
-                    </div>
-                    <!--   Image 2   -->
-                    <div class="carousel-item">
-                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL('/media/defaults/defaultProduct3.jpg')" alt="ProductImage">
+                    <div v-for="(image, index) in productViewing.images" v-bind:key="image.id"
+                         :class="{'carousel-item': true, 'active': index === 0}">
+                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL(image.filename)" alt="ProductImage">
                     </div>
                   </div>
                   <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
@@ -314,6 +313,23 @@ export default {
   },
 
   methods: {
+    /**
+     * Uses the primaryImageId of the product to find the primary image and return its imageURL,
+     * else it returns the default product image url
+     */
+    getPrimaryImageThumbnail(product) {
+      if (product.primaryImageId === null) {
+        return this.getImageURL('/media/defaults/defaultProduct_thumbnail.jpg')
+      }
+      const filteredImages = product.images.filter(function(specificImage) {
+        return specificImage.id === product.primaryImageId;
+      })
+      if (filteredImages.length === 1) {
+        return this.getImageURL(filteredImages[0].thumbnailFilename)
+      }
+      //Return the default image if the program gets to this point (if it does something went wrong)
+      return this.getImageURL('/media/defaults/defaultProduct_thumbnail.jpg')
+    },
     /**
      * Retrieves the image specified by the path
      */

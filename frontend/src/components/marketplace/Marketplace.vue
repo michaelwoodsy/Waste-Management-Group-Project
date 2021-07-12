@@ -98,15 +98,20 @@ Page for displaying the marketplace.
                  autocomplete="off"
                  data-toggle="dropdown"
                  @input="searchKeywords"/>
+          <!-- Button to apply keyword filter -->
           <button
               :class="{disabled: keywords.length <= 0}"
               class="btn btn-primary ml-2" @click="searchCards">
             Apply
           </button>
-          <span class="custom-control custom-switch m-2">
+
+          <!-- Checkbox to select whether all a cards must match all keywords -->
+          <span
+              class="custom-control custom-switch m-2">
             <input v-model="keywordUnion" type="checkbox" class="custom-control-input" id="any-all-keyword-switch">
             <label class="custom-control-label" for="any-all-keyword-switch">Match all</label>
           </span>
+
           <!-- Autocomplete dropdown -->
           <div class="dropdown-menu overflow-auto" id="dropdown">
             <!-- If no user input -->
@@ -140,6 +145,11 @@ Page for displaying the marketplace.
               <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
             </button>
           </div>
+          <!-- Button to clear keyword filter -->
+          <button  v-if="keywords.length > 0"
+                   class="btn btn-danger ml-5" @click="clearFilter">
+            Clear Keywords
+          </button>
         </div>
       </div>
 
@@ -147,7 +157,9 @@ Page for displaying the marketplace.
       <!-- Div with cards -->
       <div class="row row-cols-1 row-cols-lg-2">
         <div v-for="card in orderedCards" v-bind:key="card.id" class="col">
-          <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="false" @card-deleted="deleteCard"></MarketCard>
+          <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="false"
+                      @card-deleted="deleteCard"
+                      @refresh-cards="refreshCards()"></MarketCard>
         </div>
       </div>
 
@@ -348,6 +360,7 @@ export default {
      * Refreshes the card modal
      */
     refreshCards() {
+      console.log("Refreshing Cards...")
       this.createNewCard = false;
       this.getCards(this.tabSelected)
     },
@@ -442,6 +455,15 @@ export default {
           .catch((err) => {
             this.error = err;
           })
+    },
+
+    /**
+     * Clears all the keywords from the list of filtered keywords and returns all the cards
+     * for the selected tab
+     */
+    async clearFilter() {
+      this.keywords = []
+      this.getCards(this.tabSelected)
     }
 
   }

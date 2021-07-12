@@ -2,6 +2,7 @@ package org.seng302.project.webLayer.controller;
 
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
+import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
 import org.seng302.project.serviceLayer.service.CardService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -98,19 +99,13 @@ public class CardController {
     }
 
     /**
-     * Endpoint to get all cards that fit the search query
-     * @param section The section to search by
-     * @param keywordIds The list of keyword IDs to search by
-     * @param union Option to match the search with all or some of the inputs
-     * @return List of cards that fit the search criteria
+     * Endpoint to edit a card
+     *
+     * @param id of the card to extend.
      */
-    @GetMapping("/cards/search")
+    @PutMapping("/cards/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public List<GetCardResponseDTO> searchCards(
-            @RequestParam String section,
-            @RequestParam List<Integer> keywordIds,
-            @RequestParam Boolean union
-    ) {
-        return cardService.searchCards(section, keywordIds, union);
+    public void editCard(@PathVariable int id, @RequestBody @Valid EditCardDTO dto, @AuthenticationPrincipal AppUserDetails appUser) {
+        cardService.editCard(id, dto, appUser);
     }
 }

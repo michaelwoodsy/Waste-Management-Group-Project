@@ -12,6 +12,7 @@ import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
 import org.seng302.project.serviceLayer.dto.product.EditProductDTO;
+import org.seng302.project.serviceLayer.dto.product.ProductSearchDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -308,5 +309,38 @@ class ProductCatalogueServiceTest {
         Assertions.assertEquals("Cookie Monster", inventoryItemProduct.getManufacturer());
         Assertions.assertEquals(2.50, inventoryItemProduct.getRecommendedRetailPrice());
     }
+
+
+    /**
+     * Tries to search the business products as a logged in normal user.
+     * Expects a ForbiddenAdministratorActionException
+     */
+    @Test
+    void searchProducts_notAdmin_forbiddenException() {
+        AppUserDetails notAdmin = new AppUserDetails(user);
+        ProductSearchDTO requestDTO = new ProductSearchDTO(
+                true, true, false, false);
+        Assertions.assertThrows(ForbiddenAdministratorActionException.class,
+                () -> productCatalogueService.searchProducts(1, requestDTO, notAdmin));
+    }
+
+
+    /**
+     * Tries to search products from a nonexistent business.
+     * Expects a NotAcceptableException
+     */
+    @Test
+    void searchProducts_nonExistentBusiness_noBusinessExistsException() {
+        given(businessRepository.findById(4)).willReturn(Optional.empty());
+
+        AppUserDetails userDetails = new AppUserDetails(user);
+        ProductSearchDTO requestDTO = new ProductSearchDTO(
+                true, true, false, false);
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> productCatalogueService.searchProducts(4, requestDTO, userDetails));
+    }
+
+    //TODO: product search test for successful search
+
 
 }

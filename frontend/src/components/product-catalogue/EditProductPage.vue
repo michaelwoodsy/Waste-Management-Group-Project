@@ -187,13 +187,51 @@
                          alt="Current product image"
                     />
                     <button class="btn btn-danger ml-1 my-1 pad1"
-                            @click="removeImage(image.url)">
-                      Remove
+                            type="button"
+                            :data-target="'#removeImageModal'"
+                            data-toggle="modal"
+                            @click="changeDeletingImage(image)">
+
+                    Remove
                     </button>
-<!--                    If the image cant be made primary because it is not uploaded yet-->
+
+
+
+                    <!-- Remove Image modal -->
+                    <div :id="'removeImageModal'" class="modal fade" role="dialog" tabindex="-1">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+
+                          <!-- Title section of modal -->
+                          <div class="modal-header">
+                            <h5 class="modal-title">Remove Image</h5>
+                            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                              <span ref="close" aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+
+                          <!-- Body section of modal -->
+                          <div class="modal-body">
+                            <p>Do you really want to remove this image?</p>
+                          </div>
+
+                          <!-- Footer / button section of modal -->
+                          <div class="modal-footer">
+                            <button class="btn btn-danger" data-dismiss="modal" type="button" @click="removeImage(imageWantingToDelete)">Remove</button>
+                            <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+
+
+
+
+                    <!--                    If the image cant be made primary because it is not uploaded yet-->
                     <button class="btn btn-secondary disabled ml-1 my-1 pad1"
                             v-if="image.id === undefined"
-                            type="button" @click="makeImagePrimary(null)">
+                            type="button" :data-target="'#cantMakePrimaryImageModal'" data-toggle="modal">
                       Make Primary
                     </button>
                     <button class="btn btn-primary ml-1 my-1 pad1 disabled"
@@ -206,19 +244,45 @@
                             type="button" @click="makeImagePrimary(image.id)">
                       Make Primary
                     </button>
-                  </div>
 
+
+
+
+                    <!-- Can't make image primary information -->
+                    <div :id="'cantMakePrimaryImageModal'" class="modal fade" role="dialog" tabindex="-1">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+
+                          <!-- Title section of modal -->
+                          <div class="modal-header">
+                            <h5 class="modal-title">Information</h5>
+                            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                              <span ref="close" aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+
+                          <!-- Body section of modal -->
+                          <div class="modal-body">
+                            <p>This image is not on our servers yet. Please save changes before making this image Primary</p>
+                          </div>
+
+                          <!-- Footer / button section of modal -->
+                          <div class="modal-footer">
+                            <button class="btn btn-primary" data-dismiss="modal" type="button">Ok</button>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+
+
+
+
+                  </div>
                 </div>
               </div>
-
             </form>
           </div>
-        </div>
-        <div v-if="primaryImageError !== null" class="alert alert-warning alert-dismissible fade show" role="alert">
-          {{primaryImageError}}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
 
         <!-- Row for fixes message -->
@@ -243,8 +307,18 @@
               Cancel
             </button>
 
+            <!-- Saving changes button
+            Shows when product is being saved (useful for images which take a while to upload) -->
+            <button v-if="submitting"
+                    disabled
+                    class="btn btn-primary ml-1 my-1 float-right"
+                    type="button"
+            >
+              Saving changes
+            </button>
+
             <!-- Save Changes button -->
-            <button
+            <button v-else
                 :disabled="!changesMade"
                 class="btn btn-primary ml-1 my-1 float-right"
                 type="button"
@@ -289,20 +363,9 @@ export default {
       nameBlur: false,
       triedIds: [], // List of ids tested for uniqueness
       //Test Image Data
-      images: [
-          {
-            id: 1000,
-            filename: '/media/defaults/defaultProduct.jpg',
-            thumbnailFilename: '/media/defaults/defaultProduct_thumbnail.jpg'
-          },
-        {
-          id: 1001,
-          filename: '/media/defaults/defaultProduct2.jpg',
-          thumbnailFilename: '/media/defaults/defaultProduct2_thumbnail.jpg'
-        }
-      ], //TODO: prefill with product's existing images
+      images: [],
+      imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
       currentPrimaryImageId: null,
-      primaryImageError: null,
       imagesEdited: false
     }
   },
@@ -421,7 +484,7 @@ export default {
     /**
      * Validates the users inputs, then sends the data to the api.
      */
-    submit() {
+    async submit() {
       // Set id as blurred in case the id was not unique
       this.idBlur = true
 
@@ -435,17 +498,29 @@ export default {
       // Set the rrp typeof to Number even if its an empty string
       this.newProduct.recommendedRetailPrice = Number(this.newProduct.recommendedRetailPrice)
 
+      const newProductData = {
+        id: this.newProduct.id,
+        name: this.newProduct.name,
+        description: this.newProduct.description,
+        manufacturer: this.newProduct.manufacturer,
+        recommendedRetailPrice: this.newProduct.recommendedRetailPrice
+      }
+
       // Submit changes to api
       this.submitting = true;
-      Business.editProduct(this.businessId, this.productId, this.newProduct)
+      await Business.editProduct(this.businessId, this.productId, newProductData)
           .then(() => {
             this.addImages()
-            if (this.currentPrimaryImageId !== this.product.primaryImageId) {
-              Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.currentPrimaryImageId)
-            }
-            this.submitError = null
-            this.success = true
-            this.submitting = false
+                .then(() => {
+              if (this.currentPrimaryImageId !== this.product.primaryImageId) {
+                Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.currentPrimaryImageId)
+              }
+            })
+                .then(() => {
+              this.submitError = null
+              this.success = true
+              this.submitting = false
+            })
           })
           .catch((err) => {
             // Display the response error message if there is one
@@ -477,9 +552,12 @@ export default {
             this.product = res.data.find(prod => prod.id === this.productId.toString())
             if (!this.product) {
               this.errorMessage = `There is no product with id ${this.productId}.`
+            } else {
+              this.currentPrimaryImageId = this.product.primaryImageId
+              this.images = this.product.images
+              this.newProduct = {...this.product}
+              this.loading = false
             }
-            this.newProduct = {...this.product}
-            this.loading = false
           })
           .catch((err) => {
             this.errorMessage = err.response.data.message || err;
@@ -499,6 +577,8 @@ export default {
       this.submitError = null
       this.success = false
       this.product = null
+      this.images = []
+      this.currentPrimaryImageId = null
       this.newProduct = null
       this.idBlur = false
       this.nameBlur = false
@@ -538,16 +618,50 @@ export default {
       })
       fileReader.readAsDataURL(files[0])
     },
+
     /**
      * Called by the remove button next to an uploaded image.
+     * Calls the API to make a request to delete an image from the backend.
      * Removes the image from the frontend's list of images.
-     * @param imageUrl the url of the image to be removed
+     * @param imageRemoving the image to be removed
      */
-    removeImage(imageUrl) {
+    removeImage(imageRemoving) {
       this.imagesEdited = true
-      //TODO: get this to call delete endpoint if image stored on backend
+      //If image has already been uploaded
+      if(imageRemoving.id){
+        Business.removeProductImage(this.businessId, this.newProduct.id, imageRemoving.id)
+            .then(() => {
+              this.removeImageFromList(imageRemoving)
+            })
+            .catch((err) => {
+              this.errorMessage = err.response.data.message || err;
+            })
+      } else {
+        //If the image has just been uploaded and then is removed
+        this.removeImageFromList(imageRemoving)
+      }
+
+      //If the removing image is the primary image, a new one is set on the backend. this is updating to show that.
+      if (this.product.primaryImageId === imageRemoving.id &&
+          this.currentPrimaryImageId === imageRemoving.id &&
+          this.images.length !== 0) {
+        for (const image of this.images) {
+          if (image.id !== undefined && image.id !== imageRemoving.id) {
+            this.currentPrimaryImageId = image.id
+            break
+          }
+        }
+      }
+    },
+
+    /**
+     * Used to remove the image from the list that is visible to the user
+     *@param removedImage the image to be removed
+     */
+    removeImageFromList(removedImage){
+      //Remove the deleted image from the list of images on screen
       this.images = this.images.filter(function(image) {
-        return image.url !== imageUrl;
+        return image !== removedImage;
       })
     },
 
@@ -557,12 +671,6 @@ export default {
      * @param imageId the id of the image to make primary
      */
     makeImagePrimary(imageId) {
-      if (imageId === null) {
-        this.primaryImageError = "This image is not on our servers yet. Please save changes before making this image Primary"
-        return
-      } else {
-        this.primaryImageError = null
-      }
       this.imagesEdited = true
       //Sets the new primary image to be set when the user clicks the save changes button
       this.currentPrimaryImageId = imageId
@@ -571,14 +679,18 @@ export default {
     /**
      * Makes requests to add the product's images
      */
-    addImages() {
+    async addImages() {
       for (const image of this.images) {
         //Id is undefined if it was just added
         if (image.id == null) {
-          Business.addProductImage(
+          await Business.addProductImage(
               this.businessId, this.newProduct.id, image.data)
         }
       }
+    },
+
+    changeDeletingImage(image) {
+      this.imageWantingToDelete = image
     }
   }
 }

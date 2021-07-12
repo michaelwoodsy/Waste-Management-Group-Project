@@ -6,11 +6,10 @@ import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.repositoryLayer.specification.CardSpecifications;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
+import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
-import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.RequiredFieldsMissingException;
 import org.seng302.project.serviceLayer.exceptions.card.ForbiddenCardActionException;
@@ -20,7 +19,6 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -243,53 +241,52 @@ public class CardService {
     }
 
     /**
-     * Searches for cards based on a section and keyword IDs
+     * Service method for editing a card
      *
-     * @param section    the section to search cards in
-     * @param keywordIds the keyword IDs to search for cards with
-     * @param union      whether cards should match with any or all keywords
-     * @return a list of cards that matches the query
+     * @param cardId id of the card to edit
+     * @param dto dto of the edited card
+     * @param appUser user who is making the request
      */
-    public List<GetCardResponseDTO> searchCards(String section, List<Integer> keywordIds, Boolean union) {
-        if (section == null || !List.of("ForSale", "Wanted", "Exchange").contains(section)) {
-            var exception = new BadRequestException("Bad Request: invalid section");
-            logger.warn(exception.getMessage());
-            throw exception;
-        }
-        if (keywordIds == null || keywordIds.isEmpty()) {
-            var exception = new BadRequestException("Bad Request: at least one keyword ID is required");
-            logger.warn(exception.getMessage());
-            throw exception;
-        }
-        if (union == null) {
-            var exception = new BadRequestException("Bad Request: union is a required parameter");
-            logger.warn(exception.getMessage());
-            throw exception;
-        }
-
-        Specification<Card> spec = Specification.where(null);
-        for (Integer keywordId : keywordIds) {
-            Optional<Keyword> keyword = keywordRepository.findById(keywordId);
-            if (keyword.isEmpty()) {
-                var exception = new BadRequestException("Bad Request: invalid keyword ID");
-                logger.warn(exception.getMessage());
-                throw exception;
+    public void editCard(Integer cardId, EditCardDTO dto, AppUserDetails appUser) {
+        logger.info("Request to edit card with id {}", cardId);
+        try {
+            //406 if card cannot be found (NoCardExistsException)
+            Optional<Card> cardOptional = cardRepository.findById(cardId);
+            if (cardOptional.isEmpty()) {
+                throw new NoCardExistsException(cardId);
             }
-            if (union) {
-                spec = spec.or(CardSpecifications.hasKeyword(keyword.get()));
-            } else {
-                spec = spec.and(CardSpecifications.hasKeyword(keyword.get()));
+            var retrievedCard = cardOptional.get();
+
+            //403 if card is not yours or you aren't DGAA/GAA (ForbiddenCardActionException)
+            User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
+            if (!retrievedCard.userCanEdit(requestMaker)) {
+                throw new ForbiddenCardActionException();
             }
-        }
 
-        spec = CardSpecifications.inSection(section).and(spec);
+            //Can now edit the card
 
-        List<Card> cards = cardRepository.findAll(spec);
-        List<GetCardResponseDTO> response = new ArrayList<>();
-        for (Card card : cards) {
-            response.add(new GetCardResponseDTO(card));
+            //Section has been checked to be non empty and a valid section by DTO
+            retrievedCard.setSection(dto.getSection());
+
+            //Title has been checked to be non empty by DTO
+            retrievedCard.setTitle(dto.getTitle());
+
+            retrievedCard.setDescription(dto.getDescription());
+
+            Set<Keyword> keywords = Collections.emptySet();
+            if (dto.getKeywordIds() != null) {
+                keywords = new HashSet<>(keywordRepository.findAllById(dto.getKeywordIds()));
+            }
+            retrievedCard.setKeywords(keywords);
+
+            cardRepository.save(retrievedCard);
+        } catch (NoCardExistsException | ForbiddenCardActionException expectedException) {
+            logger.warn(expectedException.getMessage());
+            throw expectedException;
+        } catch (Exception unexpectedException) {
+            logger.error(String.format("Unexpected error while editing card: %s", unexpectedException.getMessage()));
+            throw unexpectedException;
         }
-        return response;
     }
 
     /**

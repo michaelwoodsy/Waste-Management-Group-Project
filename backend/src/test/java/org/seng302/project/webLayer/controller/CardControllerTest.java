@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
-import org.seng302.project.serviceLayer.exceptions.BadRequestException;
+import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.card.ForbiddenCardActionException;
@@ -25,9 +25,6 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.Collections;
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -35,6 +32,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 /**
  * Class for testing CardController
@@ -257,47 +255,49 @@ class CardControllerTest extends AbstractInitializer {
                 .andExpect(status().isBadRequest());
     }
 
+
     /**
-     * Check a 200 is returned when the request is valid
+     * Checks a 406 response is sent when the cardId doesn't exist when editing a card.
      */
     @Test
-    void searchCard_successful_200() throws Exception {
-        Mockito.when(cardService.searchCards(
-                Mockito.any(String.class), Mockito.any(List.class), Mockito.any(Boolean.class))
-        ).thenReturn(Collections.emptyList());
+    void editCard_checkNonExistentCard406() throws Exception {
+        doThrow(new NoCardExistsException(1)).when(cardService)
+                .editCard(any(Integer.class), any(EditCardDTO.class), any(AppUserDetails.class));
+
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("section", "ForSale");
+        testCardJson.put("title", "1982 Lada Samara");
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/cards/search?section=ForSale&keywordIds=1&union=true")
+                .put("/cards/{id}", 3)
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
-        mockMvc.perform(request).andExpect(status().isOk());
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
     }
 
     /**
-     * Check a 400 is returned when there is an invalid request
+     * Checks a 403 response is sent when the user is not allowed to editing a card.
      */
     @Test
-    void searchCard_badRequest_400() throws Exception {
-        Mockito.when(cardService.searchCards(
-                Mockito.any(String.class), Mockito.any(List.class), Mockito.any(Boolean.class))
-        ).thenThrow(new BadRequestException("Test exception"));
+    void editCard_checkForbiddenAction403() throws Exception {
+        doThrow(new ForbiddenCardActionException()).when(cardService)
+                .editCard(any(Integer.class), any(EditCardDTO.class), any(AppUserDetails.class));
+
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("section", "ForSale");
+        testCardJson.put("title", "1982 Lada Samara");
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/cards/search?section=ForSale&keywordIds=1&union=true")
+                .put("/cards/{id}", 3)
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
-        mockMvc.perform(request).andExpect(status().isBadRequest());
-    }
-
-    /**
-     * Check a 401 is returned when there is no logged in user
-     */
-    @Test
-    void searchCard_notLoggedIn_401() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/cards/search?section=ForSale&keywordIds=1&union=true");
-
-        mockMvc.perform(request).andExpect(status().isUnauthorized());
+        mockMvc.perform(request).andExpect(status().isForbidden());
     }
 
 }

@@ -9,9 +9,9 @@ Eg, <market-card @card-deleted="someMethod" ... />
 @prop hideImage: Boolean, when true will not display the card image.
 -->
 <template>
-  <div :class="{'border-danger': expired && showExpired && canDeleteCard}" class="card shadow card-size">
+  <div :class="{'border-danger': expired && showExpired && canEditCard}" class="card shadow card-size">
 
-    <div v-if="expired && showExpired && canDeleteCard" class="card-header">
+    <div v-if="expired && showExpired && canEditCard" class="card-header">
       <div class="row align-items-center">
         <div class="col-7">
           <p class="text-danger d-inline">This card has recently expired</p>
@@ -84,12 +84,14 @@ Eg, <market-card @card-deleted="someMethod" ... />
       </div>
 
       <div class="text-right">
+
         <!-- Button toggles card details -->
         <button :data-target="'#cardDetails' + cardData.id" class="btn btn-sm btn-outline-secondary"
                 data-toggle="collapse" @click="toggleDetails">
           <span v-if="!showDetails">View Details <em class="bi bi-arrow-down"/></span>
           <span v-else>Hide Details <em class="bi bi-arrow-up"/></span>
         </button>
+
         <!-- Button to expand area to send a message to the creator -->
         <button v-if="!isCardCreator && actingAsUser"
                 :data-target="'#cardMessage' + cardData.id"
@@ -98,15 +100,27 @@ Eg, <market-card @card-deleted="someMethod" ... />
                 @click="clearMessage">
           Message Creator
         </button>
+
         <!-- Delete button -->
         <button
-            v-if="canDeleteCard && !expired"
+            v-if="canEditCard && !expired"
             :data-target="'#deleteModal' + cardData.id"
             class="btn btn-sm btn-outline-danger ml-3"
             data-toggle="modal"
         >
           Delete
         </button>
+
+        <!-- Edit button -->
+        <button
+            v-if="canEditCard && !expired"
+            :data-target="'#editCard' + cardData.id" data-toggle="modal"
+            class="btn btn-sm btn-outline-primary float-right ml-3"
+            @click="editCard"
+        >
+          Edit
+        </button>
+
       </div>
 
       <div :id="'cardMessage' + cardData.id" class="collapse text-right">
@@ -123,6 +137,17 @@ Eg, <market-card @card-deleted="someMethod" ... />
                 :disabled="!message">
           Send Message
         </button>
+      </div>
+
+      <!-- Edit modal -->
+      <div :id="'editCard' + cardData.id" :key="this.editCurrentCard" class="modal fade" data-backdrop="static">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <edit-card @card-edited="refreshCards()" :card-id="cardData.id"></edit-card>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -165,10 +190,12 @@ Eg, <market-card @card-deleted="someMethod" ... />
 import {getTimeDiffStr} from "@/utils/dateTime";
 import {Card, Marketplace, User} from "@/Api";
 import Alert from "@/components/Alert";
+import EditCard from "@/components/marketplace/EditCard";
 
 export default {
   name: "MarketCard",
   components: {
+    EditCard,
     Alert
   },
   props: {
@@ -198,6 +225,7 @@ export default {
       minutesToExpire: '',
       secondsToExpire: '',
       keywords: [],
+      editCurrentCard: false,
       message: null,
       messageError: false,
       messageSent: false
@@ -249,7 +277,7 @@ export default {
     },
 
     /** True if the logged in user is the creator of the card or an admin **/
-    canDeleteCard() {
+    canEditCard() {
       return this.isCardCreator || this.canDoAdminAction
     },
 
@@ -374,6 +402,21 @@ export default {
       if (this.timeUntilExpiry().timeLeft > 0) {
         requestAnimationFrame(this.updateTimer)
       }
+    },
+
+    /**
+     * Takes user to modal to edit card
+     */
+    editCard() {
+      this.editCurrentCard = true;
+    },
+
+    /**
+     * Called after a card is edited, refreshes the market cards
+     */
+    refreshCards() {
+      this.editCurrentCard = false
+      this.$emit('refresh-cards')
     }
   }
 }
