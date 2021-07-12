@@ -10,12 +10,14 @@ import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -40,6 +42,7 @@ public class MessageService {
 
     /**
      * Creates a new message
+     *
      * @param requestDTO containing the message text,
      *                   the id of who the message is for
      *                   and the id of the card the message is about
@@ -74,6 +77,48 @@ public class MessageService {
         Integer messageId = messageRepository.save(newMessage).getId();
 
         return new CreateMessageResponseDTO(messageId);
+    }
+
+    /**
+     * Method that gets all the messages for a given user. Only the given logged in
+     * user can view their own messages.
+     *
+     * @param userId  The ID of the user whose messages we are retrieving
+     * @param appUser The user currently logged in
+     * @return List of the given user's messages (if they have any)
+     */
+    public List<Message> getMessages(Integer userId, AppUserDetails appUser) {
+        try {
+            logger.info("Request to get messages for user with id {}", userId);
+
+            // Get the logged in user from the users email
+            String userEmail = appUser.getUsername();
+            var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+            // Get the user whose messages we want
+            Optional<User> userResult = userRepository.findById(userId);
+
+            // Check if the user exists
+            if (userResult.isEmpty()) {
+                throw new NotAcceptableException(String.format("No User exists with ID %d", userId));
+            }
+            // We know user exists so retrieve user properly
+            var user = userResult.get();
+
+            // Check if the logged in user is the same user whose messages we are retrieving
+            if (!loggedInUser.getId().equals(user.getId())) {
+                throw new ForbiddenUserException(userId);
+            }
+
+            // Get the user's messages
+            return messageRepository.findAllByReceiver(user);
+        } catch (ForbiddenUserException | NotAcceptableException handledException) {
+            logger.error(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while retrieving user's notifications: %s", unhandledException.getMessage()));
+            throw unhandledException;
+        }
     }
 }
 

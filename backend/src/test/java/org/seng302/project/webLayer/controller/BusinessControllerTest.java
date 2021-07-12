@@ -563,7 +563,7 @@ class BusinessControllerTest {
                 .andReturn();
 
         String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("Invalid business type provided", returnedExceptionString);
+        Assertions.assertEquals("BadRequestException: Invalid business type provided", returnedExceptionString);
 
     }
 
