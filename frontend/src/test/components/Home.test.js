@@ -124,10 +124,4 @@ describe('Jest tests for the home component', () => {
         expect(wrapper.vm.$data.notifications.length).toStrictEqual(1)
     })
 
-    test('calling formatDateTime retrieves correct dateTime format',  () => {
-        const date = '2021-07-10T08:28:21.200Z'
-        const formattedDate = wrapper.vm.formatDateTime(date)
-        expect(formattedDate).toEqual('10/07/2021 20:28')
-    })
-
 })
