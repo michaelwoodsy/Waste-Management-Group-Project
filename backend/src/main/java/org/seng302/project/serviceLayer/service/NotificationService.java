@@ -3,10 +3,13 @@ package org.seng302.project.serviceLayer.service;
 import org.seng302.project.repositoryLayer.model.AdminNotification;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.model.UserNotification;
+import org.seng302.project.repositoryLayer.repository.AdminNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.notifications.DeleteUserNotificationDTO;
+import org.seng302.project.serviceLayer.exceptions.NoNotificationExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.serviceLayer.exceptions.notification.ForbiddenNotificationActionException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -23,20 +26,23 @@ public class NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class.getName());
     private final UserRepository userRepository;
     private final UserNotificationRepository userNotificationRepository;
+    private final AdminNotificationRepository adminNotificationRepository;
 
 
     @Autowired
     public NotificationService(UserRepository userRepository,
-                               UserNotificationRepository userNotificationRepository) {
+                               UserNotificationRepository userNotificationRepository,
+                               AdminNotificationRepository adminNotificationRepository) {
         this.userRepository = userRepository;
         this.userNotificationRepository = userNotificationRepository;
+        this.adminNotificationRepository = adminNotificationRepository;
     }
 
     /**
      * Gets a list of notifications assigned to the user.
      *
-     * @param userId     ID of the user to get the notifications of.
-     * @param appUser    AppUserDetails from spring security
+     * @param userId  ID of the user to get the notifications of.
+     * @param appUser AppUserDetails from spring security
      * @return List of notifications assigned to the user.
      */
     public List<UserNotification> getUserNotifications(Integer userId, AppUserDetails appUser) {
@@ -69,10 +75,10 @@ public class NotificationService {
     /**
      * Deletes a notification.
      *
-     * @param dto     DTO containing the userId, notificationId and the appUser details
+     * @param dto DTO containing the userId, notificationId and the appUser details
      */
     public void deleteUserNotification(DeleteUserNotificationDTO dto) {
-        try{
+        try {
             logger.info("Request to delete notification with ID: {} for user with ID: {}", dto.getNotificationId(), dto.getUserId());
 
             Optional<User> user = userRepository.findById(dto.getUserId());
@@ -113,16 +119,43 @@ public class NotificationService {
      * @return a list of all admin notifications
      */
     public List<AdminNotification> getAdminNotifications(AppUserDetails appUser) {
-        return null;
+        try {
+            var requestUser = userRepository.findByEmail(appUser.getUsername()).get(0);
+            if (!requestUser.isGAA()) {
+                throw new ForbiddenSystemAdminActionException();
+            }
+            return adminNotificationRepository.findAll();
+        } catch (ForbiddenSystemAdminActionException handledException) {
+            logger.warn(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while deleting user's notification: %s", unhandledException.getMessage()));
+            throw unhandledException;
+        }
     }
 
     /**
      * Deletes an admin notification
      *
      * @param notificationId ID of the admin notification to delete
-     * @param appUser the User trying to delete the notification
+     * @param appUser        the User trying to delete the notification
      */
     public void deleteAdminNotification(Integer notificationId, AppUserDetails appUser) {
-
+        try {
+            var requestUser = userRepository.findByEmail(appUser.getUsername()).get(0);
+            if (!requestUser.isGAA()) {
+                throw new ForbiddenSystemAdminActionException();
+            }
+            if (adminNotificationRepository.findById(notificationId).isEmpty()) {
+                throw new NoNotificationExistsException(notificationId);
+            }
+            adminNotificationRepository.deleteById(notificationId);
+        } catch (ForbiddenSystemAdminActionException | NoNotificationExistsException handledException) {
+            logger.warn(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while deleting user's notification: %s", unhandledException.getMessage()));
+            throw unhandledException;
+        }
     }
 }
