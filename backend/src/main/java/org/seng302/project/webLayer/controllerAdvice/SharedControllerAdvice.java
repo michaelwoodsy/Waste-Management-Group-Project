@@ -2,6 +2,7 @@ package org.seng302.project.webLayer.controllerAdvice;
 
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -60,5 +61,17 @@ public class SharedControllerAdvice {
     @ExceptionHandler(NotAcceptableException.class)
     public ResponseEntity<String> notAcceptable(NotAcceptableException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+    }
+
+
+    /**
+     * Handles sending a 403 response when a request is forbidden.
+     *
+     * @param ex the ForbiddenUserException thrown by the controller/service
+     * @return a 403 response with a message about why they are the wrong user for the request
+     */
+    @ExceptionHandler(ForbiddenUserException.class)
+    public ResponseEntity<String> forbiddenUserRequestDTO(ForbiddenUserException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 }
