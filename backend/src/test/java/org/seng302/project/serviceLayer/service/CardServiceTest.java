@@ -6,8 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.model.CardExpiryNotification;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.model.UserNotification;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
@@ -49,6 +52,9 @@ class CardServiceTest extends AbstractInitializer {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private UserNotificationRepository userNotificationRepository;
 
     @BeforeEach
     void setup() {
@@ -266,5 +272,28 @@ class CardServiceTest extends AbstractInitializer {
         Assertions.assertEquals(requestDTO.getDescription(), editedCard.getDescription());
         Assertions.assertEquals(requestDTO.getSection(), editedCard.getSection());
         Assertions.assertEquals(testUser.getEmail(), editedCard.getCreator().getEmail());
+    }
+
+    /**
+     * Tests a notification is sent to the user if their card expires
+     */
+    @Test
+    void testCardExpirySendsNotification() {
+        //Mocking that the card is returned from the delete function, making it look like it was deleted
+        given(cardRepository.deleteByDisplayPeriodEndBefore(any(LocalDateTime.class))).willReturn(List.of(testUsersCard1));
+
+        //Simulating an automatic call for removal of expired cards
+        cardService.removeCardsAfter24Hrs();
+
+        //Verifies that a notification was created
+        verify(userNotificationRepository, times(1)).save(any(CardExpiryNotification.class));
+
+        //Retrieves the created notification
+        ArgumentCaptor<CardExpiryNotification> cardExpiryArgumentCaptor = ArgumentCaptor.forClass(CardExpiryNotification.class);
+        verify(userNotificationRepository).save(cardExpiryArgumentCaptor.capture());
+        CardExpiryNotification notification = cardExpiryArgumentCaptor.getValue();
+
+
+        Assertions.assertEquals(testUsersCard1.getTitle(), notification.getCardTitle());
     }
 }
