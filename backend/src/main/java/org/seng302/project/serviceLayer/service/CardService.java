@@ -8,6 +8,7 @@ import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
+import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.RequiredFieldsMissingException;
@@ -235,6 +236,55 @@ public class CardService {
             throw expectedException;
         } catch (Exception unexpectedException) {
             logger.error(String.format("Unexpected error while retrieving users cards: %s", unexpectedException.getMessage()));
+            throw unexpectedException;
+        }
+    }
+
+    /**
+     * Service method for editing a card
+     *
+     * @param cardId id of the card to edit
+     * @param dto dto of the edited card
+     * @param appUser user who is making the request
+     */
+    public void editCard(Integer cardId, EditCardDTO dto, AppUserDetails appUser) {
+        logger.info("Request to edit card with id {}", cardId);
+        try {
+            //406 if card cannot be found (NoCardExistsException)
+            Optional<Card> cardOptional = cardRepository.findById(cardId);
+            if (cardOptional.isEmpty()) {
+                throw new NoCardExistsException(cardId);
+            }
+            var retrievedCard = cardOptional.get();
+
+            //403 if card is not yours or you aren't DGAA/GAA (ForbiddenCardActionException)
+            User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
+            if (!retrievedCard.userCanEdit(requestMaker)) {
+                throw new ForbiddenCardActionException();
+            }
+
+            //Can now edit the card
+
+            //Section has been checked to be non empty and a valid section by DTO
+            retrievedCard.setSection(dto.getSection());
+
+            //Title has been checked to be non empty by DTO
+            retrievedCard.setTitle(dto.getTitle());
+
+            retrievedCard.setDescription(dto.getDescription());
+
+            Set<Keyword> keywords = Collections.emptySet();
+            if (dto.getKeywordIds() != null) {
+                keywords = new HashSet<>(keywordRepository.findAllById(dto.getKeywordIds()));
+            }
+            retrievedCard.setKeywords(keywords);
+
+            cardRepository.save(retrievedCard);
+        } catch (NoCardExistsException | ForbiddenCardActionException expectedException) {
+            logger.warn(expectedException.getMessage());
+            throw expectedException;
+        } catch (Exception unexpectedException) {
+            logger.error(String.format("Unexpected error while editing card: %s", unexpectedException.getMessage()));
             throw unexpectedException;
         }
     }

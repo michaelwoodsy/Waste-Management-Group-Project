@@ -10,6 +10,7 @@ import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
+import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.card.NoCardExistsException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -220,5 +221,50 @@ class CardServiceTest extends AbstractInitializer {
         Assertions.assertEquals(testUsersCard1.getDescription(), createdCard.getDescription());
         Assertions.assertEquals(testUsersCard1.getSection(), createdCard.getSection());
         Assertions.assertEquals(testUsersCard1.getCreator().getEmail(), createdCard.getCreator().getEmail());
+    }
+
+    /**
+     * Test editing a card that does not exist
+     */
+    @Test
+    void testEditCardDoesNotExist() {
+        // Mock card with id 1 being empty
+        given(cardRepository.findById(1)).willReturn(Optional.empty());
+
+        EditCardDTO requestDTO = new EditCardDTO(
+                "ForSale",
+                "Title",
+                null,
+                Collections.emptyList());
+
+        Assertions.assertThrows(NoCardExistsException.class,
+                () -> cardService.editCard(1, requestDTO, new AppUserDetails(testUser)));
+    }
+
+    /**
+     * Test editing a card that is successful
+     */
+    @Test
+    void testEditCardSuccess() {
+
+        EditCardDTO requestDTO = new EditCardDTO(
+                "Exchange",
+                "Some Title",
+                null,
+                Collections.emptyList());
+
+        // Mock the save method on the cardRepository
+        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+
+        cardService.editCard(testUsersCard1.getId(), requestDTO, new AppUserDetails(testUser));
+
+        ArgumentCaptor<Card> cardArgumentCaptor = ArgumentCaptor.forClass(Card.class);
+        verify(cardRepository).save(cardArgumentCaptor.capture());
+        Card editedCard = cardArgumentCaptor.getValue();
+
+        Assertions.assertEquals(requestDTO.getTitle(), editedCard.getTitle());
+        Assertions.assertEquals(requestDTO.getDescription(), editedCard.getDescription());
+        Assertions.assertEquals(requestDTO.getSection(), editedCard.getSection());
+        Assertions.assertEquals(testUser.getEmail(), editedCard.getCreator().getEmail());
     }
 }
