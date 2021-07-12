@@ -67,7 +67,7 @@ public class NotificationController {
      * @param notificationId ID of the notification to delete
      * @param appUser The user trying to delete the notification
      */
-    @DeleteMapping("/notification/{notificationId}")
+    @DeleteMapping("/notifications/{notificationId}")
     public void deleteAdminNotification(@PathVariable Integer notificationId, @AuthenticationPrincipal AppUserDetails appUser) {
         notificationService.deleteAdminNotification(notificationId, appUser);
     }
