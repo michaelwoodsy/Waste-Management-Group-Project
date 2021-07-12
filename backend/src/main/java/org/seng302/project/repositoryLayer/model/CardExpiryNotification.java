@@ -17,21 +17,15 @@ import javax.persistence.*;
 @PrimaryKeyJoinColumn(name = "new_card_expiry_notification_id")
 public class CardExpiryNotification extends UserNotification {
 
-    private Card card;
+    private String cardTitle;
 
     /**
      * Constructor for creating a new CardExpiryNotification object.
      *
-     * @param card                     card this notification is about.
+     * @param cardTitle title of the card this notification is about.
      */
-    public CardExpiryNotification(User user, String message,  Card card) {
+    public CardExpiryNotification(User user, String message,  String cardTitle) {
         super(user, message);
-        this.card = card;
-    }
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "card_id")
-    public Card getCard() {
-        return this.card;
+        this.cardTitle = cardTitle;
     }
 }

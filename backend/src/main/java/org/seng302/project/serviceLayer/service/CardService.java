@@ -1,10 +1,12 @@
 package org.seng302.project.serviceLayer.service;
 
 import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.model.CardExpiryNotification;
 import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
+import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
@@ -34,14 +36,17 @@ public class CardService {
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
     private final KeywordRepository keywordRepository;
+    private final UserNotificationRepository userNotificationRepository;
 
     @Autowired
     public CardService(CardRepository cardRepository,
                        UserRepository userRepository,
-                       KeywordRepository keywordRepository) {
+                       KeywordRepository keywordRepository,
+                       UserNotificationRepository userNotificationRepository) {
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
         this.keywordRepository = keywordRepository;
+        this.userNotificationRepository = userNotificationRepository;
     }
 
     /**
@@ -246,6 +251,15 @@ public class CardService {
     public void removeCardsAfter24Hrs() {
         logger.info("Removing cards that have been expired for 24 hours or more");
         LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
-        cardRepository.deleteByDisplayPeriodEndBefore(oneDayAgo);
+        List<Card> cardsDeleted = cardRepository.deleteByDisplayPeriodEndBefore(oneDayAgo);
+
+        //Create a CardExpiryNotification for each expired  card
+        for (Card card: cardsDeleted) {
+            var newNotification = new CardExpiryNotification(
+                    card.getCreator(),
+                    "This Card Has Expired and was deleted.",
+                    card.getTitle());
+            userNotificationRepository.save(newNotification);
+        }
     }
 }
