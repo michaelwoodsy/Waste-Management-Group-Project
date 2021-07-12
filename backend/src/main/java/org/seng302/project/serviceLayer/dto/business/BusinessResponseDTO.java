@@ -2,7 +2,6 @@ package org.seng302.project.serviceLayer.dto.business;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.address.AddressResponseDTO;
@@ -10,6 +9,7 @@ import org.seng302.project.serviceLayer.dto.user.UserResponseDTO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,6 +36,8 @@ public class BusinessResponseDTO {
         this.primaryAdministratorId = business.getPrimaryAdministratorId();
         this.administrators = new ArrayList<>();
         for (User user : business.getAdministrators()) {
+            //Removes infinite loop of businesses administers causing StackOverflowError
+            user.setBusinessesAdministered(Collections.emptyList());
             this.administrators.add(new UserResponseDTO(user));
         }
     }
