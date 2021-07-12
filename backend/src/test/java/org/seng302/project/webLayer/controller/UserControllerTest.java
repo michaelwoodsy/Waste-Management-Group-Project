@@ -5,6 +5,8 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.exceptions.*;
@@ -12,8 +14,12 @@ import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEm
 import org.seng302.project.serviceLayer.exceptions.register.InvalidEmailException;
 import org.seng302.project.serviceLayer.exceptions.register.InvalidPhoneNumberException;
 import org.seng302.project.serviceLayer.exceptions.register.UserUnderageException;
+import org.seng302.project.serviceLayer.service.UserService;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,8 +32,13 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,27 +46,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Unit tests for UserController
  */
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class UserControllerTest {
-
-    @Autowired
-    private WebApplicationContext context;
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+class UserControllerTest extends AbstractInitializer {
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
     private MockMvc mvc;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
+    @MockBean
+    private UserService userService;
+
     @BeforeEach
-    public void setup() {
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
+    void setup() {
+        initialise();
     }
 
     private JSONObject createTestUserBase() throws JSONException {
@@ -325,7 +334,54 @@ public class UserControllerTest {
         Assertions.assertTrue(createdTimestamp.isAfter(LocalDateTime.now().minusSeconds(5)));
         //TODO: Come back to this when we implement businesses
         //Assertions.assertTrue(returnedUser.getBusinessesAdministered().isEmpty());
-
     }
 
+    /**
+     * Test the user must be authorised
+     */
+    @Test
+    void userSearch_notLoggedIn_401() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                .get("/users/search")
+                .param("searchQuery", ""))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Checks the search query is passed to the UserService.
+     */
+    @Test
+    void userSearch_withQueryParam_queryPassedToService() throws Exception {
+        // Mock the searchUsers method to return an empty list
+        when(userService.searchUsers(any(String.class))).thenReturn(List.of());
+
+        // Make the request
+        mvc.perform(MockMvcRequestBuilders
+                .get("/users/search")
+                .param("searchQuery", "testquery string")
+                .with(user(new AppUserDetails(getTestUser()))));
+
+        // Capture query string passed to UserService method
+        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+        verify(userService).searchUsers(queryCaptor.capture());
+
+        // Check the query string is correct
+        Assertions.assertEquals("testquery string", queryCaptor.getValue());
+    }
+
+    /**
+     * Check a 200 is returned for a valid search
+     */
+    @Test
+    void userSearch_blueSky_200() throws Exception {
+        // Mock the searchUsers method to return an empty list
+        when(userService.searchUsers(any(String.class))).thenReturn(List.of());
+
+        // Make the request, and check it is 200
+        mvc.perform(MockMvcRequestBuilders
+                .get("/users/search")
+                .param("searchQuery", "testquery string")
+                .with(user(new AppUserDetails(getTestUser()))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
 }
