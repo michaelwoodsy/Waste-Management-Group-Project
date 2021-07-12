@@ -6,6 +6,6 @@ import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
  */
 public class UserNotFoundException extends NotAcceptableException {
     public UserNotFoundException(Integer id) {
-        super(String.format("UserNotFoundException: no business with id %d exists.", id));
+        super(String.format("UserNotFoundException: no user with id %d exists.", id));
     }
 }
