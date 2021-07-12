@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.card.ForbiddenCardActionException;
@@ -31,6 +32,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 /**
  * Class for testing CardController
@@ -252,4 +254,50 @@ class CardControllerTest extends AbstractInitializer {
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isBadRequest());
     }
+
+
+    /**
+     * Checks a 406 response is sent when the cardId doesn't exist when editing a card.
+     */
+    @Test
+    void editCard_checkNonExistentCard406() throws Exception {
+        doThrow(new NoCardExistsException(1)).when(cardService)
+                .editCard(any(Integer.class), any(EditCardDTO.class), any(AppUserDetails.class));
+
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("section", "ForSale");
+        testCardJson.put("title", "1982 Lada Samara");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/cards/{id}", 3)
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Checks a 403 response is sent when the user is not allowed to editing a card.
+     */
+    @Test
+    void editCard_checkForbiddenAction403() throws Exception {
+        doThrow(new ForbiddenCardActionException()).when(cardService)
+                .editCard(any(Integer.class), any(EditCardDTO.class), any(AppUserDetails.class));
+
+        JSONObject testCardJson = new JSONObject();
+        testCardJson.put("section", "ForSale");
+        testCardJson.put("title", "1982 Lada Samara");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/cards/{id}", 3)
+                .content(testCardJson.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
+
 }

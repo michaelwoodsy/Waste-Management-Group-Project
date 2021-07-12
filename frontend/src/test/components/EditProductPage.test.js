@@ -108,8 +108,7 @@ describe('EditProductPage Component Tests', () => {
         loggedIn = false;
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-            computed,
-            methods
+            computed
         })
         expect(wrapper.findComponent({name: 'login-required'}).exists()).toBeTruthy()
     })
@@ -119,8 +118,7 @@ describe('EditProductPage Component Tests', () => {
         businessId = 3;
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-            computed,
-            methods
+            computed
         })
         expect(wrapper.findComponent({name: 'admin-required'}).exists()).toBeTruthy()
     })
@@ -139,8 +137,7 @@ describe('EditProductPage Component Tests', () => {
         productId = "Non existent";
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required", "alert"],
-            computed,
-            methods
+            computed
         })
         await Vue.nextTick() // Otherwise the loading ... message is displayed
 
@@ -225,17 +222,20 @@ describe("Edit Product Images Test",  () => {
         wrapper.vm.$data.images = [{
             id: 1234,
             url: "image.png",
-            file: ""
+            file: "",
+            data: ""
             }, {
             id: 12345,
             url: "other_image.jpg",
-            file: ""
+            file: "",
+            data: ""
         }]
         wrapper.vm.removeImageFromList(wrapper.vm.$data.images[0])
         expect(wrapper.vm.$data.images).toEqual([{
             id: 12345,
             url: "other_image.jpg",
-            file: ""
+            file: "",
+            data: ""
         }])
     })
 

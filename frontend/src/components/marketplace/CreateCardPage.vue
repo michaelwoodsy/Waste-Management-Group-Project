@@ -48,7 +48,7 @@
       <!-- Keywords -->
       <div class="form-group row">
         <label for="keywordValue">
-          <strong>Keywords<span class="required">*</span></strong>
+          <strong>Keywords</strong>
           (Keywords must be 25 characters or less)
         </label>
         <!-- Keyword Input -->
@@ -228,11 +228,8 @@ export default {
           }
       ).then(() => {
         this.$refs.close.click();
-        this.close();
       }).catch((err) => {
-        this.msg.errorChecks = err.response
-            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-            : err
+        this.showError(err)
       });
     },
 
@@ -276,10 +273,7 @@ export default {
           this.filteredKeywords = response.data;
         })
         .catch((err) => {
-          this.msg.errorChecks = err.response
-              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-              : err
-
+          this.showError(err)
         })
       } else {
         this.filteredKeywords = []
@@ -294,6 +288,16 @@ export default {
     setKeyword(keyword) {
       this.keywordValue = keyword
       this.addKeyword()
+    },
+
+    /**
+     * Shows the error returned in a request
+     * @param err error returned
+     */
+    showError(err) {
+      this.msg.errorChecks = err.response
+          ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+          : err
     }
   }
 }

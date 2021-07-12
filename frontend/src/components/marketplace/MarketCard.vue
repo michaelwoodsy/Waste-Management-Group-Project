@@ -144,7 +144,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-body">
-              <edit-card :card-id="cardData.id"></edit-card>
+              <edit-card @card-edited="refreshCards()" :card-id="cardData.id"></edit-card>
             </div>
           </div>
         </div>
@@ -410,6 +410,14 @@ export default {
     editCard() {
       this.editCurrentCard = true;
     },
+
+    /**
+     * Called after a card is edited, refreshes the market cards
+     */
+    refreshCards() {
+      this.editCurrentCard = false
+      this.$emit('refresh-cards')
+    }
   }
 }
 </script>

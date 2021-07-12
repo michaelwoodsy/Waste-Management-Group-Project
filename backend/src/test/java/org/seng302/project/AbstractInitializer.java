@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -27,10 +28,14 @@ public abstract class AbstractInitializer {
     private List<Image> testImages;
     private MockMultipartFile testFile;
     private MockMultipartFile testImageFile;
+    private Card testCard;
+    private UserNotification testUserNotification;
 
     public void initialise() {
         this.initialiseTestUser();
         this.initialiseTestSystemAdmin();
+        this.initialiseTestCard();
+        this.initialiseTestUserNotification();
         this.initialiseTestUserBusinessAdmin();
         this.initialiseTestBusiness();
         this.initialiseTestProduct();
@@ -71,6 +76,22 @@ public abstract class AbstractInitializer {
         testSystemAdmin.setId(2);
         testSystemAdmin.setRole("globalApplicationAdmin");
         testSystemAdmin.setPassword(passwordEncoder.encode(testSystemAdmin.getPassword()));
+    }
+
+    public void initialiseTestCard() {
+        testCard = new Card(
+                testUser,
+                "ForSale",
+                "New Card",
+                "This is a new Card",
+                Collections.emptySet());
+    }
+
+    public void initialiseTestUserNotification() {
+        testUserNotification = new UserNotification(
+                testUser,
+                "This is a notification message");
+        testUserNotification.setId(0);
     }
 
     public void initialiseTestUserBusinessAdmin() {

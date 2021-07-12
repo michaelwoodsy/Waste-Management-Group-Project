@@ -157,7 +157,9 @@ Page for displaying the marketplace.
       <!-- Div with cards -->
       <div class="row row-cols-1 row-cols-lg-2">
         <div v-for="card in orderedCards" v-bind:key="card.id" class="col">
-          <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="false" @card-deleted="deleteCard"></MarketCard>
+          <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="false"
+                      @card-deleted="deleteCard"
+                      @refresh-cards="refreshCards()"></MarketCard>
         </div>
       </div>
 
@@ -358,6 +360,7 @@ export default {
      * Refreshes the card modal
      */
     refreshCards() {
+      console.log("Refreshing Cards...")
       this.createNewCard = false;
       this.getCards(this.tabSelected)
     },

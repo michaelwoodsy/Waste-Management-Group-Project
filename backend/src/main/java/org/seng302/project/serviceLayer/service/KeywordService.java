@@ -3,9 +3,9 @@ package org.seng302.project.serviceLayer.service;
 import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.NewKeywordNotification;
+import org.seng302.project.repositoryLayer.repository.AdminNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
-import org.seng302.project.repositoryLayer.repository.NewKeywordNotificationRepository;
 import org.seng302.project.repositoryLayer.specification.KeywordSpecifications;
 import org.seng302.project.serviceLayer.dto.keyword.AddKeywordResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
@@ -27,14 +27,14 @@ public class KeywordService {
     private static final Logger logger = LoggerFactory.getLogger(KeywordService.class.getName());
     private final KeywordRepository keywordRepository;
     private final CardRepository cardRepository;
-    private final NewKeywordNotificationRepository newKeywordNotificationRepository;
+    private final AdminNotificationRepository adminNotificationRepository;
 
     @Autowired
     public KeywordService(KeywordRepository keywordRepository, CardRepository cardRepository,
-                          NewKeywordNotificationRepository newKeywordNotificationRepository) {
+                          AdminNotificationRepository adminNotificationRepository) {
         this.keywordRepository = keywordRepository;
         this.cardRepository = cardRepository;
-        this.newKeywordNotificationRepository = newKeywordNotificationRepository;
+        this.adminNotificationRepository = adminNotificationRepository;
     }
 
     /**
@@ -56,7 +56,8 @@ public class KeywordService {
             keyword = keywordRepository.save(keyword);
 
             var adminNotification = new NewKeywordNotification(keyword);
-            newKeywordNotificationRepository.save(adminNotification);
+            //You can use the adminNotificationRepository for keyword notifications
+            adminNotificationRepository.save(adminNotification);
 
             return new AddKeywordResponseDTO(keyword.getId());
         } catch (Exception exception) {

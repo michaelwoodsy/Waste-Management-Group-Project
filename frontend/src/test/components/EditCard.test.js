@@ -84,7 +84,15 @@ describe('validate Section method tests', () => {
 
 describe('validate Title method tests', () => {
 
-    beforeEach(() => {
+    beforeEach(async() => {
+        wrapper = await shallowMount(EditCard, {
+            methods: {
+                addCard() {
+                    return null
+                }
+            }
+        })
+
         wrapper.vm.$data.msg.title = null
         wrapper.vm.$data.valid = true
     })
