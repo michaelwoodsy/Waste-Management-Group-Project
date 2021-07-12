@@ -16,7 +16,6 @@ import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
-import org.seng302.project.serviceLayer.exceptions.user.UserNotFoundException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -209,7 +208,7 @@ class MessageServiceTest extends AbstractInitializer {
     void getMessages_notValidUser_error() {
        AppUserDetails appUser = new AppUserDetails(testSender);
 
-        Assertions.assertThrows(UserNotFoundException.class,
+        Assertions.assertThrows(NotAcceptableException.class,
                 () -> messageService.getMessages(100, appUser));
     }
 

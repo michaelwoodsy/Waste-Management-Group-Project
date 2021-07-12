@@ -10,7 +10,6 @@ import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
-import org.seng302.project.serviceLayer.exceptions.user.UserNotFoundException;
 import org.seng302.project.serviceLayer.service.MessageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -210,7 +209,7 @@ class MessageControllerTest extends AbstractInitializer {
      */
     @Test
     void getMessages_nonExistentUser_throws406() throws Exception {
-        doThrow(new UserNotFoundException(100))
+        doThrow(NotAcceptableException.class)
                 .when(messageService)
                 .getMessages(Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
 
