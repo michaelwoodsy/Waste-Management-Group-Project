@@ -35,13 +35,13 @@ public abstract class AbstractInitializer {
     public void initialise() {
         this.initialiseTestUsers();
         this.initialiseTestSystemAdmin();
-        this.initialiseTestCard();
-        this.initialiseTestUserNotification();
         this.initialiseTestUserBusinessAdmin();
         this.initialiseTestBusiness();
         this.initialiseTestProduct();
         this.initialiseTestImages();
         this.initialiseTestFiles();
+        this.initialiseTestCard();
+        this.initialiseTestUserNotification();
     }
 
     public void initialiseTestUsers() {
@@ -113,22 +113,6 @@ public abstract class AbstractInitializer {
         testUserBusinessAdmin.setPassword(passwordEncoder.encode(testUserBusinessAdmin.getPassword()));
     }
 
-    public void initialiseTestCard() {
-        testCard = new Card(
-                testUser,
-                "ForSale",
-                "New Card",
-                "This is a new Card",
-                Collections.emptySet());
-    }
-
-    public void initialiseTestUserNotification() {
-        testUserNotification = new UserNotification(
-                "This is a notification message", testUser
-        );
-        testUserNotification.setId(1);
-    }
-
     public void initialiseTestBusiness() {
         Address address = new Address(null, null, null, null, "New Zealand", null);
         testBusiness = new Business(
@@ -184,6 +168,23 @@ public abstract class AbstractInitializer {
                 MediaType.IMAGE_JPEG_VALUE,
                 imageContent
         );
+    }
+
+    public void initialiseTestCard() {
+        testCard = new Card(
+                testUser,
+                "ForSale",
+                "New Card",
+                "This is a new Card",
+                Collections.emptySet());
+        testCard.setId(1);
+    }
+
+    public void initialiseTestUserNotification() {
+        testUserNotification = new UserNotification(
+                "This is a notification message", testUser
+        );
+        testUserNotification.setId(1);
     }
 
 }
