@@ -21,12 +21,14 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
 
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.util.AssertionErrors.fail;
 
@@ -321,7 +323,7 @@ class ProductCatalogueServiceTest {
         ProductSearchDTO requestDTO = new ProductSearchDTO(
                 true, true, false, false);
         Assertions.assertThrows(ForbiddenAdministratorActionException.class,
-                () -> productCatalogueService.searchProducts(1, requestDTO, notAdmin));
+                () -> productCatalogueService.searchProducts(1, "beans", requestDTO, notAdmin));
     }
 
 
@@ -337,10 +339,27 @@ class ProductCatalogueServiceTest {
         ProductSearchDTO requestDTO = new ProductSearchDTO(
                 true, true, false, false);
         Assertions.assertThrows(NotAcceptableException.class,
-                () -> productCatalogueService.searchProducts(4, requestDTO, userDetails));
+                () -> productCatalogueService.searchProducts(4, "beans", requestDTO, userDetails));
     }
 
-    //TODO: product search test for successful search
 
+    /**
+     * Tests searching of name field
+     */
+    @Test
+    void searchProducts_nameField_success() {
+        given(productRepository.findAll(any(Specification.class)))
+                .willReturn(List.of(existingProduct));
+
+        AppUserDetails userDetails = new AppUserDetails(owner);
+        ProductSearchDTO requestDTO = new ProductSearchDTO(
+                false, true, false, false);
+
+        List<Product> returnedProducts = productCatalogueService.searchProducts(
+                1, "cookies", requestDTO, userDetails);
+
+        Assertions.assertEquals(1, returnedProducts.size());
+        Assertions.assertEquals(existingProduct.getId(), returnedProducts.get(0).getId());
+    }
 
 }

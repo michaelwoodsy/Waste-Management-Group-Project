@@ -7,6 +7,7 @@ import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.InventoryItemRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.specification.ProductSpecifications;
 import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
 import org.seng302.project.serviceLayer.dto.product.EditProductDTO;
 import org.seng302.project.serviceLayer.dto.product.ProductSearchDTO;
@@ -18,10 +19,10 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -281,7 +282,8 @@ public class ProductCatalogueService {
      * @param requestDTO request body containing which fields to search by
      * @param appUser the user making the request
      */
-    public List<Product> searchProducts(Integer businessId, ProductSearchDTO requestDTO, AppUserDetails appUser) {
+    public List<Product> searchProducts(Integer businessId, String searchQuery, ProductSearchDTO requestDTO,
+                                        AppUserDetails appUser) {
 
         var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
 
@@ -301,9 +303,26 @@ public class ProductCatalogueService {
             throw exception;
         }
 
-        //TODO: use specifications
+        //Currently works for queries without ANDs, ORs or quotes
+        searchQuery = searchQuery.toLowerCase();
+        Specification<Product> spec = Specification.where(null);
 
-        return Collections.emptyList();
+        if (Boolean.TRUE.equals(requestDTO.getMatchingId())) {
+            spec.or(ProductSpecifications.containsId(searchQuery));
+        }
+        if (Boolean.TRUE.equals(requestDTO.getMatchingName())) {
+            spec.or(ProductSpecifications.containsName(searchQuery));
+        }
+        if (Boolean.TRUE.equals(requestDTO.getMatchingDescription())) {
+            spec.or(ProductSpecifications.containsDescription(searchQuery));
+        }
+        if (Boolean.TRUE.equals(requestDTO.getMatchingManufacturer())) {
+            spec.or(ProductSpecifications.containsManufacturer(searchQuery));
+        }
+
+        return productRepository.findAll(spec);
+
+        //TODO: return list of GetProductResponseDTOs
 
     }
 

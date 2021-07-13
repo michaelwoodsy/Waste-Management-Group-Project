@@ -85,9 +85,10 @@ public class ProductCatalogueController {
     @GetMapping("/businesses/{businessId}/products/search")
     @ResponseStatus(HttpStatus.OK)
     public List<Product> searchProducts(@PathVariable Integer businessId,
+                                        @RequestParam("searchQuery") String searchQuery,
                                         @Valid @RequestBody ProductSearchDTO requestDTO,
                                         @AuthenticationPrincipal AppUserDetails appUser) {
-        return productCatalogueService.searchProducts(businessId, requestDTO, appUser);
+        return productCatalogueService.searchProducts(businessId, searchQuery, requestDTO, appUser);
     }
 
 }

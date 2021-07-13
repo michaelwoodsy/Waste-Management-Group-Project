@@ -524,7 +524,7 @@ class ProductCatalogueControllerTest {
     @Test
     void searchProducts_notAdmin_403() throws Exception {
         when(productCatalogueService.searchProducts(
-                any(Integer.class), any(ProductSearchDTO.class), any(AppUserDetails.class)))
+                any(Integer.class), any(String.class), any(ProductSearchDTO.class), any(AppUserDetails.class)))
                 .thenThrow(new ForbiddenAdministratorActionException(businessId));
 
         JSONObject requestBody = new JSONObject();
@@ -551,7 +551,7 @@ class ProductCatalogueControllerTest {
     @Test
     void searchProducts_nonExistentBusiness_406() throws Exception {
         when(productCatalogueService.searchProducts(
-                any(Integer.class), any(ProductSearchDTO.class), any(AppUserDetails.class)))
+                any(Integer.class), any(String.class), any(ProductSearchDTO.class), any(AppUserDetails.class)))
                 .thenThrow(new NotAcceptableException("There is no business that exists with the id '500'"));
 
         JSONObject requestBody = new JSONObject();
