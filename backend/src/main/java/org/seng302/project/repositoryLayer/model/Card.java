@@ -29,10 +29,10 @@ public class Card {
     /**
      * Constructor for creating a new Card object.
      *
-     * @param creator                     User creating card.
-     * @param section                     Marketplace section the Card falls to.
-     * @param title                       Title of the card.
-     * @param description                 Description of the card.
+     * @param creator     User creating card.
+     * @param section     Marketplace section the Card falls to.
+     * @param title       Title of the card.
+     * @param description Description of the card.
      */
     public Card(User creator, String section, String title, String description, Set<Keyword> keywords) {
         this.creator = creator;
@@ -59,9 +59,10 @@ public class Card {
     /**
      * This returns a SET (not a List) of the card's keywords
      * It returns a Set because returning a List results in a MultipleBagFetchException
+     *
      * @return a Set of the card's keywords
      */
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "card_has_keyword",
             joinColumns = @JoinColumn(name = "card_id"),
@@ -73,6 +74,7 @@ public class Card {
 
     /**
      * Removes the keyword from the keywords set.
+     *
      * @param keyword Keyword to remove.
      */
     public void removeKeyword(Keyword keyword) {

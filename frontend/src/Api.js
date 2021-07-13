@@ -308,7 +308,17 @@ export const Keyword = {
      * Searches keywords for matches to a partial keyword
      * @param partialKeyword the string to search by
      */
-    searchKeywords: (partialKeyword) => instance.get(`keywords/search`, {params: {'searchQuery': partialKeyword}})
+    searchKeywords: (partialKeyword) =>
+        instance.get(`keywords/search`, {params: {'searchQuery': partialKeyword}}),
+
+    /**
+     * Deletes a keyword by ID
+     *
+     * @param keywordId the ID of the keyword to delete
+     * @returns {Promise<AxiosResponse<any>>} response with status code
+     */
+    deleteKeyword: (keywordId) =>
+        instance.delete(`keywords/${keywordId}`)
 }
 
 export const Images = {

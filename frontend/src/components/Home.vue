@@ -113,7 +113,6 @@ export default {
     if (this.$root.$data.user.canDoAdminAction()) {
       await this.getAdminNotifications();
     }
-    console.log(this.notifications[0])
   },
   data() {
     return {
@@ -295,8 +294,7 @@ export default {
      */
     async removeNotification(notificationId) {
       try {
-        await User.deleteNotification(this.actor.id, notificationId)
-        //Remove the notification from the list that is shown
+        // Remove the notification from the list that is shown
         for (const [index, notification] of this.notifications.entries()) {
           if (notification.id === notificationId) {
             console.log(index)

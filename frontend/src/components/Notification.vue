@@ -1,32 +1,63 @@
 <template>
-  <div aria-atomic="true" aria-live="assertive" class="toast hide" data-autohide="false" role="alert">
-    <div :class="{'bg-danger text-light': data.type === 'admin'}" class="toast-header">
-      <strong class="mr-auto">{{ data.title }}</strong>
-      <small>{{ formattedDateTime }}</small>
-      <button id="closeNotification"
-              aria-label="Close"
-              class="ml-2 close"
-              data-dismiss="toast"
-              type="button"
-              @click="$emit('remove-notification')">
-        <span :class="{'text-light': data.type === 'admin'}" aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="toast-body text-black-50">
-      {{ data.message }}
-      <div v-if="data.type === 'cardExpiry'">
-        <br>
-        Card: {{ data.card.title }}
+  <div>
+
+    <!-- Notification Toast -->
+    <div aria-atomic="true" aria-live="assertive" class="toast hide mb-2" data-autohide="false" role="alert">
+      <div :class="{'bg-danger text-light': isAdminNotification}" class="toast-header">
+        <small class="ml-auto">{{ formattedDateTime }}</small>
+        <button id="closeNotification"
+                aria-label="Close"
+                class="ml-2 close"
+                data-dismiss="toast"
+                type="button"
+                @click="removeNotification">
+          <span :class="{'text-light': isAdminNotification}" aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="toast-body text-black-50">
+        <div class="mb-2">{{ data.message }}</div>
+
+        <!-- Card Expiry Notification Body -->
+        <div v-if="data.type === 'cardExpiry'">
+          Card: {{ data.cardTitle }}
+        </div>
+
+        <!-- New Keyword Notification Body -->
+        <div v-if="data.type === 'newKeyword'" class="text-right">
+          <button :data-target="'#deleteKeyword' + data.keyword.id"
+                  class="btn btn-sm btn-outline-danger"
+                  data-toggle="modal"
+          >
+            Delete Keyword
+          </button>
+        </div>
+
       </div>
     </div>
+
+    <!-- Delete Keyword Modal -->
+    <div v-if="data.type === 'newKeyword'">
+      <confirmation-modal :modal-header="'Delete Keyword: ' + data.keyword.name"
+                          :modal-id="'deleteKeyword' + data.keyword.id"
+                          modal-confirm-colour="btn-danger"
+                          modal-confirm-text="Delete"
+                          modal-message="Are you sure you wish to delete this keyword?"
+                          @confirm="deleteKeyword"/>
+    </div>
+
   </div>
 </template>
 
 <script>
 import {formatDateTime} from "@/utils/dateTime";
+import ConfirmationModal from "@/components/ConfirmationModal";
+import {Keyword, User} from "@/Api";
+
+const adminTypes = ['admin', 'newKeyword']
 
 export default {
   name: "Notification",
+  components: {ConfirmationModal},
   props: {
     data: {
       type: Object,
@@ -36,6 +67,41 @@ export default {
   computed: {
     formattedDateTime() {
       return formatDateTime(this.data.created)
+    },
+    isAdminNotification() {
+      return adminTypes.includes(this.data.type)
+    },
+    userId() {
+      return this.$root.$data.user.state.actingAs.id
+    }
+  },
+  methods: {
+    /**
+     * Emits an event to delete the notification
+     */
+    async removeNotification() {
+      try {
+        if (this.isAdminNotification) {
+          await User.deleteAdminNotification(this.data.id)
+          this.$emit('remove-notification');
+        } else {
+          await User.deleteNotification(this.userId, this.data.id)
+          this.$emit('remove-notification');
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    /**
+     * Deletes the keyword and notification
+     */
+    async deleteKeyword() {
+      try {
+        await this.removeNotification()
+        await Keyword.deleteKeyword(this.data.keyword.id)
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 }

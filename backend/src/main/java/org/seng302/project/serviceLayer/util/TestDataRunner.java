@@ -67,7 +67,7 @@ public class TestDataRunner {
      * Function that populates repositories with test data.
      *
      * @throws FileNotFoundException if the test_data.json cannot be found.
-     * @throws ParseException if test_data.json cannot be correctly parsed.
+     * @throws ParseException        if test_data.json cannot be correctly parsed.
      */
     public void insertTestData() throws FileNotFoundException, ParseException {
         JSONObject data = (JSONObject) parser.parse(new FileReader("./src/main/resources/test_data.json"));
@@ -141,9 +141,6 @@ public class TestDataRunner {
             );
             userRepository.save(newUser);
         }
-
-        AdminNotification notification = new AdminNotification("This is a test admin notification");
-        adminNotificationRepository.save(notification);
 
         logger.info("Finished adding sample data to user repository");
         logger.info("Added {} entries to user repository", userRepository.count());
@@ -229,7 +226,7 @@ public class TestDataRunner {
 
 
             Optional<Product> testProductOptions = productRepository.findByIdAndBusinessId(
-                    jsonProductImage.getAsString("productId"),1);
+                    jsonProductImage.getAsString("productId"), 1);
             if (testProductOptions.isPresent()) {
                 Product testProduct = testProductOptions.get();
                 Image testImage = new Image(
@@ -321,6 +318,7 @@ public class TestDataRunner {
                     jsonKeyword.getAsString("name")
             );
             keywordRepository.save(testKeyword);
+            adminNotificationRepository.save(new NewKeywordNotification(testKeyword));
         }
         logger.info("Finished adding sample data to keyword repository");
         logger.info("Added {} entries to keyword repository", keywordRepository.count());
@@ -376,8 +374,6 @@ public class TestDataRunner {
         logger.info("Added {} entries to card repository", cardRepository.count());
         logger.info("Added {} entries to user notification repository", userNotificationRepository.count());
     }
-
-
 
 
 }
