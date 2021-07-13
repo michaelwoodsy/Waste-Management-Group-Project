@@ -3,13 +3,12 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.repositoryLayer.repository.AddressRepository;
-import org.seng302.project.repositoryLayer.repository.CardRepository;
-import org.seng302.project.repositoryLayer.repository.NotificationRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.serviceLayer.service.CardService;
 import org.seng302.project.webLayer.controller.CardController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -54,6 +54,7 @@ public class CardExpirySteps {
     private Integer testCardId;
 
     private final UserRepository userRepository;
+    private final UserNotificationRepository userNotificationRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AddressRepository addressRepository;
     private final CardRepository cardRepository;
@@ -66,6 +67,7 @@ public class CardExpirySteps {
 
     @Autowired
     public CardExpirySteps(UserRepository userRepository,
+                           UserNotificationRepository userNotificationRepository,
                            AddressRepository addressRepository,
                            BCryptPasswordEncoder passwordEncoder,
                            CardRepository cardRepository,
@@ -73,6 +75,7 @@ public class CardExpirySteps {
                            NotificationRepository notificationRepository,
                            CardController cardController) {
         this.userRepository = userRepository;
+        this.userNotificationRepository = userNotificationRepository;
         this.addressRepository = addressRepository;
         this.passwordEncoder = passwordEncoder;
         this.cardRepository = cardRepository;
@@ -87,6 +90,7 @@ public class CardExpirySteps {
     @BeforeEach
     @Autowired
     public void setup(WebApplicationContext context) {
+        userNotificationRepository.deleteAll();
         cardRepository.deleteAll();
         userRepository.deleteAll();
 
@@ -188,5 +192,29 @@ public class CardExpirySteps {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(httpBasic(testGAAEmail, testGAAPassword));
+    }
+
+    //AC4
+
+    @When("The card has an expiry date of more than {int} hours ago")
+    public void the_card_has_an_expiry_date_of_more_than_hours_ago(Integer hours) {
+        //Only 2 weeks (display period) and one day (time to extend card) is required
+        // for a card to be automatically deleted. (adding 1 minute to be sure)
+        testCard.setDisplayPeriodEnd(LocalDateTime.now().minusHours(hours).minusMinutes(1));
+        cardRepository.save(testCard);
+    }
+
+    @Then("The card is automatically deleted and a notification is created")
+    public void the_card_is_automatically_deleted_and_a_notification_is_created() {
+        //Simulating an automatic call for removal of expired cards
+        cardService.removeCardsAfter24Hrs();
+
+        List<UserNotification> notifications = userNotificationRepository.findAllByUser(cardCreator);
+
+        Assertions.assertEquals(1, notifications.size());
+        Assertions.assertEquals(CardExpiryNotification.class, notifications.get(0).getClass());
+
+        CardExpiryNotification notification = (CardExpiryNotification) notifications.get(0);
+        Assertions.assertEquals(testCard.getTitle(), notification.getCardTitle());
     }
 }
