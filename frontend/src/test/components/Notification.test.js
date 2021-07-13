@@ -28,11 +28,6 @@ describe('Jest tests for Notification component', () => {
                     created: "2/07/2021 4:34pm",
                     card: "Looking for plums"
                 }
-            },
-            computed: {
-                userId() {
-                    return 1
-                }
             }
         })
     })

@@ -38,6 +38,7 @@ const cards = [
         ]
     }
 ]
+
 let notifications = [
     { id: 0,
         title: "Card Expiry",
@@ -133,6 +134,20 @@ describe('Jest tests for the home component', () => {
         expect(wrapper.vm.$data.notifications.length).toStrictEqual(2)
         wrapper.vm.removeNotification(1)
         expect(wrapper.vm.$data.notifications.length).toStrictEqual(1)
+    })
+
+    test('Show notification button toggles correctly', async () => {
+        wrapper.vm.$data.notificationsShown = false
+        const button = wrapper.find('#showNotificationsButton')
+        await button.trigger('click')
+        expect(wrapper.vm.$data.notificationsShown).toBeTruthy()
+    })
+
+    test('Show messages button toggles correctly', async () => {
+        wrapper.vm.$data.notificationsShown = true
+        const button = wrapper.find('#showMessagesButton')
+        await button.trigger('click')
+        expect(wrapper.vm.$data.notificationsShown).toBeFalsy()
     })
 
 })

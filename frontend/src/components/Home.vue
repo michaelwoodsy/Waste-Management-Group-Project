@@ -71,20 +71,53 @@
       <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
         <div>
           <h4 class="text-light">Notifications</h4>
-          <!-- Toggle Notifications Button -->
-          <button class="btn btn-block btn-primary" type="button" @click="toggleNotifications()">
-            <em v-if="notifications.length < 10" class="bi bi-bell">{{ notifications.length }}</em>
-            <em v-else class="bi bi-bell">9+</em>
-          </button>
+
+          <!-- Toggle Notifications/Messages Buttons -->
+          <div class="btn-group btn-block">
+            <button id="showNotificationsButton"
+                    :class="{'btn-primary': notificationsShown, 'btn-outline-primary': !notificationsShown}"
+                    class="btn" style="width: 50%" type="button" @click="showNotifications">
+              <em class="bi bi-bell"/>
+              <span v-if="notifications.length > 0" class="badge badge-pill badge-light ml-1">
+                <span v-if="notifications.length < 10">{{ notifications.length }}</span>
+                <span v-else>9+</span>
+              </span>
+            </button>
+            <button id="showMessagesButton"
+                    :class="{'btn-primary': !notificationsShown, 'btn-outline-primary': notificationsShown}"
+                    class="btn" style="width: 50%" type="button" @click="showMessages">
+              <em class="bi bi-envelope"/>
+              <span v-if="messages.length > 0" class="badge badge-pill badge-light ml-1">
+                <span v-if="messages.length < 10">{{ messages.length }}</span>
+                <span v-else>9+</span>
+              </span>
+            </button>
+          </div>
         </div>
         <br>
+
         <!-- Notifications -->
-        <!--  TODO:  Add different versions for each notification type      -->
-        <notification v-for="notification in notifications"
-                      :key="notification.id"
-                      :data="notification"
-                      @remove-notification="removeNotification(notification.id)"/>
+        <div v-if="notificationsShown">
+          <div v-if="notifications.length === 0">
+            <p class="text-light">You have no notifications</p>
+          </div>
+          <div v-else>
+            <notification v-for="notification in notifications"
+                          :key="notification.id"
+                          :data="notification"
+                          @remove-notification="removeNotification(notification.id)"/>
+
+          </div>
+        </div>
+
+        <div v-else>
+          <div v-if="messages.length === 0">
+            <p class="text-light">You have no messages</p>
+          </div>
+        </div>
+
       </div>
+
     </div>
   </div>
 </template>
@@ -113,15 +146,17 @@ export default {
     if (this.$root.$data.user.canDoAdminAction()) {
       await this.getAdminNotifications();
     }
+    $('.toast').toast('show')
   },
   data() {
     return {
       cards: [],
       hideImages: true,
-      hideNotifications: true,
+      notificationsShown: true,
       //Test data
       notifications: [],
       adminNotifications: [],
+      messages: [],
       error: ""
     }
   },
@@ -208,14 +243,22 @@ export default {
 
   },
   methods: {
-    toggleNotifications() {
-      if (this.hideNotifications) {
-        $('.toast').toast('show')
-        this.hideNotifications = false
-      } else {
-        $('.toast').toast('hide')
-        this.hideNotifications = true
-      }
+    /**
+     * Displays the notifications section
+     */
+    async showNotifications() {
+      this.notificationsShown = true
+      await this.$nextTick()
+      $('.toast').toast('show')
+    },
+
+    /**
+     * Displays the messages section
+     */
+    async showMessages() {
+      this.notificationsShown = false
+      await this.$nextTick()
+      $('.toast').toast('show')
     },
 
     /**
@@ -292,18 +335,12 @@ export default {
      * Remove a notification from the list of visible notifications
      * @param notificationId the id of the notification that is to be removed
      */
-    async removeNotification(notificationId) {
-      try {
-        // Remove the notification from the list that is shown
-        for (const [index, notification] of this.notifications.entries()) {
-          if (notification.id === notificationId) {
-            console.log(index)
-            this.notifications.splice(index, 1)
-          }
+    removeNotification(notificationId) {
+      // Remove the notification from the list that is shown
+      for (const [index, notification] of this.notifications.entries()) {
+        if (notification.id === notificationId) {
+          this.notifications.splice(index, 1)
         }
-      } catch (error) {
-        console.error(error)
-        this.error = error
       }
     }
   }

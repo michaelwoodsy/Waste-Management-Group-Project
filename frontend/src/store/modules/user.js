@@ -164,11 +164,21 @@ export default {
     },
 
     /**
-     * Returns true if the user is acting as a business
-     * @returns {boolean|*}
+     * Returns whether a user is logged in or not
+     *
+     * @returns {boolean} true if user is logged in
      */
-    isActingAsBusiness() {
-        return this.state.actingAs.type === "business"
+    isLoggedIn() {
+        return this.state.loggedIn
+    },
+
+    /**
+     * Returns the current actor
+     *
+     * @returns {object} the current actor
+     */
+    actor() {
+        return this.state.actingAs
     },
 
     /**
@@ -177,6 +187,14 @@ export default {
      */
     isActingAsUser() {
         return this.state.actingAs.type === "user"
+    },
+
+    /**
+     * Returns true if the user is acting as a business
+     * @returns {boolean|*}
+     */
+    isActingAsBusiness() {
+        return this.state.actingAs.type === "business"
     },
 
     /**
