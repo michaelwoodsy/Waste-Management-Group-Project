@@ -303,7 +303,7 @@ public class ProductCatalogueService {
             throw exception;
         }
 
-        //Currently works for queries without ANDs, ORs or quotes
+        //TODO: split by spaces, quotes, ANDs and ORs
         searchQuery = searchQuery.toLowerCase();
         Specification<Product> spec = Specification.where(null);
 
