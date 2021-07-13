@@ -1,14 +1,14 @@
 package org.seng302.project.serviceLayer.service;
 
-import org.seng302.project.repositoryLayer.model.Business;
-import org.seng302.project.repositoryLayer.model.InventoryItem;
-import org.seng302.project.repositoryLayer.model.Product;
+import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.InventoryItemRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.specification.ProductSpecifications;
 import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
 import org.seng302.project.serviceLayer.dto.product.EditProductDTO;
+import org.seng302.project.serviceLayer.dto.product.GetProductDTO;
 import org.seng302.project.serviceLayer.dto.product.ProductSearchDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
@@ -18,12 +18,13 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductCatalogueService {
@@ -33,6 +34,9 @@ public class ProductCatalogueService {
     private final ProductRepository productRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final UserRepository userRepository;
+
+    private static final String AND_SPACE_REGEX = "( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+    private static final String QUOTE_REGEX = "^\".*\"$";
 
     @Autowired
     public ProductCatalogueService(UserRepository userRepository,
@@ -46,13 +50,44 @@ public class ProductCatalogueService {
     }
 
     /**
+     * Helper function for this class that gets the business
+     * Throws a NotAcceptableException if the business is not found
+     * @return the business with the given id
+     */
+    private Business getBusiness(Integer businessId) {
+        Optional<Business> businessResult = businessRepository.findById(businessId);
+
+        if (businessResult.isEmpty()) {
+            var exception = new NotAcceptableException(String.format("There is no business that exists with the id '%d'",
+                    businessId));
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+
+        return businessResult.get();
+    }
+
+    /**
+     * Helper function for this class that checks a user is either
+     * and admin of the business or a DGAA/GAA
+     * Throws a ForbiddenAdministratorActionException if the user is not an admin
+     */
+    private void checkUserAdmin(Business business, User user) {
+        if (!business.userCanDoAction(user)) {
+            var exception = new ForbiddenAdministratorActionException(business.getId());
+            logger.error(exception.getMessage());
+            throw exception;
+        }
+    }
+
+    /**
      * Gets a list of products that belongs to a business.
      *
      * @param businessId ID of the business to get the products of.
      * @param appUser    AppUserDetails from spring security
      * @return List of products that belongs to the business.
      */
-    public List<Product> getBusinessesProducts(Integer businessId, AppUserDetails appUser) {
+    public List<GetProductDTO> getBusinessesProducts(Integer businessId, AppUserDetails appUser) {
         try {
             // Get the logged in user from the users email
             String userEmail = appUser.getUsername();
@@ -60,27 +95,16 @@ public class ProductCatalogueService {
 
             logger.info("User with user id: {} getting products from business with ID: {}", loggedInUser.getId(), businessId );
 
-            // Get the business
-            Optional<Business> businessResult = businessRepository.findById(businessId);
-
-            // Check if the business exists
-            if (businessResult.isEmpty()) {
-                var exception = new BusinessNotFoundException(businessId);
-                logger.error(exception.getMessage());
-                throw exception;
-            }
-            var business = businessResult.get();
-
-            // Check if the logged in user is the business owner / administrator or a GAA
-            if (!(business.userIsAdmin(loggedInUser.getId()) ||
-                    business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
-                var exception = new ForbiddenAdministratorActionException(businessId);
-                logger.error(exception.getMessage());
-                throw exception;
-            }
+            var business = getBusiness(businessId);
+            checkUserAdmin(business, loggedInUser);
 
             // Get the products for the businesses
-            return productRepository.findAllByBusinessId(businessId);
+            List<Product> products = productRepository.findAllByBusinessId(businessId);
+            List<GetProductDTO> response = new ArrayList<>();
+            for (Product product : products) {
+                response.add(new GetProductDTO(product));
+            }
+            return response;
 
         } catch (BusinessNotFoundException | ForbiddenAdministratorActionException handledException) {
             throw handledException;
@@ -103,25 +127,8 @@ public class ProductCatalogueService {
             logger.info("User with user id: {} Adding product to business with ID: {}"
                   , loggedInUser.getId(), requestDTO.getBusinessId());
 
-            // Get the business
-            Optional<Business> businessResult = businessRepository.findById(requestDTO.getBusinessId());
-
-            // Check if the business exists
-            if (businessResult.isEmpty()) {
-                var exception = new BusinessNotFoundException(requestDTO.getBusinessId());
-                logger.error(exception.getMessage());
-                throw exception;
-            }
-            var business = businessResult.get();
-
-            // Check if the logged in user is the business owner / administrator or a GAA
-            if (!(business.userIsAdmin(loggedInUser.getId()) ||
-                    business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
-                var exception = new ForbiddenAdministratorActionException(
-                        requestDTO.getBusinessId());
-                logger.error(exception.getMessage());
-                throw exception;
-            }
+            var business = getBusiness(requestDTO.getBusinessId());
+            checkUserAdmin(business, loggedInUser);
 
             //These have been checked to be not empty by the DTO
             //Also productId checked against regex by DTO
@@ -179,24 +186,9 @@ public class ProductCatalogueService {
             logger.info("User with user id: {} Editing product with id '{}' from business with id {}",
                     loggedInUser.getId(), requestDTO.getProductId(), requestDTO.getBusinessId());
 
-            // Get the business
-            Optional<Business> businessResult = businessRepository.findById(requestDTO.getBusinessId());
+            var business = getBusiness(requestDTO.getBusinessId());
+            checkUserAdmin(business, loggedInUser);
 
-            // Check if the business exists
-            if (businessResult.isEmpty()) {
-                var exception = new BusinessNotFoundException(requestDTO.getBusinessId());
-                logger.error(exception.getMessage());
-                throw exception;
-            }
-            var business = businessResult.get();
-
-            // Check if the logged in user is the business owner / administrator or a GAA
-            if (!(business.userIsAdmin(loggedInUser.getId()) ||
-                    business.getPrimaryAdministratorId().equals(loggedInUser.getId())) && !loggedInUser.isGAA()) {
-                var exception = new ForbiddenAdministratorActionException(requestDTO.getBusinessId());
-                logger.error(exception.getMessage());
-                throw exception;
-            }
 
             // Get the product
             Optional<Product> productResult = productRepository.findByIdAndBusinessId(requestDTO.getProductId(), requestDTO.getBusinessId());
@@ -276,35 +268,132 @@ public class ProductCatalogueService {
 
 
     /**
+     * Searches the product id field, handling ORs, ANDs, spaces and quotes
+     * Updates the set of products for searchProducts()
+     * @param currentResult The products that have already been retrieved searchProducts()
+     * @param conjunctions The list of strings that have been split by OR
+     */
+    private void searchIdField(Set<Product> currentResult, String[] conjunctions) {
+        for (String conjunction : conjunctions) {
+            String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
+            Specification<Product> spec = Specification.where(null);
+            for (String term : terms) {
+                //Remove quotes from quoted string, then search by full contents inside the quotes
+                if (Pattern.matches(QUOTE_REGEX, term)) {
+                    term = term.replace("\"", "");
+                }
+                spec = spec.and(ProductSpecifications.containsId(term));
+            }
+            currentResult.addAll(productRepository.findAll(spec));
+        }
+    }
+
+
+    /**
+     * Searches the product name field, handling ORs, ANDs, spaces and quotes
+     * Updates the set of products for searchProducts()
+     * @param currentResult The products that have already been retrieved searchProducts()
+     * @param conjunctions The list of strings that have been split by OR
+     */
+    private void searchNameField(Set<Product> currentResult, String[] conjunctions) {
+        for (String conjunction : conjunctions) {
+            String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
+            Specification<Product> spec = Specification.where(null);
+            for (String term : terms) {
+                //Remove quotes from quoted string, then search by full contents inside the quotes
+                if (Pattern.matches(QUOTE_REGEX, term)) {
+                    term = term.replace("\"", "");
+                }
+                spec = spec.and(ProductSpecifications.containsName(term));
+            }
+            currentResult.addAll(productRepository.findAll(spec));
+        }
+    }
+
+
+    /**
+     * Searches the product description field, handling ORs, ANDs, spaces and quotes
+     * Updates the set of products for searchProducts()
+     * @param currentResult The products that have already been retrieved searchProducts()
+     * @param conjunctions The list of strings that have been split by OR
+     */
+    private void searchDescriptionField(Set<Product> currentResult, String[] conjunctions) {
+        for (String conjunction : conjunctions) {
+            String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
+            Specification<Product> spec = Specification.where(null);
+            for (String term : terms) {
+                //Remove quotes from quoted string, then search by full contents inside the quotes
+                if (Pattern.matches(QUOTE_REGEX, term)) {
+                    term = term.replace("\"", "");
+                }
+                spec = spec.and(ProductSpecifications.containsDescription(term));
+            }
+            currentResult.addAll(productRepository.findAll(spec));
+        }
+    }
+
+    /**
+     * Searches the product manufacturer field, handling ORs, ANDs, spaces and quotes
+     * Updates the set of products for searchProducts()
+     * @param currentResult The products that have already been retrieved searchProducts()
+     * @param conjunctions The list of strings that have been split by OR
+     */
+    private void searchManufacturerField(Set<Product> currentResult, String[] conjunctions) {
+        for (String conjunction : conjunctions) {
+            String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
+            Specification<Product> spec = Specification.where(null);
+            for (String term : terms) {
+                //Remove quotes from quoted string, then search by full contents inside the quotes
+                if (Pattern.matches(QUOTE_REGEX, term)) {
+                    term = term.replace("\"", "");
+                }
+                spec = spec.and(ProductSpecifications.containsManufacturer(term));
+            }
+            currentResult.addAll(productRepository.findAll(spec));
+        }
+    }
+
+    /**
      * Searches a business's catalogue for products
      * @param businessId id of the business to search products of
      * @param requestDTO request body containing which fields to search by
      * @param appUser the user making the request
      */
-    public List<Product> searchProducts(Integer businessId, ProductSearchDTO requestDTO, AppUserDetails appUser) {
+    public List<GetProductDTO> searchProducts(Integer businessId, String searchQuery, ProductSearchDTO requestDTO,
+                                              AppUserDetails appUser) {
+
+        logger.info("Request to search products of business with id: {}, and searchQuery: {}", businessId, searchQuery);
 
         var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
 
-        Optional<Business> businessResult = businessRepository.findById(businessId);
+        var business = getBusiness(businessId);
+        checkUserAdmin(business, loggedInUser);
 
-        if (businessResult.isEmpty()) {
-            var exception = new NotAcceptableException(String.format("There is no business that exists with the id '%d'",
-                    businessId));
-            logger.error(exception.getMessage());
-            throw exception;
-        }
-        var business = businessResult.get();
+        searchQuery = searchQuery.toLowerCase();
+        Set<Product> result = new LinkedHashSet<>();
+        String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
-        if (!business.userCanDoAction(loggedInUser)) {
-            var exception = new ForbiddenAdministratorActionException(businessId);
-            logger.error(exception.getMessage());
-            throw exception;
+        //Searching id field
+        if (Boolean.TRUE.equals(requestDTO.getMatchingId())) {
+            searchIdField(result, conjunctions);
         }
 
-        //TODO: use specifications
+        //Searching name field
+        if (Boolean.TRUE.equals(requestDTO.getMatchingName())) {
+            searchNameField(result, conjunctions);
+        }
 
-        return Collections.emptyList();
+        //Searching description field
+        if (Boolean.TRUE.equals(requestDTO.getMatchingDescription())) {
+            searchDescriptionField(result, conjunctions);
+        }
 
+        //Searching manufacturer field
+        if (Boolean.TRUE.equals(requestDTO.getMatchingManufacturer())) {
+            searchManufacturerField(result, conjunctions);
+        }
+
+        List<Product> products = new ArrayList<>(result);
+        return products.stream().map(GetProductDTO::new).collect(Collectors.toList());
     }
-
 }
