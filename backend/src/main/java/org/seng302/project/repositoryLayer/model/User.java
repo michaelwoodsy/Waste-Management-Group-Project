@@ -34,6 +34,7 @@ public class User {
     private String role; // This property should only be shown to Global org.seng302.project.controller.Application Admins
     private List<Business> businessesAdministered = new ArrayList<>();
     private LocalDateTime created = LocalDateTime.now();
+    private Integer primaryImageId;
 
     public User(String firstName, String lastName, String middleName,
                 String nickname, String bio, String email, String dateOfBirth,
@@ -80,6 +81,9 @@ public class User {
         return this.businessesAdministered;
     }
 
+    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
+    private List<Image> images = new ArrayList<>();
+
     public boolean businessIsAdministered(Integer businessId) {
         for (Business business : this.businessesAdministered) {
             if (businessId.equals(business.getId())) {
@@ -93,6 +97,22 @@ public class User {
     public boolean isGAA() {
         return role.equals("globalApplicationAdmin") || role.equals("defaultGlobalApplicationAdmin");
     }
+
+    /**
+     * Function used to add an image to the list of images associated with a product
+     */
+    public void addImage(Image newImage){
+        this.images.add(newImage);
+        //Checks if the new image is the first in the list, and makes it the primary image
+        if (images.size() == 1) {
+            primaryImageId = newImage.getId();
+        }
+    }
+
+    /**
+     * Function used to remove an image from the list of images associated with a product
+     */
+    public void removeImage(Image image){ this.images.remove(image); }
 
 
 }
