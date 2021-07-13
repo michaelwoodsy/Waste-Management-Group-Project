@@ -4,6 +4,7 @@ import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.Message;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageResponseDTO;
+import org.seng302.project.serviceLayer.dto.message.DeleteMessageDTO;
 import org.seng302.project.serviceLayer.service.MessageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,8 @@ public class MessageController {
     public void deleteMessage(@PathVariable Integer userId,
                               @PathVariable Integer messageId,
                               @AuthenticationPrincipal AppUserDetails appUser){
-
+        var requestDTO = new DeleteMessageDTO(userId, messageId, appUser);
+        messageService.deleteMessage(requestDTO);
     }
 
 }

@@ -8,6 +8,7 @@ import org.seng302.project.repositoryLayer.repository.MessageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageResponseDTO;
+import org.seng302.project.serviceLayer.dto.message.DeleteMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
@@ -77,6 +78,19 @@ public class MessageService {
         Integer messageId = messageRepository.save(newMessage).getId();
 
         return new CreateMessageResponseDTO(messageId);
+    }
+
+    /**
+     * Called by the deleteMessage() method in MessageController.
+     * Handles the business logic for deleting a user's message,
+     * throws exceptions up to the controller to handle
+     * @param requestDTO    containing the id of who the message is for,
+     *                      the id of the message,
+     *                      and the user who is trying to delete the message
+     */
+    public void deleteMessage(DeleteMessageDTO requestDTO){
+        logger.info("Request to delete message with id {}", requestDTO.getMessageId());
+
     }
 
     /**
