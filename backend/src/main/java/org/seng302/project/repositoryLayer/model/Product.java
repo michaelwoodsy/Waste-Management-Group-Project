@@ -27,8 +27,9 @@ public class Product {
     private LocalDateTime created = LocalDateTime.now();
     private Integer primaryImageId;
 
-    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
+    @OneToMany(targetEntity=Image.class, mappedBy ="product", fetch= FetchType.EAGER)
     private List<Image> images = new ArrayList<>();
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Id
     private Integer businessId; // The id of the business that offers this product

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class UserImageTest {
 
     /**
-     * Tests that adding an image to a product's list of images is successful
+     * Tests that adding an image to a User's list of images is successful
      */
     @Test
     void addImage() {
@@ -25,7 +25,7 @@ public class UserImageTest {
     }
 
     /**
-     * Tests that (adding then) removing an image from a product's list of images is successful
+     * Tests that (adding then) removing an image from a User's list of images is successful
      */
     @Test
     void removeImage() {

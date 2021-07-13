@@ -81,7 +81,7 @@ public class User {
         return this.businessesAdministered;
     }
 
-    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
+    @OneToMany(targetEntity=Image.class, mappedBy ="user", fetch= FetchType.EAGER)
     private List<Image> images = new ArrayList<>();
 
     public boolean businessIsAdministered(Integer businessId) {
@@ -99,7 +99,7 @@ public class User {
     }
 
     /**
-     * Function used to add an image to the list of images associated with a product
+     * Function used to add an image to the list of images associated with a user
      */
     public void addImage(Image newImage){
         this.images.add(newImage);
@@ -110,7 +110,7 @@ public class User {
     }
 
     /**
-     * Function used to remove an image from the list of images associated with a product
+     * Function used to remove an image from the list of images associated with a user
      */
     public void removeImage(Image image){ this.images.remove(image); }
 
