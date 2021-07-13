@@ -54,5 +54,19 @@ public class MessageController {
         return messageService.getMessages(userId, appUser);
     }
 
+    /**
+     * Endpoint for deleting a message
+     *
+     * @param userId the user Id of who the message was sent to
+     * @param messageId the message Id
+     * @param appUser user details to check if the current user is allowed to delete this message
+     */
+    @DeleteMapping("/users/{userId}/messages/{messageId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteMessage(@PathVariable Integer userId,
+                              @PathVariable Integer messageId,
+                              @AuthenticationPrincipal AppUserDetails appUser){
+
+    }
 
 }
