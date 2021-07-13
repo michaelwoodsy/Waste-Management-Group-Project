@@ -40,6 +40,9 @@ export default {
     modalConfirmColour: String
   },
   methods: {
+    /**
+     * Emits the confirm event from the modal, so that the parent component can then perform the action
+     */
     confirm() {
       this.$emit('confirm')
     }

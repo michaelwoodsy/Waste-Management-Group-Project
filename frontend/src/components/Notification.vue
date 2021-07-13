@@ -52,6 +52,7 @@
 import {formatDateTime} from "@/utils/dateTime";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import {Keyword, User} from "@/Api";
+import user from "@/store/modules/user"
 
 const adminTypes = ['admin', 'newKeyword']
 
@@ -65,14 +66,17 @@ export default {
     }
   },
   computed: {
+    /**
+     * Returns the formatted date-time of when the notification was created
+     */
     formattedDateTime() {
       return formatDateTime(this.data.created)
     },
+    /**
+     * Returns true if the notification is an admin notification, false otherwise
+     */
     isAdminNotification() {
       return adminTypes.includes(this.data.type)
-    },
-    userId() {
-      return this.$root.$data.user.state.actingAs.id
     }
   },
   methods: {
@@ -85,7 +89,7 @@ export default {
           await User.deleteAdminNotification(this.data.id)
           this.$emit('remove-notification');
         } else {
-          await User.deleteNotification(this.userId, this.data.id)
+          await User.deleteNotification(user.actingUserId(), this.data.id)
           this.$emit('remove-notification');
         }
       } catch (error) {
