@@ -108,4 +108,22 @@ public class CardController {
     public void editCard(@PathVariable int id, @RequestBody @Valid EditCardDTO dto, @AuthenticationPrincipal AppUserDetails appUser) {
         cardService.editCard(id, dto, appUser);
     }
+
+    /**
+     * Endpoint to get all cards that fit the search query
+     * @param section The section to search by
+     * @param keywordIds The list of keyword IDs to search by
+     * @param union Option to match the search with all or some of the inputs
+     * @return List of cards that fit the search criteria
+     */
+    @GetMapping("/cards/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<GetCardResponseDTO> searchCards(
+            @RequestParam String section,
+            @RequestParam List<Integer> keywordIds,
+            @RequestParam Boolean union
+    ) {
+        return cardService.searchCards(section, keywordIds, union);
+    }
+
 }

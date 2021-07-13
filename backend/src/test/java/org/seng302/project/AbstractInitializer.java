@@ -10,9 +10,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public abstract class AbstractInitializer {
@@ -26,6 +28,8 @@ public abstract class AbstractInitializer {
     private User testUserBusinessAdmin;
     private Business testBusiness;
     private Product testProduct;
+    private List<Card> testCards;
+    private List<Keyword> testKeywords;
     private List<Image> testImages;
     private MockMultipartFile testFile;
     private MockMultipartFile testImageFile;
@@ -38,6 +42,7 @@ public abstract class AbstractInitializer {
         this.initialiseTestUserBusinessAdmin();
         this.initialiseTestBusiness();
         this.initialiseTestProduct();
+        this.initialiseTestCards();
         this.initialiseTestImages();
         this.initialiseTestFiles();
         this.initialiseTestCard();
@@ -133,6 +138,29 @@ public abstract class AbstractInitializer {
                 null,
                 null,
                 1);
+    }
+
+    public void initialiseTestCards() {
+        testKeywords = new ArrayList<>();
+        testCards = new ArrayList<>();
+
+        var keyword1 = new Keyword("Apples");
+        keyword1.setId(1);
+        testKeywords.add(keyword1);
+
+        var keyword2 = new Keyword("Bananas");
+        keyword2.setId(2);
+        testKeywords.add(keyword2);
+
+        var card1 = new Card(testUser, "ForSale", "A card",
+                "Some description", Set.of(testKeywords.get(0)));
+        card1.setId(1);
+        testCards.add(card1);
+
+        var card2 = new Card(testUser, "ForSale", "Another card",
+                "Some description", Set.of(testKeywords.get(1)));
+        card2.setId(2);
+        testCards.add(card2);
     }
 
     public void initialiseTestImages() {
