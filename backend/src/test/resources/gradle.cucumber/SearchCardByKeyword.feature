@@ -24,4 +24,4 @@ Feature: UCM7 Keyword Search
       | Your Card     | Your card description   | Wanted  | otherCardUser@gmail.com | plums | pineapple |
     When I search for cards with the keywords "apples" and "oranges" in the "Wanted" section
     Then I am returned 1 cards
-    And All returned cards have at all of the keywords "apples" and "oranges"
+    And All returned cards have all of the keywords "apples" and "oranges"

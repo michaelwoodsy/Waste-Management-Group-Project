@@ -239,6 +239,10 @@ class CardServiceTest extends AbstractInitializer {
         Assertions.assertEquals(testUsersCard1.getCreator().getEmail(), createdCard.getCreator().getEmail());
     }
 
+    /**
+     * Tests that searching for a card
+     * with valid input returns the expected list of cards
+     */
     @Test
     void searchCard_validInput_returnsList() {
         Mockito.when(keywordRepository.findById(Mockito.any(Integer.class)))
@@ -259,6 +263,10 @@ class CardServiceTest extends AbstractInitializer {
         Assertions.assertEquals(2, result.size());
     }
 
+    /**
+     * Tests that searching for a card
+     * and providing an invalid section throws a BadRequestException
+     */
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"invalidSection"})
@@ -268,6 +276,10 @@ class CardServiceTest extends AbstractInitializer {
                 () -> cardService.searchCards(section, keywordIds, true));
     }
 
+    /**
+     * Tests that searching for a card where the list
+     * of keywords is null or empty throws a BadRequestException
+     */
     @ParameterizedTest
     @NullAndEmptySource
     void searchCard_invalidKeywordIds_throwsException(List<Integer> keywordIds) {
@@ -275,6 +287,10 @@ class CardServiceTest extends AbstractInitializer {
                 () -> cardService.searchCards("ForSale", keywordIds, true));
     }
 
+    /**
+     * Tests that searching for a card by a keyword
+     * that doesn't exist throws a BadRequestException
+     */
     @Test
     void searchCard_keywordIdNonExistent_throwsException() {
         Mockito.when(keywordRepository.findById(Mockito.any(Integer.class)))
@@ -288,11 +304,16 @@ class CardServiceTest extends AbstractInitializer {
                     return Optional.empty();
                 });
 
+        //No keyword exists with the id 4
         List<Integer> keywordIds = List.of(1, 4);
         Assertions.assertThrows(BadRequestException.class,
                 () -> cardService.searchCards("ForSale", keywordIds, true));
     }
 
+    /**
+     * Tests that searching for a card with a null value
+     * given for union throws a BadRequestException
+     */
     @Test
     void searchCard_unionNull_throwsException() {
         List<Integer> keywordIds = List.of(1, 2);
@@ -315,8 +336,9 @@ class CardServiceTest extends AbstractInitializer {
                 null,
                 Collections.emptyList());
 
+        AppUserDetails appUser =  new AppUserDetails(testUser);
         Assertions.assertThrows(NoCardExistsException.class,
-                () -> cardService.editCard(1, requestDTO, new AppUserDetails(testUser)));
+                () -> cardService.editCard(1, requestDTO, appUser));
     }
 
     /**

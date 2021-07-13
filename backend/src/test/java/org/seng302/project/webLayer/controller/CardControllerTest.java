@@ -304,6 +304,10 @@ class CardControllerTest extends AbstractInitializer {
         mockMvc.perform(request).andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests that searching for a card
+     * with valid input returns a 200 response
+     */
     @Test
     void searchCard_successful_200() throws Exception {
         Mockito.when(cardService.searchCards(
@@ -317,6 +321,10 @@ class CardControllerTest extends AbstractInitializer {
         mockMvc.perform(request).andExpect(status().isOk());
     }
 
+    /**
+     * Tests that searching for a card
+     * with invalid input returns a 400 response
+     */
     @Test
     void searchCard_badRequest_400() throws Exception {
         Mockito.when(cardService.searchCards(

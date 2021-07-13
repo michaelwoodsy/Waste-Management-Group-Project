@@ -122,7 +122,7 @@ public class SearchCardByKeywordSteps {
         List<List<String>> rows = cardsTable.asLists(String.class);
         for (List<String> cols : rows) {
 
-            // Creat the card creator user
+            // Create the card creator user
             User owner = new User("Jane", "Doe", "Bob", "Jonny",
                     "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
                     "+64 3 555 0129", null, "");
@@ -143,7 +143,7 @@ public class SearchCardByKeywordSteps {
             // Save the card
             cardRepository.save(newCard);
         }
-        //Get Id of keyword
+        //Get Id of keyword1
         keyword1Id = keywordRepository.findByName("testKeyword").get(0).getId();
         //Check that the correct number of cards have been added to the repository in the correct section
         assertEquals(2, cardRepository.findAllBySection("Wanted").size());
@@ -271,6 +271,7 @@ public class SearchCardByKeywordSteps {
             assertTrue(keywordNames.contains(keyword1) || keywordNames.contains(keyword2) || keywordNames.contains(keyword3));
         }
     }
+
     @Transactional
     @Given("The Following {int} cards exist:")
     public void theFollowingCardsExist(int numberCards, DataTable cardsTable) {
@@ -331,8 +332,8 @@ public class SearchCardByKeywordSteps {
                 .andExpect(MockMvcResultMatchers.status().isOk()); // We expect a 200 response
     }
 
-    @And("All returned cards have at all of the keywords {string} and {string}")
-    public void allReturnedCardsHaveAtAllOfTheKeywordsAnd(String keyword1, String keyword2) throws Exception {
+    @And("All returned cards have all of the keywords {string} and {string}")
+    public void allReturnedCardsHaveAllOfTheKeywordsAnd(String keyword1, String keyword2) throws Exception {
         // Get the json result
         String contentAsString = result.andReturn().getResponse().getContentAsString();
         JSONArray results = new JSONArray(contentAsString);
@@ -349,7 +350,7 @@ public class SearchCardByKeywordSteps {
                 //Add each name of the keyword to a list
                 keywordNames.add(keywordsArray.getJSONObject(j).getString("name"));
             }
-            // Check that each card has at least one of the desired keywords
+            // Check that each card has both of the desired keywords
             assertTrue(keywordNames.contains(keyword1) && keywordNames.contains(keyword2));
         }
     }
