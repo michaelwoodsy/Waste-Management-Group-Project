@@ -66,6 +66,9 @@ public class ProductSearchSteps extends AbstractInitializer {
     @BeforeEach
     @Autowired
     public void setup(WebApplicationContext context) {
+        productRepository.deleteAll();
+        businessRepository.deleteAll();
+        userRepository.deleteAll();
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -126,6 +129,7 @@ public class ProductSearchSteps extends AbstractInitializer {
 
         String searchResultString = searchResult.getResponse().getContentAsString();
         JSONArray searchResultArray = new JSONArray(searchResultString);
+        System.out.println(searchResultArray);
 
         Assertions.assertEquals(1, searchResultArray.length());
         Assertions.assertEquals(productName, searchResultArray.getJSONObject(0).getString("name"));
@@ -153,7 +157,7 @@ public class ProductSearchSteps extends AbstractInitializer {
     @Then("The user is prevented from doing so")
     public void the_user_is_prevented_from_doing_so() throws Exception {
         mockMvc.perform(searchProductRequest)
-                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
     //AC3
@@ -227,10 +231,10 @@ public class ProductSearchSteps extends AbstractInitializer {
         String searchResultString = searchResult.getResponse().getContentAsString();
         JSONArray searchResultArray = new JSONArray(searchResultString);
 
+        System.out.println(searchResultArray);
+
         Assertions.assertEquals(1, searchResultArray.length());
         Assertions.assertEquals(productId, searchResultArray.getJSONObject(0).getString("id"));
     }
-
-
 
 }

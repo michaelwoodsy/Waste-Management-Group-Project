@@ -12,6 +12,7 @@ import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
 import org.seng302.project.serviceLayer.dto.product.EditProductDTO;
+import org.seng302.project.serviceLayer.dto.product.GetProductDTO;
 import org.seng302.project.serviceLayer.dto.product.ProductSearchDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
@@ -115,7 +116,7 @@ class ProductCatalogueServiceTest {
      */
     @Test
     void getProducts_success() {
-        List<Product> returnedProducts = productCatalogueService
+        List<GetProductDTO> returnedProducts = productCatalogueService
                 .getBusinessesProducts(1, new AppUserDetails(owner));
         Assertions.assertEquals(2, returnedProducts.size());
         Assertions.assertEquals("CARROT", returnedProducts.get(0).getId());
@@ -129,16 +130,16 @@ class ProductCatalogueServiceTest {
      */
     @Test
     void getProducts_withImages_success() {
-        List<Product> returnedProducts = productCatalogueService
+        List<GetProductDTO> returnedProducts = productCatalogueService
                 .getBusinessesProducts(1, new AppUserDetails(owner));
         Assertions.assertEquals(2, returnedProducts.size());
 
-        Product firstProduct = returnedProducts.get(0);
+        GetProductDTO firstProduct = returnedProducts.get(0);
         Assertions.assertEquals(2, firstProduct.getImages().size());
         Assertions.assertEquals("carrot.jpg", firstProduct.getImages().get(0).getFilename());
         Assertions.assertEquals("carrot2.jpg", firstProduct.getImages().get(1).getFilename());
 
-        Product secondProduct = returnedProducts.get(1);
+        GetProductDTO secondProduct = returnedProducts.get(1);
         Assertions.assertEquals("potato.jpg", secondProduct.getImages().get(0).getFilename());
 
     }
@@ -152,7 +153,7 @@ class ProductCatalogueServiceTest {
         given(businessRepository.findById(4)).willReturn(Optional.empty());
 
         AppUserDetails userDetails = new AppUserDetails(user);
-        Assertions.assertThrows(BusinessNotFoundException.class,
+        Assertions.assertThrows(NotAcceptableException.class,
                 () -> productCatalogueService.getBusinessesProducts(4, userDetails));
     }
 
@@ -355,7 +356,7 @@ class ProductCatalogueServiceTest {
         ProductSearchDTO requestDTO = new ProductSearchDTO(
                 false, true, false, false);
 
-        List<Product> returnedProducts = productCatalogueService.searchProducts(
+        List<GetProductDTO> returnedProducts = productCatalogueService.searchProducts(
                 1, "cookies", requestDTO, userDetails);
 
         Assertions.assertEquals(1, returnedProducts.size());

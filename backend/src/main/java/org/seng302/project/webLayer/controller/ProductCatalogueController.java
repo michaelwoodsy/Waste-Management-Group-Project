@@ -3,6 +3,7 @@ package org.seng302.project.webLayer.controller;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
 import org.seng302.project.serviceLayer.dto.product.EditProductDTO;
+import org.seng302.project.serviceLayer.dto.product.GetProductDTO;
 import org.seng302.project.serviceLayer.dto.product.ProductSearchDTO;
 import org.seng302.project.serviceLayer.service.ProductCatalogueService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -38,7 +39,7 @@ public class ProductCatalogueController {
      * @return List of products that belongs to the business.
      */
     @GetMapping("/businesses/{businessId}/products")
-    public List<Product> getBusinessesProducts(@PathVariable int businessId, @AuthenticationPrincipal AppUserDetails appUser) {
+    public List<GetProductDTO> getBusinessesProducts(@PathVariable int businessId, @AuthenticationPrincipal AppUserDetails appUser) {
         return productCatalogueService.getBusinessesProducts(businessId, appUser);
     }
 
@@ -84,10 +85,10 @@ public class ProductCatalogueController {
      */
     @GetMapping("/businesses/{businessId}/products/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<Product> searchProducts(@PathVariable Integer businessId,
-                                        @RequestParam("searchQuery") String searchQuery,
-                                        @Valid @RequestBody ProductSearchDTO requestDTO,
-                                        @AuthenticationPrincipal AppUserDetails appUser) {
+    public List<GetProductDTO> searchProducts(@PathVariable Integer businessId,
+                                              @RequestParam("searchQuery") String searchQuery,
+                                              @Valid @RequestBody ProductSearchDTO requestDTO,
+                                              @AuthenticationPrincipal AppUserDetails appUser) {
         return productCatalogueService.searchProducts(businessId, searchQuery, requestDTO, appUser);
     }
 
