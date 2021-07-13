@@ -9,9 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
-import org.seng302.project.serviceLayer.service.BusinessService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
-import org.seng302.project.webLayer.controller.BusinessController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,11 +29,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
  */
 public class BusinessSearchSteps {
 
-    private final BusinessController businessController;
-
     private MockMvc mockMvc;
-
-    private final BusinessService businessService;
 
     private final BusinessRepository businessRepository;
 
@@ -47,11 +41,7 @@ public class BusinessSearchSteps {
 
 
     @Autowired
-    public BusinessSearchSteps(BusinessController businessController,
-                               BusinessService businessService,
-                               BusinessRepository businessRepository) {
-        this.businessController = businessController;
-        this.businessService = businessService;
+    public BusinessSearchSteps(BusinessRepository businessRepository) {
         this.businessRepository =  businessRepository;
 
     }
