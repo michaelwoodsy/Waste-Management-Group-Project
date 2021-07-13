@@ -303,11 +303,11 @@ public class CardService {
         LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
         List<Card> cardsDeleted = cardRepository.deleteByDisplayPeriodEndBefore(oneDayAgo);
 
-        //Create a CardExpiryNotification for each expired  card
+        //Create a CardExpiryNotification for each expired card
         for (Card card: cardsDeleted) {
             var newNotification = new CardExpiryNotification(
                     card.getCreator(),
-                    "This Card Has Expired and was deleted.",
+                    "This card has expired and was deleted.",
                     card.getTitle());
             userNotificationRepository.save(newNotification);
         }

@@ -198,7 +198,8 @@ public class CardExpirySteps {
 
     @When("The card has an expiry date of more than {int} hours ago")
     public void the_card_has_an_expiry_date_of_more_than_hours_ago(Integer hours) {
-        //Only 2 weeks and one day is required for a card to be automatically deleted. (adding 1 minute to be sure)
+        //Only 2 weeks (display period) and one day (time to extend card) is required
+        // for a card to be automatically deleted. (adding 1 minute to be sure)
         testCard.setDisplayPeriodEnd(LocalDateTime.now().minusHours(hours).minusMinutes(1));
         cardRepository.save(testCard);
     }
