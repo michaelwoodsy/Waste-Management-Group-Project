@@ -56,7 +56,7 @@ public class UserService {
      * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
      */
     public List<UserResponseDTO> searchUsers(String searchQuery) {
-        List<User> users = List.of();
+        List<User> users;
 
         if (searchQuery.equals("")) {
             // Search query is for all results
@@ -77,7 +77,7 @@ public class UserService {
                 // Iterate over the names in the search and check if they are quoted
                 for (String name : names) {
                     if (Pattern.matches("^\".*\"$", name)) {
-                        name = name.replaceAll("\"", "");
+                        name = name.replace("\"", "");
                         hasSpec = hasSpec.and(UserSpecifications.hasName(name));
                     } else {
                         hasSpec = hasSpec.and(UserSpecifications.hasName(name));
@@ -92,12 +92,13 @@ public class UserService {
                     result.addAll(userRepository.findAll(containsSpec));
                 }
 
-                // convert set to a list
-                users = new ArrayList<>(result);
             }
+
+            // convert set to a list
+            users = new ArrayList<>(result);
         }
 
-        logger.info(String.format("Retrieved %d users", users.size()));
+        logger.info("Retrieved {} users", users.size());
 
         // Map user objects to UserResponseDTO objects and return
         return users.stream().map(UserResponseDTO::new).collect(Collectors.toList());
