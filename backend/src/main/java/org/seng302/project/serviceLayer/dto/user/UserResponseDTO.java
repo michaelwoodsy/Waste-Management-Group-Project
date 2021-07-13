@@ -42,6 +42,7 @@ public class UserResponseDTO {
         this.dateOfBirth = user.getDateOfBirth();
         this.phoneNumber = user.getPhoneNumber();
         this.homeAddress = new AddressResponseDTO(user.getHomeAddress());
+        this.role = user.getRole();
         this.created = user.getCreated();
         this.businessesAdministered = new ArrayList<>();
         for (Business business : user.getBusinessesAdministered()) {

@@ -7,10 +7,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.seng302.project.repositoryLayer.model.Address;
-import org.seng302.project.repositoryLayer.model.LoginCredentials;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.user.LoginCredentialsDTO;
 import org.seng302.project.serviceLayer.exceptions.InvalidLoginException;
 import org.seng302.project.serviceLayer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UserController.class)
 class AuthenticationTest {
 
-    private LoginCredentials testNonexistentLogin;
+    private LoginCredentialsDTO testNonexistentLogin;
     private final JSONObject testAddress = new JSONObject();
     private final JSONObject newUserJson = new JSONObject();
     private final JSONObject testIncorrectLogin = new JSONObject();
@@ -64,7 +64,7 @@ class AuthenticationTest {
     @BeforeEach
     public void initialise() throws JSONException {
 
-        testNonexistentLogin = new LoginCredentials("notRegistered@gmail.com", "1357-H%nt3r4");
+        testNonexistentLogin = new LoginCredentialsDTO("notRegistered@gmail.com", "1357-H%nt3r4");
         given(userRepository.findByEmail("notRegistered@gmail.com")).willReturn(List.of());
 
         testAddress.put("country", "New Zealand");

@@ -6,6 +6,7 @@ import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.*;
+import org.seng302.project.serviceLayer.dto.user.CreateUserDTO;
 import org.seng302.project.webLayer.controller.UserController;
 import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
 import org.seng302.project.serviceLayer.exceptions.register.InvalidEmailException;
@@ -90,7 +91,7 @@ public class UserRegisterSteps {
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
 
-        userController.createUser(createdUser);
+        userController.createUser(new CreateUserDTO(createdUser));
 
     }
 
@@ -123,7 +124,7 @@ public class UserRegisterSteps {
                 dateOfBirth, "", homeAddress, password);
 
         try {
-            userController.createUser(createdUser);
+            userController.createUser(new CreateUserDTO(createdUser));
         } catch (ExistingRegisteredEmailException e) {
             existingRegisteredEmailExceptionCount += 1;
         }
@@ -149,7 +150,7 @@ public class UserRegisterSteps {
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, "");
         try {
-            userController.createUser(createdUser);
+            userController.createUser(new CreateUserDTO(createdUser));
         } catch (RequiredFieldsMissingException e) {
             requiredFieldsMissingExceptionCount += 1;
         }
@@ -177,7 +178,7 @@ public class UserRegisterSteps {
                 dateOfBirth, "", homeAddress, password);
 
         try {
-            userController.createUser(createdUser);
+            userController.createUser(new CreateUserDTO(createdUser));
         } catch (InvalidEmailException e) {
             invalidEmailExceptionCount += 1;
         }
