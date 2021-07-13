@@ -6,7 +6,7 @@ servers:
 
 info:
   description: API specification for the SENG302 2021 project
-  version: 3.3.1
+  version: 3.3.2
   title: Wasteless
   contact:
     email: seng302@canterbury.ac.nz
@@ -44,6 +44,7 @@ tags:
   - name: 'U23: Search for business'
   - name: 'UCM9: Edit card'
   - name: 'U28: Product search'
+  - name: 'U10: Modifying Individuals'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -1578,6 +1579,38 @@ paths:
                   type: boolean
                   description: Whether the Manufacturer field is being searched by
                   example: false
+  '/users/{userId}':
+    put:
+      tags:
+        - 'U10: Modifying Individuals'
+        - 'Users'
+      summary: Modify an existing user
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to edit
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+        '400':
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+        '403':
+          description: 'Forbidden: Returned when a user tries to update another user AND the user is not a global application admin'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
 
 
 components:
