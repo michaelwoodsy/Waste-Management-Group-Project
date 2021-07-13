@@ -10,7 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +23,7 @@ public abstract class AbstractInitializer {
 
     private User testUser;
     private User testSystemAdmin;
+    private User testSystemDGAA;
     private User testUserBusinessAdmin;
     private Business testBusiness;
     private Product testProduct;
@@ -38,6 +38,7 @@ public abstract class AbstractInitializer {
     public void initialise() {
         this.initialiseTestUser();
         this.initialiseTestSystemAdmin();
+        this.initialiseTestSystemDGAA();
         this.initialiseTestCard();
         this.initialiseTestUserNotification();
         this.initialiseTestUserBusinessAdmin();
@@ -81,6 +82,24 @@ public abstract class AbstractInitializer {
         testSystemAdmin.setId(2);
         testSystemAdmin.setRole("globalApplicationAdmin");
         testSystemAdmin.setPassword(passwordEncoder.encode(testSystemAdmin.getPassword()));
+    }
+
+    public void initialiseTestSystemDGAA() {
+        Address address = new Address(null, null, null, null, "New Zealand", null);
+        testSystemDGAA = new User(
+                "System",
+                "Admin",
+                "",
+                "",
+                "I am a system admin",
+                "admin@resale.com",
+                "1999-07-28",
+                "+64 123 4567",
+                address,
+                "Th1s1sMyApplication");
+        testSystemDGAA.setId(3);
+        testSystemDGAA.setRole("defaultGlobalApplicationAdmin");
+        testSystemDGAA.setPassword(passwordEncoder.encode(testSystemAdmin.getPassword()));
     }
 
     public void initialiseTestCard() {

@@ -71,7 +71,7 @@ public class UserService {
             for (String conjunction : conjunctions) {
                 Specification<User> hasSpec = Specification.where(null);
                 Specification<User> containsSpec = Specification.where(null);
-                boolean searchContains = false;
+                var searchContains = false;
                 String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
 
                 // Iterate over the names in the search and check if they are quoted
@@ -110,7 +110,7 @@ public class UserService {
      * @return the userId of the user logged in inside of a UserLoginResponseDTO
      */
     public UserLoginResponseDTO login(LoginCredentialsDTO loginCredentials) {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+        var token = new UsernamePasswordAuthenticationToken(
                 loginCredentials.getEmail(), loginCredentials.getPassword());
         var auth = authenticationManager.authenticate(token);
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -124,7 +124,7 @@ public class UserService {
      * @param dto Validated dto containing the users information
      * @return the userId of the user logged in inside of a UserLoginResponseDTO
      */
-    public UserLoginResponseDTO createUser(CreateUserDTO dto) {
+    public LoginCredentialsDTO createUser(CreateUserDTO dto) {
         var loginCredentials = new LoginCredentialsDTO(dto.getEmail(), dto.getPassword());
         var newUser = new User(dto);
 
@@ -136,8 +136,9 @@ public class UserService {
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         addressRepository.save(newUser.getHomeAddress());
         userRepository.save(newUser);
+
         logger.info("Successful registration of user with ID: {}", newUser.getId());
-        return login(loginCredentials);
+        return loginCredentials;
     }
 
     /**
@@ -155,7 +156,7 @@ public class UserService {
      */
     public void dgaaMakeAdmin(DGAAMakeRevokeAdminDTO dto) {
         //Check if user exists
-        User user = userRepository.findById(dto.getId()).orElseThrow(() -> new NoUserExistsException(dto.getId()));
+        var user = userRepository.findById(dto.getId()).orElseThrow(() -> new NoUserExistsException(dto.getId()));
 
         //Update user's role
         user.setRole("globalApplicationAdmin");
@@ -168,7 +169,7 @@ public class UserService {
      */
     public void dgaaRevokeAdmin(DGAAMakeRevokeAdminDTO dto) {
         //Check if user exists
-        User user = userRepository.findById(dto.getId()).orElseThrow(() -> new NoUserExistsException(dto.getId()));
+        var user = userRepository.findById(dto.getId()).orElseThrow(() -> new NoUserExistsException(dto.getId()));
 
         //Check that DGAA is not revoking themselves
         if (user.getEmail().equals(dto.getAppUser().getUsername())) {

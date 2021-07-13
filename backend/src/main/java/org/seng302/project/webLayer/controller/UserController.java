@@ -45,7 +45,7 @@ public class UserController {
             logger.info("Request to login user {}", loginCredentials.getEmail());
             return userService.login(loginCredentials);
         } catch (AuthenticationException authException) {
-            InvalidLoginException loginException = new InvalidLoginException();
+            var loginException = new InvalidLoginException();
             logger.info(loginException.getMessage());
             throw loginException;
         } catch (Exception exception) {
@@ -66,7 +66,8 @@ public class UserController {
     public UserLoginResponseDTO createUser(@RequestBody @Valid CreateUserDTO dto) {
         try {
             logger.info("Request to create a new user");
-            return userService.createUser(dto);
+            LoginCredentialsDTO loginCredentials = userService.createUser(dto);
+            return userService.login(loginCredentials);
         } catch (InvalidEmailException | InvalidPhoneNumberException | ExistingRegisteredEmailException
                 | InvalidDateException | UserUnderageException | RequiredFieldsMissingException expectedException) {
             logger.info(expectedException.getMessage());

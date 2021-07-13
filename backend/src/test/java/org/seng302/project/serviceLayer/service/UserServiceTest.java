@@ -1,44 +1,38 @@
 package org.seng302.project.serviceLayer.service;
 
-import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repositoryLayer.model.Image;
-import org.seng302.project.repositoryLayer.model.Message;
-import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.user.CreateUserDTO;
-import org.seng302.project.serviceLayer.dto.user.LoginCredentialsDTO;
-import org.seng302.project.serviceLayer.dto.user.UserLoginResponseDTO;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenActionException;
+import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenDGAAActionException;
 import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.awt.image.BufferedImage;
-import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 /**
  * UserService unit tests
+ * Checking for validity in user details is done through the DTO so its testing is in UserControllerTest
  */
 @SpringBootTest
 class UserServiceTest extends AbstractInitializer {
 
     private User testUser;
+    private User testAdmin;
 
     @Autowired
     private UserService userService;
@@ -46,10 +40,15 @@ class UserServiceTest extends AbstractInitializer {
     @MockBean
     private UserRepository userRepository;
 
+    @MockBean
+    private AddressRepository addressRepository;
+
     @BeforeEach
     void setup() {
         this.initialise();
         testUser = this.getTestUser();
+        testAdmin = this.getTestSystemDGAA();
+        testUser.setId(1);
     }
 
 
@@ -85,8 +84,7 @@ class UserServiceTest extends AbstractInitializer {
      * Tries Successfully creating a user
      */
     @Test
-    public void tryCreatingUserSuccess() throws Exception {
-        //doReturn(new UserLoginResponseDTO(1)).when(userService.login(any(LoginCredentialsDTO.class)));
+    void tryCreatingUserSuccess() {
 
         CreateUserDTO dto = new CreateUserDTO(
                 testUser.getFirstName(),
@@ -100,16 +98,30 @@ class UserServiceTest extends AbstractInitializer {
                 testUser.getHomeAddress(),
                 testUser.getPassword());
 
-        Mockito.when(userRepository.save(Mockito.any(User.class)))
-                .thenReturn(testUser);
+        given(userRepository.save(Mockito.any(User.class))).willReturn(testUser);
 
         userService.createUser(dto);
 
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
-        Mockito.verify(userRepository).save(userArgumentCaptor.capture());
-        User savedUser = userArgumentCaptor.getValue();
+        //Called when checking DGA at startup as well
+        Mockito.verify(userRepository, times(2)).save(userArgumentCaptor.capture());
 
-        System.out.println(savedUser);
+        ArgumentCaptor<Address> addressArgumentCaptor = ArgumentCaptor.forClass(Address.class);
+        //Called when checking DGA at startup as well
+        Mockito.verify(addressRepository, times(2)).save(addressArgumentCaptor.capture());
+
+        User createdUser = userArgumentCaptor.getValue();
+
+        Assertions.assertEquals(testUser.getFirstName(), createdUser.getFirstName());
+        Assertions.assertEquals(testUser.getLastName(), createdUser.getLastName());
+        Assertions.assertEquals(testUser.getMiddleName(), createdUser.getMiddleName());
+        Assertions.assertEquals(testUser.getNickname(), createdUser.getNickname());
+        Assertions.assertEquals(testUser.getBio(), createdUser.getBio());
+        Assertions.assertEquals(testUser.getEmail(), createdUser.getEmail());
+        Assertions.assertEquals(testUser.getDateOfBirth(), createdUser.getDateOfBirth());
+        Assertions.assertEquals(testUser.getPhoneNumber(), createdUser.getPhoneNumber());
+        Assertions.assertEquals(testUser.getHomeAddress().getCountry(), createdUser.getHomeAddress().getCountry());
+        Assertions.assertEquals(testUser.getRole(), createdUser.getRole());
     }
 
 
@@ -117,7 +129,7 @@ class UserServiceTest extends AbstractInitializer {
      * Tries creating an existing user checks that a ExistingRegisteredEmailException is thrown
      */
     @Test
-    public void tryCreatingExistingUser() {
+    void tryCreatingExistingUser() {
         CreateUserDTO dto = new CreateUserDTO(
                 testUser.getFirstName(),
                 testUser.getLastName(),
@@ -136,42 +148,61 @@ class UserServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tries creating user with an invalid email
+     * tests method checkForbidden which checks if the logged in user is able to perform actions on the
+     * user with id userId's account
+     * This test checks that a ForbiddenActionException is thrown
      */
     @Test
-    public void createUserInvalidEmail() {
-        CreateUserDTO dto = new CreateUserDTO(
-                testUser.getFirstName(),
-                testUser.getLastName(),
-                testUser.getMiddleName(),
-                testUser.getNickname(),
-                testUser.getBio(),
-                "invalid@",
-                testUser.getDateOfBirth(),
-                testUser.getPhoneNumber(),
-                testUser.getHomeAddress(),
-                testUser.getPassword());
-
-        Assertions.assertThrows(InternalAuthenticationServiceException.class, () -> userService.createUser(dto));
+    void testCheckForbidden_ForbiddenRequest() {
+        Integer userId = 1000;
+        AppUserDetails appUser = new AppUserDetails(testUser);
+        when(userRepository.findByEmail(appUser.getUsername())).thenReturn(List.of(testUser));
+        Assertions.assertThrows(ForbiddenActionException.class, () -> userService.checkForbidden(userId, appUser));
     }
 
     /**
-     * Tries creating user with an invalid password
+     * tests method checkForbidden which checks if the logged in user is able to perform actions on the
+     * user with id userId's account
+     * This test checks that the user is allowed to make the request (no exception is thrown)
      */
     @Test
-    public void createUserInvalidPassword() {
-        CreateUserDTO dto = new CreateUserDTO(
-                testUser.getFirstName(),
-                testUser.getLastName(),
-                testUser.getMiddleName(),
-                testUser.getNickname(),
-                testUser.getBio(),
-                testUser.getEmail(),
-                testUser.getDateOfBirth(),
-                testUser.getPhoneNumber(),
-                testUser.getHomeAddress(),
-                "BadPassword");
+    void testCheckForbidden_AllowedRequest() {
+        AppUserDetails appUser = new AppUserDetails(testUser);
+        when(userRepository.findByEmail(appUser.getUsername())).thenReturn(List.of(testUser));
+        Assertions.assertDoesNotThrow(() -> userService.checkForbidden(testUser.getId(), appUser));
+    }
 
-        Assertions.assertThrows(InternalAuthenticationServiceException.class, () -> userService.createUser(dto));
+    /**
+     * tests method checkForbidden which checks if the logged in user is able to perform actions on the
+     * user with id userId's account
+     * This test checks that the Admin user is allowed to make the request (no exception is thrown)
+     */
+    @Test
+    void testCheckForbidden_AllowedRequestDGAA() {
+        AppUserDetails appUser = new AppUserDetails(testAdmin);
+        when(userRepository.findByEmail(appUser.getUsername())).thenReturn(List.of(testAdmin));
+        Assertions.assertDoesNotThrow(() -> userService.checkForbidden(testUser.getId(), appUser));
+    }
+
+    /**
+     * tests method checkRequesterIsDGAA which checks the requester is a DGAA
+     * This test checks that the user is not a DGAA and a ForbiddenDGAAActionException is thrown
+     */
+    @Test
+    void testCheckDGAA_notDGAA() {
+        AppUserDetails appUser = new AppUserDetails(testUser);
+        when(userRepository.findByEmail(appUser.getUsername())).thenReturn(List.of(testUser));
+        Assertions.assertThrows(ForbiddenDGAAActionException.class, () -> userService.checkRequesterIsDGAA(appUser));
+    }
+
+    /**
+     * tests method checkRequesterIsDGAA which checks the requester is a DGAA
+     * This test checks that the user is a DGAA (no exception is thrown)
+     */
+    @Test
+    void testCheckDGAA_isDGAA() {
+        AppUserDetails appUser = new AppUserDetails(testAdmin);
+        when(userRepository.findByEmail(appUser.getUsername())).thenReturn(List.of(testAdmin));
+        Assertions.assertDoesNotThrow(() -> userService.checkRequesterIsDGAA(appUser));
     }
 }

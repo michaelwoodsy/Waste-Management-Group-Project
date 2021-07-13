@@ -6,19 +6,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.user.CreateUserDTO;
-import org.seng302.project.serviceLayer.dto.user.UserLoginResponseDTO;
-import org.seng302.project.serviceLayer.exceptions.*;
-import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
-import org.seng302.project.serviceLayer.exceptions.register.InvalidEmailException;
-import org.seng302.project.serviceLayer.exceptions.register.InvalidPhoneNumberException;
-import org.seng302.project.serviceLayer.exceptions.register.UserUnderageException;
+import org.seng302.project.serviceLayer.dto.user.LoginCredentialsDTO;
 import org.seng302.project.serviceLayer.service.UserService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,26 +18,20 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -56,23 +42,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class UserControllerTest extends AbstractInitializer {
 
+    private LoginCredentialsDTO invalidLoginCredentials;
+
     @MockBean
     private UserRepository userRepository;
 
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
     @MockBean
     private UserService userService;
 
-    @Autowired
-    private UserController userController;
-
     @BeforeEach
     void setup() {
+        invalidLoginCredentials = new LoginCredentialsDTO("notRegistered@gmail.com", "1357-H%nt3r4");
+        given(userRepository.findByEmail(invalidLoginCredentials.getEmail())).willReturn(Collections.emptyList());
+
         initialise();
     }
 
@@ -96,15 +81,16 @@ class UserControllerTest extends AbstractInitializer {
      * (Except the businessesAdministered attribute)
      */
     @Test
-    public void createAndRetrieveTestUser() throws Exception {
-        when(userService.createUser(any(CreateUserDTO.class))).thenReturn(new UserLoginResponseDTO(1));
-
+    void createAndRetrieveTestUser() throws Exception {
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "John");
         testUserJson.put("lastName", "Smith");
         testUserJson.put("email", "johnsmith99@gmail.com");
         testUserJson.put("dateOfBirth", "1999-04-27");
         testUserJson.put("phoneNumber", "+64 3 555 0129");
+
+        when(userService.createUser(any(CreateUserDTO.class))).thenReturn(
+                new LoginCredentialsDTO("johnsmith99@gmail.com", testUserJson.getString("password")));
 
         this.mvc.perform(MockMvcRequestBuilders
                 .post("/users")
@@ -120,7 +106,7 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we receive a 400 response.
      */
     @Test
-    public void tryInvalidEmailAddress() throws Exception {
+    void tryInvalidEmailAddress() throws Exception {
 
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "John");
@@ -151,7 +137,7 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we receive a 400 response.
      */
     @Test
-    public void tryInvalidDate() throws Exception {
+    void tryInvalidDate() throws Exception {
 
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "John");
@@ -179,7 +165,7 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we receive a 400 response.
      */
     @Test
-    public void tryInvalidPhoneNumber() throws Exception {
+    void tryInvalidPhoneNumber() throws Exception {
 
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "John");
@@ -207,7 +193,7 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we receive a 400 response.
      */
     @Test
-    public void tryCreateUnderageUser() throws Exception {
+    void tryCreateUnderageUser() throws Exception {
 
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "John");
@@ -235,7 +221,7 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we receive a 400 response.
      */
     @Test
-    public void tryMissingRequiredFields() throws Exception {
+    void tryMissingRequiredFields() throws Exception {
 
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "");
@@ -263,7 +249,7 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we retrieve the correct user
      */
     @Test
-    public void getUser() throws Exception {
+    void getUser() throws Exception {
         when(userRepository.findByEmail("johnsmith99@gmail.com")).thenReturn(List.of(this.getTestUser()));
 
         User testUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
