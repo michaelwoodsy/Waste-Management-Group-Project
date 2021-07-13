@@ -12,6 +12,7 @@ import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.exceptions.InvalidLoginException;
+import org.seng302.project.serviceLayer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -33,15 +34,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UserController.class)
 class AuthenticationTest {
 
-
     private LoginCredentials testNonexistentLogin;
     private final JSONObject testAddress = new JSONObject();
     private final JSONObject newUserJson = new JSONObject();
     private final JSONObject testIncorrectLogin = new JSONObject();
     private final JSONObject testCorrectLogin = new JSONObject();
     private User registeredUser;
-
-
+    
     @Autowired
     private MockMvc mvc;
 
@@ -58,6 +57,9 @@ class AuthenticationTest {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @MockBean
+    private UserService userService;
 
     @BeforeEach
     public void initialise() throws JSONException {

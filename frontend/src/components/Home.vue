@@ -92,7 +92,7 @@
           <div class="toast-body text-black-50">
             {{notification.message}}
             <br>
-            Card: {{notification.card.title}}
+            Card: {{notification.cardTitle}}
           </div>
         </div>
       </div>

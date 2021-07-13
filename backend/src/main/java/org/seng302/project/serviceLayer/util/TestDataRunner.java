@@ -353,7 +353,7 @@ public class TestDataRunner {
                 cardRepository.save(testCard);
 
                 if (jsonCard.getAsNumber("creatorId").intValue() == 1) {
-                    CardExpiryNotification expiryNotification = new CardExpiryNotification(testUser, "This is a test card expiry notification", testCard);
+                    CardExpiryNotification expiryNotification = new CardExpiryNotification(testUser, "This is a test card expiry notification", testCard.getTitle());
                     userNotificationRepository.save(expiryNotification);
                 }
             }

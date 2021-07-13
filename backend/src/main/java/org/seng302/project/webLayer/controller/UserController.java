@@ -4,8 +4,10 @@ import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.user.UserResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.register.*;
+import org.seng302.project.serviceLayer.service.UserService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.seng302.project.serviceLayer.exceptions.dgaa.DGAARevokeAdminSelfException;
 import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenDGAAActionException;
@@ -27,6 +29,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * REST controller for handling requests to do with users.
@@ -39,16 +42,19 @@ public class UserController {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final AuthenticationManager authenticationManager;
+    private final UserService userService;
 
     @Autowired
     public UserController(BCryptPasswordEncoder passwordEncoder,
                           UserRepository userRepository,
                           AddressRepository addressRepository,
-                          AuthenticationManager authenticationManager) {
+                          AuthenticationManager authenticationManager,
+                          UserService userService) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.authenticationManager = authenticationManager;
+        this.userService = userService;
     }
 
     /**
@@ -290,5 +296,29 @@ public class UserController {
                     unHandledException.getMessage())
             );
         }
+    }
+
+
+    /**
+     * Receives a request containing a search query to search users by name and retrieves a list
+     * of users based on the query.
+     *
+     * @param searchQuery user’s full name or one or more of their names/nickname.
+     * @return 200 response with (potentially empty) list of users or 401 if not authenticated.
+     */
+    @GetMapping("/users/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserResponseDTO> searchUsers(@RequestParam("searchQuery") String searchQuery) {
+
+        logger.info(String.format("Request to search users with query: %s", searchQuery));
+
+        try {
+            // Todo, check the user is Authenticated!
+            return userService.searchUsers(searchQuery);
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while searching users: %s", exception.getMessage()));
+            throw exception;
+        }
+
     }
 }
