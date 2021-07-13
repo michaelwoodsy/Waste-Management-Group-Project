@@ -9,6 +9,7 @@ import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.notifications.DeleteUserNotificationDTO;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenActionException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.notification.ForbiddenNotificationActionException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -112,7 +113,7 @@ class NotificationServiceTest extends AbstractInitializer {
      */
     @Test
     void getNotification_forbidden() {
-        Assertions.assertThrows(ForbiddenNotificationActionException.class,
+        Assertions.assertThrows(ForbiddenActionException.class,
                 () -> notificationService.getUserNotifications(testUser.getId(), new AppUserDetails(otherUser)));
     }
 
@@ -155,7 +156,7 @@ class NotificationServiceTest extends AbstractInitializer {
                 testNotification.getId(),
                 new AppUserDetails(otherUser));
 
-        Assertions.assertThrows(ForbiddenNotificationActionException.class,
+        Assertions.assertThrows(ForbiddenActionException.class,
                 () -> notificationService.deleteUserNotification(dto));
     }
 

@@ -95,12 +95,14 @@ class UserControllerTest extends AbstractInitializer {
         testUserJson.put("dateOfBirth", "1999-04-27");
         testUserJson.put("phoneNumber", "+64 3 555 0129");
 
-        mvc.perform(MockMvcRequestBuilders
+        this.mvc.perform(MockMvcRequestBuilders
                 .post("/users")
                 .content(testUserJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
+
+        System.out.println(userRepository.findAll());
 
         User retrievedUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
 
@@ -145,6 +147,10 @@ class UserControllerTest extends AbstractInitializer {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
+        this.mvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isCreated()) // We expect a 201 response first
+                .andReturn();
+
         MvcResult postUserResponse = this.mvc.perform(postUserRequest)
                 .andExpect(MockMvcResultMatchers.status().isConflict()) // We expect a 409 response
                 .andReturn();
@@ -173,12 +179,14 @@ class UserControllerTest extends AbstractInitializer {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
+        this.mvc.perform(postUserRequest).andReturn();
+
         MvcResult postUserResponse = this.mvc.perform(postUserRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new InvalidEmailException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("EmailInvalid: This Email is not valid.", returnedExceptionString);
 
     }
 
@@ -207,7 +215,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new InvalidDateException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("DateOfBirthInvalid: This Date of Birth is not valid.", returnedExceptionString);
     }
 
     /**
@@ -235,7 +243,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new InvalidPhoneNumberException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("InvalidPhoneNumber: This Phone Number is not valid.", returnedExceptionString);
     }
 
     /**
@@ -263,7 +271,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new UserUnderageException("an account", 13).getMessage(), returnedExceptionString);
+        Assertions.assertEquals("DateOfBirthInvalid: This Date of Birth is not valid.", returnedExceptionString);
     }
 
     /**
@@ -275,7 +283,7 @@ class UserControllerTest extends AbstractInitializer {
 
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "");
-        testUserJson.put("lastName", "");
+        testUserJson.put("lastName", "Smith");
         testUserJson.put("email", "john@gmail.com");
         testUserJson.put("dateOfBirth", "1999-04-27");
         testUserJson.put("phoneNumber", "+64 3 555 0129");
@@ -291,7 +299,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new RequiredFieldsMissingException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("MissingData: First Name is a mandatory field", returnedExceptionString);
     }
 
     /**
@@ -332,8 +340,6 @@ class UserControllerTest extends AbstractInitializer {
         LocalDateTime createdTimestamp = LocalDateTime.parse(returnedUser.getString("created"), formatter);
         Assertions.assertTrue(createdTimestamp.isBefore(LocalDateTime.now()));
         Assertions.assertTrue(createdTimestamp.isAfter(LocalDateTime.now().minusSeconds(5)));
-        //TODO: Come back to this when we implement businesses
-        //Assertions.assertTrue(returnedUser.getBusinessesAdministered().isEmpty());
     }
 
     /**

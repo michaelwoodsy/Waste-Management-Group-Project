@@ -10,12 +10,12 @@ import org.seng302.project.repositoryLayer.specification.BusinessSpecifications;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenActionException;
 import org.seng302.project.serviceLayer.exceptions.InvalidDateException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
-import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.register.UserUnderageException;
 import org.seng302.project.serviceLayer.util.DateArithmetic;
@@ -150,7 +150,8 @@ public class BusinessService {
         var loggedInUser = userRepository.findByEmail(appUserEmail).get(0);
 
         if (!loggedInUser.getId().equals(currBusiness.getPrimaryAdministratorId()) && !loggedInUser.isGAA()) {
-            var exception = new ForbiddenPrimaryAdministratorActionException(currBusiness.getId());
+            var exception = new ForbiddenActionException(String.format("You can not perform this action as you are " +
+                    "not the primary administrator of business with id %d.", currBusiness.getId()));
             logger.error(exception.getMessage());
             throw exception;
         }
@@ -185,7 +186,7 @@ public class BusinessService {
             businessRepository.save(currBusiness);
 
             logger.info("Successfully added Administrator {} to business {}", currUser.getId(), currBusiness.getId());
-        } catch (NoUserExistsException | BusinessNotFoundException | ForbiddenPrimaryAdministratorActionException |
+        } catch (NoUserExistsException | BusinessNotFoundException |
                 AdministratorAlreadyExistsException handledException) {
             throw handledException;
         } catch (Exception unhandledException) {
@@ -225,7 +226,7 @@ public class BusinessService {
 
             logger.info("Successfully removed administrator {} from business {}", currUser.getId(), currBusiness.getId());
 
-        } catch (BusinessNotFoundException | ForbiddenPrimaryAdministratorActionException | CantRemoveAdministratorException
+        } catch (BusinessNotFoundException | CantRemoveAdministratorException
                 | UserNotAdministratorException | NoUserExistsException handledException) {
             logger.error(handledException.getMessage());
             throw handledException;

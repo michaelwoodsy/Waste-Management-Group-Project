@@ -32,12 +32,12 @@ public class LogInSteps {
         Address homeAddress = new Address(
                 "", "", "", "", "New Zealand", "");
 
-        User createdUser = new User(
+        CreateUserDTO createUserDTO = new CreateUserDTO(
                 firstName, lastName, "", "","", username,
                 dateOfBirth, "", homeAddress, password);
 
         try {
-            userController.createUser(new CreateUserDTO(createdUser));
+            userController.createUser(createUserDTO);
         } catch (ExistingRegisteredEmailException existingRegisteredEmailException) {
             System.out.println("Account already registered");
         }

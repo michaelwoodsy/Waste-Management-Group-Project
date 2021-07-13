@@ -10,10 +10,10 @@ import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenActionException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
-import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.seng302.project.serviceLayer.service.BusinessService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -384,7 +384,7 @@ class BusinessControllerTest {
     @Test
     void addAdministratorWhenNotPrimaryAdmin_403() throws Exception {
 
-        Mockito.doThrow(new ForbiddenPrimaryAdministratorActionException(testBusiness.getId()))
+        Mockito.doThrow(new ForbiddenActionException(""))
                 .when(businessService)
                 .addAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
 
@@ -486,7 +486,7 @@ class BusinessControllerTest {
     @Test
     void removeAdministratorWhenNotPrimaryAdmin_403() throws Exception {
 
-        Mockito.doThrow(new ForbiddenPrimaryAdministratorActionException(testBusiness.getId()))
+        Mockito.doThrow(new ForbiddenActionException(""))
                 .when(businessService)
                 .removeAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
 

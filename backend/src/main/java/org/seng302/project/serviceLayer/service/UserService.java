@@ -5,10 +5,10 @@ import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.repositoryLayer.specification.UserSpecifications;
 import org.seng302.project.serviceLayer.dto.user.*;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenActionException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.dgaa.DGAARevokeAdminSelfException;
 import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenDGAAActionException;
-import org.seng302.project.serviceLayer.exceptions.notification.ForbiddenNotificationActionException;
 import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -190,7 +190,8 @@ public class UserService {
         var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
 
         if (!loggedInUser.getId().equals(userId) && !loggedInUser.isGAA()) {
-            var exception = new ForbiddenNotificationActionException();
+            var exception = new ForbiddenActionException(
+                    String.format("You are not Authorised to make changes/view information for user with ID %d's account", userId));
             logger.error(exception.getMessage());
             throw exception;
         }

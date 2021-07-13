@@ -3,7 +3,9 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.serviceLayer.dto.user.CreateUserDTO;
@@ -17,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 public class UserRegisterSteps {
+
+    private CreateUserDTO testUserDTO;
 
     private final UserRepository userRepository;
     private final UserController userController;
@@ -41,24 +45,6 @@ public class UserRegisterSteps {
         this.cardRepository = cardRepository;
         this.messageRepository = messageRepository;
         this.userNotificationRepository = userNotificationRepository;
-    }
-
-    /**
-     * Creates the existing test user. Called by
-     * i_am_a_user_trying_to_register_a_new_user_with_an_already_taken_email
-     * before that function tried recreating the user
-     */
-    public void createExistingUser(String email) {
-        Address homeAddress = new Address(
-                "", "", "", "", "New Zealand", "");
-
-        addressRepository.save(homeAddress);
-
-        User existingUser = new User(
-                "Tom", "Rizzi", "", "","", email,
-                "2001-02-15", "", homeAddress, "Ab123456");
-
-        userRepository.save(existingUser);
     }
 
     @Given("I am trying to register as a new User")
@@ -87,11 +73,11 @@ public class UserRegisterSteps {
         Address homeAddress = new Address(
                 "", "", "", "", "New Zealand", "");
 
-        User createdUser = new User(
+        CreateUserDTO createUserDTO = new CreateUserDTO(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
 
-        userController.createUser(new CreateUserDTO(createdUser));
+        userController.createUser(createUserDTO);
 
     }
 
@@ -105,7 +91,17 @@ public class UserRegisterSteps {
     public void there_a_user_who_already_is_registered_with_the_email(String email) {
         userRepository.deleteAll();
         addressRepository.deleteAll();
-        createExistingUser(email);
+
+        Address homeAddress = new Address(
+                "", "", "", "", "New Zealand", "");
+
+        addressRepository.save(homeAddress);
+
+        User existingUser = new User(
+                "Tom", "Rizzi", "", "","", email,
+                "2001-02-15", "", homeAddress, "Ab123456");
+
+        userRepository.save(existingUser);
     }
 
     @When("I try to create an account with email {string}:")
@@ -119,20 +115,16 @@ public class UserRegisterSteps {
         Address homeAddress = new Address(
                 "", "", "", "", "New Zealand", "");
 
-        User createdUser = new User(
+        testUserDTO = new CreateUserDTO(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
-
-        try {
-            userController.createUser(new CreateUserDTO(createdUser));
-        } catch (ExistingRegisteredEmailException e) {
-            existingRegisteredEmailExceptionCount += 1;
-        }
     }
 
     @Then("An error message is returned to say the email is already taken.")
     public void an_error_message_is_returned_to_say_the_email_is_already_taken() {
-        Assertions.assertEquals(1, existingRegisteredEmailExceptionCount);
+        Assertions.assertThrows(ExistingRegisteredEmailException.class, () -> {
+            userController.createUser(testUserDTO);
+        });
     }
 
     @When("I try to create an account without a password")
@@ -142,23 +134,19 @@ public class UserRegisterSteps {
         String dateOfBirth = "2001-02-15";
         String email = "testemail@gmail.com";
 
-        //TODO: get this to use country from dataTable
         Address homeAddress = new Address(
                 "", "", "", "", "New Zealand", "");
 
-        User createdUser = new User(
+        testUserDTO = new CreateUserDTO(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, "");
-        try {
-            userController.createUser(new CreateUserDTO(createdUser));
-        } catch (RequiredFieldsMissingException e) {
-            requiredFieldsMissingExceptionCount += 1;
-        }
+
+        userController.createUser(testUserDTO);
     }
 
     @Then("An error message is shown saying the password is required.")
     public void an_error_message_is_shown_saying_the_password_is_required() {
-        Assertions.assertEquals(1, requiredFieldsMissingExceptionCount);
+        Assertions.assertTrue(userRepository.findByEmail(testUserDTO.getEmail()).isEmpty());
     }
 
     @When("I try to create an account with an invalid email")
@@ -169,16 +157,15 @@ public class UserRegisterSteps {
         String dateOfBirth = "2001-02-15";
         String email = "testemailgmail.com";
 
-        //TODO: get this to use country from dataTable
         Address homeAddress = new Address(
                 "", "", "", "", "New Zealand", "");
 
-        User createdUser = new User(
+        CreateUserDTO createUserDTO = new CreateUserDTO(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
 
         try {
-            userController.createUser(new CreateUserDTO(createdUser));
+            userController.createUser(createUserDTO);
         } catch (InvalidEmailException e) {
             invalidEmailExceptionCount += 1;
         }

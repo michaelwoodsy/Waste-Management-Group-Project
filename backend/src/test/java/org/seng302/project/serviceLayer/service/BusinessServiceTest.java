@@ -16,11 +16,11 @@ import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenActionException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
-import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.register.UserUnderageException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -252,7 +252,7 @@ class BusinessServiceTest {
 
     /**
      * Random user tries to add an admin
-     * Expects a ForbiddenPrimaryAdministratorActionException
+     * Expects a ForbiddenActionException
      */
     @Test
     void addAdministratorWhenNotPrimaryAdmin() {
@@ -265,7 +265,7 @@ class BusinessServiceTest {
         requestDTO.setBusinessId(testBusiness.getId());
         requestDTO.setAppUser(new AppUserDetails(testUser));
 
-        Assertions.assertThrows(ForbiddenPrimaryAdministratorActionException.class,
+        Assertions.assertThrows(ForbiddenActionException.class,
                 () -> businessService.addAdministrator(requestDTO));
 
     }
@@ -336,7 +336,7 @@ class BusinessServiceTest {
      * Random user tries to remove
      * from administrating the business
      *
-     * Expect a ForbiddenPrimaryAdministratorActionException
+     * Expect a ForbiddenActionException
      */
     @Test
     void removeAdministratorWhenNotPrimaryAdmin() {
@@ -350,7 +350,7 @@ class BusinessServiceTest {
         requestDTO.setBusinessId(testBusiness.getId());
         requestDTO.setAppUser(new AppUserDetails(testUser));
 
-        Assertions.assertThrows(ForbiddenPrimaryAdministratorActionException.class,
+        Assertions.assertThrows(ForbiddenActionException.class,
                 () -> businessService.removeAdministrator(requestDTO));
 
     }

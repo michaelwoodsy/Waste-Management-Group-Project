@@ -1,6 +1,8 @@
 package org.seng302.project.serviceLayer.dto.user;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.validators.ValidAddress;
@@ -15,6 +17,8 @@ import javax.validation.constraints.NotEmpty;
  * Response DTO for User entities.
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateUserDTO {
 
     @NotEmpty(message = "MissingData: First Name is a mandatory field")
@@ -45,17 +49,4 @@ public class CreateUserDTO {
     @NotEmpty(message = "MissingData: Password is a mandatory field")
     @ValidPassword
     private String password;
-
-    public CreateUserDTO(User user) {
-        this.firstName = user.getFirstName();
-        this.lastName = user.getLastName();
-        this.middleName = user.getMiddleName();
-        this.nickname = user.getNickname();
-        this.bio = user.getBio();
-        this.email = user.getEmail();
-        this.dateOfBirth = user.getDateOfBirth();
-        this.phoneNumber = user.getPhoneNumber();
-        this.homeAddress = user.getHomeAddress();
-        this.password = user.getPassword();
-    }
 }
