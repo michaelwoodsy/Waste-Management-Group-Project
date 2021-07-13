@@ -1,5 +1,6 @@
 package org.seng302.project.serviceLayer.service;
 
+import org.hibernate.sql.Delete;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,12 +8,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.Message;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.MessageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
+import org.seng302.project.serviceLayer.dto.message.DeleteMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
@@ -24,6 +27,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 /**
  * Test class for performing unit tests for the MessageService class and its methods.
@@ -62,6 +68,8 @@ class MessageServiceTest extends AbstractInitializer {
                 .thenReturn(Optional.of(testSender));
 
         testReceiver = this.getTestUserBusinessAdmin();
+        Mockito.when(userRepository.findByEmail(testReceiver.getEmail()))
+                .thenReturn(List.of(testReceiver));
         Mockito.when(userRepository.findById(testReceiver.getId()))
                 .thenReturn(Optional.of(testReceiver));
 
@@ -222,6 +230,88 @@ class MessageServiceTest extends AbstractInitializer {
 
         Assertions.assertThrows(ForbiddenUserException.class,
                 () -> messageService.getMessages(3, appUser));
+    }
+
+    /**
+     * Tests that successful deletion of a message
+     * of the currently logged in user
+     */
+    @Test
+    void deleteMessage_success(){
+        //Test User
+        AppUserDetails appUser = new AppUserDetails(testSender);
+
+        //Get messages belonging to the test user
+        List<Message> receivedMessagesBefore = messageRepository.findAllByReceiver(testSender);
+
+        //Set the message that is to be deleted
+        Message messageToDelete = receivedMessagesBefore.get(0);
+
+        // Mock a message with id of the chosen message
+        given(messageRepository.findById(messageToDelete.getId())).willReturn(Optional.of(messageToDelete));
+
+        //Make request to delete message
+        DeleteMessageDTO requestDTO = new DeleteMessageDTO(testSender.getId(), messageToDelete.getId(), appUser);
+        messageService.deleteMessage(requestDTO);
+
+        // Capture the message passed to the repository delete method
+        ArgumentCaptor<Message> cardArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository).delete(cardArgumentCaptor.capture());
+        Message deletedMessage = cardArgumentCaptor.getValue();
+
+        // Assert the correct card was deleted
+        Assertions.assertEquals(messageToDelete.getId(), deletedMessage.getId());
+    }
+
+    /**
+     * Tests that deleting messages for a non-existent user
+     * throws an exception
+     */
+    @Test
+    void deleteMessage_nonExistentUser_error(){
+        //Test User
+        AppUserDetails appUser = new AppUserDetails(testSender);
+
+        //Get messages belonging to the test user
+        List<Message> receivedMessagesBefore = messageRepository.findAllByReceiver(testSender);
+
+        //Set the message that is to be deleted
+        Message messageToDelete = receivedMessagesBefore.get(0);
+
+        // Mock a message with id of the chosen message
+        given(messageRepository.findById(messageToDelete.getId())).willReturn(Optional.of(messageToDelete));
+
+        //Make request to delete message
+        DeleteMessageDTO requestDTO = new DeleteMessageDTO(100, messageToDelete.getId(), appUser);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> messageService.deleteMessage(requestDTO));
+    }
+
+
+    /**
+     * Tests that deleting messages for a user that is
+     * not the currently logged in user throws an exception
+     */
+    @Test
+    void deleteMessage_notValidUser_error(){
+        //Test User
+        AppUserDetails appUser = new AppUserDetails(testReceiver);
+        
+        //Get messages belonging to the test user
+        List<Message> receivedMessagesBefore = messageRepository.findAllByReceiver(testSender);
+
+        //Set the message that is to be deleted
+        Message messageToDelete = receivedMessagesBefore.get(0);
+
+        // Mock a message with id of the chosen message
+        given(messageRepository.findById(messageToDelete.getId())).willReturn(Optional.of(messageToDelete));
+
+        //Make request to delete message
+        DeleteMessageDTO requestDTO = new DeleteMessageDTO(testSender.getId(), messageToDelete.getId(), appUser);
+
+        Assertions.assertThrows(ForbiddenUserException.class,
+                () -> messageService.deleteMessage(requestDTO));
     }
 
 }

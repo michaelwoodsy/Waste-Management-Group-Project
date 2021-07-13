@@ -1,6 +1,7 @@
 package org.seng302.project.serviceLayer.service;
 
 import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.Message;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
@@ -89,8 +90,49 @@ public class MessageService {
      *                      and the user who is trying to delete the message
      */
     public void deleteMessage(DeleteMessageDTO requestDTO){
-        logger.info("Request to delete message with id {}", requestDTO.getMessageId());
+        try {
+            logger.info("Request to delete message with id {}", requestDTO.getMessageId());
 
+
+            Optional<User> receivingUserOptional = userRepository.findById(requestDTO.getUserId());
+            if (receivingUserOptional.isEmpty()) {
+                throw new NotAcceptableException(String.format("There is no user that exists with the id %d",
+                        requestDTO.getUserId()));
+            }
+            // We know user exists so retrieve user properly
+            var user = receivingUserOptional.get();
+
+            // Get the logged in user from the users email
+            String userEmail = requestDTO.getAppUser().getUsername();
+
+            var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+            // Check if the logged in user is the same user whose messages we are retrieving
+            if (!loggedInUser.getId().equals(user.getId())) {
+                throw new ForbiddenUserException(requestDTO.getUserId());
+            }
+
+            // Get message from the repository
+            Optional<Message> foundMessage = messageRepository.findById(requestDTO.getMessageId());
+
+            // Check if the message exists
+            if (foundMessage.isEmpty()) {
+                var exception = new NotAcceptableException(String.format("No message exists with ID %s", requestDTO.getMessageId()));
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+
+            var message = foundMessage.get();
+
+            // Delete the message
+            messageRepository.delete(message);
+        } catch (ForbiddenUserException | NotAcceptableException handledException) {
+            logger.error(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while deleting a user's messages: %s", unhandledException.getMessage()));
+            throw unhandledException;
+        }
     }
 
     /**
@@ -130,7 +172,7 @@ public class MessageService {
             logger.error(handledException.getMessage());
             throw handledException;
         } catch (Exception unhandledException) {
-            logger.error(String.format("Unexpected error while retrieving user's notifications: %s", unhandledException.getMessage()));
+            logger.error(String.format("Unexpected error while retrieving user's messages: %s", unhandledException.getMessage()));
             throw unhandledException;
         }
     }
