@@ -119,7 +119,23 @@ export const User = {
      * @param notificationId ID of the notification to delete
      */
     deleteNotification: (userId, notificationId) =>
-        instance.delete(`users/${userId}/notifications/${notificationId}`)
+        instance.delete(`users/${userId}/notifications/${notificationId}`),
+
+    /**
+     * Gets all admin notifications from the backend
+     *
+     * @returns {Promise<AxiosResponse<any>>} response containing admin notifications
+     */
+    getAdminNotifications: () => instance.get(`notifications`),
+
+    /**
+     * Deletes and admin notification from the backend
+     *
+     * @param notificationId ID of the notification to delete
+     * @returns {Promise<AxiosResponse<any>>} response with status code
+     */
+    deleteAdminNotification: (notificationId) =>
+        instance.delete(`notifications/${notificationId}`)
 
 };
 
@@ -244,15 +260,6 @@ export const Business = {
     makePrimaryProductImage: (businessId, productId, imageId) => instance.put(`businesses/${businessId}/products/${productId}/images/${imageId}/makeprimary`)
 };
 
-export const Marketplace = {
-    /**
-     * Sends a marketplace card deletion request to the api.
-     * @param cardId Id of the card to delete
-     * @returns {Promise<AxiosResponse<any>>} Response from request
-     */
-    deleteCard: (cardId) => instance.delete(`cards/${cardId}`)
-};
-
 export const Card = {
     /**
      * Extends the display period of a card that is nearing expiry
@@ -278,7 +285,14 @@ export const Card = {
      * @param cardId the id of the card to be edited
      * @param newCardData the new data for the card
      */
-    editCard: (cardId, newCardData) => instance.put(`cards/${cardId}`, newCardData)
+    editCard: (cardId, newCardData) => instance.put(`cards/${cardId}`, newCardData),
+
+    /**
+     * Sends a marketplace card deletion request to the api.
+     * @param cardId Id of the card to delete
+     * @returns {Promise<AxiosResponse<any>>} Response from request
+     */
+    deleteCard: (cardId) => instance.delete(`cards/${cardId}`)
 };
 
 export const Keyword = {

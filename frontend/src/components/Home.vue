@@ -110,6 +110,10 @@ export default {
   async mounted() {
     await this.getCardData()
     await this.getNotificationData()
+    if (this.$root.$data.user.canDoAdminAction()) {
+      await this.getAdminNotifications();
+    }
+    console.log(this.notifications[0])
   },
   data() {
     return {
@@ -118,6 +122,7 @@ export default {
       hideNotifications: true,
       //Test data
       notifications: [],
+      adminNotifications: [],
       error: ""
     }
   },
@@ -232,9 +237,23 @@ export default {
      */
     async getNotificationData() {
       try {
-        User.getNotifications(this.actor.id).then((res) => {
-          this.notifications = res.data
-        })
+        const response = await User.getNotifications(this.actor.id)
+        this.notifications = response.data
+      } catch (error) {
+        console.error(error)
+        this.error = error
+      }
+    },
+
+    /**
+     * Gets all admin notifications
+     */
+    async getAdminNotifications() {
+      try {
+        const response = await User.getAdminNotifications()
+        this.notifications.push(...response.data)
+        this.notifications.sort((a, b) =>
+            (new Date(a.created) > new Date(b.created)) ? 1 : -1)
       } catch (error) {
         console.error(error)
         this.error = error

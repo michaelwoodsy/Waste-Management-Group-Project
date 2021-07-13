@@ -39,15 +39,16 @@ public class TestDataRunner {
     private final ImageRepository imageRepository;
     private final KeywordRepository keywordRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-
     private final UserNotificationRepository userNotificationRepository;
+    private final AdminNotificationRepository adminNotificationRepository;
 
     @Autowired
     public TestDataRunner(UserRepository userRepository, BusinessRepository businessRepository, AddressRepository addressRepository,
                           ProductRepository productRepository, InventoryItemRepository inventoryItemRepository,
                           ImageRepository imageRepository, SaleListingRepository saleListingRepository,
                           CardRepository cardRepository, KeywordRepository keywordRepository,
-                          BCryptPasswordEncoder passwordEncoder, UserNotificationRepository userNotificationRepository) {
+                          BCryptPasswordEncoder passwordEncoder, UserNotificationRepository userNotificationRepository,
+                          AdminNotificationRepository adminNotificationRepository) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
@@ -59,6 +60,7 @@ public class TestDataRunner {
         this.passwordEncoder = passwordEncoder;
         this.keywordRepository = keywordRepository;
         this.userNotificationRepository = userNotificationRepository;
+        this.adminNotificationRepository = adminNotificationRepository;
     }
 
     /**
@@ -139,6 +141,9 @@ public class TestDataRunner {
             );
             userRepository.save(newUser);
         }
+
+        AdminNotification notification = new AdminNotification("This is a test admin notification");
+        adminNotificationRepository.save(notification);
 
         logger.info("Finished adding sample data to user repository");
         logger.info("Added {} entries to user repository", userRepository.count());
