@@ -6,9 +6,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
+import org.seng302.project.serviceLayer.dto.user.CreateUserDTO;
+import org.seng302.project.serviceLayer.dto.user.UserLoginResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
 import org.seng302.project.serviceLayer.exceptions.register.InvalidEmailException;
@@ -32,6 +37,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -50,7 +56,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class UserControllerTest extends AbstractInitializer {
 
-    @Autowired
+    @MockBean
     private UserRepository userRepository;
 
     @Autowired
@@ -61,6 +67,9 @@ class UserControllerTest extends AbstractInitializer {
 
     @MockBean
     private UserService userService;
+
+    @Autowired
+    private UserController userController;
 
     @BeforeEach
     void setup() {
@@ -88,6 +97,8 @@ class UserControllerTest extends AbstractInitializer {
      */
     @Test
     public void createAndRetrieveTestUser() throws Exception {
+        when(userService.createUser(any(CreateUserDTO.class))).thenReturn(new UserLoginResponseDTO(1));
+
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "John");
         testUserJson.put("lastName", "Smith");
@@ -102,61 +113,6 @@ class UserControllerTest extends AbstractInitializer {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
 
-        System.out.println(userRepository.findAll());
-
-        User retrievedUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
-
-        Assertions.assertNotNull(retrievedUser.getId());
-        Assertions.assertEquals("John", retrievedUser.getFirstName());
-        Assertions.assertEquals("Smith", retrievedUser.getLastName());
-        Assertions.assertEquals("James", retrievedUser.getMiddleName());
-        Assertions.assertEquals("Jonny", retrievedUser.getNickname());
-        Assertions.assertEquals("Likes long walks on the beach", retrievedUser.getBio());
-        Assertions.assertEquals("johnsmith99@gmail.com", retrievedUser.getEmail());
-        Assertions.assertEquals("1999-04-27", retrievedUser.getDateOfBirth());
-        Assertions.assertEquals("+64 3 555 0129", retrievedUser.getPhoneNumber());
-        Assertions.assertEquals("New Zealand", retrievedUser.getHomeAddress().getCountry());
-        Assertions.assertTrue(passwordEncoder.matches("1337-H%nt3r2", retrievedUser.getPassword()));
-        Assertions.assertEquals("user", retrievedUser.getRole());
-        Assertions.assertTrue(retrievedUser.getCreated().isBefore(LocalDateTime.now()));
-        Assertions.assertTrue(retrievedUser.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-        Assertions.assertTrue(retrievedUser.getBusinessesAdministered().isEmpty());
-    }
-
-
-    /**
-     * Tries creating the same user twice. Checks that we receive a 409 response.
-     */
-    @Test
-    public void tryCreatingExistingUser() throws Exception {
-
-        JSONObject newTestUserJson = createTestUserBase();
-        newTestUserJson.put("firstName", "John");
-        newTestUserJson.put("lastName", "Smith");
-        newTestUserJson.put("middleName", "James");
-        newTestUserJson.put("nickname", "Jonny");
-        newTestUserJson.put("bio", "Likes long walks on the beach");
-        newTestUserJson.put("email", "johnsmith99@gmail.com");
-        newTestUserJson.put("dateOfBirth", "1999-04-27");
-        newTestUserJson.put("phoneNumber", "+64 3 555 0129");
-        newTestUserJson.put("password", "1337-H%nt3r2");
-
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
-                .post("/users")
-                .content(newTestUserJson.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
-
-        this.mvc.perform(postUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isCreated()) // We expect a 201 response first
-                .andReturn();
-
-        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isConflict()) // We expect a 409 response
-                .andReturn();
-
-        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new ExistingRegisteredEmailException().getMessage(), returnedExceptionString);
     }
 
     /**
@@ -308,6 +264,7 @@ class UserControllerTest extends AbstractInitializer {
      */
     @Test
     public void getUser() throws Exception {
+        when(userRepository.findByEmail("johnsmith99@gmail.com")).thenReturn(List.of(this.getTestUser()));
 
         User testUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
 
@@ -315,31 +272,9 @@ class UserControllerTest extends AbstractInitializer {
                 .get(String.format("/users/%d", testUser.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("johnsmith99@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testUser)));
 
-        MvcResult getUserResponse = this.mvc.perform(getUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
-                .andReturn();
-
-        String returnedUserString = getUserResponse.getResponse().getContentAsString();
-        JSONObject returnedUser = new JSONObject(returnedUserString);
-
-        Assertions.assertNotNull(returnedUser.getString("id"));
-        Assertions.assertEquals("John", returnedUser.getString("firstName"));
-        Assertions.assertEquals("Smith", returnedUser.getString("lastName"));
-        Assertions.assertEquals("James", returnedUser.getString("middleName"));
-        Assertions.assertEquals("Jonny", returnedUser.getString("nickname"));
-        Assertions.assertEquals("Likes long walks on the beach", returnedUser.getString("bio"));
-        Assertions.assertEquals("johnsmith99@gmail.com", returnedUser.getString("email"));
-        Assertions.assertEquals("1999-04-27", returnedUser.getString("dateOfBirth"));
-        Assertions.assertEquals("+64 3 555 0129", returnedUser.getString("phoneNumber"));
-        Assertions.assertEquals("New Zealand", returnedUser.getJSONObject("homeAddress").getString("country"));
-        Assertions.assertEquals("user", returnedUser.getString("role"));
-
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        LocalDateTime createdTimestamp = LocalDateTime.parse(returnedUser.getString("created"), formatter);
-        Assertions.assertTrue(createdTimestamp.isBefore(LocalDateTime.now()));
-        Assertions.assertTrue(createdTimestamp.isAfter(LocalDateTime.now().minusSeconds(5)));
+        mvc.perform(getUserRequest).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     /**
