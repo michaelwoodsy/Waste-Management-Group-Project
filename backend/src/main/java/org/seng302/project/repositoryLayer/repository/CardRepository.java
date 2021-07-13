@@ -38,6 +38,6 @@ public interface CardRepository extends JpaRepository<Card, Integer>, JpaSpecifi
 
     @Modifying
     @Transactional
-    void deleteByDisplayPeriodEndBefore(LocalDateTime dayAgo);
+    List<Card> deleteByDisplayPeriodEndBefore(LocalDateTime dayAgo);
 
 }
