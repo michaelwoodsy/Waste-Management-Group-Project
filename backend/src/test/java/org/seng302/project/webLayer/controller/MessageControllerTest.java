@@ -306,6 +306,24 @@ class MessageControllerTest extends AbstractInitializer {
 
         RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
                 .delete("/users/{userId}/messages/{messageId}",
+                        100, testMessages.get(0).getId())
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(deleteMessageRequest).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that a 406 response is thrown when a user tries to delete
+     * a user's messages for a user that does not exist.
+     */
+    @Test
+    void deleteMessages_nonExistentMessage_throws406() throws Exception {
+        doThrow(NotAcceptableException.class)
+                .when(messageService)
+                .deleteMessage(Mockito.any(DeleteMessageDTO.class));
+
+        RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/messages/{messageId}",
                         testUser.getId(), 100)
                 .with(user(new AppUserDetails(testUser)));
 
