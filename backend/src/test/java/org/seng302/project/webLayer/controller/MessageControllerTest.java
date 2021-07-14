@@ -1,12 +1,16 @@
 package org.seng302.project.webLayer.controller;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repositoryLayer.model.Message;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.repository.MessageRepository;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
+import org.seng302.project.serviceLayer.dto.message.DeleteMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
@@ -19,8 +23,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -44,6 +51,8 @@ class MessageControllerTest extends AbstractInitializer {
     private MessageService messageService;
 
     private User testUser;
+    private User otherTestUser;
+    private List<Message> testMessages;
 
     private User testAdmin;
 
@@ -54,7 +63,9 @@ class MessageControllerTest extends AbstractInitializer {
     void setup() {
         this.initialise();
         testUser = this.getTestUser();
+        otherTestUser = this.getTestOtherUser();
         testAdmin = this.getTestSystemAdmin();
+        testMessages = this.getTestMessages();
     }
 
     /**
@@ -219,5 +230,85 @@ class MessageControllerTest extends AbstractInitializer {
                 .with(user(new AppUserDetails(testUser)));
 
         mockMvc.perform(getMessagesRequest).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that a 200 response on a successful deletion of a user's messages
+     */
+    @Test
+    void deleteMessage_success200() throws Exception {
+        RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/messages/{messageId}",
+                        testUser.getId(), testMessages.get(0).getId())
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(deleteMessageRequest).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that a 401 response is thrown when a user tries to delete
+     * a user's messages and they're not logged in.
+     */
+    @Test
+    void deleteMessages_notLoggedIn_throws401() throws Exception {
+        RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/messages/{messageId}",
+                        testUser.getId(), testMessages.get(0).getId());
+
+        mockMvc.perform(deleteMessageRequest).andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * Tests that a 403 response is thrown when a user tries to delete
+     * a user's messages and it's not their own messages.
+     */
+    @Test
+    void deleteMessages_wrongUser_throws403() throws Exception {
+        doThrow(new ForbiddenUserException(100))
+                .when(messageService)
+                .deleteMessage(Mockito.any(DeleteMessageDTO.class));
+
+        RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/messages/{messageId}",
+                        otherTestUser.getId(), testMessages.get(0).getId())
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(deleteMessageRequest).andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that a 403 response is thrown when a user tries to delete
+     * a user's messages and it's not their own messages.
+     */
+    @Test
+    void deleteMessages_GAAWrongUser_throws403() throws Exception {
+        doThrow(new ForbiddenUserException(100))
+                .when(messageService)
+                .deleteMessage(Mockito.any(DeleteMessageDTO.class));
+
+        RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/messages/{messageId}",
+                        testUser.getId(), testMessages.get(0).getId())
+                .with(user(new AppUserDetails(testAdmin)));
+
+        mockMvc.perform(deleteMessageRequest).andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that a 406 response is thrown when a user tries to delete
+     * a user's messages for a user that does not exist.
+     */
+    @Test
+    void deleteMessages_nonExistentUser_throws406() throws Exception {
+        doThrow(NotAcceptableException.class)
+                .when(messageService)
+                .deleteMessage(Mockito.any(DeleteMessageDTO.class));
+
+        RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/messages/{messageId}",
+                        testUser.getId(), 100)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(deleteMessageRequest).andExpect(status().isNotAcceptable());
     }
 }

@@ -53,7 +53,6 @@ class MessageServiceTest extends AbstractInitializer {
     private User testOtherUser;
     private Card testCard;
     private Message testMessage;
-    private Message testReceivedMessage;
 
     /**
      * Initialises entities from AbstractInitializer
@@ -84,7 +83,7 @@ class MessageServiceTest extends AbstractInitializer {
         testMessage = new Message("Is this still available?", testReceiver, testCard, testSender);
         testMessage.setId(1);
 
-        testReceivedMessage = new Message("Yes it is still available", testSender, testCard, testReceiver);
+        Message testReceivedMessage = new Message("Yes it is still available", testSender, testCard, testReceiver);
         testReceivedMessage.setId(2);
         Mockito.when(messageRepository.findAllByReceiver(testSender))
                 .thenReturn(List.of(testReceivedMessage));

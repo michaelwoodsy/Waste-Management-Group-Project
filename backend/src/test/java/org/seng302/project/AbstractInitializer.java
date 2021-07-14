@@ -31,6 +31,7 @@ public abstract class AbstractInitializer {
     private List<Card> testCards;
     private List<Keyword> testKeywords;
     private List<Image> testImages;
+    private List<Message> testMessages;
     private MockMultipartFile testFile;
     private MockMultipartFile testImageFile;
     private Card testCard;
@@ -47,6 +48,7 @@ public abstract class AbstractInitializer {
         this.initialiseTestFiles();
         this.initialiseTestCard();
         this.initialiseTestUserNotification();
+        this.initialiseTestMessages();
     }
 
     public void initialiseTestUsers() {
@@ -213,6 +215,15 @@ public abstract class AbstractInitializer {
                 "This is a notification message", testUser
         );
         testUserNotification.setId(1);
+    }
+
+    public void initialiseTestMessages(){
+        Message message1 = new Message("Is this still available?", testUser, testCard, testOtherUser);
+        message1.setId(1);
+        Message message2 = new Message("Yes it is still available", testOtherUser, testCard, testUser);
+        message2.setId(2);
+        testMessages = new ArrayList<>();
+        testMessages.addAll(List.of(message1, message2));
     }
 
 }
