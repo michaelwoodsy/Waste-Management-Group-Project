@@ -81,7 +81,7 @@ public class User {
         return this.businessesAdministered;
     }
 
-    @OneToMany(targetEntity=Image.class, mappedBy ="user", fetch= FetchType.EAGER)
+    @OneToMany(targetEntity=Image.class, mappedBy = "user", fetch= FetchType.EAGER)
     private List<Image> images = new ArrayList<>();
 
     public boolean businessIsAdministered(Integer businessId) {
