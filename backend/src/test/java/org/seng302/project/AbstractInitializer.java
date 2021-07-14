@@ -49,8 +49,6 @@ public abstract class AbstractInitializer {
         this.initialiseTestCards();
         this.initialiseTestImages();
         this.initialiseTestFiles();
-        this.initialiseTestCard();
-        this.initialiseTestUserNotification();
     }
 
     public void initialiseTestUsers() {
@@ -130,13 +128,6 @@ public abstract class AbstractInitializer {
                 "New Card",
                 "This is a new Card",
                 Collections.emptySet());
-    }
-
-    public void initialiseTestUserNotification() {
-        testUserNotification = new UserNotification(
-                testUser,
-                "This is a notification message");
-        testUserNotification.setId(0);
     }
 
     public void initialiseTestUserBusinessAdmin() {
@@ -234,16 +225,6 @@ public abstract class AbstractInitializer {
                 MediaType.IMAGE_JPEG_VALUE,
                 imageContent
         );
-    }
-
-    public void initialiseTestCard() {
-        testCard = new Card(
-                testUser,
-                "ForSale",
-                "New Card",
-                "This is a new Card",
-                Collections.emptySet());
-        testCard.setId(1);
     }
 
     public void initialiseTestUserNotification() {

@@ -170,13 +170,13 @@ class MessageServiceTest extends AbstractInitializer {
      */
     @Test
     void createMessage_nonExistentCard_notAcceptableException() {
-        Mockito.when(cardRepository.findById(Mockito.any(Integer.class)))
-                .thenReturn(Optional.empty());
-
         AppUserDetails appUser = new AppUserDetails(testSender);
 
         CreateMessageDTO requestDTO = new CreateMessageDTO(
                 testReceiver.getId(), testCard.getId(), testMessage.getText());
+
+        Mockito.when(cardRepository.findById(requestDTO.getCardId()))
+                .thenReturn(Optional.empty());
 
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> messageService.createMessage(requestDTO, appUser));

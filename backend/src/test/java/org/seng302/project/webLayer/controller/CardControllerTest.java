@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
@@ -54,6 +55,9 @@ class CardControllerTest extends AbstractInitializer {
 
     @MockBean
     private CardService cardService;
+
+    @MockBean
+    private UserRepository userRepository;
 
     @BeforeEach
     void setup() {
@@ -188,6 +192,8 @@ class CardControllerTest extends AbstractInitializer {
      */
     @Test
     void createCard_bareMinimum201() throws Exception {
+        when(userRepository.findByEmail(testUser.getEmail())).thenReturn(List.of(testUser));
+
         JSONObject testCardJson = new JSONObject();
         testCardJson.put("creatorId", testUser.getId());
         testCardJson.put("section", "ForSale");

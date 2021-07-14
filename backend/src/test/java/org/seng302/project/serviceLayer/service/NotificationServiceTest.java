@@ -119,10 +119,8 @@ class NotificationServiceTest extends AbstractInitializer {
     void getNotification_forbidden() {
         Integer userId = testUser.getId();
         AppUserDetails appUser = new AppUserDetails(otherUser);
-        Assertions.assertThrows(ForbiddenNotificationActionException.class,
-                () -> notificationService.getUserNotifications(userId, appUser));
         Assertions.assertThrows(ForbiddenActionException.class,
-                () -> notificationService.getUserNotifications(testUser.getId(), new AppUserDetails(otherUser)));
+                () -> notificationService.getUserNotifications(userId, appUser));
     }
 
     /**
