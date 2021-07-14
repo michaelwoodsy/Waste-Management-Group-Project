@@ -60,6 +60,159 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Adding an image for a Business",
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "true",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "JSESSIONID",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "multipart/form-data",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "filename",
+							"value": "[\"sit et sint\",\"Duis reprehenderit adipisicing\"]",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:9599/businesses/:businessId/images",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"businesses",
+						":businessId",
+						"images"
+					],
+					"variable": [
+						{
+							"key": "businessId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set primary image for a Business",
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "true",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "JSESSIONID",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/businesses/:businessId/images/:imageId/makeprimary",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"businesses",
+						":businessId",
+						"images",
+						":imageId",
+						"makeprimary"
+					],
+					"variable": [
+						{
+							"key": "businessId",
+							"value": "1"
+						},
+						{
+							"key": "imageId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete image for a Business",
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "true",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "JSESSIONID",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/businesses/:businessId/images/:imageId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"businesses",
+						":businessId",
+						"images",
+						":imageId"
+					],
+					"variable": [
+						{
+							"key": "businessId",
+							"value": "1"
+						},
+						{
+							"key": "imageId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
