@@ -2,7 +2,7 @@
   <div class="container-fluid">
 
     <login-required
-        v-if="!isLoggedIn"
+        v-if="!user.isLoggedIn()"
         page="view your profile page"
     />
 
@@ -19,18 +19,21 @@
           </ul>
         </div>
         <!-- Links to display if acting as business -->
-        <div v-if="!isActingAsUser">
+        <div v-if="user.isActingAsBusiness()">
           <br>
           <h4 class="text-light">My Business</h4>
           <ul class="nav flex-column">
             <li class="nav-item mb-2">
-              <router-link :to="productCatalogueRoute" class="btn btn-block btn-primary">Product Catalogue</router-link>
+              <router-link :to="`businesses/${user.actor().id}/products`"
+                           class="btn btn-block btn-primary">Product Catalogue</router-link>
             </li>
             <li class="nav-item mb-2">
-              <router-link :to="inventoryRoute" class="btn btn-block btn-primary">Inventory</router-link>
+              <router-link :to="`businesses/${user.actor().id}/inventory`"
+                           class="btn btn-block btn-primary">Inventory</router-link>
             </li>
             <li class="nav-item mb-2">
-              <router-link :to="saleListingRoute" class="btn btn-block btn-primary">Sale Listings</router-link>
+              <router-link :to="`businesses/${user.actor().id}/listings`"
+                           class="btn btn-block btn-primary">Sale Listings</router-link>
             </li>
           </ul>
         </div>
@@ -39,11 +42,11 @@
       <!-- Page Content -->
       <div class="col-12 col-md-8 p-3">
         <div class="text-center">
-          <h1><span v-if="isActingAsUser">Hello </span>{{ actorName }}</h1>
+          <h1><span v-if="user.isActingAsUser()">Hello </span>{{ user.actor().name }}</h1>
           <hr>
         </div>
         <!-- Cards Section -->
-        <div v-if="isActingAsUser">
+        <div v-if="user.isActingAsUser()">
           <h2>My Cards</h2>
           <alert v-if="hasExpiredCards" class="text-center">
             You have cards that have recently expired and will be deleted within 24 hours if not extended!
@@ -127,6 +130,7 @@ import MarketCard from "@/components/marketplace/MarketCard";
 import Alert from "@/components/Alert";
 import Notification from "@/components/Notification";
 import {User} from "@/Api";
+import userState from "@/store/modules/user"
 import $ from 'jquery';
 
 export default {
@@ -137,19 +141,17 @@ export default {
     MarketCard,
     Notification
   },
-  props: {
-    msg: String
-  },
   async mounted() {
     await this.getCardData()
     await this.getNotificationData()
-    if (this.$root.$data.user.canDoAdminAction()) {
+    if (this.user.canDoAdminAction()) {
       await this.getAdminNotifications();
     }
     $('.toast').toast('show')
   },
   data() {
     return {
+      user: userState,
       cards: [],
       hideImages: true,
       notificationsShown: true,
@@ -162,48 +164,8 @@ export default {
   },
   computed: {
     /**
-     * Check if user is logged in
-     * @returns {boolean|*}
+     * Returns true if a user has expired cards
      */
-    isLoggedIn() {
-      return this.$root.$data.user.state.loggedIn
-    },
-
-    /** Returns the product catalogue url **/
-    productCatalogueRoute() {
-      return `businesses/${this.actor.id}/products`;
-    },
-
-    /** Returns the inventory url **/
-    inventoryRoute() {
-      return `businesses/${this.actor.id}/inventory`;
-    },
-
-    /** Returns the sale listing url **/
-    saleListingRoute() {
-      return `businesses/${this.actor.id}/listings`;
-    },
-
-    /**
-     * Current actor
-     * Returns {name, id, type}
-     **/
-    actor() {
-      return this.$root.$data.user.state.actingAs
-    },
-
-    /** Returns the current logged in users data **/
-    actorName() {
-      return this.actor.name
-    },
-
-    /**
-     * Returns true if the user is currently acting as a user
-     */
-    isActingAsUser() {
-      return this.actor.type === 'user'
-    },
-
     hasExpiredCards() {
       for (const card of this.cards) {
         if (this.expired(card)) {
@@ -266,7 +228,7 @@ export default {
      */
     async getCardData() {
       try {
-        const response = await User.getCards(this.actor.id)
+        const response = await User.getCards(this.user.actor().id)
         this.cards = response.data
       } catch (error) {
         console.error(error)
@@ -279,7 +241,7 @@ export default {
      */
     async getNotificationData() {
       try {
-        const response = await User.getNotifications(this.actor.id)
+        const response = await User.getNotifications(this.user.actor().id)
         this.notifications = response.data
       } catch (error) {
         console.error(error)
@@ -302,6 +264,9 @@ export default {
       }
     },
 
+    /**
+     * Returns true if a card has expired
+     */
     expired(card) {
       const now = new Date();
       if (now >= new Date(card.displayPeriodEnd)) {
