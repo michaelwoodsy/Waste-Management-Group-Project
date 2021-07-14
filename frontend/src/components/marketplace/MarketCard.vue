@@ -114,8 +114,8 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <!-- Edit button -->
         <button
             v-if="canEditCard && !expired"
-            :data-target="'#editCard' + cardData.id" data-toggle="modal"
-            class="btn btn-sm btn-outline-primary float-right ml-3"
+            :data-target="'#editCard' + cardData.id" class="btn btn-sm btn-outline-primary float-right ml-3"
+            data-toggle="modal"
             @click="editCard"
         >
           Edit
@@ -132,9 +132,9 @@ Eg, <market-card @card-deleted="someMethod" ... />
           <span v-if="messageError" class="invalid-feedback">Please enter a message to send</span>
           <span v-if="messageSent" class="valid-feedback">Message sent!</span>
         </div>
-        <button class="btn btn-sm btn-primary"
-                @click="sendMessage"
-                :disabled="!message">
+        <button :disabled="!message"
+                class="btn btn-sm btn-primary"
+                @click="sendMessage">
           Send Message
         </button>
       </div>
@@ -144,7 +144,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-body">
-              <edit-card @card-edited="refreshCards()" :card-id="cardData.id"></edit-card>
+              <edit-card :card-id="cardData.id" @card-edited="refreshCards()"></edit-card>
             </div>
           </div>
         </div>
@@ -188,7 +188,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
 <script>
 import {getTimeDiffStr} from "@/utils/dateTime";
-import {Card, Marketplace, User} from "@/Api";
+import {Card, User} from "@/Api";
 import Alert from "@/components/Alert";
 import EditCard from "@/components/marketplace/EditCard";
 
@@ -354,7 +354,7 @@ export default {
       this.error = null;
 
       // Make request
-      Marketplace.deleteCard(this.cardData.id)
+      Card.deleteCard(this.cardData.id)
           .then(() => {
             // Emit the card-deleted event once the api call is successful
             this.$emit('card-deleted', this.cardData.id)

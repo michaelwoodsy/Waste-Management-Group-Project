@@ -6,7 +6,7 @@ import "@jest/globals";
 import MarketCard from '@/components/marketplace/MarketCard';
 import {mount} from "@vue/test-utils";
 import '@/Api';
-import {Card, Marketplace, User} from '@/Api';
+import {Card, User} from '@/Api';
 
 // Mock the api module
 jest.mock("@/Api");
@@ -131,7 +131,7 @@ describe('Testing the MarketCard component', () => {
     // Test the deleteCard method
     test("Test the deleteCard method emits a 'card-deleted' event", async () => {
         const mockDeleteCard = jest.fn(() => Promise.resolve({}));
-        Marketplace.deleteCard.mockImplementationOnce(mockDeleteCard);
+        Card.deleteCard.mockImplementationOnce(mockDeleteCard);
         await wrapper.vm.deleteCard()
 
         // Expect the component to emit the deleteCard event
@@ -162,7 +162,7 @@ describe('Testing the MarketCard component', () => {
     test("Test the deleteCard method makes a call to the api", async () => {
         // Mock the delete api method
         const mockDeleteCard = jest.fn(() => Promise.resolve({}));
-        Marketplace.deleteCard.mockImplementationOnce(mockDeleteCard);
+        Card.deleteCard.mockImplementationOnce(mockDeleteCard);
 
         // Run the deleteCard method
         await wrapper.vm.deleteCard()
@@ -175,7 +175,7 @@ describe('Testing the MarketCard component', () => {
     test("Test the deleteCard method sets error flag on error", async () => {
         // Mock the api module call
         const mockDeleteCard = jest.fn(() => Promise.reject(new Error("Error")));
-        Marketplace.deleteCard.mockImplementationOnce(mockDeleteCard);
+        Card.deleteCard.mockImplementationOnce(mockDeleteCard);
 
         // Run the deleteCard method
         wrapper.vm.deleteCard()
@@ -189,7 +189,7 @@ describe('Testing the MarketCard component', () => {
     test("Test the delete modal closes when the request is successful", async () => {
         // Mock the api call
         const mockDeleteCard = jest.fn(() => Promise.resolve({}));
-        Marketplace.deleteCard.mockImplementationOnce(mockDeleteCard);
+        Card.deleteCard.mockImplementationOnce(mockDeleteCard);
 
         // Run the deleteCard method
         wrapper.vm.deleteCard()

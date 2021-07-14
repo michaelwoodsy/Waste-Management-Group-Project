@@ -23,7 +23,7 @@ class UserNotificationTest {
                 "1999-04-27", "+64 3 555 0129", null,
                 "1337-H%nt3r2");
 
-        UserNotification testNotification = new UserNotification(testAssignedUser, "Your user profile needs updating!");
+        UserNotification testNotification = new UserNotification("Your user profile needs updating!", testAssignedUser);
 
         Assertions.assertNull(testNotification.getId());
         Assertions.assertNull(testNotification.getUser().getId());
