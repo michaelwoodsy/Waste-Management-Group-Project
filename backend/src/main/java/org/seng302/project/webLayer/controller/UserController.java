@@ -87,10 +87,12 @@ public class UserController {
      */
     @PutMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void edit(@RequestBody @Valid EditUserDTO dto, @PathVariable Integer userId) {
+    public void edit(@RequestBody @Valid EditUserDTO dto, @PathVariable Integer userId,
+                     @AuthenticationPrincipal AppUserDetails appUser) {
         try {
             logger.info("Request to edit user with ID: {}", userId);
             dto.setId(userId);
+            userService.checkForbidden(userId, appUser);
             userService.editUser(dto);
 
         } catch (InvalidEmailException | InvalidPhoneNumberException | ExistingRegisteredEmailException

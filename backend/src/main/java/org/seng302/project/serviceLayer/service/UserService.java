@@ -125,7 +125,6 @@ public class UserService {
      * @return the userId of the user logged in inside of a UserLoginResponseDTO
      */
     public LoginCredentialsDTO createUser(CreateUserDTO dto) {
-        var loginCredentials = new LoginCredentialsDTO(dto.getEmail(), dto.getPassword());
         var newUser = new User(dto);
 
         // If email address is already registered
@@ -138,7 +137,7 @@ public class UserService {
         userRepository.save(newUser);
 
         logger.info("Successful registration of user with ID: {}", newUser.getId());
-        return loginCredentials;
+        return new LoginCredentialsDTO(dto.getEmail(), dto.getPassword());
     }
 
     /**
@@ -146,7 +145,39 @@ public class UserService {
      * @param dto Validated dto containing the users information
      */
     public void editUser(EditUserDTO dto) {
-        //TODO: Implement
+        var user = userRepository.findById(dto.getId()).orElseThrow(() -> new NoUserExistsException(dto.getId()));
+        var address = user.getHomeAddress();
+
+        // If email address is already registered
+        if (!userRepository.findByEmail(dto.getEmail()).isEmpty()) {
+            throw new ExistingRegisteredEmailException();
+        }
+
+        //Change fields
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setMiddleName(dto.getMiddleName());
+        user.setNickname(dto.getNickname());
+        user.setBio(dto.getBio());
+        user.setEmail(dto.getEmail());
+        user.setDateOfBirth(dto.getDateOfBirth());
+        user.setPhoneNumber(dto.getPhoneNumber());
+
+        //Change address
+        address.setStreetNumber(dto.getHomeAddress().getStreetNumber());
+        address.setStreetName(dto.getHomeAddress().getStreetName());
+        address.setCity(dto.getHomeAddress().getCity());
+        address.setRegion(dto.getHomeAddress().getRegion());
+        address.setCountry(dto.getHomeAddress().getCountry());
+        address.setPostcode(dto.getHomeAddress().getPostcode());
+
+        user.setHomeAddress(address);
+
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+        addressRepository.save(user.getHomeAddress());
+        userRepository.save(user);
+
     }
 
     /**
