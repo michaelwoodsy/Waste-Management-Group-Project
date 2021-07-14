@@ -3,7 +3,7 @@
  */
 
 import "@jest/globals";
-import {getTimeDiffStr} from '@/utils/dateTime'
+import {formatDateTime, getTimeDiffStr} from '@/utils/dateTime'
 
 // Unix epoch time for "2021-05-14T02:00:00Z"
 const mockedUnixTime = 1620957600000;
@@ -58,6 +58,12 @@ describe('Testing the dateTime getTimeAgo method', () => {
         const futureDate = "2021-06-14T01:28:00Z"
 
         expect(getTimeDiffStr(futureDate)).toBe("now")
+    })
+
+    test('calling formatDateTime retrieves correct dateTime format', () => {
+        const date = '2021-07-10T08:28:21.200Z'
+        const formattedDate = formatDateTime(date)
+        expect(formattedDate).toEqual('10/07/2021 20:28')
     })
 
 })

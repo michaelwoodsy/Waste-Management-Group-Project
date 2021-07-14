@@ -223,6 +223,19 @@ export default {
     },
 
     /**
+     * Returns the ID of the user that is currently acting, null if not acting as a user
+     *
+     * @returns {*} ID of user that is currently acting
+     */
+    actingUserId() {
+        if (this.state.actingAs.type === 'user') {
+            return this.state.actingAs.id
+        } else {
+            return null
+        }
+    },
+
+    /**
      * Returns true if the provided userId is the same as the logged in user id, and is acting as them.
      * Usefull for checking if the
      * @param userId userId to compare to the current logged in user.
