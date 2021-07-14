@@ -25,15 +25,18 @@
           <ul class="nav flex-column">
             <li class="nav-item mb-2">
               <router-link :to="`businesses/${user.actor().id}/products`"
-                           class="btn btn-block btn-primary">Product Catalogue</router-link>
+                           class="btn btn-block btn-primary">Product Catalogue
+              </router-link>
             </li>
             <li class="nav-item mb-2">
               <router-link :to="`businesses/${user.actor().id}/inventory`"
-                           class="btn btn-block btn-primary">Inventory</router-link>
+                           class="btn btn-block btn-primary">Inventory
+              </router-link>
             </li>
             <li class="nav-item mb-2">
               <router-link :to="`businesses/${user.actor().id}/listings`"
-                           class="btn btn-block btn-primary">Sale Listings</router-link>
+                           class="btn btn-block btn-primary">Sale Listings
+              </router-link>
             </li>
           </ul>
         </div>
@@ -117,6 +120,11 @@
           <div v-if="messages.length === 0">
             <p class="text-light">You have no messages</p>
           </div>
+          <div v-else>
+            <message v-for="message in messages"
+                     :key="message.id"
+                     :message="message"/>
+          </div>
         </div>
 
       </div>
@@ -132,10 +140,12 @@ import Notification from "@/components/Notification";
 import {User} from "@/Api";
 import userState from "@/store/modules/user"
 import $ from 'jquery';
+import Message from "@/components/marketplace/Message";
 
 export default {
   name: "Home",
   components: {
+    Message,
     Alert,
     LoginRequired,
     MarketCard,
@@ -147,6 +157,7 @@ export default {
     if (this.user.canDoAdminAction()) {
       await this.getAdminNotifications();
     }
+    await this.getMessages()
     $('.toast').toast('show')
   },
   data() {
@@ -256,8 +267,21 @@ export default {
       try {
         const response = await User.getAdminNotifications()
         this.notifications.push(...response.data)
-        this.notifications.sort((a, b) =>
-            (new Date(a.created) > new Date(b.created)) ? 1 : -1)
+        this.notifications = this.notifications.sort((a, b) =>
+            (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      } catch (error) {
+        console.error(error)
+        this.error = error
+      }
+    },
+
+    /**
+     * Gets the currently logged in user's messages
+     */
+    async getMessages() {
+      try {
+        const response = await User.getMessages(this.user.actor().id)
+        this.messages = response.data
       } catch (error) {
         console.error(error)
         this.error = error
