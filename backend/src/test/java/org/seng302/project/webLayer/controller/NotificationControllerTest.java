@@ -8,7 +8,9 @@ import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.notifications.DeleteUserNotificationDTO;
+import org.seng302.project.serviceLayer.exceptions.NoNotificationExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.serviceLayer.exceptions.notification.ForbiddenNotificationActionException;
 import org.seng302.project.serviceLayer.service.NotificationService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -17,11 +19,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.Collections;
 import java.util.Optional;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -36,8 +41,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class NotificationControllerTest extends AbstractInitializer {
 
     private User testUser;
-
+    private User testSystemAdmin;
     private UserNotification testUserNotification;
+    private AdminNotification testAdminNotification;
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,7 +62,10 @@ class NotificationControllerTest extends AbstractInitializer {
         this.initialise();
 
         testUser = this.getTestUser();
+        testSystemAdmin = this.getTestSystemAdmin();
         testUserNotification = this.getTestUserNotification();
+        testAdminNotification = new AdminNotification("Test notification");
+        testAdminNotification.setId(1);
     }
 
     /**
@@ -161,5 +170,102 @@ class NotificationControllerTest extends AbstractInitializer {
         mockMvc.perform(delete("/users/{userId}/notifications/{notificationId}", testUser.getId(), testUserNotification.getId())
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that a 200 response is sent when a valid request is made.
+     */
+    @Test
+    void getAdminNotifications_validRequest200() throws Exception {
+        when(notificationService.getAdminNotifications(Mockito.any(AppUserDetails.class)))
+                .thenReturn(Collections.emptyList());
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/notifications")
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that a 401 status code is returned when a user is not logged in
+     */
+    @Test
+    void getAdminNotifications_notLoggedIn401() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/notifications");
+
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * Tests that a 403 status code is returned when the user is not an admin
+     */
+    @Test
+    void getAdminNotifications_notAdmin403() throws Exception {
+        when(notificationService.getAdminNotifications(Mockito.any(AppUserDetails.class)))
+                .thenThrow(new ForbiddenSystemAdminActionException());
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/notifications")
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that a 200 status is returned when a notification is successfully deleted.
+     */
+    @Test
+    void deleteAdminNotification_success200() throws Exception {
+        doNothing().when(notificationService)
+                .deleteAdminNotification(Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/notifications/{notificationId}", testAdminNotification.getId())
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that a 401 status is returned when a user is not logged in
+     */
+    @Test
+    void deleteAdminNotification_notLoggedIn401() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/notifications/{notificationId}", testAdminNotification.getId());
+
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * Tests that a 403 status is returned when a user is not an admin
+     */
+    @Test
+    void deleteAdminNotification_notAdmin403() throws Exception {
+        doThrow(new ForbiddenSystemAdminActionException()).when(notificationService)
+                .deleteAdminNotification(Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/notifications/{notificationId}", testAdminNotification.getId())
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that a 406 status is returned when a notification does not exist
+     */
+    @Test
+    void deleteAdminNotification_notificationNotFound406() throws Exception {
+        doThrow(new NoNotificationExistsException(2)).when(notificationService)
+                .deleteAdminNotification(Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/notifications/{notificationId}", testAdminNotification.getId())
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
     }
 }

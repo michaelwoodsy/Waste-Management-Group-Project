@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +23,7 @@ public abstract class AbstractInitializer {
     protected BCryptPasswordEncoder passwordEncoder;
 
     private User testUser;
+    private User testOtherUser;
     private User testSystemAdmin;
     private User testSystemDGAA;
     private User testUserBusinessAdmin;
@@ -36,7 +38,7 @@ public abstract class AbstractInitializer {
     private UserNotification testUserNotification;
 
     public void initialise() {
-        this.initialiseTestUser();
+        this.initialiseTestUsers();
         this.initialiseTestSystemAdmin();
         this.initialiseTestSystemDGAA();
         this.initialiseTestCard();
@@ -47,10 +49,13 @@ public abstract class AbstractInitializer {
         this.initialiseTestCards();
         this.initialiseTestImages();
         this.initialiseTestFiles();
+        this.initialiseTestCard();
+        this.initialiseTestUserNotification();
     }
 
-    public void initialiseTestUser() {
-        Address address = new Address(null, null, null, null, "New Zealand", null);
+    public void initialiseTestUsers() {
+        Address address = new Address();
+        address.setCountry("New Zealand");
         testUser = new User(
                 "John",
                 "Smith",
@@ -64,6 +69,22 @@ public abstract class AbstractInitializer {
                 "password");
         testUser.setId(1);
         testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
+
+        Address anotherAddress = new Address();
+        anotherAddress.setCountry("New Zealand");
+        testOtherUser = new User(
+                "Jenny",
+                "Dove",
+                "Amelia",
+                null,
+                null,
+                "jenny.dove@icloud.com",
+                "1996/06/30",
+                null,
+                anotherAddress,
+                "password");
+        testOtherUser.setId(2);
+        testOtherUser.setPassword(passwordEncoder.encode(testOtherUser.getPassword()));
     }
 
     public void initialiseTestSystemAdmin() {
@@ -79,7 +100,7 @@ public abstract class AbstractInitializer {
                 "+64 123 4567",
                 address,
                 "Th1s1sMyApplication");
-        testSystemAdmin.setId(2);
+        testSystemAdmin.setId(3);
         testSystemAdmin.setRole("globalApplicationAdmin");
         testSystemAdmin.setPassword(passwordEncoder.encode(testSystemAdmin.getPassword()));
     }
@@ -97,7 +118,7 @@ public abstract class AbstractInitializer {
                 "+64 123 4567",
                 address,
                 "Th1s1sMyApplication");
-        testSystemDGAA.setId(3);
+        testSystemDGAA.setId(4);
         testSystemDGAA.setRole("defaultGlobalApplicationAdmin");
         testSystemDGAA.setPassword(passwordEncoder.encode(testSystemAdmin.getPassword()));
     }
@@ -131,7 +152,7 @@ public abstract class AbstractInitializer {
                 null,
                 address,
                 "password");
-        testUserBusinessAdmin.setId(3);
+        testUserBusinessAdmin.setId(4);
         testUserBusinessAdmin.setPassword(passwordEncoder.encode(testUserBusinessAdmin.getPassword()));
     }
 
@@ -213,6 +234,23 @@ public abstract class AbstractInitializer {
                 MediaType.IMAGE_JPEG_VALUE,
                 imageContent
         );
+    }
+
+    public void initialiseTestCard() {
+        testCard = new Card(
+                testUser,
+                "ForSale",
+                "New Card",
+                "This is a new Card",
+                Collections.emptySet());
+        testCard.setId(1);
+    }
+
+    public void initialiseTestUserNotification() {
+        testUserNotification = new UserNotification(
+                "This is a notification message", testUser
+        );
+        testUserNotification.setId(1);
     }
 
 }

@@ -6,11 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.repository.AdminNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.notifications.DeleteUserNotificationDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenActionException;
+import org.seng302.project.serviceLayer.exceptions.NoNotificationExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.serviceLayer.exceptions.notification.ForbiddenNotificationActionException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * Test class for performing unit tests for the MessageService class and its methods.
@@ -37,6 +39,9 @@ class NotificationServiceTest extends AbstractInitializer {
     private UserNotificationRepository userNotificationRepository;
 
     @MockBean
+    private AdminNotificationRepository adminNotificationRepository;
+
+    @MockBean
     private UserRepository userRepository;
 
     private User testUser;
@@ -44,8 +49,9 @@ class NotificationServiceTest extends AbstractInitializer {
     private User otherUser;
     private Integer noUserId;
     private Integer noNotificationId;
-    private AppUserDetails appUser;
+    private Integer noAdminNotificationId;
     private UserNotification testNotification;
+    private AdminNotification testAdminNotification;
 
     /**
      * Initialises entities from AbstractInitializer
@@ -55,30 +61,13 @@ class NotificationServiceTest extends AbstractInitializer {
         this.initialise();
         testUser = this.getTestUser();
         testSystemAdmin = this.getTestSystemAdmin();
-        Address address = new Address(null, null, null, null, "New Zealand", null);
-        otherUser = new User(
-                "John",
-                "Jones",
-                null,
-                null,
-                null,
-                "john.jones@gmail.com",
-                "1995/07/25",
-                null,
-                address,
-                "password");
-        otherUser.setId(2);
-        otherUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
+        otherUser = this.getTestOtherUser();
         noUserId = 1000;
         noNotificationId = 1000;
-
-        Mockito.when(userRepository.findByEmail(testUser.getEmail()))
-            .thenReturn(List.of(testUser));
-
+        noAdminNotificationId = 1500;
         testNotification = this.getTestUserNotification();
-        testNotification.setId(1);
-        Mockito.when(userNotificationRepository.findById(testNotification.getId()))
-                .thenReturn(Optional.of(testNotification));
+        testAdminNotification = new AdminNotification("Test admin notification");
+        testAdminNotification.setId(2);
         this.mocks();
     }
 
@@ -86,11 +75,26 @@ class NotificationServiceTest extends AbstractInitializer {
      * Sets up mocks used by multiple tests.
      */
     void mocks() {
-        given(userRepository.findById(testUser.getId())).willReturn(Optional.of(testUser));
-        given(userRepository.findByEmail(otherUser.getEmail())).willReturn(List.of(otherUser));
-        given(userRepository.findByEmail(testSystemAdmin.getEmail())).willReturn(List.of(testSystemAdmin));
-        given(userRepository.findById(noUserId)).willReturn(Optional.empty());
-        given(userNotificationRepository.findById(noNotificationId)).willReturn(Optional.empty());
+        when(userRepository.findByEmail(testUser.getEmail()))
+                .thenReturn(List.of(testUser));
+        when(userRepository.findById(testUser.getId()))
+                .thenReturn(Optional.of(testUser));
+        when(userRepository.findByEmail(otherUser.getEmail()))
+                .thenReturn(List.of(otherUser));
+        when(userRepository.findByEmail(testSystemAdmin.getEmail()))
+                .thenReturn(List.of(testSystemAdmin));
+        when(userRepository.findById(noUserId))
+                .thenReturn(Optional.empty());
+        when(userNotificationRepository.findById(noNotificationId))
+                .thenReturn(Optional.empty());
+        when(userNotificationRepository.findById(testNotification.getId()))
+                .thenReturn(Optional.of(testNotification));
+        when(adminNotificationRepository.findAll())
+                .thenReturn(List.of(testAdminNotification));
+        when(adminNotificationRepository.findById(testAdminNotification.getId()))
+                .thenReturn(Optional.of(testAdminNotification));
+        when(adminNotificationRepository.findById(noAdminNotificationId))
+                .thenReturn(Optional.empty());
     }
 
 
@@ -113,6 +117,10 @@ class NotificationServiceTest extends AbstractInitializer {
      */
     @Test
     void getNotification_forbidden() {
+        Integer userId = testUser.getId();
+        AppUserDetails appUser = new AppUserDetails(otherUser);
+        Assertions.assertThrows(ForbiddenNotificationActionException.class,
+                () -> notificationService.getUserNotifications(userId, appUser));
         Assertions.assertThrows(ForbiddenActionException.class,
                 () -> notificationService.getUserNotifications(testUser.getId(), new AppUserDetails(otherUser)));
     }
@@ -122,8 +130,9 @@ class NotificationServiceTest extends AbstractInitializer {
      */
     @Test
     void getNotification_not_found() {
+        AppUserDetails appUser = new  AppUserDetails(testSystemAdmin);
         Assertions.assertThrows(NotAcceptableException.class,
-                () -> notificationService.getUserNotifications(noUserId, new AppUserDetails(testSystemAdmin)));
+                () -> notificationService.getUserNotifications(noUserId, appUser));
     }
 
 
@@ -186,5 +195,57 @@ class NotificationServiceTest extends AbstractInitializer {
 
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> notificationService.deleteUserNotification(dto));
+    }
+
+    /**
+     * Tests that a system admin can successfully get all admin notifications
+     */
+    @Test
+    void getAdminNotifications_success() {
+        AppUserDetails appUser = new AppUserDetails(testSystemAdmin);
+        List<AdminNotification> result = notificationService.getAdminNotifications(appUser);
+        Assertions.assertEquals(1, result.size());
+    }
+
+    /**
+     * Tests that if a regular user tries to get admin notifications, an exception is thrown
+     */
+    @Test
+    void getAdminNotifications_userNotAdmin_throwsException() {
+        AppUserDetails appUser = new AppUserDetails(testUser);
+        Assertions.assertThrows(ForbiddenSystemAdminActionException.class,
+                () -> notificationService.getAdminNotifications(appUser));
+    }
+
+    /**
+     * Tests that a system admin can successfully delete an admin notification
+     */
+    @Test
+    void deleteAdminNotification_success() {
+        AppUserDetails appUser = new AppUserDetails(testSystemAdmin);
+        notificationService.deleteAdminNotification(testAdminNotification.getId(), appUser);
+        verify(adminNotificationRepository, times(1))
+                .deleteById(testAdminNotification.getId());
+    }
+
+    /**
+     * Tests that an exception is thrown when a non-admin user attempts to delete an admin notification
+     */
+    @Test
+    void deleteAdminNotification_notAdmin_throwsException() {
+        Integer notificationId = testAdminNotification.getId();
+        AppUserDetails appUser = new AppUserDetails(testUser);
+        Assertions.assertThrows(ForbiddenSystemAdminActionException.class,
+                () -> notificationService.deleteAdminNotification(notificationId, appUser));
+    }
+
+    /**
+     * Tests that an exception is thrown when an admin tries to delete a notification that does not exist
+     */
+    @Test
+    void deleteAdminNotification_noNotificationExists_throwsException() {
+        AppUserDetails appUser = new AppUserDetails(testSystemAdmin);
+        Assertions.assertThrows(NoNotificationExistsException.class,
+                () -> notificationService.deleteAdminNotification(noAdminNotificationId, appUser));
     }
 }
