@@ -79,17 +79,42 @@ public class UserController {
     }
 
     /**
+     * Creates a new user account.
+     * Then logs the user in.
+     * Handles cases that may result in an error.
+     *
+     * @param dto request body in the form of a CreateUserDTO Object
+     */
+    @PutMapping("/users/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void edit(@RequestBody @Valid EditUserDTO dto, @PathVariable Integer userId) {
+        try {
+            logger.info("Request to edit user with ID: {}", userId);
+            dto.setId(userId);
+            userService.editUser(dto);
+
+        } catch (InvalidEmailException | InvalidPhoneNumberException | ExistingRegisteredEmailException
+                | InvalidDateException | UserUnderageException | RequiredFieldsMissingException expectedException) {
+            logger.info(expectedException.getMessage());
+            throw expectedException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while creating user: %s", exception.getMessage()));
+            throw exception;
+        }
+    }
+
+    /**
      * Retrieve a specific user account.
      * Handles cases that may result in an error
      *
-     * @param id ID of user to get information from.
+     * @param userId ID of user to get information from.
      * @return Response back to client encompassing status code, headers, and body.
      */
-    @GetMapping("/users/{id}")
-    public UserResponseDTO getUser(@PathVariable Integer id) {
+    @GetMapping("/users/{userId}")
+    public UserResponseDTO getUser(@PathVariable Integer userId) {
         try {
-            logger.info(String.format("Request to get user %d", id));
-            return userService.getUser(id);
+            logger.info("Request to get user with ID: {}", userId);
+            return userService.getUser(userId);
         } catch (NoUserExistsException noUserExistsException) {
             logger.info(noUserExistsException.getMessage());
             throw noUserExistsException;

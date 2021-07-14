@@ -142,6 +142,14 @@ public class UserService {
     }
 
     /**
+     * Service method for editing a user
+     * @param dto Validated dto containing the users information
+     */
+    public void editUser(EditUserDTO dto) {
+        //TODO: Implement
+    }
+
+    /**
      * Service method for retrieving a user
      * @param id ID of the user to retrieve
      * @return the user data inside of a UserResponseDTO
