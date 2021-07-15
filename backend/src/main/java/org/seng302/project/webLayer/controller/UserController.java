@@ -82,6 +82,7 @@ public class UserController {
      * Creates a new user account.
      * Then logs the user in.
      * Handles cases that may result in an error.
+     * NOTE: All elements in the dto are required, but some can be null, as this is a PUT request and not a PATCH request
      *
      * @param dto request body in the form of a CreateUserDTO Object
      */

@@ -1,16 +1,22 @@
 package org.seng302.project.webLayer.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.user.CreateUserDTO;
+import org.seng302.project.serviceLayer.dto.user.EditUserDTO;
 import org.seng302.project.serviceLayer.dto.user.LoginCredentialsDTO;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.service.UserService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +32,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,10 +49,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class UserControllerTest extends AbstractInitializer {
 
+    private User testUser;
+    private User otherUser;
+
+    private EditUserDTO testEditUserDTO;
+
     private LoginCredentialsDTO invalidLoginCredentials;
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private MockMvc mvc;
@@ -59,7 +77,34 @@ class UserControllerTest extends AbstractInitializer {
         given(userRepository.findByEmail(invalidLoginCredentials.getEmail())).willReturn(Collections.emptyList());
 
         initialise();
+
+        testUser = this.getTestUser();
+        otherUser = this.getTestOtherUser();
+
+        testEditUserDTO = new EditUserDTO(
+                null, //ID is set in the controller
+                otherUser.getFirstName(),
+                otherUser.getLastName(),
+                otherUser.getMiddleName(),
+                otherUser.getNickname(),
+                otherUser.getBio(),
+                "new.email@newemail.com",
+                otherUser.getDateOfBirth(),
+                otherUser.getPhoneNumber(),
+                otherUser.getHomeAddress(),
+                "NewSecurePassword123");
+
+        mocks();
     }
+
+    /**
+     * Sets up mocks used for some tests
+     */
+    void mocks() {
+        when(userRepository.findByEmail(testUser.getEmail())).thenReturn(List.of(testUser));
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+    }
+
 
     private JSONObject createTestUserBase() throws JSONException {
         JSONObject testUserAddress = new JSONObject();
@@ -98,7 +143,6 @@ class UserControllerTest extends AbstractInitializer {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-
     }
 
     /**
@@ -310,5 +354,149 @@ class UserControllerTest extends AbstractInitializer {
                 .param("searchQuery", "testquery string")
                 .with(user(new AppUserDetails(getTestUser()))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests editing user success
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_success200() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testEditUserDTO))
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests editing user returning a forbidden response
+     */
+    @Test
+    void editUser_forbidden403() throws Exception {
+        doThrow(ForbiddenException.class).when(userService).checkForbidden(any(Integer.class), any(AppUserDetails.class));
+
+        mvc.perform(MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testEditUserDTO))
+                .with(user(new AppUserDetails(otherUser))))
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    /**
+     * Tests editing user throws 400 bad request with invalid email
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_InvalidEmail400() throws Exception {
+        testEditUserDTO.setEmail("invalid@email");
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testEditUserDTO))
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        //Exception string from the validation class
+        Assertions.assertEquals("EmailInvalid: This Email is not valid.", returnedExceptionString);
+    }
+
+    /**
+     * Tests editing user throws 400 bad request with invalid password
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_InvalidPassword400() throws Exception {
+        testEditUserDTO.setPassword("weakPassword");
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testEditUserDTO))
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        //Exception string from the validation class
+        Assertions.assertEquals("PasswordInvalid: This Password is not valid.", returnedExceptionString);
+    }
+
+    /**
+     * Tests editing user throws 400 bad request with missing firstName
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_MissingFirstName400() throws Exception {
+        testEditUserDTO.setFirstName(null);
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testEditUserDTO))
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        //Exception string from the validation class
+        Assertions.assertEquals("MissingData: First Name is a mandatory field", returnedExceptionString);
+    }
+
+    /**
+     * Tests editing user throws 400 bad request with missing lastName
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_MissingLastName400() throws Exception {
+        testEditUserDTO.setLastName(null);
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testEditUserDTO))
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        //Exception string from the validation class
+        Assertions.assertEquals("MissingData: Last Name is a mandatory field", returnedExceptionString);
+    }
+
+    /**
+     * Tests editing user throws 400 bad request with invalid phone number
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_InvalidPhoneNumber400() throws Exception {
+        testEditUserDTO.setPhoneNumber("1234");
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testEditUserDTO))
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        //Exception string from the validation class
+        Assertions.assertEquals("InvalidPhoneNumber: This Phone Number is not valid.", returnedExceptionString);
     }
 }

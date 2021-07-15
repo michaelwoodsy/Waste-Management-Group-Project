@@ -10,7 +10,7 @@ import org.seng302.project.repositoryLayer.specification.BusinessSpecifications;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
-import org.seng302.project.serviceLayer.exceptions.ForbiddenActionException;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.InvalidDateException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
@@ -150,7 +150,7 @@ public class BusinessService {
         var loggedInUser = userRepository.findByEmail(appUserEmail).get(0);
 
         if (!loggedInUser.getId().equals(currBusiness.getPrimaryAdministratorId()) && !loggedInUser.isGAA()) {
-            var exception = new ForbiddenActionException(String.format("You can not perform this action as you are " +
+            var exception = new ForbiddenException(String.format("You can not perform this action as you are " +
                     "not the primary administrator of business with id %d.", currBusiness.getId()));
             logger.error(exception.getMessage());
             throw exception;

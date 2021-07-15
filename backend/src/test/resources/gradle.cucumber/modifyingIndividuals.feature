@@ -3,8 +3,8 @@ Feature: U10 - Modifying Individuals
   Scenario: AC1: As a registered individual, I can update any of my attributes.
     Given I am logged in as a user
     When I try to edit my account to the details:
-    | firstName | lastName | middleName | nickname | email | dateOfBirth | bio | phoneNumber | password
-    | Rutger    | van Kruiningen |  | Rodger | new.email@gmail.com | 2000-09-08 | My new bio | 022 123 4567 | SecurePassword123
+    | firstName | lastName | middleName | nickname | email | dateOfBirth | bio | phoneNumber | password |
+    | Rutger    | van Kruiningen |  | Rodger | new.email@gmail.com | 2000-09-08 | My new bio | 022 123 4567 | SecurePassword123 |
     Then My details are updated.
 
   Scenario: AC2: All validation rules still apply. For example, I can only modify my date of birth if I still remain over the required age.

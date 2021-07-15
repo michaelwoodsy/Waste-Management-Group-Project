@@ -61,7 +61,7 @@ public abstract class AbstractInitializer {
                 null,
                 null,
                 "john.smith@gmail.com",
-                "1995/07/25",
+                "1995-07-25",
                 null,
                 address,
                 "password");
@@ -77,7 +77,7 @@ public abstract class AbstractInitializer {
                 null,
                 null,
                 "jenny.dove@icloud.com",
-                "1996/06/30",
+                "1996-06-30",
                 null,
                 anotherAddress,
                 "password");

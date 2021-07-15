@@ -5,6 +5,6 @@ package org.seng302.project.serviceLayer.exceptions;
  */
 public class ForbiddenException extends RuntimeException {
     public ForbiddenException(String message) {
-        super(message);
+        super("ForbiddenException: " + message);
     }
 }

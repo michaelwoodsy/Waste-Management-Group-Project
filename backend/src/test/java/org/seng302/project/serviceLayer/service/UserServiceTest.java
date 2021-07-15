@@ -10,7 +10,9 @@ import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.user.CreateUserDTO;
-import org.seng302.project.serviceLayer.exceptions.ForbiddenActionException;
+import org.seng302.project.serviceLayer.dto.user.EditUserDTO;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenDGAAActionException;
 import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -18,8 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -32,7 +37,11 @@ import static org.mockito.Mockito.*;
 class UserServiceTest extends AbstractInitializer {
 
     private User testUser;
+    private User otherUser;
     private User testAdmin;
+
+    private CreateUserDTO testCreateUserDTO;
+    private EditUserDTO testEditUserDTO;
 
     @Autowired
     private UserService userService;
@@ -43,13 +52,52 @@ class UserServiceTest extends AbstractInitializer {
     @MockBean
     private AddressRepository addressRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @BeforeEach
     void setup() {
         this.initialise();
         testUser = this.getTestUser();
+        otherUser = this.getTestOtherUser();
         testAdmin = this.getTestSystemDGAA();
         testUser.setId(1);
+
+        testCreateUserDTO = new CreateUserDTO(
+                testUser.getFirstName(),
+                testUser.getLastName(),
+                testUser.getMiddleName(),
+                testUser.getNickname(),
+                testUser.getBio(),
+                testUser.getEmail(),
+                testUser.getDateOfBirth(),
+                testUser.getPhoneNumber(),
+                testUser.getHomeAddress(),
+                testUser.getPassword());
+
+        testEditUserDTO = new EditUserDTO(
+                testUser.getId(),
+                otherUser.getFirstName(),
+                otherUser.getLastName(),
+                otherUser.getMiddleName(),
+                otherUser.getNickname(),
+                otherUser.getBio(),
+                "new.email@newemail.com",
+                otherUser.getDateOfBirth(),
+                otherUser.getPhoneNumber(),
+                otherUser.getHomeAddress(),
+                "NewSecurePassword123");
+
+        mocks();
     }
+
+    /**
+     * Mocks used for more than one test
+     */
+    void mocks() {
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+    }
+
 
 
     /**
@@ -85,30 +133,17 @@ class UserServiceTest extends AbstractInitializer {
      */
     @Test
     void tryCreatingUserSuccess() {
-
-        CreateUserDTO dto = new CreateUserDTO(
-                testUser.getFirstName(),
-                testUser.getLastName(),
-                testUser.getMiddleName(),
-                testUser.getNickname(),
-                testUser.getBio(),
-                testUser.getEmail(),
-                testUser.getDateOfBirth(),
-                testUser.getPhoneNumber(),
-                testUser.getHomeAddress(),
-                testUser.getPassword());
-
         given(userRepository.save(Mockito.any(User.class))).willReturn(testUser);
 
-        userService.createUser(dto);
+        userService.createUser(testCreateUserDTO);
 
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
         //Called when checking DGA at startup as well
-        Mockito.verify(userRepository, times(2)).save(userArgumentCaptor.capture());
+        Mockito.verify(userRepository, atLeastOnce()).save(userArgumentCaptor.capture());
 
         ArgumentCaptor<Address> addressArgumentCaptor = ArgumentCaptor.forClass(Address.class);
         //Called when checking DGA at startup as well
-        Mockito.verify(addressRepository, times(2)).save(addressArgumentCaptor.capture());
+        Mockito.verify(addressRepository, atLeastOnce()).save(addressArgumentCaptor.capture());
 
         User createdUser = userArgumentCaptor.getValue();
 
@@ -122,6 +157,8 @@ class UserServiceTest extends AbstractInitializer {
         Assertions.assertEquals(testUser.getPhoneNumber(), createdUser.getPhoneNumber());
         Assertions.assertEquals(testUser.getHomeAddress().getCountry(), createdUser.getHomeAddress().getCountry());
         Assertions.assertEquals(testUser.getRole(), createdUser.getRole());
+
+        passwordEncoder.matches(testCreateUserDTO.getPassword(), createdUser.getPassword());
     }
 
 
@@ -130,34 +167,77 @@ class UserServiceTest extends AbstractInitializer {
      */
     @Test
     void tryCreatingExistingUser() {
-        CreateUserDTO dto = new CreateUserDTO(
-                testUser.getFirstName(),
-                testUser.getLastName(),
-                testUser.getMiddleName(),
-                testUser.getNickname(),
-                testUser.getBio(),
-                testUser.getEmail(),
-                testUser.getDateOfBirth(),
-                testUser.getPhoneNumber(),
-                testUser.getHomeAddress(),
-                testUser.getPassword());
-
         when(userRepository.findByEmail(testUser.getEmail())).thenReturn(List.of(testUser));
 
-        Assertions.assertThrows(ExistingRegisteredEmailException.class, () -> userService.createUser(dto));
+        Assertions.assertThrows(ExistingRegisteredEmailException.class, () -> userService.createUser(testCreateUserDTO));
+    }
+
+    /**
+     * Tries Successfully editing a user
+     */
+    @Test
+    void tryEditingUserSuccess() {
+        //given(userRepository.save(Mockito.any(User.class))).willReturn(testUser);
+        when(userRepository.findByEmail(testEditUserDTO.getEmail())).thenReturn(Collections.emptyList());
+
+        userService.editUser(testEditUserDTO);
+
+        ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
+        //Called when checking DGA at startup as well
+        Mockito.verify(userRepository, atLeastOnce()).save(userArgumentCaptor.capture());
+
+        ArgumentCaptor<Address> addressArgumentCaptor = ArgumentCaptor.forClass(Address.class);
+        //Called when checking DGA at startup as well
+        Mockito.verify(addressRepository, atLeastOnce()).save(addressArgumentCaptor.capture());
+
+        User editedUser = userArgumentCaptor.getValue();
+
+        Assertions.assertEquals(testEditUserDTO.getFirstName(), editedUser.getFirstName());
+        Assertions.assertEquals(testUser.getLastName(), editedUser.getLastName());
+        Assertions.assertEquals(testUser.getMiddleName(), editedUser.getMiddleName());
+        Assertions.assertEquals(testUser.getNickname(), editedUser.getNickname());
+        Assertions.assertEquals(testUser.getBio(), editedUser.getBio());
+        Assertions.assertEquals(testUser.getEmail(), editedUser.getEmail());
+        Assertions.assertEquals(testUser.getDateOfBirth(), editedUser.getDateOfBirth());
+        Assertions.assertEquals(testUser.getPhoneNumber(), editedUser.getPhoneNumber());
+        Assertions.assertEquals(testUser.getHomeAddress().getCountry(), editedUser.getHomeAddress().getCountry());
+        Assertions.assertEquals(testUser.getRole(), editedUser.getRole());
+
+        passwordEncoder.matches(testEditUserDTO.getPassword(), editedUser.getPassword());
+    }
+
+    /**
+     * Tries editing a user and checks that a NoUserExistsException is thrown as the user with ID does not exist
+     */
+    @Test
+    void tryEditUserExistingEmail() {
+        when(userRepository.findByEmail(testEditUserDTO.getEmail())).thenReturn(List.of(testUser));
+
+        Assertions.assertThrows(ExistingRegisteredEmailException.class, () -> userService.editUser(testEditUserDTO));
+    }
+
+    /**
+     * Tries editing a user and checks that a ExistingRegisteredEmailException is thrown
+     */
+    @Test
+    void tryEditUserNonExistentId() {
+        when(userRepository.findByEmail(testEditUserDTO.getEmail())).thenReturn(List.of(testUser));
+        when(userRepository.findById(testEditUserDTO.getId())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(NoUserExistsException.class, () -> userService.editUser(testEditUserDTO));
     }
 
     /**
      * tests method checkForbidden which checks if the logged in user is able to perform actions on the
      * user with id userId's account
-     * This test checks that a ForbiddenActionException is thrown
+     * This test checks that a ForbiddenException is thrown
      */
     @Test
     void testCheckForbidden_ForbiddenRequest() {
         Integer userId = 1000;
         AppUserDetails appUser = new AppUserDetails(testUser);
         when(userRepository.findByEmail(appUser.getUsername())).thenReturn(List.of(testUser));
-        Assertions.assertThrows(ForbiddenActionException.class, () -> userService.checkForbidden(userId, appUser));
+        Assertions.assertThrows(ForbiddenException.class, () -> userService.checkForbidden(userId, appUser));
     }
 
     /**
