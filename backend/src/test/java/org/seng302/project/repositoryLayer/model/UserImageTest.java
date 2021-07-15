@@ -2,11 +2,15 @@ package org.seng302.project.repositoryLayer.model;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Iterator;
 
 /**
  * Model tests for product images
  */
-public class UserImageTest {
+@SpringBootTest
+class UserImageTest {
 
     /**
      * Tests that adding an image to a User's list of images is successful
@@ -20,8 +24,21 @@ public class UserImageTest {
         Image image = new Image("testImage.jpg", "testImageThumbnail.jpg");
         testUser.addImage(image);
         Assertions.assertEquals(1, testUser.getImages().size());
-        Assertions.assertEquals("testImage.jpg", testUser.getImages().get(0).getFilename());
-        Assertions.assertEquals("testImageThumbnail.jpg", testUser.getImages().get(0).getThumbnailFilename());
+        boolean matchesFilename = false;
+        boolean matchesThumbnailFilename = false;
+
+        //Iterating is the only way to get values in a set
+        for (Image userImage : testUser.getImages()) {
+            if (userImage.getFilename().equals("testImage.jpg")) {
+                matchesFilename = true;
+            }
+            if (userImage.getThumbnailFilename().equals("testImageThumbnail.jpg")) {
+                matchesThumbnailFilename = true;
+            }
+        }
+
+        Assertions.assertTrue(matchesFilename);
+        Assertions.assertTrue(matchesThumbnailFilename);
     }
 
     /**

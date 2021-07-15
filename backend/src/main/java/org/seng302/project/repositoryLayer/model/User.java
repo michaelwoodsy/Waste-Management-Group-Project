@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -35,6 +37,7 @@ public class User {
     private List<Business> businessesAdministered = new ArrayList<>();
     private LocalDateTime created = LocalDateTime.now();
     private Integer primaryImageId;
+    private Set<Image> images = new HashSet<>();
 
     public User(String firstName, String lastName, String middleName,
                 String nickname, String bio, String email, String dateOfBirth,
@@ -81,8 +84,11 @@ public class User {
         return this.businessesAdministered;
     }
 
-    @OneToMany(targetEntity=Image.class, mappedBy = "user", fetch= FetchType.EAGER)
-    private List<Image> images = new ArrayList<>();
+    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
+    public Set<Image> getImages() {
+        return this.images;
+    }
+
 
     public boolean businessIsAdministered(Integer businessId) {
         for (Business business : this.businessesAdministered) {
