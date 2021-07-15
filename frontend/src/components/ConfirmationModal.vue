@@ -13,7 +13,7 @@
 
         <!-- Body section of modal -->
         <div class="modal-body">
-          <p>{{ modalMessage }}</p>
+          {{ modalMessage }}
         </div>
 
         <!-- Footer / button section of modal -->
