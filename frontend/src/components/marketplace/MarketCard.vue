@@ -101,6 +101,16 @@ Eg, <market-card @card-deleted="someMethod" ... />
           Message Creator
         </button>
 
+        <!-- Edit button -->
+        <button
+            v-if="canEditCard && !expired"
+            :data-target="'#editCard' + cardData.id" class="btn btn-sm btn-outline-primary ml-3"
+            data-toggle="modal"
+            @click="editCard"
+        >
+          Edit
+        </button>
+
         <!-- Delete button -->
         <button
             v-if="canEditCard && !expired"
@@ -109,16 +119,6 @@ Eg, <market-card @card-deleted="someMethod" ... />
             data-toggle="modal"
         >
           Delete
-        </button>
-
-        <!-- Edit button -->
-        <button
-            v-if="canEditCard && !expired"
-            :data-target="'#editCard' + cardData.id" class="btn btn-sm btn-outline-primary float-right ml-3"
-            data-toggle="modal"
-            @click="editCard"
-        >
-          Edit
         </button>
 
       </div>
@@ -139,49 +139,26 @@ Eg, <market-card @card-deleted="someMethod" ... />
         </button>
       </div>
 
-      <!-- Edit modal -->
-      <div :id="'editCard' + cardData.id" :key="this.editCurrentCard" class="modal fade" data-backdrop="static">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-body">
-              <edit-card :card-id="cardData.id" @card-edited="refreshCards()"></edit-card>
-            </div>
+    </div>
+
+    <!-- Edit modal -->
+    <div :id="'editCard' + cardData.id" :key="this.editCurrentCard" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <edit-card :card-id="cardData.id" @card-edited="refreshCards()"></edit-card>
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- Delete modal -->
-    <div :id="'deleteModal' + cardData.id" class="modal fade" role="dialog" tabindex="-1">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-
-          <!-- Title section of modal -->
-          <div class="modal-header">
-            <h5 class="modal-title">Delete Card: {{ cardData.title }}</h5>
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-              <span ref="close" aria-hidden="true">&times;</span>
-            </button>
-          </div>
-
-          <!-- Body section of modal -->
-          <div class="modal-body">
-            <p>Do you really want to permanently delete this card?</p>
-
-            <!-- Error message -->
-            <alert v-if="error">{{ error }}</alert>
-          </div>
-
-          <!-- Footer / button section of modal -->
-          <div class="modal-footer">
-            <button class="btn btn-danger" type="button" @click="deleteCard">Delete</button>
-            <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
-          </div>
-
-        </div>
-      </div>
-    </div>
+    <confirmation-modal :modal-id="`deleteModal${cardData.id}`"
+                        :modal-header="`Delete Card: ${cardData.title}`"
+                        modal-message="Do you really want to permanently delete this card?"
+                        modal-confirm-text="Delete"
+                        modal-confirm-colour="btn-danger"
+                        @confirm="deleteCard"/>
 
   </div>
 </template>
@@ -189,14 +166,14 @@ Eg, <market-card @card-deleted="someMethod" ... />
 <script>
 import {getTimeDiffStr} from "@/utils/dateTime";
 import {Card, User} from "@/Api";
-import Alert from "@/components/Alert";
 import EditCard from "@/components/marketplace/EditCard";
+import ConfirmationModal from "@/components/ConfirmationModal";
 
 export default {
   name: "MarketCard",
   components: {
-    EditCard,
-    Alert
+    ConfirmationModal,
+    EditCard
   },
   props: {
     // Data of the card.
@@ -329,7 +306,7 @@ export default {
         this.messageError = true
       } else {
         try {
-          await User.sendCardMessage(this.userId, this.cardData.id, this.message)
+          await User.sendCardMessage(this.cardData.creator.id, this.cardData.id, this.message)
           this.messageError = false
           this.messageSent = true
           this.message = null
@@ -348,30 +325,17 @@ export default {
       this.messageError = false
     },
 
-    /** Deletes this card, emitting an event on success **/
-    deleteCard() {
-      // Reset error flag
+    /**
+     * Deletes this card, emitting an event on success
+     */
+    async deleteCard() {
       this.error = null;
-
-      // Make request
-      Card.deleteCard(this.cardData.id)
-          .then(() => {
-            // Emit the card-deleted event once the api call is successful
-            this.$emit('card-deleted', this.cardData.id)
-
-            // Close the modal by simulating a click on the close button
-            this.$refs.close.click();
-          })
-          .catch((err) => {
-            // Set error message
-            this.error = err.response
-                ? err.response.data
-                : err.message
-          })
-
-
-      // Close the modal by simulating a click on the close button
-      this.$refs.close.click();
+      try {
+        await Card.deleteCard(this.cardData.id)
+        this.$emit('card-deleted', this.cardData.id)
+      } catch (error) {
+        this.error = error.response ? error.response.data : error.message
+      }
     },
 
     /** Calculates the time remaining before a card expires in days, hours, minutes and seconds **/

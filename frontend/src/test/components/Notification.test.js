@@ -7,9 +7,12 @@ import user from '@/store/modules/user'
 jest.mock('@/Api')
 jest.mock('@/store/modules/user')
 
-User.deleteNotification.mockImplementation(jest.fn(() => {}))
-User.deleteAdminNotification.mockImplementation(jest.fn(() => {}))
-Keyword.deleteKeyword.mockImplementation(jest.fn(() => {}))
+User.deleteNotification.mockImplementation(jest.fn(() => {
+}))
+User.deleteAdminNotification.mockImplementation(jest.fn(() => {
+}))
+Keyword.deleteKeyword.mockImplementation(jest.fn(() => {
+}))
 user.actingUserId.mockImplementation(jest.fn(() => {
     return 1
 }))
@@ -28,17 +31,13 @@ describe('Jest tests for Notification component', () => {
                     created: "2/07/2021 4:34pm",
                     card: "Looking for plums"
                 }
-            },
-            computed: {
-                userId() {
-                    return 1
-                }
             }
         })
     })
 
     afterEach(() => {
         jest.resetAllMocks()
+        wrapper.destroy()
     })
 
     test('Clicking the close button emits the remove-notification event', async () => {
@@ -49,17 +48,21 @@ describe('Jest tests for Notification component', () => {
     })
 
     test('Deleting a keyword calls the correct API functions and emits remove-notification event', async () => {
-        wrapper.vm.data = {
-            id: 1,
-            type: 'newKeyword',
-            message: "A new keyword has been created with name: Apple",
-            created: "2/07/2021 4:34pm",
-            keyword: {
-                id: 1,
-                name: 'Apple',
-                created: "2/07/2021 4:34pm"
+        wrapper = shallowMount(Notification, {
+            propsData: {
+                data: {
+                    id: 1,
+                    type: 'newKeyword',
+                    message: "A new keyword has been created with name: Apple",
+                    created: "2/07/2021 4:34pm",
+                    keyword: {
+                        id: 1,
+                        name: 'Apple',
+                        created: "2/07/2021 4:34pm"
+                    }
+                }
             }
-        }
+        })
 
         await wrapper.vm.deleteKeyword()
         expect(User.deleteAdminNotification).toHaveBeenCalledTimes(1)
