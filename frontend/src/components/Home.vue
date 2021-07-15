@@ -290,6 +290,7 @@ export default {
       try {
         const response = await User.getMessages(this.user.actor().id)
         this.messages = response.data
+        console.log(this.messages)
       } catch (error) {
         console.error(error)
         this.error = error

@@ -12,7 +12,7 @@
                 class="btn btn-sm btn-primary" data-toggle="modal">
           View
         </button>
-        <button class="btn btn-sm btn-danger ml-2" data-toggle="modal" :data-target="'#deleteMessage' + message.id">
+        <button id="deleteMessageButton" class="btn btn-sm btn-danger ml-2" data-toggle="modal" :data-target="'#deleteMessage' + message.id">
           <em class="bi bi-trash"/>
         </button>
       </div>
