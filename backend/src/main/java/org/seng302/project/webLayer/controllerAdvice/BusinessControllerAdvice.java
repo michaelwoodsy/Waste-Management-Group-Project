@@ -5,7 +5,6 @@ import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
-import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenPrimaryAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.register.InvalidAddressException;
 import org.springframework.http.HttpStatus;
@@ -73,17 +72,6 @@ public class BusinessControllerAdvice {
     @ExceptionHandler(AdministratorAlreadyExistsException.class)
     public ResponseEntity<String> administratorAlreadyExists(AdministratorAlreadyExistsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Exception thrown by the addNewAdministrator() and removeAdministrator() functions in BusinessController
-     * when a user tries to perform a function when they are not the primary administrator.
-     *
-     * @return a 403 response with an appropriate message
-     */
-    @ExceptionHandler(ForbiddenPrimaryAdministratorActionException.class)
-    public ResponseEntity<String> forbiddenPrimaryAdministratorAction(ForbiddenPrimaryAdministratorActionException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     /**

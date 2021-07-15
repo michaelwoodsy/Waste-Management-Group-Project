@@ -28,14 +28,16 @@ public class NotificationService {
     private final UserNotificationRepository userNotificationRepository;
     private final AdminNotificationRepository adminNotificationRepository;
 
+    private final UserService userService;
+
 
     @Autowired
-    public NotificationService(UserRepository userRepository,
-                               UserNotificationRepository userNotificationRepository,
-                               AdminNotificationRepository adminNotificationRepository) {
+    public NotificationService(UserRepository userRepository, UserNotificationRepository userNotificationRepository,
+                               UserService userService, AdminNotificationRepository adminNotificationRepository) {
         this.userRepository = userRepository;
         this.userNotificationRepository = userNotificationRepository;
         this.adminNotificationRepository = adminNotificationRepository;
+        this.userService = userService;
     }
 
     /**
@@ -51,11 +53,7 @@ public class NotificationService {
 
             Optional<User> user = userRepository.findById(userId);
 
-            // check if loggedInUser has the same ID as the user retrieving notifications
-            var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
-            if (!loggedInUser.getId().equals(userId) && !loggedInUser.isGAA()) {
-                throw new ForbiddenNotificationActionException();
-            }
+            userService.checkForbidden(userId, appUser);
 
             //check that the user exists.
             if (user.isEmpty()) {
@@ -83,11 +81,7 @@ public class NotificationService {
 
             Optional<User> user = userRepository.findById(dto.getUserId());
 
-            // check if loggedInUser has the same ID as the requesting user, or if the requesting user is a GAA
-            var loggedInUser = userRepository.findByEmail(dto.getAppUser().getUsername()).get(0);
-            if (!loggedInUser.getId().equals(dto.getUserId()) && !loggedInUser.isGAA()) {
-                throw new ForbiddenNotificationActionException();
-            }
+            userService.checkForbidden(dto.getUserId(), dto.getAppUser());
 
             //check that the user exists.
             if (user.isEmpty()) {
