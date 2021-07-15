@@ -1,5 +1,6 @@
 package org.seng302.project.serviceLayer.service;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
@@ -55,7 +56,7 @@ public class UserService {
      * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
      * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
      */
-    public List<UserResponseDTO> searchUsers(String searchQuery) {
+    public List<GetUserDTO> searchUsers(String searchQuery) {
         List<User> users;
 
         if (searchQuery.equals("")) {
@@ -100,31 +101,34 @@ public class UserService {
 
         logger.info("Retrieved {} users", users.size());
 
-        // Map user objects to UserResponseDTO objects and return
-        return users.stream().map(UserResponseDTO::new).collect(Collectors.toList());
+        // Map user objects to GetUserDTO objects and return
+        return users.stream().map(GetUserDTO::new).collect(Collectors.toList());
     }
 
     /**
      * Service method for loging in a user
      * @param loginCredentials login credentials of a user
-     * @return the userId of the user logged in inside of a UserLoginResponseDTO
+     * @return the userId of the user logged in inside of a JSONObject
      */
-    public UserLoginResponseDTO login(LoginCredentialsDTO loginCredentials) {
+    public JSONObject login(LoginCredentialsDTO loginCredentials) {
         var token = new UsernamePasswordAuthenticationToken(
                 loginCredentials.getEmail(), loginCredentials.getPassword());
         var auth = authenticationManager.authenticate(token);
         SecurityContextHolder.getContext().setAuthentication(auth);
         Integer userId = userRepository.findByEmail(loginCredentials.getEmail()).get(0).getId();
         logger.info("Login successful!");
-        return new UserLoginResponseDTO(userId);
+
+        JSONObject returnJSON = new JSONObject();
+        returnJSON.put("userId", userId);
+        return returnJSON;
     }
 
     /**
      * Service method for creating a user
      * @param dto Validated dto containing the users information
-     * @return the userId of the user logged in inside of a UserLoginResponseDTO
+     * @return the userId of the user logged in inside of a JSONObject
      */
-    public LoginCredentialsDTO createUser(CreateUserDTO dto) {
+    public LoginCredentialsDTO createUser(PostUserDTO dto) {
         var newUser = new User(dto);
 
         // If email address is already registered
@@ -144,7 +148,7 @@ public class UserService {
      * Service method for editing a user
      * @param dto Validated dto containing the users information
      */
-    public void editUser(EditUserDTO dto) {
+    public void editUser(PutUserDTO dto) {
         var user = userRepository.findById(dto.getId()).orElseThrow(() -> new NoUserExistsException(dto.getId()));
         var address = user.getHomeAddress();
 
@@ -183,10 +187,10 @@ public class UserService {
     /**
      * Service method for retrieving a user
      * @param id ID of the user to retrieve
-     * @return the user data inside of a UserResponseDTO
+     * @return the user data inside of a GetUserDTO
      */
-    public UserResponseDTO getUser(Integer id) {
-        return new UserResponseDTO(userRepository.findById(id).orElseThrow(() -> new NoUserExistsException(id)));
+    public GetUserDTO getUser(Integer id) {
+        return new GetUserDTO(userRepository.findById(id).orElseThrow(() -> new NoUserExistsException(id)));
     }
 
     /**

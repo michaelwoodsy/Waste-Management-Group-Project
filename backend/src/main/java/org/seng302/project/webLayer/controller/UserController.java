@@ -1,5 +1,6 @@
 package org.seng302.project.webLayer.controller;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.serviceLayer.dto.user.*;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.register.*;
@@ -40,7 +41,7 @@ public class UserController {
      */
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    public UserLoginResponseDTO authenticate(@RequestBody LoginCredentialsDTO loginCredentials) throws InvalidLoginException {
+    public JSONObject authenticate(@RequestBody LoginCredentialsDTO loginCredentials) throws InvalidLoginException {
         try {
             logger.info("Request to login user {}", loginCredentials.getEmail());
             return userService.login(loginCredentials);
@@ -59,11 +60,11 @@ public class UserController {
      * Then logs the user in.
      * Handles cases that may result in an error.
      *
-     * @param dto request body in the form of a CreateUserDTO Object
+     * @param dto request body in the form of a PostUserDTO Object
      */
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserLoginResponseDTO createUser(@RequestBody @Valid CreateUserDTO dto) {
+    public JSONObject createUser(@RequestBody @Valid PostUserDTO dto) {
         try {
             logger.info("Request to create a new user");
             LoginCredentialsDTO loginCredentials = userService.createUser(dto);
@@ -84,11 +85,11 @@ public class UserController {
      * Handles cases that may result in an error.
      * NOTE: All elements in the dto are required, but some can be null, as this is a PUT request and not a PATCH request
      *
-     * @param dto request body in the form of a CreateUserDTO Object
+     * @param dto request body in the form of a PostUserDTO Object
      */
     @PutMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void edit(@RequestBody @Valid EditUserDTO dto, @PathVariable Integer userId,
+    public void edit(@RequestBody @Valid PutUserDTO dto, @PathVariable Integer userId,
                      @AuthenticationPrincipal AppUserDetails appUser) {
         try {
             logger.info("Request to edit user with ID: {}", userId);
@@ -114,7 +115,7 @@ public class UserController {
      * @return Response back to client encompassing status code, headers, and body.
      */
     @GetMapping("/users/{userId}")
-    public UserResponseDTO getUser(@PathVariable Integer userId) {
+    public GetUserDTO getUser(@PathVariable Integer userId) {
         try {
             logger.info("Request to get user with ID: {}", userId);
             return userService.getUser(userId);
@@ -183,7 +184,7 @@ public class UserController {
      */
     @GetMapping("/users/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserResponseDTO> searchUsers(@RequestParam("searchQuery") String searchQuery) {
+    public List<GetUserDTO> searchUsers(@RequestParam("searchQuery") String searchQuery) {
 
         logger.info(String.format("Request to search users with query: %s", searchQuery));
 

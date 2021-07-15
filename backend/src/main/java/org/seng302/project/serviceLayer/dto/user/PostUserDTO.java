@@ -19,7 +19,7 @@ import javax.validation.constraints.NotEmpty;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateUserDTO {
+public class PostUserDTO {
 
     @NotEmpty(message = "MissingData: First Name is a mandatory field")
     private String firstName;

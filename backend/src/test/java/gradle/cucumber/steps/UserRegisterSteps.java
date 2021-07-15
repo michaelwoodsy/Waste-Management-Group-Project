@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.*;
-import org.seng302.project.serviceLayer.dto.user.CreateUserDTO;
-import org.seng302.project.webLayer.authentication.AppUserDetails;
+import org.seng302.project.serviceLayer.dto.user.PostUserDTO;
 import org.seng302.project.webLayer.controller.UserController;
 import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 
 public class UserRegisterSteps {
 
-    private CreateUserDTO testUserDTO;
+    private PostUserDTO testUserDTO;
 
     private final UserRepository userRepository;
     private final UserController userController;
@@ -97,11 +96,11 @@ public class UserRegisterSteps {
         Address homeAddress = new Address(
                 "", "", "", "", "New Zealand", "");
 
-        CreateUserDTO createUserDTO = new CreateUserDTO(
+        PostUserDTO postUserDTO = new PostUserDTO(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
 
-        userController.createUser(createUserDTO);
+        userController.createUser(postUserDTO);
 
     }
 
@@ -139,7 +138,7 @@ public class UserRegisterSteps {
         Address homeAddress = new Address(
                 "", "", "", "", "New Zealand", "");
 
-        testUserDTO = new CreateUserDTO(
+        testUserDTO = new PostUserDTO(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
     }
@@ -159,7 +158,7 @@ public class UserRegisterSteps {
         Address homeAddress = new Address(
                 "", "", "", "", "New Zealand", "");
 
-        testUserDTO = new CreateUserDTO(
+        testUserDTO = new PostUserDTO(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, "");
 
@@ -187,7 +186,7 @@ public class UserRegisterSteps {
         Address homeAddress = new Address(
                 "", "", "", "", "New Zealand", "");
 
-        testUserDTO = new CreateUserDTO(
+        testUserDTO = new PostUserDTO(
                 firstName, lastName, "", "","", email,
                 dateOfBirth, "", homeAddress, password);
 

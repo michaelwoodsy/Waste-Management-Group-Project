@@ -9,8 +9,8 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.user.CreateUserDTO;
-import org.seng302.project.serviceLayer.dto.user.EditUserDTO;
+import org.seng302.project.serviceLayer.dto.user.PostUserDTO;
+import org.seng302.project.serviceLayer.dto.user.PutUserDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenDGAAActionException;
@@ -40,8 +40,8 @@ class UserServiceTest extends AbstractInitializer {
     private User otherUser;
     private User testAdmin;
 
-    private CreateUserDTO testCreateUserDTO;
-    private EditUserDTO testEditUserDTO;
+    private PostUserDTO testPostUserDTO;
+    private PutUserDTO testPutUserDTO;
 
     @Autowired
     private UserService userService;
@@ -63,7 +63,7 @@ class UserServiceTest extends AbstractInitializer {
         testAdmin = this.getTestSystemDGAA();
         testUser.setId(1);
 
-        testCreateUserDTO = new CreateUserDTO(
+        testPostUserDTO = new PostUserDTO(
                 testUser.getFirstName(),
                 testUser.getLastName(),
                 testUser.getMiddleName(),
@@ -75,7 +75,7 @@ class UserServiceTest extends AbstractInitializer {
                 testUser.getHomeAddress(),
                 testUser.getPassword());
 
-        testEditUserDTO = new EditUserDTO(
+        testPutUserDTO = new PutUserDTO(
                 testUser.getId(),
                 otherUser.getFirstName(),
                 otherUser.getLastName(),
@@ -135,7 +135,7 @@ class UserServiceTest extends AbstractInitializer {
     void tryCreatingUserSuccess() {
         given(userRepository.save(Mockito.any(User.class))).willReturn(testUser);
 
-        userService.createUser(testCreateUserDTO);
+        userService.createUser(testPostUserDTO);
 
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
         //Called when checking DGA at startup as well
@@ -158,7 +158,7 @@ class UserServiceTest extends AbstractInitializer {
         Assertions.assertEquals(testUser.getHomeAddress().getCountry(), createdUser.getHomeAddress().getCountry());
         Assertions.assertEquals(testUser.getRole(), createdUser.getRole());
 
-        passwordEncoder.matches(testCreateUserDTO.getPassword(), createdUser.getPassword());
+        passwordEncoder.matches(testPostUserDTO.getPassword(), createdUser.getPassword());
     }
 
 
@@ -169,7 +169,7 @@ class UserServiceTest extends AbstractInitializer {
     void tryCreatingExistingUser() {
         when(userRepository.findByEmail(testUser.getEmail())).thenReturn(List.of(testUser));
 
-        Assertions.assertThrows(ExistingRegisteredEmailException.class, () -> userService.createUser(testCreateUserDTO));
+        Assertions.assertThrows(ExistingRegisteredEmailException.class, () -> userService.createUser(testPostUserDTO));
     }
 
     /**
@@ -178,9 +178,9 @@ class UserServiceTest extends AbstractInitializer {
     @Test
     void tryEditingUserSuccess() {
         //given(userRepository.save(Mockito.any(User.class))).willReturn(testUser);
-        when(userRepository.findByEmail(testEditUserDTO.getEmail())).thenReturn(Collections.emptyList());
+        when(userRepository.findByEmail(testPutUserDTO.getEmail())).thenReturn(Collections.emptyList());
 
-        userService.editUser(testEditUserDTO);
+        userService.editUser(testPutUserDTO);
 
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
         //Called when checking DGA at startup as well
@@ -192,7 +192,7 @@ class UserServiceTest extends AbstractInitializer {
 
         User editedUser = userArgumentCaptor.getValue();
 
-        Assertions.assertEquals(testEditUserDTO.getFirstName(), editedUser.getFirstName());
+        Assertions.assertEquals(testPutUserDTO.getFirstName(), editedUser.getFirstName());
         Assertions.assertEquals(testUser.getLastName(), editedUser.getLastName());
         Assertions.assertEquals(testUser.getMiddleName(), editedUser.getMiddleName());
         Assertions.assertEquals(testUser.getNickname(), editedUser.getNickname());
@@ -203,7 +203,7 @@ class UserServiceTest extends AbstractInitializer {
         Assertions.assertEquals(testUser.getHomeAddress().getCountry(), editedUser.getHomeAddress().getCountry());
         Assertions.assertEquals(testUser.getRole(), editedUser.getRole());
 
-        passwordEncoder.matches(testEditUserDTO.getPassword(), editedUser.getPassword());
+        passwordEncoder.matches(testPutUserDTO.getPassword(), editedUser.getPassword());
     }
 
     /**
@@ -211,9 +211,9 @@ class UserServiceTest extends AbstractInitializer {
      */
     @Test
     void tryEditUserExistingEmail() {
-        when(userRepository.findByEmail(testEditUserDTO.getEmail())).thenReturn(List.of(testUser));
+        when(userRepository.findByEmail(testPutUserDTO.getEmail())).thenReturn(List.of(testUser));
 
-        Assertions.assertThrows(ExistingRegisteredEmailException.class, () -> userService.editUser(testEditUserDTO));
+        Assertions.assertThrows(ExistingRegisteredEmailException.class, () -> userService.editUser(testPutUserDTO));
     }
 
     /**
@@ -221,10 +221,10 @@ class UserServiceTest extends AbstractInitializer {
      */
     @Test
     void tryEditUserNonExistentId() {
-        when(userRepository.findByEmail(testEditUserDTO.getEmail())).thenReturn(List.of(testUser));
-        when(userRepository.findById(testEditUserDTO.getId())).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(testPutUserDTO.getEmail())).thenReturn(List.of(testUser));
+        when(userRepository.findById(testPutUserDTO.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(NoUserExistsException.class, () -> userService.editUser(testEditUserDTO));
+        Assertions.assertThrows(NoUserExistsException.class, () -> userService.editUser(testPutUserDTO));
     }
 
     /**

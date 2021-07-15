@@ -4,13 +4,12 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
-import org.seng302.project.serviceLayer.dto.user.CreateUserDTO;
+import org.seng302.project.serviceLayer.dto.user.PostUserDTO;
 import org.seng302.project.serviceLayer.dto.user.LoginCredentialsDTO;
 import org.seng302.project.webLayer.controller.UserController;
 import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
 import org.seng302.project.serviceLayer.exceptions.InvalidLoginException;
 import org.seng302.project.repositoryLayer.model.Address;
-import org.seng302.project.repositoryLayer.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class LogInSteps {
@@ -32,12 +31,12 @@ public class LogInSteps {
         Address homeAddress = new Address(
                 "", "", "", "", "New Zealand", "");
 
-        CreateUserDTO createUserDTO = new CreateUserDTO(
+        PostUserDTO postUserDTO = new PostUserDTO(
                 firstName, lastName, "", "","", username,
                 dateOfBirth, "", homeAddress, password);
 
         try {
-            userController.createUser(createUserDTO);
+            userController.createUser(postUserDTO);
         } catch (ExistingRegisteredEmailException existingRegisteredEmailException) {
             System.out.println("Account already registered");
         }

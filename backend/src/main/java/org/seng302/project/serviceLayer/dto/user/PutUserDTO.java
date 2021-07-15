@@ -18,7 +18,7 @@ import javax.validation.constraints.NotEmpty;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EditUserDTO {
+public class PutUserDTO {
 
     private Integer id;
 
