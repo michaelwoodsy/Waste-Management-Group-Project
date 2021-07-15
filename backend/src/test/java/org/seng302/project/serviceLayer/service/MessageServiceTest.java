@@ -1,6 +1,5 @@
 package org.seng302.project.serviceLayer.service;
 
-import org.hibernate.sql.Delete;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,21 +7,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
-import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.Message;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.MessageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
-import org.seng302.project.serviceLayer.dto.message.DeleteMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,20 +27,12 @@ import static org.mockito.Mockito.verify;
 /**
  * Test class for performing unit tests for the MessageService class and its methods.
  */
-@SpringBootTest
 class MessageServiceTest extends AbstractInitializer {
 
-    @Autowired
     private MessageService messageService;
-
-    @MockBean
-    private MessageRepository messageRepository;
-
-    @MockBean
     private UserRepository userRepository;
-
-    @MockBean
     private CardRepository cardRepository;
+    private MessageRepository messageRepository;
 
     private User testSender;
     private User testReceiver;
@@ -59,7 +45,11 @@ class MessageServiceTest extends AbstractInitializer {
      */
     @BeforeEach
     void setup() {
-        this.initialise();
+        userRepository = Mockito.mock(UserRepository.class);
+        cardRepository = Mockito.mock(CardRepository.class);
+        messageRepository = Mockito.mock(MessageRepository.class);
+        messageService = new MessageService(messageRepository, userRepository, cardRepository);
+
         testSender = this.getTestUser();
         Mockito.when(userRepository.findByEmail(testSender.getEmail()))
                 .thenReturn(List.of(testSender));
@@ -238,7 +228,7 @@ class MessageServiceTest extends AbstractInitializer {
      * of the currently logged in user
      */
     @Test
-    void deleteMessage_success(){
+    void deleteMessage_success() {
         //Test User
         AppUserDetails appUser = new AppUserDetails(testSender);
 
@@ -252,8 +242,7 @@ class MessageServiceTest extends AbstractInitializer {
         given(messageRepository.findById(messageToDelete.getId())).willReturn(Optional.of(messageToDelete));
 
         //Make request to delete message
-        DeleteMessageDTO requestDTO = new DeleteMessageDTO(testSender.getId(), messageToDelete.getId(), appUser);
-        messageService.deleteMessage(requestDTO);
+        messageService.deleteMessage(testSender.getId(), messageToDelete.getId(), appUser);
 
         // Capture the message passed to the repository delete method
         ArgumentCaptor<Message> cardArgumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -269,7 +258,7 @@ class MessageServiceTest extends AbstractInitializer {
      * throws an exception
      */
     @Test
-    void deleteMessage_nonExistentUser_error(){
+    void deleteMessage_nonExistentUser_error() {
         //Test User
         AppUserDetails appUser = new AppUserDetails(testSender);
 
@@ -283,10 +272,9 @@ class MessageServiceTest extends AbstractInitializer {
         given(messageRepository.findById(messageToDelete.getId())).willReturn(Optional.of(messageToDelete));
 
         //Make request to delete message
-        DeleteMessageDTO requestDTO = new DeleteMessageDTO(100, messageToDelete.getId(), appUser);
-
+        Integer messageId = messageToDelete.getId();
         Assertions.assertThrows(NotAcceptableException.class,
-                () -> messageService.deleteMessage(requestDTO));
+                () -> messageService.deleteMessage(100, messageId, appUser));
     }
 
 
@@ -295,10 +283,10 @@ class MessageServiceTest extends AbstractInitializer {
      * not the currently logged in user throws an exception
      */
     @Test
-    void deleteMessage_notValidUser_error(){
+    void deleteMessage_notValidUser_error() {
         //Test User
         AppUserDetails appUser = new AppUserDetails(testReceiver);
-        
+
         //Get messages belonging to the test user
         List<Message> receivedMessagesBefore = messageRepository.findAllByReceiver(testSender);
 
@@ -309,10 +297,10 @@ class MessageServiceTest extends AbstractInitializer {
         given(messageRepository.findById(messageToDelete.getId())).willReturn(Optional.of(messageToDelete));
 
         //Make request to delete message
-        DeleteMessageDTO requestDTO = new DeleteMessageDTO(testSender.getId(), messageToDelete.getId(), appUser);
-
+        Integer userId = testSender.getId();
+        Integer messageId = messageToDelete.getId();
         Assertions.assertThrows(ForbiddenUserException.class,
-                () -> messageService.deleteMessage(requestDTO));
+                () -> messageService.deleteMessage(userId, messageId, appUser));
     }
 
 }

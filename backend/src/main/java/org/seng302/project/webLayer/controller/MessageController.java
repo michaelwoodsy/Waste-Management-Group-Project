@@ -4,7 +4,6 @@ import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.Message;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageResponseDTO;
-import org.seng302.project.serviceLayer.dto.message.DeleteMessageDTO;
 import org.seng302.project.serviceLayer.service.MessageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,8 @@ public class MessageController {
 
     /**
      * GET method for requests to retrieve a user's messages
-     * @param userId The ID of the user whose messages we are retrieving
+     *
+     * @param userId  The ID of the user whose messages we are retrieving
      * @param appUser The user currently logged in
      * @return List of the given user's messages (if they have any)
      */
@@ -58,17 +58,16 @@ public class MessageController {
     /**
      * Endpoint for deleting a message
      *
-     * @param userId the user Id of who the message was sent to
+     * @param userId    the user Id of who the message was sent to
      * @param messageId the message Id
-     * @param appUser user details to check if the current user is allowed to delete this message
+     * @param appUser   user details to check if the current user is allowed to delete this message
      */
     @DeleteMapping("/users/{userId}/messages/{messageId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteMessage(@PathVariable Integer userId,
                               @PathVariable Integer messageId,
-                              @AuthenticationPrincipal AppUserDetails appUser){
-        var requestDTO = new DeleteMessageDTO(userId, messageId, appUser);
-        messageService.deleteMessage(requestDTO);
+                              @AuthenticationPrincipal AppUserDetails appUser) {
+        messageService.deleteMessage(userId, messageId, appUser);
     }
 
 }

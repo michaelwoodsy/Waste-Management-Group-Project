@@ -1,7 +1,6 @@
 package org.seng302.project.serviceLayer.service;
 
 import org.seng302.project.repositoryLayer.model.Card;
-import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.Message;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
@@ -9,7 +8,6 @@ import org.seng302.project.repositoryLayer.repository.MessageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageResponseDTO;
-import org.seng302.project.serviceLayer.dto.message.DeleteMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
@@ -85,39 +83,33 @@ public class MessageService {
      * Called by the deleteMessage() method in MessageController.
      * Handles the business logic for deleting a user's message,
      * throws exceptions up to the controller to handle
-     * @param requestDTO    containing the id of who the message is for,
-     *                      the id of the message,
-     *                      and the user who is trying to delete the message
+     *
+     * @param userId    ID of the receiver of the message
+     * @param messageId ID of the message to delete
+     * @param appUser   the currently logged in user
      */
-    public void deleteMessage(DeleteMessageDTO requestDTO){
+    public void deleteMessage(Integer userId, Integer messageId, AppUserDetails appUser) {
         try {
-            logger.info("Request to delete message with id {}", requestDTO.getMessageId());
+            logger.info("Request to delete message with id {}", messageId);
 
-
-            Optional<User> receivingUserOptional = userRepository.findById(requestDTO.getUserId());
-            if (receivingUserOptional.isEmpty()) {
-                throw new NotAcceptableException(String.format("There is no user that exists with the id %d",
-                        requestDTO.getUserId()));
+            if (userRepository.findById(userId).isEmpty()) {
+                var message = String.format("There is no user that exists with the id %d", userId);
+                throw new NotAcceptableException(message);
             }
-            // We know user exists so retrieve user properly
-            var user = receivingUserOptional.get();
 
-            // Get the logged in user from the users email
-            String userEmail = requestDTO.getAppUser().getUsername();
-
-            var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+            var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
 
             // Check if the logged in user is the same user whose messages we are retrieving
-            if (!loggedInUser.getId().equals(user.getId())) {
-                throw new ForbiddenUserException(requestDTO.getUserId());
+            if (!loggedInUser.getId().equals(userId)) {
+                throw new ForbiddenUserException(userId);
             }
 
             // Get message from the repository
-            Optional<Message> foundMessage = messageRepository.findById(requestDTO.getMessageId());
+            Optional<Message> foundMessage = messageRepository.findById(messageId);
 
             // Check if the message exists
             if (foundMessage.isEmpty()) {
-                var exception = new NotAcceptableException(String.format("No message exists with ID %s", requestDTO.getMessageId()));
+                var exception = new NotAcceptableException(String.format("No message exists with ID %s", messageId));
                 logger.warn(exception.getMessage());
                 throw exception;
             }

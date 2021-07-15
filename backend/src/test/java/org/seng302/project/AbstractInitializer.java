@@ -2,7 +2,7 @@ package org.seng302.project;
 
 import lombok.Data;
 import org.seng302.project.repositoryLayer.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.seng302.project.webLayer.authentication.WebSecurityConfig;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -10,7 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,8 +18,7 @@ import java.util.Set;
 @Data
 public abstract class AbstractInitializer {
 
-    @Autowired
-    protected BCryptPasswordEncoder passwordEncoder;
+    protected final BCryptPasswordEncoder passwordEncoder;
 
     private User testUser;
     private User testOtherUser;
@@ -36,6 +34,12 @@ public abstract class AbstractInitializer {
     private MockMultipartFile testImageFile;
     private Card testCard;
     private UserNotification testUserNotification;
+
+    public AbstractInitializer() {
+        WebSecurityConfig webSecurityConfig = new WebSecurityConfig();
+        passwordEncoder = webSecurityConfig.passwordEncoder();
+        this.initialise();
+    }
 
     public void initialise() {
         this.initialiseTestUsers();
@@ -217,7 +221,7 @@ public abstract class AbstractInitializer {
         testUserNotification.setId(1);
     }
 
-    public void initialiseTestMessages(){
+    public void initialiseTestMessages() {
         Message message1 = new Message("Is this still available?", testUser, testCard, testOtherUser);
         message1.setId(1);
         Message message2 = new Message("Yes it is still available", testOtherUser, testCard, testUser);

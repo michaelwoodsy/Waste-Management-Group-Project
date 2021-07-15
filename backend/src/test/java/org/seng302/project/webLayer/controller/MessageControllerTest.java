@@ -1,6 +1,5 @@
 package org.seng302.project.webLayer.controller;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,9 +7,7 @@ import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Message;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.repositoryLayer.repository.MessageRepository;
 import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
-import org.seng302.project.serviceLayer.dto.message.DeleteMessageDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
@@ -23,9 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
 
 import java.util.List;
 
@@ -38,9 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Unit tests for MessageController class.
  */
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 class MessageControllerTest extends AbstractInitializer {
 
@@ -61,7 +54,6 @@ class MessageControllerTest extends AbstractInitializer {
      */
     @BeforeEach
     void setup() {
-        this.initialise();
         testUser = this.getTestUser();
         otherTestUser = this.getTestOtherUser();
         testAdmin = this.getTestSystemAdmin();
@@ -266,7 +258,11 @@ class MessageControllerTest extends AbstractInitializer {
     void deleteMessages_wrongUser_throws403() throws Exception {
         doThrow(new ForbiddenUserException(100))
                 .when(messageService)
-                .deleteMessage(Mockito.any(DeleteMessageDTO.class));
+                .deleteMessage(
+                        Mockito.any(Integer.class),
+                        Mockito.any(Integer.class),
+                        Mockito.any(AppUserDetails.class)
+                );
 
         RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
                 .delete("/users/{userId}/messages/{messageId}",
@@ -284,7 +280,11 @@ class MessageControllerTest extends AbstractInitializer {
     void deleteMessages_GAAWrongUser_throws403() throws Exception {
         doThrow(new ForbiddenUserException(100))
                 .when(messageService)
-                .deleteMessage(Mockito.any(DeleteMessageDTO.class));
+                .deleteMessage(
+                        Mockito.any(Integer.class),
+                        Mockito.any(Integer.class),
+                        Mockito.any(AppUserDetails.class)
+                );
 
         RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
                 .delete("/users/{userId}/messages/{messageId}",
@@ -302,7 +302,11 @@ class MessageControllerTest extends AbstractInitializer {
     void deleteMessages_nonExistentUser_throws406() throws Exception {
         doThrow(NotAcceptableException.class)
                 .when(messageService)
-                .deleteMessage(Mockito.any(DeleteMessageDTO.class));
+                .deleteMessage(
+                        Mockito.any(Integer.class),
+                        Mockito.any(Integer.class),
+                        Mockito.any(AppUserDetails.class)
+                );
 
         RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
                 .delete("/users/{userId}/messages/{messageId}",
@@ -320,7 +324,11 @@ class MessageControllerTest extends AbstractInitializer {
     void deleteMessages_nonExistentMessage_throws406() throws Exception {
         doThrow(NotAcceptableException.class)
                 .when(messageService)
-                .deleteMessage(Mockito.any(DeleteMessageDTO.class));
+                .deleteMessage(
+                        Mockito.any(Integer.class),
+                        Mockito.any(Integer.class),
+                        Mockito.any(AppUserDetails.class)
+                );
 
         RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
                 .delete("/users/{userId}/messages/{messageId}",
