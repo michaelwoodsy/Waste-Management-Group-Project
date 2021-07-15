@@ -265,7 +265,16 @@ export const Business = {
      * @param imageId The ID of the image for the product in the database
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
-    makePrimaryProductImage: (businessId, productId, imageId) => instance.put(`businesses/${businessId}/products/${productId}/images/${imageId}/makeprimary`)
+    makePrimaryProductImage: (businessId, productId, imageId) => instance.put(`businesses/${businessId}/products/${productId}/images/${imageId}/makeprimary`),
+
+    /**
+     * Sends a request to search a business's product catalogue
+     * @param businessId the id of the business to search the catalogue of
+     * @param searchQuery the string to search by
+     * @param data the request body with details of which fields to search
+     */
+    searchProducts: (businessId, searchQuery, data) => instance.get(`businesses/${businessId}/products/search`,
+        {params: {'searchQuery': searchQuery}, data: data})
 };
 
 export const Card = {

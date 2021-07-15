@@ -40,6 +40,7 @@
 
 <script>
 import PageWrapper from "@/components/PageWrapper";
+import {Business} from "@/Api";
 
 export default {
   name: "ProductSearch",
@@ -69,6 +70,15 @@ export default {
       ]
     }
   },
+  computed: {
+    /**
+     * Gets the business ID
+     * @returns {any}
+     */
+    businessId() {
+      return this.$route.params.businessId;
+    },
+  },
   methods: {
     /**
      * Toggles whether a field is selected to be searched by
@@ -81,7 +91,20 @@ export default {
      * Applies the user's search input
      */
     search() {
-      //TODO: implement me
+      console.log(this.fieldOptions)
+      Business.searchProducts(this.businessId, this.searchTerm,
+          {
+            matchingId: this.fieldOptions[0].checked.valueOf(),
+            matchingName: this.fieldOptions[1].checked.valueOf(),
+            matchingDescription: this.fieldOptions[2].checked.valueOf(),
+            matchingManufacturer: this.fieldOptions[3].checked.valueOf()
+          })
+          .then((response) => {
+            console.log(response);
+      })
+          .catch((err) => {
+            console.log(`There was an error searching products: ${err}`)
+      })
     }
   }
 }
