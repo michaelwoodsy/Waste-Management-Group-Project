@@ -12,11 +12,19 @@
                 class="btn btn-sm btn-primary" data-toggle="modal">
           View
         </button>
-        <button class="btn btn-sm btn-danger ml-2">
+        <button class="btn btn-sm btn-danger ml-2" data-toggle="modal" :data-target="'#deleteMessage' + message.id">
           <em class="bi bi-trash"/>
         </button>
       </div>
     </div>
+
+    <!-- Delete Message Modal -->
+    <confirmation-modal :modal-header="'Delete Message From: ' + message.sender.firstName + ' ' + message.sender.lastName"
+                        :modal-id="'deleteMessage' + message.id"
+                        modal-confirm-colour="btn-danger"
+                        modal-confirm-text="Delete"
+                        modal-message="Are you sure you wish to delete this message?"
+                        @confirm="removeMessage(message.id)"/>
 
     <!-- Full Message Modal -->
     <div :id="`fullMessage${message.id}`" class="modal fade" role="dialog" tabindex="-1">
@@ -64,9 +72,12 @@
 <script>
 import {User} from "@/Api";
 import $ from 'jquery'
+import user from "@/store/modules/user";
+import ConfirmationModal from "@/components/ConfirmationModal";
 
 export default {
   name: "Message",
+  components: {ConfirmationModal},
   props: {
     message: Object
   },
@@ -108,7 +119,20 @@ export default {
       this.reply = null
       this.replyError = false
       this.replySent = false
-    }
+    },
+
+    /**
+     * Emits an event to delete the message
+     */
+    async removeMessage(messageId) {
+      try {
+        await User.deleteMessage(user.actingUserId(), messageId)
+        this.$emit('remove-message');
+
+      } catch (error) {
+        console.log(error)
+      }
+    },
   }
 }
 </script>

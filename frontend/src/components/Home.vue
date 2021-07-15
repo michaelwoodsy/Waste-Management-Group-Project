@@ -123,7 +123,8 @@
           <div v-else>
             <message v-for="message in messages"
                      :key="message.id"
-                     :message="message"/>
+                     :message="message"
+                      @remove-message="removeMessage(message.id)"/>
           </div>
         </div>
 
@@ -336,6 +337,19 @@ export default {
       for (const [index, notification] of this.notifications.entries()) {
         if (notification.id === notificationId) {
           this.notifications.splice(index, 1)
+        }
+      }
+    },
+
+    /**
+     * Remove a message from the list of visible messages
+     * @param messageId the id of the message that is to be removed
+     */
+    removeMessage(messageId) {
+      // Remove the message from the list that is shown
+      for (const [index, message] of this.messages.entries()) {
+        if (message.id === messageId) {
+          this.messages.splice(index, 1)
         }
       }
     }
