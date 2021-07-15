@@ -45,6 +45,7 @@ tags:
   - name: 'UCM9: Edit card'
   - name: 'U28: Product search'
   - name: 'U10: Modifying Individuals'
+  - name: 'U11: Modifying Businesses'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -1012,7 +1013,7 @@ paths:
                   description: The IDs of keywords that will be associated with a card once it is created. These keywords are created through the POST /keywords endpoints (UCM6).
                   items:
                     type: integer
-                  example: [ 20, 15, 600 ]
+                    example: [ 20, 15, 600 ]
       responses:
         '200':
           description: Card updated successfully
@@ -1733,6 +1734,158 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           description: 'Forbidden: Returned when a user tries to delete an image for a user that is not them AND the user is not a global application admin'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/businesses/{businessId}':
+    put:
+      tags:
+        - 'U11: Modifying Businesses'
+        - 'Business Accounts'
+      summary: Modify an existing business
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: ID of business to edit
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Business'
+      responses:
+        '200':
+          description: Business updated successfully
+        '400':
+          description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
+        '403':
+          description: 'Forbidden: Returned when a user tries to update a business they do not administer AND the user is not a global application admin'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+
+  '/businesses/{businessId}/images':
+    post:
+      tags:
+        - 'U11: Modifying Businesses'
+        - 'Business Accounts'
+      summary: Upload a new image for some busines
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: ID of business to edit
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '201':
+          description: Image created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imageId:
+                    type: integer
+                    description: The ID of the image that has just been created
+                    example: 1234
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user tries to add an image for a business they dont administer AND the user is not a global application admin'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/businesses/{businessId}/images/{imageId}/makeprimary':
+    put:
+      tags:
+        - 'U11: Modifying Businesses'
+        - 'Business Accounts'
+      summary: Set an existing image to be the new primary image for some business
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: ID of business to edit
+          required: true
+          schema:
+            type: integer
+        - name: imageId
+          in: path
+          description: ID of the image to set as being the primary image for product
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Primary image successfully updated
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user tries to update the primary image for a business they dont administer AND the user is not a global application admin'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/businesses/{businessId}/images/{imageId}':
+    delete:
+      tags:
+        - 'U11: Modifying Businesses'
+        - 'Business Accounts'
+      summary: Delete an image for a business
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: ID of business to edit
+          required: true
+          schema:
+            type: integer
+        - name: imageId
+          in: path
+          description: ID of the image to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Image deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user tries to delete an image for a business that they dont administer is not them AND the user is not a global application admin'
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
