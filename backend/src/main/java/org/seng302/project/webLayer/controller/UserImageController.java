@@ -23,6 +23,9 @@ public class UserImageController {
         this.userImageService = userImageService;
     }
 
+    /**
+     * Handles request to add an image for a user.
+     */
     @PostMapping("/users/{userId}/images")
     @ResponseStatus(HttpStatus.CREATED)
     public AddUserImageResponseDTO addImage(@PathVariable Integer userId,

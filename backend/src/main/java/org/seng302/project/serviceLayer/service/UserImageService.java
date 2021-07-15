@@ -32,6 +32,14 @@ public class UserImageService {
         this.springEnvironment = springEnvironment;
     }
 
+    /**
+     * Called by the addImage method in UserImageController.
+     * Handles the business logic for adding an image for a user,
+     * throws exceptions up to the controller to handle
+     *
+     * @param dto RequestDTO containing necessary details for adding an image
+     * @return ResponseDTO, confirming a successful request, which is sent to the controller
+     */
     public AddUserImageResponseDTO addUserImage(AddUserImageDTO dto) {
         return null;
     }

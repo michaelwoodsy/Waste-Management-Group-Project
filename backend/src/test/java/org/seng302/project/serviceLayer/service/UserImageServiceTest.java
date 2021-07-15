@@ -50,6 +50,9 @@ public class UserImageServiceTest extends AbstractInitializer {
         this.mocks();
     }
 
+    /**
+     * Sets up mocks used by multiple tests.
+     */
     void mocks() {
         given(userRepository.findByEmail("john.smith@gmail.com")).willReturn(List.of(testUser));
         given(userRepository.findById(1)).willReturn(Optional.of(testUser));
@@ -59,21 +62,35 @@ public class UserImageServiceTest extends AbstractInitializer {
         given(userRepository.findById(3)).willReturn(Optional.of(testUserBusinessAdmin));
     }
 
+    /**
+     * Tests that the correct exception is thrown if a user tries to add an image for a user
+     * that is not them and the user is not a GAA.
+     */
     @Test
     void addUserImage_differentUser_throwsException() {
 
     }
 
+    /**
+     * Tests that the correct exception is thrown if an image is attempted to be added
+     * for a user that does not exist.
+     */
     @Test
     void addUserImage_noUserExists_throwsExcepetion() {
 
     }
 
+    /**
+     * Tests that an image is successfully created and added to a user.
+     */
     @Test
     void addUserImage_sameUser_success() {
 
     }
 
+    /**
+     * Tests that an image is successfully created and added to a user.
+     */
     @Test
     void addUserImage_withSystemAdmin_success() {
 

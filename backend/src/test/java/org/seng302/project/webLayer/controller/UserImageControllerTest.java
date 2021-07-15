@@ -35,26 +35,41 @@ public class UserImageControllerTest extends AbstractInitializer {
         testFile = this.getTestFile();
     }
 
+    /**
+     * Tests that trying to add a new user image when not logged in returns a status 401
+     */
     @Test
     void addUserImage_notLoggedIn_returnsStatus401() throws Exception {
 
     }
 
+    /**
+     * Tests that a status code 403 is returned when a user is not themselves or system admin.
+     */
     @Test
     void addUserImage_differentUser_returnsStatus403() throws Exception {
 
     }
 
+    /**
+     * Tests that a 406 status is returned when a user does not exist.
+     */
     @Test
     void addUserImage_userNotFound_returnsStatus406() throws Exception {
 
     }
 
+    /**
+     * Tests that adding a new image as a valid user results in a 201 response
+     */
     @Test
     void addUserImage_sameUser_created201() throws Exception {
 
     }
 
+    /**
+     * Tests that adding a new image as a system admin results in a 201 response
+     */
     @Test
     void addUserImage_asSystemAdmin_created201() throws Exception {
 
