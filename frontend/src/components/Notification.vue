@@ -14,7 +14,7 @@
           <span :class="{'text-light': isAdminNotification}" aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="toast-body text-black-50">
+      <div class="toast-body">
         <div class="mb-2">{{ data.message }}</div>
 
         <!-- Card Expiry Notification Body -->

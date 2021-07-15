@@ -46,7 +46,7 @@ public class NotificationController {
      */
     @DeleteMapping("/users/{userId}/notifications/{notificationId}")
     public void deleteUserNotification(@PathVariable int userId, @PathVariable int notificationId, @AuthenticationPrincipal AppUserDetails appUser) {
-        DeleteUserNotificationDTO dto = new DeleteUserNotificationDTO(userId, notificationId, appUser);
+        var dto = new DeleteUserNotificationDTO(userId, notificationId, appUser);
         notificationService.deleteUserNotification(dto);
     }
 

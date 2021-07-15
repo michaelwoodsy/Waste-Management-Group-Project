@@ -5,7 +5,7 @@ import lombok.Data;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.address.AddressResponseDTO;
-import org.seng302.project.serviceLayer.dto.user.UserResponseDTO;
+import org.seng302.project.serviceLayer.dto.user.GetUserDTO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class BusinessResponseDTO {
     private AddressResponseDTO address;
     private String businessType;
     private Integer primaryAdministratorId;
-    private List<UserResponseDTO> administrators;
+    private List<GetUserDTO> administrators;
     private LocalDateTime created = LocalDateTime.now();
 
     public BusinessResponseDTO(Business business) {
@@ -38,12 +38,12 @@ public class BusinessResponseDTO {
         for (User user : business.getAdministrators()) {
             //Removes infinite loop of businesses administers causing StackOverflowError
             user.setBusinessesAdministered(Collections.emptyList());
-            this.administrators.add(new UserResponseDTO(user));
+            this.administrators.add(new GetUserDTO(user));
         }
     }
 
-    @JsonIgnoreProperties("businessesAdministered") // Stops infinite nesting when used in UserResponseDTO
-    public List<UserResponseDTO> getAdministrators() {
+    @JsonIgnoreProperties("businessesAdministered") // Stops infinite nesting when used in GetUserDTO
+    public List<GetUserDTO> getAdministrators() {
         return this.administrators;
     }
 

@@ -1425,13 +1425,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#components/schemas/UserNotification'
+                  $ref: '#/components/schemas/UserNotification'
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
           description: 'Forbidden: returned if someone who is not a GAA attempts to get another users notifications'
         406:
-          $ref: '#components/responses/NotAcceptableError'
+          $ref: '#/components/responses/NotAcceptableError'
 
   '/users/{userId}/notifications/{notificationId}':
     delete:
@@ -1466,7 +1466,7 @@ paths:
         403:
           description: 'Forbidden: returned if someone who is not a GAA attempts to delete another users notification'
         406:
-          $ref: '#components/responses/NotAcceptableError'
+          $ref: '#/components/responses/NotAcceptableError'
 
   '/notifications':
     get:
@@ -1485,7 +1485,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#components/schemas/AdminNotification'
+                  $ref: '#/components/schemas/AdminNotification'
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
@@ -1516,7 +1516,7 @@ paths:
         403:
           description: 'Forbidden: returned if someone who is not a GAA attempts to delete an admin notification'
         406:
-          $ref: '#components/responses/NotAcceptableError'
+          $ref: '#/components/responses/NotAcceptableError'
 
   '/businesses/{businessId}/products/search':
     get:
@@ -1530,6 +1530,12 @@ paths:
             - globalApplicationAdmin
             - defaultGlobalApplicationAdmin
       parameters:
+        - name: businessId
+          in: path
+          description: ID of business to search catalogue of
+          required: true
+          schema:
+            type: integer
         - in: query
           name: searchQuery
           schema:
@@ -1610,6 +1616,124 @@ paths:
           description: There was some error with the data supplied by the user, appropriate error message(s) should be shown to user
         '403':
           description: 'Forbidden: Returned when a user tries to update another user AND the user is not a global application admin'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/users/{userId}/images':
+    post:
+      tags:
+        - 'U10: Modifying Individuals'
+        - 'Users'
+      summary: Upload a new image for some user
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to edit
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '201':
+          description: Image created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imageId:
+                    type: integer
+                    description: The ID of the image that has just been created
+                    example: 1234
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user tries to add an image for a user that is not them AND the user is not a global application admin'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/users/{userId}/images/{imageId}/makeprimary':
+    put:
+      tags:
+        - 'U10: Modifying Individuals'
+        - 'Users'
+      summary: Set an existing image to be the new primary image for some user
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to edit
+          required: true
+          schema:
+            type: integer
+        - name: imageId
+          in: path
+          description: ID of the image to set as being the primary image for user
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Primary image successfully updated
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user tries to update the primary image for a user that is not them AND the user is not a global application admin'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/users/{userId}/images/{imageId}':
+    delete:
+      tags:
+        - 'U10: Modifying Individuals'
+        - 'Users'
+      summary: Delete an image for a user
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to edit
+          required: true
+          schema:
+            type: integer
+        - name: imageId
+          in: path
+          description: ID of the image to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Image deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden: Returned when a user tries to delete an image for a user that is not them AND the user is not a global application admin'
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
