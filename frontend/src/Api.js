@@ -114,6 +114,15 @@ export const User = {
     getMessages: (userId) => instance.get(`users/${userId}/messages`),
 
     /**
+     * Deletes a user's messages
+     *
+     * @param userId ID of the user of whom to delete message of
+     * @param messageId ID of the message that is to be deleted
+     * @returns {Promise<AxiosResponse<any>>} List of user's messages
+     */
+    deleteMessage: (userId, messageId) => instance.delete(`users/${userId}/messages/${messageId}`),
+
+    /**
      * Gets a user's notifications from the backend
      * @param userId User ID to get notifications from
      * @returns {Promise<AxiosResponse<any>>} response containing user's notifications
