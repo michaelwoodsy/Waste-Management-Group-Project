@@ -1617,7 +1617,7 @@ paths:
     put:
       tags:
         - 'U11: Modifying Businesses'
-        - 'Business'
+        - 'Business Accounts'
       summary: Modify an existing business
       security:
         - CookieAuth:
@@ -1651,7 +1651,7 @@ paths:
     post:
       tags:
         - 'U11: Modifying Businesses'
-        - 'Businesses'
+        - 'Business Accounts'
       summary: Upload a new image for some busines
       security:
         - CookieAuth:
@@ -1701,7 +1701,7 @@ paths:
     put:
       tags:
         - 'U11: Modifying Businesses'
-        - 'Businesses'
+        - 'Business Accounts'
       summary: Set an existing image to be the new primary image for some business
       security:
         - CookieAuth:
@@ -1735,7 +1735,7 @@ paths:
     delete:
       tags:
         - 'U11: Modifying Businesses'
-        - 'Businesses'
+        - 'Business Accounts'
       summary: Delete an image for a business
       security:
         - CookieAuth:
