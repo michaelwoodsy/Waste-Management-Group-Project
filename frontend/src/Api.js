@@ -95,15 +95,23 @@ export const User = {
      *
      * @param userId ID of the user to send the message to.
      * @param cardId ID of the card the message is about.
-     * @param message The contents of the message
+     * @param text The contents of the message
      * @returns {Promise<AxiosResponse<any>>} response containing message ID.
      */
-    sendCardMessage: (userId, cardId, message) => instance.post(
+    sendCardMessage: (userId, cardId, text) => instance.post(
         `users/${userId}/cards/${cardId}/messages`,
         {
-            message: message
+            text: text
         }
     ),
+
+    /**
+     * Gets a user's messages
+     *
+     * @param userId ID of the user of whom to get messages of
+     * @returns {Promise<AxiosResponse<any>>} List of user's messages
+     */
+    getMessages: (userId) => instance.get(`users/${userId}/messages`),
 
     /**
      * Gets a user's notifications from the backend
