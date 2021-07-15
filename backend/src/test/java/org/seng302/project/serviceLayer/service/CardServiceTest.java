@@ -227,7 +227,7 @@ class CardServiceTest extends AbstractInitializer {
         // Mock the save method on the cardRepository
         given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
 
-        cardService.createCard(requestDTO, new AppUserDetails(testUser));
+        cardService.createCard(requestDTO);
 
         ArgumentCaptor<Card> cardArgumentCaptor = ArgumentCaptor.forClass(Card.class);
         verify(cardRepository).save(cardArgumentCaptor.capture());

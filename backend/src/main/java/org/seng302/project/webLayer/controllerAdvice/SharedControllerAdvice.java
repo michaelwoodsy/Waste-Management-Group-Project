@@ -74,7 +74,6 @@ public class SharedControllerAdvice {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
 
-
     /**
      * Handles sending a 403 response when a request is forbidden.
      *

@@ -10,10 +10,10 @@ import org.seng302.project.repositoryLayer.repository.AdminNotificationRepositor
 import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.notifications.DeleteUserNotificationDTO;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NoNotificationExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenSystemAdminActionException;
-import org.seng302.project.serviceLayer.exceptions.notification.ForbiddenNotificationActionException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -118,7 +118,7 @@ class NotificationServiceTest extends AbstractInitializer {
     void getNotification_forbidden() {
         Integer userId = testUser.getId();
         AppUserDetails appUser = new AppUserDetails(otherUser);
-        Assertions.assertThrows(ForbiddenNotificationActionException.class,
+        Assertions.assertThrows(ForbiddenException.class,
                 () -> notificationService.getUserNotifications(userId, appUser));
     }
 
@@ -162,7 +162,7 @@ class NotificationServiceTest extends AbstractInitializer {
                 testNotification.getId(),
                 new AppUserDetails(otherUser));
 
-        Assertions.assertThrows(ForbiddenNotificationActionException.class,
+        Assertions.assertThrows(ForbiddenException.class,
                 () -> notificationService.deleteUserNotification(dto));
     }
 
