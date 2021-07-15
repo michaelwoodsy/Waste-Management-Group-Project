@@ -325,6 +325,8 @@ export default {
           this.cards.splice(index, 1)
         }
       }
+      //Refreshes messages as when deleting a card messages about that card would have been deleted.
+      this.getMessages()
     },
     /**
      * Updates an extended cards information.

@@ -1,5 +1,6 @@
 package org.seng302.project.repositoryLayer.repository;
 
+import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.Message;
 import org.seng302.project.repositoryLayer.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,5 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
 
     List<Message> findAllByReceiver(@Param("receiver") User receiver);
 
+    List<Message> findAllByCard(@Param("card") Card card);
 }
