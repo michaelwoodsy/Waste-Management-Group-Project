@@ -1012,7 +1012,7 @@ paths:
                   description: The IDs of keywords that will be associated with a card once it is created. These keywords are created through the POST /keywords endpoints (UCM6).
                   items:
                     type: integer
-                    example: [ 20, 15, 600 ]
+                  example: [ 20, 15, 600 ]
       responses:
         '200':
           description: Card updated successfully
@@ -1688,7 +1688,7 @@ paths:
             type: integer
         - name: imageId
           in: path
-          description: ID of the image to set as being the primary image for product
+          description: ID of the image to set as being the primary image for user
           required: true
           schema:
             type: integer
