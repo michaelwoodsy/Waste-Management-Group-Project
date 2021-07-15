@@ -108,7 +108,7 @@
             <p class="text-light">You have no notifications</p>
           </div>
           <div v-else>
-            <notification v-for="notification in notifications"
+            <notification v-for="notification in sortedNotifications"
                           :key="notification.id"
                           :data="notification"
                           @remove-notification="removeNotification(notification.id)"/>
@@ -212,6 +212,15 @@ export default {
         }
       }
       return cards
+    },
+
+    /**
+     * Returns notifications sorted by most recent.
+     */
+    sortedNotifications() {
+      let sortedNotifications = [...this.notifications]
+      sortedNotifications.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      return sortedNotifications
     }
 
   },
@@ -267,8 +276,6 @@ export default {
       try {
         const response = await User.getAdminNotifications()
         this.notifications.push(...response.data)
-        this.notifications = this.notifications.sort((a, b) =>
-            (new Date(a.created) > new Date(b.created)) ? -1 : 1)
       } catch (error) {
         console.error(error)
         this.error = error
