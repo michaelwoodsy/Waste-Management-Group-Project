@@ -12,6 +12,7 @@ import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.serviceLayer.dto.user.PutUserDTO;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +112,7 @@ public class UserEditSteps extends AbstractInitializer {
                 userMap.get(0).get("email"),
                 userMap.get(0).get("dateOfBirth"),
                 userMap.get(0).get("phoneNumber"),
-                testUser.getHomeAddress(),
+                new AddressDTO(testUser.getHomeAddress()),
                 userMap.get(0).get("password"));
 
         this.mockMvc.perform(MockMvcRequestBuilders
@@ -159,7 +160,7 @@ public class UserEditSteps extends AbstractInitializer {
                 testUser.getEmail(),
                 LocalDateTime.now().minusYears(years).toLocalDate().toString(),
                 testUser.getPhoneNumber(),
-                testUser.getHomeAddress(),
+                new AddressDTO(testUser.getHomeAddress()),
                 "Password123"
         );
 
@@ -196,7 +197,7 @@ public class UserEditSteps extends AbstractInitializer {
                 testUser.getEmail(),
                 testUser.getDateOfBirth(),
                 testUser.getPhoneNumber(),
-                testUser.getHomeAddress(),
+                new AddressDTO(testUser.getHomeAddress()),
                 "Password123"
         );
 

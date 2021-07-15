@@ -1,6 +1,7 @@
 package org.seng302.project.serviceLayer.service;
 
 import net.minidev.json.JSONObject;
+import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
@@ -129,7 +130,8 @@ public class UserService {
      * @return the userId of the user logged in inside of a JSONObject
      */
     public LoginCredentialsDTO createUser(PostUserDTO dto) {
-        var newUser = new User(dto);
+        var address = new Address(dto.getHomeAddress());
+        var newUser = new User(dto, address);
 
         // If email address is already registered
         if (!userRepository.findByEmail(newUser.getEmail()).isEmpty()) {

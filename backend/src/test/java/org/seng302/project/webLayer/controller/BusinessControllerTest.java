@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
+import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
@@ -358,7 +358,7 @@ class BusinessControllerTest {
 
         Mockito.doThrow(new AdministratorAlreadyExistsException(testUser.getId(), testBusiness.getId()))
                 .when(businessService)
-                .addAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
+                .addAdministrator(any(PutBusinessAdminDTO.class));
 
         JSONObject newAdmin = new JSONObject();
         newAdmin.put("userId", testUser.getId());
@@ -386,7 +386,7 @@ class BusinessControllerTest {
 
         Mockito.doThrow(new ForbiddenException(""))
                 .when(businessService)
-                .addAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
+                .addAdministrator(any(PutBusinessAdminDTO.class));
 
         JSONObject primaryAdmin = new JSONObject();
         primaryAdmin.put("userId", testPrimaryAdmin.getId());
@@ -412,7 +412,7 @@ class BusinessControllerTest {
 
         Mockito.doThrow(new CantRemoveAdministratorException(testPrimaryAdmin.getId(), testBusiness.getId()))
                 .when(businessService)
-                .removeAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
+                .removeAdministrator(any(PutBusinessAdminDTO.class));
 
         //Trying to remove the primary administrator
         JSONObject primaryAdmin = new JSONObject();
@@ -461,7 +461,7 @@ class BusinessControllerTest {
 
         Mockito.doThrow(new UserNotAdministratorException(testUser.getId(), testBusiness.getId()))
                 .when(businessService)
-                .removeAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
+                .removeAdministrator(any(PutBusinessAdminDTO.class));
 
         //Trying to remove a user who is not an admin (The user that was just removed as an admin in the previous test)
         JSONObject user = new JSONObject();
@@ -488,7 +488,7 @@ class BusinessControllerTest {
 
         Mockito.doThrow(new ForbiddenException(""))
                 .when(businessService)
-                .removeAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
+                .removeAdministrator(any(PutBusinessAdminDTO.class));
 
         JSONObject primaryAdmin = new JSONObject();
         primaryAdmin.put("userId", testPrimaryAdmin.getId());

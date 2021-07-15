@@ -1,11 +1,11 @@
 package org.seng302.project.serviceLayer.service;
 
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
@@ -13,8 +13,10 @@ import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
-import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
+import org.seng302.project.serviceLayer.dto.business.GetBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
@@ -30,7 +32,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-
 import java.util.List;
 import java.util.Optional;
 
@@ -39,62 +40,48 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 
+class BusinessServiceTest extends AbstractInitializer {
 
-@SpringBootTest
-class BusinessServiceTest {
-
-    @Autowired
     private BusinessService businessService;
 
-    @MockBean
     private AddressRepository addressRepository;
-
-    @MockBean
     private UserRepository userRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @MockBean
     private BusinessRepository businessRepository;
 
     private User testPrimaryAdmin;
     private User testUser;
+    private User testOtherUser;
     private Business testBusiness;
-    private Address businessAddress;
+    private AddressDTO businessAddress;
 
     @BeforeEach
     public void setup() {
+        addressRepository = Mockito.mock(AddressRepository.class);
+        userRepository = Mockito.mock(UserRepository.class);
+        businessRepository = Mockito.mock(BusinessRepository.class);
+        businessService = new BusinessService(businessRepository, addressRepository, userRepository);
 
         //Mock a test user to be used as business primary admin
-        testPrimaryAdmin = new User("Jim", "Smith", "", "", "",
-                "jimsmith@gmail.com", "1999-04-27", "",
-                null, "1337-H%nt3r2");
-
-        testPrimaryAdmin.setId(1);
-        testPrimaryAdmin.setPassword(passwordEncoder.encode(testPrimaryAdmin.getPassword()));
-        given(userRepository.findByEmail("jimsmith@gmail.com")).willReturn(List.of(testPrimaryAdmin));
-        given(userRepository.findById(1)).willReturn(Optional.of(testPrimaryAdmin));
+        testPrimaryAdmin = this.getTestUserBusinessAdmin();
+        Mockito.when(userRepository.findById(testPrimaryAdmin.getId())).thenReturn(Optional.of(testPrimaryAdmin));
+        Mockito.when(userRepository.findByEmail(testPrimaryAdmin.getEmail())).thenReturn(List.of(testPrimaryAdmin));
 
         //Mock a different test user
-        testUser = new User("Dave", "Sims", "", "", "",
-                "DaveSims@gmail.com", "1998-04-27", "",
-                null, "1337-H%nt3r2");
+        testUser = this.getTestUser();
+        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(List.of(testUser));
 
-        testUser.setId(2);
-        testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
-        given(userRepository.findByEmail("DaveSims@gmail.com")).willReturn(List.of(testUser));
-        given(userRepository.findById(2)).willReturn(Optional.of(testUser));
+        testOtherUser = this.getTestOtherUser();
+        Mockito.when(userRepository.findById(testOtherUser.getId())).thenReturn(Optional.of(testOtherUser));
+        Mockito.when(userRepository.findByEmail(testOtherUser.getEmail())).thenReturn(List.of(testOtherUser));
+
+        businessAddress = new AddressDTO("", "", "", "", "New Zealand", "");
 
         //Mock a test business
         //Spy on this business so we can check when methods on the business object are called
-        testBusiness = Mockito.spy(new Business("Lumbridge General Store", "A one-stop shop for all your adventuring needs",
-                null, "Accommodation and Food Services", 1));
-        testBusiness.setId(1);
-        given(businessRepository.findByName("Lumbridge General Store")).willReturn(List.of(testBusiness));
-        given(businessRepository.findById(1)).willReturn(Optional.of(testBusiness));
-
-        businessAddress = new Address("", "", "", "", "New Zealand", "");
+        testBusiness = Mockito.spy(this.getTestBusiness());
+        Mockito.when(businessRepository.findById(testBusiness.getId())).thenReturn(Optional.of(testBusiness));
+        Mockito.when(businessRepository.findByName(testBusiness.getName())).thenReturn(List.of(testBusiness));
 
     }
 
@@ -105,7 +92,7 @@ class BusinessServiceTest {
     @Test
     void createBusiness_success() {
 
-        AddBusinessDTO requestDTO = new AddBusinessDTO(
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
                 "Lumbridge General Store",
                 "A one-stop shop for all your adventuring needs",
                 businessAddress,
@@ -131,7 +118,7 @@ class BusinessServiceTest {
         Assertions.assertEquals("A one-stop shop for all your adventuring needs", createdBusiness.getDescription());
         Assertions.assertEquals("New Zealand", createdBusiness.getAddress().getCountry());
         Assertions.assertEquals("Accommodation and Food Services", createdBusiness.getBusinessType());
-        Assertions.assertEquals("jimsmith@gmail.com", createdBusiness.getAdministrators().get(0).getEmail());
+        Assertions.assertEquals(testPrimaryAdmin.getEmail(), createdBusiness.getAdministrators().get(0).getEmail());
     }
 
     /**
@@ -142,7 +129,7 @@ class BusinessServiceTest {
     void createBusiness_nonExistentCreator() {
         given(userRepository.findById(600)).willReturn(Optional.empty());
 
-        AddBusinessDTO requestDTO = new AddBusinessDTO(
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
                 "Lumbridge General Store",
                 "A one-stop shop for all your adventuring needs",
                 businessAddress,
@@ -163,7 +150,7 @@ class BusinessServiceTest {
     void createBusiness_underageUser() {
         testPrimaryAdmin.setDateOfBirth("2015-04-28");
 
-        AddBusinessDTO requestDTO = new AddBusinessDTO(
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
                 "Lumbridge General Store",
                 "A one-stop shop for all your adventuring needs",
                 businessAddress,
@@ -183,13 +170,13 @@ class BusinessServiceTest {
     @Test
     void getBusiness() {
 
-        Business returnedBusiness = businessService.getBusiness(1);
+        GetBusinessDTO returnedBusiness = businessService.getBusiness(testBusiness.getId());
 
-        Assertions.assertEquals(1, returnedBusiness.getId());
-        Assertions.assertEquals("Lumbridge General Store", returnedBusiness.getName());
+        Assertions.assertEquals(testBusiness.getId(), returnedBusiness.getId());
+        Assertions.assertEquals(testBusiness.getName(), returnedBusiness.getName());
         Assertions.assertEquals(testPrimaryAdmin.getId(), returnedBusiness.getPrimaryAdministratorId());
-        Assertions.assertEquals("A one-stop shop for all your adventuring needs", returnedBusiness.getDescription());
-        Assertions.assertEquals("Accommodation and Food Services", returnedBusiness.getBusinessType());
+        Assertions.assertEquals(testBusiness.getDescription(), returnedBusiness.getDescription());
+        Assertions.assertEquals(testBusiness.getBusinessType(), returnedBusiness.getBusinessType());
     }
 
     /**
@@ -197,7 +184,7 @@ class BusinessServiceTest {
      * checks correct exception thrown
      */
     @Test
-    void getNonexistentBusiness() {
+    void getNonExistentBusiness() {
         given(businessRepository.findById(200)).willReturn(Optional.empty());
 
         Assertions.assertThrows(BusinessNotFoundException.class,
@@ -212,8 +199,8 @@ class BusinessServiceTest {
     @Test
     void addAdministrator() {
 
-        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
-                2
+        PutBusinessAdminDTO requestDTO = new PutBusinessAdminDTO(
+                testUser.getId()
         );
         requestDTO.setBusinessId(testBusiness.getId());
         requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
@@ -236,10 +223,9 @@ class BusinessServiceTest {
     @Test
     void addExistingAdmin() {
         testBusiness.addAdministrator(testUser);
-        given(userRepository.findById(2)).willReturn(Optional.of(testUser));
 
-        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
-                2
+        PutBusinessAdminDTO requestDTO = new PutBusinessAdminDTO(
+                testUser.getId()
         );
         requestDTO.setBusinessId(testBusiness.getId());
         requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
@@ -256,14 +242,11 @@ class BusinessServiceTest {
      */
     @Test
     void addAdministratorWhenNotPrimaryAdmin() {
-
-        given(userRepository.findById(2)).willReturn(Optional.of(testUser));
-
-        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
-                2
+        PutBusinessAdminDTO requestDTO = new PutBusinessAdminDTO(
+                testUser.getId()
         );
         requestDTO.setBusinessId(testBusiness.getId());
-        requestDTO.setAppUser(new AppUserDetails(testUser));
+        requestDTO.setAppUser(new AppUserDetails(testOtherUser));
 
         Assertions.assertThrows(ForbiddenException.class,
                 () -> businessService.addAdministrator(requestDTO));
@@ -279,10 +262,9 @@ class BusinessServiceTest {
     void removeAdministrator() {
 
         testBusiness.addAdministrator(testUser);
-        given(userRepository.findById(2)).willReturn(Optional.of(testUser));
 
-        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
-                2
+        PutBusinessAdminDTO requestDTO = new PutBusinessAdminDTO(
+                testUser.getId()
         );
         requestDTO.setBusinessId(testBusiness.getId());
         requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
@@ -304,8 +286,8 @@ class BusinessServiceTest {
      */
     @Test
     void removePrimaryAdministrator() {
-        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
-                1
+        PutBusinessAdminDTO requestDTO = new PutBusinessAdminDTO(
+                testPrimaryAdmin.getId()
         );
         requestDTO.setBusinessId(testBusiness.getId());
         requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
@@ -322,8 +304,8 @@ class BusinessServiceTest {
      */
     @Test
     void removeNonExistentAdministrator() {
-        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
-                2
+        PutBusinessAdminDTO requestDTO = new PutBusinessAdminDTO(
+                testUser.getId()
         );
         requestDTO.setBusinessId(testBusiness.getId());
         requestDTO.setAppUser(new AppUserDetails(testPrimaryAdmin));
@@ -335,20 +317,19 @@ class BusinessServiceTest {
     /**
      * Random user tries to remove
      * from administrating the business
-     *
+     * <p>
      * Expect a ForbiddenException
      */
     @Test
     void removeAdministratorWhenNotPrimaryAdmin() {
 
         testBusiness.addAdministrator(testUser);
-        given(userRepository.findById(2)).willReturn(Optional.of(testUser));
 
-        AddOrRemoveBusinessAdminDTO requestDTO = new AddOrRemoveBusinessAdminDTO(
-                2
+        PutBusinessAdminDTO requestDTO = new PutBusinessAdminDTO(
+                testUser.getId()
         );
         requestDTO.setBusinessId(testBusiness.getId());
-        requestDTO.setAppUser(new AppUserDetails(testUser));
+        requestDTO.setAppUser(new AppUserDetails(testOtherUser));
 
         Assertions.assertThrows(ForbiddenException.class,
                 () -> businessService.removeAdministrator(requestDTO));
@@ -360,8 +341,8 @@ class BusinessServiceTest {
      */
     @Test
     void searchBusiness_exactNameMatch() {
-        given(businessRepository.findAll(any(Specification.class)))
-                .willReturn(List.of(testBusiness));
+        Mockito.when(businessRepository.findAll(any(Specification.class)))
+                .thenReturn(List.of(testBusiness));
 
         SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(), null);
 
@@ -377,8 +358,8 @@ class BusinessServiceTest {
      */
     @Test
     void searchBusiness_filterByType() {
-        Business otherBusiness = new Business(testBusiness.getName(), "A one-stop shop for all your adventuring needs",
-                null, "Retail Trade", 1);
+        Business otherBusiness = new Business("Another Business", "Some Description",
+                null, "Accommodation and Food Services", testPrimaryAdmin.getId());
 
         given(businessRepository.findAll(any(Specification.class)))
                 .willReturn(List.of(testBusiness, otherBusiness));

@@ -1,5 +1,6 @@
 package org.seng302.project.serviceLayer.service;
 
+import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.model.types.BusinessType;
@@ -7,18 +8,20 @@ import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.repositoryLayer.specification.BusinessSpecifications;
-import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
-import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.GetBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
+import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.InvalidDateException;
-import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.register.UserUnderageException;
 import org.seng302.project.serviceLayer.util.DateArithmetic;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +43,8 @@ public class BusinessService {
 
     @Autowired
     public BusinessService(BusinessRepository businessRepository,
-                              AddressRepository addressRepository,
-                              UserRepository userRepository) {
+                           AddressRepository addressRepository,
+                           UserRepository userRepository) {
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
@@ -52,6 +55,7 @@ public class BusinessService {
      * Checks if the user creating the business
      * is at least 16 years old
      * Throws an exception if they aren't
+     *
      * @param currentUser the user we are checking the age of
      */
     private void checkBusinessCreatorAge(User currentUser) {
@@ -80,14 +84,14 @@ public class BusinessService {
      *
      * @param requestDTO DTO with fields for Business to be created
      */
-    public void createBusiness(AddBusinessDTO requestDTO) {
+    public Integer createBusiness(PostBusinessDTO requestDTO) {
         logger.info("Request to create business");
 
         try {
             var userEmail = "";
             String businessName = requestDTO.getName();
             String description = requestDTO.getDescription();
-            var address = requestDTO.getAddress();
+            var address = new Address(requestDTO.getAddress());
             String businessType = requestDTO.getBusinessType();
             Integer primaryAdministratorId = requestDTO.getPrimaryAdministratorId();
 
@@ -101,7 +105,7 @@ public class BusinessService {
             } else {
                 Optional<User> currUser = userRepository.findById(primaryAdministratorId);
                 currUser.ifPresent(newBusiness::addAdministrator);
-                if(currUser.isPresent()) userEmail = currUser.get().getEmail();
+                if (currUser.isPresent()) userEmail = currUser.get().getEmail();
             }
 
             var currentUser = userRepository.findByEmail(userEmail).get(0);
@@ -110,6 +114,7 @@ public class BusinessService {
             addressRepository.save(address);
             businessRepository.save(newBusiness);
             logger.info("Successful creation of business {}", newBusiness.getId());
+            return newBusiness.getId();
         } catch (NoUserExistsException | UserUnderageException | InvalidDateException handledException) {
             throw handledException;
         } catch (Exception unexpectedException) {
@@ -118,18 +123,21 @@ public class BusinessService {
         }
     }
 
-
     /**
-     *
      * Retrieve a specific business account.
      *
-     * @param id ID of business to get information from.
+     * @param businessId ID of business to get information from.
      * @return the retrieved Business
      */
-    public Business getBusiness(Integer id) {
-        logger.info("Request to get business {}", id);
+    public GetBusinessDTO getBusiness(Integer businessId) {
+        logger.info("Request to get business {}", businessId);
         try {
-            return businessRepository.findById(id).orElseThrow(() -> new BusinessNotFoundException(id));
+            Optional<Business> business = businessRepository.findById(businessId);
+            if (business.isEmpty()) {
+                throw new BusinessNotFoundException(businessId);
+            } else {
+                return new GetBusinessDTO(business.get());
+            }
         } catch (BusinessNotFoundException businessNotFoundException) {
             logger.warn(businessNotFoundException.getMessage());
             throw businessNotFoundException;
@@ -163,17 +171,18 @@ public class BusinessService {
      * @param requestDTO DTO with businessId, new admin userId
      *                   and AppUserDetails of person making request
      */
-    public void addAdministrator(AddOrRemoveBusinessAdminDTO requestDTO) {
+    public void addAdministrator(PutBusinessAdminDTO requestDTO) {
 
         try {
             Integer userId = requestDTO.getUserId();
             Integer businessId = requestDTO.getBusinessId();
+            AppUserDetails appUser = requestDTO.getAppUser();
             logger.info("Request to add user with id {} as administrator for business with id {}",
                     userId, businessId);
 
             var currUser = userRepository.findById(userId).orElseThrow(() -> new NoUserExistsException(userId));
-            var currBusiness = businessRepository.findById(requestDTO.getBusinessId()).orElseThrow(() -> new BusinessNotFoundException(businessId));
-            checkAdminRequestMaker(requestDTO.getAppUser().getUsername(), currBusiness);
+            var currBusiness = businessRepository.findById(businessId).orElseThrow(() -> new BusinessNotFoundException(businessId));
+            checkAdminRequestMaker(appUser.getUsername(), currBusiness);
 
             //Checks if the user is already an administrator
             if (currBusiness.getAdministrators().contains(currUser)) {
@@ -201,7 +210,7 @@ public class BusinessService {
      * @param requestDTO DTO with businessId, userId of admin to remove
      *                   and AppUserDetails of person making request
      */
-    public void removeAdministrator(AddOrRemoveBusinessAdminDTO requestDTO) {
+    public void removeAdministrator(PutBusinessAdminDTO requestDTO) {
         try {
             Integer userId = requestDTO.getUserId();
             Integer businessId = requestDTO.getBusinessId();
@@ -239,14 +248,15 @@ public class BusinessService {
 
     /**
      * Filters businesses based on a given business type
+     *
      * @param retrievedBusinesses list of businesses found by specifications
-     * @param businessType the business type to filter by e.g. RETAIL_TRADE
+     * @param businessType        the business type to filter by e.g. RETAIL_TRADE
      */
     public List<Business> filterBusinesses(List<Business> retrievedBusinesses, BusinessType businessType) {
         //In DTO, businessType is either a valid type or null
         if (businessType != null) {
             var filteredBusinesses = new ArrayList<Business>();
-            for (Business business: retrievedBusinesses) {
+            for (Business business : retrievedBusinesses) {
                 if (businessType.matchesType(business.getBusinessType())) {
                     filteredBusinesses.add(business);
                 }
@@ -262,8 +272,8 @@ public class BusinessService {
      *
      * @param requestDTO DTO with a searchQuery to match a business name
      *                   and a (possibly empty) business type
-     *
-     * Regular expression for splitting search query taken from linked website.
+     *                   <p>
+     *                   Regular expression for splitting search query taken from linked website.
      * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
      * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
      */

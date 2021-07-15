@@ -9,6 +9,7 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.serviceLayer.dto.user.PostUserDTO;
 import org.seng302.project.serviceLayer.dto.user.PutUserDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
@@ -72,7 +73,7 @@ class UserServiceTest extends AbstractInitializer {
                 testUser.getEmail(),
                 testUser.getDateOfBirth(),
                 testUser.getPhoneNumber(),
-                testUser.getHomeAddress(),
+                new AddressDTO(testUser.getHomeAddress()),
                 testUser.getPassword());
 
         testPutUserDTO = new PutUserDTO(
@@ -85,7 +86,7 @@ class UserServiceTest extends AbstractInitializer {
                 "new.email@newemail.com",
                 otherUser.getDateOfBirth(),
                 otherUser.getPhoneNumber(),
-                otherUser.getHomeAddress(),
+                new AddressDTO(otherUser.getHomeAddress()),
                 "NewSecurePassword123");
 
         mocks();
