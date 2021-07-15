@@ -15,7 +15,7 @@ import java.util.List;
  * Response DTO for User entities.
  */
 @Data
-public class UserResponseDTO {
+public class GetUserDTO {
 
     private Integer id;
     private String firstName;
@@ -31,7 +31,7 @@ public class UserResponseDTO {
     private List<BusinessResponseDTO> businessesAdministered;
     private LocalDateTime created;
 
-    public UserResponseDTO(User user) {
+    public GetUserDTO(User user) {
         this.id = user.getId();
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
@@ -42,6 +42,7 @@ public class UserResponseDTO {
         this.dateOfBirth = user.getDateOfBirth();
         this.phoneNumber = user.getPhoneNumber();
         this.homeAddress = new AddressResponseDTO(user.getHomeAddress());
+        this.role = user.getRole();
         this.created = user.getCreated();
         this.businessesAdministered = new ArrayList<>();
         for (Business business : user.getBusinessesAdministered()) {

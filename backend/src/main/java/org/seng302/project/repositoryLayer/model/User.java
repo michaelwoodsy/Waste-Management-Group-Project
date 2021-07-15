@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.seng302.project.serviceLayer.dto.user.PostUserDTO;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -48,6 +49,20 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.homeAddress = homeAddress;
         this.password = password;
+        this.role = "user";
+    }
+
+    public User(PostUserDTO dto) {
+        this.firstName = dto.getFirstName();
+        this.lastName = dto.getLastName();
+        this.middleName = dto.getMiddleName();
+        this.nickname = dto.getNickname();
+        this.bio = dto.getBio();
+        this.email = dto.getEmail();
+        this.dateOfBirth = dto.getDateOfBirth();
+        this.phoneNumber = dto.getPhoneNumber();
+        this.homeAddress = dto.getHomeAddress();
+        this.password = dto.getPassword();
         this.role = "user";
     }
 

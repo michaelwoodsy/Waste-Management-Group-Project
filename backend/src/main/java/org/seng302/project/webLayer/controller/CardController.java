@@ -5,6 +5,7 @@ import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
 import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
 import org.seng302.project.serviceLayer.service.CardService;
+import org.seng302.project.serviceLayer.service.UserService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,9 +23,12 @@ public class CardController {
 
     private final CardService cardService;
 
+    private final UserService userService;
+
     @Autowired
-    public CardController(CardService cardService) {
+    public CardController(CardService cardService, UserService userService) {
         this.cardService = cardService;
+        this.userService = userService;
     }
 
     /**
@@ -37,7 +41,8 @@ public class CardController {
     @PostMapping("/cards")
     @ResponseStatus(HttpStatus.CREATED)
     public CreateCardResponseDTO createCard(@RequestBody @Valid CreateCardDTO dto, @AuthenticationPrincipal AppUserDetails appUser) {
-        return cardService.createCard(dto, appUser);
+        userService.checkForbidden(dto.getCreatorId(), appUser);
+        return cardService.createCard(dto);
     }
 
     /**

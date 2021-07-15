@@ -55,24 +55,16 @@ public class CardService {
 
     /**
      * Service method for creating a new card
+     * Check for forbidden action is done in the controller layer
      *
      * @param dto DTO containing card creation parameters
      * @return a response DTO containing the new card's ID
      */
-    public CreateCardResponseDTO createCard(CreateCardDTO dto, AppUserDetails appUser) {
+    public CreateCardResponseDTO createCard(CreateCardDTO dto) {
         try {
             logger.info("Request to create card");
 
-            var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
             Optional<User> creator = userRepository.findById(dto.getCreatorId());
-
-            // check if loggedInUser has the same ID as the creator id provided, otherwise check loggedInUser is GAA
-            if (!loggedInUser.getId().equals(dto.getCreatorId()) && (
-                    !loggedInUser.getRole().equals("globalApplicationAdmin")
-                            || !loggedInUser.getRole().equals("defaultGlobalApplicationAdmin")
-            )) {
-                throw new ForbiddenCardActionException();
-            }
 
             //check that listed card creator exists.
             if (creator.isEmpty()) {

@@ -23,6 +23,7 @@ public abstract class AbstractInitializer {
     private User testUser;
     private User testOtherUser;
     private User testSystemAdmin;
+    private User testSystemDGAA;
     private User testUserBusinessAdmin;
     private Business testBusiness;
     private Product testProduct;
@@ -44,6 +45,9 @@ public abstract class AbstractInitializer {
     public void initialise() {
         this.initialiseTestUsers();
         this.initialiseTestSystemAdmin();
+        this.initialiseTestSystemDGAA();
+        this.initialiseTestCard();
+        this.initialiseTestUserNotification();
         this.initialiseTestUserBusinessAdmin();
         this.initialiseTestBusiness();
         this.initialiseTestProduct();
@@ -65,7 +69,7 @@ public abstract class AbstractInitializer {
                 null,
                 null,
                 "john.smith@gmail.com",
-                "1995/07/25",
+                "1995-07-25",
                 null,
                 address,
                 "password");
@@ -81,7 +85,7 @@ public abstract class AbstractInitializer {
                 null,
                 null,
                 "jenny.dove@icloud.com",
-                "1996/06/30",
+                "1996-06-30",
                 null,
                 anotherAddress,
                 "password");
@@ -105,6 +109,33 @@ public abstract class AbstractInitializer {
         testSystemAdmin.setId(3);
         testSystemAdmin.setRole("globalApplicationAdmin");
         testSystemAdmin.setPassword(passwordEncoder.encode(testSystemAdmin.getPassword()));
+    }
+
+    public void initialiseTestSystemDGAA() {
+        Address address = new Address(null, null, null, null, "New Zealand", null);
+        testSystemDGAA = new User(
+                "System",
+                "Admin",
+                "",
+                "",
+                "I am a system admin",
+                "admin@resale.com",
+                "1999-07-28",
+                "+64 123 4567",
+                address,
+                "Th1s1sMyApplication");
+        testSystemDGAA.setId(4);
+        testSystemDGAA.setRole("defaultGlobalApplicationAdmin");
+        testSystemDGAA.setPassword(passwordEncoder.encode(testSystemAdmin.getPassword()));
+    }
+
+    public void initialiseTestCard() {
+        testCard = new Card(
+                testUser,
+                "ForSale",
+                "New Card",
+                "This is a new Card",
+                Collections.emptySet());
     }
 
     public void initialiseTestUserBusinessAdmin() {
@@ -202,16 +233,6 @@ public abstract class AbstractInitializer {
                 MediaType.IMAGE_JPEG_VALUE,
                 imageContent
         );
-    }
-
-    public void initialiseTestCard() {
-        testCard = new Card(
-                testUser,
-                "ForSale",
-                "New Card",
-                "This is a new Card",
-                Collections.emptySet());
-        testCard.setId(1);
     }
 
     public void initialiseTestUserNotification() {
