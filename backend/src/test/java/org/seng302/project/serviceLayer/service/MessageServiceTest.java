@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +44,7 @@ class MessageServiceTest extends AbstractInitializer {
 
     private User testSender;
     private User testReceiver;
+    private User testOtherUser;
     private Card testCard;
     private Message testMessage;
     private Message testReceivedMessage;
@@ -57,7 +57,7 @@ class MessageServiceTest extends AbstractInitializer {
         this.initialise();
         testSender = this.getTestUser();
         Mockito.when(userRepository.findByEmail(testSender.getEmail()))
-            .thenReturn(List.of(testSender));
+                .thenReturn(List.of(testSender));
         Mockito.when(userRepository.findById(testSender.getId()))
                 .thenReturn(Optional.of(testSender));
 
@@ -65,9 +65,11 @@ class MessageServiceTest extends AbstractInitializer {
         Mockito.when(userRepository.findById(testReceiver.getId()))
                 .thenReturn(Optional.of(testReceiver));
 
-        testCard = new Card(testReceiver, "Exchange", "Apples for your bananas",
-                "Will exchange my apples for bananas", Collections.emptySet());
-        testCard.setId(1);
+        testOtherUser = this.getTestOtherUser();
+        Mockito.when(userRepository.findById(testOtherUser.getId()))
+                .thenReturn(Optional.of(testOtherUser));
+
+        testCard = this.getTestCard();
         Mockito.when(cardRepository.findById(testCard.getId()))
                 .thenReturn(Optional.of(testCard));
 
@@ -168,7 +170,6 @@ class MessageServiceTest extends AbstractInitializer {
      */
     @Test
     void createMessage_nonExistentCard_notAcceptableException() {
-
         Mockito.when(cardRepository.findById(Mockito.any(Integer.class)))
                 .thenReturn(Optional.empty());
 
@@ -206,10 +207,11 @@ class MessageServiceTest extends AbstractInitializer {
      */
     @Test
     void getMessages_notValidUser_error() {
-       AppUserDetails appUser = new AppUserDetails(testSender);
+        AppUserDetails appUser = new AppUserDetails(testSender);
+        Integer userId = testOtherUser.getId();
 
-        Assertions.assertThrows(NotAcceptableException.class,
-                () -> messageService.getMessages(100, appUser));
+        Assertions.assertThrows(ForbiddenUserException.class,
+                () -> messageService.getMessages(userId, appUser));
     }
 
     /**
@@ -220,8 +222,8 @@ class MessageServiceTest extends AbstractInitializer {
     void getMessages_nonExistentUser_error() {
         AppUserDetails appUser = new AppUserDetails(testSender);
 
-        Assertions.assertThrows(ForbiddenUserException.class,
-                () -> messageService.getMessages(3, appUser));
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> messageService.getMessages(1000, appUser));
     }
 
 }

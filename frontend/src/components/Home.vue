@@ -72,29 +72,18 @@
         <div>
           <h4 class="text-light">Notifications</h4>
           <!-- Toggle Notifications Button -->
-          <button type="button" class="btn btn-block btn-primary" @click="toggleNotifications()">
-            <em class="bi bi-bell" v-if="notifications.length < 10">{{notifications.length}}</em>
-            <em class="bi bi-bell" v-else>9+</em>
+          <button class="btn btn-block btn-primary" type="button" @click="toggleNotifications()">
+            <em v-if="notifications.length < 10" class="bi bi-bell">{{ notifications.length }}</em>
+            <em v-else class="bi bi-bell">9+</em>
           </button>
         </div>
         <br>
         <!-- Notifications -->
         <!--  TODO:  Add different versions for each notification type      -->
-        <div class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false"
-             v-for="notification in notifications" v-bind:key="notification.id">
-          <div class="toast-header">
-            <strong class="mr-auto">{{notification.title}}</strong>
-            <small>{{formatDateTime(notification.created)}}</small>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" @click="removeNotification(notification.id)">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="toast-body text-black-50">
-            {{notification.message}}
-            <br>
-            Card: {{notification.cardTitle}}
-          </div>
-        </div>
+        <notification v-for="notification in notifications"
+                      :key="notification.id"
+                      :data="notification"
+                      @remove-notification="removeNotification(notification.id)"/>
       </div>
     </div>
   </div>
@@ -103,16 +92,17 @@
 import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/marketplace/MarketCard";
 import Alert from "@/components/Alert";
+import Notification from "@/components/Notification";
 import {User} from "@/Api";
 import $ from 'jquery';
-
 
 export default {
   name: "Home",
   components: {
     Alert,
     LoginRequired,
-    MarketCard
+    MarketCard,
+    Notification
   },
   props: {
     msg: String
@@ -120,6 +110,9 @@ export default {
   async mounted() {
     await this.getCardData()
     await this.getNotificationData()
+    if (this.$root.$data.user.canDoAdminAction()) {
+      await this.getAdminNotifications();
+    }
   },
   data() {
     return {
@@ -128,6 +121,7 @@ export default {
       hideNotifications: true,
       //Test data
       notifications: [],
+      adminNotifications: [],
       error: ""
     }
   },
@@ -214,28 +208,8 @@ export default {
 
   },
   methods: {
-    /**
-     * Takes a datetime in ISO format and formats it like dd/mm/yyy, hh:mm:ss PM
-     */
-    formatDateTime(dateTime) {
-      let date = new Date(dateTime)
-      let year = date.getFullYear()
-      let month = date.getMonth()+1
-      let day = date.getDate()
-
-      let hours = date.getHours()
-      let minutes = date.getMinutes()
-
-      if (day < 10)     day = '0' + day;
-      if (month < 10)   month = '0' + month;
-      if (hours < 10)   hours = '0' + hours;
-      if (minutes < 10) minutes = '0' + minutes;
-
-      return `${day}/${month}/${year} ${hours}:${minutes}`
-    },
-
     toggleNotifications() {
-      if(this.hideNotifications){
+      if (this.hideNotifications) {
         $('.toast').toast('show')
         this.hideNotifications = false
       } else {
@@ -262,9 +236,23 @@ export default {
      */
     async getNotificationData() {
       try {
-        User.getNotifications(this.actor.id).then((res) => {
-          this.notifications = res.data
-        })
+        const response = await User.getNotifications(this.actor.id)
+        this.notifications = response.data
+      } catch (error) {
+        console.error(error)
+        this.error = error
+      }
+    },
+
+    /**
+     * Gets all admin notifications
+     */
+    async getAdminNotifications() {
+      try {
+        const response = await User.getAdminNotifications()
+        this.notifications.push(...response.data)
+        this.notifications.sort((a, b) =>
+            (new Date(a.created) > new Date(b.created)) ? 1 : -1)
       } catch (error) {
         console.error(error)
         this.error = error
@@ -295,8 +283,6 @@ export default {
      */
     extendCard(id, newDate) {
       for (const [index, card] of this.cards.entries()) {
-        console.log(card.id)
-        console.log(id)
         if (card.id === id) {
           this.cards[index].displayPeriodEnd = newDate
         }
@@ -306,15 +292,19 @@ export default {
      * Remove a notification from the list of visible notifications
      * @param notificationId the id of the notification that is to be removed
      */
-    removeNotification(notificationId){
-      console.log(notificationId)
-      User.deleteNotification(this.actor.id, notificationId).then(() => {
-        //Refresh notifications to reflect the deletion of a notification.
-        this.getNotificationData()
-      }).catch((err) => {
-        this.error = err.response.data
-
-      })
+    async removeNotification(notificationId) {
+      try {
+        // Remove the notification from the list that is shown
+        for (const [index, notification] of this.notifications.entries()) {
+          if (notification.id === notificationId) {
+            console.log(index)
+            this.notifications.splice(index, 1)
+          }
+        }
+      } catch (error) {
+        console.error(error)
+        this.error = error
+      }
     }
   }
 }
@@ -323,7 +313,4 @@ export default {
 
 <style scoped>
 
-.toast {
-  max-width: 100%;
-}
 </style>

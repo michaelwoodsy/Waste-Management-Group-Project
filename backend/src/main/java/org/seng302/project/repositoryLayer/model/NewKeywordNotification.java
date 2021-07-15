@@ -25,7 +25,7 @@ public class NewKeywordNotification extends AdminNotification {
      * @param keyword                     Keyword this notification is about.
      */
     public NewKeywordNotification(Keyword keyword) {
-        super(String.format("New keyword created with the name: %s", keyword.getName()));
+        super("newKeyword", String.format("New keyword created with the name: %s", keyword.getName()));
         this.keyword = keyword;
     }
 

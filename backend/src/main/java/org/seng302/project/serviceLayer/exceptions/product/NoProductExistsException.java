@@ -1,5 +1,6 @@
 package org.seng302.project.serviceLayer.exceptions.product;
 
+import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.webLayer.controller.BusinessController;
 
 /**
