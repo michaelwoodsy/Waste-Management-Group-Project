@@ -121,7 +121,7 @@
             <p class="text-light">You have no messages</p>
           </div>
           <div v-else>
-            <message v-for="message in messages"
+            <message v-for="message in sortedMessages"
                      :key="message.id"
                      :message="message"
                       @remove-message="removeMessage(message.id)"/>
@@ -222,6 +222,15 @@ export default {
       let sortedNotifications = [...this.notifications]
       sortedNotifications.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
       return sortedNotifications
+    },
+
+    /**
+     * Returns messages sorted by most recent.
+     */
+    sortedMessages() {
+      let sortedMessages = [...this.messages]
+      sortedMessages.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      return sortedMessages
     }
 
   },

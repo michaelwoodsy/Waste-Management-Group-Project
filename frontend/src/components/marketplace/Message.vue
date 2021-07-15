@@ -2,10 +2,11 @@
   <div>
 
     <!-- Message Card -->
-    <div class="card">
+    <div class="card mb-2">
       <div class="card-body px-3 py-2">
         <strong>{{ message.sender.firstName }} {{ message.sender.lastName }}</strong><br/>
         <span class="small">Re: {{ message.card.title }}</span><br/>
+        <span class="small">Sent: {{ formattedDateTime }}</span>
       </div>
       <div class="card-footer p-2 text-right">
         <button id="openMessage" :data-target="`#fullMessage${message.id}`"
@@ -36,7 +37,8 @@
               <h5 class="modal-title p-0">Message from: {{ message.sender.firstName }} {{
                   message.sender.lastName
                 }}</h5>
-              <span class="text-muted">Re: {{ message.card.title }}</span>
+              <span class="text-muted">Re: {{ message.card.title }}</span> <br>
+              <span class="text-muted">Sent: {{ formattedDateTime }}</span>
             </div>
             <button aria-label="Close" class="close" data-dismiss="modal" type="button">
               <span ref="close" aria-hidden="true">&times;</span>
@@ -74,12 +76,21 @@ import {User} from "@/Api";
 import $ from 'jquery'
 import user from "@/store/modules/user";
 import ConfirmationModal from "@/components/ConfirmationModal";
+import {formatDateTime} from "@/utils/dateTime";
 
 export default {
   name: "Message",
   components: {ConfirmationModal},
   props: {
     message: Object
+  },
+  computed: {
+    /**
+     * Returns the formatted date-time of when the message was created
+     */
+    formattedDateTime() {
+      return formatDateTime(this.message.created)
+    }
   },
   mounted() {
     $(`#fullMessage${this.message.id}`).on('hidden.bs.modal', () => {
