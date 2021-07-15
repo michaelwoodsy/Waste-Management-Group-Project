@@ -164,11 +164,21 @@ export default {
     },
 
     /**
-     * Returns true if the user is acting as a business
-     * @returns {boolean|*}
+     * Returns whether a user is logged in or not
+     *
+     * @returns {boolean} true if user is logged in
      */
-    isActingAsBusiness() {
-        return this.state.actingAs.type === "business"
+    isLoggedIn() {
+        return this.state.loggedIn
+    },
+
+    /**
+     * Returns the current actor
+     *
+     * @returns {object} the current actor
+     */
+    actor() {
+        return this.state.actingAs
     },
 
     /**
@@ -177,6 +187,14 @@ export default {
      */
     isActingAsUser() {
         return this.state.actingAs.type === "user"
+    },
+
+    /**
+     * Returns true if the user is acting as a business
+     * @returns {boolean|*}
+     */
+    isActingAsBusiness() {
+        return this.state.actingAs.type === "business"
     },
 
     /**
@@ -220,6 +238,19 @@ export default {
      */
     canDoAdminAction() {
         return (this.isDGAA() || this.isGAA()) && this.isActingAsUser()
+    },
+
+    /**
+     * Returns the ID of the user that is currently acting, null if not acting as a user
+     *
+     * @returns {*} ID of user that is currently acting
+     */
+    actingUserId() {
+        if (this.state.actingAs.type === 'user') {
+            return this.state.actingAs.id
+        } else {
+            return null
+        }
     },
 
     /**

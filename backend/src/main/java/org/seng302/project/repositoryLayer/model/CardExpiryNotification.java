@@ -24,8 +24,9 @@ public class CardExpiryNotification extends UserNotification {
      *
      * @param cardTitle title of the card this notification is about.
      */
-    public CardExpiryNotification(User user, String message,  String cardTitle) {
-        super(user, message);
+    public CardExpiryNotification(User user, String message, String cardTitle) {
+        super("cardExpiry", message, user);
         this.cardTitle = cardTitle;
     }
+
 }

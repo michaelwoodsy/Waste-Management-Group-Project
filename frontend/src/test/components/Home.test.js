@@ -3,11 +3,12 @@ import MarketCard from '@/components/marketplace/MarketCard';
 import Home from "@/components/Home";
 import {shallowMount} from "@vue/test-utils";
 import {User} from "@/Api";
+import userState from "@/store/modules/user"
 
 jest.mock('@/Api')
+jest.mock('@/store/modules/user')
 
 let wrapper;
-
 const cards = [
     {
         "id": 1,
@@ -38,58 +39,64 @@ const cards = [
         ]
     }
 ]
-let notifications = [
-    { id: 0,
-        title: "Card Expiry",
-        message: "This card is about to expire",
-        created: "2/07/2021 4:34pm",
-        card: "Looking for plums"},
-    { id: 1,
-        title: "Card Expiry",
-        message: "This card is about to expire",
-        created: "1/07/2021 6:37pm",
-        card: "Apples for Oranges"}
+const notifications = [
+    {
+        "id": 0,
+        "title": "Card Expiry",
+        "message": "This card is about to expire",
+        "created": "2/07/2021 4:34pm",
+        "card": "Looking for plums"
+    },
+    {
+        "id": 1,
+        "title": "Card Expiry",
+        "message": "This card is about to expire",
+        "created": "1/07/2021 6:37pm",
+        "card": "Apples for Oranges"
+    }
 ]
 
 describe('Jest tests for the home component', () => {
 
-    beforeEach(() => {
+    beforeEach(async () => {
 
         const getCardsResponse = {
             data: [...cards]
         }
+        const getNotificationsResponse = {
+            data: [...notifications]
+        }
 
         User.getCards.mockResolvedValue(getCardsResponse)
+        User.getNotifications.mockResolvedValue(getNotificationsResponse)
 
-        wrapper = shallowMount(Home, {
-            computed: {
-                isLoggedIn() {
-                    return true
-                },
-                actor() {
-                    return {
-                        id: 1,
-                        name: 'Myrtle Tremontana',
-                        type: 'user'
-                    }
-                },
-                isActingAsUser() {
-                    return true
-                }
-            },
-            methods: {
-                removeNotification(notificationId){
-                    for(const [index, notification] of this.notifications.entries()){
-                        if(notification.id === notificationId){
-                            console.log(index)
-                            this.notifications.splice(index, 1)
-                        }
-                    }
-
-                }
+        userState.isLoggedIn.mockImplementation(jest.fn(() => {
+            return true
+        }))
+        userState.actor.mockImplementation(jest.fn(() => {
+            return {
+                id: 1,
+                name: 'Myrtle Tremontana',
+                type: 'user'
             }
-        })
+        }))
+        userState.isActingAsUser.mockImplementation(jest.fn(() => {
+            return true
+        }))
+        userState.isActingAsBusiness.mockImplementation(jest.fn(() => {
+            return false
+        }))
+        userState.canDoAdminAction.mockImplementation(jest.fn(() => {
+            return false
+        }))
 
+        wrapper = shallowMount(Home)
+        await wrapper.vm.$nextTick()
+
+    })
+
+    afterEach(() => {
+        jest.clearAllMocks()
     })
 
     test('Test deleteCard is called when card-deleted event is triggered', async () => {
@@ -100,7 +107,6 @@ describe('Jest tests for the home component', () => {
     })
 
     test('Test extendCard is called when card-extended event is triggered', async () => {
-        console.log(wrapper.vm.$data.cards)
         const oldDate = new Date(wrapper.vm.$data.cards[0].displayPeriodEnd)
         const newDate = new Date(wrapper.vm.$data.cards[0].displayPeriodEnd)
         newDate.setDate(oldDate.getDate() + 14)
@@ -128,17 +134,33 @@ describe('Jest tests for the home component', () => {
         expect(wrapper.vm.activeCards.length).toStrictEqual(1)
     })
 
-    test('Can remove notifications from the notifications list',  () => {
-        wrapper.vm.$data.notifications = notifications
+    test('Can remove notifications from the notifications list',  async () => {
         expect(wrapper.vm.$data.notifications.length).toStrictEqual(2)
         wrapper.vm.removeNotification(1)
         expect(wrapper.vm.$data.notifications.length).toStrictEqual(1)
     })
 
-    test('calling formatDateTime retrieves correct dateTime format',  () => {
-        const date = '2021-07-10T08:28:21.200Z'
-        const formattedDate = wrapper.vm.formatDateTime(date)
-        expect(formattedDate).toEqual('10/07/2021 20:28')
+    test('Show notification button toggles correctly', async () => {
+        wrapper.vm.$data.notificationsShown = false
+        const button = wrapper.find('#showNotificationsButton')
+        await button.trigger('click')
+        expect(wrapper.vm.$data.notificationsShown).toBeTruthy()
+    })
+
+    test('Being an admin results in also getting admin notifications', async () => {
+        userState.canDoAdminAction.mockImplementationOnce(jest.fn(() => {
+            return true
+        }))
+        wrapper = shallowMount(Home)
+        await wrapper.vm.$nextTick()
+        expect(User.getAdminNotifications).toHaveBeenCalledTimes(1)
+    })
+
+    test('Show messages button toggles correctly', async () => {
+        wrapper.vm.$data.notificationsShown = true
+        const button = wrapper.find('#showMessagesButton')
+        await button.trigger('click')
+        expect(wrapper.vm.$data.notificationsShown).toBeFalsy()
     })
 
 })

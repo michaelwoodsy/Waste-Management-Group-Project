@@ -1,6 +1,7 @@
 package org.seng302.project.webLayer.controllerAdvice;
 
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.springframework.http.HttpStatus;
@@ -51,6 +52,16 @@ public class SharedControllerAdvice {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Handles sending a 403 response when a request is made by a user who is not authorised to make it
+     *
+     * @param ex the ForbiddenException thrown by the controller/service
+     * @return a 403 response with a message about why the request was forbidden
+     */
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<String> forbidden(ForbiddenException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
 
     /**
      * Handles sending a 406 response when a request has unacceptable path variables
@@ -62,7 +73,6 @@ public class SharedControllerAdvice {
     public ResponseEntity<String> notAcceptable(NotAcceptableException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
-
 
     /**
      * Handles sending a 403 response when a request is forbidden.

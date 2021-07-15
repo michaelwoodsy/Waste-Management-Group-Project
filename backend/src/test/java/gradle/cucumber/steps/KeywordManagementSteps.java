@@ -1,5 +1,6 @@
 package gradle.cucumber.steps;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -9,7 +10,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.repositoryLayer.repository.*;
+import org.seng302.project.repositoryLayer.repository.AdminNotificationRepository;
+import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.KeywordRepository;
+import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
 import org.seng302.project.serviceLayer.dto.keyword.AddKeywordDTO;
@@ -82,6 +86,8 @@ public class KeywordManagementSteps extends AbstractInitializer {
         this.initialise();
         cardRepository.deleteAll();
         userRepository.deleteAll();
+        adminNotificationRepository.deleteAll();
+        keywordRepository.deleteAll();
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -184,8 +190,6 @@ public class KeywordManagementSteps extends AbstractInitializer {
         MvcResult result = mockMvc.perform(newCardRequest)
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andReturn();
-        System.out.println(result.getResponse().getContentAsString());
-        System.out.println("Hello");
         CreateCardResponseDTO response = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
                 CreateCardResponseDTO.class);
@@ -216,9 +220,13 @@ public class KeywordManagementSteps extends AbstractInitializer {
                 .andReturn();
 
         String searchResultString = searchResult.getResponse().getContentAsString();
-        JSONArray searchResultArray = new JSONArray(searchResultString);
+        List<Keyword> keywords = objectMapper.readValue(searchResultString, new TypeReference<>() {
 
-        Assertions.assertEquals(keyword, searchResultArray.getJSONObject(0).getString("name"));
+        });
+
+        Keyword keywordObj = keywordRepository.findByName(keyword).get(0);
+
+        Assertions.assertTrue(keywords.contains(keywordObj));
     }
 
     //AC4
@@ -237,9 +245,11 @@ public class KeywordManagementSteps extends AbstractInitializer {
                 .andReturn();
 
         String searchResultString = searchResult.getResponse().getContentAsString();
-        JSONArray searchResultArray = new JSONArray(searchResultString);
+        List<Keyword> keywords = objectMapper.readValue(searchResultString, new TypeReference<>() {
 
-        Assertions.assertEquals(0, searchResultArray.length());
+        });
+
+        Assertions.assertEquals(0, keywords.size());
     }
 
     @Then("It is possible to add {string} as a new keyword")
@@ -268,14 +278,11 @@ public class KeywordManagementSteps extends AbstractInitializer {
 
     @Then("A system admin notification is created for the new keyword {string}")
     public void a_system_admin_notification_is_created_for_the_new_keyword(String keyword) {
-        List<AdminNotification> adminNotifications =  adminNotificationRepository.findAll();
+        List<AdminNotification> adminNotifications = adminNotificationRepository.findAll();
 
-        //There is also a NewKeywordNotification for "Bananas" at this point in the Cucumber tests.
-        Assertions.assertEquals(2, adminNotifications.size());
+        Assertions.assertEquals(1, adminNotifications.size());
         Assertions.assertEquals(NewKeywordNotification.class, adminNotifications.get(0).getClass());
-        Assertions.assertEquals(NewKeywordNotification.class, adminNotifications.get(1).getClass());
-        //"Bananas" is first, then "Cabbages"
-        NewKeywordNotification keywordNotification = (NewKeywordNotification) adminNotifications.get(1);
+        NewKeywordNotification keywordNotification = (NewKeywordNotification) adminNotifications.get(0);
         Assertions.assertEquals(keyword, keywordNotification.getKeyword().getName());
     }
 

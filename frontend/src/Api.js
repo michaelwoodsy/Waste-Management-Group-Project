@@ -95,15 +95,23 @@ export const User = {
      *
      * @param userId ID of the user to send the message to.
      * @param cardId ID of the card the message is about.
-     * @param message The contents of the message
+     * @param text The contents of the message
      * @returns {Promise<AxiosResponse<any>>} response containing message ID.
      */
-    sendCardMessage: (userId, cardId, message) => instance.post(
+    sendCardMessage: (userId, cardId, text) => instance.post(
         `users/${userId}/cards/${cardId}/messages`,
         {
-            message: message
+            text: text
         }
     ),
+
+    /**
+     * Gets a user's messages
+     *
+     * @param userId ID of the user of whom to get messages of
+     * @returns {Promise<AxiosResponse<any>>} List of user's messages
+     */
+    getMessages: (userId) => instance.get(`users/${userId}/messages`),
 
     /**
      * Gets a user's notifications from the backend
@@ -113,11 +121,29 @@ export const User = {
     getNotifications: (userId) => instance.get(`users/${userId}/notifications`),
 
     /**
-     * Deletes a user's notifications from the backend
-     * @param userId User ID to delete notifications from
-     * @param notificationId ID of the user notification to delete
+     * Deletes a user's notification from the backend
+     *
+     * @param userId User ID of whom to delete notification for
+     * @param notificationId ID of the notification to delete
      */
-    deleteNotification: (userId, notificationId) => instance.delete(`users/${userId}/notifications/${notificationId}`),
+    deleteNotification: (userId, notificationId) =>
+        instance.delete(`users/${userId}/notifications/${notificationId}`),
+
+    /**
+     * Gets all admin notifications from the backend
+     *
+     * @returns {Promise<AxiosResponse<any>>} response containing admin notifications
+     */
+    getAdminNotifications: () => instance.get(`notifications`),
+
+    /**
+     * Deletes and admin notification from the backend
+     *
+     * @param notificationId ID of the notification to delete
+     * @returns {Promise<AxiosResponse<any>>} response with status code
+     */
+    deleteAdminNotification: (notificationId) =>
+        instance.delete(`notifications/${notificationId}`)
 
 };
 
@@ -242,15 +268,6 @@ export const Business = {
     makePrimaryProductImage: (businessId, productId, imageId) => instance.put(`businesses/${businessId}/products/${productId}/images/${imageId}/makeprimary`)
 };
 
-export const Marketplace = {
-    /**
-     * Sends a marketplace card deletion request to the api.
-     * @param cardId Id of the card to delete
-     * @returns {Promise<AxiosResponse<any>>} Response from request
-     */
-    deleteCard: (cardId) => instance.delete(`cards/${cardId}`)
-};
-
 export const Card = {
     /**
      * Extends the display period of a card that is nearing expiry
@@ -276,7 +293,14 @@ export const Card = {
      * @param cardId the id of the card to be edited
      * @param newCardData the new data for the card
      */
-    editCard: (cardId, newCardData) => instance.put(`cards/${cardId}`, newCardData)
+    editCard: (cardId, newCardData) => instance.put(`cards/${cardId}`, newCardData),
+
+    /**
+     * Sends a marketplace card deletion request to the api.
+     * @param cardId Id of the card to delete
+     * @returns {Promise<AxiosResponse<any>>} Response from request
+     */
+    deleteCard: (cardId) => instance.delete(`cards/${cardId}`)
 };
 
 export const Keyword = {
@@ -292,7 +316,17 @@ export const Keyword = {
      * Searches keywords for matches to a partial keyword
      * @param partialKeyword the string to search by
      */
-    searchKeywords: (partialKeyword) => instance.get(`keywords/search`, {params: {'searchQuery': partialKeyword}})
+    searchKeywords: (partialKeyword) =>
+        instance.get(`keywords/search`, {params: {'searchQuery': partialKeyword}}),
+
+    /**
+     * Deletes a keyword by ID
+     *
+     * @param keywordId the ID of the keyword to delete
+     * @returns {Promise<AxiosResponse<any>>} response with status code
+     */
+    deleteKeyword: (keywordId) =>
+        instance.delete(`keywords/${keywordId}`)
 }
 
 export const Images = {

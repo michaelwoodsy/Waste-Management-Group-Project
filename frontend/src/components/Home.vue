@@ -2,7 +2,7 @@
   <div class="container-fluid">
 
     <login-required
-        v-if="!isLoggedIn"
+        v-if="!user.isLoggedIn()"
         page="view your profile page"
     />
 
@@ -19,18 +19,24 @@
           </ul>
         </div>
         <!-- Links to display if acting as business -->
-        <div v-if="!isActingAsUser">
+        <div v-if="user.isActingAsBusiness()">
           <br>
           <h4 class="text-light">My Business</h4>
           <ul class="nav flex-column">
             <li class="nav-item mb-2">
-              <router-link :to="productCatalogueRoute" class="btn btn-block btn-primary">Product Catalogue</router-link>
+              <router-link :to="`businesses/${user.actor().id}/products`"
+                           class="btn btn-block btn-primary">Product Catalogue
+              </router-link>
             </li>
             <li class="nav-item mb-2">
-              <router-link :to="inventoryRoute" class="btn btn-block btn-primary">Inventory</router-link>
+              <router-link :to="`businesses/${user.actor().id}/inventory`"
+                           class="btn btn-block btn-primary">Inventory
+              </router-link>
             </li>
             <li class="nav-item mb-2">
-              <router-link :to="saleListingRoute" class="btn btn-block btn-primary">Sale Listings</router-link>
+              <router-link :to="`businesses/${user.actor().id}/listings`"
+                           class="btn btn-block btn-primary">Sale Listings
+              </router-link>
             </li>
           </ul>
         </div>
@@ -39,11 +45,11 @@
       <!-- Page Content -->
       <div class="col-12 col-md-8 p-3">
         <div class="text-center">
-          <h1><span v-if="isActingAsUser">Hello </span>{{ actorName }}</h1>
+          <h1><span v-if="user.isActingAsUser()">Hello </span>{{ user.actor().name }}</h1>
           <hr>
         </div>
         <!-- Cards Section -->
-        <div v-if="isActingAsUser">
+        <div v-if="user.isActingAsUser()">
           <h2>My Cards</h2>
           <alert v-if="hasExpiredCards" class="text-center">
             You have cards that have recently expired and will be deleted within 24 hours if not extended!
@@ -71,31 +77,58 @@
       <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
         <div>
           <h4 class="text-light">Notifications</h4>
-          <!-- Toggle Notifications Button -->
-          <button type="button" class="btn btn-block btn-primary" @click="toggleNotifications()">
-            <em class="bi bi-bell" v-if="notifications.length < 10">{{notifications.length}}</em>
-            <em class="bi bi-bell" v-else>9+</em>
-          </button>
-        </div>
-        <br>
-        <!-- Notifications -->
-        <!--  TODO:  Add different versions for each notification type      -->
-        <div class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false"
-             v-for="notification in notifications" v-bind:key="notification.id">
-          <div class="toast-header">
-            <strong class="mr-auto">{{notification.title}}</strong>
-            <small>{{formatDateTime(notification.created)}}</small>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" @click="removeNotification(notification.id)">
-              <span aria-hidden="true">&times;</span>
+
+          <!-- Toggle Notifications/Messages Buttons -->
+          <div class="btn-group btn-block">
+            <button id="showNotificationsButton"
+                    :class="{'btn-primary': notificationsShown, 'btn-outline-primary': !notificationsShown}"
+                    class="btn" style="width: 50%" type="button" @click="showNotifications">
+              <em class="bi bi-bell"/>
+              <span v-if="notifications.length > 0" class="badge badge-pill badge-light ml-1">
+                <span v-if="notifications.length < 10">{{ notifications.length }}</span>
+                <span v-else>9+</span>
+              </span>
+            </button>
+            <button id="showMessagesButton"
+                    :class="{'btn-primary': !notificationsShown, 'btn-outline-primary': notificationsShown}"
+                    class="btn" style="width: 50%" type="button" @click="showMessages">
+              <em class="bi bi-envelope"/>
+              <span v-if="messages.length > 0" class="badge badge-pill badge-light ml-1">
+                <span v-if="messages.length < 10">{{ messages.length }}</span>
+                <span v-else>9+</span>
+              </span>
             </button>
           </div>
-          <div class="toast-body text-black-50">
-            {{notification.message}}
-            <br>
-            Card: {{notification.cardTitle}}
+        </div>
+        <br>
+
+        <!-- Notifications -->
+        <div v-if="notificationsShown">
+          <div v-if="notifications.length === 0">
+            <p class="text-light">You have no notifications</p>
+          </div>
+          <div v-else>
+            <notification v-for="notification in sortedNotifications"
+                          :key="notification.id"
+                          :data="notification"
+                          @remove-notification="removeNotification(notification.id)"/>
+
           </div>
         </div>
+
+        <div v-else>
+          <div v-if="messages.length === 0">
+            <p class="text-light">You have no messages</p>
+          </div>
+          <div v-else>
+            <message v-for="message in messages"
+                     :key="message.id"
+                     :message="message"/>
+          </div>
+        </div>
+
       </div>
+
     </div>
   </div>
 </template>
@@ -103,78 +136,47 @@
 import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/marketplace/MarketCard";
 import Alert from "@/components/Alert";
+import Notification from "@/components/Notification";
 import {User} from "@/Api";
+import userState from "@/store/modules/user"
 import $ from 'jquery';
-
+import Message from "@/components/marketplace/Message";
 
 export default {
   name: "Home",
   components: {
+    Message,
     Alert,
     LoginRequired,
-    MarketCard
-  },
-  props: {
-    msg: String
+    MarketCard,
+    Notification
   },
   async mounted() {
     await this.getCardData()
     await this.getNotificationData()
+    if (this.user.canDoAdminAction()) {
+      await this.getAdminNotifications();
+    }
+    await this.getMessages()
+    $('.toast').toast('show')
   },
   data() {
     return {
+      user: userState,
       cards: [],
       hideImages: true,
-      hideNotifications: true,
+      notificationsShown: true,
       //Test data
       notifications: [],
+      adminNotifications: [],
+      messages: [],
       error: ""
     }
   },
   computed: {
     /**
-     * Check if user is logged in
-     * @returns {boolean|*}
+     * Returns true if a user has expired cards
      */
-    isLoggedIn() {
-      return this.$root.$data.user.state.loggedIn
-    },
-
-    /** Returns the product catalogue url **/
-    productCatalogueRoute() {
-      return `businesses/${this.actor.id}/products`;
-    },
-
-    /** Returns the inventory url **/
-    inventoryRoute() {
-      return `businesses/${this.actor.id}/inventory`;
-    },
-
-    /** Returns the sale listing url **/
-    saleListingRoute() {
-      return `businesses/${this.actor.id}/listings`;
-    },
-
-    /**
-     * Current actor
-     * Returns {name, id, type}
-     **/
-    actor() {
-      return this.$root.$data.user.state.actingAs
-    },
-
-    /** Returns the current logged in users data **/
-    actorName() {
-      return this.actor.name
-    },
-
-    /**
-     * Returns true if the user is currently acting as a user
-     */
-    isActingAsUser() {
-      return this.actor.type === 'user'
-    },
-
     hasExpiredCards() {
       for (const card of this.cards) {
         if (this.expired(card)) {
@@ -210,38 +212,35 @@ export default {
         }
       }
       return cards
+    },
+
+    /**
+     * Returns notifications sorted by most recent.
+     */
+    sortedNotifications() {
+      let sortedNotifications = [...this.notifications]
+      sortedNotifications.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      return sortedNotifications
     }
 
   },
   methods: {
     /**
-     * Takes a datetime in ISO format and formats it like dd/mm/yyy, hh:mm:ss PM
+     * Displays the notifications section
      */
-    formatDateTime(dateTime) {
-      let date = new Date(dateTime)
-      let year = date.getFullYear()
-      let month = date.getMonth()+1
-      let day = date.getDate()
-
-      let hours = date.getHours()
-      let minutes = date.getMinutes()
-
-      if (day < 10)     day = '0' + day;
-      if (month < 10)   month = '0' + month;
-      if (hours < 10)   hours = '0' + hours;
-      if (minutes < 10) minutes = '0' + minutes;
-
-      return `${day}/${month}/${year} ${hours}:${minutes}`
+    async showNotifications() {
+      this.notificationsShown = true
+      await this.$nextTick()
+      $('.toast').toast('show')
     },
 
-    toggleNotifications() {
-      if(this.hideNotifications){
-        $('.toast').toast('show')
-        this.hideNotifications = false
-      } else {
-        $('.toast').toast('hide')
-        this.hideNotifications = true
-      }
+    /**
+     * Displays the messages section
+     */
+    async showMessages() {
+      this.notificationsShown = false
+      await this.$nextTick()
+      $('.toast').toast('show')
     },
 
     /**
@@ -249,7 +248,7 @@ export default {
      */
     async getCardData() {
       try {
-        const response = await User.getCards(this.actor.id)
+        const response = await User.getCards(this.user.actor().id)
         this.cards = response.data
       } catch (error) {
         console.error(error)
@@ -262,15 +261,43 @@ export default {
      */
     async getNotificationData() {
       try {
-        User.getNotifications(this.actor.id).then((res) => {
-          this.notifications = res.data
-        })
+        const response = await User.getNotifications(this.user.actor().id)
+        this.notifications = response.data
       } catch (error) {
         console.error(error)
         this.error = error
       }
     },
 
+    /**
+     * Gets all admin notifications
+     */
+    async getAdminNotifications() {
+      try {
+        const response = await User.getAdminNotifications()
+        this.notifications.push(...response.data)
+      } catch (error) {
+        console.error(error)
+        this.error = error
+      }
+    },
+
+    /**
+     * Gets the currently logged in user's messages
+     */
+    async getMessages() {
+      try {
+        const response = await User.getMessages(this.user.actor().id)
+        this.messages = response.data
+      } catch (error) {
+        console.error(error)
+        this.error = error
+      }
+    },
+
+    /**
+     * Returns true if a card has expired
+     */
     expired(card) {
       const now = new Date();
       if (now >= new Date(card.displayPeriodEnd)) {
@@ -295,8 +322,6 @@ export default {
      */
     extendCard(id, newDate) {
       for (const [index, card] of this.cards.entries()) {
-        console.log(card.id)
-        console.log(id)
         if (card.id === id) {
           this.cards[index].displayPeriodEnd = newDate
         }
@@ -306,15 +331,13 @@ export default {
      * Remove a notification from the list of visible notifications
      * @param notificationId the id of the notification that is to be removed
      */
-    removeNotification(notificationId){
-      console.log(notificationId)
-      User.deleteNotification(this.actor.id, notificationId).then(() => {
-        //Refresh notifications to reflect the deletion of a notification.
-        this.getNotificationData()
-      }).catch((err) => {
-        this.error = err.response.data
-
-      })
+    removeNotification(notificationId) {
+      // Remove the notification from the list that is shown
+      for (const [index, notification] of this.notifications.entries()) {
+        if (notification.id === notificationId) {
+          this.notifications.splice(index, 1)
+        }
+      }
     }
   }
 }
@@ -323,7 +346,4 @@ export default {
 
 <style scoped>
 
-.toast {
-  max-width: 100%;
-}
 </style>

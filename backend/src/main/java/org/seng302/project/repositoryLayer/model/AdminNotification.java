@@ -4,7 +4,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 /**
  * AdminNotification class for storing notifications for system administrators.
@@ -17,11 +19,21 @@ import javax.persistence.*;
 public class AdminNotification extends Notification {
 
     /**
-     * Constructor for creating a new AdminNotification object.
+     * Constructor for creating a new AdminNotification object
      *
-     * @param message                     Message details of notification.
+     * @param message Message details of notification
      */
     public AdminNotification(String message) {
-        super(message);
+        super("admin", message);
+    }
+
+    /**
+     * Constructor allowing subclasses to set the type field
+     *
+     * @param type type of the notification
+     * @param message message details of notification
+     */
+    public AdminNotification(String type, String message) {
+        super(type, message);
     }
 }

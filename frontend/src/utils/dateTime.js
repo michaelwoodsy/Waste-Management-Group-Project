@@ -5,6 +5,7 @@
 /**
  * Takes a ISO8601 date string, and returns a formatted representation
  * of when the date was. Eg, a date 2 days ago will return "2d".
+ *
  * @param dateString ISO8601 date string.
  * @return formatted date string.
  */
@@ -14,7 +15,7 @@ export function getTimeDiffStr(dateString) {
     const now = new Date(Date.now());
 
     // Calculate the difference in the corresponding units
-    const minutesSince = (now - date)/60000;
+    const minutesSince = (now - date) / 60000;
     const hoursSince = minutesSince / 60;
     const daysSince = hoursSince / 24;
     const weeksSince = daysSince / 7;
@@ -31,4 +32,27 @@ export function getTimeDiffStr(dateString) {
     }
 
     return `${Math.floor(weeksSince)}w`
+}
+
+/**
+ * Takes a datetime in ISO format and formats it like dd/mm/yyy, hh:mm:ss PM
+ *
+ * @param dateTime the ISO datetime string
+ * @returns {string} formatted datetime
+ */
+export function formatDateTime(dateTime) {
+    let date = new Date(dateTime)
+    let year = date.getFullYear()
+    let month = date.getMonth() + 1
+    let day = date.getDate()
+
+    let hours = date.getHours()
+    let minutes = date.getMinutes()
+
+    if (day < 10) day = '0' + day;
+    if (month < 10) month = '0' + month;
+    if (hours < 10) hours = '0' + hours;
+    if (minutes < 10) minutes = '0' + minutes;
+
+    return `${day}/${month}/${year} ${hours}:${minutes}`
 }

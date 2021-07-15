@@ -10,10 +10,7 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.Message;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.repositoryLayer.repository.AddressRepository;
-import org.seng302.project.repositoryLayer.repository.CardRepository;
-import org.seng302.project.repositoryLayer.repository.MessageRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -24,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -44,16 +42,19 @@ public class ContactingMarketplaceUsersSteps extends AbstractInitializer {
     private final UserRepository userRepository;
     private final CardRepository cardRepository;
     private final MessageRepository messageRepository;
+    private final UserNotificationRepository userNotificationRepository;
 
     @Autowired
     public ContactingMarketplaceUsersSteps(AddressRepository addressRepository,
                                             UserRepository userRepository,
                                            CardRepository cardRepository,
-                                           MessageRepository messageRepository) {
+                                           MessageRepository messageRepository,
+                                           UserNotificationRepository userNotificationRepository) {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.cardRepository = cardRepository;
         this.messageRepository = messageRepository;
+        this.userNotificationRepository = userNotificationRepository;
     }
 
 
@@ -65,16 +66,23 @@ public class ContactingMarketplaceUsersSteps extends AbstractInitializer {
     void setup(WebApplicationContext context) {
         this.initialise();
 
+        messageRepository.deleteAll();
+        cardRepository.deleteAll();
+        userNotificationRepository.deleteAll();
+        userRepository.deleteAll();
+
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
 
         testSender = this.getTestUser();
+        testSender.setId(null);
         addressRepository.save(testSender.getHomeAddress());
         testSender = userRepository.save(testSender);
 
         testReceiver = this.getTestUserBusinessAdmin();
+        testReceiver.setId(null);
 
         testCard = new Card(testReceiver, "Exchange", "Apples for your bananas",
                 "Will exchange my apples for bananas", Collections.emptySet());
@@ -201,15 +209,23 @@ public class ContactingMarketplaceUsersSteps extends AbstractInitializer {
 
     //AC6
 
-//    @When("The card creator deletes the message")
-//    public void the_card_creator_deletes_the_message() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The message is successfully removed")
-//    public void the_message_is_successfully_removed() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
+    @When("The card creator deletes the message")
+    public void the_card_creator_deletes_the_message() throws Exception {
+        List<Message> messages = messageRepository.findAllByReceiver(testReceiver);
+        Assertions.assertEquals(1, messages.size());
+        Message message = messages.get(0);
+
+        RequestBuilder deleteMessageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/messages/{messageId}",
+                        testReceiver.getId(), message.getId())
+                .with(user(new AppUserDetails(testReceiver)));
+
+        mockMvc.perform(deleteMessageRequest).andExpect(status().isOk());
+
+    }
+
+    @Then("The message is successfully removed")
+    public void the_message_is_successfully_removed() {
+        Assertions.assertEquals(0, messageRepository.findAllByReceiver(testReceiver).size());
+    }
 }
