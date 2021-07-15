@@ -80,6 +80,55 @@ public class MessageService {
     }
 
     /**
+     * Called by the deleteMessage() method in MessageController.
+     * Handles the business logic for deleting a user's message,
+     * throws exceptions up to the controller to handle
+     *
+     * @param userId    ID of the receiver of the message
+     * @param messageId ID of the message to delete
+     * @param appUser   the currently logged in user
+     */
+    public void deleteMessage(Integer userId, Integer messageId, AppUserDetails appUser) {
+        try {
+            logger.info("Request to delete message with id {}", messageId);
+
+            if (userRepository.findById(userId).isEmpty()) {
+                var message = String.format("There is no user that exists with the id %d", userId);
+                throw new NotAcceptableException(message);
+            }
+
+            var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
+
+            // Check if the logged in user is the same user whose messages we are retrieving
+
+            if (!loggedInUser.getId().equals(userId)) {
+                throw new ForbiddenUserException(userId);
+            }
+
+            // Get message from the repository
+            Optional<Message> foundMessage = messageRepository.findById(messageId);
+
+            // Check if the message exists
+            if (foundMessage.isEmpty()) {
+                var exception = new NotAcceptableException(String.format("No message exists with ID %s", messageId));
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+
+            var message = foundMessage.get();
+
+            // Delete the message
+            messageRepository.delete(message);
+        } catch (ForbiddenUserException | NotAcceptableException handledException) {
+            logger.error(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while deleting a user's messages: %s", unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
+
+    /**
      * Method that gets all the messages for a given user. Only the given logged in
      * user can view their own messages.
      *
@@ -116,7 +165,7 @@ public class MessageService {
             logger.error(handledException.getMessage());
             throw handledException;
         } catch (Exception unhandledException) {
-            logger.error(String.format("Unexpected error while retrieving user's notifications: %s", unhandledException.getMessage()));
+            logger.error(String.format("Unexpected error while retrieving user's messages: %s", unhandledException.getMessage()));
             throw unhandledException;
         }
     }
