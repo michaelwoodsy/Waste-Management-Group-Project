@@ -100,6 +100,7 @@ public class MessageService {
             var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
 
             // Check if the logged in user is the same user whose messages we are retrieving
+
             if (!loggedInUser.getId().equals(userId)) {
                 throw new ForbiddenUserException(userId);
             }
