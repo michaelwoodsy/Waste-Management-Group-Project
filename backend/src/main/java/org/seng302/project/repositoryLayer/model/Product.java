@@ -29,6 +29,7 @@ public class Product {
 
     @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
     private List<Image> images = new ArrayList<>();
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Id
     private Integer businessId; // The id of the business that offers this product
