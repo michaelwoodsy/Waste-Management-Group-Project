@@ -6,9 +6,11 @@ import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.user.DeleteUserImageDTO;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.serviceLayer.exceptions.user.UserImageInvalidException;
+import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.slf4j.Logger;
@@ -50,7 +52,7 @@ public class UserImageService {
      * @return ResponseDTO, confirming a successful request, which is sent to the controller
      */
     public AddUserImageResponseDTO addUserImage(AddUserImageDTO dto) {
-        logger.info("Request to add an image image for user {}", dto.getUserId());
+        logger.info("Request to add an image for user {}", dto.getUserId());
 
         String fileType = dto.getImageFile().getContentType();
         if (fileType == null || !fileType.contains("image")) {
@@ -94,6 +96,77 @@ public class UserImageService {
             var exception = new UserImageInvalidException();
             logger.error(exception.getMessage());
             throw exception;
+        }
+    }
+
+    /**
+     * Called by the deleteImage() method in UserImageController.
+     * Handles the business logic for deleting a user image,
+     * throws exceptions up to the controller to handle
+     */
+    public void deleteImage(DeleteUserImageDTO dto) {
+        logger.info("Request to delete an image for user {}", dto.getUserId());
+
+        // Get the logged in user from the users email
+        String userEmail = dto.getAppUser().getUsername();
+        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+        // Get the user who we want to add an image for
+        Optional<User> userResult = userRepository.findById(dto.getUserId());
+
+        // Check if the user exists
+        if (userResult.isEmpty()) {
+            throw new NotAcceptableException(String.format("No User exists with ID %d", dto.getUserId()));
+        }
+        // We know user exists so retrieve user properly
+        var user = userResult.get();
+
+        // Check if the logged in user is the same user who we are adding an image for (or GAA)
+        if (!loggedInUser.getId().equals(user.getId()) && !loggedInUser.isGAA()) {
+            throw new ForbiddenUserException(dto.getUserId());
+        }
+
+        //Check if image exists for user
+        var userImages = user.getImages();
+        Image imageToDelete = null;
+        Image newPrimaryImage = null;
+        var imageInUserImages = false;
+        for (Image image : userImages) {
+            if (image.getId().equals(dto.getImageId())) {
+                imageInUserImages = true;
+                imageToDelete = image;
+            } else {
+                //Assign a candidate for new primary image
+                if (newPrimaryImage == null) {
+                    newPrimaryImage = image;
+                }
+            }
+        }
+
+        if (imageInUserImages) {
+
+            String imageFilePath = springEnvironment.getMediaFolderPath() + imageToDelete.getFilename();
+            String thumbnailFilePath = springEnvironment.getMediaFolderPath() + imageToDelete.getThumbnailFilename();
+
+            user.removeImage(imageToDelete);
+
+            //Reassign primary image if necessary
+            if (newPrimaryImage != null && dto.getImageId().equals(user.getPrimaryImageId())) {
+                user.setPrimaryImageId(newPrimaryImage.getId());
+            }
+            userRepository.save(user);
+            imageRepository.delete(imageToDelete);
+
+            try {
+                imageUtil.deleteImage(imageFilePath);
+                imageUtil.deleteImage(thumbnailFilePath);
+            } catch (IOException ex) {
+                var exception = new UserImageInvalidException();
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+        } else {
+            throw new UserImageNotFoundException(dto.getUserId(), dto.getImageId());
         }
     }
 }
