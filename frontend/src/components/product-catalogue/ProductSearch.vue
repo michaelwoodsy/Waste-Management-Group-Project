@@ -67,8 +67,7 @@ export default {
           name: "Manufacturer",
           checked: false
         }
-      ],
-      products: []
+      ]
     }
   },
   computed: {
@@ -99,8 +98,7 @@ export default {
           this.fieldOptions[3].checked,
           )
           .then((response) => {
-            console.log(response);
-            this.products = response.data
+            this.$parent.$parent.applySearch(response.data)
       })
           .catch((err) => {
             console.log(`There was an error searching products: ${err}`)

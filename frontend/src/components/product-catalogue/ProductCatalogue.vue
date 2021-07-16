@@ -35,7 +35,7 @@
             </div>
           </div>
 
-          <product-search ref="productSearch"/>
+          <product-search />
 
           <!--    Error Alert    -->
           <div v-if="error" class="row">
@@ -117,10 +117,6 @@ export default {
       return this.$refs.catalogueItems.products
     },
 
-    searchedProducts() {
-      return this.$refs.productSearch.products
-    },
-
     actor() {
       return this.$root.$data.user.state.actingAs;
     },
@@ -133,14 +129,6 @@ export default {
       else if (this.actor.type !== "business") return false
       return this.actor.id === parseInt(this.$route.params.businessId);
     },
-  },
-  watch: {
-    /**
-     * Updates the table when the user searches for products
-     */
-    searchedProducts() {
-      this.$refs.catalogueItems.products = this.searchedProducts
-    }
   },
   methods: {
     /**
@@ -157,6 +145,14 @@ export default {
     refreshProducts() {
       this.createNewProduct = false;
       this.$refs.catalogueItems.fillTable();
+    },
+
+    /**
+     * Fills the catalogue with search results.
+     * Called by the child component ProductSearch
+     */
+    applySearch(searchResults) {
+      this.$refs.catalogueItems.products = searchResults
     }
   }
 }
