@@ -271,10 +271,22 @@ export const Business = {
      * Sends a request to search a business's product catalogue
      * @param businessId the id of the business to search the catalogue of
      * @param searchQuery the string to search by
-     * @param data the request body with details of which fields to search
+     * @param matchingId Whether the Id field is being searched by
+     * @param matchingName Whether the Name field is being searched by
+     * @param matchingDescription Whether the Description field is being searched by
+     * @param matchingManufacturer Whether the Manufacturer field is being searched by
      */
-    searchProducts: (businessId, searchQuery, data) => instance.get(`businesses/${businessId}/products/search`,
-        {params: {'searchQuery': searchQuery}, data: data})
+    searchProducts: (businessId, searchQuery, matchingId, matchingName, matchingDescription,
+                     matchingManufacturer) => instance.get(
+        `businesses/${businessId}/products/search`,
+        {params:
+                {
+                    'searchQuery': searchQuery,
+                    'matchingId': matchingId,
+                    'matchingName': matchingName,
+                    'matchingDescription': matchingDescription,
+                    'matchingManufacturer': matchingManufacturer
+                }})
 };
 
 export const Card = {

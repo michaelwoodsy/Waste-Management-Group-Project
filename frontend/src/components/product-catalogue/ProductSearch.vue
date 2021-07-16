@@ -93,13 +93,13 @@ export default {
     search() {
       console.log(this.fieldOptions)
       Business.searchProducts(this.businessId, this.searchTerm,
-          {
-            matchingId: this.fieldOptions[0].checked.valueOf(),
-            matchingName: this.fieldOptions[1].checked.valueOf(),
-            matchingDescription: this.fieldOptions[2].checked.valueOf(),
-            matchingManufacturer: this.fieldOptions[3].checked.valueOf()
-          })
+          this.fieldOptions[0].checked,
+          this.fieldOptions[1].checked,
+          this.fieldOptions[2].checked,
+          this.fieldOptions[3].checked,
+          )
           .then((response) => {
+            //TODO: update table with results
             console.log(response);
       })
           .catch((err) => {
