@@ -15,6 +15,7 @@ import SaleListings from "../components/sale-listing/SaleListings";
 import EditInventoryItemPage from "../components/inventory/EditInventoryItemPage";
 import Marketplace from "../components/marketplace/Marketplace";
 import Search from "@/components/Search";
+import EditBusiness from "@/components/business/EditBusiness";
 
 const routes = [
     {
@@ -56,6 +57,11 @@ const routes = [
         path: '/businesses',
         name: 'registerBusiness',
         component: RegisterBusinessPage
+    },
+    {
+        path: '/businesses/:businessId/edit',
+        name: 'editBusiness',
+        component: EditBusiness
     },
     {
         path: '/businesses/:businessId/products',
