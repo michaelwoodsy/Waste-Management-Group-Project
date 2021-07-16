@@ -1,5 +1,6 @@
 package org.seng302.project.webLayer.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -8,12 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.exceptions.*;
-import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
-import org.seng302.project.serviceLayer.exceptions.register.InvalidEmailException;
-import org.seng302.project.serviceLayer.exceptions.register.InvalidPhoneNumberException;
-import org.seng302.project.serviceLayer.exceptions.register.UserUnderageException;
+import org.seng302.project.serviceLayer.dto.user.PostUserDTO;
+import org.seng302.project.serviceLayer.dto.user.PutUserDTO;
+import org.seng302.project.serviceLayer.dto.user.LoginCredentialsDTO;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.service.UserService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,25 +22,20 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -50,22 +46,62 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class UserControllerTest extends AbstractInitializer {
 
-    @Autowired
+    private User testUser;
+    private User otherUser;
+
+    private PutUserDTO testPutUserDTO;
+
+    private LoginCredentialsDTO invalidLoginCredentials;
+
+    @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private MockMvc mvc;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
 
     @MockBean
     private UserService userService;
 
     @BeforeEach
     void setup() {
+        invalidLoginCredentials = new LoginCredentialsDTO("notRegistered@gmail.com", "1357-H%nt3r4");
+        given(userRepository.findByEmail(invalidLoginCredentials.getEmail())).willReturn(Collections.emptyList());
+
         initialise();
+
+        testUser = this.getTestUser();
+        otherUser = this.getTestOtherUser();
+
+        testPutUserDTO = new PutUserDTO(
+                null, //ID is set in the controller
+                otherUser.getFirstName(),
+                otherUser.getLastName(),
+                otherUser.getMiddleName(),
+                otherUser.getNickname(),
+                otherUser.getBio(),
+                "new.email@newemail.com",
+                otherUser.getDateOfBirth(),
+                otherUser.getPhoneNumber(),
+                otherUser.getHomeAddress(),
+                "NewSecurePassword123");
+
+        mocks();
     }
+
+    /**
+     * Sets up mocks used for some tests
+     */
+    void mocks() {
+        when(userRepository.findByEmail(testUser.getEmail())).thenReturn(List.of(testUser));
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+    }
+
 
     private JSONObject createTestUserBase() throws JSONException {
         JSONObject testUserAddress = new JSONObject();
@@ -87,7 +123,7 @@ class UserControllerTest extends AbstractInitializer {
      * (Except the businessesAdministered attribute)
      */
     @Test
-    public void createAndRetrieveTestUser() throws Exception {
+    void createAndRetrieveTestUser() throws Exception {
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "John");
         testUserJson.put("lastName", "Smith");
@@ -95,62 +131,15 @@ class UserControllerTest extends AbstractInitializer {
         testUserJson.put("dateOfBirth", "1999-04-27");
         testUserJson.put("phoneNumber", "+64 3 555 0129");
 
-        mvc.perform(MockMvcRequestBuilders
+        when(userService.createUser(any(PostUserDTO.class))).thenReturn(
+                new LoginCredentialsDTO("johnsmith99@gmail.com", testUserJson.getString("password")));
+
+        this.mvc.perform(MockMvcRequestBuilders
                 .post("/users")
                 .content(testUserJson.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-
-        User retrievedUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
-
-        Assertions.assertNotNull(retrievedUser.getId());
-        Assertions.assertEquals("John", retrievedUser.getFirstName());
-        Assertions.assertEquals("Smith", retrievedUser.getLastName());
-        Assertions.assertEquals("James", retrievedUser.getMiddleName());
-        Assertions.assertEquals("Jonny", retrievedUser.getNickname());
-        Assertions.assertEquals("Likes long walks on the beach", retrievedUser.getBio());
-        Assertions.assertEquals("johnsmith99@gmail.com", retrievedUser.getEmail());
-        Assertions.assertEquals("1999-04-27", retrievedUser.getDateOfBirth());
-        Assertions.assertEquals("+64 3 555 0129", retrievedUser.getPhoneNumber());
-        Assertions.assertEquals("New Zealand", retrievedUser.getHomeAddress().getCountry());
-        Assertions.assertTrue(passwordEncoder.matches("1337-H%nt3r2", retrievedUser.getPassword()));
-        Assertions.assertEquals("user", retrievedUser.getRole());
-        Assertions.assertTrue(retrievedUser.getCreated().isBefore(LocalDateTime.now()));
-        Assertions.assertTrue(retrievedUser.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));
-        Assertions.assertTrue(retrievedUser.getBusinessesAdministered().isEmpty());
-    }
-
-
-    /**
-     * Tries creating the same user twice. Checks that we receive a 409 response.
-     */
-    @Test
-    public void tryCreatingExistingUser() throws Exception {
-
-        JSONObject newTestUserJson = createTestUserBase();
-        newTestUserJson.put("firstName", "John");
-        newTestUserJson.put("lastName", "Smith");
-        newTestUserJson.put("middleName", "James");
-        newTestUserJson.put("nickname", "Jonny");
-        newTestUserJson.put("bio", "Likes long walks on the beach");
-        newTestUserJson.put("email", "johnsmith99@gmail.com");
-        newTestUserJson.put("dateOfBirth", "1999-04-27");
-        newTestUserJson.put("phoneNumber", "+64 3 555 0129");
-        newTestUserJson.put("password", "1337-H%nt3r2");
-
-        RequestBuilder postUserRequest = MockMvcRequestBuilders
-                .post("/users")
-                .content(newTestUserJson.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
-
-        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isConflict()) // We expect a 409 response
-                .andReturn();
-
-        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new ExistingRegisteredEmailException().getMessage(), returnedExceptionString);
     }
 
     /**
@@ -158,7 +147,7 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we receive a 400 response.
      */
     @Test
-    public void tryInvalidEmailAddress() throws Exception {
+    void tryInvalidEmailAddress() throws Exception {
 
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "John");
@@ -173,12 +162,14 @@ class UserControllerTest extends AbstractInitializer {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
+        this.mvc.perform(postUserRequest).andReturn();
+
         MvcResult postUserResponse = this.mvc.perform(postUserRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new InvalidEmailException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("EmailInvalid: This Email is not valid.", returnedExceptionString);
 
     }
 
@@ -187,7 +178,7 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we receive a 400 response.
      */
     @Test
-    public void tryInvalidDate() throws Exception {
+    void tryInvalidDate() throws Exception {
 
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "John");
@@ -207,7 +198,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new InvalidDateException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("DateOfBirthInvalid: This Date of Birth is not valid.", returnedExceptionString);
     }
 
     /**
@@ -215,7 +206,7 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we receive a 400 response.
      */
     @Test
-    public void tryInvalidPhoneNumber() throws Exception {
+    void tryInvalidPhoneNumber() throws Exception {
 
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "John");
@@ -235,7 +226,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new InvalidPhoneNumberException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("InvalidPhoneNumber: This Phone Number is not valid.", returnedExceptionString);
     }
 
     /**
@@ -243,7 +234,7 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we receive a 400 response.
      */
     @Test
-    public void tryCreateUnderageUser() throws Exception {
+    void tryCreateUnderageUser() throws Exception {
 
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "John");
@@ -263,7 +254,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new UserUnderageException("an account", 13).getMessage(), returnedExceptionString);
+        Assertions.assertEquals("DateOfBirthInvalid: This Date of Birth is not valid.", returnedExceptionString);
     }
 
     /**
@@ -271,11 +262,11 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we receive a 400 response.
      */
     @Test
-    public void tryMissingRequiredFields() throws Exception {
+    void tryMissingRequiredFields() throws Exception {
 
         JSONObject testUserJson = createTestUserBase();
         testUserJson.put("firstName", "");
-        testUserJson.put("lastName", "");
+        testUserJson.put("lastName", "Smith");
         testUserJson.put("email", "john@gmail.com");
         testUserJson.put("dateOfBirth", "1999-04-27");
         testUserJson.put("phoneNumber", "+64 3 555 0129");
@@ -291,7 +282,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new RequiredFieldsMissingException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("MissingData: First Name is a mandatory field", returnedExceptionString);
     }
 
     /**
@@ -299,7 +290,8 @@ class UserControllerTest extends AbstractInitializer {
      * Checks that we retrieve the correct user
      */
     @Test
-    public void getUser() throws Exception {
+    void getUser() throws Exception {
+        when(userRepository.findByEmail("johnsmith99@gmail.com")).thenReturn(List.of(this.getTestUser()));
 
         User testUser = userRepository.findByEmail("johnsmith99@gmail.com").get(0);
 
@@ -307,33 +299,9 @@ class UserControllerTest extends AbstractInitializer {
                 .get(String.format("/users/%d", testUser.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic("johnsmith99@gmail.com", "1337-H%nt3r2"));
+                .with(user(new AppUserDetails(testUser)));
 
-        MvcResult getUserResponse = this.mvc.perform(getUserRequest)
-                .andExpect(MockMvcResultMatchers.status().isOk()) // We expect a 200 response
-                .andReturn();
-
-        String returnedUserString = getUserResponse.getResponse().getContentAsString();
-        JSONObject returnedUser = new JSONObject(returnedUserString);
-
-        Assertions.assertNotNull(returnedUser.getString("id"));
-        Assertions.assertEquals("John", returnedUser.getString("firstName"));
-        Assertions.assertEquals("Smith", returnedUser.getString("lastName"));
-        Assertions.assertEquals("James", returnedUser.getString("middleName"));
-        Assertions.assertEquals("Jonny", returnedUser.getString("nickname"));
-        Assertions.assertEquals("Likes long walks on the beach", returnedUser.getString("bio"));
-        Assertions.assertEquals("johnsmith99@gmail.com", returnedUser.getString("email"));
-        Assertions.assertEquals("1999-04-27", returnedUser.getString("dateOfBirth"));
-        Assertions.assertEquals("+64 3 555 0129", returnedUser.getString("phoneNumber"));
-        Assertions.assertEquals("New Zealand", returnedUser.getJSONObject("homeAddress").getString("country"));
-        Assertions.assertEquals("user", returnedUser.getString("role"));
-
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        LocalDateTime createdTimestamp = LocalDateTime.parse(returnedUser.getString("created"), formatter);
-        Assertions.assertTrue(createdTimestamp.isBefore(LocalDateTime.now()));
-        Assertions.assertTrue(createdTimestamp.isAfter(LocalDateTime.now().minusSeconds(5)));
-        //TODO: Come back to this when we implement businesses
-        //Assertions.assertTrue(returnedUser.getBusinessesAdministered().isEmpty());
+        mvc.perform(getUserRequest).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     /**
@@ -383,5 +351,149 @@ class UserControllerTest extends AbstractInitializer {
                 .param("searchQuery", "testquery string")
                 .with(user(new AppUserDetails(getTestUser()))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests editing user success
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_success200() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testPutUserDTO))
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests editing user returning a forbidden response
+     */
+    @Test
+    void editUser_forbidden403() throws Exception {
+        doThrow(ForbiddenException.class).when(userService).checkForbidden(any(Integer.class), any(AppUserDetails.class));
+
+        mvc.perform(MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testPutUserDTO))
+                .with(user(new AppUserDetails(otherUser))))
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    /**
+     * Tests editing user throws 400 bad request with invalid email
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_InvalidEmail400() throws Exception {
+        testPutUserDTO.setEmail("invalid@email");
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testPutUserDTO))
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        //Exception string from the validation class
+        Assertions.assertEquals("EmailInvalid: This Email is not valid.", returnedExceptionString);
+    }
+
+    /**
+     * Tests editing user throws 400 bad request with invalid password
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_InvalidPassword400() throws Exception {
+        testPutUserDTO.setPassword("weakPassword");
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testPutUserDTO))
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        //Exception string from the validation class
+        Assertions.assertEquals("PasswordInvalid: This Password is not valid.", returnedExceptionString);
+    }
+
+    /**
+     * Tests editing user throws 400 bad request with missing firstName
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_MissingFirstName400() throws Exception {
+        testPutUserDTO.setFirstName(null);
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testPutUserDTO))
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        //Exception string from the validation class
+        Assertions.assertEquals("MissingData: First Name is a mandatory field", returnedExceptionString);
+    }
+
+    /**
+     * Tests editing user throws 400 bad request with missing lastName
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_MissingLastName400() throws Exception {
+        testPutUserDTO.setLastName(null);
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testPutUserDTO))
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        //Exception string from the validation class
+        Assertions.assertEquals("MissingData: Last Name is a mandatory field", returnedExceptionString);
+    }
+
+    /**
+     * Tests editing user throws 400 bad request with invalid phone number
+     * Tests the validation on the DTO, not the user Service editUser method
+     */
+    @Test
+    void editUser_InvalidPhoneNumber400() throws Exception {
+        testPutUserDTO.setPhoneNumber("1234");
+
+        RequestBuilder postUserRequest = MockMvcRequestBuilders
+                .put("/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testPutUserDTO))
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postUserResponse = this.mvc.perform(postUserRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
+        //Exception string from the validation class
+        Assertions.assertEquals("InvalidPhoneNumber: This Phone Number is not valid.", returnedExceptionString);
     }
 }

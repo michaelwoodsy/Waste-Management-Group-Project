@@ -1,13 +1,7 @@
 package org.seng302.project.serviceLayer.service;
 
-import org.seng302.project.repositoryLayer.model.Card;
-import org.seng302.project.repositoryLayer.model.CardExpiryNotification;
-import org.seng302.project.repositoryLayer.model.Keyword;
-import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.repositoryLayer.repository.CardRepository;
-import org.seng302.project.repositoryLayer.repository.KeywordRepository;
-import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.repositoryLayer.specification.CardSpecifications;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
@@ -38,16 +32,19 @@ public class CardService {
 
     private static final Logger logger = LoggerFactory.getLogger(CardService.class.getName());
     private final CardRepository cardRepository;
+    private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final KeywordRepository keywordRepository;
     private final UserNotificationRepository userNotificationRepository;
 
     @Autowired
     public CardService(CardRepository cardRepository,
+                       MessageRepository messageRepository,
                        UserRepository userRepository,
                        KeywordRepository keywordRepository,
                        UserNotificationRepository userNotificationRepository) {
         this.cardRepository = cardRepository;
+        this.messageRepository = messageRepository;
         this.userRepository = userRepository;
         this.keywordRepository = keywordRepository;
         this.userNotificationRepository = userNotificationRepository;
@@ -55,24 +52,16 @@ public class CardService {
 
     /**
      * Service method for creating a new card
+     * Check for forbidden action is done in the controller layer
      *
      * @param dto DTO containing card creation parameters
      * @return a response DTO containing the new card's ID
      */
-    public CreateCardResponseDTO createCard(CreateCardDTO dto, AppUserDetails appUser) {
+    public CreateCardResponseDTO createCard(CreateCardDTO dto) {
         try {
             logger.info("Request to create card");
 
-            var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
             Optional<User> creator = userRepository.findById(dto.getCreatorId());
-
-            // check if loggedInUser has the same ID as the creator id provided, otherwise check loggedInUser is GAA
-            if (!loggedInUser.getId().equals(dto.getCreatorId()) && (
-                    !loggedInUser.getRole().equals("globalApplicationAdmin")
-                            || !loggedInUser.getRole().equals("defaultGlobalApplicationAdmin")
-            )) {
-                throw new ForbiddenCardActionException();
-            }
 
             //check that listed card creator exists.
             if (creator.isEmpty()) {
@@ -207,6 +196,13 @@ public class CardService {
             if (!retrievedCard.userCanEdit(requestMaker)) {
                 throw new ForbiddenCardActionException();
             }
+
+            //Delete messages about the card
+            var cardMessages = messageRepository.findAllByCard(retrievedCard);
+            for (Message message: cardMessages) {
+                messageRepository.delete(message);
+            }
+            logger.info("Deleted {} messages about the card wanting to be deleted", cardMessages.size());
 
             //200 if card successfully deleted
             cardRepository.deleteById(cardId);

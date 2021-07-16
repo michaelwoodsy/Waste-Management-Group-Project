@@ -1,0 +1,218 @@
+{
+	"info": {
+		"_postman_id": "5eaedf9f-735e-4308-8593-802d47ca5c7d",
+		"name": "U11 Modifying Businesses",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Edit Business",
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "true",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "JSESSIONID",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"primaryAdministratorId\": 20,\r\n  \"name\": \"Lumbridge General Store\",\r\n  \"description\": \"A one-stop shop for all your adventuring needs\",\r\n  \"address\": {\r\n    \"streetNumber\": \"3/24\",\r\n    \"streetName\": \"Ilam Road\",\r\n    \"suburb\": \"Upper Riccarton\",\r\n    \"city\": \"Christchurch\",\r\n    \"region\": \"Canterbury\",\r\n    \"country\": \"New Zealand\",\r\n    \"postcode\": \"90210\"\r\n  },\r\n  \"businessType\": \"Accommodation and Food Services\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9599/businesses/:businessId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"businesses",
+						":businessId"
+					],
+					"variable": [
+						{
+							"key": "businessId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Adding an image for a Business",
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "true",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "JSESSIONID",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "multipart/form-data",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "filename",
+							"value": "[\"sit et sint\",\"Duis reprehenderit adipisicing\"]",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:9599/businesses/:businessId/images",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"businesses",
+						":businessId",
+						"images"
+					],
+					"variable": [
+						{
+							"key": "businessId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set primary image for a Business",
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "true",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "JSESSIONID",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/businesses/:businessId/images/:imageId/makeprimary",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"businesses",
+						":businessId",
+						"images",
+						":imageId",
+						"makeprimary"
+					],
+					"variable": [
+						{
+							"key": "businessId",
+							"value": "1"
+						},
+						{
+							"key": "imageId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete image for a Business",
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "true",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "JSESSIONID",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/businesses/:businessId/images/:imageId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"businesses",
+						":businessId",
+						"images",
+						":imageId"
+					],
+					"variable": [
+						{
+							"key": "businessId",
+							"value": "1"
+						},
+						{
+							"key": "imageId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

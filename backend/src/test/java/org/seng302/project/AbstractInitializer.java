@@ -2,7 +2,7 @@ package org.seng302.project;
 
 import lombok.Data;
 import org.seng302.project.repositoryLayer.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.seng302.project.webLayer.authentication.WebSecurityConfig;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -10,7 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,26 +18,36 @@ import java.util.Set;
 @Data
 public abstract class AbstractInitializer {
 
-    @Autowired
-    protected BCryptPasswordEncoder passwordEncoder;
+    protected final BCryptPasswordEncoder passwordEncoder;
 
     private User testUser;
     private User testOtherUser;
     private User testSystemAdmin;
+    private User testSystemDGAA;
     private User testUserBusinessAdmin;
     private Business testBusiness;
     private Product testProduct;
     private List<Card> testCards;
     private List<Keyword> testKeywords;
     private List<Image> testImages;
+    private List<Message> testMessages;
     private MockMultipartFile testFile;
     private MockMultipartFile testImageFile;
     private Card testCard;
     private UserNotification testUserNotification;
 
+    public AbstractInitializer() {
+        WebSecurityConfig webSecurityConfig = new WebSecurityConfig();
+        passwordEncoder = webSecurityConfig.passwordEncoder();
+        this.initialise();
+    }
+
     public void initialise() {
         this.initialiseTestUsers();
         this.initialiseTestSystemAdmin();
+        this.initialiseTestSystemDGAA();
+        this.initialiseTestCard();
+        this.initialiseTestUserNotification();
         this.initialiseTestUserBusinessAdmin();
         this.initialiseTestBusiness();
         this.initialiseTestProduct();
@@ -47,6 +56,7 @@ public abstract class AbstractInitializer {
         this.initialiseTestFiles();
         this.initialiseTestCard();
         this.initialiseTestUserNotification();
+        this.initialiseTestMessages();
     }
 
     public void initialiseTestUsers() {
@@ -59,7 +69,7 @@ public abstract class AbstractInitializer {
                 null,
                 null,
                 "john.smith@gmail.com",
-                "1995/07/25",
+                "1995-07-25",
                 null,
                 address,
                 "password");
@@ -75,7 +85,7 @@ public abstract class AbstractInitializer {
                 null,
                 null,
                 "jenny.dove@icloud.com",
-                "1996/06/30",
+                "1996-06-30",
                 null,
                 anotherAddress,
                 "password");
@@ -99,6 +109,33 @@ public abstract class AbstractInitializer {
         testSystemAdmin.setId(3);
         testSystemAdmin.setRole("globalApplicationAdmin");
         testSystemAdmin.setPassword(passwordEncoder.encode(testSystemAdmin.getPassword()));
+    }
+
+    public void initialiseTestSystemDGAA() {
+        Address address = new Address(null, null, null, null, "New Zealand", null);
+        testSystemDGAA = new User(
+                "System",
+                "Admin",
+                "",
+                "",
+                "I am a system admin",
+                "admin@resale.com",
+                "1999-07-28",
+                "+64 123 4567",
+                address,
+                "Th1s1sMyApplication");
+        testSystemDGAA.setId(4);
+        testSystemDGAA.setRole("defaultGlobalApplicationAdmin");
+        testSystemDGAA.setPassword(passwordEncoder.encode(testSystemAdmin.getPassword()));
+    }
+
+    public void initialiseTestCard() {
+        testCard = new Card(
+                testUser,
+                "ForSale",
+                "New Card",
+                "This is a new Card",
+                Collections.emptySet());
     }
 
     public void initialiseTestUserBusinessAdmin() {
@@ -198,21 +235,20 @@ public abstract class AbstractInitializer {
         );
     }
 
-    public void initialiseTestCard() {
-        testCard = new Card(
-                testUser,
-                "ForSale",
-                "New Card",
-                "This is a new Card",
-                Collections.emptySet());
-        testCard.setId(1);
-    }
-
     public void initialiseTestUserNotification() {
         testUserNotification = new UserNotification(
                 "This is a notification message", testUser
         );
         testUserNotification.setId(1);
+    }
+
+    public void initialiseTestMessages() {
+        Message message1 = new Message("Is this still available?", testUser, testCard, testOtherUser);
+        message1.setId(1);
+        Message message2 = new Message("Yes it is still available", testOtherUser, testCard, testUser);
+        message2.setId(2);
+        testMessages = new ArrayList<>();
+        testMessages.addAll(List.of(message1, message2));
     }
 
 }

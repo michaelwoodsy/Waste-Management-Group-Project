@@ -23,10 +23,10 @@ Feature: UCM8 - Contacting other marketplace users
     And A user with the email "potentialCustomer@gmail.com" messages about the card
     When The card creator replies to the message
     Then The user with the email "potentialCustomer@gmail.com" receives the reply
-#
-#  Scenario: AC6: A user can delete a message from their feed,
-#    whether or not they have chosen to reply to it.
-#    Given A card has been created by a user with the email "testUser@gmail.com"
-#    And A user with the email "potentialCustomer@gmail.com" messages about the card
-#    When The card creator deletes the message
-#    Then The message is successfully removed
+
+  Scenario: AC6: A user can delete a message from their feed,
+    whether or not they have chosen to reply to it.
+    Given A card has been created by a user with the email "testUser@gmail.com"
+    And A user with the email "potentialCustomer@gmail.com" messages about the card
+    When The card creator deletes the message
+    Then The message is successfully removed

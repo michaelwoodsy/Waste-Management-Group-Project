@@ -56,6 +56,65 @@ const notifications = [
     }
 ]
 
+const messages = [
+    {
+        "id": 1,
+        "sender": {
+            "id": 100,
+            "firstName": "John",
+            "lastName": "Smith",
+            "homeAddress": {
+                "streetNumber": "3/24",
+                "streetName": "Ilam Road",
+                "city": "Christchurch",
+                "region": "Canterbury",
+                "country": "New Zealand",
+                "postcode": "90210"
+            }},
+        "receiver": {
+            "id": 101,
+            "firstName": "Jane",
+            "lastName": "Doe",
+            "homeAddress": {
+                "streetNumber": "3/24",
+                "streetName": "Ilam Road",
+                "city": "Christchurch",
+                "region": "Canterbury",
+                "country": "New Zealand",
+                "postcode": "90210"
+            }},
+        "text": "This is a test message",
+        "card": {
+            "id": 1,
+            "creator": {
+                "id": 100,
+                "firstName": "John",
+                "lastName": "Smith",
+                "homeAddress": {
+                    "streetNumber": "3/24",
+                    "streetName": "Ilam Road",
+                    "city": "Christchurch",
+                    "region": "Canterbury",
+                    "country": "New Zealand",
+                    "postcode": "90210"
+                }
+            },
+            "section": "ForSale",
+            "created": "2021-05-13T05:10:00Z",
+            "displayPeriodEnd": "2021-07-29T05:10:00Z",
+            "title": "1982 Lada Samara",
+            "description": "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
+            "keywords": [
+                {
+                    "id": 600,
+                    "name": "Vehicle",
+                    "created": "2021-07-15T05:10:00Z"
+                }
+            ]
+        }
+    }
+]
+
 describe('Jest tests for the home component', () => {
 
     beforeEach(async () => {
@@ -67,8 +126,13 @@ describe('Jest tests for the home component', () => {
             data: [...notifications]
         }
 
+        const getMessagesResponse = {
+            data: [...messages]
+        }
+
         User.getCards.mockResolvedValue(getCardsResponse)
         User.getNotifications.mockResolvedValue(getNotificationsResponse)
+        User.getMessages.mockResolvedValue(getMessagesResponse)
 
         userState.isLoggedIn.mockImplementation(jest.fn(() => {
             return true
@@ -161,6 +225,13 @@ describe('Jest tests for the home component', () => {
         const button = wrapper.find('#showMessagesButton')
         await button.trigger('click')
         expect(wrapper.vm.$data.notificationsShown).toBeFalsy()
+    })
+
+    test('Can remove message from the messages list',  async () => {
+        wrapper.vm.$data.messages = messages
+        expect(wrapper.vm.$data.messages.length).toStrictEqual(1)
+        wrapper.vm.removeMessage(1)
+        expect(wrapper.vm.$data.messages.length).toStrictEqual(0)
     })
 
 })
