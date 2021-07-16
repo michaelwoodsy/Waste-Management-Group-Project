@@ -121,9 +121,10 @@
             <p class="text-light">You have no messages</p>
           </div>
           <div v-else>
-            <message v-for="message in messages"
+            <message v-for="message in sortedMessages"
                      :key="message.id"
-                     :message="message"/>
+                     :message="message"
+                      @remove-message="removeMessage(message.id)"/>
           </div>
         </div>
 
@@ -221,6 +222,15 @@ export default {
       let sortedNotifications = [...this.notifications]
       sortedNotifications.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
       return sortedNotifications
+    },
+
+    /**
+     * Returns messages sorted by most recent.
+     */
+    sortedMessages() {
+      let sortedMessages = [...this.messages]
+      sortedMessages.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      return sortedMessages
     }
 
   },
@@ -289,6 +299,7 @@ export default {
       try {
         const response = await User.getMessages(this.user.actor().id)
         this.messages = response.data
+        console.log(this.messages)
       } catch (error) {
         console.error(error)
         this.error = error
@@ -314,6 +325,8 @@ export default {
           this.cards.splice(index, 1)
         }
       }
+      //Refreshes messages as when deleting a card messages about that card would have been deleted.
+      this.getMessages()
     },
     /**
      * Updates an extended cards information.
@@ -336,6 +349,19 @@ export default {
       for (const [index, notification] of this.notifications.entries()) {
         if (notification.id === notificationId) {
           this.notifications.splice(index, 1)
+        }
+      }
+    },
+
+    /**
+     * Remove a message from the list of visible messages
+     * @param messageId the id of the message that is to be removed
+     */
+    removeMessage(messageId) {
+      // Remove the message from the list that is shown
+      for (const [index, message] of this.messages.entries()) {
+        if (message.id === messageId) {
+          this.messages.splice(index, 1)
         }
       }
     }

@@ -34,7 +34,7 @@ const SERVER_URL = process.env.VUE_APP_SERVER_ADD;
 
 const instance = axios.create({
     baseURL: SERVER_URL,
-    timeout: 2000,
+    timeout: 20000,
     withCredentials: true
 });
 
@@ -112,6 +112,15 @@ export const User = {
      * @returns {Promise<AxiosResponse<any>>} List of user's messages
      */
     getMessages: (userId) => instance.get(`users/${userId}/messages`),
+
+    /**
+     * Deletes a user's messages
+     *
+     * @param userId ID of the user of whom to delete message of
+     * @param messageId ID of the message that is to be deleted
+     * @returns {Promise<AxiosResponse<any>>} List of user's messages
+     */
+    deleteMessage: (userId, messageId) => instance.delete(`users/${userId}/messages/${messageId}`),
 
     /**
      * Gets a user's notifications from the backend

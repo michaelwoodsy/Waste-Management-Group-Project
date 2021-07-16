@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * Entity for Messages between marketplace users, about a Card
@@ -20,6 +21,7 @@ public class Message {
     private User receiver;
     private Card card;
     private User sender;
+    private LocalDateTime created = LocalDateTime.now();
 
     public Message(String text, User receiver, Card card, User sender) {
         this.text = text;
