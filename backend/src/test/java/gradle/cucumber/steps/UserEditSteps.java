@@ -7,15 +7,20 @@ import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.PutUserDTO;
+import org.seng302.project.serviceLayer.service.UserImageService;
+import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -26,6 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +51,9 @@ public class UserEditSteps extends AbstractInitializer {
 
     private ResultActions reqResult;
 
+    private MockMultipartFile testImageFile;
+
+    private final UserImageService userImageService;
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -53,19 +62,25 @@ public class UserEditSteps extends AbstractInitializer {
     private final KeywordRepository keywordRepository;
     private final ObjectMapper objectMapper;
 
+    private final SpringEnvironment springEnvironment;
+
     @Autowired
     public UserEditSteps(UserRepository userRepository,
                          BCryptPasswordEncoder passwordEncoder,
                          AddressRepository addressRepository,
                          CardRepository cardRepository,
                          KeywordRepository keywordRepository,
-                         ObjectMapper objectMapper) {
+                         ObjectMapper objectMapper,
+                         UserImageService userImageService,
+                         SpringEnvironment springEnvironment) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.addressRepository = addressRepository;
         this.cardRepository = cardRepository;
         this.keywordRepository = keywordRepository;
         this.objectMapper = objectMapper;
+        this.userImageService = userImageService;
+        this.springEnvironment = springEnvironment;
     }
 
     @BeforeEach
@@ -80,6 +95,9 @@ public class UserEditSteps extends AbstractInitializer {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
+
+        this.initialiseTestFiles();
+        testImageFile = this.getTestImageFile();
 
         testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
@@ -216,5 +234,38 @@ public class UserEditSteps extends AbstractInitializer {
 
         String returnedExceptionString = editUserResponse.getResponse().getContentAsString();
         Assertions.assertEquals("MissingData: First Name is a mandatory field", returnedExceptionString);
+    }
+
+    @Given("A user has no images")
+    public void aUserHasNoImages() {
+        Optional<User> optionalUser = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(optionalUser.isPresent());
+        User retrievedUser = optionalUser.get();
+        Assertions.assertEquals(0, retrievedUser.getImages().size());
+    }
+
+    @When("I upload an image for a user")
+    public void iUploadAnImageForAUser() {
+
+        AddUserImageDTO dto = new AddUserImageDTO(
+                testUser.getId(),
+                new AppUserDetails(testUser),
+                testImageFile
+        );
+        userImageService.addUserImage(dto);
+    }
+
+    @Then("The image is saved in the repository on the user")
+    public void theImageIsSavedInTheRepositoryOnTheUser() {
+        Optional<User> optionalUser = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(optionalUser.isPresent());
+        User retrievedUser = optionalUser.get();
+        Assertions.assertEquals(1, retrievedUser.getImages().size());
+        Image image = retrievedUser.getImages().iterator().next();
+
+        File imageFile = new File(springEnvironment.getMediaFolderPath() + image.getFilename());
+        File imageThumbnailFile = new File(springEnvironment.getMediaFolderPath() + image.getThumbnailFilename());
+        Assertions.assertTrue(imageFile.delete());
+        Assertions.assertTrue(imageThumbnailFile.delete());
     }
 }

@@ -16,3 +16,8 @@ Feature: U10 - Modifying Individuals
     Given I am logged in as a user
     When I try to edit my account and dont enter in a first name
     Then An error message is shown saying the first name is required.
+
+  Scenario: I can upload one or more images for a user.
+    Given A user has no images
+    When I upload an image for a user
+    Then The image is saved in the repository on the user
