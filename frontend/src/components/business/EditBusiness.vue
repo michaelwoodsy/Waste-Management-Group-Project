@@ -54,6 +54,11 @@
               </option>
             </select>
             <br>
+
+            <!--    Error message for primary admin input   -->
+            <span v-if="msg.primaryAdmin" class="error-msg" style="margin: 0">{{ msg.primaryAdmin }}</span>
+            <br>
+            <br>
           </div>
 
           <div class="form-row">
@@ -172,6 +177,7 @@ export default {
         'streetName': '',
         'country': '',
         'businessType': '',
+        'primaryAdmin': '',
         'errorChecks': null
       },
       valid: true,
@@ -316,6 +322,18 @@ export default {
     },
 
     /**
+     * Validates the primary admin field to make sure one is selected
+     */
+    validatePrimaryAdmin() {
+      if (this.primaryAdmin === null) {
+        this.msg['primaryAdmin'] = 'Please select a Primary Administrator'
+        this.valid = false
+      } else {
+        this.msg['primaryAdmin'] = ''
+      }
+    },
+
+    /**
      * Validates the address
      * Sets valid = false if the address is not valid
      */
@@ -338,6 +356,7 @@ export default {
       this.validateBusinessName();
       await this.validateAddress();
       this.validateBusinessType();
+      this.validatePrimaryAdmin();
 
       if (!this.valid) {
         this.msg['errorChecks'] = 'Please fix the shown errors and try again';

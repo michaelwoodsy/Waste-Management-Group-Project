@@ -21,7 +21,7 @@ beforeEach(() => {
                 return true
             },
             isPrimaryAdmin() {
-                return false
+                return true
             }
         }
     })
@@ -42,6 +42,14 @@ describe('EditBusiness component test', () => {
         await wrapper.vm.validateBusinessType()
         expect(wrapper.vm.$data.valid).toBeFalsy()
         expect(wrapper.vm.$data.msg.businessType).toStrictEqual('Please select a Business Type')
+        //Error message is shown
+        expect(wrapper.find('span.error-msg').exists()).toBeTruthy()
+    })
+
+    test("Test a business can't be given no primary admin", async() => {
+        await wrapper.vm.validatePrimaryAdmin()
+        expect(wrapper.vm.$data.valid).toBeFalsy()
+        expect(wrapper.vm.$data.msg.primaryAdmin).toStrictEqual('Please select a Primary Administrator')
         //Error message is shown
         expect(wrapper.find('span.error-msg').exists()).toBeTruthy()
     })
