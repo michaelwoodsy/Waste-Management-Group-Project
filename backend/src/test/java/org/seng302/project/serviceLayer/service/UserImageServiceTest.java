@@ -11,8 +11,10 @@ import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
+import org.seng302.project.serviceLayer.dto.user.DeleteUserImageDTO;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
+import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -23,10 +25,13 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 
 @SpringBootTest
 class UserImageServiceTest extends AbstractInitializer {
@@ -56,6 +61,7 @@ class UserImageServiceTest extends AbstractInitializer {
         testUserBusinessAdmin = this.getTestUserBusinessAdmin();
         testImages = this.getTestImages();
         testImageFile = this.getTestImageFile();
+        testUser.setImages(new HashSet<>(testImages));
         this.mocks();
     }
 
@@ -122,7 +128,7 @@ class UserImageServiceTest extends AbstractInitializer {
                 testImageFile
         );
         userImageService.addUserImage(dto);
-        Assertions.assertEquals(1, testUser.getImages().size());
+        Assertions.assertEquals(4, testUser.getImages().size());
         ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<BufferedImage> imageArgumentCaptor = ArgumentCaptor.forClass(BufferedImage.class);
         Mockito.verify(imageUtil).saveImage(imageArgumentCaptor.capture(), imagePathCaptor.capture());
@@ -147,9 +153,99 @@ class UserImageServiceTest extends AbstractInitializer {
                 testImageFile
         );
         userImageService.addUserImage(dto);
-        Assertions.assertEquals(1, testUser.getImages().size());
+        Assertions.assertEquals(4, testUser.getImages().size());
         ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<BufferedImage> imageArgumentCaptor = ArgumentCaptor.forClass(BufferedImage.class);
         Mockito.verify(imageUtil).saveImage(imageArgumentCaptor.capture(), imagePathCaptor.capture());
+    }
+
+    /**
+     * Tests that deleting a user image as a user who is not themselves nor a GAA results in an error.
+     */
+    @Test
+    void deleteImage_differentUser_throwsException() {
+        DeleteUserImageDTO deleteUserImageDTO = new DeleteUserImageDTO (
+                testUser.getId(),
+                2,
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+        Assertions.assertThrows(ForbiddenUserException.class,
+                () -> userImageService.deleteImage(deleteUserImageDTO));
+    }
+
+    /**
+     * Tests that deleting a user image for a user that does not exist results in an error.
+     */
+    @Test
+    void deleteImage_noUserExists_throwsException() {
+        given(userRepository.findById(4)).willReturn(Optional.empty());
+        DeleteUserImageDTO deleteUserImageDTO = new DeleteUserImageDTO(
+                4,
+                2,
+                new AppUserDetails(testUser)
+        );
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> userImageService.deleteImage(deleteUserImageDTO));
+    }
+
+    /**
+     * Tests that deleting a user image for an image that does not exist results in an error.
+     */
+    @Test
+    void deleteImage_noImageExists_throwsException() {
+        DeleteUserImageDTO deleteUserImageDTO = new DeleteUserImageDTO(
+                testUser.getId(),
+                7,
+                new AppUserDetails(testUser)
+        );
+        Assertions.assertThrows(UserImageNotFoundException.class,
+                () -> userImageService.deleteImage(deleteUserImageDTO));
+    }
+
+
+    /**
+     * Tests the success case for deleting a user image.
+     * Expects the imageUtil.deleteImage() to be called twice,
+     * once for the image file, once for the thumbnail file.
+     *
+     * @throws IOException exception thrown by imageUtil.deleteImage()
+     */
+    @Test
+    void deleteImage_sameUser_success() throws IOException {
+        DeleteUserImageDTO deleteUserImageDTO = new DeleteUserImageDTO(
+                testUser.getId(),
+                2,
+                new AppUserDetails(testUser)
+        );
+
+        userImageService.deleteImage(deleteUserImageDTO);
+
+        ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(imageUtil, times(2)).deleteImage(imagePathCaptor.capture());
+
+        Assertions.assertEquals(2, testUser.getImages().size());
+    }
+
+    /**
+     * Tests the success case for deleting a user image.
+     * Expects the imageUtil.deleteImage() to be called twice,
+     * once for the image file, once for the thumbnail file.
+     *
+     * @throws IOException exception thrown by imageUtil.deleteImage()
+     */
+    @Test
+    void deleteImage_systemAdmin_success() throws IOException {
+        DeleteUserImageDTO deleteUserImageDTO = new DeleteUserImageDTO(
+                testUser.getId(),
+                2,
+                new AppUserDetails(testSystemAdmin)
+        );
+
+        userImageService.deleteImage(deleteUserImageDTO);
+
+        ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(imageUtil, times(2)).deleteImage(imagePathCaptor.capture());
+
+        Assertions.assertEquals(2, testUser.getImages().size());
     }
 }

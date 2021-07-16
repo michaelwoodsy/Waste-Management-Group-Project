@@ -7,8 +7,10 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.user.DeleteUserImageDTO;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
+import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.service.UserImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,4 +130,112 @@ public class UserImageControllerTest extends AbstractInitializer {
 
         mockMvc.perform(postUserImageRequest).andExpect(status().isCreated());
     }
+
+    /**
+     * Tests that request to delete a user image fails
+     * when a user is not logged in.
+     * Expect 401 response
+     */
+    @Test
+    void deleteUserImage_notLoggedIn_returnsStatus401() throws Exception {
+        RequestBuilder deleteUserImageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/images/{imageId}",
+                        testUser.getId(),
+                        2);
+
+        mockMvc.perform(deleteUserImageRequest).andExpect(status().isUnauthorized());
+    }
+
+
+    /**
+     * Tests that request to delete a user image fails
+     * when a user is neither themselves nor a GAA.
+     * Expect 403 response
+     */
+    @Test
+    void deleteUserImage_differentUser_returnsStatus403() throws Exception {
+        doThrow(ForbiddenUserException.class)
+                .when(userImageService).deleteImage(Mockito.any(DeleteUserImageDTO.class));
+
+        RequestBuilder deleteUserImageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/images/{imageId}",
+                        testUser.getId(),
+                        2)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(deleteUserImageRequest).andExpect(status().isForbidden());
+    }
+
+
+    /**
+     * Tests that request to delete a user image fails
+     * when the user does not exist
+     * Expect 406 response
+     */
+    @Test
+    void deleteUserImage_noUserExists_returnsStatus406() throws Exception {
+        doThrow(NotAcceptableException.class)
+                .when(userImageService).deleteImage(Mockito.any(DeleteUserImageDTO.class));
+
+        RequestBuilder deleteUserImageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/images/{imageId}",
+                        100,
+                        2)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(deleteUserImageRequest).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that request to delete a user image fails
+     * when the image does not exist
+     * Expect 406 response
+     */
+    @Test
+    void deleteUserImage_noImageExists_returnsStatus406() throws Exception {
+        doThrow(new UserImageNotFoundException(testUser.getId(), 7))
+                .when(userImageService).deleteImage(Mockito.any(DeleteUserImageDTO.class));
+
+
+        RequestBuilder deleteUserImageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/images/{imageId}",
+                        testUser.getId(),
+                        7)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(deleteUserImageRequest).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that request to delete a user image is successful
+     * when the user is deleting their own image
+     * Expect 200 response
+     */
+    @Test
+    void deleteUserImage_sameUser_ok200() throws Exception {
+        RequestBuilder deleteUserImageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/images/{imageId}",
+                        testUser.getId(),
+                        2)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(deleteUserImageRequest).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that request to delete a user image is successful
+     * when the user is a GAA
+     * Expect 200 response
+     */
+    @Test
+    void deleteUserImage_asSystemAdmin_ok200() throws Exception {
+        RequestBuilder deleteUserImageRequest = MockMvcRequestBuilders
+                .delete("/users/{userId}/images/{imageId}",
+                        testUser.getId(),
+                        2)
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(deleteUserImageRequest).andExpect(status().isOk());
+    }
+
 }
