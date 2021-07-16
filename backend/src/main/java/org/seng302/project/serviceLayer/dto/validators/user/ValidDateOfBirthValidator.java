@@ -1,4 +1,4 @@
-package org.seng302.project.serviceLayer.dto.validators.registering;
+package org.seng302.project.serviceLayer.dto.validators.user;
 
 import org.seng302.project.serviceLayer.util.DateArithmetic;
 

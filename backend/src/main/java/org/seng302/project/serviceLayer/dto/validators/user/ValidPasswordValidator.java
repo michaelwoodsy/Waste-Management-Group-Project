@@ -1,4 +1,4 @@
-package org.seng302.project.serviceLayer.dto.validators.registering;
+package org.seng302.project.serviceLayer.dto.validators.user;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -11,9 +11,6 @@ public class ValidPasswordValidator implements ConstraintValidator<ValidPassword
 
     @Override
     public boolean isValid(String newPassword, ConstraintValidatorContext context) {
-        //newPassword can be null, meaning that it is not being changed.
-        return newPassword == null ||
-                newPassword.equals("") ||
-                newPassword.matches("(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}");
+        return newPassword.matches("(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}");
     }
 }
