@@ -47,7 +47,11 @@ public class PutUserDTO {
     @ValidAddress
     private Address homeAddress;
 
-    @NotEmpty(message = "MissingData: Password is a mandatory field")
+    //new password can be null as you dont have to change your password.
+    // When changing password, the current password also needs to be supplied
     @ValidPassword
-    private String password;
+    private String newPassword;
+
+    //Required when user is updating their password or email
+    private String currentPassword;
 }

@@ -61,7 +61,6 @@ class UserServiceTest extends AbstractInitializer {
         testUser = this.getTestUser();
         otherUser = this.getTestOtherUser();
         testAdmin = this.getTestSystemDGAA();
-        testUser.setId(1);
 
         testPostUserDTO = new PostUserDTO(
                 testUser.getFirstName(),
@@ -86,7 +85,8 @@ class UserServiceTest extends AbstractInitializer {
                 otherUser.getDateOfBirth(),
                 otherUser.getPhoneNumber(),
                 otherUser.getHomeAddress(),
-                "NewSecurePassword123");
+                "NewSecurePassword123",
+                "password");
 
         mocks();
     }
@@ -158,7 +158,7 @@ class UserServiceTest extends AbstractInitializer {
         Assertions.assertEquals(testUser.getHomeAddress().getCountry(), createdUser.getHomeAddress().getCountry());
         Assertions.assertEquals(testUser.getRole(), createdUser.getRole());
 
-        passwordEncoder.matches(testPostUserDTO.getPassword(), createdUser.getPassword());
+        Assertions.assertTrue(passwordEncoder.matches(testPostUserDTO.getPassword(), createdUser.getPassword()));
     }
 
 
@@ -203,7 +203,7 @@ class UserServiceTest extends AbstractInitializer {
         Assertions.assertEquals(testUser.getHomeAddress().getCountry(), editedUser.getHomeAddress().getCountry());
         Assertions.assertEquals(testUser.getRole(), editedUser.getRole());
 
-        passwordEncoder.matches(testPutUserDTO.getPassword(), editedUser.getPassword());
+        Assertions.assertTrue(passwordEncoder.matches(testPutUserDTO.getNewPassword(), editedUser.getPassword()));
     }
 
     /**
@@ -212,6 +212,8 @@ class UserServiceTest extends AbstractInitializer {
     @Test
     void tryEditUserExistingEmail() {
         when(userRepository.findByEmail(testPutUserDTO.getEmail())).thenReturn(List.of(testUser));
+        testPutUserDTO.setId(otherUser.getId());
+        when(userRepository.findById(testPutUserDTO.getId())).thenReturn(Optional.of(otherUser));
 
         Assertions.assertThrows(ExistingRegisteredEmailException.class, () -> userService.editUser(testPutUserDTO));
     }

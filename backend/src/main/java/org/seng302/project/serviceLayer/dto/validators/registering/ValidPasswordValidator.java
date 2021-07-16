@@ -10,7 +10,10 @@ import javax.validation.ConstraintValidatorContext;
 public class ValidPasswordValidator implements ConstraintValidator<ValidPassword, String> {
 
     @Override
-    public boolean isValid(String password, ConstraintValidatorContext context) {
-        return password.matches("(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}");
+    public boolean isValid(String newPassword, ConstraintValidatorContext context) {
+        //newPassword can be null, meaning that it is not being changed.
+        return newPassword == null ||
+                newPassword.equals("") ||
+                newPassword.matches("(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}");
     }
 }
