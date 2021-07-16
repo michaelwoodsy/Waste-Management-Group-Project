@@ -67,7 +67,8 @@ export default {
           name: "Manufacturer",
           checked: false
         }
-      ]
+      ],
+      products: []
     }
   },
   computed: {
@@ -91,7 +92,6 @@ export default {
      * Applies the user's search input
      */
     search() {
-      console.log(this.fieldOptions)
       Business.searchProducts(this.businessId, this.searchTerm,
           this.fieldOptions[0].checked,
           this.fieldOptions[1].checked,
@@ -99,8 +99,8 @@ export default {
           this.fieldOptions[3].checked,
           )
           .then((response) => {
-            //TODO: update table with results
             console.log(response);
+            this.products = response.data
       })
           .catch((err) => {
             console.log(`There was an error searching products: ${err}`)

@@ -356,7 +356,7 @@ public class ProductCatalogueService {
     /**
      * Searches a business's catalogue for products
      * @param businessId id of the business to search products of
-     * @param requestDTO request body containing which fields to search by
+     * @param requestDTO a DTO containing which fields to search by
      * @param appUser the user making the request
      */
     public List<GetProductDTO> searchProducts(Integer businessId, String searchQuery, ProductSearchDTO requestDTO,

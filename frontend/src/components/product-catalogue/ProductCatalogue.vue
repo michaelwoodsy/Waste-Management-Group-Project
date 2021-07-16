@@ -35,7 +35,7 @@
             </div>
           </div>
 
-          <product-search/>
+          <product-search ref="productSearch"/>
 
           <!--    Error Alert    -->
           <div v-if="error" class="row">
@@ -117,6 +117,10 @@ export default {
       return this.$refs.catalogueItems.products
     },
 
+    searchedProducts() {
+      return this.$refs.productSearch.products
+    },
+
     actor() {
       return this.$root.$data.user.state.actingAs;
     },
@@ -130,7 +134,14 @@ export default {
       return this.actor.id === parseInt(this.$route.params.businessId);
     },
   },
-
+  watch: {
+    /**
+     * Updates the table when the user searches for products
+     */
+    searchedProducts() {
+      this.$refs.catalogueItems.products = this.searchedProducts
+    }
+  },
   methods: {
     /**
      * Takes user to page to create new product.
