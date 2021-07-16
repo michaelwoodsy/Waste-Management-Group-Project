@@ -1,7 +1,16 @@
 package org.seng302.project.webLayer.controller;
 
+import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
+import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
+import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.service.UserImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -34,5 +43,27 @@ public class UserImageController {
                                             @RequestParam(value = "file") MultipartFile imageFile) {
         var requestDTO = new AddUserImageDTO(userId, user, imageFile);
         return userImageService.addUserImage(requestDTO);
+    }
+
+    /**
+     * Handles request to set a primary image for a user.
+     * @param userId The Id of the user that you wish to change primary image of
+     * @param imageId The Id of the image you wish to make the primary image
+     * @param appUser The user that is trying to perform this action
+     */
+    @PutMapping("/users/{userId}/images/{imageId}/makeprimary")
+    @ResponseStatus(HttpStatus.OK)
+    public void setPrimaryImage(@PathVariable Integer userId, @PathVariable Integer imageId,
+                                @AuthenticationPrincipal AppUserDetails appUser) {
+
+        try {
+            userImageService.setPrimaryImage(userId, imageId, appUser);
+        } catch (NoUserExistsException | UserImageNotFoundException | ForbiddenUserException handledException) {
+            logger.error(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while updating user's primary image: %s", unhandledException.getMessage()));
+        }
+
     }
 }

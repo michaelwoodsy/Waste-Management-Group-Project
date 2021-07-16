@@ -2,13 +2,20 @@ package org.seng302.project.webLayer.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
+import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.service.UserImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +26,9 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -37,6 +47,7 @@ public class UserImageControllerTest extends AbstractInitializer {
     private User testUserBusinessAdmin;
     private User testSystemAdmin;
     private MockMultipartFile testFile;
+    private List<Image> testImages;
 
     @BeforeEach
     public void setup() {
@@ -45,6 +56,7 @@ public class UserImageControllerTest extends AbstractInitializer {
         testUserBusinessAdmin = this.getTestUserBusinessAdmin();
         testSystemAdmin = this.getTestSystemAdmin();
         testFile = this.getTestFile();
+        testImages = this.getTestImages();
     }
 
     /**
@@ -127,5 +139,68 @@ public class UserImageControllerTest extends AbstractInitializer {
                 .with(user(new AppUserDetails(testSystemAdmin)));
 
         mockMvc.perform(postUserImageRequest).andExpect(status().isCreated());
+    }
+
+    /**
+     * Tests successful setting of a product's primary image.
+     * Expect 200 response
+     */
+    @Test
+    void setPrimaryImage_requestByUser_success() throws Exception {
+        testUser.setPrimaryImageId(testImages.get(0).getId());
+        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/users/{userId}/images/{imageId}/makeprimary",
+                        testUser.getId(),
+                        testImages.get(1).getId())
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that request to update primary image fails
+     * for invalid userId.
+     * Expect 406 response
+     */
+    @Test
+    void setPrimaryImage_invalidUserId_Fail() throws Exception {
+        doThrow(NoUserExistsException.class)
+                .when(userImageService).setPrimaryImage(Mockito.any(Integer.class),
+                Mockito.any(Integer.class),
+                Mockito.any(AppUserDetails.class));
+
+        testUser.setPrimaryImageId(1);
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/users/{userId}/images/{imageId}/makeprimary",
+                        100,
+                        testImages.get(1).getId())
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that request to update primary image fails
+     * for invalid imageId.
+     * Expect 406 response
+     */
+    @Test
+    void setPrimaryImage_invalidImageId_Fail() throws Exception {
+        doThrow(UserImageNotFoundException.class)
+                .when(userImageService).setPrimaryImage(Mockito.any(Integer.class),
+                Mockito.any(Integer.class),
+                Mockito.any(AppUserDetails.class));
+
+        testUser.setPrimaryImageId(testImages.get(0).getId());
+        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/users/{userId}/images/{imageId}/makeprimary",
+                        testUser.getId(),
+                        testImages.get(2).getId())
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
     }
 }

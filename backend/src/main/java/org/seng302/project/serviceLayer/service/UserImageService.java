@@ -4,13 +4,21 @@ import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.serviceLayer.exceptions.user.UserImageInvalidException;
+import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.serviceLayer.util.SpringEnvironment;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +102,52 @@ public class UserImageService {
             var exception = new UserImageInvalidException();
             logger.error(exception.getMessage());
             throw exception;
+        }
+    }
+
+    /**
+     * Called by the setPrimaryImage() method in UserImagesController.
+     * Handles the User logic for updating a User's primary image,
+     * throws exceptions up to the controller to handle
+     *
+     * @param userId The Id of the user that you wish to change primary image of
+     * @param imageId The Id of the image you wish to make the primary image
+     * @param appUser The user that is trying to perform this action
+     */
+    public void setPrimaryImage(Integer userId, Integer imageId, AppUserDetails appUser) {
+        logger.info("Request to update primary image for User {}", userId);
+
+        //Check if the userId given corresponds to a real user
+        Optional<User> receivingUserOptional = userRepository.findById(userId);
+        if (receivingUserOptional.isEmpty()) {
+            throw new NoUserExistsException(userId);
+        }
+        var receivingUser = receivingUserOptional.get();
+
+        // Check if the logged in user is the same user whose messages we are retrieving
+        String userEmail = appUser.getUsername();
+        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+        if (!loggedInUser.getId().equals(userId)) {
+            throw new ForbiddenUserException(userId);
+        }
+
+        //Check if image exists for product
+        var userImages = receivingUser.getImages();
+        var imageInUserImages = false;
+        for (Image image : userImages) {
+            if (image.getId().equals(imageId)) {
+                imageInUserImages = true;
+                break;
+            }
+        }
+
+        //If image exists in User's list of images, set the primary image
+        if (imageInUserImages) {
+            receivingUser.setPrimaryImageId(imageId);
+            userRepository.save(receivingUser);
+        } else {
+            throw new UserImageNotFoundException(userId, imageId);
         }
     }
 }
