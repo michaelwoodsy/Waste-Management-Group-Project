@@ -29,6 +29,30 @@
           />
         </div>
       </div>
+      <div class="row">
+        <div class="col text-center m-3">
+          <!-- Edit button -->
+          <button
+              v-if="isUsersProfile"
+              :data-target="'#editUser' + id" class="btn btn-primary ml-3"
+              data-toggle="modal"
+              @click="editUser"
+          >
+            Edit profile
+          </button>
+        </div>
+      </div>
+
+      <!-- Edit modal -->
+      <div :id="'editUser' + id" :key="this.editCurrentUser" class="modal fade" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-body">
+              <edit-user-profile :user-id="id" @user-edited="refreshProfile()"></edit-user-profile>
+            </div>
+          </div>
+        </div>
+      </div>
 
 
       <!-- First Name -->
@@ -216,6 +240,7 @@ import LoginRequired from "../LoginRequired"
 import Alert from "@/components/Alert";
 import PageWrapper from "@/components/PageWrapper";
 import MarketCard from "../marketplace/MarketCard";
+import EditUserProfile from "@/components/user/EditUserProfile";
 
 export default {
   name: "ProfilePage",
@@ -266,10 +291,18 @@ export default {
      * @returns {boolean|*}
      */
     isAdministrator() {
-      for (let i = 0; i < this.businessesAdministered.length; i++) {
-        if (this.businessesAdministered[i].id === this.$root.$data.user.state.actingAs.id) return true
+      for (const business of this.businessesAdministered) {
+        if (business.id === this.$root.$data.user.state.actingAs.id) return true
       }
       return false
+    },
+
+    /**
+     * Returns true if the logged in user is viewing their own profile
+     * Used for showing the edit profile button
+     */
+    isUsersProfile() {
+      return true
     },
     /**
      * Gets the currently logged in user's role
@@ -307,7 +340,8 @@ export default {
     PageWrapper,
     Alert,
     LoginRequired,
-    MarketCard
+    MarketCard,
+    EditUserProfile
   },
 
   methods: {
@@ -316,6 +350,7 @@ export default {
      * @param response is the response from the server
      */
     profile(response) {
+      this.id = response.data.id
       this.firstName = response.data.firstName
       this.middleName = response.data.middleName
       this.lastName = response.data.lastName
@@ -492,11 +527,24 @@ export default {
       this.cards = this.cards.filter((card) => {
         return !this.expired(card);
       })
+    },
+    /**
+     * Takes user to modal to edit card
+     */
+    editUser() {
+      this.editCurrentUser = true;
+    },
+    /**
+     * Refreshes the users profile after it has been edited
+     */
+    refreshProfile() {
+      console.log("Implement refresh profile")
     }
   },
 
   data() {
     return {
+      id: null,
       firstName: null,
       middleName: null,
       lastName: null,
@@ -512,7 +560,8 @@ export default {
       addedAdmin: null,
       error: null,
       cards: [],
-      hideImages: true
+      hideImages: true,
+      editCurrentUser: false
     }
   }
 }
