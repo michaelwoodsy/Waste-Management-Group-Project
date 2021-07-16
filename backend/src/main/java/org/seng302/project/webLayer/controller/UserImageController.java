@@ -1,5 +1,6 @@
 package org.seng302.project.webLayer.controller;
 
+import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
 import org.seng302.project.serviceLayer.service.UserImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -14,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class UserImageController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProductImageController.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(UserImageController.class.getName());
 
     private final UserImageService userImageService;
 
@@ -31,6 +32,7 @@ public class UserImageController {
     public AddUserImageResponseDTO addImage(@PathVariable Integer userId,
                                             @AuthenticationPrincipal AppUserDetails user,
                                             @RequestParam(value = "file") MultipartFile imageFile) {
-        return null;
+        var requestDTO = new AddUserImageDTO(userId, user, imageFile);
+        return userImageService.addUserImage(requestDTO);
     }
 }

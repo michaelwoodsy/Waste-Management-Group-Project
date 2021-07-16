@@ -1,8 +1,10 @@
 package org.seng302.project.serviceLayer.dto.user;
 
+import lombok.Data;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.web.multipart.MultipartFile;
 
+@Data
 public class AddUserImageDTO {
 
     private Integer userId;
