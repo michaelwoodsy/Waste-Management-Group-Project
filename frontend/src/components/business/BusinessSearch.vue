@@ -31,6 +31,7 @@ Component on Search page for searching businesses
             <input id="search"
                    v-model="searchTerm"
                    class="form-control no-outline"
+                   :class="{'is-invalid': searchError}"
                    placeholder="business name"
                    type="search"
                    @keyup.enter="search">
@@ -38,6 +39,10 @@ Component on Search page for searching businesses
               <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
             </div>
           </div>
+          <div v-if="!searchError" class="text-center">
+            <small>Requires at least 3 characters to search</small>
+          </div>
+          <span class="invalid-feedback d-block text-center">{{ searchError }}</span>
         </div>
         <!--    Select business type    -->
         <div class="col-sm-4">
@@ -175,6 +180,7 @@ export default {
   data() {
     return {
       searchTerm: "",
+      searchError: null,
       businessType: "",
       businesses: [],
       viewBusinessModal: false,
@@ -264,6 +270,11 @@ export default {
      * This is the search logic, that handles a call with or without businessType
      */
     search() {
+      if (this.searchTerm.length < 3) {
+        this.searchError = 'Please enter at least 3 characters to search'
+        return
+      } else this.searchError = null
+
       this.blurSearch()
       this.businesses = []
       this.loading = true;
