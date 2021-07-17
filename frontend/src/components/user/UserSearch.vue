@@ -25,7 +25,7 @@
                    v-model="searchTerm"
                    class="form-control no-outline"
                    :class="{'is-invalid': searchError}"
-                   placeholder="name or nickname"
+                   placeholder="name/nickname"
                    type="search"
                    @keyup.enter="search">
             <div class="input-group-append">
@@ -64,7 +64,7 @@
                 </th>
 
                 <!--    User Image    -->
-                <th></th>
+                <th id="userImage"></th>
 
                 <!--    First Name    -->
                 <th class="pointer" scope="col" @click="orderResults('firstName')">
