@@ -4,15 +4,11 @@ import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
-import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
-import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
-import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
-import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.serviceLayer.exceptions.user.UserImageInvalidException;
 import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
@@ -128,11 +124,12 @@ public class UserImageService {
         String userEmail = appUser.getUsername();
         var loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
-        if (!loggedInUser.getId().equals(userId)) {
-            throw new ForbiddenUserException(userId);
+        //If the logged in user and the given user ID do not match and the user is not a GAA then they aren't allowed to perform that action
+        if (!loggedInUser.getId().equals(userId) && !loggedInUser.isGAA()) {
+            throw new ForbiddenSystemAdminActionException();
         }
 
-        //Check if image exists for product
+        //Check if image exists for User
         var userImages = receivingUser.getImages();
         var imageInUserImages = false;
         for (Image image : userImages) {

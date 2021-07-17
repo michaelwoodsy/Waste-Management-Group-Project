@@ -13,6 +13,7 @@ import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
@@ -159,6 +160,46 @@ public class UserImageControllerTest extends AbstractInitializer {
     }
 
     /**
+     * Tests successful setting of a product's primary image by an Admin.
+     * Expect 200 response
+     */
+    @Test
+    void setPrimaryImage_requestByAdmin_success() throws Exception {
+        testUser.setPrimaryImageId(testImages.get(0).getId());
+        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/users/{userId}/images/{imageId}/makeprimary",
+                        testUser.getId(),
+                        testImages.get(1).getId())
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that request to update primary image fails
+     * for different user.
+     * Expect 403 response
+     */
+    @Test
+    void setPrimaryImage_requestByDifferentUser_fail() throws Exception {
+        doThrow(ForbiddenSystemAdminActionException.class)
+                .when(userImageService).setPrimaryImage(Mockito.any(Integer.class),
+                Mockito.any(Integer.class),
+                Mockito.any(AppUserDetails.class));
+
+        testUser.setPrimaryImageId(testImages.get(0).getId());
+        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/users/{userId}/images/{imageId}/makeprimary",
+                        testUser.getId(),
+                        testImages.get(1).getId())
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    /**
      * Tests that request to update primary image fails
      * for invalid userId.
      * Expect 406 response
@@ -192,15 +233,30 @@ public class UserImageControllerTest extends AbstractInitializer {
                 Mockito.any(Integer.class),
                 Mockito.any(AppUserDetails.class));
 
-        testUser.setPrimaryImageId(testImages.get(0).getId());
         testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        testUser.setPrimaryImageId(testImages.get(0).getId());
 
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/users/{userId}/images/{imageId}/makeprimary",
                         testUser.getId(),
-                        testImages.get(2).getId())
+                        100)
                 .with(user(new AppUserDetails(testUser)));
 
         mockMvc.perform(request).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that request to update primary image fails
+     * for an unauthorised user.
+     * Expect 401 response
+     */
+    @Test
+    void setPrimaryImage_unauthorisedUser_Fail() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/users/{userId}/images/{imageId}/makeprimary",
+                        testUser.getId(),
+                        testImages.get(1).getId());
+
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
     }
 }

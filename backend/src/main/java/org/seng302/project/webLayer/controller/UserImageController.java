@@ -1,15 +1,10 @@
 package org.seng302.project.webLayer.controller;
 
-import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
+
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
-import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
-import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
-import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
-import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
-import org.seng302.project.serviceLayer.exceptions.product.ProductNotFoundException;
-import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
+import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.service.UserImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -58,7 +53,7 @@ public class UserImageController {
 
         try {
             userImageService.setPrimaryImage(userId, imageId, appUser);
-        } catch (NoUserExistsException | UserImageNotFoundException | ForbiddenUserException handledException) {
+        } catch (NoUserExistsException | UserImageNotFoundException | ForbiddenSystemAdminActionException handledException) {
             logger.error(handledException.getMessage());
             throw handledException;
         } catch (Exception unhandledException) {
