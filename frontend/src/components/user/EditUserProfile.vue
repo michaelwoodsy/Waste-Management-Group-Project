@@ -2,12 +2,12 @@
   <page-wrapper>
     <!-- Check if the user is logged in -->
     <login-required
-        v-if="!isLoggedIn"
+        v-if="!isLoggedIn && !success"
         page="view an individual product"
     />
 
     <required-to-be-user-or-g-a-a
-        v-if="(!canDoAdminAction && !isEditingSelf) || !actingAsUser"
+        v-else-if="(!canDoAdminAction && !isEditingSelf) || !actingAsUser"
         page="edit this users profile"
     />
 
@@ -22,31 +22,28 @@
       </div>
 
       <!-- Div to display when the changes are successful -->
-      <div v-if="success" class="container-flu1">
+      <div v-if="success" class="row">
+        <div class="col-12 col-sm-8 offset-sm-2">
+          <div class="alert alert-success">Successfully saved changes!</div>
 
-        <!-- Row for success message -->
-        <div class="row">
-          <div class="col-12 col-sm-8 offset-sm-2">
-            <div class="alert alert-success">Successfully saved changes! Please log in again.</div>
+          <!-- Make more changes button -->
+          <button
+              class="btn btn-secondary float-left"
+              type="button"
+              @click="resetPage"
+          >
+            Edit Again
+          </button>
 
-            <!-- Make more changes button -->
-            <button
-                class="btn btn-secondary float-left"
-                type="button"
-                @click="resetPage"
-            >
-              Edit Again
-            </button>
+          <!-- Home button -->
+          <router-link
+              :to="{name: 'home'}"
+              class="btn btn-primary float-right"
+              type="button"
+          >
+            Home
+          </router-link>
 
-            <!-- Product catalogue button -->
-            <button
-                class="btn btn-primary float-right"
-                type="button"
-                @click="logout"
-            >
-              Login
-            </button>
-          </div>
         </div>
       </div>
 
@@ -101,6 +98,7 @@
             <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}"
                    placeholder="Enter your Email"
                    required maxlength="255" type="text">
+            <small>Editing this requires you to enter your current password</small>
             <span class="invalid-feedback">{{ msg.email }}</span>
           </div>
 
@@ -151,7 +149,7 @@
           </div>
 
           <!-- Current Password -->
-          <div class="form-group row" v-if="editingPassword">
+          <div class="form-group row" v-if="needCurrentPassword">
             <label for="currentPassword"><strong>Current Password<span class="required">*</span></strong></label>
             <div class="input-group">
               <input id="currentPassword" v-model="currentPassword" :class="{'form-control': true, 'is-invalid': msg.currentPassword}"
@@ -220,7 +218,7 @@ import Alert from "@/components/Alert";
 import LoginRequired from "@/components/LoginRequired";
 import RequiredToBeUserOrGAA from "@/components/RequiredToBeUserOrGAA";
 import AddressInputFields from "@/components/AddressInputFields";
-import {User} from "@/Api";
+import {Business, User} from "@/Api";
 import PageWrapper from "@/components/PageWrapper";
 
 export default {
@@ -234,16 +232,17 @@ export default {
   },
   data() {
     return {
+      oldUser: null,
       firstName: null,    //Required
       lastName: null,     //Required
       middleName: null,
       nickname: null,
       bio: null,
       email: null,        //Required
+      oldEmail: null,
       dateOfBirth: null,  //Required
       phoneNumber: null,
       addressValid: false,
-      oldAddress: {},
       homeAddress: {},
       newPassword: '',
       currentPassword: '',
@@ -267,7 +266,8 @@ export default {
       valid: true,
       submitting: false,
       success: false,
-      editingPassword: false,
+      successfulEdit: false,
+      needCurrentPassword: false,
 
       images: [],
       imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
@@ -285,8 +285,14 @@ export default {
     /**
      * Shows or hides the input fields for entering password again and entering current password
      */
-    newPassword(value) {
-      this.editingPassword = value.length > 0;
+    newPassword() {
+      this.needCurrentPassword = this.newPassword.length > 0 || this.email !== this.oldEmail
+    },
+    /**
+     * Shows or hides the input fields for entering password again and entering current password
+     */
+    email() {
+      this.needCurrentPassword = this.newPassword.length > 0 || this.email !== this.oldEmail
     }
   },
   computed: {
@@ -314,7 +320,7 @@ export default {
      * If the logged in user is a GAA
      */
     actingAsUser() {
-      return this.$root.$data.user.state.actingAs.type === 'user'
+      return this.$root.$data.user.state.actingAs === null || this.$root.$data.user.state.actingAs.type === 'user'
     },
     /**
      * Returns true if the user is currently editing their own profile
@@ -353,15 +359,16 @@ export default {
     async prefillFields() {
       if (this.userId !== null) {
         const response = await User.getUserData(this.userId)
+        this.oldUser = response.data
         this.firstName = response.data.firstName
         this.lastName = response.data.lastName
         this.middleName = response.data.middleName
         this.nickname = response.data.nickname
         this.bio = response.data.bio
+        this.oldEmail = response.data.email
         this.email = response.data.email
         this.dateOfBirth = response.data.dateOfBirth
         this.phoneNumber = response.data.phoneNumber
-        this.oldAddress = response.data.homeAddress
         this.homeAddress = response.data.homeAddress
         this.$refs.addressInput.fullAddressMode = false
         this.$refs.addressInput.address = response.data.homeAddress
@@ -460,7 +467,6 @@ export default {
       }
       if (!this.$refs.addressInput.valid) {
         this.valid = false
-        return
       }
     },
 
@@ -478,10 +484,20 @@ export default {
       } else {
         this.msg.newPassword = null;
       }
+
+      //If email has changed
+      if (this.email !== this.oldEmail && (this.currentPassword === null || this.currentPassword === "")) {
+        this.msg.currentPassword = "Your current password is required"
+        this.valid = false
+      }
+
       if (this.newPassword !== '' && this.newPassword !== null &&
           (this.currentPassword === '' || this.currentPassword === null)) {
-        this.msg.currentPassword = 'Please enter in your current password';
+        this.msg.currentPassword = 'Your current password is required';
         this.valid = false;
+      } else if (this.email !== this.oldEmail && (this.currentPassword === null || this.currentPassword === "")) {
+        this.msg.currentPassword = "Your current password is required"
+        this.valid = false
       } else {
         this.msg.currentPassword = null;
       }
@@ -491,7 +507,6 @@ export default {
      * Check all inputs are valid, if not show error message otherwise save edit
      */
     async checkInputs() {
-      console.log("Checking Inputs")
       this.submitting = true
       this.validateFirstName();
       this.validateLastName();
@@ -527,17 +542,68 @@ export default {
         phoneNumber: this.phoneNumber,
         homeAddress: this.homeAddress
       }
-      if (this.editingPassword) {
+      if (this.needCurrentPassword) {
         requestJSON.newPassword = this.newPassword
         requestJSON.currentPassword = this.currentPassword
       }
+      //Add current password to request
+      if (this.oldEmail !== this.email) {
+        requestJSON.currentPassword = this.currentPassword
+      }
+
       await User.editUser(this.userId, requestJSON).then(() => {
-        this.success = true
+        //If email has changed (need to log in again)
+        this.successfulEdit = true
+        if (this.isEditingSelf && this.successfulEdit && this.oldEmail !== this.email) {
+          this.reLogIn()
+        }
+        this.addImages()
+        this.submitError = null
         this.submitting = false
+        this.success = true
       }).catch((err) => {
         this.showError(err)
+        console.log(err)
         this.submitting = false
       });
+      //Sets the correct user data
+      if (this.isEditingSelf) {
+        this.$root.$data.user.setLoggedIn(this.userId)
+      }
+    },
+
+    /**
+     * Log in again after your email has been changed
+     */
+    async reLogIn() {
+      let newPassword = this.currentPassword
+      if (this.newPassword !== null && this.newPassword !== "") newPassword = this.newPassword
+      await this.$root.$data.user.login(this.email, newPassword)
+          .catch((err) => {
+            this.showError(err)
+            this.submitting = false
+          });
+    },
+
+    /**
+     * Makes requests to add the product's images
+     */
+    async addImages() {
+      const imagesToUpload = this.images.filter(function(image) {
+        return image.id === undefined;
+      })
+      this.numImagesToUpload = imagesToUpload.length
+
+      for (const image of imagesToUpload) {
+        //Id is undefined if it was just added
+        await Business.addProductImage(this.businessId, this.newProduct.id, image.data)
+        this.numImagesUploaded += 1;
+      }
+
+      //Check if the primary image was changed
+      if (this.currentPrimaryImageId !== null && this.currentPrimaryImageId !== this.oldUser.primaryImageId) {
+        await Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.currentPrimaryImageId)
+      }
     },
 
     /**
@@ -556,9 +622,12 @@ export default {
       this.addressIsValid = false
       this.submitting = false
       this.success = false
+      this.successfulEdit = false
       this.editingPassword = false
       this.images = []
       this.currentPrimaryImageId = null
+      this.newPassword = ""
+      this.currentPassword = ""
 
       // Reload user data
       this.prefillFields()

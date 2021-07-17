@@ -159,6 +159,14 @@ public class UserService {
             throw new ExistingRegisteredEmailException();
         }
 
+        //Check if the user wants to change their email
+        if (!dto.getEmail().equals(user.getEmail()) &&
+                (dto.getCurrentPassword() == null || dto.getCurrentPassword().equals("") ||
+                        !passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword()))) {
+            //If current password does not match
+            throw new BadRequestException("Incorrect Password.");
+        }
+
         //Check if user wants to change their password
         if (dto.getNewPassword() != null && !dto.getNewPassword().equals("")) {
             //If current password does not match

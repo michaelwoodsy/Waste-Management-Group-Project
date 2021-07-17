@@ -2393,7 +2393,7 @@ components:
           example: 'SecurePass123'
           format: password
           writeOnly: true
-          description: Only supplied of the user is updating their password, null otherwise
+          description: Only supplied of the user is updating their password or email, null otherwise
 
     UserNotification:
       type: object
