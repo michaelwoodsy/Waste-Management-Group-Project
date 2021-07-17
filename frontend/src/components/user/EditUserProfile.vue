@@ -146,6 +146,8 @@
               </div>
             </div>
             <span class="invalid-feedback d-block">{{ msg.newPassword }}</span>
+            <p style="font-size: small" class="text-left">Password must be a combination of lowercase and uppercase letters, numbers, and
+              be at least 8 characters long</p>
           </div>
 
           <!-- Current Password -->
@@ -165,6 +167,27 @@
             </div>
             <span class="invalid-feedback d-block">{{ msg.currentPassword }}</span>
           </div>
+
+
+
+
+
+
+
+
+
+
+
+
+<!--          Images go here-->
+
+
+
+
+
+
+
+
 
 
           <!-- Save Changes button -->
@@ -380,7 +403,7 @@ export default {
      * Checks if the string is empty, if so displays a warning message
      */
     validateFirstName() {
-      if (this.firstName === '') {
+      if (this.firstName === '' || this.firstName === null) {
         this.msg['firstName'] = 'Please enter a first name'
         this.valid = false
       } else {
@@ -392,7 +415,7 @@ export default {
      * Checks if the string is empty, if so displays a warning message
      */
     validateLastName() {
-      if (this.lastName === '') {
+      if (this.lastName === '' || this.lastName === null) {
         this.msg['lastName'] = 'Please enter a last name'
         this.valid = false
       } else {
@@ -405,7 +428,7 @@ export default {
      * Checks if the string is of an email format using regex, if not, displays a warning message
      */
     validateEmail() {
-      if (this.email === '') {
+      if (this.email === '' || this.email === null) {
         this.msg['email'] = 'Please enter an email address'
         this.valid = false
       } else if (!/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(this.email)) {
@@ -421,7 +444,7 @@ export default {
      * Checks if the string is empty, if so displays a warning message
      */
     validateDateOfBirth() {
-      if (this.dateOfBirth === '') {
+      if (this.dateOfBirth === '' || this.dateOfBirth === null) {
         this.msg['dateOfBirth'] = 'Please enter a date of birth'
         this.valid = false
       }
@@ -445,7 +468,7 @@ export default {
      */
     validatePhoneNumber() {
       //If no phone number is entered (which is allowed)
-      if (this.phone === '') {
+      if (this.phoneNumber === '' || this.phoneNumber === null) {
         this.msg['phoneNumber'] = null
       }
       //If phone number matches phone number regex
@@ -523,7 +546,7 @@ export default {
       } else {
         this.msg.errorChecks = null;
         console.log('No errors');
-        this.editUser()
+        await this.editUser()
       }
     },
 
@@ -566,7 +589,7 @@ export default {
         console.log(err)
         this.submitting = false
       });
-      //Sets the correct user data
+      //Sets the correct user data (So the name changes in the nav bar)
       if (this.isEditingSelf) {
         this.$root.$data.user.setLoggedIn(this.userId)
       }
@@ -604,14 +627,6 @@ export default {
       if (this.currentPrimaryImageId !== null && this.currentPrimaryImageId !== this.oldUser.primaryImageId) {
         await Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.currentPrimaryImageId)
       }
-    },
-
-    /**
-     * Logs out the user so they can log in again (after editing their profile)
-     */
-    logout() {
-      this.$root.$data.user.setLoggedOut()
-      this.$router.push({name: 'login'})
     },
 
     /**
