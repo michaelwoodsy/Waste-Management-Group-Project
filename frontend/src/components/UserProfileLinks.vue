@@ -151,11 +151,13 @@ export default {
     /** Sets the current logged in user to act as a business account **/
     actAsBusiness(business) {
       this.$root.$data.user.setActingAs(business.id, business.name, 'business')
+      this.$router.push({name: 'home'})
     },
 
     /** Sets the current logged in user to act as a user account **/
     actAsUser(userData) {
       this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
+      this.$router.push({name: 'home'})
     }
   }
 }

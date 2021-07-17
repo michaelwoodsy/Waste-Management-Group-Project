@@ -110,6 +110,29 @@
         </div>
       </div>
 
+      <!--Information about the user only they should see-->
+      <div v-if="isViewingSelf">
+        <!-- Phone -->
+        <div class="row">
+          <div class="col-6 text-right font-weight-bold ">
+            <p>Phone: </p>
+          </div>
+          <div class="col-6">
+            <p style="word-wrap: break-word; max-width: 70%">{{ phoneNumber }} </p>
+          </div>
+        </div>
+
+        <!-- Date of Birth -->
+        <div class="row">
+          <div class="col-6 text-right font-weight-bold ">
+            <p>Date of Birth: </p>
+          </div>
+          <div class="col-6">
+            <p style="word-wrap: break-word; max-width: 70%">{{ dateOfBirth }} </p>
+          </div>
+        </div>
+      </div>
+
       <!-- Member Since -->
       <div class="row">
         <div class="col-6 text-right font-weight-bold">
@@ -231,6 +254,28 @@ export default {
   props: {
     msg: String
   },
+  data() {
+    return {
+      firstName: null,
+      middleName: null,
+      lastName: null,
+      nickName: null,
+      bio: null,
+      email: null,
+      homeAddress: null,
+      dateOfBirth: null,
+      phoneNumber: null,
+      dateJoined: null,
+      dateSinceJoin: null,
+      role: null,
+      businessesAdministered: [],
+      primaryAdminOf: [],
+      addedAdmin: null,
+      error: null,
+      cards: [],
+      hideImages: true,
+    }
+  },
   async mounted() {
     User.getUserData(this.userId).then((response) => this.profile(response))
     await this.getCardData();
@@ -332,6 +377,10 @@ export default {
       this.bio = response.data.bio
       this.email = response.data.email
       this.role = response.data.role
+      if (this.isViewingSelf) {
+        this.dateOfBirth = response.data.dateOfBirth
+        this.phoneNumber = response.data.phoneNumber
+      }
 
       //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
       this.homeAddress = this.$root.$data.address.formatAddress(response.data.homeAddress)
@@ -501,27 +550,6 @@ export default {
       this.cards = this.cards.filter((card) => {
         return !this.expired(card);
       })
-    }
-  },
-
-  data() {
-    return {
-      firstName: null,
-      middleName: null,
-      lastName: null,
-      nickName: null,
-      bio: null,
-      email: null,
-      homeAddress: null,
-      dateJoined: null,
-      dateSinceJoin: null,
-      role: null,
-      businessesAdministered: [],
-      primaryAdminOf: [],
-      addedAdmin: null,
-      error: null,
-      cards: [],
-      hideImages: true,
     }
   }
 }
