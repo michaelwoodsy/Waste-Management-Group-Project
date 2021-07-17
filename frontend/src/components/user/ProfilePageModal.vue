@@ -22,6 +22,15 @@
       </div>
     </div>
 
+    <div class="row d-flex justify-content-center">
+      <div class="col text-center m-3">
+        <!-- Edit button -->
+        <router-link v-if="isViewingSelf" @click="close" data-dismiss="modal"
+                     :to="`users/${userId}/edit`" class="btn btn-primary">Edit Profile</router-link>
+        <router-link v-else-if="canDoAdminAction" @click="close" data-dismiss="modal"
+              :to="`users/${userId}/edit`" class="btn btn-danger">Edit User</router-link>
+      </div>
+    </div>
 
     <!-- First Name -->
     <div class="row">
@@ -269,7 +278,7 @@ export default {
      * @returns {boolean|*}
      */
     isViewingSelf() {
-      return this.userId === this.$root.$data.user.state.userId
+      return this.userId.toString() === this.$root.$data.user.state.userId.toString()
     },
 
     /**
@@ -277,8 +286,8 @@ export default {
      * @returns {boolean|*}
      */
     isAdministrator() {
-      for (let i = 0; i < this.businessesAdministered.length; i++) {
-        if (this.businessesAdministered[i].id === this.$root.$data.user.state.actingAs.id) return true
+      for (const business of this.businessesAdministered) {
+        if (business.id  === this.$root.$data.user.state.actingAs.id) return true
       }
       return false
     },
@@ -482,6 +491,12 @@ export default {
       this.cards = this.cards.filter((card) => {
         return !this.expired(card);
       })
+    },
+    /**
+     * Closes the modal
+     */
+    close() {
+      this.$emit("close-profile")
     }
   }
 }

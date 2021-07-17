@@ -1,159 +1,213 @@
 <template>
-  <div class="container-fluid">
+  <page-wrapper>
+    <!-- Check if the user is logged in -->
+    <login-required
+        v-if="!isLoggedIn"
+        page="view an individual product"
+    />
 
-    <!-- Page title -->
-    <div class="row mb-4">
-      <div class="col text-center">
-        <h2>{{ modalTitle }}</h2>
-      </div>
-    </div>
+    <required-to-be-user-or-g-a-a
+        v-if="!canDoAdminAction && !isEditingSelf"
+        page="edit this users profile"
+    />
 
-    <!-- Form fields -->
-    <div>
-      <!-- First Name -->
-      <div class="form-group row">
-        <label for="firstName"><strong>First Name<span class="required">*</span></strong></label>
-        <input id="firstName" v-model="firstName" :class="{'form-control': true, 'is-invalid': msg.firstName}"
-               placeholder="Enter your First Name"
-               required maxlength="255" type="text">
-        <span class="invalid-feedback">{{ msg.firstName }}</span>
-      </div>
 
-      <!-- Last Name -->
-      <div class="form-group row">
-        <label for="lastName"><strong>Last Name<span class="required">*</span></strong></label>
-        <input id="lastName" v-model="lastName" :class="{'form-control': true, 'is-invalid': msg.lastName}"
-               placeholder="Enter your Last Name"
-               required maxlength="255" type="text">
-        <span class="invalid-feedback">{{ msg.lastName }}</span>
+    <div v-else class="container-fluid">
+
+      <!-- Page title -->
+      <div class="row mb-4">
+        <div class="col text-center">
+          <h2>Edit Your Profile</h2>
+        </div>
       </div>
 
-      <!-- Middle Name -->
-      <div class="form-group row">
-        <label for="middleName"><strong>Middle Name</strong></label>
-        <input id="middleName" v-model="middleName" class="form-control"
-               placeholder="Enter your Middle Name"
-               required maxlength="255" type="text">
-      </div>
+      <!-- Form fields -->
+      <div class="row">
+        <div class="col-12 col-sm-8 col-lg-6 col-xl-4 offset-sm-2 offset-lg-3 offset-xl-4 text-center mb-2">
+          <!-- First Name -->
+          <div class="form-group row">
+            <label for="firstName"><strong>First Name<span class="required">*</span></strong></label>
+            <input id="firstName" v-model="firstName" :class="{'form-control': true, 'is-invalid': msg.firstName}"
+                   placeholder="Enter your First Name"
+                   required maxlength="255" type="text">
+            <span class="invalid-feedback">{{ msg.firstName }}</span>
+          </div>
 
-      <!-- Nickname -->
-      <div class="form-group row">
-        <label for="nickname"><strong>Nickname</strong></label>
-        <input id="nickname" v-model="nickname" class="form-control"
-               placeholder="Enter your Nickname"
-               required maxlength="255" type="text">
-      </div>
+          <!-- Last Name -->
+          <div class="form-group row">
+            <label for="lastName"><strong>Last Name<span class="required">*</span></strong></label>
+            <input id="lastName" v-model="lastName" :class="{'form-control': true, 'is-invalid': msg.lastName}"
+                   placeholder="Enter your Last Name"
+                   required maxlength="255" type="text">
+            <span class="invalid-feedback">{{ msg.lastName }}</span>
+          </div>
 
-      <!-- Bio -->
-      <div class="form-group row">
-        <label for="bio"><strong>Bio</strong></label>
-        <textarea id="bio" v-model="bio" class="form-control"
-               placeholder="Write a Bio (Max length 255 characters)"
-                  required maxlength="255" type="text"></textarea>
-      </div>
+          <!-- Middle Name -->
+          <div class="form-group row">
+            <label for="middleName"><strong>Middle Name</strong></label>
+            <input id="middleName" v-model="middleName" class="form-control"
+                   placeholder="Enter your Middle Name"
+                   required maxlength="255" type="text">
+          </div>
 
-      <!-- Email -->
-      <div class="form-group row">
-        <label for="email"><strong>Email<span class="required">*</span></strong></label>
-        <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}"
-               placeholder="Enter your Email"
-               required maxlength="255" type="text">
-        <span class="invalid-feedback">{{ msg.email }}</span>
-      </div>
+          <!-- Nickname -->
+          <div class="form-group row">
+            <label for="nickname"><strong>Nickname</strong></label>
+            <input id="nickname" v-model="nickname" class="form-control"
+                   placeholder="Enter your Nickname"
+                   required maxlength="255" type="text">
+          </div>
 
-      <!-- Date of Birth -->
-      <div class="form-group row">
-        <label for="dateOfBirth"><strong>Date of Birth<span class="required">*</span></strong></label>
-        <input id="dateOfBirth" v-model="dateOfBirth" :class="{'form-control': true, 'is-invalid': msg.dateOfBirth}"
-               placeholder="Enter your Email"
-               required maxlength="255" type="date">
-        <span class="invalid-feedback">{{ msg.dateOfBirth }}</span>
-      </div>
+          <!-- Bio -->
+          <div class="form-group row">
+            <label for="bio"><strong>Bio</strong></label>
+            <textarea id="bio" v-model="bio" class="form-control"
+                      placeholder="Write a Bio (Max length 255 characters)"
+                      required maxlength="255" type="text"></textarea>
+          </div>
 
-      <!-- Phone Number -->
-      <div class="form-group row">
-        <label for="phoneNumber"><strong>Phone Number<span class="required">*</span></strong></label>
-        <input id="phoneNumber" v-model="phoneNumber" :class="{'form-control': true, 'is-invalid': msg.phoneNumber}"
-               placeholder="Enter your Phone Number"
-               required maxlength="255" type="text">
-        <span class="invalid-feedback">{{ msg.phoneNumber }}</span>
-      </div>
+          <!-- Email -->
+          <div class="form-group row">
+            <label for="email"><strong>Email<span class="required">*</span></strong></label>
+            <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}"
+                   placeholder="Enter your Email"
+                   required maxlength="255" type="text">
+            <span class="invalid-feedback">{{ msg.email }}</span>
+          </div>
 
-      <address-input-fields
-          :showErrors="submit"
-          @setAddress="(newAddress) => {this.homeAddress = newAddress}"
-          @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
-      />
+          <!-- Date of Birth -->
+          <div class="form-group row">
+            <label for="dateOfBirth"><strong>Date of Birth<span class="required">*</span></strong></label>
+            <input id="dateOfBirth" v-model="dateOfBirth" :class="{'form-control': true, 'is-invalid': msg.dateOfBirth}"
+                   placeholder="Enter your Email"
+                   required maxlength="255" type="date">
+            <span class="invalid-feedback">{{ msg.dateOfBirth }}</span>
+          </div>
 
-      <!-- New Password -->
-      <div class="form-group row">
-        <label for="newPassword"><strong>New Password</strong></label>
-        <div class="input-group">
-          <input id="newPassword" v-model="newPassword" :class="{'form-control': true, 'is-invalid': msg.newPassword}"
-                 placeholder="Enter your New Password"
-                 required maxlength="255" :type="newPasswordType">
-          <div class="input-group-append">
-            <button class="btn btn-primary no-outline" @click="showNewPassword()">
+          <!-- Phone Number -->
+          <div class="form-group row">
+            <label for="phoneNumber"><strong>Phone Number<span class="required">*</span></strong></label>
+            <input id="phoneNumber" v-model="phoneNumber" :class="{'form-control': true, 'is-invalid': msg.phoneNumber}"
+                   placeholder="Enter your Phone Number"
+                   required maxlength="255" type="text">
+            <span class="invalid-feedback">{{ msg.phoneNumber }}</span>
+          </div>
+
+          <hr/>
+          <div class="form-group row">
+            <address-input-fields style="width: 100%"
+                :showErrors="submitting" :editing="true" :editingData="this.oldAddress"
+                @setAddress="(newAddress) => {this.homeAddress = newAddress}"
+                @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
+            />
+          </div>
+          <hr/>
+
+          <!-- New Password -->
+          <div class="form-group row">
+            <label for="newPassword"><strong>New Password</strong></label>
+            <div class="input-group">
+              <input id="newPassword" v-model="newPassword" :class="{'form-control': true, 'is-invalid': msg.newPassword}"
+                     placeholder="Enter your New Password"
+                     required maxlength="255" :type="newPasswordType">
+              <div class="input-group-append">
+                <button class="btn btn-primary no-outline" @click="showNewPassword()">
               <span :class="{bi: true,
                 'bi-eye-slash': newPasswordType === 'password',
                 'bi-eye': newPasswordType !== 'password'}" aria-hidden="true"></span>
-            </button>
+                </button>
+              </div>
+            </div>
+            <span class="invalid-feedback">{{ msg.newPassword }}</span>
           </div>
-        </div>
-        <span class="invalid-feedback">{{ msg.newPassword }}</span>
-      </div>
 
-      <!-- Current Password -->
-      <div class="form-group row" v-if="editingPassword">
-        <label for="currentPassword"><strong>Current Password<span class="required">*</span></strong></label>
-        <div class="input-group">
-          <input id="currentPassword" v-model="currentPassword" :class="{'form-control': true, 'is-invalid': msg.currentPassword}"
-                 placeholder="Enter your Current Password"
-                 required maxlength="255" :type="currentPasswordType">
-          <div class="input-group-append">
-            <button class="btn btn-primary no-outline" @click="showCurrentPassword()">
+          <!-- Current Password -->
+          <div class="form-group row" v-if="editingPassword">
+            <label for="currentPassword"><strong>Current Password<span class="required">*</span></strong></label>
+            <div class="input-group">
+              <input id="currentPassword" v-model="currentPassword" :class="{'form-control': true, 'is-invalid': msg.currentPassword}"
+                     placeholder="Enter your Current Password"
+                     required maxlength="255" :type="currentPasswordType">
+              <div class="input-group-append">
+                <button class="btn btn-primary no-outline" @click="showCurrentPassword()">
               <span :class="{bi: true,
                 'bi-eye-slash': currentPasswordType === 'password',
                 'bi-eye': currentPasswordType !== 'password'}" aria-hidden="true"></span>
-            </button>
+                </button>
+              </div>
+            </div>
+
+            <span class="invalid-feedback">{{ msg.currentPassword }}</span>
+          </div>
+
+
+          <!-- Save Changes button -->
+          <div class="form-group row mb-0">
+            <div class="btn-group" style="width: 100%">
+              <!-- Cancel button when changes are made -->
+              <button id="cancelButton"
+                  class="btn btn-danger"
+                  type="button"
+                  @click="cancel"
+              >
+                Cancel
+              </button>
+              <button v-if="submitting"
+                  disabled
+                  class="btn btn-primary"
+                  type="button"
+              >
+                Saving changes
+              </button>
+              <button v-else
+                      class="btn btn-primary"
+                      type="button"
+                      @click="checkInputs"
+              >
+                Save Changes
+              </button>
+
+              <!--    Image upload progress counter    -->
+              <p v-if="submitting && imagesEdited"
+                 class="ml-1 my-2 float-right">
+                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+              </p>
+
+
+            </div>
+            <!-- Show an error if required fields are missing -->
+            <div v-if="msg.errorChecks" class="error-box">
+              <alert class="mb-0">{{ msg.errorChecks }}</alert>
+            </div>
           </div>
         </div>
-
-        <span class="invalid-feedback">{{ msg.currentPassword }}</span>
       </div>
 
-
-      <!-- Save Changes button -->
-      <div class="form-group row mb-0">
-        <div class="btn-group" style="width: 100%">
-          <button id="cancelButton" ref="close" class="btn btn-secondary col-4" data-dismiss="modal" v-on:click="cancel=true" @click="close">Cancel</button>
-          <button id="saveButton" class="btn btn-primary col-8" v-on:click="submit=true" @click="checkInputs">Save Changes</button>
-        </div>
-        <!-- Show an error if required fields are missing -->
-        <div v-if="msg.errorChecks" class="error-box">
-          <alert class="mb-0">{{ msg.errorChecks }}</alert>
-        </div>
-      </div>
     </div>
-
-  </div>
+  </page-wrapper>
 </template>
 
 <script>
 import Alert from "@/components/Alert";
+import LoginRequired from "@/components/LoginRequired";
+import RequiredToBeUserOrGAA from "@/components/RequiredToBeUserOrGAA";
 import AddressInputFields from "@/components/AddressInputFields";
 import {User} from "@/Api";
+import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "EditUser",
   components: {
+    PageWrapper,
     Alert,
-    AddressInputFields
+    AddressInputFields,
+    LoginRequired,
+    RequiredToBeUserOrGAA
   },
-  props: ['userId'],
   data() {
     return {
-      modalTitle: 'Edit Your Profile',
+      oldUser: null,
+
       firstName: null,    //Required
       lastName: null,     //Required
       middleName: null,
@@ -163,6 +217,7 @@ export default {
       dateOfBirth: null,  //Required
       phoneNumber: null,
       addressValid: false,
+      oldAddress: {},
       homeAddress: {},
       newPassword: '',
       currentPassword: '',
@@ -184,9 +239,16 @@ export default {
       },
       addressIsValid: false,
       valid: true,
-      cancel: false,
-      submit: false,
+      submitting: false,
       editingPassword: false,
+
+      images: [],
+      imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
+      currentPrimaryImageId: null,
+      imagesEdited: false,
+      //Used to show progress in uploading images
+      numImagesUploaded: 0,
+      numImagesToUpload: 0
     };
   },
   async mounted() {
@@ -199,6 +261,36 @@ export default {
     newPassword(value) {
       this.editingPassword = value.length > 0;
     }
+  },
+  computed: {
+    /** Gets the user ID that is in the current path **/
+    userId() {
+      return this.$route.params.userId;
+    },
+    /** Checks to see if user is logged in currently **/
+    isLoggedIn() {
+      return this.$root.$data.user.state.loggedIn
+    },
+    /**
+     * The userId of the currently logged in user
+     */
+    loggedInUser() {
+      return this.$root.$data.user.state.userId
+    },
+    /**
+     * If the logged in user is a GAA
+     */
+    canDoAdminAction() {
+      return this.$root.$data.user.canDoAdminAction()
+    },
+    /**
+     * Returns true if the user is currently editing their own profile
+     * @returns {boolean|*}
+     */
+    isEditingSelf() {
+      return this.userId === null || this.loggedInUser === null ||
+          this.userId.toString() === this.loggedInUser.toString()
+    },
   },
   methods: {
     /**
@@ -221,12 +313,14 @@ export default {
         this.currentPasswordType = 'password'
       }
     },
+
     /**
      * Prefills all fields with the card's existing values
      */
     async prefillFields() {
       if(this.userId !== null) {
         const response = await User.getUserData(this.userId)
+        this.oldUser = response.data
         this.firstName = response.data.firstName
         this.lastName = response.data.lastName
         this.middleName = response.data.middleName
@@ -235,6 +329,90 @@ export default {
         this.email = response.data.email
         this.dateOfBirth = response.data.dateOfBirth
         this.phoneNumber = response.data.phoneNumber
+        this.oldAddress = response.data.homeAddress
+        this.homeAddress = response.data.homeAddress
+      }
+    },
+
+    /**
+     * Validates the first name variable
+     * Checks if the string is empty, if so displays a warning message
+     */
+    validateFirstName() {
+      if (this.firstName === '') {
+        this.msg['firstName'] = 'Please enter a first name'
+        this.valid = false
+      } else {
+        this.msg['firstName'] = null
+      }
+    },
+    /**
+     * Validates the last name variable
+     * Checks if the string is empty, if so displays a warning message
+     */
+    validateLastName() {
+      if (this.lastName === '') {
+        this.msg['lastName'] = 'Please enter a last name'
+        this.valid = false
+      } else {
+        this.msg['lastName'] = null
+      }
+    },
+
+    /**
+     * Validates the email variable
+     * Checks if the string is of an email format using regex, if not, displays a warning message
+     */
+    validateEmail() {
+      if (this.email === '') {
+        this.msg['email'] = 'Please enter an email address'
+        this.valid = false
+      } else if (!/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(this.email)) {
+        this.msg['email'] = 'Invalid email address'
+        this.valid = false
+      } else {
+        this.msg['email'] = null
+      }
+    },
+
+    /**
+     * Validates the date of birth variable
+     * Checks if the string is empty, if so displays a warning message
+     */
+    validateDateOfBirth() {
+      if (this.dateOfBirth === '') {
+        this.msg['dateOfBirth'] = 'Please enter a date of birth'
+        this.valid = false
+      }
+      //If Date of Birth is in the future
+      else if (new Date() < new Date(this.dateOfBirth)) {
+        this.msg['dateOfBirth'] = 'Date of birth can not be in the future'
+        this.valid = false
+      }
+      //If Date of birth is more than 150 years ago
+      else if (new Date().getFullYear() - new Date(this.dateOfBirth).getFullYear() >= 150) {
+        this.msg['dateOfBirth'] = 'Date of birth is unrealistic'
+        this.valid = false
+      } else {
+        this.msg['dateOfBirth'] = null
+      }
+    },
+
+    /**
+     * Validates the phone variable
+     * Checks if the string is empty, or if it is in an incorrect format
+     */
+    validatePhoneNumber() {
+      //If no phone number is entered (which is allowed)
+      if (this.phone === '') {
+        this.msg['phoneNumber'] = null
+      }
+      //If phone number matches phone number regex
+      else if (/^(\+\d{1,2}\s*)?\(?\d{1,6}\)?[\s.-]?\d{3,6}[\s.-]?\d{3,8}$/.test(this.phone)) {
+        this.msg['phoneNumber'] = null
+      } else {
+        this.msg['phoneNumber'] = 'Invalid phone number'
+        this.valid = false
       }
     },
 
@@ -249,7 +427,12 @@ export default {
      * Check all inputs are valid, if not show error message otherwise save edit
      */
     checkInputs(){
-      this.validateAddress()
+      this.validateFirstName();
+      this.validateLastName();
+      this.validateEmail();
+      this.validateDateOfBirth();
+      this.validatePhoneNumber();
+      this.validateAddress();
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
@@ -279,10 +462,10 @@ export default {
     },
 
     /**
-     * Closes the popup window to edit a card
+     * Method to cancel making changes to user
      */
-    close() {
-      this.$emit('user-edited');
+    cancel() {
+      this.$router.push({name: 'home'})
     },
 
     /**

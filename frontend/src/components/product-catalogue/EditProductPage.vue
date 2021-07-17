@@ -32,7 +32,7 @@
       </div>
 
       <!-- Div to display when the changes are successful -->
-      <div v-else-if="success" class="container-fluid">
+      <div v-else-if="success" class="container-flu1">
 
         <!-- Row for success message -->
         <div class="row">
@@ -373,7 +373,6 @@ export default {
       priceBlur: false,
       nameBlur: false,
       triedIds: [], // List of ids tested for uniqueness
-      //Test Image Data
       images: [],
       imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
       currentPrimaryImageId: null,

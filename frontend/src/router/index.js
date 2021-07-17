@@ -6,6 +6,7 @@ import RegisterPage from "../components/RegisterPage";
 import LoginPage from "../components/LoginPage";
 import Home from "../components/Home";
 import ProfilePage from "../components/user/ProfilePage";
+import EditUserProfile from "../components/user/EditUserProfile";
 import BusinessProfilePage from "../components/business/BusinessProfilePage";
 import RegisterBusinessPage from "../components/business/RegisterBusinessPage";
 import Catalogue from "../components/product-catalogue/ProductCatalogue";
@@ -26,6 +27,11 @@ const routes = [
         path: '/search',
         name: 'search',
         component: Search
+    },
+    {
+        path: '/users/:userId/edit',
+        name: 'editUser',
+        component: EditUserProfile
     },
     {
         path: '/users/:userId',

@@ -169,13 +169,19 @@ export default {
       loading: false
     }
   },
-  props: ['showErrors'],
+  props: ['showErrors', 'editing', 'editingData'],
   computed: {
     valid() {
       return !(this.msg.country || this.msg.streetName)
     }
   },
   watch: {
+    editingData(value) {
+      if(this.editing) {
+        this.address = value
+        this.fullAddress = this.getAddressString(value)
+      }
+    },
     /** Watcher for the manual address **/
     address: {
       async handler() {
@@ -349,6 +355,10 @@ export default {
         this.suggestions = []
       } else {
         this.fullAddressMode = true
+        if (this.editing) {
+          this.address = this.editingData
+          this.fullAddress = this.getAddressString(this.editingData)
+        }
       }
     },
 
@@ -421,12 +431,5 @@ export default {
 .required {
   color: red;
   display: inline;
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
 }
 </style>
