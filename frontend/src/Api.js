@@ -61,6 +61,8 @@ export const User = {
         password
     }),
 
+    editUser: (id, editUserJSON) => instance.put(`users/${id}`, editUserJSON),
+
     login: (username, password) => instance.post('login', {username, password}),
 
     getUserData: (id) => instance.get(`users/${id}`, {}),

@@ -7,7 +7,7 @@
     />
 
     <required-to-be-user-or-g-a-a
-        v-if="!canDoAdminAction && !isEditingSelf"
+        v-if="(!canDoAdminAction && !isEditingSelf) || !actingAsUser"
         page="edit this users profile"
     />
 
@@ -21,8 +21,37 @@
         </div>
       </div>
 
+      <!-- Div to display when the changes are successful -->
+      <div v-if="success" class="container-flu1">
+
+        <!-- Row for success message -->
+        <div class="row">
+          <div class="col-12 col-sm-8 offset-sm-2">
+            <div class="alert alert-success">Successfully saved changes! Please log in again.</div>
+
+            <!-- Make more changes button -->
+            <button
+                class="btn btn-secondary float-left"
+                type="button"
+                @click="resetPage"
+            >
+              Edit Again
+            </button>
+
+            <!-- Product catalogue button -->
+            <button
+                class="btn btn-primary float-right"
+                type="button"
+                @click="logout"
+            >
+              Login
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Form fields -->
-      <div class="row">
+      <div v-else class="row">
         <div class="col-12 col-sm-8 col-lg-6 col-xl-4 offset-sm-2 offset-lg-3 offset-xl-4 text-center mb-2">
           <!-- First Name -->
           <div class="form-group row">
@@ -118,7 +147,7 @@
                 </button>
               </div>
             </div>
-            <span class="invalid-feedback">{{ msg.newPassword }}</span>
+            <span class="invalid-feedback d-block">{{ msg.newPassword }}</span>
           </div>
 
           <!-- Current Password -->
@@ -136,8 +165,7 @@
                 </button>
               </div>
             </div>
-
-            <span class="invalid-feedback">{{ msg.currentPassword }}</span>
+            <span class="invalid-feedback d-block">{{ msg.currentPassword }}</span>
           </div>
 
 
@@ -206,8 +234,6 @@ export default {
   },
   data() {
     return {
-      oldUser: null,
-
       firstName: null,    //Required
       lastName: null,     //Required
       middleName: null,
@@ -240,6 +266,7 @@ export default {
       addressIsValid: false,
       valid: true,
       submitting: false,
+      success: false,
       editingPassword: false,
 
       images: [],
@@ -284,6 +311,12 @@ export default {
       return this.$root.$data.user.canDoAdminAction()
     },
     /**
+     * If the logged in user is a GAA
+     */
+    actingAsUser() {
+      return this.$root.$data.user.state.actingAs.type === 'user'
+    },
+    /**
      * Returns true if the user is currently editing their own profile
      * @returns {boolean|*}
      */
@@ -297,7 +330,7 @@ export default {
      * Method to toggle visibility of the newPassword field
      */
     showNewPassword() {
-      if(this.newPasswordType === 'password') {
+      if (this.newPasswordType === 'password') {
         this.newPasswordType = 'text'
       } else {
         this.newPasswordType = 'password'
@@ -307,7 +340,7 @@ export default {
      * Method to toggle visibility of the currentPassword field
      */
     showCurrentPassword() {
-      if(this.currentPasswordType === 'password') {
+      if (this.currentPasswordType === 'password') {
         this.currentPasswordType = 'text'
       } else {
         this.currentPasswordType = 'password'
@@ -318,9 +351,8 @@ export default {
      * Prefills all fields with the card's existing values
      */
     async prefillFields() {
-      if(this.userId !== null) {
+      if (this.userId !== null) {
         const response = await User.getUserData(this.userId)
-        this.oldUser = response.data
         this.firstName = response.data.firstName
         this.lastName = response.data.lastName
         this.middleName = response.data.middleName
@@ -408,7 +440,7 @@ export default {
         this.msg['phoneNumber'] = null
       }
       //If phone number matches phone number regex
-      else if (/^(\+\d{1,2}\s*)?\(?\d{1,6}\)?[\s.-]?\d{3,6}[\s.-]?\d{3,8}$/.test(this.phone)) {
+      else if (/^(\+\d{1,2}\s*)?\(?\d{1,6}\)?[\s.-]?\d{3,6}[\s.-]?\d{3,8}$/.test(this.phoneNumber)) {
         this.msg['phoneNumber'] = null
       } else {
         this.msg['phoneNumber'] = 'Invalid phone number'
@@ -424,15 +456,38 @@ export default {
     },
 
     /**
+     * Validates the newPassword variable
+     * Checks if it matches the regex, can be null or empty, in which case the password is not being changed.
+     * Checks if the string is empty, if so displays a warning message
+     */
+    validatePassword() {
+      if (this.newPassword !== '' && this.newPassword !== null &&
+          !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}/.test(this.newPassword)) {
+        this.msg.newPassword = 'Password does not meet the requirements';
+        this.valid = false;
+      } else {
+        this.msg.newPassword = null;
+      }
+      if (this.newPassword !== '' && this.newPassword !== null &&
+          (this.currentPassword === '' || this.currentPassword === null)) {
+        this.msg.currentPassword = 'Please enter in your current password';
+        this.valid = false;
+      } else {
+        this.msg.currentPassword = null;
+      }
+    },
+
+    /**
      * Check all inputs are valid, if not show error message otherwise save edit
      */
-    checkInputs(){
+    checkInputs() {
       this.validateFirstName();
       this.validateLastName();
       this.validateEmail();
       this.validateDateOfBirth();
       this.validatePhoneNumber();
       this.validateAddress();
+      this.validatePassword();
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
@@ -449,16 +504,53 @@ export default {
      * Saves the changes from editing the user
      */
     async editUser() {
-      // await Card.editCard(this.cardId, {
-      //   "section": this.section,
-      //   "title": this.title,
-      //   "description": this.description,
-      //   "keywordIds": keywordIds
-      // }).then(() => {
-      //   this.$refs.close.click();
-      // }).catch((err) => {
-      //   this.showError(err)
-      // });
+      this.submitting = true
+      let requestJSON = {
+        firstName: this.firstName,
+        lastName: this.lastName,
+        middleName: this.middleName,
+        nickname: this.nickname,
+        bio: this.bio,
+        email: this.email,
+        dateOfBirth: this.dateOfBirth,
+        phoneNumber: this.phoneNumber,
+        homeAddress: this.homeAddress
+      }
+      if (this.editingPassword) {
+        requestJSON.newPassword = this.newPassword
+        requestJSON.currentPassword = this.currentPassword
+      }
+      await User.editUser(this.userId, requestJSON).then(() => {
+        this.success = true
+        this.submitting = false
+      }).catch((err) => {
+        this.showError(err)
+        this.submitting = false
+      });
+    },
+
+    /**
+     * Logs out the user so they can log in again (after editing their profile)
+     */
+    logout() {
+      this.$root.$data.user.setLoggedOut()
+      this.$router.push({name: 'login'})
+    },
+
+    /**
+     * Resets the page after submitting changes, so the user can make more changes.
+     */
+    resetPage() {
+      // Reset data
+      this.addressIsValid = false
+      this.submitting = false
+      this.success = false
+      this.editingPassword = false
+      this.images = []
+      this.currentPrimaryImageId = null
+
+      // Reload user data
+      this.prefillFields()
     },
 
     /**

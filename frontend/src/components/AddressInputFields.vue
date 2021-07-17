@@ -365,7 +365,9 @@ export default {
     /** Emits the current address and validity, sending it to the higher component **/
     emitAddress() {
       let address;
-      if (this.fullAddressMode) {
+      if (this.locationSelected === null && this.editing) {
+        address = this.address
+      } else if (this.fullAddressMode) {
         address = this.locationSelected
       } else {
         address = this.address

@@ -2354,10 +2354,6 @@ components:
         - dateOfBirth
         - homeAddress
       properties:
-        id:
-          type: integer
-          example: 100
-          description: Id of the user to edit
         firstName:
           type: string
           example: John
