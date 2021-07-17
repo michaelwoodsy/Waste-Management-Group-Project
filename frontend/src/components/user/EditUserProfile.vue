@@ -124,8 +124,8 @@
 
           <hr/>
           <div class="form-group row">
-            <address-input-fields style="width: 100%"
-                :showErrors="submitting" :editing="true" :editingData="this.oldAddress"
+            <address-input-fields ref="addressInput" style="width: 100%"
+                :showErrors="true"
                 @setAddress="(newAddress) => {this.homeAddress = newAddress}"
                 @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
             />
@@ -363,6 +363,8 @@ export default {
         this.phoneNumber = response.data.phoneNumber
         this.oldAddress = response.data.homeAddress
         this.homeAddress = response.data.homeAddress
+        this.$refs.addressInput.fullAddressMode = false
+        this.$refs.addressInput.address = response.data.homeAddress
       }
     },
 
@@ -448,12 +450,20 @@ export default {
       }
     },
 
-    /** Checks if the address is valid **/
-    validateAddress() {
-      if (!this.addressIsValid) {
+    /**
+     * Validates the address
+     * Sets valid = false if the address is not valid
+     */
+    async validateAddress() {
+      if (!await this.$refs.addressInput.checkAddressCountry()) {
         this.valid = false
       }
+      if (!this.$refs.addressInput.valid) {
+        this.valid = false
+        return
+      }
     },
+
 
     /**
      * Validates the newPassword variable
@@ -480,18 +490,20 @@ export default {
     /**
      * Check all inputs are valid, if not show error message otherwise save edit
      */
-    checkInputs() {
+    async checkInputs() {
+      console.log("Checking Inputs")
+      this.submitting = true
       this.validateFirstName();
       this.validateLastName();
       this.validateEmail();
       this.validateDateOfBirth();
       this.validatePhoneNumber();
-      this.validateAddress();
+      await this.validateAddress();
       this.validatePassword();
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
-        console.log(this.msg.errorChecks);
+        this.submitting = false
         this.valid = true;
       } else {
         this.msg.errorChecks = null;
@@ -504,7 +516,6 @@ export default {
      * Saves the changes from editing the user
      */
     async editUser() {
-      this.submitting = true
       let requestJSON = {
         firstName: this.firstName,
         lastName: this.lastName,

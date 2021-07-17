@@ -169,19 +169,12 @@ export default {
       loading: false
     }
   },
-  props: ['showErrors', 'editing', 'editingData'],
+  props: ['showErrors'],
   computed: {
     valid() {
       return !(this.msg.country || this.msg.streetName)
     }
   },
-  watch: {
-    editingData(value) {
-      if(this.editing) {
-        this.address = value
-        this.fullAddress = this.getAddressString(value)
-      }
-    },
     /** Watcher for the manual address **/
     address: {
       async handler() {
@@ -193,12 +186,12 @@ export default {
     /** Validate address when show errors is set **/
     showErrors: {
       async handler() {
+        console.log("test")
         await this.validateAddress()
         this.emitAddress()
       },
       deep: true
-    }
-  },
+    },
   methods: {
     /**
      * Function to run when the full address has been entered
@@ -355,10 +348,6 @@ export default {
         this.suggestions = []
       } else {
         this.fullAddressMode = true
-        if (this.editing) {
-          this.address = this.editingData
-          this.fullAddress = this.getAddressString(this.editingData)
-        }
       }
     },
 
@@ -400,6 +389,7 @@ export default {
         // Check if country is valid and has a currency (for products and inventory items price)
         try {
           await this.$root.$data.product.getCurrency(address.country)
+          this.msg['country'] = null
         } catch (e) {
           this.msg['country'] = 'Please enter a valid Country'
         }
