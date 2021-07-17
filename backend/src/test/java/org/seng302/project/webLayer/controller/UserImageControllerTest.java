@@ -183,7 +183,7 @@ public class UserImageControllerTest extends AbstractInitializer {
      */
     @Test
     void setPrimaryImage_requestByDifferentUser_fail() throws Exception {
-        doThrow(ForbiddenSystemAdminActionException.class)
+        doThrow(ForbiddenUserException.class)
                 .when(userImageService).setPrimaryImage(Mockito.any(Integer.class),
                 Mockito.any(Integer.class),
                 Mockito.any(AppUserDetails.class));

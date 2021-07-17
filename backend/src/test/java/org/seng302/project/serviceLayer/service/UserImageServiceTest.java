@@ -10,9 +10,13 @@ import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
+import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -25,6 +29,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.mockito.BDDMockito.given;
 
@@ -151,5 +156,63 @@ class UserImageServiceTest extends AbstractInitializer {
         ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<BufferedImage> imageArgumentCaptor = ArgumentCaptor.forClass(BufferedImage.class);
         Mockito.verify(imageUtil).saveImage(imageArgumentCaptor.capture(), imagePathCaptor.capture());
+    }
+
+    /**
+     * Tests that setting a primary image as a user results in a success.
+     */
+    @Test
+    void setPrimaryImage_withUser_success() {
+        //Set Users Images, Make the first image be the primary one
+        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        testUser.setPrimaryImageId(testImages.get(0).getId());
+
+        userImageService.setPrimaryImage(testUser.getId(), testImages.get(1).getId(), new AppUserDetails(testUser));
+
+        Assertions.assertEquals(testImages.get(1).getId(), testUser.getPrimaryImageId());
+    }
+
+    /**
+     * Tests that setting a primary image as a System Admin results in a success.
+     */
+    @Test
+    void setPrimaryImage_withSystemAdmin_success() {
+        //Set Users Images, Make the first image be the primary one
+        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        testUser.setPrimaryImageId(testImages.get(0).getId());
+
+        userImageService.setPrimaryImage(testUser.getId(), testImages.get(1).getId(), new AppUserDetails(testSystemAdmin));
+
+        Assertions.assertEquals(testImages.get(1).getId(), testUser.getPrimaryImageId());
+    }
+
+    /**
+     * Tests that setting a primary image with an invalid userId results in a fail
+     * and a NoUserExistsException exception is thrown.
+     */
+    @Test
+    void setPrimaryImage_withInvalidUserId_Fails() {
+        Assertions.assertThrows(NoUserExistsException.class,
+                () -> userImageService.setPrimaryImage(100, testImages.get(1).getId(), new AppUserDetails(testUser)));
+    }
+
+    /**
+     * Tests that setting a primary image with an invalid imageId results in a fail
+     * and a UserImageNotFoundException exception is thrown.
+     */
+    @Test
+    void setPrimaryImage_withInvalidImageId_Fails() {
+        Assertions.assertThrows(UserImageNotFoundException.class,
+                () -> userImageService.setPrimaryImage(testUser.getId(), 100, new AppUserDetails(testUser)));
+    }
+
+    /**
+     * Tests that setting a primary image as a different user results in a fail
+     * and a ForbiddenUserException exception is thrown.
+     */
+    @Test
+    void setPrimaryImage_asDifferentUser_Fails() {
+        Assertions.assertThrows(ForbiddenUserException.class,
+                () -> userImageService.setPrimaryImage(testUser.getId(), 100, new AppUserDetails(testUserBusinessAdmin)));
     }
 }

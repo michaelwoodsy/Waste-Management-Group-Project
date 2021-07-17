@@ -8,7 +8,6 @@ import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
-import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.serviceLayer.exceptions.user.UserImageInvalidException;
 import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
@@ -126,7 +125,7 @@ public class UserImageService {
 
         //If the logged in user and the given user ID do not match and the user is not a GAA then they aren't allowed to perform that action
         if (!loggedInUser.getId().equals(userId) && !loggedInUser.isGAA()) {
-            throw new ForbiddenSystemAdminActionException();
+            throw new ForbiddenUserException(userId);
         }
 
         //Check if image exists for User
