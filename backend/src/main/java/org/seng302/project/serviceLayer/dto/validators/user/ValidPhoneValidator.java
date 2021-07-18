@@ -13,6 +13,6 @@ public class ValidPhoneValidator implements ConstraintValidator<ValidPhone, Stri
     public boolean isValid(String phoneNumber, ConstraintValidatorContext context) {
         //Phone regex includes checking for nothing in the phone number
         var phoneRegEx = "^((\\+\\d{1,2}\\s*)?\\(?\\d{1,6}\\)?[\\s.-]?\\d{3,6}[\\s.-]?\\d{3,8})?$";
-        return phoneNumber == null || phoneNumber.matches(phoneRegEx);
+        return phoneNumber == null || phoneNumber.equals("") || phoneNumber.matches(phoneRegEx);
     }
 }
