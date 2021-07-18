@@ -28,6 +28,16 @@
             </div>
           </div>
 
+          <div class="row">
+            <div class="col text-center m-3">
+              <!-- Edit button -->
+              <router-link v-if="isGAA || isDGAA"
+                           :to="`businesses/${businessId}/edit`" class="btn btn-danger">Edit Business</router-link>
+              <router-link v-else-if="isPrimaryAdmin || canDoAdminAction"
+                           :to="`businesses/${businessId}/edit`" class="btn btn-primary">Edit Business</router-link>
+            </div>
+          </div>
+
           <!-- Name of Business -->
           <div class="row">
             <div class="col-6 text-right font-weight-bold">
@@ -261,6 +271,30 @@ export default {
     isPrimaryAdmin() {
       return this.$root.$data.user.canDoAdminAction() ||
           Number(this.$root.$data.user.state.userId) === this.primaryAdministratorId
+    },
+
+    /**
+     * Computes if the current user is one of the administrators of the business
+     */
+    canDoAdminAction() {
+      for (const users of this.administrators) {
+        if (users.id === this.$root.$data.user.state.actingAs.id) return true
+      }
+      return false
+    },
+
+    /**
+     * Computes is the current user is a GAA
+     */
+    isGAA() {
+      return this.$root.$data.user.state.role === "globalApplicationAdmin"
+    },
+
+    /**
+     * Computes is the current user is a DGAA
+     */
+    isDGAA() {
+      return this.$root.$data.user.state.role === "defaultGlobalApplicationAdmin"
     },
   },
 
