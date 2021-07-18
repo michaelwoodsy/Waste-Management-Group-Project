@@ -1,29 +1,17 @@
 {
 	"info": {
-		"_postman_id": "c4ebea26-743e-4bf1-8b8d-156a29dcd690",
+		"_postman_id": "20072d86-d21f-4f4d-971b-cd7e0de79678",
 		"name": "U28 Product Search",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "200 GET /businesses/{businessId}/products/search",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
+			"name": "200 GET /businesses/{businessId}/products/search Name field",
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"matchingId\": false,\r\n    \"matchingName\": true,\r\n    \"matchingDescription\": false,\r\n    \"matchingManufacturer\": false\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
-					"raw": "http://localhost:9599/businesses/1/products/search",
+					"raw": "http://localhost:9599/businesses/1/products/search?searchQuery=bana&matchingName=true",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -34,13 +22,23 @@
 						"1",
 						"products",
 						"search"
+					],
+					"query": [
+						{
+							"key": "searchQuery",
+							"value": "bana"
+						},
+						{
+							"key": "matchingName",
+							"value": "true"
+						}
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "400 GET /businesses/{businessId}/products/search (missing required request body fields)",
+			"name": "200 GET /businesses/{businessId}/products/search All fields",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -49,7 +47,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"matchingName\": true\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -57,7 +55,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:9599/businesses/1/products/search",
+					"raw": "http://localhost:9599/businesses/1/products/search?searchQuery=ban&matchingId=true&matchingName=true&matchingDescription=true&matchingManufacturer=true",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -68,6 +66,28 @@
 						"1",
 						"products",
 						"search"
+					],
+					"query": [
+						{
+							"key": "searchQuery",
+							"value": "ban"
+						},
+						{
+							"key": "matchingId",
+							"value": "true"
+						},
+						{
+							"key": "matchingName",
+							"value": "true"
+						},
+						{
+							"key": "matchingDescription",
+							"value": "true"
+						},
+						{
+							"key": "matchingManufacturer",
+							"value": "true"
+						}
 					]
 				}
 			},

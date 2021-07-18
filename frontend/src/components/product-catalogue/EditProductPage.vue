@@ -32,7 +32,7 @@
       </div>
 
       <!-- Div to display when the changes are successful -->
-      <div v-else-if="success" class="container-fluid">
+      <div v-else-if="success" class="container-flu1">
 
         <!-- Row for success message -->
         <div class="row">
@@ -307,15 +307,26 @@
               Cancel
             </button>
 
-            <!-- Saving changes button
-            Shows when product is being saved (useful for images which take a while to upload) -->
-            <button v-if="submitting"
-                    disabled
-                    class="btn btn-primary ml-1 my-1 float-right"
-                    type="button"
-            >
-              Saving changes
-            </button>
+            <div v-if="submitting">
+              <!-- Saving changes button
+              Shows when product is being saved (useful for images which take a while to upload) -->
+              <button
+                      disabled
+                      class="btn btn-primary ml-1 my-1 float-right"
+                      type="button"
+              >
+                Saving changes
+              </button>
+
+              <!--    Image upload progress counter    -->
+              <p v-if="imagesEdited"
+                 class="ml-1 my-2 float-right">
+                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+              </p>
+            </div>
+
+
+
 
             <!-- Save Changes button -->
             <button v-else
@@ -362,11 +373,13 @@ export default {
       priceBlur: false,
       nameBlur: false,
       triedIds: [], // List of ids tested for uniqueness
-      //Test Image Data
       images: [],
       imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
       currentPrimaryImageId: null,
-      imagesEdited: false
+      imagesEdited: false,
+      //Used to show progress in uploading images
+      numImagesUploaded: 0,
+      numImagesToUpload: 0
     }
   },
 
@@ -680,12 +693,15 @@ export default {
      * Makes requests to add the product's images
      */
     async addImages() {
-      for (const image of this.images) {
+      const imagesToUpload = this.images.filter(function(image) {
+        return image.id === undefined;
+      })
+      this.numImagesToUpload = imagesToUpload.length
+
+      for (const image of imagesToUpload) {
         //Id is undefined if it was just added
-        if (image.id == null) {
-          await Business.addProductImage(
-              this.businessId, this.newProduct.id, image.data)
-        }
+        await Business.addProductImage(this.businessId, this.newProduct.id, image.data)
+        this.numImagesUploaded += 1;
       }
     },
 

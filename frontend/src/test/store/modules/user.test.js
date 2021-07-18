@@ -142,7 +142,7 @@ describe('store.user', () => {
     // Checking if user is logged in test
     test("testing checkLoggedIn function if the correct cookies are present", async () => {
         // Setup cookies
-        const actor = JSON.stringify({id: 2, type: "business", name: "Shop 1"});
+        const actor = JSON.stringify({id: 1, type: "business", name: "Store 1"});
         setCookie("actor", actor, null);
         setCookie("userId", 1, null);
 
@@ -152,7 +152,7 @@ describe('store.user', () => {
         // Checks the state is set correctly
         expect(user.state.userId).toBe("1")
         expect(user.state.loggedIn).toBeTruthy();
-        expect(user.state.actingAs.name).toBe("Shop 1")
+        expect(user.state.actingAs.name).toBe("Store 1")
         expect(user.state.actingAs.type).toBe("business")
     });
 

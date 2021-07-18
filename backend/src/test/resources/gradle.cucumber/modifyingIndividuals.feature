@@ -27,3 +27,18 @@ Feature: U10 - Modifying Individuals
     When I delete an image for a user
     Then The user no longer has that image as one of it's images
     And The user's image is no longer saved
+
+  Scenario: AC6: The user is able to change which image is the primary image
+    Given A user has at least 2 images the first is the primary image
+    When The user changes the primary image to be the second image
+    Then The primary image for the user is the second image
+
+  Scenario: AC6: The user is able to change which image is the primary image
+    Given A user has 0 images
+    When An image is uploaded
+    Then The uploaded image is the primary image for the user
+
+  Scenario: AC7: A thumbnail of the primary image is automatically created
+    Given A user has 0 images
+    When An image is uploaded
+    Then The uploaded image has a thumbnail created

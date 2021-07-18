@@ -6,6 +6,7 @@ import RegisterPage from "../components/RegisterPage";
 import LoginPage from "../components/LoginPage";
 import Home from "../components/Home";
 import ProfilePage from "../components/user/ProfilePage";
+import EditUserProfile from "../components/user/EditUserProfile";
 import BusinessProfilePage from "../components/business/BusinessProfilePage";
 import RegisterBusinessPage from "../components/business/RegisterBusinessPage";
 import Catalogue from "../components/product-catalogue/ProductCatalogue";
@@ -15,6 +16,7 @@ import SaleListings from "../components/sale-listing/SaleListings";
 import EditInventoryItemPage from "../components/inventory/EditInventoryItemPage";
 import Marketplace from "../components/marketplace/Marketplace";
 import Search from "@/components/Search";
+import EditBusiness from "@/components/business/EditBusiness";
 
 const routes = [
     {
@@ -26,6 +28,11 @@ const routes = [
         path: '/search',
         name: 'search',
         component: Search
+    },
+    {
+        path: '/users/:userId/edit',
+        name: 'editUser',
+        component: EditUserProfile
     },
     {
         path: '/users/:userId',
@@ -56,6 +63,11 @@ const routes = [
         path: '/businesses',
         name: 'registerBusiness',
         component: RegisterBusinessPage
+    },
+    {
+        path: '/businesses/:businessId/edit',
+        name: 'editBusiness',
+        component: EditBusiness
     },
     {
         path: '/businesses/:businessId/products',

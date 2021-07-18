@@ -103,17 +103,6 @@ public class UserControllerAdvice {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    /**
-     * Exception thrown by the getUser() function in UserController
-     * when a there is no matching user.
-     *
-     * @return a 406 response with an appropriate message
-     */
-    @ExceptionHandler(NoUserExistsException.class)
-    public ResponseEntity<String> userDoesNotExist(NoUserExistsException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-    }
-
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<String> invalidPassword(InvalidPasswordException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);

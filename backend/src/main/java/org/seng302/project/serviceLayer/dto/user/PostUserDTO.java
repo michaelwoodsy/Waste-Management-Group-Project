@@ -4,12 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.seng302.project.repositoryLayer.model.Address;
-import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.validators.ValidAddress;
-import org.seng302.project.serviceLayer.dto.validators.registering.ValidDateOfBirth;
-import org.seng302.project.serviceLayer.dto.validators.registering.ValidEmail;
-import org.seng302.project.serviceLayer.dto.validators.registering.ValidPassword;
-import org.seng302.project.serviceLayer.dto.validators.registering.ValidPhone;
+import org.seng302.project.serviceLayer.dto.validators.user.*;
 
 import javax.validation.constraints.NotEmpty;
 

@@ -89,7 +89,8 @@ class UserControllerTest extends AbstractInitializer {
                 otherUser.getDateOfBirth(),
                 otherUser.getPhoneNumber(),
                 otherUser.getHomeAddress(),
-                "NewSecurePassword123");
+                "NewSecurePassword123",
+                "password");
 
         mocks();
     }
@@ -411,7 +412,7 @@ class UserControllerTest extends AbstractInitializer {
      */
     @Test
     void editUser_InvalidPassword400() throws Exception {
-        testPutUserDTO.setPassword("weakPassword");
+        testPutUserDTO.setNewPassword("weakPassword");
 
         RequestBuilder postUserRequest = MockMvcRequestBuilders
                 .put("/users/{id}", testUser.getId())

@@ -1,4 +1,4 @@
-package org.seng302.project.serviceLayer.dto.validators.registering;
+package org.seng302.project.serviceLayer.dto.validators.user;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -10,7 +10,7 @@ import javax.validation.ConstraintValidatorContext;
 public class ValidPasswordValidator implements ConstraintValidator<ValidPassword, String> {
 
     @Override
-    public boolean isValid(String password, ConstraintValidatorContext context) {
-        return password.matches("(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}");
+    public boolean isValid(String newPassword, ConstraintValidatorContext context) {
+        return newPassword.matches("(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}");
     }
 }
