@@ -1,0 +1,106 @@
+{
+	"info": {
+		"_postman_id": "b24591ca-31b1-4a3d-a853-d02caf6e5f2e",
+		"name": "U29 Browse/Search Sale Listings",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "200 GET /listings all",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "400 GET /listings (matchingProductName but no searchQuery)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings?matchingProductName=true",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings"
+					],
+					"query": [
+						{
+							"key": "matchingProductName",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "200 GET /listings all filters",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings?searchQuery=canterbury&matchingProductName=true&matchingBusinessName=true&matchingBusinessLocation=true&priceRangeLower=2.00&priceRangeUpper=15.50&closingDateLower=2020-07-20&closingDateUpper=2020-07-27",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings"
+					],
+					"query": [
+						{
+							"key": "searchQuery",
+							"value": "canterbury"
+						},
+						{
+							"key": "matchingProductName",
+							"value": "true"
+						},
+						{
+							"key": "matchingBusinessName",
+							"value": "true"
+						},
+						{
+							"key": "matchingBusinessLocation",
+							"value": "true"
+						},
+						{
+							"key": "priceRangeLower",
+							"value": "2.00"
+						},
+						{
+							"key": "priceRangeUpper",
+							"value": "15.50"
+						},
+						{
+							"key": "closingDateLower",
+							"value": "2020-07-20"
+						},
+						{
+							"key": "closingDateUpper",
+							"value": "2020-07-27"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
