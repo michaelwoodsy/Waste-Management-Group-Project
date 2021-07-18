@@ -21,3 +21,9 @@ Feature: U10 - Modifying Individuals
     Given A user has no images
     When I upload an image for a user
     Then The image is saved in the repository on the user
+
+  Scenario: I can delete user images
+    Given A user has an image
+    When I delete an image for a user
+    Then The user no longer has that image as one of it's images
+    And The user's image is no longer saved
