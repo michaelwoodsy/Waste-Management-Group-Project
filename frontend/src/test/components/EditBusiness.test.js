@@ -14,6 +14,9 @@ beforeEach(() => {
 
     wrapper = shallowMount(EditBusiness, {
         computed: {
+            businessId() {
+                return 1
+            },
             isLoggedIn() {
                 return true
             },
@@ -22,6 +25,11 @@ beforeEach(() => {
             },
             isPrimaryAdmin() {
                 return true
+            }
+        },
+        methods: {
+            async prefillFields() {
+
             }
         }
     })
@@ -34,24 +42,18 @@ describe('EditBusiness component test', () => {
         await wrapper.vm.validateBusinessName()
         expect(wrapper.vm.$data.valid).toBeFalsy()
         expect(wrapper.vm.$data.msg.businessName).toStrictEqual('Please enter a Business Name')
-        //Error message is shown
-        expect(wrapper.find('span.error-msg').exists()).toBeTruthy()
     })
 
     test("Test a business can't be given an empty type", async() => {
         await wrapper.vm.validateBusinessType()
         expect(wrapper.vm.$data.valid).toBeFalsy()
         expect(wrapper.vm.$data.msg.businessType).toStrictEqual('Please select a Business Type')
-        //Error message is shown
-        expect(wrapper.find('span.error-msg').exists()).toBeTruthy()
     })
 
     test("Test a business can't be given no primary admin", async() => {
         await wrapper.vm.validatePrimaryAdmin()
         expect(wrapper.vm.$data.valid).toBeFalsy()
         expect(wrapper.vm.$data.msg.primaryAdmin).toStrictEqual('Please select a Primary Administrator')
-        //Error message is shown
-        expect(wrapper.find('span.error-msg').exists()).toBeTruthy()
     })
 
 

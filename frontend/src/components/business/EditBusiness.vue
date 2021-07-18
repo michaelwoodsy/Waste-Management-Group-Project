@@ -28,12 +28,13 @@
               <strong>Business Name<span class="required">*</span></strong>
             </label>
             <br/>
-            <input id="businessName" v-model="businessName" class="form-control"
+            <input id="businessName" v-model="businessName"
+                   :class="{'form-control': true, 'is-invalid': msg.businessName}"
                    maxlength="200" placeholder="Enter your Business Name"
                    required style="width:100%" type="text">
             <br>
             <!--    Error message for business name input   -->
-            <span v-if="msg.businessName" class="error-msg" style="margin: 0">{{ msg.businessName }}</span>
+            <span class="invalid-feedback" style="text-align: left">{{ msg.businessName }}</span>
             <br>
             <br>
           </div>
@@ -44,8 +45,8 @@
               <strong>Primary Administrator<span class="required">*</span></strong>
             </label>
             <br/>
-            <select id="primaryAdmin" v-model="primaryAdmin" class="form-control"
-                    required style="width:100%" type="text">
+            <select id="primaryAdmin" v-model="primaryAdmin"
+                    :class="{'form-control': true, 'is-invalid': msg.primaryAdmin}" required style="width:100%" type="text">
               <option v-for="admin in administrators"
                       :key="admin.id"
                       :value="admin"
@@ -56,7 +57,7 @@
             <br>
 
             <!--    Error message for primary admin input   -->
-            <span v-if="msg.primaryAdmin" class="error-msg" style="margin: 0">{{ msg.primaryAdmin }}</span>
+            <span class="invalid-feedback" style="text-align: left">{{ msg.primaryAdmin }}</span>
             <br>
             <br>
           </div>
@@ -90,8 +91,8 @@
               <strong>Business Type<span class="required">*</span></strong>
             </label>
             <br/>
-            <select id="businessType" v-model="businessType" class="form-control"
-                    required style="width:100%" type="text">
+            <select id="businessType" v-model="businessType"
+                    :class="{'form-control': true, 'is-invalid': msg.businessType}" required style="width:100%" type="text">
               <option disabled hidden selected value>Please select one</option>
               <option>Accommodation and Food Services</option>
               <option>Retail Trade</option>
@@ -101,7 +102,7 @@
             <br>
 
             <!--    Error message for business type input   -->
-            <span v-if="msg.businessType" class="error-msg" style="margin: 0">{{ msg.businessType }}</span>
+            <span class="invalid-feedback" style="text-align: left">{{ msg.businessType }}</span>
             <br>
             <br>
           </div>
@@ -118,7 +119,7 @@
             <!--    Error message for the registering process    -->
             <div class="login-box" style="width: 100%; margin:20px 20px; text-align: center">
               <!-- Show error if something wrong -->
-              <alert v-if="msg.errorChecks">
+              <alert id="errorAlert" v-if="msg.errorChecks">
                 {{ msg.errorChecks }}
               </alert>
             </div>
@@ -193,6 +194,12 @@ export default {
    * */
   computed: {
     /**
+     * ID of the businesses editing
+     */
+    businessId() {
+      return this.$route.params.businessId
+    },
+    /**
      * Checks to see if user is logged in currently
      * @returns {boolean|*} true if user is logged in, otherwise false
      */
@@ -210,7 +217,7 @@ export default {
     isAdminOf() {
       if (this.$root.$data.user.canDoAdminAction()) return true
       else if (this.actor.type !== "business") return false
-      return this.actor.id === parseInt(this.$route.params.businessId);
+      return this.actor.id === parseInt(this.businessId);
     },
 
     /**
@@ -220,73 +227,6 @@ export default {
     isPrimaryAdmin() {
       return this.$root.$data.user.canDoAdminAction() ||
           Number(this.$root.$data.user.state.userId) === this.primaryAdminId
-    },
-  },
-
-  /**
-   * these methods are called when their respective input field is changed
-   */
-  watch: {
-    /**
-     * Called when the addressCountry variable is updated.
-     * cant be when the business.country variable is updated as it cant check a variable in an object
-     * Checks if the country can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressCountry(value) {
-      this.address.country = value
-      //re enable autofill
-      if (!this.autofillCountry && this.address.country !== this.prevAutofilledCountry) {
-        this.prevAutofilledCountry = ''
-        this.autofillCountry = true
-      }
-
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into country field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCountry && this.address.country.length > 3) {
-        this.countries = this.photon(value, 'place:country')
-      }
-    },
-
-    /**
-     * Called when the addressRegion variable is updated.
-     * cant be when the business.region variable is updated as it cant check a variable in an object
-     * Checks if the region can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressRegion(value) {
-      this.address.region = value
-      //re enable autofill
-      if (!this.autofillRegion && this.address.region !== this.prevAutofilledRegion) {
-        this.prevAutofilledRegion = ''
-        this.autofillRegion = true
-      }
-
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into region field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillRegion && this.address.region.length > 3) {
-        this.regions = this.photon(value, 'boundary:administrative')
-      }
-    },
-
-    /**
-     * Called when the addressCity variable is updated.
-     * cant be when the business.city variable is updated as it cant check a variable in an object
-     * Checks if the city can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressCity(value) {
-      this.address.city = value
-      //re enable autofill
-      if (!this.autofillCity && this.address.city !== this.prevAutofilledCity) {
-        this.prevAutofilledCity = ''
-        this.autofillCity = true
-      }
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into city field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCity && this.address.city.length > 3) {
-        this.cities = this.photon(value, 'place:city&osm_tag=place:town')
-      }
     },
   },
 
@@ -382,7 +322,7 @@ export default {
      * Prefills the fields with their existing values
      */
     async prefillFields() {
-      const response = await Business.getBusinessData(this.$route.params.businessId)
+      const response = await Business.getBusinessData(this.businessId)
       this.businessName = response.data.name
       this.description = response.data.description
       this.$refs.addressInput.fullAddressMode = false
@@ -405,10 +345,6 @@ export default {
 </script>
 
 <style scoped>
-
-.error-msg {
-  color: red;
-}
 
 .required {
   color: red;
