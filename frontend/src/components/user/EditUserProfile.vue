@@ -113,7 +113,7 @@
 
           <!-- Phone Number -->
           <div class="form-group row">
-            <label for="phoneNumber"><strong>Phone Number<span class="required">*</span></strong></label>
+            <label for="phoneNumber"><strong>Phone Number</strong></label>
             <input id="phoneNumber" v-model="phoneNumber" :class="{'form-control': true, 'is-invalid': msg.phoneNumber}"
                    placeholder="Enter your Phone Number"
                    required maxlength="255" type="text">

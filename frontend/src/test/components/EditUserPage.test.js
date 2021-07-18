@@ -127,6 +127,14 @@ describe('EditUserProfile Validity Tests', () => {
         await wrapper.vm.validateDateOfBirth()
         expect(wrapper.vm.$data.valid).toBeFalsy()
         expect(wrapper.vm.$data.msg.dateOfBirth).toStrictEqual('Date of birth is unrealistic')
+
+        wrapper.setData({
+            dateOfBirth: '2050-01-01',
+        })
+
+        await wrapper.vm.validateDateOfBirth()
+        expect(wrapper.vm.$data.valid).toBeFalsy()
+        expect(wrapper.vm.$data.msg.dateOfBirth).toStrictEqual('Date of birth can not be in the future')
     })
 
     test("Tests that valid is true when the phone number is empty and false when invalid", async() => {
