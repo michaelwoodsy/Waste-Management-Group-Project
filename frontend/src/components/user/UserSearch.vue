@@ -24,13 +24,18 @@
             <input id="search"
                    v-model="searchTerm"
                    class="form-control no-outline"
-                   placeholder="name or nickname"
+                   :class="{'is-invalid': searchError}"
+                   placeholder="name/nickname"
                    type="search"
                    @keyup.enter="search">
             <div class="input-group-append">
               <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
             </div>
           </div>
+          <div v-if="!searchError" class="text-center">
+            <small>Requires at least 3 characters to search</small>
+          </div>
+          <span class="invalid-feedback d-block text-center">{{ searchError }}</span>
         </div>
       </div>
 
@@ -59,7 +64,7 @@
                 </th>
 
                 <!--    User Image    -->
-                <th></th>
+                <th id="userImage"></th>
 
                 <!--    First Name    -->
                 <th class="pointer" scope="col" @click="orderResults('firstName')">
@@ -184,6 +189,7 @@ export default {
   data() {
     return {
       searchTerm: "",
+      searchError: null,
       users: [],
       viewUserModal: false,
       viewUserModalId: null,
@@ -280,6 +286,11 @@ export default {
      * Search Logic
      */
     search() {
+      if (this.searchTerm.length < 3) {
+        this.searchError = 'Please enter at least 3 characters to search'
+        return
+      } else this.searchError = null
+
       this.blurSearch();
       this.users = [];
       this.loading = true;
