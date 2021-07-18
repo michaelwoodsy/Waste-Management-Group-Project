@@ -61,7 +61,7 @@ class UserImageServiceTest extends AbstractInitializer {
         testUserBusinessAdmin = this.getTestUserBusinessAdmin();
         testImages = this.getTestImages();
         testImageFile = this.getTestImageFile();
-        testUser.setImages(new HashSet<>(testImages));
+        testUser.setImages(testImages);
         this.mocks();
     }
 
@@ -255,7 +255,7 @@ class UserImageServiceTest extends AbstractInitializer {
     @Test
     void setPrimaryImage_withUser_success() {
         //Set Users Images, Make the first image be the primary one
-        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        testUser.setImages(List.of(testImages.get(0), testImages.get(1)));
         testUser.setPrimaryImageId(testImages.get(0).getId());
 
         userImageService.setPrimaryImage(testUser.getId(), testImages.get(1).getId(), new AppUserDetails(testUser));
@@ -269,7 +269,7 @@ class UserImageServiceTest extends AbstractInitializer {
     @Test
     void setPrimaryImage_withSystemAdmin_success() {
         //Set Users Images, Make the first image be the primary one
-        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        testUser.setImages(List.of(testImages.get(0), testImages.get(1)));
         testUser.setPrimaryImageId(testImages.get(0).getId());
 
         userImageService.setPrimaryImage(testUser.getId(), testImages.get(1).getId(), new AppUserDetails(testSystemAdmin));

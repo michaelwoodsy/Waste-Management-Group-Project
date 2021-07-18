@@ -252,7 +252,7 @@ public class UserImageControllerTest extends AbstractInitializer {
     @Test
     void setPrimaryImage_requestByUser_success() throws Exception {
         testUser.setPrimaryImageId(testImages.get(0).getId());
-        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        testUser.setImages(List.of(testImages.get(0), testImages.get(1)));
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/users/{userId}/images/{imageId}/makeprimary",
                         testUser.getId(),
@@ -269,7 +269,7 @@ public class UserImageControllerTest extends AbstractInitializer {
     @Test
     void setPrimaryImage_requestByAdmin_success() throws Exception {
         testUser.setPrimaryImageId(testImages.get(0).getId());
-        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        testUser.setImages(List.of(testImages.get(0), testImages.get(1)));
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/users/{userId}/images/{imageId}/makeprimary",
                         testUser.getId(),
@@ -292,7 +292,7 @@ public class UserImageControllerTest extends AbstractInitializer {
                 Mockito.any(AppUserDetails.class));
 
         testUser.setPrimaryImageId(testImages.get(0).getId());
-        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        testUser.setImages(List.of(testImages.get(0), testImages.get(1)));
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/users/{userId}/images/{imageId}/makeprimary",
                         testUser.getId(),
@@ -336,7 +336,7 @@ public class UserImageControllerTest extends AbstractInitializer {
                 Mockito.any(Integer.class),
                 Mockito.any(AppUserDetails.class));
 
-        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        testUser.setImages(List.of(testImages.get(0), testImages.get(1)));
         testUser.setPrimaryImageId(testImages.get(0).getId());
 
         RequestBuilder request = MockMvcRequestBuilders

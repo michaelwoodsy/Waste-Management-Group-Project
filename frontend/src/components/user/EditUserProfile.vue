@@ -363,7 +363,7 @@ import Alert from "@/components/Alert";
 import LoginRequired from "@/components/LoginRequired";
 import RequiredToBeUserOrGAA from "@/components/RequiredToBeUserOrGAA";
 import AddressInputFields from "@/components/AddressInputFields";
-import {User} from "@/Api";
+import {Images, User} from "@/Api";
 import PageWrapper from "@/components/PageWrapper";
 
 export default {
@@ -478,6 +478,12 @@ export default {
   },
   methods: {
     /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
+    },
+    /**
      * Method to toggle visibility of the newPassword field
      */
     showNewPassword() {
@@ -515,6 +521,8 @@ export default {
         this.dateOfBirth = response.data.dateOfBirth
         this.phoneNumber = response.data.phoneNumber
         this.homeAddress = response.data.homeAddress
+        this.images = response.data.images
+        this.currentPrimaryImageId = response.data.primaryImageId
         this.$refs.addressInput.fullAddressMode = false
         this.$refs.addressInput.address = response.data.homeAddress
       }
@@ -706,11 +714,7 @@ export default {
           this.submitError = null
           this.submitting = false
           this.success = true
-        }).catch((err) => {
-          this.showError(err)
-          console.log(err)
-          this.submitting = false
-        });
+        })
       }).catch((err) => {
         this.showError(err)
         console.log(err)
