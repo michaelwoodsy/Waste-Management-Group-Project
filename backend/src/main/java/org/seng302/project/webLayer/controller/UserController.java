@@ -96,13 +96,13 @@ public class UserController {
             dto.setId(userId);
             userService.checkForbidden(userId, appUser);
             userService.editUser(dto);
-
         } catch (InvalidEmailException | InvalidPhoneNumberException | ExistingRegisteredEmailException
-                | InvalidDateException | UserUnderageException | RequiredFieldsMissingException expectedException) {
+                | InvalidDateException | UserUnderageException
+                | RequiredFieldsMissingException | BadRequestException expectedException) {
             logger.info(expectedException.getMessage());
             throw expectedException;
         } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while creating user: %s", exception.getMessage()));
+            logger.error(String.format("Unexpected error while editing user: %s", exception.getMessage()));
             throw exception;
         }
     }

@@ -12,10 +12,13 @@ import javax.validation.ConstraintValidatorContext;
 public class ValidAddressValidator implements ConstraintValidator<ValidAddress, Address> {
     @Override
     public boolean isValid(Address address, ConstraintValidatorContext context) {
+        //If country is empty
+        if (address.getCountry() == null || address.getCountry().equals("")) {
+            return false;
+        }
         if (address.getStreetNumber() != null && !address.getStreetNumber().equals("")) {
             return address.getStreetName() != null && !address.getStreetName().equals("");
         }
-
-        return !address.getCountry().equals("");
+        return true;
     }
 }

@@ -154,7 +154,7 @@
               <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="viewUserModal=false">
                 <span aria-hidden="true">&times;</span>
               </button>
-              <profile-page-modal :id="viewUserModalId"></profile-page-modal>
+              <profile-page-modal @close-profile="viewUserModal=false" :id="viewUserModalId"></profile-page-modal>
             </div>
           </div>
         </div>

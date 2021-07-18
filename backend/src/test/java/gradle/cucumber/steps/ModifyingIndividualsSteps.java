@@ -14,6 +14,14 @@ import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
 import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
+import org.seng302.project.repositoryLayer.repository.AddressRepository;
+import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.KeywordRepository;
+import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
+import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
+import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
+import org.seng302.project.serviceLayer.dto.user.DeleteUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.PutUserDTO;
 import org.seng302.project.serviceLayer.service.UserImageService;
 import org.seng302.project.serviceLayer.util.SpringEnvironment;
@@ -33,6 +41,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.sql.Array;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -51,7 +60,10 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
 
     private ResultActions reqResult;
 
+    private Image deletedImage;
+
     private final UserImageService userImageService;
+
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -61,6 +73,7 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
     private final ObjectMapper objectMapper;
 
     private final SpringEnvironment springEnvironment;
+
 
 
     @Autowired
@@ -80,8 +93,8 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
         this.keywordRepository = keywordRepository;
         this.objectMapper = objectMapper;
         this.userImageService = userImageService;
-        this.imageRepository = imageRepository;
         this.springEnvironment = springEnvironment;
+        this.imageRepository = imageRepository;
 
     }
 
@@ -101,9 +114,11 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 .apply(springSecurity())
                 .build();
 
+        this.initialiseTestFiles();
+        testImageFile = this.getTestImageFile();
+
         testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
-        testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
         testUser.setRole("user");
         testUser.setId(null);//Set id to null so userRepository can set it
         userRepository.save(testUser);
@@ -132,7 +147,8 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 userMap.get(0).get("dateOfBirth"),
                 userMap.get(0).get("phoneNumber"),
                 testUser.getHomeAddress(),
-                userMap.get(0).get("password"));
+                userMap.get(0).get("password"),
+                "password");
 
         this.mockMvc.perform(MockMvcRequestBuilders
                 .put("/users/{id}", putUserDTO.getId())
@@ -161,7 +177,7 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
         Assertions.assertEquals(putUserDTO.getPhoneNumber(), editedUser.getPhoneNumber());
         Assertions.assertEquals(putUserDTO.getHomeAddress().getCountry(), editedUser.getHomeAddress().getCountry());
 
-        passwordEncoder.matches(putUserDTO.getPassword(), editedUser.getPassword());
+        passwordEncoder.matches(putUserDTO.getNewPassword(), editedUser.getPassword());
     }
 
     
@@ -180,7 +196,8 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 LocalDateTime.now().minusYears(years).toLocalDate().toString(),
                 testUser.getPhoneNumber(),
                 testUser.getHomeAddress(),
-                "Password123"
+                "Password123",
+                "password"
         );
 
         editUserRequest = MockMvcRequestBuilders
@@ -217,7 +234,8 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 testUser.getDateOfBirth(),
                 testUser.getPhoneNumber(),
                 testUser.getHomeAddress(),
-                "Password123"
+                "Password123",
+                "password"
         );
 
         editUserRequest = MockMvcRequestBuilders
@@ -236,6 +254,83 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
 
         String returnedExceptionString = editUserResponse.getResponse().getContentAsString();
         Assertions.assertEquals("MissingData: First Name is a mandatory field", returnedExceptionString);
+    }
+
+    @Given("A user has no images")
+    public void aUserHasNoImages() {
+        Optional<User> optionalUser = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(optionalUser.isPresent());
+        User retrievedUser = optionalUser.get();
+        Assertions.assertEquals(0, retrievedUser.getImages().size());
+    }
+
+    @When("I upload an image for a user")
+    public void iUploadAnImageForAUser() {
+
+        AddUserImageDTO dto = new AddUserImageDTO(
+                testUser.getId(),
+                new AppUserDetails(testUser),
+                testImageFile
+        );
+        userImageService.addUserImage(dto);
+    }
+
+    @Then("The image is saved in the repository on the user")
+    public void theImageIsSavedInTheRepositoryOnTheUser() {
+        Optional<User> optionalUser = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(optionalUser.isPresent());
+        User retrievedUser = optionalUser.get();
+        Assertions.assertEquals(1, retrievedUser.getImages().size());
+        Image image = retrievedUser.getImages().iterator().next();
+
+        File imageFile = new File(springEnvironment.getMediaFolderPath() + image.getFilename());
+        File imageThumbnailFile = new File(springEnvironment.getMediaFolderPath() + image.getThumbnailFilename());
+        Assertions.assertTrue(imageFile.delete());
+        Assertions.assertTrue(imageThumbnailFile.delete());
+    }
+
+    @Given("A user has an image")
+    public void aUserHasAnImage() {
+        AddUserImageDTO dto = new AddUserImageDTO (
+                testUser.getId(),
+                new AppUserDetails(testUser),
+                testImageFile
+        );
+        userImageService.addUserImage(dto);
+
+        Optional<User> optionalUser = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(optionalUser.isPresent());
+        User retrievedUser = optionalUser.get();
+        Assertions.assertEquals(1, retrievedUser.getImages().size());
+        testUser = retrievedUser;
+    }
+
+    @When("I delete an image for a user")
+    public void iDeleteAnImageForAUser() {
+        Image image = testUser.getImages().iterator().next();
+        deletedImage = image;
+        DeleteUserImageDTO dto = new DeleteUserImageDTO(
+                testUser.getId(),
+                image.getId(),
+                new AppUserDetails(testUser));
+
+        userImageService.deleteImage(dto);
+    }
+
+    @Then("The user no longer has that image as one of it's images")
+    public void theUserNoLongerHasThatImageAsOneOfItSImages() {
+        Optional<User> optionalUser = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(optionalUser.isPresent());
+        User retrievedUser = optionalUser.get();
+        Assertions.assertEquals(0, retrievedUser.getImages().size());
+    }
+
+    @Then("The user's image is no longer saved")
+    public void theUsersImageIsNoLongerSaved() {
+        File imageFile = new File(springEnvironment.getMediaFolderPath() + deletedImage.getFilename());
+        File imageThumbnailFile = new File(springEnvironment.getMediaFolderPath() + deletedImage.getThumbnailFilename());
+        Assertions.assertFalse(imageFile.exists());
+        Assertions.assertFalse(imageThumbnailFile.exists());
     }
 
     //AC6 - Changing primary image

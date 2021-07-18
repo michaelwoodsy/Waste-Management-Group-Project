@@ -16,6 +16,12 @@
             <li class="nav-item mb-2">
               <router-link class="btn btn-block btn-primary" to="/marketplace">Marketplace</router-link>
             </li>
+            <li v-if="user.isActingAsUser()" class="nav-item mb-2">
+              <router-link :to="`users/${user.state.userId}/edit`"
+                           class="btn btn-block btn-primary">Edit Profile
+              </router-link>
+            </li>
+
           </ul>
         </div>
         <!-- Links to display if acting as business -->
@@ -304,7 +310,6 @@ export default {
       try {
         const response = await User.getMessages(this.user.actor().id)
         this.messages = response.data
-        console.log(this.messages)
       } catch (error) {
         console.error(error)
         this.error = error

@@ -3,9 +3,10 @@ package org.seng302.project.webLayer.controller;
 
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
-import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
+import org.seng302.project.serviceLayer.dto.user.DeleteUserImageDTO;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.service.UserImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -38,6 +39,26 @@ public class UserImageController {
                                             @RequestParam(value = "file") MultipartFile imageFile) {
         var requestDTO = new AddUserImageDTO(userId, user, imageFile);
         return userImageService.addUserImage(requestDTO);
+    }
+
+    /**
+     * Handles request to delete an image for a user.
+     */
+    @DeleteMapping("/users/{userId}/images/{imageId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteImage(@PathVariable int userId,
+                            @PathVariable int imageId,
+                            @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+            var requestDTO = new DeleteUserImageDTO(userId, imageId, appUser);
+            userImageService.deleteImage(requestDTO);
+        } catch (ForbiddenUserException | NoUserExistsException
+                | NotAcceptableException handledException) {
+            logger.error(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while deleting user's image: %s", unhandledException.getMessage()));
+        }
     }
 
     /**
