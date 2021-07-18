@@ -29,11 +29,15 @@
           </li>
           <!-- Users search link -->
           <li v-if="isLoggedIn" class="nav-item">
-            <router-link class="nav-link text-white" to="/search">Search</router-link>
+            <router-link class="nav-link text-white ml-2" to="/search">Search</router-link>
           </li>
           <!-- Marketplace link -->
           <li v-if="isLoggedIn" class="nav-item">
-            <router-link class="nav-link text-white" to="/marketplace">Marketplace</router-link>
+            <router-link class="nav-link text-white ml-2" to="/marketplace">Marketplace</router-link>
+          </li>
+          <!-- Browse sale listings link -->
+          <li v-if="isLoggedIn" class="nav-item">
+            <router-link class="nav-link text-white ml-2" to="/listings">Browse Sale Listings</router-link>
           </li>
         </ul>
 
