@@ -12,7 +12,6 @@ import org.seng302.project.serviceLayer.dto.user.DeleteUserImageDTO;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
-import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.service.UserImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +90,7 @@ public class UserImageControllerTest extends AbstractInitializer {
      */
     @Test
     void addUserImage_userNotFound_returnsStatus406() throws Exception {
-        doThrow(NotAcceptableException.class)
+        doThrow(NoUserExistsException.class)
                 .when(userImageService)
                 .addUserImage(Mockito.any(AddUserImageDTO.class));
 
@@ -181,7 +180,7 @@ public class UserImageControllerTest extends AbstractInitializer {
      */
     @Test
     void deleteUserImage_noUserExists_returnsStatus406() throws Exception {
-        doThrow(NotAcceptableException.class)
+        doThrow(NoUserExistsException.class)
                 .when(userImageService).deleteImage(Mockito.any(DeleteUserImageDTO.class));
 
         RequestBuilder deleteUserImageRequest = MockMvcRequestBuilders
@@ -200,7 +199,7 @@ public class UserImageControllerTest extends AbstractInitializer {
      */
     @Test
     void deleteUserImage_noImageExists_returnsStatus406() throws Exception {
-        doThrow(new UserImageNotFoundException(testUser.getId(), 7))
+        doThrow(NotAcceptableException.class)
                 .when(userImageService).deleteImage(Mockito.any(DeleteUserImageDTO.class));
 
 

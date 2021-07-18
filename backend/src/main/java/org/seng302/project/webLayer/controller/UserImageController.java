@@ -6,10 +6,7 @@ import org.seng302.project.serviceLayer.dto.user.AddUserImageResponseDTO;
 import org.seng302.project.serviceLayer.dto.user.DeleteUserImageDTO;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
-import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
-import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
-import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.serviceLayer.service.UserImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -55,7 +52,7 @@ public class UserImageController {
         try {
             var requestDTO = new DeleteUserImageDTO(userId, imageId, appUser);
             userImageService.deleteImage(requestDTO);
-        } catch (UserImageNotFoundException | ForbiddenUserException
+        } catch (ForbiddenUserException | NoUserExistsException
                 | NotAcceptableException handledException) {
             logger.error(handledException.getMessage());
             throw handledException;

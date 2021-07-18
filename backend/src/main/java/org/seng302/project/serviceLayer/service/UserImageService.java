@@ -11,7 +11,6 @@ import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.serviceLayer.exceptions.user.UserImageInvalidException;
-import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -70,7 +69,7 @@ public class UserImageService {
 
         // Check if the user exists
         if (userResult.isEmpty()) {
-            throw new NotAcceptableException(String.format("No User exists with ID %d", dto.getUserId()));
+            throw new NoUserExistsException(dto.getUserId());
         }
         // We know user exists so retrieve user properly
         var user = userResult.get();
@@ -118,7 +117,7 @@ public class UserImageService {
 
         // Check if the user exists
         if (userResult.isEmpty()) {
-            throw new NotAcceptableException(String.format("No User exists with ID %d", dto.getUserId()));
+            throw new NoUserExistsException(dto.getUserId());
         }
         // We know user exists so retrieve user properly
         var user = userResult.get();
@@ -168,7 +167,8 @@ public class UserImageService {
                 throw exception;
             }
         } else {
-            throw new UserImageNotFoundException(dto.getUserId(), dto.getImageId());
+            throw new NotAcceptableException(String.format(
+                    "User %s does not have an image with id %d", dto.getUserId(), dto.getImageId()));
         }
     }
 

@@ -15,7 +15,6 @@ import org.seng302.project.serviceLayer.dto.user.DeleteUserImageDTO;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
-import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -26,7 +25,6 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -107,7 +105,7 @@ class UserImageServiceTest extends AbstractInitializer {
                 testImageFile
         );
 
-        Assertions.assertThrows(NotAcceptableException.class,
+        Assertions.assertThrows(NoUserExistsException.class,
                 () -> userImageService.addUserImage(dto));
     }
 
@@ -186,7 +184,7 @@ class UserImageServiceTest extends AbstractInitializer {
                 2,
                 new AppUserDetails(testUser)
         );
-        Assertions.assertThrows(NotAcceptableException.class,
+        Assertions.assertThrows(NoUserExistsException.class,
                 () -> userImageService.deleteImage(deleteUserImageDTO));
     }
 
@@ -200,7 +198,7 @@ class UserImageServiceTest extends AbstractInitializer {
                 7,
                 new AppUserDetails(testUser)
         );
-        Assertions.assertThrows(UserImageNotFoundException.class,
+        Assertions.assertThrows(NotAcceptableException.class,
                 () -> userImageService.deleteImage(deleteUserImageDTO));
     }
 
