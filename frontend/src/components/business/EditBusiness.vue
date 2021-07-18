@@ -107,16 +107,26 @@
             <br>
           </div>
 
-          <div class="form-row">
-            <button class="btn btn-block btn-primary m-2"
-                    v-on:click="checkInputs">
-              Save Changes
-            </button>
+          <!-- Save Changes button -->
+          <div class="form-group row mb-0">
+            <div class="btn-group" style="width: 100%">
+              <!-- Cancel button when changes are made -->
+              <button id="cancelButton"
+                      class="btn btn-danger"
+                      type="button"
+                      @click="cancel"
+              >
+                Cancel
+              </button>
+              <button class="btn btn-primary"
+                      v-on:click="checkInputs">
+                Save Changes
+              </button>
 
-            <!--TODO: add a cancel button? -->
-            <!--TODO: Interface to edit images -->
+              <!--TODO: Interface to edit images -->
 
-            <!--    Error message for the registering process    -->
+            </div>
+            <!--    Error message for the editing process    -->
             <div class="login-box" style="width: 100%; margin:20px 20px; text-align: center">
               <!-- Show error if something wrong -->
               <alert id="errorAlert" v-if="msg.errorChecks">
@@ -338,7 +348,14 @@ export default {
 
         }
       }
-    }
+    },
+
+    /**
+     * Method to cancel making changes to business
+     */
+    cancel() {
+      this.$router.push({name: 'home'})
+    },
   }
 }
 
