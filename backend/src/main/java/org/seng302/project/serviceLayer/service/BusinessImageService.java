@@ -76,7 +76,7 @@ public class BusinessImageService {
         var business = businessResult.get();
 
         // Check the logged in user is an admin for the business we are adding the image to (or GAA)
-        if (!loggedInUser.businessIsAdministered(business.getId()) && !loggedInUser.isGAA()) {
+        if (!business.userCanDoAction(loggedInUser)) {
             throw new ForbiddenAdministratorActionException(dto.getBusinessId());
         }
 
