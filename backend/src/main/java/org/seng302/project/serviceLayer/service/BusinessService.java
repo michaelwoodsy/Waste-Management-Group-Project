@@ -10,6 +10,7 @@ import org.seng302.project.repositoryLayer.specification.BusinessSpecifications;
 import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
+import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.InvalidDateException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
@@ -275,9 +276,8 @@ public class BusinessService {
             String searchQuery = requestDTO.getSearchQuery();
             List<Business> retrievedBusinesses;
 
-            if (searchQuery.equals("")) {
-                retrievedBusinesses = businessRepository.findAll();
-                logger.info("Retrieved {} businesses", retrievedBusinesses.size());
+            if (searchQuery.length() < 3) {
+                throw new BadRequestException("Please enter at least 3 characters to search.");
             } else {
                 Set<Business> result = new LinkedHashSet<>();
 
@@ -313,6 +313,9 @@ public class BusinessService {
 
             return filterBusinesses(retrievedBusinesses, requestDTO.getBusinessType());
 
+        } catch (BadRequestException badRequestException) {
+            logger.error(badRequestException.getMessage());
+            throw badRequestException;
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while searching businesses: %s", exception.getMessage()));
             throw exception;
