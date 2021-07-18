@@ -7,15 +7,20 @@ import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repositoryLayer.model.Image;
+import org.seng302.project.repositoryLayer.model.Product;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.repositoryLayer.repository.AddressRepository;
-import org.seng302.project.repositoryLayer.repository.CardRepository;
-import org.seng302.project.repositoryLayer.repository.KeywordRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.repository.*;
+import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
+import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
+import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.PutUserDTO;
+import org.seng302.project.serviceLayer.service.UserImageService;
+import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -26,18 +31,19 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.File;
+import java.sql.Array;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
-public class UserEditSteps extends AbstractInitializer {
+public class ModifyingIndividualsSteps extends AbstractInitializer {
 
     private User testUser;
     private PutUserDTO putUserDTO;
+    private MockMultipartFile testImageFile;
 
     private RequestBuilder editUserRequest;
 
@@ -45,7 +51,8 @@ public class UserEditSteps extends AbstractInitializer {
 
     private ResultActions reqResult;
 
-
+    private final UserImageService userImageService;
+    private final ImageRepository imageRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AddressRepository addressRepository;
@@ -53,19 +60,29 @@ public class UserEditSteps extends AbstractInitializer {
     private final KeywordRepository keywordRepository;
     private final ObjectMapper objectMapper;
 
+    private final SpringEnvironment springEnvironment;
+
+
     @Autowired
-    public UserEditSteps(UserRepository userRepository,
-                         BCryptPasswordEncoder passwordEncoder,
-                         AddressRepository addressRepository,
-                         CardRepository cardRepository,
-                         KeywordRepository keywordRepository,
-                         ObjectMapper objectMapper) {
+    public ModifyingIndividualsSteps(UserRepository userRepository,
+                                     BCryptPasswordEncoder passwordEncoder,
+                                     AddressRepository addressRepository,
+                                     CardRepository cardRepository,
+                                     KeywordRepository keywordRepository,
+                                     ObjectMapper objectMapper,
+                                     UserImageService userImageService,
+                                     ImageRepository imageRepository,
+                                     SpringEnvironment springEnvironment) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.addressRepository = addressRepository;
         this.cardRepository = cardRepository;
         this.keywordRepository = keywordRepository;
         this.objectMapper = objectMapper;
+        this.userImageService = userImageService;
+        this.imageRepository = imageRepository;
+        this.springEnvironment = springEnvironment;
+
     }
 
     @BeforeEach
@@ -75,6 +92,9 @@ public class UserEditSteps extends AbstractInitializer {
         cardRepository.deleteAll();
         keywordRepository.deleteAll();
         userRepository.deleteAll();
+        imageRepository.deleteAll();
+
+        testImageFile = this.getTestImageFile();
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -219,4 +239,120 @@ public class UserEditSteps extends AbstractInitializer {
         String returnedExceptionString = editUserResponse.getResponse().getContentAsString();
         Assertions.assertEquals("MissingData: First Name is a mandatory field", returnedExceptionString);
     }
+
+    //AC6 - Changing primary image
+    @Given("A user has at least {int} images the first is the primary image")
+    public void aUserHasAtLeastImagesTheFirstIsThePrimaryImage(int numberOfImages) {
+        // numberOfImages = 2 so we add 2 images
+        AddUserImageDTO dto = new AddUserImageDTO(
+                testUser.getId(),
+                new AppUserDetails(testUser),
+                testImageFile);
+        //Image 1
+        userImageService.addUserImage(dto);
+        //Image 2
+        userImageService.addUserImage(dto);
+
+        Optional<User> optionalUser = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(optionalUser.isPresent());
+        User retrievedUser = optionalUser.get();
+        Assertions.assertEquals(numberOfImages, retrievedUser.getImages().size());
+        testUser = retrievedUser;
+    }
+
+    @When("The user changes the primary image to be the second image")
+    public void theUserChangesThePrimaryImageToBeTheSecondImage() {
+        //Add all image from set to arraylist for the testUser
+        ArrayList<Image> imageList = new ArrayList<>(testUser.getImages());
+
+        userImageService.setPrimaryImage(testUser.getId(), imageList.get(1).getId(), new AppUserDetails(testUser));
+    }
+
+    @Then("The primary image for the user is the second image")
+    public void thePrimaryImageForTheUserIsTheSecondImage() {
+        Optional<User> optionalUser = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(optionalUser.isPresent());
+        User retrievedUser = optionalUser.get();
+
+        //Add all images from set to arraylist for the testUser
+        ArrayList<Image> imageListTestUser = new ArrayList<>(testUser.getImages());
+
+        Assertions.assertEquals(imageListTestUser.get(1).getId(), retrievedUser.getPrimaryImageId());
+
+        //Remove images from system to clean up
+        Image image1 = imageListTestUser.get(0);
+        File image1File = new File(springEnvironment.getMediaFolderPath() + image1.getFilename());
+        File image1ThumbnailFile = new File(springEnvironment.getMediaFolderPath() + image1.getThumbnailFilename());
+        Assertions.assertTrue(image1File.delete());
+        Assertions.assertTrue(image1ThumbnailFile.delete());
+        Image image2 = imageListTestUser.get(1);
+        File image2File = new File(springEnvironment.getMediaFolderPath() + image2.getFilename());
+        File image2ThumbnailFile = new File(springEnvironment.getMediaFolderPath() + image2.getThumbnailFilename());
+        Assertions.assertTrue(image2File.delete());
+        Assertions.assertTrue(image2ThumbnailFile.delete());
+    }
+
+    @Then("The uploaded image is the primary image for the user")
+    public void theUploadedImageIsThePrimaryImageForTheUser() {
+        Optional<User> optionalUser = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(optionalUser.isPresent());
+        User retrievedUser = optionalUser.get();
+        Assertions.assertEquals(1, retrievedUser.getImages().size());
+
+        //Add all images from set to arraylist for the retrievedUser
+        ArrayList<Image> imageList = new ArrayList<>(retrievedUser.getImages());
+
+        //Check that the first image in the list of images for the user has the same Id as the primary image
+        Assertions.assertEquals(imageList.get(0).getId(), retrievedUser.getPrimaryImageId());
+
+        Image image = imageList.get(0);
+        //Remove images from system to clean up
+        File imageFile = new File(springEnvironment.getMediaFolderPath() + image.getFilename());
+        File imageThumbnailFile = new File(springEnvironment.getMediaFolderPath() + image.getThumbnailFilename());
+        Assertions.assertTrue(imageFile.delete());
+        Assertions.assertTrue(imageThumbnailFile.delete());
+    }
+
+    //AC7 : A thumbnail of the primary image is automatically created
+
+    @Given("A user has {int} images")
+    public void aUserHasImages(int numberOfImages) {
+        Optional<User> optionalUser = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(optionalUser.isPresent());
+        User retrievedUser = optionalUser.get();
+        Assertions.assertEquals(numberOfImages, retrievedUser.getImages().size());
+        testUser = retrievedUser;
+    }
+
+    @When("An image is uploaded")
+    public void anImageIsUploaded() {
+        AddUserImageDTO dto = new AddUserImageDTO(
+                testUser.getId(),
+                new AppUserDetails(testUser),
+                testImageFile);
+        userImageService.addUserImage(dto);
+    }
+
+    @Then("The uploaded image has a thumbnail created")
+    public void theUploadedImageHasAThumbnailCreated() {
+        Optional<User> optionalUser = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(optionalUser.isPresent());
+        User retrievedUser = optionalUser.get();
+        Assertions.assertEquals(1, retrievedUser.getImages().size());
+
+        //Add all images from set to arraylist for the retrievedUser
+        ArrayList<Image> imageList = new ArrayList<>(retrievedUser.getImages());
+
+        //Check that the image has a thumbnail
+        Image image = imageList.get(0);
+        Assertions.assertNotNull(image.getThumbnailFilename());
+
+        //Remove images from system to clean up
+        File imageFile = new File(springEnvironment.getMediaFolderPath() + image.getFilename());
+        File imageThumbnailFile = new File(springEnvironment.getMediaFolderPath() + image.getThumbnailFilename());
+        Assertions.assertTrue(imageFile.delete());
+        Assertions.assertTrue(imageThumbnailFile.delete());
+    }
+
+
 }

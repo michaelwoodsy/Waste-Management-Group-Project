@@ -65,9 +65,9 @@ public class CardService {
 
             //check that listed card creator exists.
             if (creator.isEmpty()) {
-                var noUserExistsException = new NoUserExistsException(dto.getCreatorId());
-                logger.warn(noUserExistsException.getMessage());
-                throw noUserExistsException;
+                var badRequestException = new BadRequestException("No user exists with the id " + dto.getCreatorId());
+                logger.warn(badRequestException.getMessage());
+                throw badRequestException;
             }
 
 
