@@ -6,6 +6,6 @@ package org.seng302.project.serviceLayer.exceptions.user;
  */
 public class UserImageInvalidException extends RuntimeException {
     public UserImageInvalidException() {
-        super(String.format("UserImageInvalidException: Image supplied is of invalid type"));
+        super("UserImageInvalidException: Image supplied is of invalid type");
     }
 }

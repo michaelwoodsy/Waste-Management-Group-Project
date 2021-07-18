@@ -10,13 +10,10 @@ import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
-import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
-import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -192,18 +189,24 @@ class UserImageServiceTest extends AbstractInitializer {
      */
     @Test
     void setPrimaryImage_withInvalidUserId_Fails() {
+        var imageId = testImages.get(1).getId();
+        var appUser = new AppUserDetails(testUser);
+
         Assertions.assertThrows(NoUserExistsException.class,
-                () -> userImageService.setPrimaryImage(100, testImages.get(1).getId(), new AppUserDetails(testUser)));
+                () -> userImageService.setPrimaryImage(100, imageId , appUser));
     }
 
     /**
      * Tests that setting a primary image with an invalid imageId results in a fail
-     * and a UserImageNotFoundException exception is thrown.
+     * and a NotAcceptableException exception is thrown.
      */
     @Test
     void setPrimaryImage_withInvalidImageId_Fails() {
-        Assertions.assertThrows(UserImageNotFoundException.class,
-                () -> userImageService.setPrimaryImage(testUser.getId(), 100, new AppUserDetails(testUser)));
+        var userId = testUser.getId();
+        var appUser = new AppUserDetails(testUser);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> userImageService.setPrimaryImage(userId, 100, appUser));
     }
 
     /**
@@ -212,7 +215,9 @@ class UserImageServiceTest extends AbstractInitializer {
      */
     @Test
     void setPrimaryImage_asDifferentUser_Fails() {
+        var userId = testUser.getId();
+        var appUser = new AppUserDetails(testUserBusinessAdmin);
         Assertions.assertThrows(ForbiddenUserException.class,
-                () -> userImageService.setPrimaryImage(testUser.getId(), 100, new AppUserDetails(testUserBusinessAdmin)));
+                () -> userImageService.setPrimaryImage(userId, 100, appUser));
     }
 }

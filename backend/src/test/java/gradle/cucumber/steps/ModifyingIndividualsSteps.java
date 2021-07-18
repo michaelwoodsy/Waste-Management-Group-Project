@@ -39,7 +39,7 @@ import java.util.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
-public class UserEditSteps extends AbstractInitializer {
+public class ModifyingIndividualsSteps extends AbstractInitializer {
 
     private User testUser;
     private PutUserDTO putUserDTO;
@@ -64,15 +64,15 @@ public class UserEditSteps extends AbstractInitializer {
 
 
     @Autowired
-    public UserEditSteps(UserRepository userRepository,
-                         BCryptPasswordEncoder passwordEncoder,
-                         AddressRepository addressRepository,
-                         CardRepository cardRepository,
-                         KeywordRepository keywordRepository,
-                         ObjectMapper objectMapper,
-                         UserImageService userImageService,
-                         ImageRepository imageRepository,
-                         SpringEnvironment springEnvironment) {
+    public ModifyingIndividualsSteps(UserRepository userRepository,
+                                     BCryptPasswordEncoder passwordEncoder,
+                                     AddressRepository addressRepository,
+                                     CardRepository cardRepository,
+                                     KeywordRepository keywordRepository,
+                                     ObjectMapper objectMapper,
+                                     UserImageService userImageService,
+                                     ImageRepository imageRepository,
+                                     SpringEnvironment springEnvironment) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.addressRepository = addressRepository;
@@ -241,6 +241,7 @@ public class UserEditSteps extends AbstractInitializer {
     //AC6 - Changing primary image
     @Given("A user has at least {int} images the first is the primary image")
     public void aUserHasAtLeastImagesTheFirstIsThePrimaryImage(int numberOfImages) {
+        // numberOfImages = 2 so we add 2 images
         AddUserImageDTO dto = new AddUserImageDTO(
                 testUser.getId(),
                 new AppUserDetails(testUser),
@@ -259,11 +260,8 @@ public class UserEditSteps extends AbstractInitializer {
 
     @When("The user changes the primary image to be the second image")
     public void theUserChangesThePrimaryImageToBeTheSecondImage() {
-        ArrayList<Image> imageList = new ArrayList<Image>();
         //Add all image from set to arraylist for the testUser
-        for(Image setImage : testUser.getImages()) {
-            imageList.add((Image) setImage);
-        }
+        ArrayList<Image> imageList = new ArrayList<>(testUser.getImages());
 
         userImageService.setPrimaryImage(testUser.getId(), imageList.get(1).getId(), new AppUserDetails(testUser));
     }
@@ -274,11 +272,8 @@ public class UserEditSteps extends AbstractInitializer {
         Assertions.assertTrue(optionalUser.isPresent());
         User retrievedUser = optionalUser.get();
 
-        ArrayList<Image> imageListTestUser = new ArrayList<Image>();
         //Add all images from set to arraylist for the testUser
-        for(Image setImage : testUser.getImages()) {
-            imageListTestUser.add((Image) setImage);
-        }
+        ArrayList<Image> imageListTestUser = new ArrayList<>(testUser.getImages());
 
         Assertions.assertEquals(imageListTestUser.get(1).getId(), retrievedUser.getPrimaryImageId());
 
@@ -302,13 +297,10 @@ public class UserEditSteps extends AbstractInitializer {
         User retrievedUser = optionalUser.get();
         Assertions.assertEquals(1, retrievedUser.getImages().size());
 
-        ArrayList<Image> imageList = new ArrayList<Image>();
         //Add all images from set to arraylist for the retrievedUser
-        for(Image setImage : retrievedUser.getImages()) {
-            imageList.add((Image) setImage);
-        }
+        ArrayList<Image> imageList = new ArrayList<>(retrievedUser.getImages());
 
-        //Check that the ft image in the list of images for the user has the same Id as the primary image
+        //Check that the first image in the list of images for the user has the same Id as the primary image
         Assertions.assertEquals(imageList.get(0).getId(), retrievedUser.getPrimaryImageId());
 
         Image image = imageList.get(0);
@@ -346,11 +338,8 @@ public class UserEditSteps extends AbstractInitializer {
         User retrievedUser = optionalUser.get();
         Assertions.assertEquals(1, retrievedUser.getImages().size());
 
-        ArrayList<Image> imageList = new ArrayList<Image>();
         //Add all images from set to arraylist for the retrievedUser
-        for(Image setImage : retrievedUser.getImages()) {
-            imageList.add((Image) setImage);
-        }
+        ArrayList<Image> imageList = new ArrayList<>(retrievedUser.getImages());
 
         //Check that the image has a thumbnail
         Image image = imageList.get(0);

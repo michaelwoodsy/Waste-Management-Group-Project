@@ -3,7 +3,6 @@ package org.seng302.project.webLayer.controllerAdvice;
 import org.seng302.project.serviceLayer.exceptions.card.InvalidMarketplaceSectionException;
 import org.seng302.project.serviceLayer.exceptions.card.ForbiddenCardActionException;
 import org.seng302.project.serviceLayer.exceptions.card.NoCardExistsException;
-import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.RequiredFieldsMissingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,16 +26,6 @@ public class CardControllerAdvice {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Exception thrown by the createCard() function in CardController
-     * when there is no matching user that has created card.
-     *
-     * @return a 400 response with an appropriate message
-     */
-    @ExceptionHandler(NoUserExistsException.class)
-    public ResponseEntity<String> userDoesNotExist(NoUserExistsException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
     /**
      * Exception thrown by the getAllCards() function in CardController
      * when the section provided is invalid.

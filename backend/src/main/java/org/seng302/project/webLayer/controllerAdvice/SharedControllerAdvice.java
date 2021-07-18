@@ -2,6 +2,7 @@ package org.seng302.project.webLayer.controllerAdvice;
 
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.springframework.http.HttpStatus;
@@ -83,5 +84,16 @@ public class SharedControllerAdvice {
     @ExceptionHandler(ForbiddenUserException.class)
     public ResponseEntity<String> forbiddenUserRequestDTO(ForbiddenUserException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * Exception thrown by BusinessController, UserController and UserImageController
+     * when a there is no matching user.
+     *
+     * @return a 406 response with an appropriate message
+     */
+    @ExceptionHandler(NoUserExistsException.class)
+    public ResponseEntity<String> userDoesNotExist(NoUserExistsException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
 }

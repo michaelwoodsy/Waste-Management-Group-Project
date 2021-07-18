@@ -10,7 +10,6 @@ import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.serviceLayer.exceptions.user.UserImageInvalidException;
-import org.seng302.project.serviceLayer.exceptions.user.UserImageNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -60,7 +59,7 @@ public class UserImageService {
             throw new UserImageInvalidException();
         }
 
-        // Get the logged in user from the users email
+        // Get the logged in user from the user's email
         String userEmail = dto.getAppUser().getUsername();
         var loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
@@ -74,7 +73,7 @@ public class UserImageService {
         // We know user exists so retrieve user properly
         var user = userResult.get();
 
-        // Check if the logged in user is the same user who we are adding an image for (or GAA)
+        // Check the logged in user is the same user we are adding the image to (or GAA)
         if (!loggedInUser.getId().equals(user.getId()) && !loggedInUser.isGAA()) {
             throw new ForbiddenUserException(dto.getUserId());
         }
@@ -119,7 +118,7 @@ public class UserImageService {
         }
         var receivingUser = receivingUserOptional.get();
 
-        // Check if the logged in user is the same user whose messages we are retrieving
+        // Check if the logged in user is the same user whose primary image we are updating
         String userEmail = appUser.getUsername();
         var loggedInUser = userRepository.findByEmail(userEmail).get(0);
 
@@ -143,7 +142,8 @@ public class UserImageService {
             receivingUser.setPrimaryImageId(imageId);
             userRepository.save(receivingUser);
         } else {
-            throw new UserImageNotFoundException(userId, imageId);
+            throw new NotAcceptableException(String.format(
+                    "User %s does not have an image with id %d", userId, imageId));
         }
     }
 }
