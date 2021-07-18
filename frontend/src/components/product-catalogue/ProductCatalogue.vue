@@ -35,7 +35,7 @@
             </div>
           </div>
 
-          <product-search/>
+          <product-search />
 
           <!--    Error Alert    -->
           <div v-if="error" class="row">
@@ -130,7 +130,6 @@ export default {
       return this.actor.id === parseInt(this.$route.params.businessId);
     },
   },
-
   methods: {
     /**
      * Takes user to page to create new product.
@@ -146,6 +145,14 @@ export default {
     refreshProducts() {
       this.createNewProduct = false;
       this.$refs.catalogueItems.fillTable();
+    },
+
+    /**
+     * Fills the catalogue with search results.
+     * Called by the child component ProductSearch
+     */
+    applySearch(searchResults) {
+      this.$refs.catalogueItems.products = searchResults
     }
   }
 }

@@ -10,6 +10,11 @@ Feature: U28 - Product Search
     When A user who is not the business admin tries searching the catalogue
     Then The user is prevented from doing so
 
+  Scenario: AC2: I can only search the catalogue for the business I am currently acting as admin for.
+    Given Our product catalogue has a product with the name "Wattie's Baked Beans" and another business has a product with the name "Heinz Baked Beans"
+    When The business admin searches with the term "beans" to match a product name
+    Then Only the product with the name "Wattie's Baked Beans" is included in the results
+
   Scenario: AC3: I can enter one or more search terms.  If I enter more than one term then
     I can specify whether results must match all of the terms or any of them.
     Given A product catalogue has products with the names "Wattie's Baked Beans" and "Heinz Baked Beans"

@@ -272,11 +272,12 @@ public class ProductCatalogueService {
      * Updates the set of products for searchProducts()
      * @param currentResult The products that have already been retrieved searchProducts()
      * @param conjunctions The list of strings that have been split by OR
+     * @param businessId The id of the business we are searching the catalogue of
      */
-    private void searchIdField(Set<Product> currentResult, String[] conjunctions) {
+    private void searchIdField(Set<Product> currentResult, String[] conjunctions, Integer businessId) {
         for (String conjunction : conjunctions) {
             String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
-            Specification<Product> spec = Specification.where(null);
+            Specification<Product> spec = Specification.where(ProductSpecifications.hasBusinessId(businessId));
             for (String term : terms) {
                 //Remove quotes from quoted string, then search by full contents inside the quotes
                 if (Pattern.matches(QUOTE_REGEX, term)) {
@@ -294,11 +295,12 @@ public class ProductCatalogueService {
      * Updates the set of products for searchProducts()
      * @param currentResult The products that have already been retrieved searchProducts()
      * @param conjunctions The list of strings that have been split by OR
+     * @param businessId The id of the business we are searching the catalogue of
      */
-    private void searchNameField(Set<Product> currentResult, String[] conjunctions) {
+    private void searchNameField(Set<Product> currentResult, String[] conjunctions, Integer businessId) {
         for (String conjunction : conjunctions) {
             String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
-            Specification<Product> spec = Specification.where(null);
+            Specification<Product> spec = Specification.where(ProductSpecifications.hasBusinessId(businessId));
             for (String term : terms) {
                 //Remove quotes from quoted string, then search by full contents inside the quotes
                 if (Pattern.matches(QUOTE_REGEX, term)) {
@@ -316,11 +318,12 @@ public class ProductCatalogueService {
      * Updates the set of products for searchProducts()
      * @param currentResult The products that have already been retrieved searchProducts()
      * @param conjunctions The list of strings that have been split by OR
+     * @param businessId The id of the business we are searching the catalogue of
      */
-    private void searchDescriptionField(Set<Product> currentResult, String[] conjunctions) {
+    private void searchDescriptionField(Set<Product> currentResult, String[] conjunctions, Integer businessId) {
         for (String conjunction : conjunctions) {
             String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
-            Specification<Product> spec = Specification.where(null);
+            Specification<Product> spec = Specification.where(ProductSpecifications.hasBusinessId(businessId));
             for (String term : terms) {
                 //Remove quotes from quoted string, then search by full contents inside the quotes
                 if (Pattern.matches(QUOTE_REGEX, term)) {
@@ -337,11 +340,12 @@ public class ProductCatalogueService {
      * Updates the set of products for searchProducts()
      * @param currentResult The products that have already been retrieved searchProducts()
      * @param conjunctions The list of strings that have been split by OR
+     * @param businessId The id of the business we are searching the catalogue of
      */
-    private void searchManufacturerField(Set<Product> currentResult, String[] conjunctions) {
+    private void searchManufacturerField(Set<Product> currentResult, String[] conjunctions, Integer businessId) {
         for (String conjunction : conjunctions) {
             String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
-            Specification<Product> spec = Specification.where(null);
+            Specification<Product> spec = Specification.where(ProductSpecifications.hasBusinessId(businessId));
             for (String term : terms) {
                 //Remove quotes from quoted string, then search by full contents inside the quotes
                 if (Pattern.matches(QUOTE_REGEX, term)) {
@@ -356,7 +360,7 @@ public class ProductCatalogueService {
     /**
      * Searches a business's catalogue for products
      * @param businessId id of the business to search products of
-     * @param requestDTO request body containing which fields to search by
+     * @param requestDTO a DTO containing which fields to search by
      * @param appUser the user making the request
      */
     public List<GetProductDTO> searchProducts(Integer businessId, String searchQuery, ProductSearchDTO requestDTO,
@@ -375,22 +379,22 @@ public class ProductCatalogueService {
 
         //Searching id field
         if (Boolean.TRUE.equals(requestDTO.getMatchingId())) {
-            searchIdField(result, conjunctions);
+            searchIdField(result, conjunctions, businessId);
         }
 
         //Searching name field
         if (Boolean.TRUE.equals(requestDTO.getMatchingName())) {
-            searchNameField(result, conjunctions);
+            searchNameField(result, conjunctions, businessId);
         }
 
         //Searching description field
         if (Boolean.TRUE.equals(requestDTO.getMatchingDescription())) {
-            searchDescriptionField(result, conjunctions);
+            searchDescriptionField(result, conjunctions, businessId);
         }
 
         //Searching manufacturer field
         if (Boolean.TRUE.equals(requestDTO.getMatchingManufacturer())) {
-            searchManufacturerField(result, conjunctions);
+            searchManufacturerField(result, conjunctions, businessId);
         }
 
         List<Product> products = new ArrayList<>(result);
