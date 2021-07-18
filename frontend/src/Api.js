@@ -154,7 +154,17 @@ export const User = {
      * @returns {Promise<AxiosResponse<any>>} response with status code
      */
     deleteAdminNotification: (notificationId) =>
-        instance.delete(`notifications/${notificationId}`)
+        instance.delete(`notifications/${notificationId}`),
+
+    /**
+     * Adds an image to a user
+     */
+    addImage: (userId, file) => instance.post(
+        `users/${userId}/images`, file, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }),
 
 };
 
