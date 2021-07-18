@@ -15,7 +15,9 @@
 
       <!--    Order By   -->
       <div class="overflow-auto">
-        <table class="table table-hover">
+        <table class="table table-hover"
+               aria-label="Table of product catalogue items"
+        >
           <thead>
           <tr>
             <!--    Product Code    -->

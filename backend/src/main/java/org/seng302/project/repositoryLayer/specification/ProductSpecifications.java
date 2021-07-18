@@ -77,4 +77,17 @@ public class ProductSpecifications {
                 builder.like(builder.lower(root.get("manufacturer")), '%' + productManufacturer + '%'));
 
     }
+
+    /**
+     * Specification to find products from a specific business.
+     * Used in conjunctions with the above specifications to make sure
+     * that a business only sees search results from their own business.
+     *
+     * @param businessId the business id of the catalogue to search
+     * @return new specification to use when querying repository.
+     */
+    public static Specification<Product> hasBusinessId(Integer businessId) {
+        return ((root, query, builder) ->
+                builder.equal(root.get("businessId"), businessId));
+    }
 }
