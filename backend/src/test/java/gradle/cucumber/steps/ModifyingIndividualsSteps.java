@@ -60,13 +60,10 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
 
     private ResultActions reqResult;
 
-    private MockMultipartFile testImageFile;
-
     private Image deletedImage;
 
     private final UserImageService userImageService;
 
-    private final UserImageService userImageService;
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -78,17 +75,8 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
     private final SpringEnvironment springEnvironment;
 
 
-    private final SpringEnvironment springEnvironment;
 
     @Autowired
-    public UserEditSteps(UserRepository userRepository,
-                         BCryptPasswordEncoder passwordEncoder,
-                         AddressRepository addressRepository,
-                         CardRepository cardRepository,
-                         KeywordRepository keywordRepository,
-                         ObjectMapper objectMapper,
-                         UserImageService userImageService,
-                         SpringEnvironment springEnvironment) {
     public ModifyingIndividualsSteps(UserRepository userRepository,
                                      BCryptPasswordEncoder passwordEncoder,
                                      AddressRepository addressRepository,
@@ -106,9 +94,7 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
         this.objectMapper = objectMapper;
         this.userImageService = userImageService;
         this.springEnvironment = springEnvironment;
-        this.userImageService = userImageService;
         this.imageRepository = imageRepository;
-        this.springEnvironment = springEnvironment;
 
     }
 
