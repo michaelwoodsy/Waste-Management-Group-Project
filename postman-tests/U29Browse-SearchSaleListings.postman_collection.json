@@ -55,7 +55,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:9599/listings?searchQuery=canterbury&matchingProductName=true&matchingBusinessName=true&matchingBusinessLocation=true&priceRangeLower=2.00&priceRangeUpper=15.50&closingDateLower=2020-07-20&closingDateUpper=2020-07-27",
+					"raw": "http://localhost:9599/listings?searchQuery=canterbury&matchingProductName=true&matchingBusinessName=true&matchingBusinessLocation=true&priceRangeLower=2.00&priceRangeUpper=15.50&closingDateLower=2021-07-20&closingDateUpper=2021-07-27",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -91,11 +91,11 @@
 						},
 						{
 							"key": "closingDateLower",
-							"value": "2020-07-20"
+							"value": "2021-07-20"
 						},
 						{
 							"key": "closingDateUpper",
-							"value": "2020-07-27"
+							"value": "2021-07-27"
 						}
 					]
 				}
