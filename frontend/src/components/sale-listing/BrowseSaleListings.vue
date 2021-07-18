@@ -160,6 +160,10 @@ export default {
       field.checked = !(field.checked);
     },
 
+    /**
+     * Checks the user's input for the filter options and
+     * calls the search function if the input is all valid
+     */
     checkInputs() {
       this.valid = true
       this.validatePrices()
@@ -223,7 +227,7 @@ export default {
         } else if (this.closingDateLowerBound != null) {
           let lowerDate = new Date(this.closingDateLowerBound)
           if ((upperDateGiven - lowerDate < 0)) {
-            this.msg.closingDateUpperBound = "The closing date's upper bound is before the lower bound"
+            this.msg.closingDateUpperBound = "The closing date's upper bound is earlier than the lower bound"
             this.valid = false
           }
         }
