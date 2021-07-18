@@ -16,6 +16,7 @@ import EditInventoryItemPage from "../components/inventory/EditInventoryItemPage
 import Marketplace from "../components/marketplace/Marketplace";
 import Search from "@/components/Search";
 import EditBusiness from "@/components/business/EditBusiness";
+import BrowseSaleListings from "@/components/sale-listing/BrowseSaleListings";
 
 const routes = [
     {
@@ -93,6 +94,11 @@ const routes = [
         name: 'marketplace',
         component: Marketplace
     },
+    {
+        path: '/listings',
+        name: 'browseListings',
+        component: BrowseSaleListings
+    }
 ];
 
 const base = process.env.VUE_APP_BASE_URL || '/';
