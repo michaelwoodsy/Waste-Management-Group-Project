@@ -8,7 +8,7 @@
       <img
           alt="profile"
           class="profile-image rounded-circle"
-          :src="getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')"
+          :src="getPrimaryImageThumbnail()"
       />
       <!-- Users name -->
       <span>{{ actorName }}</span>
@@ -43,7 +43,7 @@
             @click="actAsUser(user)"
         >
           <img alt="profile" class="profile-image-sm rounded-circle"
-               :src="getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')">
+               :src="getPrimaryImageThumbnail(user.images, user.primaryImageId)">
           {{ user.firstName }} {{ user.lastName }}
           <span class="badge badge-danger admin-badge" v-if="isGAA">ADMIN</span>
           <span class="badge badge-danger admin-badge" v-else-if="isDGAA">DGAA</span>
@@ -149,6 +149,46 @@ export default {
     }
   },
   methods: {
+    /**
+     * Uses the primaryImageId of the product to find the primary image and return its imageURL,
+     * else it returns the default product image url
+     */
+    getPrimaryImageThumbnail(currImages, currPrimaryImageId) {
+      let images = currImages
+      let primaryImageId = currPrimaryImageId
+      if (images === undefined) {
+        if (this.actor.type === 'user') {
+          for(const user of this.userAccounts) {
+            if (this.actor.id === user.id) {
+              images = user.images
+              primaryImageId = user.primaryImageId
+              break
+            }
+          }
+        }
+        if (this.actor.type === 'business') {
+          for(const business of this.businessAccounts) {
+            if (this.actor.id === business.id) {
+              images = business.images
+              primaryImageId = business.primaryImageId
+              break
+            }
+          }
+        }
+      }
+      if (primaryImageId === null || images === null) {
+        return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
+      }
+      const filteredImages = images.filter(function(specificImage) {
+        return specificImage.id === primaryImageId;
+      })
+      if (filteredImages.length === 1) {
+        return this.getImageURL(filteredImages[0].thumbnailFilename)
+      }
+      //Return the default image if the program gets to this point (if it does something went wrong)
+      return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
+    },
+
     /**
      * Retrieves the image specified by the path
      */

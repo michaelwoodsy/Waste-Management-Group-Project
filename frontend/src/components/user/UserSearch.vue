@@ -314,7 +314,7 @@ export default {
      */
     getPrimaryImageThumbnail(user) {
       if (user.primaryImageId === null) {
-        return this.getImageURL('/media/defaults/defaultProduct_thumbnail.jpg')
+        return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
       }
       const filteredImages = user.images.filter(function(specificImage) {
         return specificImage.id === user.primaryImageId;
