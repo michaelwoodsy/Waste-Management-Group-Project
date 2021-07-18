@@ -27,7 +27,7 @@
     <!-- Checkboxes for selecting which fields to match -->
     <div class="row form justify-content-center">
       <div class="col form-group text-center">
-        <label class="d-inline-block fields-title mt-2">Matching Fields</label>
+        <label class="d-inline-block option-title mt-2">Matching Fields</label>
         <br>
         <label v-for="field in fieldOptions"
                v-bind:key="field.id">
@@ -39,13 +39,37 @@
         </label>
       </div>
     </div>
+
+    <!--Price and date ranges -->
+    <div class="row form justify-content-center">
+      <div class="col form-group text-center">
+        <label class="d-inline-block option-title mt-2">Price Range:</label>
+        <input class="ml-2 w-25" v-model="priceLowerBound">
+        to
+        <input class="w-25" v-model="priceUpperBound">
+        <br>
+        <label class="d-inline-block option-title mt-2">Closing Date:</label>
+        <input id="closingDateLowerBound" v-model="closingDateLowerBound"
+               class="form-control d-inline-block w-25 ml-2"
+               type="date"
+        >
+        to
+        <input id="closingDateUpperBound" v-model="closingDateUpperBound"
+               maxlength="100"
+               class="form-control d-inline-block w-25"
+               type="date"
+        >
+      </div>
+    </div>
+
+    <!-- TODO: table of sale listings goes here.
+    Includes all fields from SaleListings, plus business info -->
   </page-wrapper>
 
 </template>
 
 <script>
 import PageWrapper from "@/components/PageWrapper";
-
 
 export default {
   name: "BrowseSaleListings.vue",
@@ -71,7 +95,12 @@ export default {
           name: "Seller location",
           checked: false
         }
-      ]
+      ],
+      priceLowerBound: null,
+      priceUpperBound: null,
+
+      closingDateLowerBound: null,
+      closingDateUpperBound: null
     }
   },
   methods: {
@@ -87,11 +116,15 @@ export default {
      */
     search() {
       //TODO: implement me!
-    }
+    },
   }
 }
 </script>
 
 <style scoped>
+
+.option-title {
+  font-size: 18px;
+}
 
 </style>
