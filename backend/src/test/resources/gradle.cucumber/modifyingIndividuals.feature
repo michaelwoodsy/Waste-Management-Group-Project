@@ -17,6 +17,17 @@ Feature: U10 - Modifying Individuals
     When I try to edit my account and dont enter in a first name
     Then An error message is shown saying the first name is required.
 
+  Scenario: I can upload one or more images for a user.
+    Given A user has no images
+    When I upload an image for a user
+    Then The image is saved in the repository on the user
+
+  Scenario: I can delete user images
+    Given A user has an image
+    When I delete an image for a user
+    Then The user no longer has that image as one of it's images
+    And The user's image is no longer saved
+
   Scenario: AC6: The user is able to change which image is the primary image
     Given A user has at least 2 images the first is the primary image
     When The user changes the primary image to be the second image
