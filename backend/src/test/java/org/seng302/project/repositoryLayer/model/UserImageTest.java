@@ -4,10 +4,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Iterator;
-
 /**
- * Model tests for product images
+ * Model tests for user images
  */
 @SpringBootTest
 class UserImageTest {
