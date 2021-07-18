@@ -6,6 +6,7 @@ import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.repositoryLayer.specification.UserSpecifications;
 import org.seng302.project.serviceLayer.dto.user.*;
+import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.dgaa.DGAARevokeAdminSelfException;
@@ -59,10 +60,8 @@ public class UserService {
     public List<GetUserDTO> searchUsers(String searchQuery) {
         List<User> users;
 
-        if (searchQuery.equals("")) {
-            // Search query is for all results
-            users = userRepository.findAll();
-
+        if (searchQuery.length() < 3) {
+            throw new BadRequestException("Please enter at least 3 characters to search.");
         } else {
             Set<User> result = new LinkedHashSet<>();
 

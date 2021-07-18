@@ -150,7 +150,7 @@ public class BusinessSearchSteps {
     @When("I search by the business type {string}")
     public void i_search_by_the_business_type(String businessType) {
         searchBusinessRequest = MockMvcRequestBuilders
-                .get("/businesses/search?searchQuery={searchQuery}&businessType={businessType}", "", businessType)
+                .get("/businesses/search?searchQuery={searchQuery}&businessType={businessType}", "Business", businessType)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
