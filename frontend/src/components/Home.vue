@@ -16,7 +16,7 @@
             <li class="nav-item mb-2">
               <router-link class="btn btn-block btn-primary" to="/marketplace">Marketplace</router-link>
             </li>
-            <li class="nav-item mb-2">
+            <li v-if="user.isActingAsUser()" class="nav-item mb-2">
               <router-link :to="`users/${user.state.userId}/edit`"
                            class="btn btn-block btn-primary">Edit Profile
               </router-link>
