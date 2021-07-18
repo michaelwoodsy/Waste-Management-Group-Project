@@ -94,9 +94,18 @@
           <div class="form-row mb-3">
             <!--    Password    -->
             <label for="password"><strong>Password<span class="required">*</span></strong></label>
-            <input id="password" v-model="password" :class="{'form-control': true, 'is-invalid': msg.password}"
-                   maxlength="200"
-                   placeholder="Enter your Password" style="width:100%" type="password"><br>
+            <div class="input-group">
+              <input id="password" v-model="password" :class="{'form-control': true, 'is-invalid': msg.password}"
+                     maxlength="200"
+                     placeholder="Enter your Password" :type="passwordType"><br>
+              <div class="input-group-append">
+                <button class="btn btn-primary no-outline" @click="showPassword()">
+                <span :class="{bi: true,
+                  'bi-eye-slash': passwordType === 'password',
+                  'bi-eye': passwordType !== 'password'}" aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
             <!--    Error message for the password input    -->
             <span class="invalid-feedback">{{ msg.password }}</span>
             <p style="font-size: small">Password must be a combination of lowercase and uppercase letters, numbers, and
@@ -164,6 +173,8 @@ export default {
       homeAddress: {},
 
       password: '',
+      //Used to toggle visibility of password input
+      passwordType: 'password',
       msg: {
         'firstName': null,
         'lastName': null,
@@ -184,6 +195,16 @@ export default {
    * Methods that can be called by the program
    */
   methods: {
+    /**
+     * Method to toggle visibility of the password field
+     */
+    showPassword() {
+      if(this.passwordType === 'password') {
+        this.passwordType = 'text'
+      } else {
+        this.passwordType = 'password'
+      }
+    },
     /**
      * Validates the first name variable
      * Checks if the string is empty, if so displays a warning message

@@ -34,6 +34,9 @@ beforeEach(() => {
             },
             isActingAsUser() {
                 return true
+            },
+            editUserRoute() {
+                return ''
             }
         }
     })

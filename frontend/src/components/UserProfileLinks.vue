@@ -60,7 +60,8 @@
         <router-link :to="editBusinessRoute" class="dropdown-item">Edit Business</router-link>
       </div>
       <div v-else>
-        <router-link class="dropdown-item" to="/businesses">Create Business</router-link>
+        <router-link to="/businesses" class="dropdown-item">Create Business</router-link>
+        <router-link :to="editUserRoute" class="dropdown-item">Edit Profile</router-link>
       </div>
       <div class="dropdown-divider"/>
       <router-link class="dropdown-item" to="/login" @click.native="logOut()">Logout</router-link>
@@ -98,6 +99,11 @@ export default {
     /** Returns the listing url **/
     editBusinessRoute() {
       return `businesses/${this.actor.id}/edit`
+    },
+
+    /** Returns the listing url **/
+    editUserRoute() {
+      return `users/${this.$root.$data.user.state.userId}/edit`
     },
 
     /**
@@ -157,11 +163,13 @@ export default {
     /** Sets the current logged in user to act as a business account **/
     actAsBusiness(business) {
       this.$root.$data.user.setActingAs(business.id, business.name, 'business')
+      this.$router.push({name: 'home'})
     },
 
     /** Sets the current logged in user to act as a user account **/
     actAsUser(userData) {
       this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
+      this.$router.push({name: 'home'})
     }
   }
 }

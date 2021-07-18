@@ -152,8 +152,27 @@ public class UserService {
         var address = user.getHomeAddress();
 
         // If email address is already registered
-        if (!userRepository.findByEmail(dto.getEmail()).isEmpty()) {
+        var users = userRepository.findByEmail(dto.getEmail());
+        if (!users.isEmpty() && !user.getId().equals(users.get(0).getId())) {
             throw new ExistingRegisteredEmailException();
+        }
+
+        //Check if the user wants to change their email
+        if (!dto.getEmail().equals(user.getEmail()) &&
+                (dto.getCurrentPassword() == null || dto.getCurrentPassword().equals("") ||
+                        !passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword()))) {
+            //If current password does not match
+            throw new BadRequestException("Incorrect Password.");
+        }
+
+        //Check if user wants to change their password
+        if (dto.getNewPassword() != null && !dto.getNewPassword().equals("")) {
+            //If current password does not match
+            if (dto.getCurrentPassword() == null || dto.getCurrentPassword().equals("") ||
+                    !passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+                throw new BadRequestException("Incorrect Password.");
+            }
+            user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         }
 
         //Change fields
@@ -176,11 +195,8 @@ public class UserService {
 
         user.setHomeAddress(address);
 
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
-
         addressRepository.save(user.getHomeAddress());
         userRepository.save(user);
-
     }
 
     /**

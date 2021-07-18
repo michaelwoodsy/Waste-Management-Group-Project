@@ -103,7 +103,6 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
 
         testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
-        testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
         testUser.setRole("user");
         testUser.setId(null);//Set id to null so userRepository can set it
         userRepository.save(testUser);
@@ -132,7 +131,8 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 userMap.get(0).get("dateOfBirth"),
                 userMap.get(0).get("phoneNumber"),
                 testUser.getHomeAddress(),
-                userMap.get(0).get("password"));
+                userMap.get(0).get("password"),
+                "password");
 
         this.mockMvc.perform(MockMvcRequestBuilders
                 .put("/users/{id}", putUserDTO.getId())
@@ -161,7 +161,7 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
         Assertions.assertEquals(putUserDTO.getPhoneNumber(), editedUser.getPhoneNumber());
         Assertions.assertEquals(putUserDTO.getHomeAddress().getCountry(), editedUser.getHomeAddress().getCountry());
 
-        passwordEncoder.matches(putUserDTO.getPassword(), editedUser.getPassword());
+        passwordEncoder.matches(putUserDTO.getNewPassword(), editedUser.getPassword());
     }
 
     
@@ -180,7 +180,8 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 LocalDateTime.now().minusYears(years).toLocalDate().toString(),
                 testUser.getPhoneNumber(),
                 testUser.getHomeAddress(),
-                "Password123"
+                "Password123",
+                "password"
         );
 
         editUserRequest = MockMvcRequestBuilders
@@ -217,7 +218,8 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 testUser.getDateOfBirth(),
                 testUser.getPhoneNumber(),
                 testUser.getHomeAddress(),
-                "Password123"
+                "Password123",
+                "password"
         );
 
         editUserRequest = MockMvcRequestBuilders
