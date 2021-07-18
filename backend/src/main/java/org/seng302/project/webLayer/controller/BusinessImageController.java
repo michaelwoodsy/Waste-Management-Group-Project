@@ -19,6 +19,9 @@ public class BusinessImageController {
 
     private final BusinessImageService businessImageService;
 
+    /**
+     * Handles request to add an image for a business.
+     */
     @Autowired
     public BusinessImageController(BusinessImageService businessImageService) {
         this.businessImageService = businessImageService;
