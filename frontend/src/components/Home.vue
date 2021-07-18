@@ -44,6 +44,11 @@
                            class="btn btn-block btn-primary">Sale Listings
               </router-link>
             </li>
+            <li class="nav-item mb-2">
+              <router-link :to="`businesses/${user.actor().id}/edit`"
+                           class="btn btn-block btn-primary">Edit Business
+              </router-link>
+            </li>
           </ul>
         </div>
       </div>
