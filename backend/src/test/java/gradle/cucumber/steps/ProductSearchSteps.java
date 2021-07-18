@@ -105,18 +105,11 @@ public class ProductSearchSteps extends AbstractInitializer {
     }
 
     @When("The business admin searches with the term {string} to match a product name")
-    public void the_business_admin_searches_with_the_term_to_match_a_product_name(String searchTerm) throws JSONException {
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("matchingId", false);
-        requestBody.put("matchingName", true);
-        requestBody.put("matchingDescription", false);
-        requestBody.put("matchingManufacturer", false);
+    public void the_business_admin_searches_with_the_term_to_match_a_product_name(String searchTerm) {
 
         searchProductRequest = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/products/search?searchQuery={searchQuery}",
+                .get("/businesses/{businessId}/products/search?searchQuery={searchQuery}&matchingName=true",
                         testBusiness.getId(), searchTerm)
-                .content(requestBody.toString())
-                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
     }
@@ -138,18 +131,11 @@ public class ProductSearchSteps extends AbstractInitializer {
     //AC2
 
     @When("A user who is not the business admin tries searching the catalogue")
-    public void a_user_who_is_not_the_business_admin_tries_searching_the_catalogue() throws JSONException {
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("matchingId", false);
-        requestBody.put("matchingName", true);
-        requestBody.put("matchingDescription", false);
-        requestBody.put("matchingManufacturer", false);
+    public void a_user_who_is_not_the_business_admin_tries_searching_the_catalogue() {
 
         searchProductRequest = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/products/search?searchQuery={searchQuery}",
+                .get("/businesses/{businessId}/products/search?searchQuery={searchQuery}&matchingName=true",
                         testBusiness.getId(), "beans")
-                .content(requestBody.toString())
-                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(user)));
     }
@@ -158,6 +144,22 @@ public class ProductSearchSteps extends AbstractInitializer {
     public void the_user_is_prevented_from_doing_so() throws Exception {
         mockMvc.perform(searchProductRequest)
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Given("Our product catalogue has a product with the name {string} and another business has a product with the name {string}")
+    public void our_product_catalogue_has_a_product_with_the_name_and_another_business_has_a_product_with_the_name(
+            String productName1, String productName2) {
+        productRepository.save(new Product("PROD1", productName1, "Our product", "Us",
+                null, testBusiness.getId()));
+
+        Business otherBusiness = this.getTestBusiness();
+        otherBusiness.setPrimaryAdministratorId(user.getId());
+        addressRepository.save(otherBusiness.getAddress());
+        otherBusiness = businessRepository.save(otherBusiness);
+
+        productRepository.save(new Product("PROD1", productName2, "Someone else's product",
+                "Not Us", null, otherBusiness.getId()));
+
     }
 
     //AC3
@@ -178,18 +180,11 @@ public class ProductSearchSteps extends AbstractInitializer {
 
     //Search term is quoted here: "Baked Beans" vs Baked Beans
     @When("The business admin searches with the term \"\"Baked Beans\"\" to match a product name")
-    public void the_business_admin_searches_with_the_term_baked_beans_to_match_a_product_name() throws JSONException {
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("matchingId", false);
-        requestBody.put("matchingName", true);
-        requestBody.put("matchingDescription", false);
-        requestBody.put("matchingManufacturer", false);
+    public void the_business_admin_searches_with_the_term_baked_beans_to_match_a_product_name() {
 
         searchProductRequest = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/products/search?searchQuery={searchQuery}",
+                .get("/businesses/{businessId}/products/search?searchQuery={searchQuery}&matchingName=true",
                         testBusiness.getId(), "\"Baked Beans\"")
-                .content(requestBody.toString())
-                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
     }
@@ -206,18 +201,11 @@ public class ProductSearchSteps extends AbstractInitializer {
     }
 
     @When("The business admin searches with the term {string} to match a product id")
-    public void the_business_admin_searches_with_the_term_to_match_a_product_id(String searchTerm) throws JSONException {
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("matchingId", true);
-        requestBody.put("matchingName", false);
-        requestBody.put("matchingDescription", false);
-        requestBody.put("matchingManufacturer", false);
+    public void the_business_admin_searches_with_the_term_to_match_a_product_id(String searchTerm) {
 
         searchProductRequest = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/products/search?searchQuery={searchQuery}",
+                .get("/businesses/{businessId}/products/search?searchQuery={searchQuery}&matchingId=true",
                         testBusiness.getId(), searchTerm)
-                .content(requestBody.toString())
-                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));// Write code here that turns the phrase above into concrete actions
     }

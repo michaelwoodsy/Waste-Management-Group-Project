@@ -60,10 +60,8 @@ public class UserService {
     public List<GetUserDTO> searchUsers(String searchQuery) {
         List<User> users;
 
-        if (searchQuery.equals("")) {
-            // Search query is for all results
-            users = userRepository.findAll();
-
+        if (searchQuery.length() < 3) {
+            throw new BadRequestException("Please enter at least 3 characters to search.");
         } else {
             Set<User> result = new LinkedHashSet<>();
 

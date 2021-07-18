@@ -1542,6 +1542,30 @@ paths:
             type: string
           required: true
           description: 'Criteria to search product by, e.g: part of the product id or name'
+        - in: query
+          name: matchingId
+          schema:
+            type: boolean
+          required: false
+          description: 'Whether the Id field is being searched by'
+        - in: query
+          name: matchingName
+          schema:
+            type: boolean
+          required: false
+          description: 'Whether the Name field is being searched by'
+        - in: query
+          name: matchingDescription
+          schema:
+            type: boolean
+          required: false
+          description: 'Whether the Description field is being searched by'
+        - in: query
+          name: matchingManufacturer
+          schema:
+            type: boolean
+          required: false
+          description: 'Whether the Manufacturer field is being searched by'
       responses:
         '200':
           description: Request successful, a (possibly empty) list of products is returned
@@ -1559,33 +1583,8 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '406':
           $ref: '#/components/responses/NotAcceptableError'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - matchingId
-                - matchingName
-                - matchingDescription
-                - matchingManufacturer
-              properties:
-                matchingId:
-                  type: boolean
-                  description: Whether the Id field is being searched by
-                  example: false
-                matchingName:
-                  type: boolean
-                  description: Whether the Name field is being searched by
-                  example: true
-                matchingDescription:
-                  type: boolean
-                  description: Whether the Description field is being searched by
-                  example: false
-                matchingManufacturer:
-                  type: boolean
-                  description: Whether the Manufacturer field is being searched by
-                  example: false
+
+
   '/users/{userId}':
     put:
       tags:
