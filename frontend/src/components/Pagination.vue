@@ -1,3 +1,30 @@
+<!--
+Component for displaying pagination links.
+
+---------------------------------------
+Props:
+currentPage:    The page the user is currently looking at.
+totalItems:     The total number of items being displayed.
+itemsPerPage:   The number of items displayed on each page.
+
+-----------------------------------------------------------
+Events
+"update:currentPage":   Emitted when a page number is clicked,
+                        the payload contains the page number
+                        clicked.
+
+-----------------------------------------------------------
+Example Usage:
+<pagination
+    :current-page.sync="page"
+    :items-per-page="resultsPerPage"
+    :total-items="totalCount"
+    class="mx-auto"
+/>
+
+(note, current-page.sync automatically updates the 'page' variable when
+the "update:currentPage" event is emitted)
+-->
 <template>
   <nav class="navigation ">
     <!-- Pages if it is possible to show all page numbers -->
