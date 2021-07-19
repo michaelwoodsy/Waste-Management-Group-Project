@@ -44,6 +44,22 @@
               </label>
             </div>
           </div>
+
+          <!-- Order by combobox -->
+          <div class="row form justify-content-center">
+            <div class="col form-group text-center">
+              <label class="d-inline-block option-title mt-2 mx-2">Order By: </label>
+              <select class="form-control d-inline-block w-auto">
+                <option
+                    :value="orderBy.id"
+                    v-bind:key="orderBy.id"
+                    v-for="orderBy in orderByOptions"
+                >
+                  {{ orderBy.name }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="col-sm-5">
@@ -140,7 +156,17 @@ export default {
         priceUpperBound: '',
         closingDateLowerBound: '',
         closingDateUpperBound: ''
-      }
+      },
+      orderByOptions: [
+          {id: "bestMatch", name: "Best Match"},
+          {id: "priceAsc", name: "Price Low"},
+          {id: "priceDesc", name: "Price High"},
+          {id: "productName", name: "Product Name"},
+          {id: "country", name: "Country"},
+          {id: "city", name: "City"},
+          {id: "expiryDate", name: "Expiry Date"},
+          {id: "seller", name: "Seller"}
+      ]
     }
   },
   computed: {
