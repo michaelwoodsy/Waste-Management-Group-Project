@@ -77,6 +77,78 @@
             <br>
           </div>
 
+
+
+
+
+          <hr/>
+
+          <div class="form-group row">
+            <div class="col text-center">
+              <h3 class="">Images</h3>
+            </div>
+            <div class="col text-center">
+              <button
+                  id="addImage"
+                  class="btn btn-primary ml-1 my-1 pad1"
+                  type="button"
+                  @click="addImageClicked"
+              >
+                Add image
+              </button>
+              <input
+                  type="file"
+                  style="display: none"
+                  ref="fileInput"
+                  accept="image/png, image/jpeg"
+                  @change="imageUpload"/>
+            </div>
+          </div>
+
+
+
+          <!-- Images -->
+          <div class="form-group row">
+            <div class="col">
+
+
+
+              <div v-for="image in images"
+                   :key="image.url" class="pad1"
+                   @mouseover="image.hover = true"
+                   @mouseleave="image.hover = false"
+              >
+                <img v-if="image.id === undefined" width="250"
+                     :src="image.url"
+                     alt="Uploaded product image"
+                />
+                <img v-else width="250"
+                     :src="getImageURL(image.filename)"
+                     alt="Current product image"
+                />
+                <button class="btn btn-danger ml-1 my-1 pad1"
+                        @click="removeImage(image.url)">
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col text-center">
+              <!--    Image upload progress counter    -->
+              <p v-if="submitting && images.length > 0"
+                 class="ml-1 my-2 ">
+                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+              </p>
+            </div>
+
+          </div>
+
+
+
+
+
           <p style="width: 100%; text-align: center; margin: 0"><small>You must be at least 16 years old to register a
             business</small></p>
           <div class="form-row">
@@ -152,6 +224,7 @@ export default {
         'errorChecks': null
       },
       valid: true,
+      submitting: false,
       submitClicked: 0
     }
   },
@@ -167,73 +240,6 @@ export default {
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     }
-  },
-
-  /**
-   * these methods are called when their respective input field is changed
-   */
-  watch: {
-    /**
-     * Called when the addressCountry variable is updated.
-     * cant be when the business.country variable is updated as it cant check a variable in an object
-     * Checks if the country can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressCountry(value) {
-      this.address.country = value
-      //re enable autofill
-      if (!this.autofillCountry && this.address.country !== this.prevAutofilledCountry) {
-        this.prevAutofilledCountry = ''
-        this.autofillCountry = true
-      }
-
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into country field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCountry && this.address.country.length > 3) {
-        this.countries = this.photon(value, 'place:country')
-      }
-    },
-
-    /**
-     * Called when the addressRegion variable is updated.
-     * cant be when the business.region variable is updated as it cant check a variable in an object
-     * Checks if the region can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressRegion(value) {
-      this.address.region = value
-      //re enable autofill
-      if (!this.autofillRegion && this.address.region !== this.prevAutofilledRegion) {
-        this.prevAutofilledRegion = ''
-        this.autofillRegion = true
-      }
-
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into region field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillRegion && this.address.region.length > 3) {
-        this.regions = this.photon(value, 'boundary:administrative')
-      }
-    },
-
-    /**
-     * Called when the addressCity variable is updated.
-     * cant be when the business.city variable is updated as it cant check a variable in an object
-     * Checks if the city can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressCity(value) {
-      this.address.city = value
-      //re enable autofill
-      if (!this.autofillCity && this.address.city !== this.prevAutofilledCity) {
-        this.prevAutofilledCity = ''
-        this.autofillCity = true
-      }
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into city field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCity && this.address.city.length > 3) {
-        this.cities = this.photon(value, 'place:city&osm_tag=place:town')
-      }
-    },
   },
 
   /**
