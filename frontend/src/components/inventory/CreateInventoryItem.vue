@@ -8,9 +8,12 @@
       </div>
       <div class="col text-center">
         <h2>{{ title }}</h2>
+        <product-search v-if="selectingItem" :business-id="businessId"></product-search>
       </div>
       <div v-if="selectingItem" class="col-2"/>
     </div>
+
+
 
     <!-- Form fields -->
     <div v-if="!selectingItem">
@@ -124,7 +127,6 @@
         </div>
       </div>
     </div>
-
     <catalogue-items v-if="selectingItem" :business-id="businessId" :selecting-item="true"></catalogue-items>
 
   </div>
@@ -134,10 +136,11 @@
 import {Business} from '@/Api'
 import Alert from "@/components/Alert";
 import CatalogueItems from "@/components/product-catalogue/ProductCatalogueItems";
+import ProductSearch from "@/components/product-catalogue/ProductSearch";
 
 export default {
   name: "CreateInventoryItem",
-  components: {CatalogueItems, Alert},
+  components: {ProductSearch, CatalogueItems, Alert},
   data() {
     return {
       title: 'Create a new inventory item',
@@ -374,6 +377,14 @@ export default {
       this.selectingItem = false;
       this.title = 'Create a new inventory item'
       this.$emit('select-product-toggle');
+    },
+
+    /**
+     * Fills the catalogue with search results.
+     * Called by the child component ProductSearch
+     */
+    applySearch(searchResults) {
+      this.$refs.catalogueItems.products = searchResults
     }
   }
 }
