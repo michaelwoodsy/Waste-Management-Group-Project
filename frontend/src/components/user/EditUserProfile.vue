@@ -618,7 +618,6 @@ export default {
       }
     },
 
-
     /**
      * Validates the newPassword variable
      * Checks if it matches the regex, can be null or empty, in which case the password is not being changed.
