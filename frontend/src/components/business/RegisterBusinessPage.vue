@@ -105,6 +105,7 @@ import LoginRequired from "@/components/LoginRequired";
 import Alert from "../Alert"
 import AddressInputFields from "@/components/AddressInputFields";
 import PageWrapper from "@/components/PageWrapper";
+//import {Business} from "@/Api";
 
 /**
  * Default starting parameters
@@ -134,6 +135,13 @@ export default {
       },
       addressIsValid: false,
       businessType: '',    //Required
+
+      images: [],
+      imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
+      //Used to show progress in uploading images
+      numImagesUploaded: 0,
+      numImagesToUpload: 0,
+
 
       msg: {
         'businessName': '',
@@ -327,6 +335,68 @@ export default {
                 : err
           });
     },
+
+
+    //IMAGES
+
+    /**
+     * Programmatically triggers the file input field when the
+     * 'Add image' button is clicked.
+     */
+    addImageClicked () {
+      this.imagesEdited = true
+      this.$refs.fileInput.click()
+    },
+
+    /**
+     * Handles the file being uploaded
+     * @param event the button click event that triggers this function
+     */
+    imageUpload (event) {
+      const files = event.target.files
+
+      const formData = new FormData()
+      formData.append("file", files[0])
+
+      const fileReader = new FileReader()
+      console.log(`File with name ${files[0].name} uploaded`)
+      fileReader.addEventListener('load', () => {
+        this.images.push({
+          data: formData,
+          url: fileReader.result,
+          file: files[0]
+        })
+      })
+      fileReader.readAsDataURL(files[0])
+    },
+
+    /**
+     * Called by the remove button next to an uploaded image.
+     * Removes the image from the frontends list of images.
+     * @param imageUrl the url of the image to be removed
+     */
+    removeImage(imageUrl) {
+      this.images = this.images.filter(function(image) {
+        return image.url !== imageUrl;
+      })
+    },
+
+    /**
+     * Makes requests to add the product's images
+     */
+    async addImages() {
+      const imagesToUpload = this.images.filter(function(image) {
+        return image.id === undefined;
+      })
+      this.numImagesToUpload = imagesToUpload.length
+
+      for (const image of imagesToUpload) {
+        //TODO: Implement this
+        console.log(image)
+        //await User.addImage(this.$root.$data.user.state.userId, image.data)
+        this.numImagesUploaded += 1;
+      }
+    }
   }
 }
 

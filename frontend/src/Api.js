@@ -180,7 +180,7 @@ export const User = {
      * @param imageId The ID of the image for the product in the database
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
-    makePrimaryImage: (userId, imageId) => instance.put(`users/${userId}/images/${imageId}/makeprimary`),
+    makePrimaryImage: (userId, imageId) => instance.put(`users/${userId}/images/${imageId}/makeprimary`)
 
 };
 
@@ -323,7 +323,33 @@ export const Business = {
                     'matchingName': matchingName,
                     'matchingDescription': matchingDescription,
                     'matchingManufacturer': matchingManufacturer
-                }})
+                }}),
+
+    /**
+     * Adds an image to a business
+     */
+    addBusinessImage: (businessId, file) => instance.post(
+        `businesses/${businessId}/images`, file, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }),
+
+    /**
+     * Sends a request to delete a specific image for a specific business
+     * @param userId The ID of the business in the database
+     * @param imageId The ID of the image for the product in the database
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    removeBusinessImage: (businessId, imageId) => instance.delete(`businesses/${businessId}/images/${imageId}`),
+
+    /**
+     * Sends a request to make a specific image the primary image of a specific business
+     * @param userId The ID of the business in the database
+     * @param imageId The ID of the image for the product in the database
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    makePrimaryBusinessImage: (businessId, imageId) => instance.put(`businesses/${businessId}/images/${imageId}/makeprimary`)
 };
 
 export const Card = {
