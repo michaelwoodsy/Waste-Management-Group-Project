@@ -70,7 +70,7 @@ class KeywordControllerTest extends AbstractInitializer {
      */
     @Test
     void addKeyword_notLoggedIn_returnStatus401() throws Exception {
-        AddKeywordDTO dto = new AddKeywordDTO("TestKeyword");
+        AddKeywordDTO dto = new AddKeywordDTO("test-keyword");
 
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/keywords")
@@ -110,7 +110,7 @@ class KeywordControllerTest extends AbstractInitializer {
         Mockito.when(keywordService.addKeyword(Mockito.any(String.class)))
                 .thenReturn(new AddKeywordResponseDTO(1));
 
-        AddKeywordDTO dto = new AddKeywordDTO("NewKeyword");
+        AddKeywordDTO dto = new AddKeywordDTO("new-keyword");
 
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/keywords")
