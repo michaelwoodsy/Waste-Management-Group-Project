@@ -1967,9 +1967,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Listing'
+                type: object
+                properties:
+                  totalCount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Listing'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
