@@ -1,20 +1,23 @@
 <!--
 Component for displaying pagination links.
 
----------------------------------------
-Props:
+-----------------------------------------------------------
+Props
+-----------------------------------------------------------
 currentPage:    The page the user is currently looking at.
 totalItems:     The total number of items being displayed.
 itemsPerPage:   The number of items displayed on each page.
 
 -----------------------------------------------------------
 Events
+-----------------------------------------------------------
 "update:currentPage":   Emitted when a page number is clicked,
                         the payload contains the page number
                         clicked.
 
 -----------------------------------------------------------
-Example Usage:
+Example Usage
+-----------------------------------------------------------
 <pagination
     :current-page.sync="page"
     :items-per-page="resultsPerPage"
