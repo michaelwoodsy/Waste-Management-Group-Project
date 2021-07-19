@@ -48,8 +48,10 @@
           <!-- Order by combobox -->
           <div class="row form justify-content-center">
             <div class="col form-group text-center">
-              <label class="d-inline-block option-title mt-2 mx-2">Order By: </label>
-              <select class="form-control d-inline-block w-auto">
+              <label class="d-inline-block option-title mx-2">Order By: </label>
+              <select class="form-control d-inline-block w-auto"
+                      @change="search"
+                      v-model="orderBy">
                 <option
                     :value="orderBy.id"
                     v-bind:key="orderBy.id"
@@ -157,6 +159,7 @@ export default {
         closingDateLowerBound: '',
         closingDateUpperBound: ''
       },
+      orderBy: "bestMatch",
       orderByOptions: [
           {id: "bestMatch", name: "Best Match"},
           {id: "priceAsc", name: "Price Low"},
