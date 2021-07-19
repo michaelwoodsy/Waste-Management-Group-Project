@@ -1567,6 +1567,18 @@ paths:
             type: boolean
           required: false
           description: 'Whether the Manufacturer field is being searched by'
+        - in: query
+          name: orderBy
+          schema:
+            type: string
+          required: false
+          description: 'Orders the results, can be productName, country, city, expiryDate, seller, priceAsc, priceDesc'
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: false
+          description: 'Determines which "page" of results to return. 1st page will be returned if not specified.'
       responses:
         '200':
           description: Request successful, a (possibly empty) list of products is returned
