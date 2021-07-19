@@ -170,20 +170,13 @@
 
 
 
+          <hr/>
 
-
-
-
-
-
-
-
-
-<!--          Images go here-->
-          <!-- Images -->
           <div class="form-group row">
-            <label class="col-sm-4 col-form-label">Images</label>
-            <div class="col-sm-8">
+            <div class="col text-center">
+              <h3 class="">Images</h3>
+            </div>
+            <div class="col text-center">
               <button
                   id="addImage"
                   class="btn btn-primary ml-1 my-1 pad1"
@@ -198,6 +191,14 @@
                   ref="fileInput"
                   accept="image/png, image/jpeg"
                   @change="imageUpload"/>
+            </div>
+          </div>
+
+          <!-- Images -->
+          <div class="form-group row">
+            <div class="col">
+
+
 
               <div v-for="image in images"
                    :key="image.url" class="pad1"
@@ -271,9 +272,6 @@
                   Make Primary
                 </button>
 
-
-
-
                 <!-- Can't make image primary information -->
                 <div :id="'cantMakePrimaryImageModal'" class="modal fade" role="dialog" tabindex="-1">
                   <div class="modal-dialog" role="document">
@@ -304,13 +302,16 @@
             </div>
           </div>
 
+          <div class="form-group row">
+            <div class="col text-center">
+              <!--    Image upload progress counter    -->
+              <p v-if="submitting && imagesEdited"
+                 class="ml-1 my-2 ">
+                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+              </p>
+            </div>
 
-
-
-
-
-
-
+          </div>
 
           <!-- Save Changes button -->
           <div class="form-group row mb-0">
@@ -337,12 +338,6 @@
               >
                 Save Changes
               </button>
-
-              <!--    Image upload progress counter    -->
-              <p v-if="submitting && imagesEdited"
-                 class="ml-1 my-2 float-right">
-                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
-              </p>
 
 
             </div>
@@ -710,16 +705,16 @@ export default {
         if (this.isEditingSelf && this.successfulEdit && this.oldEmail !== this.email) {
           this.reLogIn()
         }
-        this.addImages().then(() => {
-          this.submitError = null
-          this.submitting = false
-          this.success = true
-        })
       }).catch((err) => {
         this.showError(err)
         console.log(err)
         this.submitting = false
       });
+      await this.addImages().then(() => {
+        this.submitError = null
+        this.submitting = false
+        this.success = true
+      })
       //Sets the correct user data (So the name changes in the nav bar)
       if (this.isEditingSelf) {
         this.$root.$data.user.setLoggedIn(this.userId)
@@ -818,21 +813,20 @@ export default {
       this.imagesEdited = true
       //If image has already been uploaded
       if(imageRemoving.id){
-        //TODO: Implement this
-        // Business.removeProductImage(this.businessId, this.newProduct.id, imageRemoving.id)
-        //     .then(() => {
-        //       this.removeImageFromList(imageRemoving)
-        //     })
-        //     .catch((err) => {
-        //       this.errorMessage = err.response.data.message || err;
-        //     })
+        User.removeImage(this.userId, imageRemoving.id)
+            .then(() => {
+              this.removeImageFromList(imageRemoving)
+            })
+            .catch((err) => {
+              this.errorMessage = err.response.data.message || err;
+            })
       } else {
         //If the image has just been uploaded and then is removed
         this.removeImageFromList(imageRemoving)
       }
 
       //If the removing image is the primary image, a new one is set on the backend. this is updating to show that.
-      if (this.product.primaryImageId === imageRemoving.id &&
+      if (this.oldUser.primaryImageId === imageRemoving.id &&
           this.currentPrimaryImageId === imageRemoving.id &&
           this.images.length !== 0) {
         for (const image of this.images) {
@@ -882,10 +876,8 @@ export default {
       }
 
       if (this.currentPrimaryImageId !== this.oldUser.primaryImageId) {
-        //TODO: Implement this
-        //Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.currentPrimaryImageId)
+        await User.makePrimaryImage(this.userId, this.currentPrimaryImageId)
       }
-      this.uploadingImages = false
     },
 
     changeDeletingImage(image) {

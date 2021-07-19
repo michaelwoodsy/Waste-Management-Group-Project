@@ -176,7 +176,7 @@ export default {
           }
         }
       }
-      if (primaryImageId === null || images === null) {
+      if (primaryImageId === null || images === null || images === undefined || primaryImageId === undefined) {
         return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
       }
       const filteredImages = images.filter(function(specificImage) {
@@ -202,12 +202,14 @@ export default {
 
     /** Sets the current logged in user to act as a business account **/
     actAsBusiness(business) {
+      console.log(business)
       this.$root.$data.user.setActingAs(business.id, business.name, 'business')
       this.$router.push({name: 'home'})
     },
 
     /** Sets the current logged in user to act as a user account **/
     actAsUser(userData) {
+      console.log(userData)
       this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
       this.$router.push({name: 'home'})
     }

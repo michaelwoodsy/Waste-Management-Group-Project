@@ -166,6 +166,22 @@ export const User = {
             }
         }),
 
+    /**
+     * Sends a request to delete a specific image for a specific user
+     * @param userId The ID of the user in the database
+     * @param imageId The ID of the image for the product in the database
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    removeImage: (userId, imageId) => instance.delete(`users/${userId}/images/${imageId}`),
+
+    /**
+     * Sends a request to make a specific image the primary image of a specific user
+     * @param userId The ID of the user in the database
+     * @param imageId The ID of the image for the product in the database
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    makePrimaryImage: (userId, imageId) => instance.put(`users/${userId}/images/${imageId}/makeprimary`),
+
 };
 
 export const Business = {
