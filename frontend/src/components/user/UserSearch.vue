@@ -138,16 +138,10 @@
       <!--    Result Information    -->
       <div class="row">
         <div class="col-12">
-<!--          <pagination-->
-<!--              :current-page.sync="page"-->
-<!--              :items-per-page="resultsPerPage"-->
-<!--              :total-items="totalCount"-->
-<!--              class="mx-auto"-->
-<!--          />-->
           <pagination
               :current-page.sync="page"
               :items-per-page="resultsPerPage"
-              :total-items="2000"
+              :total-items="totalCount"
               class="mx-auto"
           />
         </div>
