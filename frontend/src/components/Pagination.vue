@@ -71,8 +71,8 @@ the "update:currentPage" event is emitted)
         <a class="page-link no-outline mb-0 disabled disabled-page-link" href>...</a>
       </li>
 
-      <!-- Final page Only show if not already visible -->
-      <li v-if="!inRightRange" :class="styles(finalPage)" @click.prevent="changePage(finalPage)">
+      <!-- Final page -->
+      <li :class="styles(finalPage)" @click.prevent="changePage(finalPage)">
         <a class="page-link no-outline mb-0 disabled" href>{{ finalPage }}</a>
       </li>
     </ul>
@@ -139,7 +139,7 @@ export default {
      * Boolean, true if all possible pages with within the pagination bar
      */
     allPagesFit() {
-      return this.totalItems <= (this.range * 2) + 1
+      return this.pages.length <= (this.range * 2) + 1
     },
 
     /**
