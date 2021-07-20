@@ -98,9 +98,13 @@ export default {
           this.fieldOptions[3].checked,
           )
           .then((response) => {
-            console.log(this.$parent.$options)
-            //Change made was removing one of the $parent in the line below
-            this.$parent.$parent.applySearch(response.data)
+            if(this.$parent.$options._componentTag === "create-inventory-item"){
+              //This is for in the product look up in inventory
+              this.$parent.applySearch(response.data)
+            } else {
+              //This is for the product catalogue
+              this.$parent.$parent.applySearch(response.data)
+            }
       })
           .catch((err) => {
             console.log(`There was an error searching products: ${err}`)
