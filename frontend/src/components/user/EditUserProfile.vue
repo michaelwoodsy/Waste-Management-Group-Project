@@ -849,7 +849,7 @@ export default {
     },
 
     /**
-     * Called to make the image the primary image of the product.
+     * Called to make the image the primary image of the user.
      * Sets the variable currentPrimaryImage, which is then sent to the backend when the save changes button is clicked
      * @param imageId the id of the image to make primary
      */
@@ -860,7 +860,7 @@ export default {
     },
 
     /**
-     * Makes requests to add the product's images
+     * Makes requests to add the user's images
      */
     async addImages() {
       const imagesToUpload = this.images.filter(function(image) {
