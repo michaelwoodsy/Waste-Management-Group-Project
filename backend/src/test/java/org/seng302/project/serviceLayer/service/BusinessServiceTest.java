@@ -19,6 +19,7 @@ import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
+import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
@@ -27,11 +28,11 @@ import org.seng302.project.serviceLayer.exceptions.register.UserUnderageExceptio
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 
@@ -46,6 +47,7 @@ class BusinessServiceTest extends AbstractInitializer {
     private User testPrimaryAdmin;
     private User testUser;
     private User testOtherUser;
+    private User testSystemAdmin;
     private Business testBusiness;
     private AddressDTO businessAddress;
 
@@ -60,6 +62,10 @@ class BusinessServiceTest extends AbstractInitializer {
         testPrimaryAdmin = this.getTestUserBusinessAdmin();
         Mockito.when(userRepository.findById(testPrimaryAdmin.getId())).thenReturn(Optional.of(testPrimaryAdmin));
         Mockito.when(userRepository.findByEmail(testPrimaryAdmin.getEmail())).thenReturn(List.of(testPrimaryAdmin));
+
+        testSystemAdmin = this.getTestSystemAdmin();
+        Mockito.when(userRepository.findById(testSystemAdmin.getId())).thenReturn(Optional.of(testSystemAdmin));
+        Mockito.when(userRepository.findByEmail(testSystemAdmin.getEmail())).thenReturn(List.of(testSystemAdmin));
 
         //Mock a different test user
         testUser = this.getTestUser();
@@ -122,7 +128,7 @@ class BusinessServiceTest extends AbstractInitializer {
      */
     @Test
     void createBusiness_nonExistentCreator() {
-        given(userRepository.findById(600)).willReturn(Optional.empty());
+        Mockito.when(userRepository.findById(600)).thenReturn(Optional.empty());
 
         PostBusinessDTO requestDTO = new PostBusinessDTO(
                 "Lumbridge General Store",
@@ -180,7 +186,7 @@ class BusinessServiceTest extends AbstractInitializer {
      */
     @Test
     void getNonExistentBusiness() {
-        given(businessRepository.findById(200)).willReturn(Optional.empty());
+        Mockito.when(businessRepository.findById(200)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(BusinessNotFoundException.class,
                 () -> businessService.getBusiness(200));
@@ -354,14 +360,105 @@ class BusinessServiceTest extends AbstractInitializer {
         Business otherBusiness = new Business("Another Business", "Some Description",
                 null, "Accommodation and Food Services", testPrimaryAdmin.getId());
 
-        given(businessRepository.findAll(any(Specification.class)))
-                .willReturn(List.of(testBusiness, otherBusiness));
+        Mockito.when(businessRepository.findAll(any(Specification.class)))
+                .thenReturn(List.of(testBusiness, otherBusiness));
 
         BusinessType type = BusinessType.getType(testBusiness.getBusinessType());
         List<Business> retrievedBusinesses = businessService.searchBusiness(testBusiness.getName(), type);
 
         Assertions.assertEquals(1, retrievedBusinesses.size());
         Assertions.assertEquals(testBusiness.getBusinessType(), retrievedBusinesses.get(0).getBusinessType());
+    }
+
+    /**
+     * Tests that modifying a business with valid new details results in success
+     */
+    @Test
+    void editBusiness_validRequest_success() {
+        Mockito.when(addressRepository.save(any(Address.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(businessRepository.save(any(Business.class)))
+                .thenAnswer(invocation -> {
+                    testBusiness = invocation.getArgument(0);
+                    return testBusiness;
+                });
+
+        String newName = "New Business Name";
+        String newDescription = "A new description for this business";
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
+        requestDTO.setName(newName);
+        requestDTO.setDescription(newDescription);
+
+        businessService.editBusiness(requestDTO, testBusiness.getId(), appUser);
+
+        Assertions.assertEquals(newName, testBusiness.getName());
+        Assertions.assertEquals(newDescription, testBusiness.getDescription());
+    }
+
+    /**
+     * Tests that modifying a business with valid new details as GAA results in success
+     */
+    @Test
+    void editBusiness_validRequestAsGAA_success() {
+        Mockito.when(addressRepository.save(any(Address.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(businessRepository.save(any(Business.class)))
+                .thenAnswer(invocation -> {
+                    testBusiness = invocation.getArgument(0);
+                    return testBusiness;
+                });
+
+        String newName = "New Business Name";
+        String newDescription = "A new description for this business";
+        AppUserDetails appUser = new AppUserDetails(testSystemAdmin);
+
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
+        requestDTO.setName(newName);
+        requestDTO.setDescription(newDescription);
+
+        businessService.editBusiness(requestDTO, testBusiness.getId(), appUser);
+
+        Assertions.assertEquals(newName, testBusiness.getName());
+        Assertions.assertEquals(newDescription, testBusiness.getDescription());
+    }
+
+    /**
+     * Tests that making an edit business request to a non-existent business results in an error
+     */
+    @Test
+    void editBusiness_nonExistentBusiness_throwsException() {
+        PostBusinessDTO requestDTO = new PostBusinessDTO();
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> businessService.editBusiness(requestDTO, 100, appUser));
+    }
+
+    /**
+     * Tests that trying to edit a business as a non-business admin results in error
+     */
+    @Test
+    void editBusiness_notAdmin_throwsException() {
+        PostBusinessDTO requestDTO = new PostBusinessDTO();
+        AppUserDetails appUser = new AppUserDetails(testUser);
+
+        Integer businessId = testBusiness.getId();
+        Assertions.assertThrows(ForbiddenException.class,
+                () -> businessService.editBusiness(requestDTO, businessId, appUser));
     }
 
 }

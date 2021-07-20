@@ -148,6 +148,17 @@ public class BusinessService {
     }
 
     /**
+     * Service method to update business details
+     *
+     * @param requestDTO DTO containing new business information
+     * @param businessId ID of the business to update
+     * @param appUser the currently logged in user
+     */
+    public void editBusiness(PostBusinessDTO requestDTO, Integer businessId, AppUserDetails appUser) {
+        // TODO: Implement
+    }
+
+    /**
      * Finds the person making a request to add/remove
      * a business admin
      * Throws an exception if they are not a primary admin of the business
