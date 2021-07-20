@@ -39,6 +39,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.transaction.Transactional;
 import java.io.File;
 import java.sql.Array;
 import java.io.File;
@@ -48,6 +49,7 @@ import java.util.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
+@Transactional
 public class ModifyingIndividualsSteps extends AbstractInitializer {
 
     private User testUser;

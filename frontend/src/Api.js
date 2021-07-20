@@ -154,7 +154,35 @@ export const User = {
      * @returns {Promise<AxiosResponse<any>>} response with status code
      */
     deleteAdminNotification: (notificationId) =>
-        instance.delete(`notifications/${notificationId}`)
+        instance.delete(`notifications/${notificationId}`),
+
+    /**
+     * Adds an image to a user
+     * @param userId the id of the user to add an image for
+     * @param file the image file being uploaded by the user
+     */
+    addImage: (userId, file) => instance.post(
+        `users/${userId}/images`, file, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }),
+
+    /**
+     * Sends a request to delete a specific image for a specific user
+     * @param userId The ID of the user in the database
+     * @param imageId The ID of the image for the product in the database
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    removeImage: (userId, imageId) => instance.delete(`users/${userId}/images/${imageId}`),
+
+    /**
+     * Sends a request to make a specific image the primary image of a specific user
+     * @param userId The ID of the user in the database
+     * @param imageId The ID of the image for the product in the database
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    makePrimaryImage: (userId, imageId) => instance.put(`users/${userId}/images/${imageId}/makeprimary`),
 
 };
 

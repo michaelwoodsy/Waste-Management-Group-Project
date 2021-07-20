@@ -91,13 +91,20 @@
           </div>
 
         </div>
+        <div class="text-center" style="width: 100%; margin-bottom: -30px">
+          <p v-if="uploadingImages"
+             class="ml-1 my-2">
+            {{numImagesUploaded}}/{{images.length}} images uploaded
+          </p>
+        </div>
       </div>
 
       <!-- Create Product button -->
       <div class="form-group row mb-0">
         <div class="btn-group" style="width: 100%">
           <button ref="close" class="btn btn-secondary col-4" data-dismiss="modal" @click="close">Cancel</button>
-          <button class="btn btn-primary col-8" @click="checkInputs">Create Product</button>
+          <button v-if="uploadingImages" class="btn btn-primary col-8 disabled" @click="checkInputs">Creating Product</button>
+          <button v-else class="btn btn-primary col-8" @click="checkInputs">Create Product</button>
         </div>
         <!-- Show an error if required fields are missing -->
         <div v-if="msg.errorChecks" class="error-box">
@@ -139,7 +146,9 @@ export default {
         rrp: null,
         errorChecks: null
       },
-      valid: true
+      valid: true,
+      numImagesUploaded: 0,
+      uploadingImages: false
     };
   },
   mounted() {
@@ -242,9 +251,14 @@ export default {
                 ? Number(this.recommendedRetailPrice) : null
           }
       ).then(() => {
-          this.addImages();
-          this.$refs.close.click();
-          this.close();
+          this.addImages().then(() => {
+            this.$refs.close.click()
+            this.close()
+          }).catch((err) => {
+            this.msg.errorChecks = err.response ?
+                err.response.data.slice(err.response.data.indexOf(':') + 2) :
+                err
+          });
       }).catch((err) => {
         this.msg.errorChecks = err.response ?
             err.response.data.slice(err.response.data.indexOf(':') + 2) :
@@ -313,11 +327,14 @@ export default {
     /**
      * Makes requests to add the product's images
      */
-    addImages() {
+    async addImages() {
+      this.uploadingImages = true
       for (const image of this.images) {
-        this.$root.$data.business.addProductImage(
+        await this.$root.$data.business.addProductImage(
             this.businessId, this.id, image.data)
+        this.numImagesUploaded += 1;
       }
+      this.uploadingImages = false
     }
   }
 }
