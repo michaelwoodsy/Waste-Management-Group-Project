@@ -170,7 +170,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("EmailInvalid: This Email is not valid.", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: EmailInvalid: This Email is not valid.", returnedExceptionString);
 
     }
 
@@ -199,7 +199,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("DateOfBirthInvalid: This Date of Birth is not valid.", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: DateOfBirthInvalid: This Date of Birth is not valid.", returnedExceptionString);
     }
 
     /**
@@ -227,7 +227,9 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("InvalidPhoneNumber: This Phone Number is not valid.", returnedExceptionString);
+        Assertions.assertEquals(
+                "MethodArgumentNotValidException: InvalidPhoneNumber: This Phone Number is not valid.",
+                returnedExceptionString);
     }
 
     /**
@@ -255,7 +257,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("DateOfBirthInvalid: This Date of Birth is not valid.", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: DateOfBirthInvalid: This Date of Birth is not valid.", returnedExceptionString);
     }
 
     /**
@@ -283,7 +285,7 @@ class UserControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("MissingData: First Name is a mandatory field", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: MissingData: First Name is a mandatory field", returnedExceptionString);
     }
 
     /**
@@ -403,7 +405,7 @@ class UserControllerTest extends AbstractInitializer {
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         //Exception string from the validation class
-        Assertions.assertEquals("EmailInvalid: This Email is not valid.", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: EmailInvalid: This Email is not valid.", returnedExceptionString);
     }
 
     /**
@@ -426,7 +428,7 @@ class UserControllerTest extends AbstractInitializer {
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         //Exception string from the validation class
-        Assertions.assertEquals("PasswordInvalid: This Password is not valid.", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: PasswordInvalid: This Password is not valid.", returnedExceptionString);
     }
 
     /**
@@ -449,7 +451,7 @@ class UserControllerTest extends AbstractInitializer {
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         //Exception string from the validation class
-        Assertions.assertEquals("MissingData: First Name is a mandatory field", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: MissingData: First Name is a mandatory field", returnedExceptionString);
     }
 
     /**
@@ -472,7 +474,7 @@ class UserControllerTest extends AbstractInitializer {
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         //Exception string from the validation class
-        Assertions.assertEquals("MissingData: Last Name is a mandatory field", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: MissingData: Last Name is a mandatory field", returnedExceptionString);
     }
 
     /**
@@ -495,6 +497,6 @@ class UserControllerTest extends AbstractInitializer {
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         //Exception string from the validation class
-        Assertions.assertEquals("InvalidPhoneNumber: This Phone Number is not valid.", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: InvalidPhoneNumber: This Phone Number is not valid.", returnedExceptionString);
     }
 }
