@@ -168,6 +168,7 @@ Page for displaying the marketplace.
           :current-page.sync="page"
           :items-per-page="resultsPerPage"
           :total-items="totalCardCount"
+          class="mx-auto"
       />
 
     </div>
