@@ -1,7 +1,6 @@
 <template>
   <page-wrapper>
     <div v-if="isLoggedIn" class="container-fluid">
-
       <!--    Sale Listings Header    -->
       <div class="row">
         <div class="col-12 text-center mb-2">
@@ -113,20 +112,154 @@
       <hr>
 
 
-      <!-- TODO: table of sale listings goes here.
-      Includes all fields from SaleListings, plus business info -->
+      <!-- TODO: add business info to the table -->
+      <!-- Sale Listing Information -->
+      <div>
+
+        <!-- TODO: Fix table to have correct variables -->
+        <!-- Number of results information -->
+        <div class="text-center">
+          <showing-results-text
+              :items-per-page="resultsPerPage"
+              :page="page"
+              :total-count="totalCount"
+          />
+        </div>
+
+        <!-- Table of results -->
+        <div class="overflow-auto">
+          <table class="table table-hover"
+                 aria-label="Table of Sale Listings"
+          >
+            <thead>
+            <tr>
+              <!-- Product Image -->
+              <th scope="col"></th>
+              <!-- Product Info -->
+              <th class="pointer" scope="col" @click="orderResults('name')">
+                <p class="d-inline">Product Info</p>
+                <p v-if="orderCol === 'name'" class="d-inline">{{ orderDirArrow }}</p>
+              </th>
+              <!-- Quantity of product being sold -->
+              <th class="pointer" scope="col" @click="orderResults('quantity')">
+                <p class="d-inline">Quantity</p>
+                <p v-if="orderCol === 'quantity'" class="d-inline">{{ orderDirArrow }}</p>
+              </th>
+              <!-- Price of listing -->
+              <th class="pointer" scope="col" @click="orderResults('price')">
+                <p class="d-inline">Price</p>
+                <p v-if="orderCol === 'price'" class="d-inline">{{ orderDirArrow }}</p>
+              </th>
+              <!-- Date listing was created -->
+              <th class="pointer" scope="col" @click="orderResults('created')">
+                <p class="d-inline">Created</p>
+                <p v-if="orderCol === 'created'" class="d-inline">{{ orderDirArrow }}</p>
+              </th>
+              <!-- Date listing closes -->
+              <th class="pointer" scope="col" @click="orderResults('closes')">
+                <p class="d-inline">Closes</p>
+                <p v-if="orderCol === 'closes'" class="d-inline">{{ orderDirArrow }}</p>
+              </th>
+              <!--    view images button column    -->
+              <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody v-if="!loading">
+            <tr v-for="item in paginatedListings" v-bind:key="item.id">
+              <td>
+                <img alt="productImage" class="ui-icon-image"
+                     :src="getPrimaryImageThumbnail(item.inventoryItem.product)">
+              </td>
+              <td style="word-break: break-word; width: 50%">
+                {{ item.inventoryItem.product.name }}
+                <span v-if="item.moreInfo" style="font-size: small"><br/>{{ item.moreInfo }}</span>
+              </td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ formatPrice(item.price) }}</td>
+              <td>{{ formatDate(item.created) }}</td>
+              <td>{{ formatDate(item.closes) }}</td>
+              <td>
+                <button class="btn btn-primary" data-target="#viewImages" data-toggle="modal"
+                        @click="changeViewedProduct(item.inventoryItem.product)">View Images</button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Show loading text until results are obtained -->
+      <div v-if="loading" class="row">
+        <span class="col text-center text-muted">Loading...</span>
+      </div>
+
+      <!--    Result Information    -->
+      <div class="row">
+        <div class="col">
+          <pagination
+              :current-page.sync="page"
+              :items-per-page="resultsPerPage"
+              :total-items="totalCount"
+          />
+        </div>
+      </div>
     </div>
+
+    <!--   Product images modal   -->
+    <div v-if="isViewingImages" id="viewImages" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{productViewing.name}}'s Images</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="isViewingImages=false">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div v-if="productViewing.images.length === 0">
+              <p class="text-center"><strong>This Product has no Images</strong></p>
+            </div>
+            <div v-else class="row" style="height: 500px">
+              <div class="col col-12 justify-content-center">
+                <div id="imageCarousel" class="carousel slide" data-ride="carousel">
+                  <div class="carousel-inner">
+                    <div v-for="(image, index) in productViewing.images" v-bind:key="image.id"
+                         :class="{'carousel-item': true, 'active': index === 0}">
+                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL(image.filename)" alt="ProductImage">
+                    </div>
+                  </div>
+                  <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                  <a class="carousel-control-next" href="#imageCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </page-wrapper>
 
 </template>
 
 <script>
 import PageWrapper from "@/components/PageWrapper";
+import Pagination from "@/components/Pagination";
+import ShowingResultsText from "@/components/ShowingResultsText";
 
 export default {
   name: "BrowseSaleListings.vue",
   components: {
-    PageWrapper
+    PageWrapper,
+    Pagination,
+    ShowingResultsText
   },
   data() {
     return {
@@ -168,6 +301,7 @@ export default {
           {id: "country", name: "Country"},
           {id: "city", name: "City"},
           {id: "expiryDate", name: "Expiry Date"},
+          //TODO: add expiry date desc and update API spec
           {id: "seller", name: "Seller"}
       ]
     }
