@@ -19,7 +19,7 @@
             <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
           </div>
           <!-- Autocomplete dropdown -->
-          <div class="dropdown-menu overflow-auto" id="dropdown">
+          <div v-if="productLookup" class="dropdown-menu overflow-auto" id="dropdown">
             <!-- If no user input -->
             <p class="text-muted dropdown-item left-padding mb-0 disabled"
                v-if="searchTerm.length === 0"
@@ -47,7 +47,7 @@
     </div>
 
     <!-- Checkboxes for selecting which fields to match -->
-    <div class="row form justify-content-center">
+    <div v-if="!productLookup" class="row form justify-content-center">
       <div class="col form-group text-center">
         <label class="d-inline-block fields-title mt-2">Matching Fields</label>
         <br>
@@ -75,7 +75,6 @@ export default {
   },
   data() {
     return {
-
       searchTerm: "",
       filteredProducts: [],
       fieldOptions: [
@@ -106,6 +105,17 @@ export default {
     businessId() {
       return this.$route.params.businessId;
     },
+
+    /**
+     * Checks if the user is on the product catalogue page or the inventory page
+     */
+    productLookup(){
+      if(this.$parent.$options._componentTag === "create-inventory-item"){
+        return true
+      } else {
+        return false
+      }
+    }
   },
   methods: {
     /**
@@ -143,18 +153,25 @@ export default {
      * Filters autocomplete options based on the user's input for a product.
      */
      searchProductNames() {
-      Business.searchProducts(this.businessId, this.searchTerm,
-          this.fieldOptions[0].checked,
-          this.fieldOptions[1].checked,
-          this.fieldOptions[2].checked,
-          this.fieldOptions[3].checked,
-      )
-          .then((response) => {
-            this.filteredProducts = response.data
-          })
-          .catch((err) => {
-            console.log(`There was an error searching products: ${err}`)
-          })
+       if(this.productLookup){
+         //Set ID to true
+         this.fieldOptions[0].checked = true
+         //Set Name to false
+         this.fieldOptions[1].checked = false
+         Business.searchProducts(this.businessId, this.searchTerm,
+             this.fieldOptions[0].checked,
+             this.fieldOptions[1].checked,
+             this.fieldOptions[2].checked,
+             this.fieldOptions[3].checked,
+         )
+             .then((response) => {
+               this.filteredProducts = response.data
+             })
+             .catch((err) => {
+               console.log(`There was an error searching products: ${err}`)
+             })
+       }
+
     }
   }
 }
