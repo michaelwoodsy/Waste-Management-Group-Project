@@ -28,7 +28,6 @@ import org.seng302.project.serviceLayer.exceptions.register.UserUnderageExceptio
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

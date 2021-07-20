@@ -3,6 +3,7 @@ package org.seng302.project.repositoryLayer.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 
 import javax.persistence.*;
@@ -117,6 +118,23 @@ public class Business {
      */
     public boolean userCanDoAction(User user) {
         return user.isGAA() || primaryAdministratorId.equals(user.getId()) || userIsAdmin(user.getId());
+    }
+
+    /**
+     * Method which updates business details based on a DTO
+     *
+     * @param dto DTO containing new business information
+     */
+    public void updateBusiness(PostBusinessDTO dto) {
+        this.setName(dto.getName());
+        this.setDescription(dto.getDescription());
+        this.address.setStreetNumber(dto.getAddress().getStreetNumber());
+        this.address.setStreetName(dto.getAddress().getStreetName());
+        this.address.setCity(dto.getAddress().getCity());
+        this.address.setCountry(dto.getAddress().getCountry());
+        this.address.setPostcode(dto.getAddress().getPostcode());
+        this.setBusinessType(dto.getBusinessType());
+        this.setPrimaryAdministratorId(dto.getPrimaryAdministratorId());
     }
 
 }

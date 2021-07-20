@@ -14,6 +14,7 @@ import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.InvalidDateException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
+import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
@@ -152,10 +153,27 @@ public class BusinessService {
      *
      * @param requestDTO DTO containing new business information
      * @param businessId ID of the business to update
-     * @param appUser the currently logged in user
+     * @param appUser    the currently logged in user
      */
     public void editBusiness(PostBusinessDTO requestDTO, Integer businessId, AppUserDetails appUser) {
-        // TODO: Implement
+        Optional<Business> retrievedBusiness = businessRepository.findById(businessId);
+        if (retrievedBusiness.isEmpty()) {
+            String message = String.format("Business with ID %d does not exist", businessId);
+            logger.warn(message);
+            throw new NotAcceptableException(message);
+        }
+
+        Business business = retrievedBusiness.get();
+        User user = userRepository.findByEmail(appUser.getUsername()).get(0);
+        if (!business.userCanDoAction(user)) {
+            String message = String.format("Cannot edit business as user with ID %d is not admin", user.getId());
+            logger.warn(message);
+            throw new ForbiddenException(message);
+        }
+
+        business.updateBusiness(requestDTO);
+        addressRepository.save(business.getAddress());
+        businessRepository.save(business);
     }
 
     /**
