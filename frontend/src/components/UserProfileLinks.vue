@@ -150,43 +150,65 @@ export default {
   },
   methods: {
     /**
-     * Uses the primaryImageId of the product to find the primary image and return its imageURL,
-     * else it returns the default product image url
+     * Uses the primaryImageId of the user to find the primary image and return its imageURL,
+     * else it returns the default user image url
      */
     getPrimaryImageThumbnail(currImages, currPrimaryImageId) {
       let images = currImages
       let primaryImageId = currPrimaryImageId
       if (images === undefined) {
         if (this.actor.type === 'user') {
-          for(const user of this.userAccounts) {
-            if (this.actor.id === user.id) {
-              images = user.images
-              primaryImageId = user.primaryImageId
-              break
-            }
-          }
+          const userThumbnailDetails = this.getUserPrimaryImageDetails(images, primaryImageId)
+          images = userThumbnailDetails.images
+          primaryImageId = userThumbnailDetails.primaryImageId
         }
         if (this.actor.type === 'business') {
-          for(const business of this.businessAccounts) {
-            if (this.actor.id === business.id) {
-              images = business.images
-              primaryImageId = business.primaryImageId
-              break
-            }
-          }
+          const businessThumbnailDetails = this.getBusinessPrimaryImageDetails(images, primaryImageId)
+          images = businessThumbnailDetails.images
+          primaryImageId = businessThumbnailDetails.primaryImageId
         }
       }
-      if (primaryImageId === null || images === null || images === undefined || primaryImageId === undefined) {
-        return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
+      if (primaryImageId != null && images != null) {
+        const filteredImages = images.filter(function(specificImage) {
+          return specificImage.id === primaryImageId;
+        })
+        if (filteredImages.length === 1) {
+          return this.getImageURL(filteredImages[0].thumbnailFilename)
+        }
       }
-      const filteredImages = images.filter(function(specificImage) {
-        return specificImage.id === primaryImageId;
-      })
-      if (filteredImages.length === 1) {
-        return this.getImageURL(filteredImages[0].thumbnailFilename)
-      }
-      //Return the default image if the program gets to this point (if it does something went wrong)
       return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
+    },
+
+    /**
+     * Gets a user's list of images and their primaryImageId
+     */
+    getUserPrimaryImageDetails(currImages, currPrimaryImageId) {
+      let images = currImages
+      let primaryImageId = currPrimaryImageId
+      for(const user of this.userAccounts) {
+        if (this.actor.id === user.id) {
+          images = user.images
+          primaryImageId = user.primaryImageId
+          break
+        }
+      }
+      return {images, primaryImageId}
+    },
+
+    /**
+     * Gets a business's list of images and their primaryImageId
+     */
+    getBusinessPrimaryImageDetails(currImages, currPrimaryImageId) {
+      let images = currImages
+      let primaryImageId = currPrimaryImageId
+      for(const business of this.businessAccounts) {
+        if (this.actor.id === business.id) {
+          images = business.images
+          primaryImageId = business.primaryImageId
+          break
+        }
+      }
+      return {images, primaryImageId}
     },
 
     /**

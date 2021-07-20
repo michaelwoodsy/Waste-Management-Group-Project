@@ -158,6 +158,8 @@ export const User = {
 
     /**
      * Adds an image to a user
+     * @param userId the id of the user to add an image for
+     * @param file the image file being uploaded by the user
      */
     addImage: (userId, file) => instance.post(
         `users/${userId}/images`, file, {
