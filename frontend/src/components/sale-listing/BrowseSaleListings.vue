@@ -112,11 +112,9 @@
       <hr>
 
 
-      <!-- TODO: add business info to the table -->
       <!-- Sale Listing Information -->
       <div>
 
-        <!-- TODO: Fix table to have correct variables -->
         <!-- Number of results information -->
         <div class="text-center">
           <showing-results-text
@@ -136,29 +134,28 @@
               <!-- Product Image -->
               <th scope="col"></th>
               <!-- Product Info -->
-              <th class="pointer" scope="col" @click="orderResults('name')">
+              <th class="pointer" scope="col">
                 <p class="d-inline">Product Info</p>
-                <p v-if="orderCol === 'name'" class="d-inline">{{ orderDirArrow }}</p>
               </th>
               <!-- Quantity of product being sold -->
-              <th class="pointer" scope="col" @click="orderResults('quantity')">
+              <th class="pointer" scope="col">
                 <p class="d-inline">Quantity</p>
-                <p v-if="orderCol === 'quantity'" class="d-inline">{{ orderDirArrow }}</p>
               </th>
               <!-- Price of listing -->
-              <th class="pointer" scope="col" @click="orderResults('price')">
+              <th class="pointer" scope="col">
                 <p class="d-inline">Price</p>
-                <p v-if="orderCol === 'price'" class="d-inline">{{ orderDirArrow }}</p>
               </th>
               <!-- Date listing was created -->
-              <th class="pointer" scope="col" @click="orderResults('created')">
+              <th class="pointer" scope="col">
                 <p class="d-inline">Created</p>
-                <p v-if="orderCol === 'created'" class="d-inline">{{ orderDirArrow }}</p>
               </th>
               <!-- Date listing closes -->
-              <th class="pointer" scope="col" @click="orderResults('closes')">
+              <th class="pointer" scope="col">
                 <p class="d-inline">Closes</p>
-                <p v-if="orderCol === 'closes'" class="d-inline">{{ orderDirArrow }}</p>
+              </th>
+              <!-- Seller's details -->
+              <th class="pointer" scope="col">
+                <p class="d-inline">Seller</p>
               </th>
               <!--    view images button column    -->
               <th scope="col"></th>
@@ -175,9 +172,10 @@
                 <span v-if="item.moreInfo" style="font-size: small"><br/>{{ item.moreInfo }}</span>
               </td>
               <td>{{ item.quantity }}</td>
-              <td>{{ formatPrice(item.price) }}</td>
+              <td>{{ item.price }}</td>
               <td>{{ formatDate(item.created) }}</td>
               <td>{{ formatDate(item.closes) }}</td>
+              <td>{{ formatSeller(item) }}</td>
               <td>
                 <button class="btn btn-primary" data-target="#viewImages" data-toggle="modal"
                         @click="changeViewedProduct(item.inventoryItem.product)">View Images</button>
@@ -253,6 +251,7 @@
 import PageWrapper from "@/components/PageWrapper";
 import Pagination from "@/components/Pagination";
 import ShowingResultsText from "@/components/ShowingResultsText";
+import {Business, Images} from "@/Api";
 
 export default {
   name: "BrowseSaleListings.vue",
@@ -300,11 +299,20 @@ export default {
           {id: "productName", name: "Product Name"},
           {id: "country", name: "Country"},
           {id: "city", name: "City"},
-          {id: "expiryDate", name: "Expiry Date"},
-          //TODO: add expiry date desc and update API spec
+          {id: "expiryDateAsc", name: "Expiry Date Soonest"},
+          {id: "expiryDateDesc", name: "Expiry Date Latest"},
           {id: "seller", name: "Seller"}
-      ]
+      ],
+      loading: false,
+      resultsPerPage: 10,
+      page: 1,
+      listings: [],
+      isViewingImages: false,
+      productViewing: null
     }
+  },
+  async mounted() {
+    await this.fillTable();
   },
   computed: {
     /**
@@ -314,8 +322,79 @@ export default {
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     },
+
+    /**
+     * Returns paginated sale listings.
+     */
+    paginatedListings() {
+      let newListings = this.listings;
+      if (newListings.length > 0) {
+        const startIndex = this.resultsPerPage * (this.page - 1);
+        const endIndex = this.resultsPerPage * this.page;
+        newListings = newListings.slice(startIndex, endIndex);
+      }
+      return newListings;
+    },
+
+    /**
+     * The total number of listings.
+     */
+    totalCount() {
+      return this.listings.length;
+    },
   },
   methods: {
+
+    /**
+     * Fills the table with all sale listings when the page is loaded
+     */
+    async fillTable() {
+      //TODO: use GET /listings endpoint to show everyone's listings
+      //Currently just show's the current business's listings
+      this.listings = [];
+      this.loading = true;
+      this.page = 1;
+
+      try {
+        const listingsResponse = await Business.getListings(this.$root.$data.user.state.actingAs.id)
+        this.error = null
+        this.listings = listingsResponse.data
+        this.loading = false
+
+        //TODO: get business's country here so that we can format prices
+        this.listings = await Promise.all(this.listings.map(async (listing) => {
+          //TODO: remove the below line once the backend returns businessId as part of a listing
+          listing.businessId = this.$root.$data.user.state.actingAs.id
+          const businessResponse = await Business.getBusinessData(listing.businessId)
+          listing.sellerName = businessResponse.data.name
+          listing.sellerAddress = businessResponse.data.address
+          return listing
+        }))
+      } catch (err) {
+        this.error = err;
+        this.loading = false
+      }
+
+
+    },
+    /**
+     * Formats the date fields.
+     * @param string string representation of the date.
+     * @returns {string} the formatted date.
+     */
+    formatDate(string) {
+      if (string === '') {
+        return '';
+      } else {
+        return new Date(string).toDateString();
+      }
+    },
+    /**
+     * Formats the name and address of the business offering the listing
+     */
+    formatSeller(listing) {
+      return `${listing.sellerName} from ${this.$root.$data.address.formatAddress(listing.sellerAddress)}`
+    },
     /**
      * Toggles whether a field is selected to be searched by
      */
@@ -395,7 +474,38 @@ export default {
           }
         }
       }
+    },
 
+    /**
+     * Uses the primaryImageId of the product to find the primary image and return its imageURL,
+     * else it returns the default product image url
+     */
+    getPrimaryImageThumbnail(product) {
+      if (product.primaryImageId !== null) {
+        const filteredImages = product.images.filter(function(specificImage) {
+          return specificImage.id === product.primaryImageId;
+        })
+        if (filteredImages.length === 1) {
+          return this.getImageURL(filteredImages[0].thumbnailFilename)
+        }
+      }
+      //Return the default image if the program gets to this point (if it does something went wrong)
+      return this.getImageURL('/media/defaults/defaultProduct_thumbnail.jpg')
+    },
+
+    /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
+    },
+
+    /**
+     * Sets the viewing product in order to view the products images
+     */
+    changeViewedProduct(product) {
+      this.productViewing = product
+      this.isViewingImages = true
     },
 
     /**
