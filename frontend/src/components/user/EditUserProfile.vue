@@ -130,6 +130,28 @@
           </div>
           <hr/>
 
+
+          <!-- Current Password -->
+          <div class="form-group row">
+            <label v-if="needCurrentPassword" for="currentPassword"><strong>Current Password<span class="required">*</span></strong></label>
+            <label v-else for="currentPassword"><strong>Current Password</strong></label>
+            <div class="input-group">
+              <input id="currentPassword" v-model="currentPassword" :class="{'form-control': true, 'is-invalid': msg.currentPassword}"
+                     placeholder="Enter your Current Password"
+                     required maxlength="255" :type="currentPasswordType">
+              <div class="input-group-append">
+                <button class="btn btn-primary no-outline" @click="showCurrentPassword()">
+              <span :class="{bi: true,
+                'bi-eye-slash': currentPasswordType === 'password',
+                'bi-eye': currentPasswordType !== 'password'}" aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
+            <span class="invalid-feedback d-block">{{ msg.currentPassword }}</span>
+            <p style="font-size: small" class="text-left">Current password required when changing email or password</p>
+          </div>
+
+
           <!-- New Password -->
           <div class="form-group row">
             <label for="newPassword"><strong>New Password</strong></label>
@@ -149,25 +171,6 @@
             <p style="font-size: small" class="text-left">Password must be a combination of lowercase and uppercase letters, numbers, and
               be at least 8 characters long</p>
           </div>
-
-          <!-- Current Password -->
-          <div class="form-group row" v-if="needCurrentPassword">
-            <label for="currentPassword"><strong>Current Password<span class="required">*</span></strong></label>
-            <div class="input-group">
-              <input id="currentPassword" v-model="currentPassword" :class="{'form-control': true, 'is-invalid': msg.currentPassword}"
-                     placeholder="Enter your Current Password"
-                     required maxlength="255" :type="currentPasswordType">
-              <div class="input-group-append">
-                <button class="btn btn-primary no-outline" @click="showCurrentPassword()">
-              <span :class="{bi: true,
-                'bi-eye-slash': currentPasswordType === 'password',
-                'bi-eye': currentPasswordType !== 'password'}" aria-hidden="true"></span>
-                </button>
-              </div>
-            </div>
-            <span class="invalid-feedback d-block">{{ msg.currentPassword }}</span>
-          </div>
-
 
 
           <hr/>
