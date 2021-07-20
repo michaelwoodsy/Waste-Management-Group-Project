@@ -9,9 +9,8 @@ import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.repositoryLayer.specification.BusinessSpecifications;
 import org.seng302.project.serviceLayer.dto.business.GetBusinessDTO;
-import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
-import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.InvalidDateException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
@@ -269,20 +268,18 @@ public class BusinessService {
 
     /**
      * Searches for business based on name and type
+     * Regular expression for splitting search query taken from linked website
      *
-     * @param requestDTO DTO with a searchQuery to match a business name
-     *                   and a (possibly empty) business type
-     *                   <p>
-     *                   Regular expression for splitting search query taken from linked website.
+     * @param searchQuery  query to match business by name
+     * @param businessType the type of business to filter by
      * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
      * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
      */
-    public List<Business> searchBusiness(SearchBusinessDTO requestDTO) {
+    public List<Business> searchBusiness(String searchQuery, BusinessType businessType) {
         logger.info("Request to search businesses with searchQuery: {} and businessType: {}",
-                requestDTO.getSearchQuery(), requestDTO.getBusinessType());
+                searchQuery, businessType);
 
         try {
-            String searchQuery = requestDTO.getSearchQuery();
             List<Business> retrievedBusinesses;
 
             if (searchQuery.equals("")) {
@@ -321,7 +318,7 @@ public class BusinessService {
                 retrievedBusinesses = new ArrayList<>(result);
             }
 
-            return filterBusinesses(retrievedBusinesses, requestDTO.getBusinessType());
+            return filterBusinesses(retrievedBusinesses, businessType);
 
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while searching businesses: %s", exception.getMessage()));

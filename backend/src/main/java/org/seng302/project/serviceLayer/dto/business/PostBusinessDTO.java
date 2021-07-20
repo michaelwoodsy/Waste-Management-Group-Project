@@ -22,7 +22,6 @@ public class PostBusinessDTO {
     private String description;
     @ValidAddress
     private AddressDTO address;
-
     @NotEmpty(message = "Business type is a mandatory field")
     @ValidBusinessType
     private String businessType;

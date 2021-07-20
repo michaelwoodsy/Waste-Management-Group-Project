@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
-import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
@@ -31,7 +31,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -510,8 +509,8 @@ class BusinessControllerTest {
      */
     @Test
     void searchBusiness_validQueryNoType_200() throws Exception {
-        given(businessService.searchBusiness(any(SearchBusinessDTO.class)))
-                .willReturn(List.of(testBusiness));
+        Mockito.when(businessService.searchBusiness(any(String.class), any(BusinessType.class)))
+                .thenReturn(List.of(testBusiness));
 
         RequestBuilder searchBusinessRequest = MockMvcRequestBuilders
                 .get("/businesses/search?searchQuery=General")
@@ -530,8 +529,8 @@ class BusinessControllerTest {
      */
     @Test
     void searchBusiness_validQueryValidType_200() throws Exception {
-        given(businessService.searchBusiness(any(SearchBusinessDTO.class)))
-                .willReturn(List.of(testBusiness));
+        Mockito.when(businessService.searchBusiness(any(String.class), any(BusinessType.class)))
+                .thenReturn(List.of(testBusiness));
 
         RequestBuilder searchBusinessRequest = MockMvcRequestBuilders
                 .get("/businesses/search?searchQuery=General&businessType={businessType}", testBusiness.getBusinessType())

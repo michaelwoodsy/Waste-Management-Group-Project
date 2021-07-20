@@ -17,7 +17,6 @@ import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.serviceLayer.dto.business.GetBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
-import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
@@ -26,11 +25,7 @@ import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRem
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.register.UserUnderageException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -344,9 +339,7 @@ class BusinessServiceTest extends AbstractInitializer {
         Mockito.when(businessRepository.findAll(any(Specification.class)))
                 .thenReturn(List.of(testBusiness));
 
-        SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(), null);
-
-        List<Business> retrievedBusinesses = businessService.searchBusiness(requestDTO);
+        List<Business> retrievedBusinesses = businessService.searchBusiness(testBusiness.getName(), null);
 
         Assertions.assertEquals(1, retrievedBusinesses.size());
         Assertions.assertEquals(testBusiness.getName(), retrievedBusinesses.get(0).getName());
@@ -364,10 +357,8 @@ class BusinessServiceTest extends AbstractInitializer {
         given(businessRepository.findAll(any(Specification.class)))
                 .willReturn(List.of(testBusiness, otherBusiness));
 
-        SearchBusinessDTO requestDTO = new SearchBusinessDTO(testBusiness.getName(),
-                BusinessType.getType(testBusiness.getBusinessType())); //"Accommodation and Food Services"
-
-        List<Business> retrievedBusinesses = businessService.searchBusiness(requestDTO);
+        BusinessType type = BusinessType.getType(testBusiness.getBusinessType());
+        List<Business> retrievedBusinesses = businessService.searchBusiness(testBusiness.getName(), type);
 
         Assertions.assertEquals(1, retrievedBusinesses.size());
         Assertions.assertEquals(testBusiness.getBusinessType(), retrievedBusinesses.get(0).getBusinessType());

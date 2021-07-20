@@ -1,12 +1,11 @@
 package org.seng302.project.webLayer.controller;
 
 import net.minidev.json.JSONObject;
-import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.serviceLayer.dto.business.GetBusinessDTO;
-import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
 import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
-import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.service.BusinessService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -63,9 +62,9 @@ public class BusinessController {
      * Adds an individual as an administrator for a business
      * Service method handles cases that may result in an error
      *
-     * @param id   Id of the business to add an administrator to
+     * @param id          Id of the business to add an administrator to
      * @param requestBody request body containing the id of the user to make an administrator
-     * @param appUser the user making the request
+     * @param appUser     the user making the request
      */
     @PutMapping("/businesses/{id}/makeAdministrator")
     @ResponseStatus(HttpStatus.OK)
@@ -83,9 +82,9 @@ public class BusinessController {
      * Removes an individual as an administrator for a business
      * Service method handles cases that may result in an error
      *
-     * @param id   Id of the business to remove an administrator from
+     * @param id          Id of the business to remove an administrator from
      * @param requestBody request body containing the user id of administrator to remove
-     * @param appUser the user making the request
+     * @param appUser     the user making the request
      */
     @PutMapping("/businesses/{id}/removeAdministrator")
     @ResponseStatus(HttpStatus.OK)
@@ -101,8 +100,6 @@ public class BusinessController {
     /**
      * Receives a request containing a search query to search businesses by name and retrieves a list
      * of businesses based on the query.
-     *
-     *
      *
      * @param searchQuery business's name, or part of their name
      * @return 200 response with (potentially empty) list of businesses or
@@ -123,9 +120,7 @@ public class BusinessController {
             }
         }
 
-        var searchBusinessDTO = new SearchBusinessDTO(searchQuery, businessType);
-
-        return businessService.searchBusiness(searchBusinessDTO);
+        return businessService.searchBusiness(searchQuery, businessType);
     }
 
 }
