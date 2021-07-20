@@ -11,12 +11,38 @@
                  v-model="searchTerm"
                  class="form-control no-outline"
                  placeholder="Search products"
-                 type="search"
-                 @keyup.enter="search">
+                 type="text"
+                 @keyup.enter="search"
+                 data-toggle="dropdown"
+                 @input="searchProductNames">
           <div class="input-group-append">
             <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
           </div>
+          <!-- Autocomplete dropdown -->
+          <div class="dropdown-menu overflow-auto" id="dropdown">
+            <!-- If no user input -->
+            <p class="text-muted dropdown-item left-padding mb-0 disabled"
+               v-if="searchTerm.length === 0"
+            >
+              Start typing...
+            </p>
+            <!-- If no matches -->
+            <p class="text-muted dropdown-item left-padding mb-0 disabled"
+               v-else-if="filteredProducts.length === 0 && searchTerm.length > 0"
+            >
+              No results found.
+            </p>
+            <!-- If there are matches -->
+            <a class="dropdown-item pointer left-padding"
+               v-for="product in filteredProducts"
+               v-else
+               :key="product.id"
+               @click="searchTerm=product.id">
+              <span>{{ product.id }}</span>
+            </a>
+          </div>
         </div>
+
       </div>
     </div>
 
@@ -49,7 +75,9 @@ export default {
   },
   data() {
     return {
+
       searchTerm: "",
+      filteredProducts: [],
       fieldOptions: [
         {
           name: "Id",
@@ -109,6 +137,24 @@ export default {
           .catch((err) => {
             console.log(`There was an error searching products: ${err}`)
       })
+    },
+
+    /**
+     * Filters autocomplete options based on the user's input for a product.
+     */
+     searchProductNames() {
+      Business.searchProducts(this.businessId, this.searchTerm,
+          this.fieldOptions[0].checked,
+          this.fieldOptions[1].checked,
+          this.fieldOptions[2].checked,
+          this.fieldOptions[3].checked,
+      )
+          .then((response) => {
+            this.filteredProducts = response.data
+          })
+          .catch((err) => {
+            console.log(`There was an error searching products: ${err}`)
+          })
     }
   }
 }
