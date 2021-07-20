@@ -168,6 +168,8 @@ public class BusinessService {
             throw new ForbiddenException(message);
         }
 
+        // TODO: check that new primary admin is a valid user
+
         business.updateBusiness(requestDTO);
         addressRepository.save(business.getAddress());
         businessRepository.save(business);

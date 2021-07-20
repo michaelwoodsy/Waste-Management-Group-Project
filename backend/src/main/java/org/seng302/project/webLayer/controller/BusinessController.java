@@ -59,6 +59,20 @@ public class BusinessController {
     }
 
     /**
+     * Edits a business with new details provided
+     *
+     * @param businessId ID of the business to edit
+     * @param requestDTO DTO containing new business information
+     * @param appUser    currently logged in user
+     */
+    @PutMapping("/businesses/{businessId}")
+    public void editBusiness(@PathVariable Integer businessId,
+                             @Valid @RequestBody PostBusinessDTO requestDTO,
+                             @AuthenticationPrincipal AppUserDetails appUser) {
+        businessService.editBusiness(requestDTO, businessId, appUser);
+    }
+
+    /**
      * Adds an individual as an administrator for a business
      * Service method handles cases that may result in an error
      *
