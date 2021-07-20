@@ -16,6 +16,6 @@ public class ValidAddressValidator implements ConstraintValidator<ValidAddress, 
             return address.getStreetName() != null && !address.getStreetName().equals("");
         }
 
-        return !(address.getCountry().equals("") || address.getCountry() == null);
+        return !(address.getCountry() == null || address.getCountry().equals(""));
     }
 }
