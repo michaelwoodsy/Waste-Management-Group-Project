@@ -96,13 +96,13 @@ public class UserController {
             dto.setId(userId);
             userService.checkForbidden(userId, appUser);
             userService.editUser(dto);
-
         } catch (InvalidEmailException | InvalidPhoneNumberException | ExistingRegisteredEmailException
-                | InvalidDateException | UserUnderageException | RequiredFieldsMissingException expectedException) {
+                | InvalidDateException | UserUnderageException
+                | RequiredFieldsMissingException | BadRequestException expectedException) {
             logger.info(expectedException.getMessage());
             throw expectedException;
         } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while creating user: %s", exception.getMessage()));
+            logger.error(String.format("Unexpected error while editing user: %s", exception.getMessage()));
             throw exception;
         }
     }
@@ -186,10 +186,13 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public List<GetUserDTO> searchUsers(@RequestParam("searchQuery") String searchQuery) {
 
-        logger.info(String.format("Request to search users with query: %s", searchQuery));
+        logger.info("Request to search users with query: {}", searchQuery);
 
         try {
             return userService.searchUsers(searchQuery);
+        } catch (BadRequestException badRequestException) {
+            logger.error(badRequestException.getMessage());
+            throw badRequestException;
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while searching users: %s", exception.getMessage()));
             throw exception;

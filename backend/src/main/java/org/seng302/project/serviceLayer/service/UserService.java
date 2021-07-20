@@ -7,6 +7,7 @@ import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.repositoryLayer.specification.UserSpecifications;
 import org.seng302.project.serviceLayer.dto.user.*;
+import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.dgaa.DGAARevokeAdminSelfException;
@@ -60,10 +61,8 @@ public class UserService {
     public List<GetUserDTO> searchUsers(String searchQuery) {
         List<User> users;
 
-        if (searchQuery.equals("")) {
-            // Search query is for all results
-            users = userRepository.findAll();
-
+        if (searchQuery.length() < 3) {
+            throw new BadRequestException("Please enter at least 3 characters to search.");
         } else {
             Set<User> result = new LinkedHashSet<>();
 
@@ -155,8 +154,27 @@ public class UserService {
         var address = user.getHomeAddress();
 
         // If email address is already registered
-        if (!userRepository.findByEmail(dto.getEmail()).isEmpty()) {
+        var users = userRepository.findByEmail(dto.getEmail());
+        if (!users.isEmpty() && !user.getId().equals(users.get(0).getId())) {
             throw new ExistingRegisteredEmailException();
+        }
+
+        //Check if the user wants to change their email
+        if (!dto.getEmail().equals(user.getEmail()) &&
+                (dto.getCurrentPassword() == null || dto.getCurrentPassword().equals("") ||
+                        !passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword()))) {
+            //If current password does not match
+            throw new BadRequestException("Incorrect Password.");
+        }
+
+        //Check if user wants to change their password
+        if (dto.getNewPassword() != null && !dto.getNewPassword().equals("")) {
+            //If current password does not match
+            if (dto.getCurrentPassword() == null || dto.getCurrentPassword().equals("") ||
+                    !passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+                throw new BadRequestException("Incorrect Password.");
+            }
+            user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         }
 
         //Change fields
@@ -179,11 +197,8 @@ public class UserService {
 
         user.setHomeAddress(address);
 
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
-
         addressRepository.save(user.getHomeAddress());
         userRepository.save(user);
-
     }
 
     /**

@@ -40,6 +40,7 @@
 
 <script>
 import PageWrapper from "@/components/PageWrapper";
+import {Business} from "@/Api";
 
 export default {
   name: "ProductSearch",
@@ -69,6 +70,15 @@ export default {
       ]
     }
   },
+  computed: {
+    /**
+     * Gets the business ID
+     * @returns {any}
+     */
+    businessId() {
+      return this.$route.params.businessId;
+    },
+  },
   methods: {
     /**
      * Toggles whether a field is selected to be searched by
@@ -81,7 +91,18 @@ export default {
      * Applies the user's search input
      */
     search() {
-      //TODO: implement me
+      Business.searchProducts(this.businessId, this.searchTerm,
+          this.fieldOptions[0].checked,
+          this.fieldOptions[1].checked,
+          this.fieldOptions[2].checked,
+          this.fieldOptions[3].checked,
+          )
+          .then((response) => {
+            this.$parent.$parent.applySearch(response.data)
+      })
+          .catch((err) => {
+            console.log(`There was an error searching products: ${err}`)
+      })
     }
   }
 }
@@ -92,6 +113,5 @@ export default {
 .fields-title {
   font-size: 18px;
 }
-
 
 </style>

@@ -20,17 +20,6 @@ public class BusinessControllerAdvice {
 
     /**
      * Exception thrown by the createBusiness(), addNewAdministrator() and removeAdministrator() functions in BusinessController
-     * when a there is no matching user.
-     *
-     * @return a 406 response with an appropriate message
-     */
-    @ExceptionHandler(NoUserExistsException.class)
-    public ResponseEntity<String> userDoesNotExist(NoUserExistsException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-    }
-
-    /**
-     * Exception thrown by the createBusiness(), addNewAdministrator() and removeAdministrator() functions in BusinessController
      * when a there is no matching business.
      *
      * @return a 406 response with an appropriate message

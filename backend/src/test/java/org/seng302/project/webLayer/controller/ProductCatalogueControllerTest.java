@@ -458,16 +458,9 @@ class ProductCatalogueControllerTest {
      */
     @Test
     void searchProducts_success200() throws Exception {
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("matchingId", true);
-        requestBody.put("matchingName", true);
-        requestBody.put("matchingDescription", true);
-        requestBody.put("matchingManufacturer", false);
-
         RequestBuilder searchProductRequest = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/products/search?searchQuery=beans", businessId)
-                .content(requestBody.toString())
-                .contentType(MediaType.APPLICATION_JSON)
+                .get("/businesses/{businessId}/products/search?searchQuery=beans&matchingId=true&matchingName=true&matchingDescription=true",
+                        businessId)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 
@@ -477,40 +470,14 @@ class ProductCatalogueControllerTest {
 
 
     /**
-     * Tests that a product search with missing request body fields gives a 400 response
-     */
-    @Test
-    void searchProducts_missingFields_400() throws Exception {
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("matchingId", true);
-        requestBody.put("matchingName", true);
-
-        RequestBuilder searchProductRequest = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/products/search?searchQuery=beans", businessId)
-                .content(requestBody.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(user(new AppUserDetails(owner)));
-
-        mockMvc.perform(searchProductRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
-    }
-
-    /**
      * Tests that a product search without being logged in gives a 401 response
      */
     @Test
     void searchProducts_notLoggedIn_401() throws Exception {
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("matchingId", true);
-        requestBody.put("matchingName", true);
-        requestBody.put("matchingDescription", true);
-        requestBody.put("matchingManufacturer", false);
 
         RequestBuilder searchProductRequest = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/products/search?searchQuery=beans", businessId)
-                .content(requestBody.toString())
-                .contentType(MediaType.APPLICATION_JSON)
+                .get("/businesses/{businessId}/products/search?searchQuery=beans&matchingId=true&matchingName=true&matchingDescription=true",
+                        businessId)
                 .accept(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(searchProductRequest)
@@ -527,16 +494,9 @@ class ProductCatalogueControllerTest {
                 any(Integer.class), any(String.class), any(ProductSearchDTO.class), any(AppUserDetails.class)))
                 .thenThrow(new ForbiddenAdministratorActionException(businessId));
 
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("matchingId", true);
-        requestBody.put("matchingName", true);
-        requestBody.put("matchingDescription", true);
-        requestBody.put("matchingManufacturer", false);
-
         RequestBuilder searchProductRequest = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/products/search?searchQuery=beans", businessId)
-                .content(requestBody.toString())
-                .contentType(MediaType.APPLICATION_JSON)
+                .get("/businesses/{businessId}/products/search?searchQuery=beans&matchingId=true&matchingName=true&matchingDescription=true",
+                        businessId)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(user)));
 
@@ -554,16 +514,9 @@ class ProductCatalogueControllerTest {
                 any(Integer.class), any(String.class), any(ProductSearchDTO.class), any(AppUserDetails.class)))
                 .thenThrow(new NotAcceptableException("There is no business that exists with the id '500'"));
 
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("matchingId", true);
-        requestBody.put("matchingName", true);
-        requestBody.put("matchingDescription", true);
-        requestBody.put("matchingManufacturer", false);
-
         RequestBuilder searchProductRequest = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/products/search?searchQuery=beans", 500)
-                .content(requestBody.toString())
-                .contentType(MediaType.APPLICATION_JSON)
+                .get("/businesses/{businessId}/products/search?searchQuery=beans&matchingId=true&matchingName=true&matchingDescription=true",
+                        500)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 

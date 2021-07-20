@@ -63,6 +63,8 @@ Eg, <market-card @card-deleted="someMethod" ... />
       <p class="card-text text-muted small mb-1">
         {{ cardCreatorName }}
         <strong>&centerdot;</strong>
+        {{ cardData.section }}
+        <strong>&centerdot;</strong>
         {{ location }}
         <strong>&centerdot;</strong>
         {{ timeCreated }}

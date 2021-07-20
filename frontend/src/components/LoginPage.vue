@@ -33,14 +33,24 @@
           <!-- Password -->
           <div class="form-row">
             <label for="password"><strong>Password<span class="required">*</span></strong></label><br/>
-            <input id="password"
-                   v-model="password"
-                   :class="{'form-control': true, 'is-invalid': msg.password}"
-                   placeholder="Enter Password"
-                   required
-                   style="width: 100%"
-                   type="password"
-                   @keyup.enter="login"><br>
+            <div class="input-group">
+              <input id="password"
+                     v-model="password"
+                     :class="{'form-control': true, 'is-invalid': msg.password}"
+                     placeholder="Enter Password"
+                     required
+                     :type="passwordType"
+                     @keyup.enter="login">
+              <div class="input-group-append">
+                <button class="btn btn-primary no-outline" @click="showPassword()">
+                <span :class="{bi: true,
+                  'bi-eye-slash': passwordType === 'password',
+                  'bi-eye': passwordType !== 'password'}" aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
+            <br>
+
             <span class="invalid-feedback" style="text-align: left">{{ msg.password }}</span>
           </div>
           <br>
@@ -72,6 +82,8 @@ const LoginPage = {
     return {
       username: '',
       password: '',
+      //Used to toggle visibility of password input
+      passwordType: 'password',
       error: null,
       msg: {
         'username': null,
@@ -88,6 +100,16 @@ const LoginPage = {
   },
 
   methods: {
+    /**
+     * Method to toggle visibility of the password field
+     */
+    showPassword() {
+      if(this.passwordType === 'password') {
+        this.passwordType = 'text'
+      } else {
+        this.passwordType = 'password'
+      }
+    },
     checkUsername() {
       if (this.username === '') {
         this.msg['username'] = "Please enter a username"

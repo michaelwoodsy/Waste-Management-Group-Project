@@ -311,9 +311,8 @@ public class BusinessService {
         try {
             List<Business> retrievedBusinesses;
 
-            if (searchQuery.equals("")) {
-                retrievedBusinesses = businessRepository.findAll();
-                logger.info("Retrieved {} businesses", retrievedBusinesses.size());
+            if (searchQuery.length() < 3) {
+                throw new BadRequestException("Please enter at least 3 characters to search.");
             } else {
                 Set<Business> result = new LinkedHashSet<>();
 
@@ -349,6 +348,9 @@ public class BusinessService {
 
             return filterBusinesses(retrievedBusinesses, businessType);
 
+        } catch (BadRequestException badRequestException) {
+            logger.error(badRequestException.getMessage());
+            throw badRequestException;
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while searching businesses: %s", exception.getMessage()));
             throw exception;

@@ -1,6 +1,5 @@
 package org.seng302.project.webLayer.controller;
 
-import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
 import org.seng302.project.serviceLayer.dto.product.EditProductDTO;
 import org.seng302.project.serviceLayer.dto.product.GetProductDTO;
@@ -80,15 +79,23 @@ public class ProductCatalogueController {
     /**
      * Searches a business's catalogue for products
      * @param businessId id of the business to search products of
-     * @param requestDTO request body containing which fields to search by
+     * @param matchingId Whether the Id field is being searched by
+     * @param matchingName Whether the Name field is being searched by
+     * @param matchingDescription Whether the Description field is being searched by
+     * @param matchingManufacturer Whether the Manufacturer field is being searched by
      * @param appUser the user making the request
      */
     @GetMapping("/businesses/{businessId}/products/search")
     @ResponseStatus(HttpStatus.OK)
     public List<GetProductDTO> searchProducts(@PathVariable Integer businessId,
                                               @RequestParam("searchQuery") String searchQuery,
-                                              @Valid @RequestBody ProductSearchDTO requestDTO,
+                                              @RequestParam(name="matchingId", required = false) Boolean matchingId,
+                                              @RequestParam(name="matchingName", required = false) Boolean matchingName,
+                                              @RequestParam(name="matchingDescription", required = false) Boolean matchingDescription,
+                                              @RequestParam(name="matchingManufacturer", required = false) Boolean matchingManufacturer,
                                               @AuthenticationPrincipal AppUserDetails appUser) {
+
+        var requestDTO = new ProductSearchDTO(matchingId, matchingName, matchingDescription, matchingManufacturer);
         return productCatalogueService.searchProducts(businessId, searchQuery, requestDTO, appUser);
     }
 

@@ -3,13 +3,16 @@ package org.seng302.project.serviceLayer.dto.user;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.seng302.project.repositoryLayer.model.Business;
+import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.serviceLayer.dto.business.GetBusinessDTO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Response DTO for User entities.
@@ -30,6 +33,8 @@ public class GetUserDTO {
     private String role;
     private List<GetBusinessDTO> businessesAdministered;
     private LocalDateTime created;
+    private Integer primaryImageId;
+    private List<Image> images;
 
     public GetUserDTO(User user) {
         this.id = user.getId();
@@ -48,6 +53,8 @@ public class GetUserDTO {
         for (Business business : user.getBusinessesAdministered()) {
             this.businessesAdministered.add(new GetBusinessDTO(business));
         }
+        this.primaryImageId = user.getPrimaryImageId();
+        this.images = new ArrayList<>(user.getImages());
     }
 
     @JsonIgnoreProperties("administrators") // Stops infinite nesting when used in BusinessResponseDTO
