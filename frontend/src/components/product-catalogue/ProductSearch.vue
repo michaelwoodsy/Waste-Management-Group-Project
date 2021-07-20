@@ -98,6 +98,8 @@ export default {
           this.fieldOptions[3].checked,
           )
           .then((response) => {
+            console.log(this.$parent.$options)
+            //Change made was removing one of the $parent in the line below
             this.$parent.$parent.applySearch(response.data)
       })
           .catch((err) => {

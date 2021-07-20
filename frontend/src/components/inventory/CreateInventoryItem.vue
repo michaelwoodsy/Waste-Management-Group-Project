@@ -8,9 +8,9 @@
       </div>
       <div class="col text-center">
         <h2>{{ title }}</h2>
-        <product-search v-if="selectingItem" :business-id="businessId"></product-search>
       </div>
       <div v-if="selectingItem" class="col-2"/>
+
     </div>
 
 
@@ -127,7 +127,8 @@
         </div>
       </div>
     </div>
-    <catalogue-items v-if="selectingItem" :business-id="businessId" :selecting-item="true"></catalogue-items>
+    <product-search v-if="selectingItem" :business-id="businessId"></product-search>
+    <catalogue-items ref="catalogueItems" v-if="selectingItem" :business-id="businessId" :selecting-item="true"></catalogue-items>
 
   </div>
 </template>
