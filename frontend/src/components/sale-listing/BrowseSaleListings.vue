@@ -157,12 +157,16 @@
               <th class="pointer" scope="col">
                 <p class="d-inline">Seller</p>
               </th>
-              <!--    view images button column    -->
-              <th scope="col"></th>
             </tr>
             </thead>
             <tbody v-if="!loading">
-            <tr v-for="item in paginatedListings" v-bind:key="item.id">
+            <tr v-for="item in paginatedListings"
+                v-bind:key="item.id"
+                class="pointer"
+                data-target="#viewListingModal"
+                data-toggle="modal"
+                @click="viewListing(item)"
+            >
               <td>
                 <img alt="productImage" class="ui-icon-image"
                      :src="getPrimaryImageThumbnail(item.inventoryItem.product)">
@@ -172,14 +176,10 @@
                 <span v-if="item.moreInfo" style="font-size: small"><br/>{{ item.moreInfo }}</span>
               </td>
               <td>{{ item.quantity }}</td>
-              <td>{{ item.price }}</td>
+              <td>{{ formatPrice(item) }}</td>
               <td>{{ formatDate(item.created) }}</td>
               <td>{{ formatDate(item.closes) }}</td>
               <td>{{ formatSeller(item) }}</td>
-              <td>
-                <button class="btn btn-primary" data-target="#viewImages" data-toggle="modal"
-                        @click="changeViewedProduct(item.inventoryItem.product)">View Images</button>
-              </td>
             </tr>
             </tbody>
           </table>
@@ -204,40 +204,14 @@
       </div>
     </div>
 
-    <!--   Product images modal   -->
-    <div v-if="isViewingImages" id="viewImages" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-lg">
+    <div v-if="viewListingModal" id="viewListingModal" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog modal-xl">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">{{productViewing.name}}'s Images</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="isViewingImages=false">
+          <div class="modal-body">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="viewListingModal=false">
               <span aria-hidden="true">&times;</span>
             </button>
-          </div>
-          <div class="modal-body">
-            <div v-if="productViewing.images.length === 0">
-              <p class="text-center"><strong>This Product has no Images</strong></p>
-            </div>
-            <div v-else class="row" style="height: 500px">
-              <div class="col col-12 justify-content-center">
-                <div id="imageCarousel" class="carousel slide" data-ride="carousel">
-                  <div class="carousel-inner">
-                    <div v-for="(image, index) in productViewing.images" v-bind:key="image.id"
-                         :class="{'carousel-item': true, 'active': index === 0}">
-                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL(image.filename)" alt="ProductImage">
-                    </div>
-                  </div>
-                  <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Previous</span>
-                  </a>
-                  <a class="carousel-control-next" href="#imageCarousel" role="button" data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Next</span>
-                  </a>
-                </div>
-              </div>
-            </div>
+            <individual-sale-listing-modal :listing="listingToView"></individual-sale-listing-modal>
           </div>
         </div>
       </div>
@@ -252,10 +226,12 @@ import PageWrapper from "@/components/PageWrapper";
 import Pagination from "@/components/Pagination";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import {Business, Images} from "@/Api";
+import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
 
 export default {
   name: "BrowseSaleListings.vue",
   components: {
+    IndividualSaleListingModal,
     PageWrapper,
     Pagination,
     ShowingResultsText
@@ -307,8 +283,8 @@ export default {
       resultsPerPage: 10,
       page: 1,
       listings: [],
-      isViewingImages: false,
-      productViewing: null
+      listingToView: null,
+      viewListingModal: false
     }
   },
   async mounted() {
@@ -361,21 +337,26 @@ export default {
         this.listings = listingsResponse.data
         this.loading = false
 
-        //TODO: get business's country here so that we can format prices
         this.listings = await Promise.all(this.listings.map(async (listing) => {
           //TODO: remove the below line once the backend returns businessId as part of a listing
           listing.businessId = this.$root.$data.user.state.actingAs.id
           const businessResponse = await Business.getBusinessData(listing.businessId)
           listing.sellerName = businessResponse.data.name
           listing.sellerAddress = businessResponse.data.address
+          listing.currency = await this.$root.$data.product.getCurrency(listing.sellerAddress.country)
           return listing
         }))
       } catch (err) {
         this.error = err;
         this.loading = false
       }
-
-
+    },
+    /**
+     * Formats the price of a listing based on
+     * the country of the business offering the listing
+     */
+    formatPrice(listing) {
+      return this.$root.$data.product.formatPrice(listing.currency, listing.price);
     },
     /**
      * Formats the date fields.
@@ -501,11 +482,12 @@ export default {
     },
 
     /**
-     * Sets the viewing product in order to view the products images
+     * Turns popup modal to view  business on
+     * @param listing the listing object for the modal to show
      */
-    changeViewedProduct(product) {
-      this.productViewing = product
-      this.isViewingImages = true
+    viewListing(listing) {
+      this.listingToView = listing
+      this.viewListingModal = true
     },
 
     /**
