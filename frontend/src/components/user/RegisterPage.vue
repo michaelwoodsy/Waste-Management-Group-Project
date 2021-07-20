@@ -87,7 +87,7 @@
 
         <hr/>
         <address-input-fields
-            :showErrors="submitClicked"
+            ref="addressInput" :showErrors="submitClicked"
             @setAddress="(newAddress) => {this.homeAddress = newAddress}"
             @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
         />
@@ -396,7 +396,7 @@ export default {
     /**
      * Validating to check if the data entered is inputted correctly, If not displays a warning message
      */
-    checkInputs() {
+    async checkInputs() {
       this.submitClicked = true
       this.submitting = true
 
@@ -405,7 +405,7 @@ export default {
       this.validateEmail();
       this.validateDateOfBirth();
       this.validatePhoneNumber();
-      this.validateAddress();
+      await this.validateAddress();
       this.validatePassword();
 
       if (!this.valid) {
@@ -417,13 +417,19 @@ export default {
         this.msg['errorChecks'] = '';
         console.log('No Errors');
         //Send to server here
-        this.addUser();
+        await this.addUser();
       }
     },
 
     /** Checks if the address is valid **/
-    validateAddress() {
-      return this.addressValid
+    async validateAddress() {
+      if (!this.addressIsValid) {
+        this.valid = false
+        return
+      }
+      if (!await this.$refs.addressInput.checkAddressCountry()) {
+        this.valid = false
+      }
     },
 
     /**
