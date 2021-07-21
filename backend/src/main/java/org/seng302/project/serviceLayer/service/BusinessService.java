@@ -146,6 +146,42 @@ public class BusinessService {
     }
 
     /**
+     * Checks a business exists with the ID given.
+     * Throws and exception if no business exists.
+     *
+     * @param businessId Business Id to check.
+     * @throws NotAcceptableException thrown if there is no business matching the ID
+     * @return The business found with the matching ID.
+     */
+    public Business checkBusiness(Integer businessId) throws NotAcceptableException {
+        Optional<Business> retrievedBusiness = businessRepository.findById(businessId);
+        if (retrievedBusiness.isEmpty()) {
+            String message = String.format("Business with ID %d does not exist", businessId);
+            logger.warn(message);
+            throw new NotAcceptableException(message);
+        }
+        return retrievedBusiness.get();
+    }
+
+    /**
+     * Checks a user can perform admin actions on a business.
+     * Throws an exception if they can't.
+     *
+     * @param appUser The current logged in user.
+     * @param business The business to check the user can perform admin actions on.
+     * @return The current logged in user.
+     */
+    public User checkUserCanDoBusinessAction(AppUserDetails appUser, Business business) {
+        User user = userRepository.findByEmail(appUser.getUsername()).get(0);
+        if (!business.userCanDoAction(user)) {
+            String message = String.format("Cannot edit business as user with ID %d is not admin", user.getId());
+            logger.warn(message);
+            throw new ForbiddenException(message);
+        }
+        return user;
+    }
+
+    /**
      * Service method to update business details
      *
      * @param requestDTO DTO containing new business information
@@ -153,20 +189,8 @@ public class BusinessService {
      * @param appUser    the currently logged in user
      */
     public void editBusiness(PostBusinessDTO requestDTO, Integer businessId, AppUserDetails appUser) {
-        Optional<Business> retrievedBusiness = businessRepository.findById(businessId);
-        if (retrievedBusiness.isEmpty()) {
-            String message = String.format("Business with ID %d does not exist", businessId);
-            logger.warn(message);
-            throw new NotAcceptableException(message);
-        }
-
-        Business business = retrievedBusiness.get();
-        User user = userRepository.findByEmail(appUser.getUsername()).get(0);
-        if (!business.userCanDoAction(user)) {
-            String message = String.format("Cannot edit business as user with ID %d is not admin", user.getId());
-            logger.warn(message);
-            throw new ForbiddenException(message);
-        }
+        Business business = checkBusiness(businessId);
+        checkUserCanDoBusinessAction(appUser, business);
 
         Integer newPrimaryAdminId = requestDTO.getPrimaryAdministratorId();
         if (!business.getPrimaryAdministratorId().equals(newPrimaryAdminId)) {
