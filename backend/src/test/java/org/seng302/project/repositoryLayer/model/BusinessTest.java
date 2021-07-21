@@ -5,12 +5,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.types.BusinessType;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
+import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
 
 /**
  * Test class for unit testing methods of Business class.
  */
-@SpringBootTest
 class BusinessTest extends AbstractInitializer {
 
     private User testUser;
@@ -20,7 +20,6 @@ class BusinessTest extends AbstractInitializer {
 
     @BeforeEach
     void setup() {
-        this.initialise();
         this.testUser = this.getTestUser();
         this.testUserBusinessAdmin = this.getTestUserBusinessAdmin();
         this.testSystemAdmin = this.getTestSystemAdmin();
@@ -77,5 +76,33 @@ class BusinessTest extends AbstractInitializer {
     @Test
     void testUserCanDoAction_withSystemAdmin_true() {
         Assertions.assertTrue(testBusiness.userCanDoAction(testSystemAdmin));
+    }
+
+    /**
+     * Tests that business details are successfully updated
+     */
+    @Test
+    void updateBusiness_changesBusinessDetails() {
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
+
+        String newName = "New Business Name";
+        String newDescription = "A new description for the business";
+        String newCountry = "Australia";
+
+        requestDTO.setName(newName);
+        requestDTO.setDescription(newDescription);
+        requestDTO.getAddress().setCountry(newCountry);
+
+        testBusiness.updateBusiness(requestDTO);
+
+        Assertions.assertEquals(newName, testBusiness.getName());
+        Assertions.assertEquals(newDescription, testBusiness.getDescription());
+        Assertions.assertEquals(newCountry, testBusiness.getAddress().getCountry());
     }
 }
