@@ -115,7 +115,7 @@
                 </th>
                 <td>
                   <img alt="productImage"
-                       :src="getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')">
+                       :src="getPrimaryImageThumbnail(user)">
                 </td>
                 <td>{{ nameAndNickname(user) }}</td>
                 <td>{{ user.middleName }}</td>
@@ -306,6 +306,24 @@ export default {
             this.error = err;
             this.loading = false;
           })
+    },
+
+    /**
+     * Uses the primaryImageId of the product to find the primary image and return its imageURL,
+     * else it returns the default product image url
+     */
+    getPrimaryImageThumbnail(user) {
+      if (user.primaryImageId === null) {
+        return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
+      }
+      const filteredImages = user.images.filter(function(specificImage) {
+        return specificImage.id === user.primaryImageId;
+      })
+      if (filteredImages.length === 1) {
+        return this.getImageURL(filteredImages[0].thumbnailFilename)
+      }
+      //Return the default image if the program gets to this point (if it does something went wrong)
+      return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
     },
 
     /**

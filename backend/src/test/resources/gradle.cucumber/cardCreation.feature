@@ -33,7 +33,7 @@ Feature: UCM2 - Card Creation
 
   Scenario: AC5: One or more keywords/phrases can be added.
     Given A user exists
-    When A user creates a card with keywords: "A", "B", "C", and "D"
+    When A user creates a card with keywords: "a", "b", "c", and "d"
     Then The card's keywords are successfully saved with the card
 
   Scenario: AC6: The newly-created card is added to the corresponding marketplace section.

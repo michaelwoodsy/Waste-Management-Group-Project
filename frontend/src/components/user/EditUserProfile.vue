@@ -130,6 +130,28 @@
           </div>
           <hr/>
 
+
+          <!-- Current Password -->
+          <div class="form-group row">
+            <label v-if="needCurrentPassword" for="currentPassword"><strong>Current Password<span class="required">*</span></strong></label>
+            <label v-else for="currentPassword"><strong>Current Password</strong></label>
+            <div class="input-group">
+              <input id="currentPassword" v-model="currentPassword" :class="{'form-control': true, 'is-invalid': msg.currentPassword}"
+                     placeholder="Enter your Current Password"
+                     required maxlength="255" :type="currentPasswordType">
+              <div class="input-group-append">
+                <button class="btn btn-primary no-outline" @click="showCurrentPassword()">
+              <span :class="{bi: true,
+                'bi-eye-slash': currentPasswordType === 'password',
+                'bi-eye': currentPasswordType !== 'password'}" aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
+            <span class="invalid-feedback d-block">{{ msg.currentPassword }}</span>
+            <p style="font-size: small" class="text-left">Current password required when changing email or password</p>
+          </div>
+
+
           <!-- New Password -->
           <div class="form-group row">
             <label for="newPassword"><strong>New Password</strong></label>
@@ -150,45 +172,149 @@
               be at least 8 characters long</p>
           </div>
 
-          <!-- Current Password -->
-          <div class="form-group row" v-if="needCurrentPassword">
-            <label for="currentPassword"><strong>Current Password<span class="required">*</span></strong></label>
-            <div class="input-group">
-              <input id="currentPassword" v-model="currentPassword" :class="{'form-control': true, 'is-invalid': msg.currentPassword}"
-                     placeholder="Enter your Current Password"
-                     required maxlength="255" :type="currentPasswordType">
-              <div class="input-group-append">
-                <button class="btn btn-primary no-outline" @click="showCurrentPassword()">
-              <span :class="{bi: true,
-                'bi-eye-slash': currentPasswordType === 'password',
-                'bi-eye': currentPasswordType !== 'password'}" aria-hidden="true"></span>
-                </button>
-              </div>
+
+          <hr/>
+
+          <div class="form-group row">
+            <div class="col text-center">
+              <h3 class="">Images</h3>
             </div>
-            <span class="invalid-feedback d-block">{{ msg.currentPassword }}</span>
+            <div class="col text-center">
+              <button
+                  id="addImage"
+                  class="btn btn-primary ml-1 my-1 pad1"
+                  type="button"
+                  @click="addImageClicked"
+              >
+                Add image
+              </button>
+              <input
+                  type="file"
+                  style="display: none"
+                  ref="fileInput"
+                  accept="image/png, image/jpeg"
+                  @change="imageUpload"/>
+            </div>
           </div>
 
+          <!-- Images -->
+          <div class="form-group row">
+            <div class="col">
+
+
+
+              <div v-for="image in images"
+                   :key="image.url" class="pad1"
+                   @mouseover="image.hover = true"
+                   @mouseleave="image.hover = false"
+              >
+                <img v-if="image.id === undefined" width="250"
+                     :src="image.url"
+                     alt="Uploaded product image"
+                />
+                <img v-else width="250"
+                     :src="getImageURL(image.filename)"
+                     alt="Current product image"
+                />
+                <button class="btn btn-danger ml-1 my-1 pad1"
+                        type="button"
+                        :data-target="'#removeImageModal'"
+                        data-toggle="modal"
+                        @click="changeDeletingImage(image)">
+
+                  Remove
+                </button>
+
+
+
+                <!-- Remove Image modal -->
+                <div :id="'removeImageModal'" class="modal fade" role="dialog" tabindex="-1">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+
+                      <!-- Title section of modal -->
+                      <div class="modal-header">
+                        <h5 class="modal-title">Remove Image</h5>
+                        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                          <span ref="close" aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+
+                      <!-- Body section of modal -->
+                      <div class="modal-body">
+                        <p>Do you really want to remove this image?</p>
+                      </div>
+
+                      <!-- Footer / button section of modal -->
+                      <div class="modal-footer">
+                        <button class="btn btn-danger" data-dismiss="modal" type="button" @click="removeImage(imageWantingToDelete)">Remove</button>
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
 
 
 
 
+                <!--                    If the image cant be made primary because it is not uploaded yet-->
+                <button class="btn btn-secondary disabled ml-1 my-1 pad1"
+                        v-if="image.id === undefined"
+                        type="button" :data-target="'#cantMakePrimaryImageModal'" data-toggle="modal">
+                  Make Primary
+                </button>
+                <button class="btn btn-primary ml-1 my-1 pad1 disabled"
+                        v-else-if="image.id === currentPrimaryImageId"
+                        type="button">
+                  Already Primary
+                </button>
+                <button class="btn btn-primary ml-1 my-1 pad1"
+                        v-else-if="image.id !== currentPrimaryImageId"
+                        type="button" @click="makeImagePrimary(image.id)">
+                  Make Primary
+                </button>
 
+                <!-- Can't make image primary information -->
+                <div :id="'cantMakePrimaryImageModal'" class="modal fade" role="dialog" tabindex="-1">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
 
+                      <!-- Title section of modal -->
+                      <div class="modal-header">
+                        <h5 class="modal-title">Information</h5>
+                        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                          <span ref="close" aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
 
+                      <!-- Body section of modal -->
+                      <div class="modal-body">
+                        <p>This image is not on our servers yet. Please save changes before making this image Primary</p>
+                      </div>
 
+                      <!-- Footer / button section of modal -->
+                      <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal" type="button">Ok</button>
+                      </div>
 
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
+          <div class="form-group row">
+            <div class="col text-center">
+              <!--    Image upload progress counter    -->
+              <p v-if="submitting && imagesEdited"
+                 class="ml-1 my-2 ">
+                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+              </p>
+            </div>
 
-<!--          Images go here-->
-
-
-
-
-
-
-
-
-
+          </div>
 
           <!-- Save Changes button -->
           <div class="form-group row mb-0">
@@ -216,12 +342,6 @@
                 Save Changes
               </button>
 
-              <!--    Image upload progress counter    -->
-              <p v-if="submitting && imagesEdited"
-                 class="ml-1 my-2 float-right">
-                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
-              </p>
-
 
             </div>
             <!-- Show an error if required fields are missing -->
@@ -241,7 +361,7 @@ import Alert from "@/components/Alert";
 import LoginRequired from "@/components/LoginRequired";
 import RequiredToBeUserOrGAA from "@/components/RequiredToBeUserOrGAA";
 import AddressInputFields from "@/components/AddressInputFields";
-import {Business, User} from "@/Api";
+import {Images, User} from "@/Api";
 import PageWrapper from "@/components/PageWrapper";
 
 export default {
@@ -356,6 +476,12 @@ export default {
   },
   methods: {
     /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
+    },
+    /**
      * Method to toggle visibility of the newPassword field
      */
     showNewPassword() {
@@ -393,6 +519,8 @@ export default {
         this.dateOfBirth = response.data.dateOfBirth
         this.phoneNumber = response.data.phoneNumber
         this.homeAddress = response.data.homeAddress
+        this.images = response.data.images
+        this.currentPrimaryImageId = response.data.primaryImageId
         this.$refs.addressInput.fullAddressMode = false
         this.$refs.addressInput.address = response.data.homeAddress
       }
@@ -493,7 +621,6 @@ export default {
       }
     },
 
-
     /**
      * Validates the newPassword variable
      * Checks if it matches the regex, can be null or empty, in which case the password is not being changed.
@@ -580,15 +707,16 @@ export default {
         if (this.isEditingSelf && this.successfulEdit && this.oldEmail !== this.email) {
           this.reLogIn()
         }
-        this.addImages()
-        this.submitError = null
-        this.submitting = false
-        this.success = true
       }).catch((err) => {
         this.showError(err)
         console.log(err)
         this.submitting = false
       });
+      await this.addImages().then(() => {
+        this.submitError = null
+        this.submitting = false
+        this.success = true
+      })
       //Sets the correct user data (So the name changes in the nav bar)
       if (this.isEditingSelf) {
         this.$root.$data.user.setLoggedIn(this.userId)
@@ -606,27 +734,6 @@ export default {
             this.showError(err)
             this.submitting = false
           });
-    },
-
-    /**
-     * Makes requests to add the product's images
-     */
-    async addImages() {
-      const imagesToUpload = this.images.filter(function(image) {
-        return image.id === undefined;
-      })
-      this.numImagesToUpload = imagesToUpload.length
-
-      for (const image of imagesToUpload) {
-        //Id is undefined if it was just added
-        await Business.addProductImage(this.businessId, this.newProduct.id, image.data)
-        this.numImagesUploaded += 1;
-      }
-
-      //Check if the primary image was changed
-      if (this.currentPrimaryImageId !== null && this.currentPrimaryImageId !== this.oldUser.primaryImageId) {
-        await Business.makePrimaryProductImage(this.businessId, this.newProduct.id, this.currentPrimaryImageId)
-      }
     },
 
     /**
@@ -663,6 +770,120 @@ export default {
       this.msg.errorChecks = err.response
           ? err.response.data.slice(err.response.data.indexOf(":") + 2)
           : err
+    },
+
+    //IMAGES
+
+    /**
+     * Programmatically triggers the file input field when the
+     * 'Add image' button is clicked.
+     */
+    addImageClicked () {
+      this.imagesEdited = true
+      this.$refs.fileInput.click()
+    },
+
+    /**
+     * Handles the file being uploaded
+     * @param event the button click event that triggers this function
+     */
+    imageUpload (event) {
+      const files = event.target.files
+
+      const formData = new FormData()
+      formData.append("file", files[0])
+
+      const fileReader = new FileReader()
+      console.log(`File with name ${files[0].name} uploaded`)
+      fileReader.addEventListener('load', () => {
+        this.images.push({
+          data: formData,
+          url: fileReader.result,
+          file: files[0]
+        })
+      })
+      fileReader.readAsDataURL(files[0])
+    },
+
+    /**
+     * Called by the remove button next to an uploaded image.
+     * Calls the API to make a request to delete an image from the backend.
+     * Removes the image from the frontend's list of images.
+     * @param imageRemoving the image to be removed
+     */
+    removeImage(imageRemoving) {
+      this.imagesEdited = true
+      //If image has already been uploaded
+      if(imageRemoving.id){
+        User.removeImage(this.userId, imageRemoving.id)
+            .then(() => {
+              this.removeImageFromList(imageRemoving)
+            })
+            .catch((err) => {
+              this.errorMessage = err.response.data.message || err;
+            })
+      } else {
+        //If the image has just been uploaded and then is removed
+        this.removeImageFromList(imageRemoving)
+      }
+
+      //If the removing image is the primary image, a new one is set on the backend. this is updating to show that.
+      if (this.oldUser.primaryImageId === imageRemoving.id &&
+          this.currentPrimaryImageId === imageRemoving.id &&
+          this.images.length !== 0) {
+        for (const image of this.images) {
+          if (image.id !== undefined && image.id !== imageRemoving.id) {
+            this.currentPrimaryImageId = image.id
+            break
+          }
+        }
+      }
+    },
+
+    /**
+     * Used to remove the image from the list that is visible to the user
+     *@param removedImage the image to be removed
+     */
+    removeImageFromList(removedImage){
+      //Remove the deleted image from the list of images on screen
+      this.images = this.images.filter(function(image) {
+        return image !== removedImage;
+      })
+    },
+
+    /**
+     * Called to make the image the primary image of the user.
+     * Sets the variable currentPrimaryImage, which is then sent to the backend when the save changes button is clicked
+     * @param imageId the id of the image to make primary
+     */
+    makeImagePrimary(imageId) {
+      this.imagesEdited = true
+      //Sets the new primary image to be set when the user clicks the save changes button
+      this.currentPrimaryImageId = imageId
+    },
+
+    /**
+     * Makes requests to add the user's images
+     */
+    async addImages() {
+      const imagesToUpload = this.images.filter(function(image) {
+        return image.id === undefined;
+      })
+      this.numImagesToUpload = imagesToUpload.length
+
+      for (const image of imagesToUpload) {
+        //Id is undefined if it was just added
+        await User.addImage(this.userId, image.data)
+        this.numImagesUploaded += 1;
+      }
+
+      if (this.currentPrimaryImageId !== this.oldUser.primaryImageId) {
+        await User.makePrimaryImage(this.userId, this.currentPrimaryImageId)
+      }
+    },
+
+    changeDeletingImage(image) {
+      this.imageWantingToDelete = image
     }
   }
 }
