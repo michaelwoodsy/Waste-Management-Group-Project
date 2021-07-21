@@ -38,7 +38,7 @@ public class SharedControllerAdvice {
             responseString = matcher.group(1);
         }
 
-        return new ResponseEntity<>(responseString, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("MethodArgumentNotValidException: " + responseString, HttpStatus.BAD_REQUEST);
     }
 
 

@@ -18,10 +18,10 @@ class KeywordTest {
      */
     @Test
     void createTestKeyword() {
-        Keyword testKeyword = new Keyword("Test Keyword");
+        Keyword testKeyword = new Keyword("test-keyword");
 
         Assertions.assertNull(testKeyword.getId());
-        Assertions.assertEquals("Test Keyword", testKeyword.getName());
+        Assertions.assertEquals("test-keyword", testKeyword.getName());
         Assertions.assertTrue(testKeyword.getCreated().isBefore(LocalDateTime.now()) ||
                 testKeyword.getCreated().isEqual(LocalDateTime.now()));
         Assertions.assertTrue(testKeyword.getCreated().isAfter(LocalDateTime.now().minusSeconds(5)));

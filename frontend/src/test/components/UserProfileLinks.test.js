@@ -37,6 +37,11 @@ beforeEach(() => {
             },
             editUserRoute() {
                 return ''
+            },
+        },
+        methods: {
+            getPrimaryImageThumbnail() {
+                return ''
             }
         }
     })

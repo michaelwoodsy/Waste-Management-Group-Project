@@ -130,7 +130,7 @@ class BusinessControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("Business name is a mandatory field", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: Business name is a mandatory field", returnedExceptionString);
     }
 
 
@@ -160,7 +160,7 @@ class BusinessControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("Address format is incorrect. A country must be included." +
+        Assertions.assertEquals("MethodArgumentNotValidException: Address format is incorrect. A country must be included." +
                 " If a street number is given, a street name must be provided", returnedExceptionString);
     }
 
@@ -190,8 +190,8 @@ class BusinessControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
-        Assertions.assertTrue(returnedExceptionString.equals("Business type is a mandatory field") ||
-                returnedExceptionString.equals("Invalid business type provided"));
+        Assertions.assertTrue(returnedExceptionString.equals("MethodArgumentNotValidException: Business type is a mandatory field") ||
+                returnedExceptionString.equals("MethodArgumentNotValidException: Invalid business type provided"));
 
     }
 
@@ -249,7 +249,7 @@ class BusinessControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("Invalid business type provided", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: Invalid business type provided", returnedExceptionString);
     }
 
 
@@ -284,7 +284,7 @@ class BusinessControllerTest extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("Address format is incorrect. A country must be included." +
+        Assertions.assertEquals("MethodArgumentNotValidException: Address format is incorrect. A country must be included." +
                 " If a street number is given, a street name must be provided", returnedExceptionString);
     }
 

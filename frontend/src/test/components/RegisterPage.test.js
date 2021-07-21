@@ -1,8 +1,19 @@
 import '@jest/globals'
 import {shallowMount} from "@vue/test-utils"
-import RegisterPage from "@/components/RegisterPage"
+import RegisterPage from "@/components/user/RegisterPage"
 
-let wrapper = shallowMount(RegisterPage)
+let wrapper = shallowMount(RegisterPage, {
+    computed: {
+        isLoggedIn(){
+            return false
+        }
+    },
+    methods: {
+        addUser() {
+
+        }
+    }
+})
 
 describe('validateFirstName method tests', () => {
 

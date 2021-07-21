@@ -51,7 +51,9 @@
 
             <!-- Table of results -->
             <div class="overflow-auto">
-              <table class="table table-hover">
+              <table class="table table-hover"
+                     aria-label="Table of Sale Listings"
+              >
                 <thead>
                 <tr>
                   <!-- Product Image -->

@@ -9,9 +9,7 @@ import org.seng302.project.serviceLayer.dto.user.PostUserDTO;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -38,7 +36,7 @@ public class User {
     private List<Business> businessesAdministered = new ArrayList<>();
     private LocalDateTime created = LocalDateTime.now();
     private Integer primaryImageId;
-    private Set<Image> images = new HashSet<>();
+    private List<Image> images = new ArrayList<>();
 
     public User(String firstName, String lastName, String middleName,
                 String nickname, String bio, String email, String dateOfBirth,
@@ -99,8 +97,8 @@ public class User {
         return this.businessesAdministered;
     }
 
-    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
-    public Set<Image> getImages() {
+    @OneToMany(targetEntity=Image.class)
+    public List<Image> getImages() {
         return this.images;
     }
 

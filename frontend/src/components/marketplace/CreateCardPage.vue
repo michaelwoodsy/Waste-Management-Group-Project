@@ -49,7 +49,7 @@
       <div class="form-group row">
         <label for="keywordValue">
           <strong>Keywords</strong>
-          (Keywords must be 25 characters or less)
+          (Keywords must be between 3 and 25 characters)
         </label>
         <!-- Keyword Input -->
         <input id="keywordValue" v-model="keywordValue"
@@ -60,7 +60,8 @@
                autocomplete="off"
                data-toggle="dropdown"
                @input="searchKeywords"
-               @keyup.space="addKeyword"/>
+               @keyup.space="addKeyword"
+               @keyup.enter="setKeyword()"/>
         <!-- Autocomplete dropdown -->
         <div class="dropdown-menu overflow-auto" id="dropdown">
           <!-- If no user input -->
@@ -76,7 +77,7 @@
             No results found.
           </p>
           <!-- If there are matches -->
-          <a class="dropdown-item pointer left-padding"
+          <a class="dropdown-item pointer left-padding"  href="#"
              v-for="keyword in filteredKeywords"
              v-else
              :key="keyword.id"
@@ -199,13 +200,19 @@ export default {
       const keywordIds = []
       for (const keyword of this.keywords) {
         const response = await Keyword.searchKeywords(keyword)
-        if (response.data.length === 0) {
+        //Filter to see if the keyword is already in the database
+        const filterKeywords = response.data.filter(function(indKeyword) {
+          return indKeyword.name === keyword;
+        })
+        //if keyword is not in database
+        if (filterKeywords.length === 0) {
           const keywordId = (await Keyword.createKeyword(keyword)).data['keywordId']
           keywordIds.push(keywordId)
         } else {
           for (const result of response.data) {
             if (result['name'] === keyword) {
               keywordIds.push(result['id'])
+              break
             }
           }
         }
@@ -244,7 +251,7 @@ export default {
     * Adds a keyword to the list of keywords
     */
     addKeyword() {
-      this.keywordValue = this.keywordValue.trim()
+      this.keywordValue = this.keywordValue.trim().toLowerCase()
       if((this.keywordValue === '' || this.keywordValue === ' ')
           || this.keywords.includes(this.keywordValue)) {
         this.keywordValue = '';
@@ -286,6 +293,13 @@ export default {
      * @param keyword Keyword to be added to keyword list
      */
     setKeyword(keyword) {
+      //If enter was pressed on the input box to automatically select the first keyword in the list
+      console.log(keyword)
+      console.log(this.filteredKeywords)
+      if (keyword === undefined && this.filteredKeywords.length > 0) {
+        keyword = this.filteredKeywords[0].name
+      }
+      console.log(keyword)
       this.keywordValue = keyword
       this.addKeyword()
     },
