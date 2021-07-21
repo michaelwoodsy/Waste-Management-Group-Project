@@ -176,7 +176,7 @@ import LoginRequired from "@/components/LoginRequired";
 import Alert from "../Alert"
 import AddressInputFields from "@/components/AddressInputFields";
 import PageWrapper from "@/components/PageWrapper";
-//import {Business} from "@/Api";
+import {Business} from "@/Api";
 
 /**
  * Default starting parameters
@@ -224,7 +224,7 @@ export default {
       },
       valid: true,
       submitting: false,
-      submitClicked: 0
+      submitClicked: false
     }
   },
 
@@ -289,7 +289,6 @@ export default {
     isUnder16YearsOld() {
       const dateOfBirth = new Date(this.$root.$data.user.state.userData.dateOfBirth)
       const dateNow = new Date()
-      console.log(dateNow.getUTCFullYear() - dateOfBirth.getUTCFullYear())
       return (dateNow.getUTCFullYear() - dateOfBirth.getUTCFullYear()) < 16
     },
 
@@ -298,7 +297,8 @@ export default {
      * If not an error message is displayed
      */
     async checkInputs() {
-      this.submitClicked++;
+      this.submitClicked = true
+      this.submitting = true
       this.validateBusinessName();
       await this.validateAddress();
       this.validateBusinessType();
@@ -309,6 +309,7 @@ export default {
       } else if (!this.valid) {
         this.msg['errorChecks'] = 'Please fix the shown errors and try again';
         console.log('Please fix the shown errors and try again');
+        this.submitting = false
         this.valid = true;//Reset the value
       } else {
         this.msg['errorChecks'] = '';
@@ -330,9 +331,13 @@ export default {
           this.description,
           this.address,
           this.businessType
-      ).then(() => {
-        this.$router.push({name: 'home'})
-        this.$root.$data.user.updateData()
+      ).then((res) => {
+        this.addImages(res.data.businessId).then(() => {
+          this.submitting = false
+          this.$router.push({name: 'home'})
+          this.$root.$data.user.updateData()
+          this.$root.$data.user.setActingAs(res.data.businessId, this.businessName, "business")
+        })
       })
           .catch((err) => {
             this.msg.errorChecks = err.response
@@ -389,16 +394,14 @@ export default {
     /**
      * Makes requests to add the product's images
      */
-    async addImages() {
+    async addImages(businessId) {
       const imagesToUpload = this.images.filter(function(image) {
         return image.id === undefined;
       })
       this.numImagesToUpload = imagesToUpload.length
 
       for (const image of imagesToUpload) {
-        //TODO: Implement this
-        console.log(image)
-        //await User.addImage(this.$root.$data.user.state.userId, image.data)
+        await Business.addBusinessImage(businessId, image.data)
         this.numImagesUploaded += 1;
       }
     }

@@ -40,8 +40,8 @@ public class BusinessController {
      */
     @PostMapping("/businesses")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createBusiness(@Valid @RequestBody AddBusinessDTO requestDTO) {
-        businessService.createBusiness(requestDTO);
+    public JSONObject createBusiness(@Valid @RequestBody AddBusinessDTO requestDTO) {
+        return businessService.createBusiness(requestDTO);
     }
 
     /**

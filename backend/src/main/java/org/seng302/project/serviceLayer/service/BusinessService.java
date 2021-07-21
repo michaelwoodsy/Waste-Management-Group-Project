@@ -1,5 +1,6 @@
 package org.seng302.project.serviceLayer.service;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.model.types.BusinessType;
@@ -81,7 +82,7 @@ public class BusinessService {
      *
      * @param requestDTO DTO with fields for Business to be created
      */
-    public void createBusiness(AddBusinessDTO requestDTO) {
+    public JSONObject createBusiness(AddBusinessDTO requestDTO) {
         logger.info("Request to create business");
 
         try {
@@ -111,6 +112,9 @@ public class BusinessService {
             addressRepository.save(address);
             businessRepository.save(newBusiness);
             logger.info("Successful creation of business {}", newBusiness.getId());
+            var returnJSON = new JSONObject();
+            returnJSON.put("businessId", newBusiness.getId());
+            return returnJSON;
         } catch (NoUserExistsException | UserUnderageException | InvalidDateException handledException) {
             throw handledException;
         } catch (Exception unexpectedException) {
