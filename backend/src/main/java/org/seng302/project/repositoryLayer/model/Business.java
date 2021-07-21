@@ -29,7 +29,7 @@ public class Business {
     private List<User> administrators = new ArrayList<>();
     private LocalDateTime created = LocalDateTime.now();
     private Integer primaryImageId;
-    private Set<Image> images = new HashSet<>();
+    private List<Image> images = new ArrayList<>();
 
     /**
      * Constructor for creating a new Business object.
@@ -73,8 +73,8 @@ public class Business {
         return this.administrators;
     }
 
-    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
-    public Set<Image> getImages() {
+    @OneToMany(targetEntity=Image.class)
+    public List<Image> getImages() {
         return this.images;
     }
 
