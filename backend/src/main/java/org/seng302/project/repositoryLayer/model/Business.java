@@ -9,7 +9,9 @@ import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNot
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Business class for storing data about a specific business.
@@ -27,6 +29,8 @@ public class Business {
     private Integer primaryAdministratorId;
     private List<User> administrators = new ArrayList<>();
     private LocalDateTime created = LocalDateTime.now();
+    private Integer primaryImageId;
+    private List<Image> images = new ArrayList<>();
 
     /**
      * Constructor for creating a new Business object.
@@ -69,6 +73,12 @@ public class Business {
     public List<User> getAdministrators() {
         return this.administrators;
     }
+
+    @OneToMany(targetEntity=Image.class)
+    public List<Image> getImages() {
+        return this.images;
+    }
+
 
     /**
      * Adds a User to the list of administrators of a business.
@@ -136,5 +146,21 @@ public class Business {
         this.setBusinessType(dto.getBusinessType());
         this.setPrimaryAdministratorId(dto.getPrimaryAdministratorId());
     }
+
+    /**
+     * Function used to add an image to the list of images associated with a user
+     */
+    public void addImage(Image newImage){
+        this.images.add(newImage);
+        //Checks if the new image is the first in the list, and makes it the primary image
+        if (images.size() == 1) {
+            primaryImageId = newImage.getId();
+        }
+    }
+
+    /**
+     * Function used to remove an image from the list of images associated with a user
+     */
+    public void removeImage(Image image){ this.images.remove(image); }
 
 }
