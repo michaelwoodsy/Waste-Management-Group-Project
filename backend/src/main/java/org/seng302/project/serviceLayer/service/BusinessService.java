@@ -182,13 +182,27 @@ public class BusinessService {
     }
 
     /**
-     * Service method to update business details
+     * Service method to update business details.
+     * The businesses products currencies will remain the same.
      *
-     * @param requestDTO DTO containing new business information
-     * @param businessId ID of the business to update
-     * @param appUser    the currently logged in user
+     * @param requestDTO            DTO containing new business information
+     * @param businessId            ID of the business to update
+     * @param appUser               the currently logged in user
      */
     public void editBusiness(PostBusinessDTO requestDTO, Integer businessId, AppUserDetails appUser) {
+        editBusiness(requestDTO, businessId, appUser, false);
+    }
+
+    /**
+     * Service method to update business details
+     *
+     * @param requestDTO            DTO containing new business information
+     * @param businessId            ID of the business to update
+     * @param appUser               the currently logged in user
+     * @param updateProductCurrency Determines if the currency of the businesses products should be updated to the new country
+     */
+    public void editBusiness(PostBusinessDTO requestDTO, Integer businessId, AppUserDetails appUser,
+                             Boolean updateProductCurrency) {
         Business business = checkBusiness(businessId);
         checkUserCanDoBusinessAction(appUser, business);
 
