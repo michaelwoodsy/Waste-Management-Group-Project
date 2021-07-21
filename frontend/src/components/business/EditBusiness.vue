@@ -167,7 +167,7 @@ export default {
       //isPrimaryAdmin is computed before the prefillFields() method runs
       //So need to have a random number for primaryAdminId so that page loads, then the
       //Primary Administrator section will show/hide based on the actual primary admin
-      primaryAdminId: 20, //Id of the current primary admin
+      primaryAdminId: null, //Id of the current primary admin
       primaryAdmin: null, //Field for editing
       administrators: [],
       description: '',
@@ -316,7 +316,7 @@ export default {
         this.msg['errorChecks'] = '';
         console.log('No Errors');
         //Send to server here
-        this.editBusiness();
+        await this.editBusiness();
       }
     },
 
@@ -324,8 +324,20 @@ export default {
      * Saves the changes from editing the business by calling the backend endpoint
      * If this fails the program should set the error text to the error received from the backend server
      */
-    editBusiness() {
-      //TODO: implement me!
+    async editBusiness() {
+      try {
+        const requestData = {
+          name: this.businessName,
+          description: this.description,
+          address: this.address,
+          businessType: this.businessType,
+          primaryAdministratorId: this.primaryAdminId
+        }
+        await Business.editBusiness(this.businessId, requestData)
+      } catch (error) {
+        console.log(error)
+        this.msg['errorChecks'] = error
+      }
     },
 
     /**
