@@ -17,6 +17,7 @@ import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.serviceLayer.dto.business.GetBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
+import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
@@ -457,6 +458,56 @@ class BusinessServiceTest extends AbstractInitializer {
 
         Integer businessId = testBusiness.getId();
         Assertions.assertThrows(ForbiddenException.class,
+                () -> businessService.editBusiness(requestDTO, businessId, appUser));
+    }
+
+    @Test
+    void editBusiness_changePrimaryAdmin_validRequest_success() {
+        testBusiness.addAdministrator(testUser);
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testUser.getId()
+        );
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+
+        businessService.editBusiness(requestDTO, testBusiness.getId(), appUser);
+        Assertions.assertEquals(testUser.getId(), testBusiness.getPrimaryAdministratorId());
+    }
+
+    @Test
+    void editBusiness_nonExistentNewAdmin_throwsException() {
+        PostBusinessDTO requestDTO = new PostBusinessDTO();
+        requestDTO.setPrimaryAdministratorId(1000);
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+
+        Integer businessId = testBusiness.getId();
+        Assertions.assertThrows(BadRequestException.class,
+                () -> businessService.editBusiness(requestDTO, businessId, appUser));
+    }
+
+    @Test
+    void editBusiness_changePrimaryAdmin_requestMakerNotPrimaryAdmin_throwsException() {
+        testBusiness.addAdministrator(testUser);
+        PostBusinessDTO requestDTO = new PostBusinessDTO();
+        requestDTO.setPrimaryAdministratorId(testUser.getId());
+        AppUserDetails appUser = new AppUserDetails(testUser);
+
+        Integer businessId = testBusiness.getId();
+        Assertions.assertThrows(ForbiddenException.class,
+                () -> businessService.editBusiness(requestDTO, businessId, appUser));
+    }
+
+    @Test
+    void editBusiness_changePrimaryAdmin_newAdminNotAdmin_throwsException() {
+        PostBusinessDTO requestDTO = new PostBusinessDTO();
+        requestDTO.setPrimaryAdministratorId(testUser.getId());
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+
+        Integer businessId = testBusiness.getId();
+        Assertions.assertThrows(BadRequestException.class,
                 () -> businessService.editBusiness(requestDTO, businessId, appUser));
     }
 

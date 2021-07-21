@@ -168,7 +168,23 @@ public class BusinessService {
             throw new ForbiddenException(message);
         }
 
-        // TODO: check that new primary admin is a valid user
+        Integer newPrimaryAdminId = requestDTO.getPrimaryAdministratorId();
+        if (!business.getPrimaryAdministratorId().equals(newPrimaryAdminId)) {
+            checkAdminRequestMaker(appUser.getUsername(), business);
+            Optional<User> newAdmin = userRepository.findById(newPrimaryAdminId);
+            if (newAdmin.isEmpty()) {
+                String message = String.format("No user with ID %d exists", newPrimaryAdminId);
+                logger.warn(message);
+                throw new BadRequestException(message);
+            } else if (!business.userIsAdmin(newPrimaryAdminId)) {
+                String message = String.format(
+                        "User with ID %s must already be an admin of the business to be made primary admin",
+                        newPrimaryAdminId
+                );
+                logger.warn(message);
+                throw new BadRequestException(message);
+            }
+        }
 
         business.updateBusiness(requestDTO);
         addressRepository.save(business.getAddress());
