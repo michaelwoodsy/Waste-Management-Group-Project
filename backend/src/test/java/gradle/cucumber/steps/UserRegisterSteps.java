@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.*;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.serviceLayer.dto.user.PostUserDTO;
 import org.seng302.project.webLayer.controller.UserController;
 import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
@@ -93,7 +94,7 @@ public class UserRegisterSteps {
         String dateOfBirth = userMap.get(0).get("dateOfBirth");
 
         //TODO: get this to use country from dataTable
-        Address homeAddress = new Address(
+        AddressDTO homeAddress = new AddressDTO(
                 "", "", "", "", "New Zealand", "");
 
         PostUserDTO postUserDTO = new PostUserDTO(
@@ -135,7 +136,7 @@ public class UserRegisterSteps {
         String dateOfBirth = "2001-02-15";
 
         //TODO: get this to use country from dataTable
-        Address homeAddress = new Address(
+        AddressDTO homeAddress = new AddressDTO(
                 "", "", "", "", "New Zealand", "");
 
         testUserDTO = new PostUserDTO(
@@ -155,7 +156,7 @@ public class UserRegisterSteps {
         String dateOfBirth = "2001-02-15";
         String email = "testemail@gmail.com";
 
-        Address homeAddress = new Address(
+        AddressDTO homeAddress = new AddressDTO(
                 "", "", "", "", "New Zealand", "");
 
         testUserDTO = new PostUserDTO(
@@ -183,7 +184,7 @@ public class UserRegisterSteps {
         String dateOfBirth = "2001-02-15";
         String email = "testemailgmail.com";
 
-        Address homeAddress = new Address(
+        AddressDTO homeAddress = new AddressDTO(
                 "", "", "", "", "New Zealand", "");
 
         testUserDTO = new PostUserDTO(

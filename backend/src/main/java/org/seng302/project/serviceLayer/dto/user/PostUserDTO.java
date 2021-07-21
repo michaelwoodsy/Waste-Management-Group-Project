@@ -3,9 +3,12 @@ package org.seng302.project.serviceLayer.dto.user;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.seng302.project.repositoryLayer.model.Address;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.serviceLayer.dto.validators.ValidAddress;
-import org.seng302.project.serviceLayer.dto.validators.user.*;
+import org.seng302.project.serviceLayer.dto.validators.user.ValidDateOfBirth;
+import org.seng302.project.serviceLayer.dto.validators.user.ValidEmail;
+import org.seng302.project.serviceLayer.dto.validators.user.ValidPassword;
+import org.seng302.project.serviceLayer.dto.validators.user.ValidPhone;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -40,7 +43,7 @@ public class PostUserDTO {
     private String phoneNumber;
 
     @ValidAddress
-    private Address homeAddress;
+    private AddressDTO homeAddress;
 
     @NotEmpty(message = "MissingData: Password is a mandatory field")
     @ValidPassword

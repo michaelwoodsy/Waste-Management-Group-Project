@@ -3,7 +3,7 @@ package org.seng302.project.serviceLayer.dto.user;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.seng302.project.repositoryLayer.model.Address;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.serviceLayer.dto.validators.ValidAddress;
 import org.seng302.project.serviceLayer.dto.validators.user.ValidDateOfBirth;
 import org.seng302.project.serviceLayer.dto.validators.user.ValidEditedPassword;
@@ -45,7 +45,7 @@ public class PutUserDTO {
     private String phoneNumber;
 
     @ValidAddress
-    private Address homeAddress;
+    private AddressDTO homeAddress;
 
     //new password can be null as you dont have to change your password.
     // When changing password, the current password also needs to be supplied
