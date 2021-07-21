@@ -406,7 +406,8 @@ public class ProductCatalogueService {
      * Updates the currencyCountry field of all products in a business.
      * Expects the business to exist.
      *
-     * @param businessId
+     * @param businessId Id of bussiness to update products for.
+     * @param currencyCountry New country to update all products with.
      */
     @Transactional
     public void updateProductCurrency(Integer businessId, String currencyCountry) {

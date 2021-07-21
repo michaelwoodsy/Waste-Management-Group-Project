@@ -37,14 +37,17 @@ public class BusinessService {
     private final BusinessRepository businessRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
+    private final ProductCatalogueService productCatalogueService;
 
     @Autowired
     public BusinessService(BusinessRepository businessRepository,
                            AddressRepository addressRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository,
+                           ProductCatalogueService productCatalogueService) {
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
+        this.productCatalogueService = productCatalogueService;
     }
 
 
