@@ -45,6 +45,8 @@ public class KeywordService {
      */
     public AddKeywordResponseDTO addKeyword(String name) {
         try {
+            //Convert to lower case
+            name = name.toLowerCase();
             List<Keyword> keywords = keywordRepository.findByName(name);
             if (!keywords.isEmpty()) {
                 var exception = new KeywordExistsException(name);

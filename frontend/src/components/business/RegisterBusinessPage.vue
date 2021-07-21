@@ -48,8 +48,7 @@
 
           <hr/>
           <address-input-fields
-              ref="addressInput"
-              :showErrors="submitClicked"
+              ref="addressInput" :showErrors="submitClicked"
               @setAddress="(newAddress) => {this.address = newAddress}"
               @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
           />

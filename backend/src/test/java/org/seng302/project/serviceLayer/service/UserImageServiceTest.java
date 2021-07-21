@@ -25,10 +25,8 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;

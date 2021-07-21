@@ -370,17 +370,16 @@ export default {
      * else it returns the default user image url
      */
     getPrimaryImageThumbnail() {
-      if (this.primaryImageId === null) {
-        return this.getImageURL('/media/defaults/defaultProfile.jpg')
+      if (this.primaryImageId !== null) {
+        const primaryImageId = this.primaryImageId
+        const filteredImages = this.images.filter(function(specificImage) {
+          return specificImage.id === primaryImageId;
+        })
+        if (filteredImages.length === 1) {
+          return this.getImageURL(filteredImages[0].filename)
+        }
       }
-      const primaryImageId = this.primaryImageId
-      const filteredImages = this.images.filter(function(specificImage) {
-        return specificImage.id === primaryImageId;
-      })
-      if (filteredImages.length === 1) {
-        return this.getImageURL(filteredImages[0].filename)
-      }
-      //Return the default image if the program gets to this point (if it does something went wrong)
+
       return this.getImageURL('/media/defaults/defaultProfile.jpg')
     },
 
