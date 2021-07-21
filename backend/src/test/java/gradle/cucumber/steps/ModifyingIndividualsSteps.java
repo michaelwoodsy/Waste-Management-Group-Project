@@ -10,11 +10,8 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.*;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
-import org.seng302.project.repositoryLayer.repository.AddressRepository;
-import org.seng302.project.repositoryLayer.repository.CardRepository;
-import org.seng302.project.repositoryLayer.repository.KeywordRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.user.DeleteUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.PutUserDTO;
 import org.seng302.project.serviceLayer.service.UserImageService;
@@ -36,7 +33,10 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -44,20 +44,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @Transactional
 public class ModifyingIndividualsSteps extends AbstractInitializer {
 
-    private User testUser;
-    private PutUserDTO putUserDTO;
-    private MockMultipartFile testImageFile;
-
-    private RequestBuilder editUserRequest;
-
-    private MockMvc mockMvc;
-
-    private ResultActions reqResult;
-
-    private Image deletedImage;
-
     private final UserImageService userImageService;
-
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -65,9 +52,14 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
     private final CardRepository cardRepository;
     private final KeywordRepository keywordRepository;
     private final ObjectMapper objectMapper;
-
     private final SpringEnvironment springEnvironment;
-
+    private User testUser;
+    private PutUserDTO putUserDTO;
+    private MockMultipartFile testImageFile;
+    private RequestBuilder editUserRequest;
+    private MockMvc mockMvc;
+    private ResultActions reqResult;
+    private Image deletedImage;
 
 
     @Autowired
@@ -140,7 +132,7 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 userMap.get(0).get("email"),
                 userMap.get(0).get("dateOfBirth"),
                 userMap.get(0).get("phoneNumber"),
-                testUser.getHomeAddress(),
+                new AddressDTO(testUser.getHomeAddress()),
                 userMap.get(0).get("password"),
                 "password");
 
@@ -174,13 +166,13 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
         passwordEncoder.matches(putUserDTO.getNewPassword(), editedUser.getPassword());
     }
 
-    
+
     //AC2: All validation rules still apply. For example, I can only modify my date of birth if I still remain over the required age.
 
     @When("I try to edit my date of birth to {int} years ago")
     public void iTryToEditMyDateOfBirthToYearsAgo(int years) throws Exception {
         putUserDTO = new PutUserDTO(
-            testUser.getId(),
+                testUser.getId(),
                 testUser.getFirstName(),
                 testUser.getLastName(),
                 testUser.getMiddleName(),
@@ -189,7 +181,7 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 testUser.getEmail(),
                 LocalDateTime.now().minusYears(years).toLocalDate().toString(),
                 testUser.getPhoneNumber(),
-                testUser.getHomeAddress(),
+                new AddressDTO(testUser.getHomeAddress()),
                 "Password123",
                 "password"
         );
@@ -227,7 +219,7 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 testUser.getEmail(),
                 testUser.getDateOfBirth(),
                 testUser.getPhoneNumber(),
-                testUser.getHomeAddress(),
+                new AddressDTO(testUser.getHomeAddress()),
                 "Password123",
                 "password"
         );
@@ -285,7 +277,7 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
 
     @Given("A user has an image")
     public void aUserHasAnImage() {
-        AddUserImageDTO dto = new AddUserImageDTO (
+        AddUserImageDTO dto = new AddUserImageDTO(
                 testUser.getId(),
                 new AppUserDetails(testUser),
                 testImageFile

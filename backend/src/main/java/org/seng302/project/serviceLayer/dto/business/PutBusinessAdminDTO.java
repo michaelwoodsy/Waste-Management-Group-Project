@@ -9,14 +9,13 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
  */
 @Data
 @NoArgsConstructor
-public class AddOrRemoveBusinessAdminDTO {
+public class PutBusinessAdminDTO {
 
-    private Integer businessId;
     private Integer userId;
-
+    private Integer businessId;
     private AppUserDetails appUser;
 
-    public AddOrRemoveBusinessAdminDTO(Integer userId) {
+    public PutBusinessAdminDTO(Integer userId) {
         this.userId = userId;
     }
 

@@ -5,7 +5,7 @@ import lombok.Data;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.serviceLayer.dto.address.AddressResponseDTO;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.serviceLayer.dto.user.GetUserDTO;
 
 import java.time.LocalDateTime;
@@ -17,12 +17,12 @@ import java.util.List;
  * Response DTO for business entities.
  */
 @Data
-public class BusinessResponseDTO {
+public class GetBusinessDTO {
 
     private Integer id;
     private String name;
     private String description;
-    private AddressResponseDTO address;
+    private AddressDTO address;
     private String businessType;
     private Integer primaryAdministratorId;
     private List<GetUserDTO> administrators;
@@ -30,11 +30,11 @@ public class BusinessResponseDTO {
     private Integer primaryImageId;
     private List<Image> images;
 
-    public BusinessResponseDTO(Business business) {
+    public GetBusinessDTO(Business business) {
         this.id = business.getId();
         this.name = business.getName();
         this.description = business.getDescription();
-        this.address = new AddressResponseDTO(business.getAddress());
+        this.address = new AddressDTO(business.getAddress());
         this.businessType = business.getBusinessType();
         this.primaryAdministratorId = business.getPrimaryAdministratorId();
         this.administrators = new ArrayList<>();
