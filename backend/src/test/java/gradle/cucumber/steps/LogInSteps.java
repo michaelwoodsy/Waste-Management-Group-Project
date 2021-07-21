@@ -4,6 +4,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.serviceLayer.dto.user.PostUserDTO;
 import org.seng302.project.serviceLayer.dto.user.LoginCredentialsDTO;
 import org.seng302.project.webLayer.controller.UserController;
@@ -28,7 +29,7 @@ public class LogInSteps {
         String lastName = "User";
         String dateOfBirth = "2001-02-15";
 
-        Address homeAddress = new Address(
+        AddressDTO homeAddress = new AddressDTO(
                 "", "", "", "", "New Zealand", "");
 
         PostUserDTO postUserDTO = new PostUserDTO(

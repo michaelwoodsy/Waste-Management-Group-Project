@@ -3,6 +3,8 @@ package org.seng302.project.repositoryLayer.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
+import org.seng302.project.serviceLayer.dto.keyword.AddKeywordDTO;
 
 import javax.persistence.*;
 
@@ -40,6 +42,15 @@ public class Address {
         this.region = region;
         this.country = country;
         this.postcode = postcode;
+    }
+
+    public Address(AddressDTO dto) {
+        this.streetNumber = dto.getStreetNumber();
+        this.streetName = dto.getStreetName();
+        this.city = dto.getCity();
+        this.region = dto.getRegion();
+        this.country = dto.getCountry();
+        this.postcode = dto.getPostcode();
     }
 
     @Id // this field (attribute) is the table primary key

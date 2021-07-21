@@ -7,13 +7,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
+import org.seng302.project.serviceLayer.dto.user.LoginCredentialsDTO;
 import org.seng302.project.serviceLayer.dto.user.PostUserDTO;
 import org.seng302.project.serviceLayer.dto.user.PutUserDTO;
-import org.seng302.project.serviceLayer.dto.user.LoginCredentialsDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.service.UserService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -33,7 +35,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -71,9 +72,7 @@ class UserControllerTest extends AbstractInitializer {
     @BeforeEach
     void setup() {
         invalidLoginCredentials = new LoginCredentialsDTO("notRegistered@gmail.com", "1357-H%nt3r4");
-        given(userRepository.findByEmail(invalidLoginCredentials.getEmail())).willReturn(Collections.emptyList());
-
-        initialise();
+        Mockito.when(userRepository.findByEmail(invalidLoginCredentials.getEmail())).thenReturn(Collections.emptyList());
 
         testUser = this.getTestUser();
         otherUser = this.getTestOtherUser();
@@ -88,7 +87,7 @@ class UserControllerTest extends AbstractInitializer {
                 "new.email@newemail.com",
                 otherUser.getDateOfBirth(),
                 otherUser.getPhoneNumber(),
-                otherUser.getHomeAddress(),
+                new AddressDTO(otherUser.getHomeAddress()),
                 "NewSecurePassword123",
                 "password");
 
