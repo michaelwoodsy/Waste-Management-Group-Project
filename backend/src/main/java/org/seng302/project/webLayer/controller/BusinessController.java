@@ -8,6 +8,7 @@ import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.service.BusinessService;
+import org.seng302.project.serviceLayer.service.UserService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,11 +26,13 @@ import java.util.List;
 public class BusinessController {
 
     private final BusinessService businessService;
+    private final UserService userService;
 
 
     @Autowired
-    public BusinessController(BusinessService businessService) {
+    public BusinessController(BusinessService businessService, UserService userService) {
         this.businessService = businessService;
+        this.userService = userService;
     }
 
     /**
@@ -39,7 +42,8 @@ public class BusinessController {
      */
     @PostMapping("/businesses")
     @ResponseStatus(HttpStatus.CREATED)
-    public JSONObject createBusiness(@Valid @RequestBody PostBusinessDTO requestDTO) {
+    public JSONObject createBusiness(@Valid @RequestBody PostBusinessDTO requestDTO, @AuthenticationPrincipal AppUserDetails appUser) {
+        userService.checkForbidden(requestDTO.getPrimaryAdministratorId(), appUser);
         Integer businessId = businessService.createBusiness(requestDTO);
         JSONObject response = new JSONObject();
         response.put("businessId", businessId);
