@@ -184,6 +184,13 @@ export default {
       },
       deep: true
     },
+    locationSelected: {
+      async handler() {
+        await this.validateAddress()
+        this.emitAddress()
+      },
+      deep: true
+    },
     /** Validate address when show errors is set **/
     showErrors: {
       async handler() {
@@ -311,6 +318,11 @@ export default {
      * @returns Object Messages object with any messages for things needing fixed
      */
     async getAddressFixes(location) {
+      //If using full address, only need to check that it has been filled
+      if (this.locationSelected !== null && this.fullAddressMode) {
+        return {}
+      }
+
       let fixMessages = {}
 
       // Check country
@@ -355,9 +367,7 @@ export default {
     /** Emits the current address and validity, sending it to the higher component **/
     emitAddress() {
       let address;
-      if (this.locationSelected === null && this.editing) {
-        address = this.address
-      } else if (this.fullAddressMode) {
+      if (this.fullAddressMode) {
         address = this.locationSelected
       } else {
         address = this.address
