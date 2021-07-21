@@ -8,6 +8,8 @@ import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageDTO;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageResponseDTO;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
+import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.business.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.service.BusinessImageService;
@@ -20,6 +22,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -27,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class BusinessImageControllerTest extends AbstractInitializer {
+class BusinessImageControllerTest extends AbstractInitializer {
 
     @Autowired
     private MockMvc mockMvc;
@@ -130,5 +133,45 @@ public class BusinessImageControllerTest extends AbstractInitializer {
                 .with(user(new AppUserDetails(testSystemAdmin)));
 
         mockMvc.perform(postBusinessImageRequest).andExpect(status().isCreated());
+    }
+
+    /**
+     * Tests that trying to a businesses primary image when not logged in returns a status 401
+     */
+    @Test
+    void setBusinessPrimaryImage_returnStatus401() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/businesses/{businessId}/images/{imageId}/makeprimary", testBusiness.getId(), 1))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Tests that a status code 403 is returned when a user not an admin of the business nor a system admin.
+     */
+    @Test
+    void setBusinessPrimaryImage_notAdmin_returnStatus403() throws Exception {
+        doThrow(ForbiddenException.class)
+                .when(businessImageService)
+                .setPrimaryImage(Mockito.any(Integer.class), Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/businesses/{businessId}/images/{imageId}/makeprimary", testBusiness.getId(), 1)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that a status code 406 is returned when a user or business is not found.
+     */
+    @Test
+    void setBusinessPrimaryImage_notExists_returnStatus406() throws Exception {
+        doThrow(NotAcceptableException.class)
+                .when(businessImageService)
+                .setPrimaryImage(Mockito.any(Integer.class), Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/businesses/{businessId}/images/{imageId}/makeprimary", testBusiness.getId(), 1)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isNotAcceptable());
     }
 }
