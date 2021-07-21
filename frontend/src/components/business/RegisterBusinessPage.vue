@@ -151,9 +151,12 @@
           <p style="width: 100%; text-align: center; margin: 0"><small>You must be at least 16 years old to register a
             business</small></p>
           <div class="form-row">
-            <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px"
+            <button v-if="!submitting" class="btn btn-block btn-primary" style="width: 100%; margin:0 20px"
                     v-on:click="checkInputs">
               Create Business
+            </button>
+            <button v-else class="btn btn-block btn-primary disabled" style="width: 100%; margin:0 20px"
+                    v-on:click="checkInputs">Creating Business
             </button>
             <!--    Error message for the registering process    -->
 
@@ -334,9 +337,9 @@ export default {
       ).then((res) => {
         this.addImages(res.data.businessId).then(() => {
           this.submitting = false
-          this.$router.push({name: 'home'})
           this.$root.$data.user.updateData()
-          this.$root.$data.user.setActingAs(res.data.businessId, this.businessName, "business")
+          //this.$root.$data.user.setActingAs(res.data.businessId, this.businessName, "business")
+          this.$router.push({name: 'home'})
         })
       })
           .catch((err) => {

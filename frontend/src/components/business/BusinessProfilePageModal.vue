@@ -12,10 +12,10 @@
         <div class="row">
           <div class="col-12 text-center mb-2">
             <img
-                alt="profile"
-                class="profile-image rounded-circle"
-                style="max-width: 300px"
-                :src="getImageURL('/media/defaults/defaultProfile.jpg')"
+                alt="profile image"
+                class="profile-image rounded-left rounded-right"
+                style="max-width: 400px"
+                :src="getPrimaryImage()"
             />
           </div>
         </div>
@@ -177,17 +177,16 @@
       </div>
     </div>
 
-    <div class="row" style="height: 500px">
+    <div v-if="images.length === 0">
+      <p class="text-center"><strong>This Business has no Images</strong></p>
+    </div>
+    <div v-else class="row" style="height: 500px">
       <div class="col col-12 justify-content-center">
         <div id="imageCarousel" class="carousel slide" data-ride="carousel">
           <div class="carousel-inner">
-            <!--   Image 1   -->
-            <div class="carousel-item active">
-              <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL('/media/defaults/defaultProfile.jpg')" alt="User Image">
-            </div>
-            <!--   Image 2   -->
-            <div class="carousel-item">
-              <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL('/media/defaults/defaultProfile.jpg')" alt="User Image">
+            <div v-for="(image, index) in images" v-bind:key="image.id"
+                 :class="{'carousel-item': true, 'active': index === 0}">
+              <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL(image.filename)" alt="User Image">
             </div>
           </div>
           <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
@@ -229,7 +228,10 @@ export default {
       addAdministratorUserId: null,
       addAdministratorError: null,
       addAdministratorSuccess: null,
-      error: null
+      error: null,
+      canDoAdminAction: false,
+      images: [],
+      primaryImageId: null,
     }
   },
   mounted() {
@@ -278,16 +280,6 @@ export default {
     },
 
     /**
-     * Computes if the current user is one of the administrators of the business
-     */
-    canDoAdminAction() {
-      for (const users of this.administrators) {
-        if (users.id === this.$root.$data.user.state.actingAs.id) return true
-      }
-      return false
-    },
-
-    /**
      * Computes is the current user is a GAA
      */
     isGAA() {
@@ -314,13 +306,25 @@ export default {
       this.description = response.data.description;
       this.businessType = response.data.businessType;
       this.administrators = response.data.administrators;
+      this.canDoAdminAction = this.checkCanDoAdminAction()
+      this.images = response.data.images
+      this.primaryImageId = response.data.primaryImageId
 
-      //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
       this.address = this.$root.$data.address.formatAddress(response.data.address)
 
       this.dateJoined = response.data.created
       this.timeCalculator(Date.parse(this.dateJoined))
       this.dateJoined = this.dateJoined.substring(0, 10)
+    },
+
+    /**
+     * Computes if the current user is one of the administrators of the business
+     */
+    checkCanDoAdminAction() {
+      for (const users of this.administrators) {
+        if (users.id === this.$root.$data.user.state.userId) return true
+      }
+      return false
     },
 
     /**
@@ -364,6 +368,24 @@ export default {
             ? err.response.data.slice(err.response.data.indexOf(":") + 2)
             : err
       }
+    },
+
+    /**
+     * Uses the primaryImageId of the user to find the primary image and return its imageURL,
+     * else it returns the default user image url
+     */
+    getPrimaryImage() {
+      if (this.primaryImageId !== null) {
+        const primaryImageId = this.primaryImageId
+        const filteredImages = this.images.filter(function(specificImage) {
+          return specificImage.id === primaryImageId;
+        })
+        if (filteredImages.length === 1) {
+          return this.getImageURL(filteredImages[0].filename)
+        }
+      }
+
+      return this.getImageURL('/media/defaults/defaultProfile.jpg')
     },
 
     /**
