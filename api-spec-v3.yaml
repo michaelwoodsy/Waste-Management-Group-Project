@@ -46,6 +46,7 @@ tags:
   - name: 'U28: Product search'
   - name: 'U10: Modifying Individuals'
   - name: 'U11: Modifying Businesses'
+  - name: 'U29: Browse/Search Sale Listings'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -1566,6 +1567,18 @@ paths:
             type: boolean
           required: false
           description: 'Whether the Manufacturer field is being searched by'
+        - in: query
+          name: orderBy
+          schema:
+            type: string
+          required: false
+          description: 'Orders the results, can be productName, country, city, expiryDate, seller, priceAsc, priceDesc'
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: false
+          description: 'Determines which "page" of results to return. 1st page will be returned if not specified.'
       responses:
         '200':
           description: Request successful, a (possibly empty) list of products is returned
@@ -1888,6 +1901,86 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
+  '/listings':
+    get:
+      tags:
+        - 'U29: Browse/Search Sale Listings'
+        - 'Listings / sales'
+      summary: Get all, or a filtered selection, of the available sale listings
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - in: query
+          name: searchQuery
+          schema:
+            type: string
+          required: false
+          description: 'Criteria to search listings by, e.g: part of the product or business name'
+        - in: query
+          name: matchingProductName
+          schema:
+            type: boolean
+          required: false
+          description: 'Whether we are using the searchQuery to match product names'
+        - in: query
+          name: matchingBusinessName
+          schema:
+            type: boolean
+          required: false
+          description: 'Whether we are using the searchQuery to match business names'
+        - in: query
+          name: matchingBusinessLocation
+          schema:
+            type: boolean
+          required: false
+          description: 'Whether we are using the searchQuery to match business locations'
+        - in: query
+          name: priceRangeLower
+          schema:
+            type: number
+          required: false
+          description: 'A lower bound on the price range'
+        - in: query
+          name: priceRangeUpper
+          schema:
+            type: number
+          required: false
+          description: 'An upper bound on the price range'
+        - in: query
+          name: closingDateLower
+          schema:
+            type: string
+          required: false
+          description: 'A lower bound on the closing date'
+        - in: query
+          name: closingDateUpper
+          schema:
+            type: string
+          required: false
+          description: 'An upper bound on the closing date'
+      responses:
+        '200':
+          description: Request successful, a (possibly empty) list of listings is returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalCount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Listing'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+
 
 components:
   securitySchemes:
@@ -2079,6 +2172,10 @@ components:
           format: date-time
           example: '2021-07-21T23:59:00Z'
           description: Date and time when the listing closes (defaults to expiry date of related inventory item)
+        businessId:
+          type: integer
+          readOnly: true
+          description: The id of the business that offers this product. Used to get business info when browsing sale listings.
 
     InventoryItem:
       type: object
@@ -2198,6 +2295,7 @@ components:
           description: List of images of a product (implemented in U16).
           items:
             $ref: '#/components/schemas/Image'
+
 
     Business:
       type: object

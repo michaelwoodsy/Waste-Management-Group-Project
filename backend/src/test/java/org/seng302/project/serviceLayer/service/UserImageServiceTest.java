@@ -25,10 +25,8 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -61,7 +59,7 @@ class UserImageServiceTest extends AbstractInitializer {
         testUserBusinessAdmin = this.getTestUserBusinessAdmin();
         testImages = this.getTestImages();
         testImageFile = this.getTestImageFile();
-        testUser.setImages(new HashSet<>(testImages));
+        testUser.setImages(testImages);
         this.mocks();
     }
 
@@ -117,7 +115,7 @@ class UserImageServiceTest extends AbstractInitializer {
         Mockito.when(imageRepository.save(Mockito.any(Image.class)))
                 .thenAnswer(invocation -> {
                     Image image = invocation.getArgument(0);
-                    image.setId(4);
+                    image.setId(5);
                     testImages.add(image);
                     return image;
                 });
@@ -128,7 +126,7 @@ class UserImageServiceTest extends AbstractInitializer {
                 testImageFile
         );
         userImageService.addUserImage(dto);
-        Assertions.assertEquals(4, testUser.getImages().size());
+        Assertions.assertEquals(5, testUser.getImages().size());
         ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<BufferedImage> imageArgumentCaptor = ArgumentCaptor.forClass(BufferedImage.class);
         Mockito.verify(imageUtil).saveImage(imageArgumentCaptor.capture(), imagePathCaptor.capture());
@@ -153,7 +151,7 @@ class UserImageServiceTest extends AbstractInitializer {
                 testImageFile
         );
         userImageService.addUserImage(dto);
-        Assertions.assertEquals(4, testUser.getImages().size());
+        Assertions.assertEquals(5, testUser.getImages().size());
         ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<BufferedImage> imageArgumentCaptor = ArgumentCaptor.forClass(BufferedImage.class);
         Mockito.verify(imageUtil).saveImage(imageArgumentCaptor.capture(), imagePathCaptor.capture());
@@ -255,7 +253,7 @@ class UserImageServiceTest extends AbstractInitializer {
     @Test
     void setPrimaryImage_withUser_success() {
         //Set Users Images, Make the first image be the primary one
-        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        testUser.setImages(List.of(testImages.get(0), testImages.get(1)));
         testUser.setPrimaryImageId(testImages.get(0).getId());
 
         userImageService.setPrimaryImage(testUser.getId(), testImages.get(1).getId(), new AppUserDetails(testUser));
@@ -269,7 +267,7 @@ class UserImageServiceTest extends AbstractInitializer {
     @Test
     void setPrimaryImage_withSystemAdmin_success() {
         //Set Users Images, Make the first image be the primary one
-        testUser.setImages(Set.of(testImages.get(0), testImages.get(1)));
+        testUser.setImages(List.of(testImages.get(0), testImages.get(1)));
         testUser.setPrimaryImageId(testImages.get(0).getId());
 
         userImageService.setPrimaryImage(testUser.getId(), testImages.get(1).getId(), new AppUserDetails(testSystemAdmin));

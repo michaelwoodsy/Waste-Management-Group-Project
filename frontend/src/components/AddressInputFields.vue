@@ -175,6 +175,7 @@ export default {
       return !(this.msg.country || this.msg.streetName)
     }
   },
+  watch: {
     /** Watcher for the manual address **/
     address: {
       async handler() {
@@ -186,12 +187,12 @@ export default {
     /** Validate address when show errors is set **/
     showErrors: {
       async handler() {
-        console.log("test")
         await this.validateAddress()
         this.emitAddress()
       },
       deep: true
     },
+  },
   methods: {
     /**
      * Function to run when the full address has been entered

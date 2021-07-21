@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.serviceLayer.dto.message.CreateMessageDTO;
 import org.seng302.project.serviceLayer.dto.product.AddProductDTO;
 import org.seng302.project.serviceLayer.dto.product.ProductSearchDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
@@ -155,8 +154,9 @@ class ProductCatalogueControllerTest {
         String returnedExceptionString = response.getResponse().getContentAsString();
 
         //Sometimes the regex is checked first, sometimes the non-empty property is checked first
-        Assertions.assertTrue(returnedExceptionString.equals("Product id is a mandatory field") ||
-                returnedExceptionString.equals("This productId contains invalid characters. " +
+        Assertions.assertTrue(returnedExceptionString.equals(
+                "MethodArgumentNotValidException: Product id is a mandatory field") ||
+                returnedExceptionString.equals("MethodArgumentNotValidException: This productId contains invalid characters. " +
                         "Acceptable characters are letters, numbers and dashes."));
 
     }
@@ -185,7 +185,7 @@ class ProductCatalogueControllerTest {
                 .andReturn();
 
         String returnedExceptionString = response.getResponse().getContentAsString();
-        Assertions.assertEquals("Product name is a mandatory field", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: Product name is a mandatory field", returnedExceptionString);
     }
 
     /**
@@ -234,7 +234,7 @@ class ProductCatalogueControllerTest {
                 .andReturn();
 
         String returnedExceptionString = response.getResponse().getContentAsString();
-        Assertions.assertEquals("This productId contains invalid characters. " +
+        Assertions.assertEquals("MethodArgumentNotValidException: This productId contains invalid characters. " +
                 "Acceptable characters are letters, numbers and dashes.", returnedExceptionString);
     }
 
@@ -283,7 +283,7 @@ class ProductCatalogueControllerTest {
                 .andReturn();
 
         String returnedExceptionString = response.getResponse().getContentAsString();
-        Assertions.assertEquals("Price cannot be negative", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: Price cannot be negative", returnedExceptionString);
 
     }
 
@@ -310,7 +310,7 @@ class ProductCatalogueControllerTest {
                 .andReturn();
 
         String returnedExceptionString = response.getResponse().getContentAsString();
-        Assertions.assertEquals("This productId contains invalid characters. " +
+        Assertions.assertEquals("MethodArgumentNotValidException: This productId contains invalid characters. " +
                 "Acceptable characters are letters, numbers and dashes.", returnedExceptionString);
     }
 
@@ -340,8 +340,9 @@ class ProductCatalogueControllerTest {
         String returnedExceptionString = response.getResponse().getContentAsString();
 
         //Sometimes the regex is checked first, sometimes the non-empty property is checked first
-        Assertions.assertTrue(returnedExceptionString.equals("Product id is a mandatory field") ||
-                returnedExceptionString.equals("This productId contains invalid characters. " +
+        Assertions.assertTrue(returnedExceptionString.equals(
+                "MethodArgumentNotValidException: Product id is a mandatory field") ||
+                returnedExceptionString.equals("MethodArgumentNotValidException: This productId contains invalid characters. " +
                         "Acceptable characters are letters, numbers and dashes."));
     }
 
@@ -368,7 +369,7 @@ class ProductCatalogueControllerTest {
                 .andReturn();
 
         String returnedExceptionString = response.getResponse().getContentAsString();
-        Assertions.assertEquals("Product name is a mandatory field", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: Product name is a mandatory field", returnedExceptionString);
     }
 
 
@@ -421,7 +422,7 @@ class ProductCatalogueControllerTest {
                 .andReturn();
 
         String returnedExceptionString = response.getResponse().getContentAsString();
-        Assertions.assertEquals("Price cannot be negative", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: Price cannot be negative", returnedExceptionString);
 
     }
 

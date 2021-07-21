@@ -8,19 +8,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Image;
-import org.seng302.project.repositoryLayer.model.Product;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.*;
-import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
-import org.seng302.project.serviceLayer.dto.product.SetPrimaryProductImageDTO;
 import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.product.AddProductImageDTO;
-import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
-import org.seng302.project.serviceLayer.dto.user.AddUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.DeleteUserImageDTO;
 import org.seng302.project.serviceLayer.dto.user.PutUserDTO;
 import org.seng302.project.serviceLayer.service.UserImageService;
@@ -39,8 +33,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.io.File;
-import java.sql.Array;
+import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -48,6 +41,7 @@ import java.util.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
+@Transactional
 public class ModifyingIndividualsSteps extends AbstractInitializer {
 
     private User testUser;
@@ -215,7 +209,7 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = editUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("DateOfBirthInvalid: This Date of Birth is not valid.", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: DateOfBirthInvalid: This Date of Birth is not valid.", returnedExceptionString);
     }
 
 
@@ -253,7 +247,7 @@ public class ModifyingIndividualsSteps extends AbstractInitializer {
                 .andReturn();
 
         String returnedExceptionString = editUserResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("MissingData: First Name is a mandatory field", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: MissingData: First Name is a mandatory field", returnedExceptionString);
     }
 
     @Given("A user has no images")
