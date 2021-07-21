@@ -227,6 +227,13 @@ public class BusinessService {
             }
         }
 
+        // Check if the old product currency needs changed
+        if (Boolean.TRUE.equals(updateProductCurrency) &&
+                requestDTO.getAddress() != null &&
+                requestDTO.getAddress().getCountry() != null) {
+            productCatalogueService.updateProductCurrency(businessId, requestDTO.getAddress().getCountry());
+        }
+
         business.updateBusiness(requestDTO);
         addressRepository.save(business.getAddress());
         businessRepository.save(business);
