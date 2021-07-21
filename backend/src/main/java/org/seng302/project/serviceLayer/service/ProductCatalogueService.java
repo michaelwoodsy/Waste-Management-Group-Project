@@ -22,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -399,5 +400,20 @@ public class ProductCatalogueService {
 
         List<Product> products = new ArrayList<>(result);
         return products.stream().map(GetProductDTO::new).collect(Collectors.toList());
+    }
+
+    /**
+     * Updates the currencyCountry field of all products in a business.
+     * Expects the business to exist.
+     *
+     * @param businessId
+     */
+    @Transactional
+    public void updateProductCurrency(Integer businessId, String currencyCountry) {
+        List<Product> products = productRepository.findAllByBusinessId(businessId);
+        for (Product product : products) {
+            product.setCurrencyCountry(currencyCountry);
+            productRepository.save(product);
+        }
     }
 }
