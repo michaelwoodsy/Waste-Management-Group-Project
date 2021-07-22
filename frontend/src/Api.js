@@ -221,6 +221,15 @@ export const Business = {
      */
     getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
 
+    /**
+     * Makes a request to update the details of a business
+     *
+     * @param businessId ID of the business to update
+     * @param newData new details to update business with
+     * @returns {Promise<AxiosResponse<any>>} response from request
+     */
+    editBusiness: (businessId, newData) => instance.put(`businesses/${businessId}`, newData),
+
 
     /*
      *  Removes a user with id userId from administering the business with id businessId

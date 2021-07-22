@@ -13,6 +13,9 @@ import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageDTO;
+import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
+import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
+import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.business.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
@@ -25,15 +28,12 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
-public class BusinessImageServiceTest extends AbstractInitializer {
+class BusinessImageServiceTest extends AbstractInitializer {
 
     @Autowired
     private BusinessImageService businessImageService;
@@ -162,6 +162,60 @@ public class BusinessImageServiceTest extends AbstractInitializer {
         ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<BufferedImage> imageArgumentCaptor = ArgumentCaptor.forClass(BufferedImage.class);
         Mockito.verify(imageUtil).saveImage(imageArgumentCaptor.capture(), imagePathCaptor.capture());
+    }
+
+    /**
+     * Tests changing the primary image of a business when you are not a business admin or a GAA
+     */
+    @Test
+    void makePrimaryImage_withNotAdmin_throwsException() {
+        var imageId = testImages.get(1).getId();
+
+        Assertions.assertThrows(ForbiddenException.class,
+                () -> businessImageService.setPrimaryImage(testBusiness.getId(), imageId , new AppUserDetails(testUser)));
+    }
+
+    /**
+     * Tests changing the primary image of a business, and the business is not found
+     */
+    @Test
+    void makePrimaryImage_noBusinessFound_throwsException() {
+        given(businessRepository.findById(1000)).willReturn(Optional.empty());
+        var imageId = testImages.get(1).getId();
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> businessImageService.setPrimaryImage(1000, imageId , new AppUserDetails(testUserBusinessAdmin)));
+    }
+
+    /**
+     * Tests changing the primary image of a business, and the image is not found
+     */
+    @Test
+    void makePrimaryImage_noImageFound_throwsException() {
+        var imageId = testImages.get(1).getId();
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> businessImageService.setPrimaryImage(testBusiness.getId(), 1000 , new AppUserDetails(testUserBusinessAdmin)));
+    }
+
+    /**
+     * Tests successfully changing the primary image of a business as a business administrator
+     */
+    @Test
+    void makePrimaryImage_withBusinessAdmin_success() {
+        testBusiness.setPrimaryImageId(testImages.get(0).getId());
+        businessImageService.setPrimaryImage(testBusiness.getId(), testImages.get(1).getId(), new AppUserDetails(testUserBusinessAdmin));
+        Assertions.assertEquals(testImages.get(1).getId(), testBusiness.getPrimaryImageId());
+    }
+
+    /**
+     * Tests successfully changing the primary image of a business as a system administrator
+     */
+    @Test
+    void makePrimaryImage_withSystemAdmin_success() {
+        testBusiness.setPrimaryImageId(testImages.get(0).getId());
+        businessImageService.setPrimaryImage(testBusiness.getId(), testImages.get(1).getId(), new AppUserDetails(testSystemAdmin));
+        Assertions.assertEquals(testImages.get(1).getId(), testBusiness.getPrimaryImageId());
     }
 
 }

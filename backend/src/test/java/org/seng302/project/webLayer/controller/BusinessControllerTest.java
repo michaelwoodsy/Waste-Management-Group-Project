@@ -20,6 +20,7 @@ import org.seng302.project.serviceLayer.exceptions.businessAdministrator.Adminis
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.seng302.project.serviceLayer.service.BusinessService;
+import org.seng302.project.serviceLayer.service.UserService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -58,6 +59,9 @@ class BusinessControllerTest extends AbstractInitializer {
     @MockBean
     private BusinessService businessService;
 
+    @MockBean
+    private UserService userService;
+
     private User testPrimaryAdmin;
     private User testUser;
     private Business testBusiness;
@@ -74,6 +78,9 @@ class BusinessControllerTest extends AbstractInitializer {
         //Mock a test business
         //Spy on this business so we can check when methods on the business object are called
         testBusiness = this.getTestBusiness();
+
+        //Mock the userService.checkForbidden method to return
+        Mockito.doNothing().when(userService).checkForbidden(any(Integer.class), any(AppUserDetails.class));
     }
 
 
