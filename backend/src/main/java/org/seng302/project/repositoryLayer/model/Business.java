@@ -3,6 +3,7 @@ package org.seng302.project.repositoryLayer.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 
 import javax.persistence.*;
@@ -154,8 +155,9 @@ public class Business {
      */
     public void removeImage(Image image){ this.images.remove(image); }
 
-    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
-    public List<Image> getImages() {
+//    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
+@OneToMany(targetEntity=Image.class)
+public List<Image> getImages() {
         return this.images;
     }
 

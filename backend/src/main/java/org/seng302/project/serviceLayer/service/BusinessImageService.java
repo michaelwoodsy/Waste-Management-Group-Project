@@ -7,9 +7,12 @@ import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageDTO;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.business.DeleteBusinessImageDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessImageInvalidException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessImageNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.business.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
@@ -21,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -163,11 +167,11 @@ public class BusinessImageService {
         }
 
         //Retrieve image to be deleted.
-        Set<Image> businesssImages = business.getImages();
+        List<Image> businessImages = business.getImages();
         Image imageToDelete = null;
         Image newPrimaryImage = null;
         var imageIsPresent = false;
-        for (Image image : userImages) {
+        for (Image image : businessImages) {
             if (image.getId().equals(dto.getImageId())) {
                 imageIsPresent = true;
                 imageToDelete = image;

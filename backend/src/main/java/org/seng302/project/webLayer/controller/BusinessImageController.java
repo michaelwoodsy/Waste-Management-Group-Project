@@ -2,9 +2,13 @@ package org.seng302.project.webLayer.controller;
 
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageDTO;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.business.DeleteBusinessImageDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessImageNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.serviceLayer.service.BusinessImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;

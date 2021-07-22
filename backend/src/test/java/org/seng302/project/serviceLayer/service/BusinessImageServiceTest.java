@@ -13,11 +13,16 @@ import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageDTO;
+import org.seng302.project.serviceLayer.dto.business.DeleteBusinessImageDTO;
+import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessImageNotFoundException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.business.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -31,6 +36,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 
 @SpringBootTest
 class BusinessImageServiceTest extends AbstractInitializer {
@@ -216,6 +222,98 @@ class BusinessImageServiceTest extends AbstractInitializer {
         testBusiness.setPrimaryImageId(testImages.get(0).getId());
         businessImageService.setPrimaryImage(testBusiness.getId(), testImages.get(1).getId(), new AppUserDetails(testSystemAdmin));
         Assertions.assertEquals(testImages.get(1).getId(), testBusiness.getPrimaryImageId());
+    }
+
+    /**
+     * Tests that deleting a business image as a user who is not a business admin results in an error.
+     */
+    @Test
+    void deleteImage_notAdmin_throwsException() {
+        DeleteBusinessImageDTO deleteBusinessImageDTO = new DeleteBusinessImageDTO(
+                testBusiness.getId(),
+                testImages.get(1).getId(),
+                new AppUserDetails(testUser)
+        );
+        Assertions.assertThrows(ForbiddenAdministratorActionException.class,
+                () -> businessImageService.deleteImage(deleteBusinessImageDTO));
+    }
+
+    /**
+     * Tests that deleting a image for a business that does not exist results in an error.
+     */
+    @Test
+    void deleteImage_noBusinessExists_throwsException() {
+        given(businessRepository.findById(1000)).willReturn(Optional.empty());
+        DeleteBusinessImageDTO deleteBusinessImageDTO = new DeleteBusinessImageDTO(
+                1000,
+                testImages.get(1).getId(),
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+
+        Assertions.assertThrows(BusinessNotFoundException.class,
+                () -> businessImageService.deleteImage(deleteBusinessImageDTO));
+    }
+
+    /**
+     * Tests that deleting a business image for an image that does not exist results in an error.
+     */
+    @Test
+    void deleteImage_noImageExists_throwsException() {
+        given(imageRepository.findById(1000)).willReturn(Optional.empty());
+        DeleteBusinessImageDTO deleteBusinessImageDTO = new DeleteBusinessImageDTO(
+                testBusiness.getId(),
+                1000,
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+
+        Assertions.assertThrows(BusinessImageNotFoundException.class,
+                () -> businessImageService.deleteImage(deleteBusinessImageDTO));
+    }
+
+    /**
+     * Tests the success case for deleting a business image as a business admin.
+     * Expects the imageUtil.deleteImage() to be called twice,
+     * once for the image file, once for the thumbnail file.
+     *
+     * @throws IOException exception thrown by imageUtil.deleteImage()
+     */
+    @Test
+    void deleteImage_withBusinessAdmin_success() throws IOException {
+        DeleteBusinessImageDTO deleteBusinessImageDTO = new DeleteBusinessImageDTO(
+                testBusiness.getId(),
+                testImages.get(1).getId(),
+                new AppUserDetails(testUserBusinessAdmin)
+        );
+
+        businessImageService.deleteImage(deleteBusinessImageDTO);
+
+        ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(imageUtil, times(2)).deleteImage(imagePathCaptor.capture());
+
+        Assertions.assertEquals(2, testBusiness.getImages().size());
+    }
+
+    /**
+     * Tests the success case for deleting a business image as a system admin.
+     * Expects the imageUtil.deleteImage() to be called twice,
+     * once for the image file, once for the thumbnail file.
+     *
+     * @throws IOException exception thrown by imageUtil.deleteImage()
+     */
+    @Test
+    void deleteImage_withSystemAdmin_success() throws IOException {
+        DeleteBusinessImageDTO deleteBusinessImageDTO = new DeleteBusinessImageDTO(
+                testBusiness.getId(),
+                testImages.get(1).getId(),
+                new AppUserDetails(testSystemAdmin)
+        );
+
+        businessImageService.deleteImage(deleteBusinessImageDTO);
+
+        ArgumentCaptor<String> imagePathCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(imageUtil, times(2)).deleteImage(imagePathCaptor.capture());
+
+        Assertions.assertEquals(2, testBusiness.getImages().size());
     }
 
 }
