@@ -117,13 +117,9 @@
                    @mouseover="image.hover = true"
                    @mouseleave="image.hover = false"
               >
-                <img v-if="image.id === undefined" width="250"
+                <img width="250"
                      :src="image.url"
                      alt="Uploaded product image"
-                />
-                <img v-else width="250"
-                     :src="getImageURL(image.filename)"
-                     alt="Current product image"
                 />
                 <button class="btn btn-danger ml-1 my-1 pad1"
                         @click="removeImage(image.url)">
@@ -338,7 +334,7 @@ export default {
         this.addImages(res.data.businessId).then(() => {
           this.submitting = false
           this.$root.$data.user.updateData()
-          //this.$root.$data.user.setActingAs(res.data.businessId, this.businessName, "business")
+          this.$root.$data.user.setActingAs(res.data.businessId, this.businessName, "business")
           this.$router.push({name: 'home'})
         })
       })

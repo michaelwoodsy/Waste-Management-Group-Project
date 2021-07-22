@@ -18,8 +18,36 @@
           <h2>Edit Your Business</h2>
         </div>
       </div>
-      <div class="row">
 
+
+      <!-- Div to display when the changes are successful -->
+      <div v-if="success" class="row">
+        <div class="col-12 col-sm-8 offset-sm-2">
+          <div class="alert alert-success">Successfully saved changes!</div>
+
+          <!-- Make more changes button -->
+          <button
+              class="btn btn-secondary float-left"
+              type="button"
+              @click="resetPage"
+          >
+            Edit Again
+          </button>
+
+          <!-- Home button -->
+          <router-link
+              :to="{name: 'home'}"
+              class="btn btn-primary float-right"
+              type="button"
+          >
+            Home
+          </router-link>
+
+        </div>
+      </div>
+
+
+      <div v-else class="row">
         <div class="col-12 col-sm-8 col-lg-6 col-xl-4 offset-sm-2 offset-lg-3 offset-xl-4 text-center mb-2">
 
           <div class="form-row">
@@ -107,6 +135,157 @@
             <br>
           </div>
 
+
+
+
+
+          <hr/>
+
+          <div class="form-group row">
+            <div class="col text-center">
+              <h3 class="">Images</h3>
+            </div>
+            <div class="col text-center">
+              <button
+                  id="addImage"
+                  class="btn btn-primary ml-1 my-1 pad1"
+                  type="button"
+                  @click="addImageClicked"
+              >
+                Add image
+              </button>
+              <input
+                  type="file"
+                  style="display: none"
+                  ref="fileInput"
+                  accept="image/png, image/jpeg"
+                  @change="imageUpload"/>
+            </div>
+          </div>
+
+          <!-- Images -->
+          <div class="form-group row">
+            <div class="col">
+
+
+
+              <div v-for="image in images"
+                   :key="image.url" class="pad1"
+                   @mouseover="image.hover = true"
+                   @mouseleave="image.hover = false"
+              >
+                <img v-if="image.id === undefined" width="250"
+                     :src="image.url"
+                     alt="Uploaded product image"
+                />
+                <img v-else width="250"
+                     :src="getImageURL(image.filename)"
+                     alt="Current product image"
+                />
+                <button class="btn btn-danger ml-1 my-1 pad1"
+                        type="button"
+                        :data-target="'#removeImageModal'"
+                        data-toggle="modal"
+                        @click="changeDeletingImage(image)">
+
+                  Remove
+                </button>
+
+
+
+                <!-- Remove Image modal -->
+                <div :id="'removeImageModal'" class="modal fade" role="dialog" tabindex="-1">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+
+                      <!-- Title section of modal -->
+                      <div class="modal-header">
+                        <h5 class="modal-title">Remove Image</h5>
+                        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                          <span ref="close" aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+
+                      <!-- Body section of modal -->
+                      <div class="modal-body">
+                        <p>Do you really want to remove this image?</p>
+                      </div>
+
+                      <!-- Footer / button section of modal -->
+                      <div class="modal-footer">
+                        <button class="btn btn-danger" data-dismiss="modal" type="button" @click="removeImage(imageWantingToDelete)">Remove</button>
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+
+
+
+                <!--                    If the image cant be made primary because it is not uploaded yet-->
+                <button class="btn btn-secondary disabled ml-1 my-1 pad1"
+                        v-if="image.id === undefined"
+                        type="button" :data-target="'#cantMakePrimaryImageModal'" data-toggle="modal">
+                  Make Primary
+                </button>
+                <button class="btn btn-primary ml-1 my-1 pad1 disabled"
+                        v-else-if="image.id === currentPrimaryImageId"
+                        type="button">
+                  Already Primary
+                </button>
+                <button class="btn btn-primary ml-1 my-1 pad1"
+                        v-else-if="image.id !== currentPrimaryImageId"
+                        type="button" @click="makeImagePrimary(image.id)">
+                  Make Primary
+                </button>
+
+                <!-- Can't make image primary information -->
+                <div :id="'cantMakePrimaryImageModal'" class="modal fade" role="dialog" tabindex="-1">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+
+                      <!-- Title section of modal -->
+                      <div class="modal-header">
+                        <h5 class="modal-title">Information</h5>
+                        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                          <span ref="close" aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+
+                      <!-- Body section of modal -->
+                      <div class="modal-body">
+                        <p>This image is not on our servers yet. Please save changes before making this image Primary</p>
+                      </div>
+
+                      <!-- Footer / button section of modal -->
+                      <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal" type="button">Ok</button>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col text-center">
+              <!--    Image upload progress counter    -->
+              <p v-if="submitting && imagesEdited"
+                 class="ml-1 my-2 ">
+                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+              </p>
+            </div>
+
+          </div>
+
+
+
+
+
           <!-- Save Changes button -->
           <div class="form-group row mb-0">
             <div class="btn-group" style="width: 100%">
@@ -122,8 +301,6 @@
                       v-on:click="checkInputs">
                 Save Changes
               </button>
-
-              <!--TODO: Interface to edit images -->
 
             </div>
             <!--    Error message for the editing process    -->
@@ -146,7 +323,7 @@ import LoginRequired from "@/components/LoginRequired";
 import Alert from "../Alert"
 import AddressInputFields from "@/components/AddressInputFields";
 import PageWrapper from "@/components/PageWrapper";
-import {Business} from "@/Api";
+import {Business, Images} from "@/Api";
 import AdminRequired from "@/components/AdminRequired";
 
 
@@ -192,7 +369,20 @@ export default {
         'errorChecks': null
       },
       valid: true,
-      submitClicked: 0
+      submitClicked: 0,
+      submitting: false,
+
+      success: false,
+
+      images: [],
+      imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
+      currentPrimaryImageId: null,
+      imagesEdited: false,
+      //Used to show progress in uploading images
+      numImagesUploaded: 0,
+      numImagesToUpload: 0,
+
+      oldBusiness: null
     }
   },
   async mounted() {
@@ -244,6 +434,13 @@ export default {
    * Methods that can be called by the program
    */
   methods: {
+
+    /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
+    },
 
     /**
      * Validates the business name variable
@@ -303,6 +500,7 @@ export default {
      */
     async checkInputs() {
       this.submitClicked++;
+      this.submitting = true
       this.validateBusinessName();
       await this.validateAddress();
       this.validateBusinessType();
@@ -311,6 +509,7 @@ export default {
       if (!this.valid) {
         this.msg['errorChecks'] = 'Please fix the shown errors and try again';
         console.log('Please fix the shown errors and try again');
+        this.submitting = false
         this.valid = true;//Reset the value
       } else {
         this.msg['errorChecks'] = '';
@@ -324,8 +523,15 @@ export default {
      * Saves the changes from editing the business by calling the backend endpoint
      * If this fails the program should set the error text to the error received from the backend server
      */
-    editBusiness() {
-      //TODO: implement me!
+    async editBusiness() {
+      //TODO: implement me!\
+      //TODO: add this.submitting = false to edit business call
+
+      await this.addImages().then(() => {
+        this.submitting = false
+        this.success = true
+        this.$root.$data.user.updateData()
+      })
     },
 
     /**
@@ -340,6 +546,9 @@ export default {
       this.businessType = response.data.businessType
       this.administrators = response.data.administrators
       this.primaryAdminId = response.data.primaryAdministratorId //Used for computing isPrimaryAdmin
+      this.oldBusiness = response.data
+      this.images = response.data.images
+      this.currentPrimaryImageId = response.data.primaryImageId
 
       //Prefill the primary admin dropdown
       for(const admin of this.administrators) {
@@ -351,11 +560,140 @@ export default {
     },
 
     /**
+     * Resets the page after submitting changes, so the user can make more changes.
+     */
+    resetPage() {
+      // Reset data
+      this.addressIsValid = false
+      this.submitting = false
+      this.success = false
+
+      // Reload user data
+      this.prefillFields()
+    },
+
+    /**
      * Method to cancel making changes to business
      */
     cancel() {
       this.$router.push({name: 'home'})
     },
+
+
+    //IMAGES
+
+    /**
+     * Programmatically triggers the file input field when the
+     * 'Add image' button is clicked.
+     */
+    addImageClicked () {
+      this.imagesEdited = true
+      this.$refs.fileInput.click()
+    },
+
+    /**
+     * Handles the file being uploaded
+     * @param event the button click event that triggers this function
+     */
+    imageUpload (event) {
+      const files = event.target.files
+
+      const formData = new FormData()
+      formData.append("file", files[0])
+
+      const fileReader = new FileReader()
+      console.log(`File with name ${files[0].name} uploaded`)
+      fileReader.addEventListener('load', () => {
+        this.images.push({
+          data: formData,
+          url: fileReader.result,
+          file: files[0]
+        })
+      })
+      fileReader.readAsDataURL(files[0])
+    },
+
+    /**
+     * Called by the remove button next to an uploaded image.
+     * Calls the API to make a request to delete an image from the backend.
+     * Removes the image from the frontend's list of images.
+     * @param imageRemoving the image to be removed
+     */
+    removeImage(imageRemoving) {
+      this.imagesEdited = true
+      //If image has already been uploaded
+      if(imageRemoving.id){
+        //TODO: Fill this in when removing images has been implemented
+        // User.removeImage(this.userId, imageRemoving.id)
+        //     .then(() => {
+        //       this.removeImageFromList(imageRemoving)
+        //     })
+        //     .catch((err) => {
+        //       this.errorMessage = err.response.data.message || err;
+        //     })
+      } else {
+        //If the image has just been uploaded and then is removed
+        this.removeImageFromList(imageRemoving)
+      }
+
+      //If the removing image is the primary image, a new one is set on the backend. this is updating to show that.
+      if (this.oldBusiness.primaryImageId === imageRemoving.id &&
+          this.currentPrimaryImageId === imageRemoving.id &&
+          this.images.length !== 0) {
+        for (const image of this.images) {
+          if (image.id !== undefined && image.id !== imageRemoving.id) {
+            this.currentPrimaryImageId = image.id
+            break
+          }
+        }
+      }
+    },
+
+    /**
+     * Used to remove the image from the list that is visible to the user
+     *@param removedImage the image to be removed
+     */
+    removeImageFromList(removedImage){
+      //Remove the deleted image from the list of images on screen
+      this.images = this.images.filter(function(image) {
+        return image !== removedImage;
+      })
+    },
+
+    /**
+     * Called to make the image the primary image of the user.
+     * Sets the variable currentPrimaryImage, which is then sent to the backend when the save changes button is clicked
+     * @param imageId the id of the image to make primary
+     */
+    makeImagePrimary(imageId) {
+      this.imagesEdited = true
+      //Sets the new primary image to be set when the user clicks the save changes button
+      this.currentPrimaryImageId = imageId
+    },
+
+    /**
+     * Makes requests to add the user's images
+     */
+    async addImages() {
+      const imagesToUpload = this.images.filter(function(image) {
+        return image.id === undefined;
+      })
+      this.numImagesToUpload = imagesToUpload.length
+
+      for (const image of imagesToUpload) {
+        //Id is undefined if it was just added
+        await Business.addBusinessImage(this.businessId, image.data)
+        this.numImagesUploaded += 1;
+      }
+
+      if (this.currentPrimaryImageId !== this.oldBusiness.primaryImageId) {
+        //await User.makePrimaryImage(this.userId, this.currentPrimaryImageId)
+      }
+    },
+
+    changeDeletingImage(image) {
+      this.imageWantingToDelete = image
+    }
   }
 }
 
