@@ -136,158 +136,153 @@
             <span class="invalid-feedback" style="text-align: left">{{ msg.businessType }}</span>
             <br>
             <br>
-          </div>
 
 
 
 
 
-          <hr/>
+            <hr/>
 
-          <div class="form-group row">
-            <div class="col text-center">
-              <h3 class="">Images</h3>
-            </div>
-            <div class="col text-center">
-              <button
-                  id="addImage"
-                  class="btn btn-primary ml-1 my-1 pad1"
-                  type="button"
-                  @click="addImageClicked"
-              >
-                Add image
-              </button>
-              <input
-                  type="file"
-                  style="display: none"
-                  ref="fileInput"
-                  accept="image/png, image/jpeg"
-                  @change="imageUpload"/>
-            </div>
-          </div>
-
-          <!-- Images -->
-          <div class="form-group row">
-            <div class="col">
-
-
-
-              <div v-for="image in images"
-                   :key="image.url" class="pad1"
-                   @mouseover="image.hover = true"
-                   @mouseleave="image.hover = false"
-              >
-                <img v-if="image.id === undefined" width="250"
-                     :src="image.url"
-                     alt="Uploaded product image"
-                />
-                <img v-else width="250"
-                     :src="getImageURL(image.filename)"
-                     alt="Current product image"
-                />
-                <button class="btn btn-danger ml-1 my-1 pad1"
-                        type="button"
-                        :data-target="'#removeImageModal'"
-                        data-toggle="modal"
-                        @click="changeDeletingImage(image)">
-
-                  Remove
+            <div class="form-group row">
+              <div class="col text-center">
+                <h3 class="">Images</h3>
+              </div>
+              <div class="col text-center">
+                <button
+                    id="addImage"
+                    class="btn btn-primary ml-1 my-1 pad1"
+                    type="button"
+                    @click="addImageClicked"
+                >
+                  Add image
                 </button>
+                <input
+                    type="file"
+                    style="display: none"
+                    ref="fileInput"
+                    accept="image/png, image/jpeg"
+                    @change="imageUpload"/>
+              </div>
+            </div>
+
+            <!-- Images -->
+            <div class="form-group row">
+              <div class="col">
 
 
 
-                <!-- Remove Image modal -->
-                <div :id="'removeImageModal'" class="modal fade" role="dialog" tabindex="-1">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
+                <div v-for="image in images"
+                     :key="image.url" class="pad1"
+                     @mouseover="image.hover = true"
+                     @mouseleave="image.hover = false"
+                >
+                  <img v-if="image.id === undefined" width="250"
+                       :src="image.url"
+                       alt="Uploaded product image"
+                  />
+                  <img v-else width="250"
+                       :src="getImageURL(image.filename)"
+                       alt="Current product image"
+                  />
+                  <button class="btn btn-danger ml-1 my-1 pad1"
+                          type="button"
+                          :data-target="'#removeImageModal'"
+                          data-toggle="modal"
+                          @click="changeDeletingImage(image)">
 
-                      <!-- Title section of modal -->
-                      <div class="modal-header">
-                        <h5 class="modal-title">Remove Image</h5>
-                        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-                          <span ref="close" aria-hidden="true">&times;</span>
-                        </button>
+                    Remove
+                  </button>
+
+
+
+                  <!-- Remove Image modal -->
+                  <div :id="'removeImageModal'" class="modal fade" role="dialog" tabindex="-1">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+
+                        <!-- Title section of modal -->
+                        <div class="modal-header">
+                          <h5 class="modal-title">Remove Image</h5>
+                          <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                            <span ref="close" aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+
+                        <!-- Body section of modal -->
+                        <div class="modal-body">
+                          <p>Do you really want to remove this image?</p>
+                        </div>
+
+                        <!-- Footer / button section of modal -->
+                        <div class="modal-footer">
+                          <button class="btn btn-danger" data-dismiss="modal" type="button" @click="removeImage(imageWantingToDelete)">Remove</button>
+                          <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
+                        </div>
+
                       </div>
-
-                      <!-- Body section of modal -->
-                      <div class="modal-body">
-                        <p>Do you really want to remove this image?</p>
-                      </div>
-
-                      <!-- Footer / button section of modal -->
-                      <div class="modal-footer">
-                        <button class="btn btn-danger" data-dismiss="modal" type="button" @click="removeImage(imageWantingToDelete)">Remove</button>
-                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
-                      </div>
-
                     </div>
                   </div>
-                </div>
 
 
 
 
-                <!--                    If the image cant be made primary because it is not uploaded yet-->
-                <button class="btn btn-secondary disabled ml-1 my-1 pad1"
-                        v-if="image.id === undefined"
-                        type="button" :data-target="'#cantMakePrimaryImageModal'" data-toggle="modal">
-                  Make Primary
-                </button>
-                <button class="btn btn-primary ml-1 my-1 pad1 disabled"
-                        v-else-if="image.id === currentPrimaryImageId"
-                        type="button">
-                  Already Primary
-                </button>
-                <button class="btn btn-primary ml-1 my-1 pad1"
-                        v-else-if="image.id !== currentPrimaryImageId"
-                        type="button" @click="makeImagePrimary(image.id)">
-                  Make Primary
-                </button>
+                  <!--                    If the image cant be made primary because it is not uploaded yet-->
+                  <button class="btn btn-secondary disabled ml-1 my-1 pad1"
+                          v-if="image.id === undefined"
+                          type="button" :data-target="'#cantMakePrimaryImageModal'" data-toggle="modal">
+                    Make Primary
+                  </button>
+                  <button class="btn btn-primary ml-1 my-1 pad1 disabled"
+                          v-else-if="image.id === currentPrimaryImageId"
+                          type="button">
+                    Already Primary
+                  </button>
+                  <button class="btn btn-primary ml-1 my-1 pad1"
+                          v-else-if="image.id !== currentPrimaryImageId"
+                          type="button" @click="makeImagePrimary(image.id)">
+                    Make Primary
+                  </button>
 
-                <!-- Can't make image primary information -->
-                <div :id="'cantMakePrimaryImageModal'" class="modal fade" role="dialog" tabindex="-1">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
+                  <!-- Can't make image primary information -->
+                  <div :id="'cantMakePrimaryImageModal'" class="modal fade" role="dialog" tabindex="-1">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
 
-                      <!-- Title section of modal -->
-                      <div class="modal-header">
-                        <h5 class="modal-title">Information</h5>
-                        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-                          <span ref="close" aria-hidden="true">&times;</span>
-                        </button>
+                        <!-- Title section of modal -->
+                        <div class="modal-header">
+                          <h5 class="modal-title">Information</h5>
+                          <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                            <span ref="close" aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+
+                        <!-- Body section of modal -->
+                        <div class="modal-body">
+                          <p>This image is not on our servers yet. Please save changes before making this image Primary</p>
+                        </div>
+
+                        <!-- Footer / button section of modal -->
+                        <div class="modal-footer">
+                          <button class="btn btn-primary" data-dismiss="modal" type="button">Ok</button>
+                        </div>
+
                       </div>
-
-                      <!-- Body section of modal -->
-                      <div class="modal-body">
-                        <p>This image is not on our servers yet. Please save changes before making this image Primary</p>
-                      </div>
-
-                      <!-- Footer / button section of modal -->
-                      <div class="modal-footer">
-                        <button class="btn btn-primary" data-dismiss="modal" type="button">Ok</button>
-                      </div>
-
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="form-group row">
-            <div class="col text-center">
-              <!--    Image upload progress counter    -->
-              <p v-if="submitting && imagesEdited"
-                 class="ml-1 my-2 ">
-                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
-              </p>
+            <div class="form-group row">
+              <div class="col text-center">
+                <!--    Image upload progress counter    -->
+                <p v-if="submitting && imagesEdited"
+                   class="ml-1 my-2 ">
+                  {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+                </p>
+              </div>
+
             </div>
-
-          </div>
-
-
-
-
 
             <!-- Save Changes button -->
             <div class="form-group row mb-0">
@@ -308,14 +303,18 @@
                   <span v-else>Save Changes</span>
                 </button>
 
+              </div>
+              <!--    Error message for the editing process    -->
+              <div class="login-box" style="width: 100%; margin:20px 20px; text-align: center">
+                <!-- Show error if something wrong -->
+                <alert id="errorAlert" v-if="msg.errorChecks">
+                  {{ msg.errorChecks }}
+                </alert>
+              </div>
             </div>
-            <!--    Error message for the editing process    -->
-            <div class="login-box" style="width: 100%; margin:20px 20px; text-align: center">
-              <!-- Show error if something wrong -->
-              <alert id="errorAlert" v-if="msg.errorChecks">
-                {{ msg.errorChecks }}
-              </alert>
-            </div>
+
+
+
           </div>
         </div>
       </div>
@@ -380,7 +379,6 @@ export default {
       submitClicked: 0,
       submitting: false,
 
-      success: false,
 
       images: [],
       imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
@@ -519,7 +517,7 @@ export default {
         this.msg['errorChecks'] = 'Please fix the shown errors and try again';
         console.log('Please fix the shown errors and try again');
         this.submitting = false
-        this.valid = true;//Reset the value
+        this.valid = true//Reset the value
       } else {
         this.msg['errorChecks'] = '';
         console.log('No Errors');
@@ -546,14 +544,14 @@ export default {
           this.user.state.actingAs.name = this.businessName
         }
 
-        await this.addImages().then(() => {
-          this.submitting = false
-          this.success = true
-          this.$root.$data.user.updateData()
-        })
+        await this.addImages()
+
+        this.submitting = false
+        this.$root.$data.user.updateData()
 
         this.successfulEdit = true
       } catch (error) {
+        this.submitting = false
         console.log(error)
         this.msg['errorChecks'] = error
       }
@@ -594,7 +592,6 @@ export default {
       this.addressIsValid = false
       this.successfulEdit = false
       this.submitting = false
-      this.success = false
       await this.prefillFields()
     },
 
