@@ -147,11 +147,11 @@ public abstract class AbstractInitializer {
                 null,
                 null,
                 "jane.doe@gmail.com",
-                "1995/06/21",
+                "1995-06-21",
                 null,
                 address,
                 "password");
-        testUserBusinessAdmin.setId(4);
+        testUserBusinessAdmin.setId(5);
         testUserBusinessAdmin.setPassword(passwordEncoder.encode(testUserBusinessAdmin.getPassword()));
     }
 
@@ -162,7 +162,7 @@ public abstract class AbstractInitializer {
                 "A test business",
                 address,
                 "Retail Trade",
-                3);
+                5);
         testBusiness.setId(1);
         testBusiness.addAdministrator(testUserBusinessAdmin);
     }

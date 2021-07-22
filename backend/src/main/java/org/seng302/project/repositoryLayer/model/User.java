@@ -54,7 +54,7 @@ public class User {
         this.role = "user";
     }
 
-    public User(PostUserDTO dto) {
+    public User(PostUserDTO dto, Address address) {
         this.firstName = dto.getFirstName();
         this.lastName = dto.getLastName();
         this.middleName = dto.getMiddleName();
@@ -63,7 +63,7 @@ public class User {
         this.email = dto.getEmail();
         this.dateOfBirth = dto.getDateOfBirth();
         this.phoneNumber = dto.getPhoneNumber();
-        this.homeAddress = dto.getHomeAddress();
+        this.homeAddress = address;
         this.password = dto.getPassword();
         this.role = "user";
     }
