@@ -168,7 +168,7 @@
     </div>
 
     <!-- Currency Confirm Modal -->
-    <div v-if="showModal" id="currencyConfirmModal" class="modal fade" role="dialog" tabindex="-1">
+    <div id="currencyConfirmModal" class="modal fade" ref="modal" role="dialog" tabindex="-1">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
 
@@ -182,26 +182,33 @@
 
           <!-- Body section of modal -->
           <div class="modal-body">
-            Your country changed. Updated product currency?
+            The country of your business is changing, would you like to update the currency of your
+            existing products to match this new country?
           </div>
 
           <!-- Footer / button section of modal -->
-          <div class="modal-footer">
+          <div class="modal-footer justify-content-between">
             <button class="btn btn-secondary float-left" data-dismiss="modal" type="button">Cancel</button>
-            <button class="btn btn-secondary" data-dismiss="modal" type="button">No</button>
-            <button class="btn-primary btn" id="confirmButton" data-dismiss="modal" type="button">
-              Yes
-            </button>
+            <div>
+              <button class="btn btn-secondary mr-2" data-dismiss="modal" type="button" @click="editBusiness">
+                Keep Same
+              </button>
+              <button class="btn-primary btn" id="confirmButton" @click="editBusiness(true)"
+                      data-dismiss="modal" type="button">
+                Update
+              </button>
+            </div>
           </div>
 
         </div>
       </div>
     </div>
 
+    <!-- Hidden button, only used to open the modal from methods -->
     <button class="d-none"
             data-toggle="modal"
             data-target="#currencyConfirmModal"
-            ref="modalButton"
+            ref="modalBtn"
     ></button>
 
   </page-wrapper>
@@ -264,8 +271,7 @@ export default {
       submitting: false,
       successfulEdit: false,
       originalCountry: null,
-      updateProductCurrency: false,
-      showModal: false
+      updateProductCurrency: false
     }
   },
   async mounted() {
@@ -318,8 +324,12 @@ export default {
    */
   methods: {
 
+    /**
+     * Opens the currency conversion modal.
+     */
     openModal() {
-      document.getElementById("modalButton").trigger('click')
+      const elem = this.$refs.modalBtn
+      elem.click()
     },
 
     /**
@@ -396,7 +406,6 @@ export default {
         if (this.address.country === this.originalCountry || this.updateProductCurrency) {
           await this.editBusiness();
         } else {
-          this.showModal = true
           this.openModal()
         }
       }
@@ -405,8 +414,9 @@ export default {
     /**
      * Saves the changes from editing the business by calling the backend endpoint
      * If this fails the program should set the error text to the error received from the backend server
+     * @param updateProductCurrency Boolean, updates the existing products with the new countries currency
      */
-    async editBusiness() {
+    async editBusiness(updateProductCurrency=false) {
       try {
         const requestData = {
           name: this.businessName,
@@ -415,7 +425,7 @@ export default {
           businessType: this.businessType,
           primaryAdministratorId: this.primaryAdmin.id
         }
-        await Business.editBusiness(this.businessId, requestData)
+        await Business.editBusiness(this.businessId, requestData, updateProductCurrency)
         if (this.user.isActingAsBusiness()) {
           this.user.state.actingAs.name = this.businessName
         }

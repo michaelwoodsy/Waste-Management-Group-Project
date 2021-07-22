@@ -225,9 +225,11 @@ export const Business = {
      *
      * @param businessId ID of the business to update
      * @param newData new details to update business with
+     * @param updateProductCurrency Boolean, updates the existing products with the new countries currency
      * @returns {Promise<AxiosResponse<any>>} response from request
      */
-    editBusiness: (businessId, newData) => instance.put(`businesses/${businessId}`, newData),
+    editBusiness: (businessId, newData, updateProductCurrency) =>
+        instance.put(`businesses/${businessId}`, newData, {params: {updateProductCurrency}}),
 
 
     /*
