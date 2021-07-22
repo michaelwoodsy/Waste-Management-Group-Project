@@ -545,6 +545,7 @@ class BusinessServiceTest extends AbstractInitializer {
         testBusiness.addAdministrator(testUser);
         AddressDTO newAddress = new AddressDTO(testBusiness.getAddress());
         newAddress.setCountry(newAddress.getCountry() + "a");
+        String originalCountry = testBusiness.getAddress().getCountry();
         PostBusinessDTO requestDTO = new PostBusinessDTO(
                 testBusiness.getName(),
                 testBusiness.getDescription(),
@@ -562,7 +563,7 @@ class BusinessServiceTest extends AbstractInitializer {
         ArgumentCaptor<String> countryCaptor = ArgumentCaptor.forClass(String.class);
         verify(productCatalogueService, times(1))
                 .updateProductCurrency(any(Integer.class), countryCaptor.capture());
-        Assertions.assertEquals(testBusiness.getAddress().getCountry(), countryCaptor.getValue());
+        Assertions.assertEquals(originalCountry, countryCaptor.getValue());
     }
 
 }
