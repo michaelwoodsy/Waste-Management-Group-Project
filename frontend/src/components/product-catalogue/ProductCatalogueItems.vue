@@ -353,9 +353,9 @@ export default {
 
       //The country variable  will always be an actual country as it is a requirement when creating a business
       //Get Businesses country
-      const country = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
+      const businessCountry = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
 
-      this.currency = await this.$root.$data.product.getCurrency(country)
+      this.currency = await this.$root.$data.product.getCurrency(businessCountry)
 
       this.fillTable()
     },
@@ -378,7 +378,7 @@ export default {
       Business.getProducts(this.$route.params.businessId)
           .then((res) => {
             this.error = null;
-            this.products = res.data;
+            this.products = this.$root.$data.product.addProductCurrencies(res.data, this.currency)
             this.loading = false;
           })
           .catch((err) => {
