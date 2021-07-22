@@ -17,7 +17,6 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -61,46 +60,49 @@ public class UserService {
      */
     public List<Object> searchUsers(String searchQuery, Integer pageNumber) {
         List<User> users;
-        Integer totalCount = 0;
+        int totalCount;
         Set<User> result = new LinkedHashSet<>();
 
-        if (searchQuery.length() < -1) {
-            throw new BadRequestException("Please enter at least 3 characters to search.");
-        } else {
-            searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
-            String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
+        searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
+        String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
-            for (String conjunction : conjunctions) {
-                Specification<User> hasSpec = Specification.where(null);
-                Specification<User> containsSpec = Specification.where(null);
-                var searchContains = false;
-                String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
+        for (String conjunction : conjunctions) {
+            Specification<User> hasSpec = Specification.where(null);
+            Specification<User> containsSpec = Specification.where(null);
+            var searchContains = false;
+            String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
 
-                // Iterate over the names in the search and check if they are quoted
-                for (String name : names) {
-                    if (Pattern.matches("^\".*\"$", name)) {
-                        name = name.replace("\"", "");
-                        hasSpec = hasSpec.and(UserSpecifications.hasName(name));
-                    } else {
-                        hasSpec = hasSpec.and(UserSpecifications.hasName(name));
-                        containsSpec = containsSpec.and(UserSpecifications.containsName(name));
-                        searchContains = true;
-                    }
+            // Iterate over the names in the search and check if they are quoted
+            for (String name : names) {
+                if (Pattern.matches("^\".*\"$", name)) {
+                    name = name.replace("\"", "");
+                    hasSpec = hasSpec.and(UserSpecifications.hasName(name));
+                } else {
+                    hasSpec = hasSpec.and(UserSpecifications.hasName(name));
+                    containsSpec = containsSpec.and(UserSpecifications.containsName(name));
+                    searchContains = true;
                 }
-
-                // query the repository and add to results set
-                result.addAll(userRepository.findAll(hasSpec));
-                if (searchContains) {
-                    result.addAll(userRepository.findAll(containsSpec));
-                }
-
             }
-            // convert set to a list
-            users = new ArrayList<>(result);
+
+            // query the repository and add to results set
+            result.addAll(userRepository.findAll(hasSpec));
+            if (searchContains) {
+                result.addAll(userRepository.findAll(containsSpec));
+            }
         }
+        // convert set to a list
+        users = new ArrayList<>(result);
+
         totalCount = users.size();
         logger.info("Retrieved {} users", users.size());
-        users = users.subList(pageNumber*10, (pageNumber*10)+10);
+        if(!users.isEmpty()){
+            if(pageNumber*10+10 > users.size()-1){
+                var remainder = users.size()%10;
+                users = users.subList(pageNumber*10, pageNumber*10 + remainder);
+            } else {
+                users = users.subList(pageNumber*10, pageNumber*10 + 10);
+            }
+        }
         // Map user objects to GetUserDTO objects and return
         return Arrays.asList(users.stream().map(GetUserDTO::new).collect(Collectors.toList()), totalCount);
 

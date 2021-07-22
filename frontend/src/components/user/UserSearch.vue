@@ -32,9 +32,6 @@
               <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
             </div>
           </div>
-          <div v-if="!searchError" class="text-center">
-            <small>Requires at least 3 characters to search</small>
-          </div>
           <span class="invalid-feedback d-block text-center">{{ searchError }}</span>
         </div>
       </div>
@@ -99,7 +96,7 @@
               </thead>
               <!--    User Information    -->
               <tbody v-if="!loading">
-              <tr v-for="user in paginatedUsers"
+              <tr v-for="user in sortedUsers"
                   v-bind:key="user.id"
                   class="pointer"
                   data-target="#viewUserModal"
@@ -234,6 +231,7 @@ export default {
 
       // Create new users array and sort
       let newUsers = [...this.users];
+      console.log(newUsers)
       // Order direction multiplier for sorting
       const orderDir = (this.orderDirection ? 1 : -1);
 
@@ -249,23 +247,6 @@ export default {
     },
 
     /**
-     * Paginate the users
-     * @returns {*[]|*[]}
-     */
-    paginatedUsers() {
-      let newUsers = this.sortedUsers;
-
-      // Sort users if there are any
-      if (newUsers.length > 0) {
-        // Splice the results to showing size
-        const startIndex = this.resultsPerPage * (this.page - 1);
-        const endIndex = this.resultsPerPage * this.page;
-        newUsers = newUsers.slice(startIndex, endIndex)
-      }
-
-      return newUsers
-    },
-    /**
      * Returns whether the currently logged in user is the DGAA
      * @returns {boolean|*}
      */
@@ -279,17 +260,31 @@ export default {
      * Search Logic
      */
     search() {
-      if (this.searchTerm.length < -1) {
-        this.searchError = 'Please enter at least 3 characters to search'
-        return
-      } else this.searchError = null
-
       this.blurSearch();
       this.users = [];
       this.loading = true;
       this.page = 1;
 
       User.getUsers(this.searchTerm, this.page-1)
+          .then((res) => {
+            this.error = null;
+            this.users = res.data[0];
+            this.totalCount = res.data[1];
+            this.loading = false;
+          })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
+    },
+    /**
+     * Function is called by pagination component to make another call to the backend
+     * to update the list of users that should be displayed
+     */
+    async changePage() {
+      this.blurSearch();
+      this.loading = true;
+      await User.getUsers(this.searchTerm, this.page - 1)
           .then((res) => {
             this.error = null;
             this.users = res.data[0];
