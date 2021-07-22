@@ -716,11 +716,13 @@ export default {
         this.submitError = null
         this.submitting = false
         this.success = true
+        //Sets the correct user data (So the name changes in the nav bar)
+        let name = `${this.firstName} ${this.lastName}`
+        if (this.isEditingSelf && this.$root.$data.user.state.actingAs.name !== name) {
+          this.$root.$data.user.state.actingAs.name = name
+        }
+        this.$root.$data.user.updateData()
       })
-      //Sets the correct user data (So the name changes in the nav bar)
-      if (this.isEditingSelf) {
-        this.$root.$data.user.setLoggedIn(this.userId)
-      }
     },
 
     /**
