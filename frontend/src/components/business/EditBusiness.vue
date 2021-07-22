@@ -687,7 +687,7 @@ export default {
       }
 
       if (this.currentPrimaryImageId !== this.oldBusiness.primaryImageId) {
-        //await User.makePrimaryImage(this.userId, this.currentPrimaryImageId)
+        await Business.makePrimaryBusinessImage(this.businessId, this.currentPrimaryImageId)
       }
     },
 
