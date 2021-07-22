@@ -229,7 +229,8 @@ export const Business = {
      * @returns {Promise<AxiosResponse<any>>} response from request
      */
     editBusiness: (businessId, newData, updateProductCurrency) =>
-        instance.put(`businesses/${businessId}`, newData, {params: {updateProductCurrency}}),
+        instance.put(`businesses/${businessId}`, newData, {params:
+                {updateProductCurrency: updateProductCurrency === true}}),
 
 
     /*
