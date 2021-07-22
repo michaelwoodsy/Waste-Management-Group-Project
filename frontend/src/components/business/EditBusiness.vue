@@ -13,16 +13,8 @@
     />
 
     <div v-else> <!--   If Logged In and Admin   -->
-      <div class="row">
-        <div class="col-12 text-center my-3">
-          <h2>Edit Your Business</h2>
-        </div>
-      </div>
-
-
-      <!-- Div to display when the changes are successful -->
-      <div v-if="success" class="row">
-        <div class="col-12 col-sm-8 offset-sm-2">
+      <div v-if="successfulEdit" class="row justify-content-center">
+        <div class="col-12 col-sm-8">
           <div class="alert alert-success">Successfully saved changes!</div>
 
           <!-- Make more changes button -->
@@ -46,89 +38,100 @@
         </div>
       </div>
 
-
-      <div v-else class="row">
-        <div class="col-12 col-sm-8 col-lg-6 col-xl-4 offset-sm-2 offset-lg-3 offset-xl-4 text-center mb-2">
-
-          <div class="form-row">
-            <!--    Business Name    -->
-            <label for="businessName" style="margin-top:20px">
-              <strong>Business Name<span class="required">*</span></strong>
-            </label>
-            <br/>
-            <input id="businessName" v-model="businessName"
-                   :class="{'form-control': true, 'is-invalid': msg.businessName}"
-                   maxlength="200" placeholder="Enter your Business Name"
-                   required style="width:100%" type="text">
-            <br>
-            <!--    Error message for business name input   -->
-            <span class="invalid-feedback" style="text-align: left">{{ msg.businessName }}</span>
-            <br>
-            <br>
+      <div v-else>
+        <div class="row">
+          <div class="col-12 text-center my-3">
+            <h2>Edit Your Business</h2>
           </div>
-          <!--    Primary Admin    -->
-          <!-- Only a DGAA/GAA or the primary admin themselves can see this-->
-          <div class="form-row" v-if="isPrimaryAdmin">
-            <label for="businessType">
-              <strong>Primary Administrator<span class="required">*</span></strong>
-            </label>
-            <br/>
-            <select id="primaryAdmin" v-model="primaryAdmin"
-                    :class="{'form-control': true, 'is-invalid': msg.primaryAdmin}" required style="width:100%" type="text">
-              <option v-for="admin in administrators"
-                      :key="admin.id"
-                      :value="admin"
-              >
-                {{admin.firstName}} {{admin.lastName}}
-              </option>
-            </select>
-            <br>
+        </div>
+        <div class="row">
 
-            <!--    Error message for primary admin input   -->
-            <span class="invalid-feedback" style="text-align: left">{{ msg.primaryAdmin }}</span>
-            <br>
-            <br>
-          </div>
+          <div class="col-12 col-sm-8 col-lg-6 col-xl-4 offset-sm-2 offset-lg-3 offset-xl-4 text-center mb-2">
 
-          <div class="form-row">
-            <!--    Business Description    -->
-            <label class="description-label" for="description">
-              <strong>Bio</strong>
-            </label>
-            <br>
-            <textarea id="description" v-model="description" class="form-control"
-                      maxlength="255" placeholder="Write a Business Description (Max length 255 characters)"
-                      style="width: 100%; height: 200px;">
+            <div class="form-row">
+              <!--    Business Name    -->
+              <label for="businessName" style="margin-top:20px">
+                <strong>Business Name<span class="required">*</span></strong>
+              </label>
+              <br/>
+              <input id="businessName" v-model="businessName"
+                     :class="{'form-control': true, 'is-invalid': msg.businessName}"
+                     maxlength="200" placeholder="Enter your Business Name"
+                     required style="width:100%" type="text">
+              <br>
+              <!--    Error message for business name input   -->
+              <span class="invalid-feedback" style="text-align: left">{{ msg.businessName }}</span>
+              <br>
+              <br>
+            </div>
+            <!--    Primary Admin    -->
+            <!-- Only a DGAA/GAA or the primary admin themselves can see this-->
+            <div class="form-row" v-if="isPrimaryAdmin">
+              <label for="businessType">
+                <strong>Primary Administrator<span class="required">*</span></strong>
+              </label>
+              <br/>
+              <select id="primaryAdmin" v-model="primaryAdmin"
+                      :class="{'form-control': true, 'is-invalid': msg.primaryAdmin}" required style="width:100%" type="text">
+                <option v-for="admin in administrators"
+                        :key="admin.id"
+                        :value="admin"
+                >
+                  {{admin.firstName}} {{admin.lastName}}
+                </option>
+              </select>
+              <br>
+
+              <!--    Error message for primary admin input   -->
+              <span class="invalid-feedback" style="text-align: left">{{ msg.primaryAdmin }}</span>
+              <br>
+              <br>
+            </div>
+
+            <div class="form-row">
+              <!--    Business Description    -->
+              <label class="description-label" for="description">
+                <strong>Bio</strong>
+              </label>
+              <br>
+              <textarea id="description" v-model="description" class="form-control"
+                        maxlength="255" placeholder="Write a Business Description (Max length 255 characters)"
+                        style="width: 100%; height: 200px;">
 
             </textarea>
-          </div>
-          <br>
-
-          <hr/>
-          <address-input-fields
-              ref="addressInput"
-              :showErrors="submitClicked"
-              @setAddress="(newAddress) => {this.address = newAddress}"
-              @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
-          />
-          <hr/>
-
-          <div class="form-row">
-            <!--    Business Type    -->
-            <label for="businessType">
-              <strong>Business Type<span class="required">*</span></strong>
-            </label>
-            <br/>
-            <select id="businessType" v-model="businessType"
-                    :class="{'form-control': true, 'is-invalid': msg.businessType}" required style="width:100%" type="text">
-              <option disabled hidden selected value>Please select one</option>
-              <option>Accommodation and Food Services</option>
-              <option>Retail Trade</option>
-              <option>Charitable organisation</option>
-              <option>Non-profit organisation</option>
-            </select>
+            </div>
             <br>
 
+            <hr/>
+            <address-input-fields
+                ref="addressInput"
+                :showErrors="submitClicked"
+                @setAddress="(newAddress) => {this.address = newAddress}"
+                @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
+            />
+            <hr/>
+
+            <div class="form-row">
+              <!--    Business Type    -->
+              <label for="businessType">
+                <strong>Business Type<span class="required">*</span></strong>
+              </label>
+              <br/>
+              <select id="businessType" v-model="businessType"
+                      :class="{'form-control': true, 'is-invalid': msg.businessType}" required style="width:100%" type="text">
+                <option disabled hidden selected value>Please select one</option>
+                <option>Accommodation and Food Services</option>
+                <option>Retail Trade</option>
+                <option>Charitable organisation</option>
+                <option>Non-profit organisation</option>
+              </select>
+              <br>
+
+              <!--    Error message for business type input   -->
+              <span class="invalid-feedback" style="text-align: left">{{ msg.businessType }}</span>
+              <br>
+              <br>
+            </div>
             <!--    Error message for business type input   -->
             <span class="invalid-feedback" style="text-align: left">{{ msg.businessType }}</span>
             <br>
@@ -286,21 +289,24 @@
 
 
 
-          <!-- Save Changes button -->
-          <div class="form-group row mb-0">
-            <div class="btn-group" style="width: 100%">
-              <!-- Cancel button when changes are made -->
-              <button id="cancelButton"
-                      class="btn btn-danger"
-                      type="button"
-                      @click="cancel"
-              >
-                Cancel
-              </button>
-              <button class="btn btn-primary"
-                      v-on:click="checkInputs">
-                Save Changes
-              </button>
+            <!-- Save Changes button -->
+            <div class="form-group row mb-0">
+              <div class="btn-group" style="width: 100%">
+                <!-- Cancel button when changes are made -->
+                <button id="cancelButton"
+                        class="btn btn-danger"
+                        type="button"
+                        @click="cancel"
+                >
+                  Cancel
+                </button>
+                <button class="btn btn-primary"
+                        v-on:click="checkInputs"
+                        :disabled="submitting"
+                >
+                  <span v-if="submitting">Saving Changes</span>
+                  <span v-else>Save Changes</span>
+                </button>
 
             </div>
             <!--    Error message for the editing process    -->
@@ -325,6 +331,7 @@ import AddressInputFields from "@/components/AddressInputFields";
 import PageWrapper from "@/components/PageWrapper";
 import {Business, Images} from "@/Api";
 import AdminRequired from "@/components/AdminRequired";
+import userState from "@/store/modules/user";
 
 
 export default {
@@ -340,11 +347,12 @@ export default {
 
   data() {
     return {
+      user: userState,
       businessName: '',
       //isPrimaryAdmin is computed before the prefillFields() method runs
       //So need to have a random number for primaryAdminId so that page loads, then the
       //Primary Administrator section will show/hide based on the actual primary admin
-      primaryAdminId: 20, //Id of the current primary admin
+      primaryAdminId: 0, //Id of the current primary admin
       primaryAdmin: null, //Field for editing
       administrators: [],
       description: '',
@@ -382,7 +390,8 @@ export default {
       numImagesUploaded: 0,
       numImagesToUpload: 0,
 
-      oldBusiness: null
+      oldBusiness: null,
+      successfulEdit: false
     }
   },
   async mounted() {
@@ -515,7 +524,7 @@ export default {
         this.msg['errorChecks'] = '';
         console.log('No Errors');
         //Send to server here
-        this.editBusiness();
+        await this.editBusiness();
       }
     },
 
@@ -524,14 +533,32 @@ export default {
      * If this fails the program should set the error text to the error received from the backend server
      */
     async editBusiness() {
-      //TODO: implement me!\
-      //TODO: add this.submitting = false to edit business call
+      try {
+        const requestData = {
+          name: this.businessName,
+          description: this.description,
+          address: this.address,
+          businessType: this.businessType,
+          primaryAdministratorId: this.primaryAdmin.id
+        }
+        await Business.editBusiness(this.businessId, requestData)
+        if (this.user.isActingAsBusiness()) {
+          this.user.state.actingAs.name = this.businessName
+        }
 
-      await this.addImages().then(() => {
-        this.submitting = false
-        this.success = true
-        this.$root.$data.user.updateData()
-      })
+        await this.addImages().then(() => {
+          this.submitting = false
+          this.success = true
+          this.$root.$data.user.updateData()
+        })
+
+        this.successfulEdit = true
+      } catch (error) {
+        console.log(error)
+        this.msg['errorChecks'] = error
+      }
+
+
     },
 
     /**
@@ -560,16 +587,15 @@ export default {
     },
 
     /**
-     * Resets the page after submitting changes, so the user can make more changes.
+     * Resets the page so that the user can edit the business again
      */
-    resetPage() {
-      // Reset data
+    async resetPage() {
+      this.valid = true
       this.addressIsValid = false
+      this.successfulEdit = false
       this.submitting = false
       this.success = false
-
-      // Reload user data
-      this.prefillFields()
+      await this.prefillFields()
     },
 
     /**
