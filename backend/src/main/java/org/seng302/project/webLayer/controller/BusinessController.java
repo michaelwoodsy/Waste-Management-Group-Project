@@ -69,7 +69,7 @@ public class BusinessController {
     public void editBusiness(@PathVariable Integer businessId,
                              @Valid @RequestBody PostBusinessDTO requestDTO,
                              @AuthenticationPrincipal AppUserDetails appUser,
-                             @RequestParam Boolean updateProductCurrency) {
+                             @RequestParam(required = false) Boolean updateProductCurrency) {
         businessService.editBusiness(requestDTO, businessId, appUser, updateProductCurrency);
     }
 
