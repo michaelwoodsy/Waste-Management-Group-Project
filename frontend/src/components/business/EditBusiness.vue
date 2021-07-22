@@ -167,6 +167,43 @@
       </div>
     </div>
 
+    <!-- Currency Confirm Modal -->
+    <div v-if="showModal" id="currencyConfirmModal" class="modal fade" role="dialog" tabindex="-1">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+          <!-- Title section of modal -->
+          <div class="modal-header">
+            <h5 class="modal-title">Country Change</h5>
+            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+              <span ref="close" aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <!-- Body section of modal -->
+          <div class="modal-body">
+            Your country changed. Updated product currency?
+          </div>
+
+          <!-- Footer / button section of modal -->
+          <div class="modal-footer">
+            <button class="btn btn-secondary float-left" data-dismiss="modal" type="button">Cancel</button>
+            <button class="btn btn-secondary" data-dismiss="modal" type="button">No</button>
+            <button class="btn-primary btn" id="confirmButton" data-dismiss="modal" type="button">
+              Yes
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <button class="d-none"
+            data-toggle="modal"
+            data-target="#currencyConfirmModal"
+            ref="modalButton"
+    ></button>
+
   </page-wrapper>
 </template>
 
@@ -225,7 +262,10 @@ export default {
       valid: true,
       submitClicked: 0,
       submitting: false,
-      successfulEdit: false
+      successfulEdit: false,
+      originalCountry: null,
+      updateProductCurrency: false,
+      showModal: false
     }
   },
   async mounted() {
@@ -277,6 +317,10 @@ export default {
    * Methods that can be called by the program
    */
   methods: {
+
+    openModal() {
+      document.getElementById("modalButton").trigger('click')
+    },
 
     /**
      * Validates the business name variable
@@ -349,7 +393,12 @@ export default {
         this.msg['errorChecks'] = '';
         console.log('No Errors');
         //Send to server here
-        await this.editBusiness();
+        if (this.address.country === this.originalCountry || this.updateProductCurrency) {
+          await this.editBusiness();
+        } else {
+          this.showModal = true
+          this.openModal()
+        }
       }
     },
 
@@ -389,6 +438,7 @@ export default {
       this.businessType = response.data.businessType
       this.administrators = response.data.administrators
       this.primaryAdminId = response.data.primaryAdministratorId //Used for computing isPrimaryAdmin
+      this.originalCountry = response.data.address.country
 
       //Prefill the primary admin dropdown
       for(const admin of this.administrators) {
