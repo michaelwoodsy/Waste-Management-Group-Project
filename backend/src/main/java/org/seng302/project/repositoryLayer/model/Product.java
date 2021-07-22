@@ -26,6 +26,7 @@ public class Product {
     private Double recommendedRetailPrice;
     private LocalDateTime created = LocalDateTime.now();
     private Integer primaryImageId;
+    private String currencyCountry;
 
     @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
     private List<Image> images = new ArrayList<>();

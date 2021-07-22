@@ -727,7 +727,8 @@ class BusinessControllerTest extends AbstractInitializer {
                 .editBusiness(
                         any(PostBusinessDTO.class),
                         any(Integer.class),
-                        any(AppUserDetails.class)
+                        any(AppUserDetails.class),
+                        any()
                 );
 
         AppUserDetails appUser = new AppUserDetails(testUser);
@@ -759,7 +760,8 @@ class BusinessControllerTest extends AbstractInitializer {
                 .editBusiness(
                         any(PostBusinessDTO.class),
                         any(Integer.class),
-                        any(AppUserDetails.class)
+                        any(AppUserDetails.class),
+                        any()
                 );
 
         AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
