@@ -83,7 +83,6 @@ class BusinessServiceTest extends AbstractInitializer {
         testBusiness = Mockito.spy(this.getTestBusiness());
         Mockito.when(businessRepository.findById(testBusiness.getId())).thenReturn(Optional.of(testBusiness));
         Mockito.when(businessRepository.findByName(testBusiness.getName())).thenReturn(List.of(testBusiness));
-
     }
 
     /**
