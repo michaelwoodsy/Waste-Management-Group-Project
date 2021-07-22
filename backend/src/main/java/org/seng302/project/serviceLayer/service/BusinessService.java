@@ -227,11 +227,14 @@ public class BusinessService {
             }
         }
 
-        // Check if the old product currency needs changed
-        if (Boolean.TRUE.equals(updateProductCurrency) &&
-                requestDTO.getAddress() != null &&
+        // Check if the country is changed
+        if (requestDTO.getAddress() != null &&
                 requestDTO.getAddress().getCountry() != null) {
-            productCatalogueService.updateProductCurrency(businessId, requestDTO.getAddress().getCountry());
+            if (Boolean.TRUE.equals(updateProductCurrency)) {
+                productCatalogueService.updateProductCurrency(businessId, requestDTO.getAddress().getCountry());
+            } else {
+                productCatalogueService.updateProductCurrency(businessId, business.getAddress().getCountry());
+            }
         }
 
         business.updateBusiness(requestDTO);

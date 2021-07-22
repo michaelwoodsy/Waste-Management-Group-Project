@@ -71,6 +71,7 @@ export default {
         for (let country of Object.keys(currenciesToFind)) {
             currenciesToFind[country] = await this.getCurrency(country)
         }
+        console.log(currenciesToFind)
 
         // Add the found currencies to the objects
         for (let product of products) {

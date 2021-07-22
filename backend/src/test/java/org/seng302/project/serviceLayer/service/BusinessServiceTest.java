@@ -513,12 +513,15 @@ class BusinessServiceTest extends AbstractInitializer {
     }
 
     @Test
-    void editBusiness_updateProductCurrency_callsUpdateMethod() {
+    void editBusiness_updateProductCurrencyTrue_usesNewCountry() {
+        // Setup test objects
         testBusiness.addAdministrator(testUser);
+        AddressDTO newAddress = new AddressDTO(testBusiness.getAddress());
+        newAddress.setCountry(newAddress.getCountry() + "a");
         PostBusinessDTO requestDTO = new PostBusinessDTO(
                 testBusiness.getName(),
                 testBusiness.getDescription(),
-                new AddressDTO(testBusiness.getAddress()),
+                newAddress,
                 testBusiness.getBusinessType(),
                 testUser.getId()
         );
@@ -527,9 +530,38 @@ class BusinessServiceTest extends AbstractInitializer {
         // Run method
         businessService.editBusiness(requestDTO, testBusiness.getId(), appUser, true);
 
-        // Check the updateProductCurrency method was called once
+
+        // Check the updateProductCurrency method was called with correct parameters
+        ArgumentCaptor<String> countryCaptor = ArgumentCaptor.forClass(String.class);
         verify(productCatalogueService, times(1))
-                .updateProductCurrency(any(Integer.class), any(String.class));
+                .updateProductCurrency(any(Integer.class), countryCaptor.capture());
+        Assertions.assertEquals(newAddress.getCountry(), countryCaptor.getValue());
+    }
+
+    @Test
+    void editBusiness_updateProductCurrencyTrue_usesOldCountry() {
+        // Setup test objects
+        testBusiness.addAdministrator(testUser);
+        AddressDTO newAddress = new AddressDTO(testBusiness.getAddress());
+        newAddress.setCountry(newAddress.getCountry() + "a");
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                newAddress,
+                testBusiness.getBusinessType(),
+                testUser.getId()
+        );
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+
+        // Run method
+        businessService.editBusiness(requestDTO, testBusiness.getId(), appUser, false);
+
+
+        // Check the updateProductCurrency method was called with correct parameters
+        ArgumentCaptor<String> countryCaptor = ArgumentCaptor.forClass(String.class);
+        verify(productCatalogueService, times(1))
+                .updateProductCurrency(any(Integer.class), countryCaptor.capture());
+        Assertions.assertEquals(testBusiness.getAddress().getCountry(), countryCaptor.getValue());
     }
 
 }
