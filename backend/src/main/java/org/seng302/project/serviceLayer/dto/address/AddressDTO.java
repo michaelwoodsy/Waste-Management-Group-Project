@@ -1,15 +1,18 @@
 package org.seng302.project.serviceLayer.dto.address;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.seng302.project.repositoryLayer.model.Address;
 
 /**
  * Response DTO for Address entities
  */
 @Data
-public class AddressResponseDTO {
+@NoArgsConstructor
+@AllArgsConstructor
+public class AddressDTO {
 
-    private Integer id;
     private String streetNumber;
     private String streetName;
     private String city;
@@ -17,8 +20,7 @@ public class AddressResponseDTO {
     private String country;
     private String postcode;
 
-    public AddressResponseDTO(Address address) {
-        this.id = address.getId();
+    public AddressDTO(Address address) {
         this.streetNumber = address.getStreetNumber();
         this.streetName = address.getStreetName();
         this.city = address.getCity();

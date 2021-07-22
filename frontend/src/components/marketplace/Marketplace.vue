@@ -91,19 +91,15 @@ Page for displaying the marketplace.
           <label class="d-inline-block" for="order-select">Filter By Keywords</label>
           <!-- Keyword Input -->
           <input id="keywordSearchValue" v-model="keywordValue"
-                 class="form-control ml-2 d-inline-block w-auto"
+                 class="form-control ml-2 d-inline-block w-auto dropdown-toggle"
+                 aria-haspopup="true" aria-expanded="false"
                  placeholder="Enter Keywords"
                  required maxlength="25" type="text"
                  style="margin-bottom: 2px"
                  autocomplete="off"
                  data-toggle="dropdown"
-                 @input="searchKeywords"/>
-          <!-- Button to apply keyword filter -->
-          <button
-              :class="{disabled: keywords.length <= 0}"
-              class="btn btn-primary ml-2" @click="searchCards">
-            Apply
-          </button>
+                 @input="searchKeywords"
+                 @keyup.enter="setKeyword()"/>
 
           <!-- Checkbox to select whether all a cards must match all keywords -->
           <span
@@ -127,7 +123,7 @@ Page for displaying the marketplace.
               No results found.
             </p>
             <!-- If there are matches -->
-            <a class="dropdown-item pointer left-padding"
+            <a class="dropdown-item pointer left-padding" href="#"
                v-for="keyword in filteredKeywords"
                v-else
                :key="keyword.id"
@@ -208,6 +204,21 @@ export default {
 
   mounted() {
     this.changePage(this.tabSelected)
+  },
+
+  watch: {
+    /**
+     * When keywords are added/removed, search for cards again
+     */
+    keywords() {
+      this.searchCards()
+    },
+    /**
+     * When keyword union is changed, search for cards again
+     */
+    keywordUnion() {
+      this.searchCards()
+    }
   },
 
   computed: {
@@ -297,7 +308,7 @@ export default {
       this.tabSelected = tab
       this.page = 1 // Reset the page number
       //Call Api to get new cards for tab here
-      this.getCards(tab)
+      this.searchCards()
     },
 
     /** Function for sorting a list of cards by created date **/
@@ -363,7 +374,7 @@ export default {
     refreshCards() {
       console.log("Refreshing Cards...")
       this.createNewCard = false;
-      this.getCards(this.tabSelected)
+      this.searchCards()
     },
 
     /**
@@ -429,8 +440,19 @@ export default {
      * @param keyword Keyword to be added to keyword list
      */
     setKeyword(keyword) {
-      this.keywordValue = keyword.name
-      this.addKeyword(keyword)
+      //If enter was pressed on the input box to automatically select the first keyword in the list
+      if (keyword === undefined && this.filteredKeywords.length > 0) {
+        keyword = this.filteredKeywords[0]
+      }
+      const filterKeywords = this.keywords.filter(function(indKeyword) {
+        return indKeyword.name === keyword.name;
+      })
+      if (filterKeywords.length === 0) {
+        this.keywordValue = keyword.name
+        this.addKeyword(keyword)
+      } else {
+        this.keywordValue =  ''
+      }
     },
 
     /**
@@ -438,7 +460,7 @@ export default {
      */
     async searchCards() {
       //return if there are no keywords to search for
-      if (this.keywords.length <= 0) return
+      if (this.keywords.length <= 0) return this.getCards(this.tabSelected)
 
       let apiParams = '?'
       for (const keyword of this.keywords) {

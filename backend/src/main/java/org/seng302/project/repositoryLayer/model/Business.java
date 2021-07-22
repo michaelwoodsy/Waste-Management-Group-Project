@@ -8,9 +8,7 @@ import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNot
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Business class for storing data about a specific business.
@@ -28,11 +26,8 @@ public class Business {
     private Integer primaryAdministratorId;
     private List<User> administrators = new ArrayList<>();
     private LocalDateTime created = LocalDateTime.now();
-    private Set<Image> images = new HashSet<>();
     private Integer primaryImageId;
-
-
-
+    private List<Image> images = new ArrayList<>();
 
     /**
      * Constructor for creating a new Business object.
@@ -126,15 +121,42 @@ public class Business {
         return user.isGAA() || primaryAdministratorId.equals(user.getId()) || userIsAdmin(user.getId());
     }
 
-    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
-    public Set<Image> getImages() {
-        return this.images;
+    /**
+     * Method which updates business details based on a DTO
+     *
+     * @param dto DTO containing new business information
+     */
+    public void updateBusiness(PostBusinessDTO dto) {
+        this.setName(dto.getName());
+        this.setDescription(dto.getDescription());
+        this.address.setStreetNumber(dto.getAddress().getStreetNumber());
+        this.address.setStreetName(dto.getAddress().getStreetName());
+        this.address.setCity(dto.getAddress().getCity());
+        this.address.setCountry(dto.getAddress().getCountry());
+        this.address.setPostcode(dto.getAddress().getPostcode());
+        this.setBusinessType(dto.getBusinessType());
+        this.setPrimaryAdministratorId(dto.getPrimaryAdministratorId());
     }
 
     /**
-     * Function used to remove an image from the list of images associated with a business
+     * Function used to add an image to the list of images associated with a user
+     */
+    public void addImage(Image newImage){
+        this.images.add(newImage);
+        //Checks if the new image is the first in the list, and makes it the primary image
+        if (images.size() == 1) {
+            primaryImageId = newImage.getId();
+        }
+    }
+
+    /**
+     * Function used to remove an image from the list of images associated with a user
      */
     public void removeImage(Image image){ this.images.remove(image); }
 
+    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
+    public List<Image> getImages() {
+        return this.images;
+    }
 
 }

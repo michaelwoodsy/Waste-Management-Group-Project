@@ -67,7 +67,7 @@ class KeywordServiceTest {
                     return keyword;
                 });
 
-        AddKeywordDTO dto = new AddKeywordDTO("TestKeyword");
+        AddKeywordDTO dto = new AddKeywordDTO("test-keyword");
         AddKeywordResponseDTO responseDTO = keywordService.addKeyword(dto.getName());
         Assertions.assertEquals(1, responseDTO.getKeywordId());
         Assertions.assertEquals(1, keywords.size());
@@ -76,7 +76,7 @@ class KeywordServiceTest {
                 .forClass(NewKeywordNotification.class);
         Mockito.verify(adminNotificationRepository).save(adminNotificationArgumentCaptor.capture());
         Keyword notificationKeyword = adminNotificationArgumentCaptor.getValue().getKeyword();
-        Assertions.assertEquals("TestKeyword", notificationKeyword.getName());
+        Assertions.assertEquals("test-keyword", notificationKeyword.getName());
     }
 
     /**
@@ -92,7 +92,7 @@ class KeywordServiceTest {
                     return List.of(keyword);
                 });
 
-        AddKeywordDTO dto = new AddKeywordDTO("TestKeyword");
+        AddKeywordDTO dto = new AddKeywordDTO("test-keyword");
         String dtoName = dto.getName();
         Assertions.assertThrows(KeywordExistsException.class,
                 () -> keywordService.addKeyword(dtoName));
@@ -104,12 +104,12 @@ class KeywordServiceTest {
     @Test
     void keywordSearch_oneMatch() {
         given(keywordRepository.findAll(any(Specification.class)))
-                .willReturn(List.of(new Keyword("Vegetables")));
+                .willReturn(List.of(new Keyword("vegetables")));
 
         List<Keyword> returnedKeywords = keywordService.searchKeywords("Vege");
 
         Assertions.assertEquals(1, returnedKeywords.size());
-        Assertions.assertEquals("Vegetables", returnedKeywords.get(0).getName());
+        Assertions.assertEquals("vegetables", returnedKeywords.get(0).getName());
 
     }
 
@@ -119,14 +119,14 @@ class KeywordServiceTest {
     @Test
     void keywordSearch_matches() {
         given(keywordRepository.findAll(any(Specification.class)))
-                .willReturn(List.of(new Keyword("Apples"),
-                        new Keyword("Pineapples")));
+                .willReturn(List.of(new Keyword("apples"),
+                        new Keyword("pineapples")));
 
         List<Keyword> returnedKeywords = keywordService.searchKeywords("appl");
 
         Assertions.assertEquals(2, returnedKeywords.size());
-        Assertions.assertEquals("Apples", returnedKeywords.get(0).getName());
-        Assertions.assertEquals("Pineapples", returnedKeywords.get(1).getName());
+        Assertions.assertEquals("apples", returnedKeywords.get(0).getName());
+        Assertions.assertEquals("pineapples", returnedKeywords.get(1).getName());
 
     }
 

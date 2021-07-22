@@ -6,6 +6,6 @@ package org.seng302.project.serviceLayer.exceptions.business;
  */
 public class BusinessImageInvalidException extends RuntimeException {
     public BusinessImageInvalidException() {
-        super(String.format("BusinessImageInvalidException: Image supplied is of invalid type"));
+        super("BusinessImageInvalidException: Image supplied is of invalid type");
     }
 }

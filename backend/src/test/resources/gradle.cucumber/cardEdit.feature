@@ -8,14 +8,14 @@ Feature: UCM9 - Edit Card
 
   Scenario: AC2: I can change the title, description and keywords. The creation date and creator remain unchanged.
     Given The user has created a card
-    Given The keywords "Onions" and "Free" exists
-    When The user edits the card and sets the section to "Exchange", the title to "Almost expired Onions", the description to "These Onions have almost expired" and sets the keywords to "Onions" and "Free"
+    Given The keywords "onions" and "free" exists
+    When The user edits the card and sets the section to "Exchange", the title to "Almost expired Onions", the description to "These Onions have almost expired" and sets the keywords to "onions" and "free"
     Then The card is successfully edited
 
 
   Scenario: AC4: A system administrator can edit any cards.
     Given The system administrator exists
     And The user has created a card
-    And The keywords "Onions" and "Free" exists
-    When The system administrator tries to edit the card and sets the section to "Exchange", the title to "Almost expired Onions", the description to "These Onions have almost expired" and sets the keywords to "Onions" and "Free"
+    And The keywords "onions" and "free" exists
+    When The system administrator tries to edit the card and sets the section to "Exchange", the title to "Almost expired Onions", the description to "These Onions have almost expired" and sets the keywords to "onions" and "free"
     Then The card is successfully edited

@@ -5,8 +5,8 @@ import lombok.Data;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.Image;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.serviceLayer.dto.address.AddressResponseDTO;
-import org.seng302.project.serviceLayer.dto.business.BusinessResponseDTO;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
+import org.seng302.project.serviceLayer.dto.business.GetBusinessDTO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,9 +29,9 @@ public class GetUserDTO {
     private String email;
     private String dateOfBirth;
     private String phoneNumber;
-    private AddressResponseDTO homeAddress;
+    private AddressDTO homeAddress;
     private String role;
-    private List<BusinessResponseDTO> businessesAdministered;
+    private List<GetBusinessDTO> businessesAdministered;
     private LocalDateTime created;
     private Integer primaryImageId;
     private List<Image> images;
@@ -46,19 +46,19 @@ public class GetUserDTO {
         this.email = user.getEmail();
         this.dateOfBirth = user.getDateOfBirth();
         this.phoneNumber = user.getPhoneNumber();
-        this.homeAddress = new AddressResponseDTO(user.getHomeAddress());
+        this.homeAddress = new AddressDTO(user.getHomeAddress());
         this.role = user.getRole();
         this.created = user.getCreated();
         this.businessesAdministered = new ArrayList<>();
         for (Business business : user.getBusinessesAdministered()) {
-            this.businessesAdministered.add(new BusinessResponseDTO(business));
+            this.businessesAdministered.add(new GetBusinessDTO(business));
         }
         this.primaryImageId = user.getPrimaryImageId();
         this.images = new ArrayList<>(user.getImages());
     }
 
     @JsonIgnoreProperties("administrators") // Stops infinite nesting when used in BusinessResponseDTO
-    public List<BusinessResponseDTO> getBusinessesAdministered() {
+    public List<GetBusinessDTO> getBusinessesAdministered() {
         return this.businessesAdministered;
     }
 

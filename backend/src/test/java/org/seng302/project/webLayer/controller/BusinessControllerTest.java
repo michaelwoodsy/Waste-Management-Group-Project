@@ -1,21 +1,26 @@
 package org.seng302.project.webLayer.controller;
 
-import org.json.JSONException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.serviceLayer.dto.business.AddOrRemoveBusinessAdminDTO;
-import org.seng302.project.serviceLayer.dto.business.SearchBusinessDTO;
+import org.seng302.project.repositoryLayer.model.types.BusinessType;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
+import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
+import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
+import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRemoveAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.seng302.project.serviceLayer.service.BusinessService;
+import org.seng302.project.serviceLayer.service.UserService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,7 +36,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,13 +49,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
-class BusinessControllerTest {
+class BusinessControllerTest extends AbstractInitializer {
 
     @Autowired
     private MockMvc mvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private BusinessService businessService;
+
+    @MockBean
+    private UserService userService;
 
     private User testPrimaryAdmin;
     private User testUser;
@@ -61,36 +70,17 @@ class BusinessControllerTest {
     public void setup() {
 
         //Mock a test user to be used as business primary admin
-        testPrimaryAdmin = new User("Jim", "Smith", "", "", "",
-                "jimsmith@gmail.com", "1999-04-27", "",
-                null, "1337-H%nt3r2");
-        testPrimaryAdmin.setId(1);
+        testPrimaryAdmin = this.getTestUserBusinessAdmin();
 
         //Mock a different test user
-        testUser = new User("Dave", "Sims", "", "", "",
-                "DaveSims@gmail.com", "1998-04-27", "",
-                null, "1337-H%nt3r2");
-
-        testUser.setId(2);
+        testUser = this.getTestUser();
 
         //Mock a test business
         //Spy on this business so we can check when methods on the business object are called
-        testBusiness = new Business("Lumbridge General Store", "A one-stop shop for all your adventuring needs",
-                null, "Accommodation and Food Services", 1);
-        testBusiness.setId(1);
-    }
+        testBusiness = this.getTestBusiness();
 
-    private JSONObject getTestBusiness() throws JSONException {
-        JSONObject testAddress = new JSONObject();
-        testAddress.put("country", "New Zealand");
-        JSONObject testBusinessJson = new JSONObject();
-        testBusinessJson.put("primaryAdministratorId", 1);
-        testBusinessJson.put("name", "Lumbridge General Store");
-        testBusinessJson.put("description", "A one-stop shop for all your adventuring needs");
-        testBusinessJson.put("address", testAddress);
-        testBusinessJson.put("businessType", "Accommodation and Food Services");
-
-        return testBusinessJson;
+        //Mock the userService.checkForbidden method to return
+        Mockito.doNothing().when(userService).checkForbidden(any(Integer.class), any(AppUserDetails.class));
     }
 
 
@@ -100,13 +90,19 @@ class BusinessControllerTest {
      */
     @Test
     void createBusiness_validFields_201() throws Exception {
-        JSONObject testBusinessJson = getTestBusiness();
+        Mockito.when(businessService.createBusiness(any(PostBusinessDTO.class))).thenReturn(1);
 
-        testBusinessJson.put("primaryAdministratorId", testPrimaryAdmin.getId());
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
 
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/businesses")
-                .content(testBusinessJson.toString())
+                .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testPrimaryAdmin)));
@@ -121,15 +117,17 @@ class BusinessControllerTest {
      */
     @Test
     void createBusiness_nameFieldEmpty_400() throws Exception {
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                "",
+                testBusiness.getDescription(),
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
 
-        JSONObject testBusiness = getTestBusiness();
-        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
-
-        //Name field empty
-        testBusiness.put("name", "");
         RequestBuilder postBusinessRequest = MockMvcRequestBuilders
                 .post("/businesses")
-                .content(testBusiness.toString())
+                .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testPrimaryAdmin)));
@@ -149,15 +147,17 @@ class BusinessControllerTest {
      */
     @Test
     void createBusiness_addressFieldEmpty_400() throws Exception {
-
-        JSONObject testAddress = new JSONObject();
-        testAddress.put("country", "");
-        JSONObject testBusiness = getTestBusiness();
-        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
-        testBusiness.put("address", testAddress);
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
+        requestDTO.getAddress().setCountry("");
         RequestBuilder postBusinessRequest = MockMvcRequestBuilders
                 .post("/businesses")
-                .content(testBusiness.toString())
+                .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testPrimaryAdmin)));
@@ -178,14 +178,16 @@ class BusinessControllerTest {
      */
     @Test
     void createBusiness_typeFieldEmpty_400() throws Exception {
-
-        JSONObject testBusiness = getTestBusiness();
-        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
-
-        testBusiness.put("businessType", "");
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                new AddressDTO(testBusiness.getAddress()),
+                "",
+                testBusiness.getPrimaryAdministratorId()
+        );
         RequestBuilder postBusinessRequest = MockMvcRequestBuilders
                 .post("/businesses")
-                .content(testBusiness.toString())
+                .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testPrimaryAdmin)));
@@ -208,17 +210,18 @@ class BusinessControllerTest {
     @Test
     void createBusiness_allRequiredFieldsEmpty_400() throws Exception {
 
-        JSONObject testAddress = new JSONObject();
-        testAddress.put("country", "");
-        JSONObject testBusiness = getTestBusiness();
-        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
-        testBusiness.put("name", "");
-        testBusiness.put("address", testAddress);
-        testBusiness.put("businessType", "");
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                "",
+                testBusiness.getDescription(),
+                new AddressDTO(testBusiness.getAddress()),
+                "",
+                testBusiness.getPrimaryAdministratorId()
+        );
+        requestDTO.getAddress().setCountry("");
 
         RequestBuilder postBusinessRequest = MockMvcRequestBuilders
                 .post("/businesses")
-                .content(testBusiness.toString())
+                .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testPrimaryAdmin)));
@@ -234,14 +237,16 @@ class BusinessControllerTest {
      */
     @Test
     void createBusiness_invalidType_400() throws Exception {
-
-        JSONObject testBusiness = getTestBusiness();
-        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
-
-        testBusiness.put("businessType", "My New Type");
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                new AddressDTO(testBusiness.getAddress()),
+                "My New Type",
+                testBusiness.getPrimaryAdministratorId()
+        );
         RequestBuilder postBusinessRequest = MockMvcRequestBuilders
                 .post("/businesses")
-                .content(testBusiness.toString())
+                .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testPrimaryAdmin)));
@@ -261,19 +266,22 @@ class BusinessControllerTest {
      */
     @Test
     void createBusiness_streetNumberNoStreetName_400() throws Exception {
+        AddressDTO testAddress = new AddressDTO();
+        testAddress.setStreetNumber("17");
+        testAddress.setStreetName("");
 
-        JSONObject testBusiness = getTestBusiness();
-        testBusiness.put("primaryAdministratorId", testPrimaryAdmin.getId());
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                testAddress,
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
 
-        JSONObject testAddress = new JSONObject();
-        testAddress.put("streetNumber", "17");
-        testAddress.put("streetName", "");
-
-        testBusiness.put("address", testAddress);
 
         RequestBuilder postBusinessRequest = MockMvcRequestBuilders
                 .post("/businesses")
-                .content(testBusiness.toString())
+                .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testPrimaryAdmin)));
@@ -358,7 +366,7 @@ class BusinessControllerTest {
 
         Mockito.doThrow(new AdministratorAlreadyExistsException(testUser.getId(), testBusiness.getId()))
                 .when(businessService)
-                .addAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
+                .addAdministrator(any(PutBusinessAdminDTO.class));
 
         JSONObject newAdmin = new JSONObject();
         newAdmin.put("userId", testUser.getId());
@@ -386,7 +394,7 @@ class BusinessControllerTest {
 
         Mockito.doThrow(new ForbiddenException(""))
                 .when(businessService)
-                .addAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
+                .addAdministrator(any(PutBusinessAdminDTO.class));
 
         JSONObject primaryAdmin = new JSONObject();
         primaryAdmin.put("userId", testPrimaryAdmin.getId());
@@ -412,7 +420,7 @@ class BusinessControllerTest {
 
         Mockito.doThrow(new CantRemoveAdministratorException(testPrimaryAdmin.getId(), testBusiness.getId()))
                 .when(businessService)
-                .removeAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
+                .removeAdministrator(any(PutBusinessAdminDTO.class));
 
         //Trying to remove the primary administrator
         JSONObject primaryAdmin = new JSONObject();
@@ -461,7 +469,7 @@ class BusinessControllerTest {
 
         Mockito.doThrow(new UserNotAdministratorException(testUser.getId(), testBusiness.getId()))
                 .when(businessService)
-                .removeAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
+                .removeAdministrator(any(PutBusinessAdminDTO.class));
 
         //Trying to remove a user who is not an admin (The user that was just removed as an admin in the previous test)
         JSONObject user = new JSONObject();
@@ -488,7 +496,7 @@ class BusinessControllerTest {
 
         Mockito.doThrow(new ForbiddenException(""))
                 .when(businessService)
-                .removeAdministrator(any(AddOrRemoveBusinessAdminDTO.class));
+                .removeAdministrator(any(PutBusinessAdminDTO.class));
 
         JSONObject primaryAdmin = new JSONObject();
         primaryAdmin.put("userId", testPrimaryAdmin.getId());
@@ -510,8 +518,8 @@ class BusinessControllerTest {
      */
     @Test
     void searchBusiness_validQueryNoType_200() throws Exception {
-        given(businessService.searchBusiness(any(SearchBusinessDTO.class)))
-                .willReturn(List.of(testBusiness));
+        Mockito.when(businessService.searchBusiness(any(String.class), any(BusinessType.class)))
+                .thenReturn(List.of(testBusiness));
 
         RequestBuilder searchBusinessRequest = MockMvcRequestBuilders
                 .get("/businesses/search?searchQuery=General")
@@ -530,8 +538,8 @@ class BusinessControllerTest {
      */
     @Test
     void searchBusiness_validQueryValidType_200() throws Exception {
-        given(businessService.searchBusiness(any(SearchBusinessDTO.class)))
-                .willReturn(List.of(testBusiness));
+        Mockito.when(businessService.searchBusiness(any(String.class), any(BusinessType.class)))
+                .thenReturn(List.of(testBusiness));
 
         RequestBuilder searchBusinessRequest = MockMvcRequestBuilders
                 .get("/businesses/search?searchQuery=General&businessType={businessType}", testBusiness.getBusinessType())
@@ -550,7 +558,6 @@ class BusinessControllerTest {
      */
     @Test
     void searchBusiness_invalidType_400() throws Exception {
-
         RequestBuilder searchBusinessRequest = MockMvcRequestBuilders
                 // %20 encodes a space character in a URL
                 .get("/businesses/search?searchQuery=General&businessType=Not%20a%20Type")
@@ -564,7 +571,214 @@ class BusinessControllerTest {
 
         String returnedExceptionString = postBusinessResponse.getResponse().getContentAsString();
         Assertions.assertEquals("BadRequestException: Invalid business type provided", returnedExceptionString);
+    }
 
+    /**
+     * Tests that a valid request results in a 200 status code
+     */
+    @Test
+    void editBusiness_validRequest_200() throws Exception {
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+        Integer businessId = testBusiness.getId();
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                "New Name",
+                "New Description",
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}", businessId)
+                .content(objectMapper.writeValueAsString(requestDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user(appUser));
+
+        mvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that a request with empty name results in a 400
+     */
+    @Test
+    void editBusiness_noName_400() throws Exception {
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+        Integer businessId = testBusiness.getId();
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                "",
+                "New Description",
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}", businessId)
+                .content(objectMapper.writeValueAsString(requestDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user(appUser));
+
+        mvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests that a request with empty type results in a 400
+     */
+    @Test
+    void editBusiness_noType_400() throws Exception {
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+        Integer businessId = testBusiness.getId();
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                "New Name",
+                "New Description",
+                new AddressDTO(testBusiness.getAddress()),
+                "",
+                testBusiness.getPrimaryAdministratorId()
+        );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}", businessId)
+                .content(objectMapper.writeValueAsString(requestDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user(appUser));
+
+        mvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests that a request with invalid type results in a 400
+     */
+    @Test
+    void editBusiness_invalidType_400() throws Exception {
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+        Integer businessId = testBusiness.getId();
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                "New Name",
+                "New Description",
+                new AddressDTO(testBusiness.getAddress()),
+                "My New Type",
+                testBusiness.getPrimaryAdministratorId()
+        );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}", businessId)
+                .content(objectMapper.writeValueAsString(requestDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user(appUser));
+
+        mvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests that a request with invalid address results in a 400
+     */
+    @Test
+    void editBusiness_invalidAddress_400() throws Exception {
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+        Integer businessId = testBusiness.getId();
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                "New Name",
+                "New Description",
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
+
+        requestDTO.getAddress().setCountry("");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}", businessId)
+                .content(objectMapper.writeValueAsString(requestDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user(appUser));
+
+        mvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests that a request returns 401 when not logged in
+     */
+    @Test
+    void editBusiness_notLoggedIn_401() throws Exception {
+        Integer businessId = testBusiness.getId();
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                "New Name",
+                "New Description",
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}", businessId)
+                .content(objectMapper.writeValueAsString(requestDTO))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mvc.perform(request).andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * Tests that a request returns 403 when user making request is not an admin of the business
+     */
+    @Test
+    void editBusiness_notAdmin_403() throws Exception {
+        Mockito.doThrow(new ForbiddenException("Test exception"))
+                .when(businessService)
+                .editBusiness(
+                        any(PostBusinessDTO.class),
+                        any(Integer.class),
+                        any(AppUserDetails.class)
+                );
+
+        AppUserDetails appUser = new AppUserDetails(testUser);
+        Integer businessId = testBusiness.getId();
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                "New Name",
+                "New Description",
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}", businessId)
+                .content(objectMapper.writeValueAsString(requestDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user(appUser));
+
+        mvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that a request returns 406 status when a business that doesn't exist is edited
+     */
+    @Test
+    void editBusiness_nonExistentBusiness_406() throws Exception {
+        Mockito.doThrow(new NotAcceptableException("Test exception"))
+                .when(businessService)
+                .editBusiness(
+                        any(PostBusinessDTO.class),
+                        any(Integer.class),
+                        any(AppUserDetails.class)
+                );
+
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+        Integer businessId = 500;
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                "New Name",
+                "New Description",
+                new AddressDTO(testBusiness.getAddress()),
+                testBusiness.getBusinessType(),
+                testBusiness.getPrimaryAdministratorId()
+        );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/businesses/{businessId}", businessId)
+                .content(objectMapper.writeValueAsString(requestDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user(appUser));
+
+        mvc.perform(request).andExpect(status().isNotAcceptable());
     }
 
 }

@@ -801,22 +801,22 @@
   ],
   "keywords": [
     {
-      "name": "Apples"
+      "name": "apples"
     },
     {
-      "name": "Bananas"
+      "name": "bananas"
     },
     {
-      "name": "Pineapples"
+      "name": "pineapples"
     },
     {
-      "name": "Fruit"
+      "name": "fruit"
     },
     {
-      "name": "Vegetables"
+      "name": "vegetables"
     },
     {
-      "name": "Car"
+      "name": "car"
     }
   ]
 }
