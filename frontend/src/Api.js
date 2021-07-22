@@ -67,7 +67,7 @@ export const User = {
 
     getUserData: (id) => instance.get(`users/${id}`, {}),
 
-    getUsers: (searchTerm) => instance.get('users/search', {params: {'searchQuery': searchTerm}}),
+    getUsers: (searchTerm, pageNumber) => instance.get('users/search', {params: {'searchQuery': searchTerm, 'pageNumber': pageNumber}}),
 
     makeAdmin: (id) => instance.put(`users/${id}/makeadmin`),
 

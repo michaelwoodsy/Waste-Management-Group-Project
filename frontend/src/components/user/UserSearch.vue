@@ -197,6 +197,7 @@ export default {
       orderCol: null,
       orderDirection: false, // False -> Ascending
       resultsPerPage: 10,
+      totalCount: 0,
       page: 1,
       loading: false
     }
@@ -264,14 +265,6 @@ export default {
 
       return newUsers
     },
-
-    /**
-     * Calculates the number of results in users array
-     * @returns {number}
-     */
-    totalCount() {
-      return this.users.length
-    },
     /**
      * Returns whether the currently logged in user is the DGAA
      * @returns {boolean|*}
@@ -286,7 +279,7 @@ export default {
      * Search Logic
      */
     search() {
-      if (this.searchTerm.length < 3) {
+      if (this.searchTerm.length < -1) {
         this.searchError = 'Please enter at least 3 characters to search'
         return
       } else this.searchError = null
@@ -296,10 +289,11 @@ export default {
       this.loading = true;
       this.page = 1;
 
-      User.getUsers(this.searchTerm)
+      User.getUsers(this.searchTerm, this.page-1)
           .then((res) => {
             this.error = null;
-            this.users = res.data;
+            this.users = res.data[0];
+            this.totalCount = res.data[1];
             this.loading = false;
           })
           .catch((err) => {

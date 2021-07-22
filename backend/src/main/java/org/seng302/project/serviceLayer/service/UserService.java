@@ -17,6 +17,7 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -58,14 +59,14 @@ public class UserService {
      * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
      * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
      */
-    public List<GetUserDTO> searchUsers(String searchQuery) {
+    public List<Object> searchUsers(String searchQuery, Integer pageNumber) {
         List<User> users;
+        Integer totalCount = 0;
+        Set<User> result = new LinkedHashSet<>();
 
-        if (searchQuery.length() < 3) {
+        if (searchQuery.length() < -1) {
             throw new BadRequestException("Please enter at least 3 characters to search.");
         } else {
-            Set<User> result = new LinkedHashSet<>();
-
             searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
             String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
@@ -94,15 +95,15 @@ public class UserService {
                 }
 
             }
-
             // convert set to a list
             users = new ArrayList<>(result);
         }
-
+        totalCount = users.size();
         logger.info("Retrieved {} users", users.size());
-
+        users = users.subList(pageNumber*10, (pageNumber*10)+10);
         // Map user objects to GetUserDTO objects and return
-        return users.stream().map(GetUserDTO::new).collect(Collectors.toList());
+        return Arrays.asList(users.stream().map(GetUserDTO::new).collect(Collectors.toList()), totalCount);
+
     }
 
     /**
