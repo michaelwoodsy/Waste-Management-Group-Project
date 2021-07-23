@@ -8,8 +8,11 @@ import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageDTO;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.business.DeleteBusinessImageDTO;
+import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.business.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.service.BusinessImageService;
@@ -173,5 +176,101 @@ class BusinessImageControllerTest extends AbstractInitializer {
                 .put("/businesses/{businessId}/images/{imageId}/makeprimary", testBusiness.getId(), 1)
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that request to delete a business image fails
+     * when a user is not logged in.
+     * Expect 401 response
+     */
+    @Test
+    void deleteBusinessImage_notLoggedIn_returnsStatus401() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/images/{imageId}", testBusiness.getId(), 1))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Tests that request to delete a business image fails
+     * when a user is neither an admin nor a GAA.
+     * Expect 403 response
+     */
+    @Test
+    void deleteBusinessImage_notAdmin_returnsStatus403() throws Exception {
+        doThrow(new ForbiddenAdministratorActionException(testBusiness.getId()))
+                .when(businessImageService).deleteImage(Mockito.any(DeleteBusinessImageDTO.class));
+
+        RequestBuilder deleteBusinessImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/images/{imageId}",
+                        testBusiness.getId(), 1)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(deleteBusinessImageRequest).andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that request to delete a business image fails
+     * when the business does not exist
+     * Expect 406 response
+     */
+    @Test
+    void deleteBusinessImage_noBusinessExists_returnsStatus406() throws Exception {
+        doThrow(new BusinessNotFoundException(1000))
+                .when(businessImageService).deleteImage(Mockito.any(DeleteBusinessImageDTO.class));
+
+        RequestBuilder deleteBusinessImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/images/{imageId}",
+                        1000, 1)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(deleteBusinessImageRequest).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that request to delete a business image fails
+     * when the business image does not exist
+     * Expect 406 response
+     */
+    @Test
+    void deleteBusinessImage_noBusinessImageExists_returnsStatus406() throws Exception {
+        doThrow(new BusinessNotFoundException(1000))
+                .when(businessImageService).deleteImage(Mockito.any(DeleteBusinessImageDTO.class));
+
+        RequestBuilder deleteBusinessImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/images/{imageId}",
+                        testBusiness.getId(), 1000)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(deleteBusinessImageRequest).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that request to delete a business image is successful
+     * when the user is a business admin
+     * Expect 200 response
+     */
+    @Test
+    void deleteBusinessImage_asBusinessAdmin_returnsStatus200() throws Exception {
+        RequestBuilder deleteBusinessImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/images/{imageId}",
+                        testBusiness.getId(), 1)
+                .with(user(new AppUserDetails(testUserBusinessAdmin)));
+
+        mockMvc.perform(deleteBusinessImageRequest).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that request to delete a business image is successful
+     * when the user is a business admin
+     * Expect 200 response
+     */
+    @Test
+    void deleteBusinessImage_asSystemAdmin_returnsStatus200() throws Exception {
+        RequestBuilder deleteBusinessImageRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/images/{imageId}",
+                        testBusiness.getId(), 1)
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(deleteBusinessImageRequest).andExpect(status().isOk());
     }
 }
