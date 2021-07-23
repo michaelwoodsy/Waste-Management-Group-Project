@@ -111,9 +111,9 @@
 
       <hr>
 
-
       <!-- Sale Listing Information -->
       <div>
+        <alert v-if="error">{{ error }}</alert>
 
         <!-- Number of results information -->
         <div class="text-center">
@@ -227,6 +227,7 @@ import Pagination from "@/components/Pagination";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import {Business, Images} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
+import Alert from "@/components/Alert";
 
 export default {
   name: "BrowseSaleListings.vue",
@@ -234,7 +235,8 @@ export default {
     IndividualSaleListingModal,
     PageWrapper,
     Pagination,
-    ShowingResultsText
+    ShowingResultsText,
+    Alert
   },
   data() {
     return {
@@ -284,7 +286,8 @@ export default {
       page: 1,
       listings: [],
       listingToView: null,
-      viewListingModal: false
+      viewListingModal: false,
+      error: null
     }
   },
   async mounted() {
@@ -335,7 +338,6 @@ export default {
         const listingsResponse = await Business.getListings(this.$root.$data.user.state.actingAs.id)
         this.error = null
         this.listings = listingsResponse.data
-        this.loading = false
 
         this.listings = await Promise.all(this.listings.map(async (listing) => {
           //TODO: remove the below line once the backend returns businessId as part of a listing
@@ -343,9 +345,11 @@ export default {
           const businessResponse = await Business.getBusinessData(listing.businessId)
           listing.sellerName = businessResponse.data.name
           listing.sellerAddress = businessResponse.data.address
-          listing.currency = await this.$root.$data.product.getCurrency(listing.sellerAddress.country)
           return listing
         }))
+
+        this.listings = await this.$root.$data.product.addSaleListingCurrencies(this.listings)
+        this.loading = false
       } catch (err) {
         this.error = err;
         this.loading = false

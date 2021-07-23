@@ -22,6 +22,7 @@ public class GetProductDTO {
     private LocalDateTime created;
     private Integer primaryImageId;
     private List<Image> images;
+    private String currencyCountry;
 
 
     public GetProductDTO(Product product) {
@@ -34,7 +35,7 @@ public class GetProductDTO {
         this.created = product.getCreated();
         this.primaryImageId = product.getPrimaryImageId();
         this.images = product.getImages();
-
+        this.currencyCountry = product.getCurrencyCountry();
     }
 
 }

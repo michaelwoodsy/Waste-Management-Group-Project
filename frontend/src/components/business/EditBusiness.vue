@@ -320,6 +320,50 @@
       </div>
     </div>
 
+    <!-- Currency Confirm Modal -->
+    <div id="currencyConfirmModal" class="modal fade" ref="modal" role="dialog" tabindex="-1">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+          <!-- Title section of modal -->
+          <div class="modal-header">
+            <h5 class="modal-title">Country Change</h5>
+            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+              <span ref="close" aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <!-- Body section of modal -->
+          <div class="modal-body">
+            The country of your business is changing, would you like to update the currency of your
+            existing products to match this new country?
+          </div>
+
+          <!-- Footer / button section of modal -->
+          <div class="modal-footer justify-content-between">
+            <button class="btn btn-secondary float-left" data-dismiss="modal" type="button">Cancel</button>
+            <div>
+              <button class="btn btn-secondary mr-2" data-dismiss="modal" type="button" @click="editBusiness">
+                Keep Same
+              </button>
+              <button class="btn-primary btn" id="confirmButton" @click="editBusiness(true)"
+                      data-dismiss="modal" type="button">
+                Update
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden button, only used to open the modal from methods -->
+    <button class="d-none"
+            data-toggle="modal"
+            data-target="#currencyConfirmModal"
+            ref="modalBtn"
+    ></button>
+
   </page-wrapper>
 </template>
 
@@ -378,7 +422,9 @@ export default {
       valid: true,
       submitClicked: 0,
       submitting: false,
-
+      successfulEdit: false,
+      originalCountry: null,
+      updateProductCurrency: false,
 
       images: [],
       imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
@@ -389,7 +435,6 @@ export default {
       numImagesToUpload: 0,
 
       oldBusiness: null,
-      successfulEdit: false
     }
   },
   async mounted() {
@@ -447,6 +492,14 @@ export default {
      */
     getImageURL(path) {
       return Images.getImageURL(path)
+    },
+
+    /**
+     * Opens the currency conversion modal.
+     */
+    openModal() {
+      const elem = this.$refs.modalBtn
+      elem.click()
     },
 
     /**
@@ -522,15 +575,20 @@ export default {
         this.msg['errorChecks'] = '';
         console.log('No Errors');
         //Send to server here
-        await this.editBusiness();
+        if (this.address.country === this.originalCountry || this.updateProductCurrency) {
+          await this.editBusiness();
+        } else {
+          this.openModal()
+        }
       }
     },
 
     /**
      * Saves the changes from editing the business by calling the backend endpoint
      * If this fails the program should set the error text to the error received from the backend server
+     * @param updateProductCurrency Boolean, updates the existing products with the new countries currency
      */
-    async editBusiness() {
+    async editBusiness(updateProductCurrency=false) {
       try {
         const requestData = {
           name: this.businessName,
@@ -539,7 +597,7 @@ export default {
           businessType: this.businessType,
           primaryAdministratorId: this.primaryAdmin.id
         }
-        await Business.editBusiness(this.businessId, requestData)
+        await Business.editBusiness(this.businessId, requestData, updateProductCurrency)
         if (this.user.isActingAsBusiness()) {
           this.user.state.actingAs.name = this.businessName
         }
@@ -555,8 +613,6 @@ export default {
         console.log(error)
         this.msg['errorChecks'] = error
       }
-
-
     },
 
     /**
@@ -574,6 +630,7 @@ export default {
       this.oldBusiness = response.data
       this.images = response.data.images
       this.currentPrimaryImageId = response.data.primaryImageId
+      this.originalCountry = response.data.address.country
 
       //Prefill the primary admin dropdown
       for(const admin of this.administrators) {

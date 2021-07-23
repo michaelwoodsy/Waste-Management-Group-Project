@@ -37,14 +37,17 @@ public class BusinessService {
     private final BusinessRepository businessRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
+    private final ProductCatalogueService productCatalogueService;
 
     @Autowired
     public BusinessService(BusinessRepository businessRepository,
                            AddressRepository addressRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository,
+                           ProductCatalogueService productCatalogueService) {
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
+        this.productCatalogueService = productCatalogueService;
     }
 
 
@@ -182,13 +185,27 @@ public class BusinessService {
     }
 
     /**
-     * Service method to update business details
+     * Service method to update business details.
+     * The businesses products currencies will remain the same.
      *
-     * @param requestDTO DTO containing new business information
-     * @param businessId ID of the business to update
-     * @param appUser    the currently logged in user
+     * @param requestDTO            DTO containing new business information
+     * @param businessId            ID of the business to update
+     * @param appUser               the currently logged in user
      */
     public void editBusiness(PostBusinessDTO requestDTO, Integer businessId, AppUserDetails appUser) {
+        editBusiness(requestDTO, businessId, appUser, false);
+    }
+
+    /**
+     * Service method to update business details
+     *
+     * @param requestDTO            DTO containing new business information
+     * @param businessId            ID of the business to update
+     * @param appUser               the currently logged in user
+     * @param updateProductCurrency Determines if the currency of the businesses products should be updated to the new country
+     */
+    public void editBusiness(PostBusinessDTO requestDTO, Integer businessId, AppUserDetails appUser,
+                             Boolean updateProductCurrency) {
         Business business = checkBusiness(businessId);
         checkUserCanDoBusinessAction(appUser, business);
 
@@ -207,6 +224,16 @@ public class BusinessService {
                 );
                 logger.warn(message);
                 throw new BadRequestException(message);
+            }
+        }
+
+        // Check if the country is changed
+        if (requestDTO.getAddress() != null &&
+                requestDTO.getAddress().getCountry() != null) {
+            if (Boolean.TRUE.equals(updateProductCurrency)) {
+                productCatalogueService.updateProductCurrency(businessId, requestDTO.getAddress().getCountry(), true);
+            } else {
+                productCatalogueService.updateProductCurrency(businessId, business.getAddress().getCountry(), false);
             }
         }
 
