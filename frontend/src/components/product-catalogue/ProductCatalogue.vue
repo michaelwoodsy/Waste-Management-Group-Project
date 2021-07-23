@@ -152,7 +152,11 @@ export default {
      * Called by the child component ProductSearch
      */
     applySearch(searchResults) {
-      this.$refs.catalogueItems.products = searchResults
+      this.$refs.catalogueItems.applySearch(searchResults)
+      //This makes sure to set the page the user is viewing back to 1
+      //Needed if the user was not on page 1 and does a search, as the user needs to be brought back to page 1
+      //This is accessing ProductCatalogueItems and setting it's page variable to 1
+      this.$refs.catalogueItems.page = 1
     }
   }
 }

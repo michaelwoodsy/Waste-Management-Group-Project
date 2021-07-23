@@ -373,7 +373,7 @@ class ProductCatalogueServiceTest {
 
         // Run the method
         String newCurrencyCountry = "NZ";
-        productCatalogueService.updateProductCurrency(1, newCurrencyCountry);
+        productCatalogueService.updateProductCurrency(1, newCurrencyCountry, true);
 
         // Capture the product that was saved
         ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
