@@ -32,6 +32,7 @@ public class Product {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Id
+    @Column(name = "business_id")
     private Integer businessId; // The id of the business that offers this product
 
     public Product(String id, String name, String description, String manufacturer, Double recommendedRetailPrice, Integer businessId) {
