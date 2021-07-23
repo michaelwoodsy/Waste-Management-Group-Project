@@ -10,7 +10,10 @@
         <h2>{{ title }}</h2>
       </div>
       <div v-if="selectingItem" class="col-2"/>
+
     </div>
+
+
 
     <!-- Form fields -->
     <div v-if="!selectingItem">
@@ -112,7 +115,7 @@
         <span class="invalid-feedback">{{ msg.expires }}</span>
       </div>
 
-      <!-- Create Product button -->
+      <!-- Create Inventory Item button -->
       <div class="form-group row mb-0">
         <div class="btn-group" style="width: 100%">
           <button ref="close" class="btn btn-secondary col-4" data-dismiss="modal" @click="close">Cancel</button>
@@ -124,8 +127,8 @@
         </div>
       </div>
     </div>
-
-    <catalogue-items v-if="selectingItem" :business-id="businessId" :selecting-item="true"></catalogue-items>
+    <product-search v-if="selectingItem" :business-id="businessId"></product-search>
+    <catalogue-items ref="catalogueItems" v-if="selectingItem" :business-id="businessId" :selecting-item="true"></catalogue-items>
 
   </div>
 </template>
@@ -134,10 +137,11 @@
 import {Business} from '@/Api'
 import Alert from "@/components/Alert";
 import CatalogueItems from "@/components/product-catalogue/ProductCatalogueItems";
+import ProductSearch from "@/components/product-catalogue/ProductSearch";
 
 export default {
   name: "CreateInventoryItem",
-  components: {CatalogueItems, Alert},
+  components: {ProductSearch, CatalogueItems, Alert},
   data() {
     return {
       title: 'Create a new inventory item',
@@ -374,6 +378,18 @@ export default {
       this.selectingItem = false;
       this.title = 'Create a new inventory item'
       this.$emit('select-product-toggle');
+    },
+
+    /**
+     * Fills the catalogue with search results.
+     * Called by the child component ProductSearch
+     */
+    applySearch(searchResults) {
+      this.$refs.catalogueItems.applySearch(searchResults)
+      //This makes sure to set the page the user is viewing back to 1
+      //Needed if the user was not on page 1 and does a search, as the user needs to be brought back to page 1
+      //This is accessing ProductCatalogueItems and setting it's page variable to 1
+      this.$refs.catalogueItems.page = 1
     }
   }
 }
