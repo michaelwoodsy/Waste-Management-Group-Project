@@ -2,10 +2,10 @@ package org.seng302.project.webLayer.controller;
 
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageDTO;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.business.DeleteBusinessImageDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
-import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
-import org.seng302.project.serviceLayer.exceptions.user.ForbiddenUserException;
+import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.service.BusinessImageService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -59,6 +59,25 @@ public class BusinessImageController {
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while updating Businesses primary image: %s", unhandledException.getMessage()));
         }
+    }
 
+    /**
+     * Handles request to delete a business image.
+     */
+    @DeleteMapping("/businesses/{businessId}/images/{imageId}")
+    public void deleteImage(@PathVariable int businessId,
+                            @PathVariable int imageId,
+                            @AuthenticationPrincipal AppUserDetails appUser) {
+
+        try {
+            var requestDto = new DeleteBusinessImageDTO(businessId, imageId, appUser);
+            businessImageService.deleteImage(requestDto);
+        } catch (ForbiddenAdministratorActionException |
+                NotAcceptableException handledException) {
+            logger.error(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while deleting business image: %s", unhandledException.getMessage()));
+        }
     }
 }
