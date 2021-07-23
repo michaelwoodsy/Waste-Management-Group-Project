@@ -1,8 +1,28 @@
 import '@jest/globals'
 import {shallowMount} from "@vue/test-utils"
-import CreateCardPage from "@/components/CreateCardPage"
+import CreateCardPage from "@/components/marketplace/CreateCardPage"
+import {Keyword} from "@/Api"
 
 let wrapper
+
+const keywords = [
+    {
+        'id': 1,
+        'name': 'Apple'
+    },
+    {
+        'id': 2,
+        'name': 'Banana'
+    },
+    {
+        'id': 3,
+        'name': 'Chocolate'
+    }
+]
+
+let currentKeywords = []
+
+jest.mock('@/Api')
 
 describe('validate Section method tests', () => {
 
@@ -69,14 +89,21 @@ describe('validate Title method tests', () => {
         wrapper.vm.$data.valid = true
     })
 
-    test("Test no title", () => {
+    test("Test empty title", () => {
         wrapper.vm.$data.title = ''
         wrapper.vm.validateTitle()
         expect(wrapper.vm.$data.msg.title).toStrictEqual('Please enter a title')
         expect(wrapper.vm.$data.valid).toBeFalsy()
     })
 
-    test("Test no title", () => {
+    test("Test space title", () => {
+        wrapper.vm.$data.title = ' '
+        wrapper.vm.validateTitle()
+        expect(wrapper.vm.$data.msg.title).toStrictEqual('Please enter a title')
+        expect(wrapper.vm.$data.valid).toBeFalsy()
+    })
+
+    test("Test null title", () => {
         wrapper.vm.$data.title = null
         wrapper.vm.validateTitle()
         expect(wrapper.vm.$data.msg.title).toStrictEqual('Please enter a title')
@@ -96,53 +123,49 @@ describe('validate Keywords method tests', () => {
     beforeEach(() => {
         wrapper.vm.$data.msg.keywords = null
         wrapper.vm.$data.valid = true
+        wrapper.vm.$data.keywordValue = '';
+        wrapper.vm.$data.keywords = [];
     })
 
-    test("Test no keywords", () => {
-        wrapper.vm.$data.keywords = ''
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.msg.keywords).toStrictEqual('Please enter one or more keywords')
-        expect(wrapper.vm.$data.valid).toBeFalsy()
-    })
-
-    test("Test keyword with leading and trailing spaces", () => {
-        wrapper.vm.$data.keywords = '  free  '
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.keywords).toStrictEqual('free')
+    //We now expect an empty keyword list to be valid
+    test("Test empty keyword list", () => {
+        wrapper.vm.$data.keywords = []
+        expect(wrapper.vm.$data.keywords).toStrictEqual([])
         expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
         expect(wrapper.vm.$data.valid).toBeTruthy()
     })
 
-    test("Test multiword keyword with leading and trailing spaces", () => {
-        wrapper.vm.$data.keywords = '  free car '
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.keywords).toStrictEqual('free-car')
+    test("Test keyword list with 1 item", () => {
+        wrapper.vm.$data.keywords = ["test"]
+        expect(wrapper.vm.$data.keywords).toStrictEqual(["test"])
         expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
         expect(wrapper.vm.$data.valid).toBeTruthy()
     })
 
-    test("Test multiple keywords", () => {
-        wrapper.vm.$data.keywords = 'free,oranges'
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.keywords).toStrictEqual('free,oranges')
-        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
-        expect(wrapper.vm.$data.valid).toBeTruthy()
+    test("Test adding a valid keyword", () => {
+        wrapper.vm.$data.keywordValue = "test"
+        wrapper.vm.addKeyword()
+        expect(wrapper.vm.$data.keywords).toStrictEqual(["test"])
     })
 
-    test("Test multiple multiword keywords with spaces after comma", () => {
-        wrapper.vm.$data.keywords = 'free fruit, apples and oranges '
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.keywords).toStrictEqual('free-fruit,apples-and-oranges')
-        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
-        expect(wrapper.vm.$data.valid).toBeTruthy()
+    test("Test adding an invalid keyword", () => {
+        wrapper.vm.$data.keywordValue = " "
+        wrapper.vm.addKeyword()
+        expect(wrapper.vm.$data.keywords).toStrictEqual([])
     })
 
-    test("Test multiple keywords with multiple commas", () => {
-        wrapper.vm.$data.keywords = 'free,,oranges '
-        wrapper.vm.validateKeywords()
-        expect(wrapper.vm.$data.keywords).toStrictEqual('free,oranges')
-        expect(wrapper.vm.$data.msg.keywords).toStrictEqual(null)
-        expect(wrapper.vm.$data.valid).toBeTruthy()
+    test("Test adding an keyword which is already in the list", () => {
+        wrapper.vm.$data.keywordValue = "test"
+        wrapper.vm.addKeyword()
+        wrapper.vm.addKeyword()
+        expect(wrapper.vm.$data.keywords).toStrictEqual(["test"])
+    })
+
+    test("Removing a keyword", () => {
+        wrapper.vm.$data.keywordValue = "test"
+        wrapper.vm.addKeyword()
+        wrapper.vm.removeKeyword(0)
+        expect(wrapper.vm.$data.keywords).toStrictEqual([])
     })
 })
 
@@ -180,3 +203,49 @@ describe('validate Create button', () => {
     })
 })
 
+describe('Tests for getKeywordIds method', () => {
+
+    beforeEach(() => {
+        currentKeywords = [...keywords]
+        Keyword.createKeyword.mockImplementation(jest.fn((name) => {
+            const id = currentKeywords.length + 1
+            currentKeywords.push({
+                id: id,
+                name: name
+            })
+            return {
+                data: {
+                    keywordId: id
+                }
+            }
+        }))
+        Keyword.searchKeywords.mockImplementation(jest.fn((name) => {
+            const result = []
+            for (const keyword of currentKeywords) {
+                if (keyword['name'].includes(name)) {
+                    result.push(keyword)
+                }
+            }
+            return {
+                data: result
+            }
+        }))
+    })
+
+    test('Creating a card with current keywords results in their IDs being added', async () => {
+        wrapper.vm.$data.keywords = ['Apple', 'Chocolate']
+        const result = await wrapper.vm.getKeywordIds()
+        expect(result.length).toStrictEqual(2)
+        expect(result).toContain(1)
+        expect(result).toContain(3)
+    })
+
+    test('Creating a card with a new keyword adds the new keyword to the keyword list', async () => {
+        wrapper.vm.$data.keywords = ['Apple', 'Cherry']
+        const result = await wrapper.vm.getKeywordIds()
+        expect(currentKeywords.length).toStrictEqual(4)
+        expect(result.length).toStrictEqual(2)
+        expect(result).toContain(4)
+    })
+
+})

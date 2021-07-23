@@ -4,7 +4,7 @@
 
 import '@jest/globals'
 import {shallowMount} from "@vue/test-utils";
-import ProfilePage from "@/components/ProfilePage";
+import ProfilePage from "@/components/user/ProfilePage";
 import {User} from '@/Api'
 
 let wrapper

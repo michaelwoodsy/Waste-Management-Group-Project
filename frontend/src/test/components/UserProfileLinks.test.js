@@ -34,6 +34,14 @@ beforeEach(() => {
             },
             isActingAsUser() {
                 return true
+            },
+            editUserRoute() {
+                return ''
+            },
+        },
+        methods: {
+            getPrimaryImageThumbnail() {
+                return ''
             }
         }
     })

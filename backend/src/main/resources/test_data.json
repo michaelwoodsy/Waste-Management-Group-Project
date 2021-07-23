@@ -574,6 +574,44 @@
       "businessId": 3
     }
   ],
+  "productImages": [
+    {
+      "productId": "BANANA",
+      "businessId": "",
+      "filename": "/media/BananaMuffins1.jpg",
+      "thumbnailFilename": "/media/BananaMuffins1_thumbnail.jpeg"
+    },
+    {
+      "productId": "BANANA",
+      "filename": "/media/BananaMuffins2.jpg",
+      "thumbnailFilename": "/media/BananaMuffins2_thumbnail.jpeg"
+    },
+    {
+      "productId": "BANANA",
+      "filename": "/media/BananaMuffins3.jpg",
+      "thumbnailFilename": "/media/BananaMuffins3_thumbnail.jpeg"
+    },
+    {
+      "productId": "CHOC-CHIP",
+      "filename": "/media/ChocMuffins1.jpg",
+      "thumbnailFilename": "/media/ChocMuffins1_thumbnail.jpeg"
+    },
+    {
+      "productId": "CHOC-CHIP",
+      "filename": "/media/ChocMuffins2.jpg",
+      "thumbnailFilename": "/media/ChocMuffins2_thumbnail.jpeg"
+    },
+    {
+      "productId": "CHOC-CHIP",
+      "filename": "/media/ChocMuffins3.jpg",
+      "thumbnailFilename": "/media/ChocMuffins3_thumbnail.jpeg"
+    },
+    {
+      "productId": "CHOC-CHIP",
+      "filename": "/media/ChocMuffins4.jpg",
+      "thumbnailFilename": "/media/ChocMuffins4_thumbnail.jpeg"
+    }
+  ],
   "inventoryItems": [
     {
       "productId": "CHOC-CHIP",
@@ -723,42 +761,62 @@
       "section": "ForSale",
       "title": "1982 Lada Samara",
       "description": "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.",
-      "keywords": "Car"
+      "keywords": [6]
     },
     {
       "creatorId": 2,
       "section": "ForSale",
       "title": "5 Bunches of Bananas",
       "description": "Just really need to get rid of lots of bananas",
-      "keywords": "food, fruit"
+      "keywords": [2, 4]
     },
     {
       "creatorId": 1,
       "section": "Wanted",
       "title": "Looking for plums",
       "description": "Wanting to make a plum cake but need more plums",
-      "keywords": "food, fruit"
+      "keywords": [4]
     },
     {
       "creatorId": 1,
       "section": "Wanted",
       "title": "MotorCycle Tire",
       "description": "Got a hole in my tire, need a cheap used one",
-      "keywords": "vehicle, motorbike-parts"
+      "keywords": []
     },
     {
       "creatorId": 1,
       "section": "Exchange",
       "title": "Apples for Oranges",
       "description": "Have a lot of apples I don't want, could do with some oranges though",
-      "keywords": "food, fruit"
+      "keywords": [1, 4]
     },
     {
       "creatorId": 1,
       "section": "Exchange",
       "title": "Oranges for other fruit",
       "description": "Have been given a lot of oranges and looking for something else, there's only so many oranges a man can eat",
-      "keywords": "food, fruit"
+      "keywords": [4]
+    }
+  ],
+  "keywords": [
+    {
+      "name": "apples"
+    },
+    {
+      "name": "bananas"
+    },
+    {
+      "name": "pineapples"
+    },
+    {
+      "name": "fruit"
+    },
+    {
+      "name": "vegetables"
+    },
+    {
+      "name": "car"
     }
   ]
 }

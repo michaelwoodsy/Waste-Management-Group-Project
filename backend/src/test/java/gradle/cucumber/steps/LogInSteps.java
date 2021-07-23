@@ -4,12 +4,13 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
-import org.seng302.project.controller.UserController;
-import org.seng302.project.exceptions.ExistingRegisteredEmailException;
-import org.seng302.project.exceptions.InvalidLoginException;
-import org.seng302.project.model.Address;
-import org.seng302.project.model.LoginCredentials;
-import org.seng302.project.model.User;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
+import org.seng302.project.serviceLayer.dto.user.PostUserDTO;
+import org.seng302.project.serviceLayer.dto.user.LoginCredentialsDTO;
+import org.seng302.project.webLayer.controller.UserController;
+import org.seng302.project.serviceLayer.exceptions.register.ExistingRegisteredEmailException;
+import org.seng302.project.serviceLayer.exceptions.InvalidLoginException;
+import org.seng302.project.repositoryLayer.model.Address;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class LogInSteps {
@@ -28,15 +29,15 @@ public class LogInSteps {
         String lastName = "User";
         String dateOfBirth = "2001-02-15";
 
-        Address homeAddress = new Address(
+        AddressDTO homeAddress = new AddressDTO(
                 "", "", "", "", "New Zealand", "");
 
-        User createdUser = new User(
+        PostUserDTO postUserDTO = new PostUserDTO(
                 firstName, lastName, "", "","", username,
                 dateOfBirth, "", homeAddress, password);
 
         try {
-            userController.createUser(createdUser);
+            userController.createUser(postUserDTO);
         } catch (ExistingRegisteredEmailException existingRegisteredEmailException) {
             System.out.println("Account already registered");
         }
@@ -45,8 +46,8 @@ public class LogInSteps {
     @When("I try to log-in with username {string} and incorrect password {string}")
     public void i_try_to_log_in_with_username_and_incorrect_password(String username, String password) {
         try {
-            LoginCredentials login = new LoginCredentials(username, password);
-            userController.authenticate(login);
+            LoginCredentialsDTO loginCredentials = new LoginCredentialsDTO(username, password);
+            userController.authenticate(loginCredentials);
         } catch (InvalidLoginException loginException) {
             loginExceptionCount += 1;
         }
@@ -60,8 +61,8 @@ public class LogInSteps {
     @When("I try to log-in with correct username {string} and password {string}")
     public void i_try_to_log_in_with_correct_username_and_password(String username, String password) {
         try {
-            LoginCredentials login = new LoginCredentials(username, password);
-            userController.authenticate(login);
+            LoginCredentialsDTO loginCredentials = new LoginCredentialsDTO(username, password);
+            userController.authenticate(loginCredentials);
         } catch (InvalidLoginException loginException) {
             loginExceptionCount += 1;
         }

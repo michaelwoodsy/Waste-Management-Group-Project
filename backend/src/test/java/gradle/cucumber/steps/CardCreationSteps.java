@@ -1,36 +1,36 @@
 package gradle.cucumber.steps;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import lombok.SneakyThrows;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.seng302.project.controller.authentication.AppUserDetails;
-import org.seng302.project.model.*;
+import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.repository.AddressRepository;
+import org.seng302.project.repositoryLayer.repository.CardRepository;
+import org.seng302.project.repositoryLayer.repository.KeywordRepository;
+import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.io.UnsupportedEncodingException;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,8 +39,7 @@ public class CardCreationSteps {
 
     private User testUser;
     private Card testCard;
-    private JSONObject testCardJson = new JSONObject();
-    private String savedKeyword;
+    private CreateCardDTO createCardDTO;
 
     private String testUserEmail;
     private String testUserPassword;
@@ -49,6 +48,7 @@ public class CardCreationSteps {
     private String testCardSection;
     private Address testAddress;
     private MockMvc mockMvc;
+    List<String> keywordNames;
 
     private ResultActions reqResult;
 
@@ -57,17 +57,23 @@ public class CardCreationSteps {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AddressRepository addressRepository;
     private final CardRepository cardRepository;
+    private final ObjectMapper objectMapper;
+
+    private final KeywordRepository keywordRepository;
 
     @Autowired
     public CardCreationSteps(UserRepository userRepository,
                              BCryptPasswordEncoder passwordEncoder,
                              AddressRepository addressRepository,
-                             CardRepository cardRepository) {
-
+                             CardRepository cardRepository,
+                             KeywordRepository keywordRepository,
+                             ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.addressRepository = addressRepository;
         this.cardRepository = cardRepository;
+        this.keywordRepository = keywordRepository;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -120,20 +126,13 @@ public class CardCreationSteps {
 
     @When("A user creates a card to be displayed in the {string} section")
     public void a_user_creates_a_card_to_be_displayed_in_the_section(String section) throws Exception {
-        testCardJson.put("creatorId", testUserId);
-        testCardJson.put("section", section);
-        testCardJson.put("title", "1982 Lada Samara");
-        testCardJson.put("keywords", "word");
-        testCardJson.put("description",
-                "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
 
-        System.out.println(testUserId);
-        System.out.println(testUser.getId());
+        createCardDTO = new CreateCardDTO(testUserId, section, "1982 Lada Samara", "Beige, suitable for a hen house. " +
+                "Fair condition. Some rust. As is, where is. Will swap for budgerigar.", Collections.emptyList());
 
-        // Make the actual request
         reqResult = mockMvc.perform(MockMvcRequestBuilders
                 .post("/cards")
-                .content(testCardJson.toString())
+                .content(objectMapper.writeValueAsString(createCardDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser))));
@@ -142,12 +141,14 @@ public class CardCreationSteps {
     @Then("The card is successfully created")
     public void the_card_is_successfully_created() throws Exception {
         MvcResult result = reqResult
-                .andExpect(status().isCreated())
                 .andReturn();
 
         JSONObject jsonObject = new JSONObject(result.getResponse().getContentAsString());
         Integer testCardId = jsonObject.getInt("cardId");
-        Integer retrievedCardId = cardRepository.findById(testCardId).get().getId();
+        Optional<Card> retrievedCard = cardRepository.findById(testCardId);
+        Assertions.assertTrue(retrievedCard.isPresent());
+
+        Integer retrievedCardId = retrievedCard.get().getId();
         Assertions.assertEquals(testCardId, retrievedCardId);
 
     }
@@ -156,7 +157,7 @@ public class CardCreationSteps {
     @Given("A card exists")
     public void a_card_exists() {
         a_user_exists();
-        testCard = new Card(testUser, "ForSale", "Beetle Juice", "Beetle juice from Bob", "");
+        testCard = new Card(testUser, "ForSale", "Beetle Juice", "Beetle juice from Bob", null);
         testCardId = cardRepository.save(testCard).getId();
     }
 
@@ -230,20 +231,23 @@ public class CardCreationSteps {
     //AC5
 
     @When("A user creates a card with keywords: {string}, {string}, {string}, and {string}")
-    public void a_user_creates_a_card_with_keywords_and(String string, String string2, String string3, String string4) throws Exception {
-        String keywords = string + string2 + string3 + string4;
-        savedKeyword = keywords;
-        testCardJson.put("creatorId", testUserId);
-        testCardJson.put("section", "ForSale");
-        testCardJson.put("title", "1982 Lada Samara");
-        testCardJson.put("keywords", keywords);
-        testCardJson.put("description",
-                "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. Will swap for budgerigar.");
+    public void a_user_creates_a_card_with_keywords_and(String keywordName1, String keywordName2, String keywordName3,
+                                                        String keywordName4) throws Exception {
+        keywordNames = List.of(keywordName1, keywordName2, keywordName3, keywordName4);
 
-        // Make the actual request
+        Integer keywordId1 = keywordRepository.save(new Keyword(keywordName1)).getId();
+        Integer keywordId2 = keywordRepository.save(new Keyword(keywordName2)).getId();
+        Integer keywordId3 = keywordRepository.save(new Keyword(keywordName3)).getId();
+        Integer keywordId4 = keywordRepository.save(new Keyword(keywordName4)).getId();
+
+        createCardDTO = new CreateCardDTO(testUserId, "ForSale", "1982 Lada Samara",
+                "Beige, suitable for a hen house. Fair condition. Some rust. As is, where is. " +
+                        "Will swap for budgerigar.",
+                List.of(keywordId1, keywordId2, keywordId3, keywordId4));
+
         reqResult = mockMvc.perform(MockMvcRequestBuilders
                 .post("/cards")
-                .content(testCardJson.toString())
+                .content(objectMapper.writeValueAsString(createCardDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser))));
@@ -258,8 +262,17 @@ public class CardCreationSteps {
         JSONObject jsonObject = new JSONObject(result.getResponse().getContentAsString());
         Integer testCardId = jsonObject.getInt("cardId");
 
-        String retrievedKeywords = cardRepository.findById(testCardId).get().getKeywords();
-        Assertions.assertEquals(retrievedKeywords, savedKeyword);
+        Optional<Card> retrievedCard = cardRepository.findById(testCardId);
+        Assertions.assertTrue(retrievedCard.isPresent());
+
+        Set<Keyword> retrievedKeywords = retrievedCard.get().getKeywords();
+        List<String> retrievedKeywordNames = new ArrayList<>();
+        retrievedKeywords.forEach(keyword -> retrievedKeywordNames.add(keyword.getName()));
+
+        Assertions.assertTrue(retrievedKeywordNames.contains(keywordNames.get(0)));
+        Assertions.assertTrue(retrievedKeywordNames.contains(keywordNames.get(1)));
+        Assertions.assertTrue(retrievedKeywordNames.contains(keywordNames.get(2)));
+        Assertions.assertTrue(retrievedKeywordNames.contains(keywordNames.get(3)));
     }
 
     //AC6
@@ -267,7 +280,7 @@ public class CardCreationSteps {
     public void a_card_exists_in_the_section(String string) {
         testCardSection = string;
         a_user_exists();
-        testCard = new Card(testUser, testCardSection, "Beetle Juice", "Beetle juice from Bob", "");
+        testCard = new Card(testUser, testCardSection, "Beetle Juice", "Beetle juice from Bob", null);
         testCardId = cardRepository.save(testCard).getId();
     }
 

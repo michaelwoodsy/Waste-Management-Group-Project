@@ -184,6 +184,13 @@ export default {
       },
       deep: true
     },
+    locationSelected: {
+      async handler() {
+        await this.validateAddress()
+        this.emitAddress()
+      },
+      deep: true
+    },
     /** Validate address when show errors is set **/
     showErrors: {
       async handler() {
@@ -191,7 +198,7 @@ export default {
         this.emitAddress()
       },
       deep: true
-    }
+    },
   },
   methods: {
     /**
@@ -311,6 +318,11 @@ export default {
      * @returns Object Messages object with any messages for things needing fixed
      */
     async getAddressFixes(location) {
+      //If using full address, only need to check that it has been filled
+      if (this.locationSelected !== null && this.fullAddressMode) {
+        return {}
+      }
+
       let fixMessages = {}
 
       // Check country
@@ -388,6 +400,7 @@ export default {
         // Check if country is valid and has a currency (for products and inventory items price)
         try {
           await this.$root.$data.product.getCurrency(address.country)
+          this.msg['country'] = null
         } catch (e) {
           this.msg['country'] = 'Please enter a valid Country'
         }
@@ -421,12 +434,5 @@ export default {
 .required {
   color: red;
   display: inline;
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
 }
 </style>

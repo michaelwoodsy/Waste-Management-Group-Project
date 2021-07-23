@@ -30,11 +30,12 @@ export default {
                 this.state.userId = userId;
                 this.state.loggedIn = true;
 
-                // Set acting as if its null
-                if (this.state.actingAs == null) {
-                    let name = `${res.data.firstName} ${res.data.lastName}`
+                // Set acting as if its null or the users name has changed
+                let name = `${res.data.firstName} ${res.data.lastName}`
+                if (this.state.actingAs == null || (this.state.actingAs.name !== name && this.state.actingAs.type === 'user')) {
                     this.setActingAs(res.data.id, name, 'user')
                 }
+
 
                 setCookie('userId', this.state.userId, null);
 
@@ -164,11 +165,21 @@ export default {
     },
 
     /**
-     * Returns true if the user is acting as a business
-     * @returns {boolean|*}
+     * Returns whether a user is logged in or not
+     *
+     * @returns {boolean} true if user is logged in
      */
-    isActingAsBusiness() {
-        return this.state.actingAs.type === "business"
+    isLoggedIn() {
+        return this.state.loggedIn
+    },
+
+    /**
+     * Returns the current actor
+     *
+     * @returns {object} the current actor
+     */
+    actor() {
+        return this.state.actingAs
     },
 
     /**
@@ -180,6 +191,14 @@ export default {
     },
 
     /**
+     * Returns true if the user is acting as a business
+     * @returns {boolean|*}
+     */
+    isActingAsBusiness() {
+        return this.state.actingAs.type === "business"
+    },
+
+    /**
      * Returns true if the user is primary admin of the business they are acting as
      * @returns {boolean|*}
      */
@@ -188,8 +207,7 @@ export default {
 
         //Looks through the users businessesAdministered, finds the business acting as and then checks to see if the current user is the primary admin of that business
         //Used to show the Add Administrator button on a users profile page
-        for (let i = 0; i < this.state.userData.businessesAdministered.length; i++) {
-            let business = this.state.userData.businessesAdministered[i]
+        for (const business of this.state.userData.businessesAdministered) {
             if (business.id === this.state.actingAs.id && business.primaryAdministratorId === this.state.userData.id) {
                 return true
             }
@@ -220,6 +238,19 @@ export default {
      */
     canDoAdminAction() {
         return (this.isDGAA() || this.isGAA()) && this.isActingAsUser()
+    },
+
+    /**
+     * Returns the ID of the user that is currently acting, null if not acting as a user
+     *
+     * @returns {*} ID of user that is currently acting
+     */
+    actingUserId() {
+        if (this.state.actingAs.type === 'user') {
+            return this.state.actingAs.id
+        } else {
+            return null
+        }
     },
 
     /**

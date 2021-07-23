@@ -2,19 +2,22 @@ import Vue from 'vue'
 import Router from './custom-router'
 
 import Landing from '../components/Landing'
-import UserSearch from '../components/UserSearch'
-import RegisterPage from "../components/RegisterPage";
+import RegisterPage from "../components/user/RegisterPage";
 import LoginPage from "../components/LoginPage";
 import Home from "../components/Home";
-import ProfilePage from "../components/ProfilePage";
-import BusinessProfilePage from "../components/BusinessProfilePage";
-import RegisterBusinessPage from "../components/RegisterBusinessPage";
-import Catalogue from "../components/ProductCatalogue";
-import EditProductPage from "../components/EditProductPage";
-import InventoryPage from "../components/InventoryPage";
-import SaleListings from "../components/SaleListings";
-import EditInventoryItemPage from "../components/EditInventoryItemPage";
-import Marketplace from "../components/Marketplace";
+import ProfilePage from "../components/user/ProfilePage";
+import EditUserProfile from "../components/user/EditUserProfile";
+import BusinessProfilePage from "../components/business/BusinessProfilePage";
+import RegisterBusinessPage from "../components/business/RegisterBusinessPage";
+import Catalogue from "../components/product-catalogue/ProductCatalogue";
+import EditProductPage from "../components/product-catalogue/EditProductPage";
+import InventoryPage from "../components/inventory/InventoryPage";
+import SaleListings from "../components/sale-listing/SaleListings";
+import EditInventoryItemPage from "../components/inventory/EditInventoryItemPage";
+import Marketplace from "../components/marketplace/Marketplace";
+import Search from "@/components/Search";
+import EditBusiness from "@/components/business/EditBusiness";
+import BrowseSaleListings from "@/components/sale-listing/BrowseSaleListings";
 
 const routes = [
     {
@@ -23,9 +26,14 @@ const routes = [
         component: Landing
     },
     {
-        path: '/users/search',
-        name: 'users',
-        component: UserSearch
+        path: '/search',
+        name: 'search',
+        component: Search
+    },
+    {
+        path: '/users/:userId/edit',
+        name: 'editUser',
+        component: EditUserProfile
     },
     {
         path: '/users/:userId',
@@ -58,6 +66,11 @@ const routes = [
         component: RegisterBusinessPage
     },
     {
+        path: '/businesses/:businessId/edit',
+        name: 'editBusiness',
+        component: EditBusiness
+    },
+    {
         path: '/businesses/:businessId/products',
         name: 'viewCatalogue',
         component: Catalogue
@@ -87,6 +100,11 @@ const routes = [
         name: 'marketplace',
         component: Marketplace
     },
+    {
+        path: '/listings',
+        name: 'browseListings',
+        component: BrowseSaleListings
+    }
 ];
 
 const base = process.env.VUE_APP_BASE_URL || '/';

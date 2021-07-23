@@ -44,6 +44,27 @@ export default {
         }));
     },
 
+
+    /**
+     * Adds an image to a product
+     * @param businessId of the business the product belongs to
+     * @param productId of the product to add the image to
+     * @param file the image file to be sent to the server
+     * @returns {Promise<unknown>}
+     */
+    addProductImage(businessId, productId, file) {
+        // Return a promise for the api call
+        return new Promise(((resolve, reject) => {
+            Business.addProductImage(businessId, productId, file)
+                .then((res) => {
+                    resolve(res);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        }));
+    },
+
     /**
      * Creates a new item in the inventory
      */

@@ -3,10 +3,14 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.seng302.project.controller.CardController;
-import org.seng302.project.model.*;
+import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.repository.*;
+import org.seng302.project.serviceLayer.service.CardService;
+import org.seng302.project.webLayer.controller.CardController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +22,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -48,25 +54,34 @@ public class CardExpirySteps {
     private Integer testCardId;
 
     private final UserRepository userRepository;
+    private final UserNotificationRepository userNotificationRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AddressRepository addressRepository;
     private final CardRepository cardRepository;
+    private final NotificationRepository notificationRepository;
     private final CardController cardController;
+    private final CardService cardService;
 
     private RequestBuilder deleteCardRequest;
 
 
     @Autowired
     public CardExpirySteps(UserRepository userRepository,
+                           UserNotificationRepository userNotificationRepository,
                            AddressRepository addressRepository,
                            BCryptPasswordEncoder passwordEncoder,
                            CardRepository cardRepository,
+                           CardService cardService,
+                           NotificationRepository notificationRepository,
                            CardController cardController) {
         this.userRepository = userRepository;
+        this.userNotificationRepository = userNotificationRepository;
         this.addressRepository = addressRepository;
         this.passwordEncoder = passwordEncoder;
         this.cardRepository = cardRepository;
+        this.notificationRepository = notificationRepository;
         this.cardController = cardController;
+        this.cardService = cardService;
     }
 
     /**
@@ -75,6 +90,7 @@ public class CardExpirySteps {
     @BeforeEach
     @Autowired
     public void setup(WebApplicationContext context) {
+        userNotificationRepository.deleteAll();
         cardRepository.deleteAll();
         userRepository.deleteAll();
 
@@ -109,7 +125,8 @@ public class CardExpirySteps {
 
     @Given("A user has created a card")
     public void a_user_has_created_a_card() {
-        testCard = new Card(cardCreator, "ForSale", "Beetle Juice", "Beetle juice from Bob");
+        testCard = new Card(cardCreator, "ForSale", "Beetle Juice", "Beetle juice from Bob",
+                Collections.emptySet());
         testCardId = cardRepository.save(testCard).getId();
     }
 
@@ -180,22 +197,24 @@ public class CardExpirySteps {
     //AC4
 
     @When("The card has an expiry date of more than {int} hours ago")
-    public void the_card_has_an_expiry_date_of_more_than_hours_ago(Integer noActionLimit) {
-        //noActionLimit = 24 (hours)
-
-        //Make it so the test cards best before end is a day and a minute ago so it should be deleted
-        testCard.setDisplayPeriodEnd(LocalDateTime.now().minusHours(noActionLimit).minusMinutes(1));
+    public void the_card_has_an_expiry_date_of_more_than_hours_ago(Integer hours) {
+        //Only 2 weeks (display period) and one day (time to extend card) is required
+        // for a card to be automatically deleted. (adding 1 minute to be sure)
+        testCard.setDisplayPeriodEnd(LocalDateTime.now().minusHours(hours).minusMinutes(1));
         cardRepository.save(testCard);
     }
 
-    @Then("The card is automatically deleted")
-    public void the_card_is_automatically_deleted() {
+    @Then("The card is automatically deleted and a notification is created")
+    public void the_card_is_automatically_deleted_and_a_notification_is_created() {
+        //Simulating an automatic call for removal of expired cards
+        cardService.removeCardsAfter24Hrs();
 
-        //Manually calls the removeCardsAfter24Hrs method as it is on a timer
-        cardController.removeCardsAfter24Hrs();
-        Optional<Card> returnedCard = cardRepository.findById(testCardId);
+        List<UserNotification> notifications = userNotificationRepository.findAllByUser(cardCreator);
 
-        //Card was deleted
-        Assertions.assertTrue(returnedCard.isEmpty());
+        Assertions.assertEquals(1, notifications.size());
+        Assertions.assertEquals(CardExpiryNotification.class, notifications.get(0).getClass());
+
+        CardExpiryNotification notification = (CardExpiryNotification) notifications.get(0);
+        Assertions.assertEquals(testCard.getTitle(), notification.getCardTitle());
     }
 }

@@ -8,7 +8,7 @@
       <img
           alt="profile"
           class="profile-image rounded-circle"
-          src="../../public/profile.png"
+          :src="getPrimaryImageThumbnail()"
       />
       <!-- Users name -->
       <span>{{ actorName }}</span>
@@ -27,7 +27,7 @@
             @click="actAsBusiness(business)"
         >
           <img alt="profile" class="profile-image-sm rounded-circle"
-               src="../../public/profile.png">
+               :src="getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')">
           {{ business.name }}
         </a>
         <div class="dropdown-divider"/>
@@ -43,7 +43,7 @@
             @click="actAsUser(user)"
         >
           <img alt="profile" class="profile-image-sm rounded-circle"
-               src="../../public/profile.png">
+               :src="getPrimaryImageThumbnail(user.images, user.primaryImageId)">
           {{ user.firstName }} {{ user.lastName }}
           <span class="badge badge-danger admin-badge" v-if="isGAA">ADMIN</span>
           <span class="badge badge-danger admin-badge" v-else-if="isDGAA">DGAA</span>
@@ -57,9 +57,11 @@
         <router-link :to="productCatalogueRoute" class="dropdown-item">Product Catalogue</router-link>
         <router-link :to="inventoryRoute" class="dropdown-item">Inventory</router-link>
         <router-link :to="listingsRoute" class="dropdown-item">Listings</router-link>
+        <router-link :to="editBusinessRoute" class="dropdown-item">Edit Business</router-link>
       </div>
       <div v-else>
-        <router-link class="dropdown-item" to="/businesses">Create Business</router-link>
+        <router-link to="/businesses" class="dropdown-item">Create Business</router-link>
+        <router-link :to="editUserRoute" class="dropdown-item">Edit Profile</router-link>
       </div>
       <div class="dropdown-divider"/>
       <router-link class="dropdown-item" to="/login" @click.native="logOut()">Logout</router-link>
@@ -69,6 +71,8 @@
 </template>
 
 <script>
+import {Images} from "@/Api";
+
 export default {
   name: "UserProfileLinks",
   computed: {
@@ -90,6 +94,16 @@ export default {
     /** Returns the listing url **/
     listingsRoute() {
       return `businesses/${this.actor.id}/listings`
+    },
+
+    /** Returns the listing url **/
+    editBusinessRoute() {
+      return `businesses/${this.actor.id}/edit`
+    },
+
+    /** Returns the listing url **/
+    editUserRoute() {
+      return `users/${this.$root.$data.user.state.userId}/edit`
     },
 
     /**
@@ -135,6 +149,74 @@ export default {
     }
   },
   methods: {
+    /**
+     * Uses the primaryImageId of the user to find the primary image and return its imageURL,
+     * else it returns the default user image url
+     */
+    getPrimaryImageThumbnail(currImages, currPrimaryImageId) {
+      let images = currImages
+      let primaryImageId = currPrimaryImageId
+      if (images === undefined) {
+        if (this.actor.type === 'user') {
+          const userThumbnailDetails = this.getUserPrimaryImageDetails(images, primaryImageId)
+          images = userThumbnailDetails.images
+          primaryImageId = userThumbnailDetails.primaryImageId
+        }
+        if (this.actor.type === 'business') {
+          const businessThumbnailDetails = this.getBusinessPrimaryImageDetails(images, primaryImageId)
+          images = businessThumbnailDetails.images
+          primaryImageId = businessThumbnailDetails.primaryImageId
+        }
+      }
+      if (primaryImageId != null && images != null) {
+        const filteredImages = images.filter(function(specificImage) {
+          return specificImage.id === primaryImageId;
+        })
+        if (filteredImages.length === 1) {
+          return this.getImageURL(filteredImages[0].thumbnailFilename)
+        }
+      }
+      return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
+    },
+
+    /**
+     * Gets a user's list of images and their primaryImageId
+     */
+    getUserPrimaryImageDetails(currImages, currPrimaryImageId) {
+      let images = currImages
+      let primaryImageId = currPrimaryImageId
+      for(const user of this.userAccounts) {
+        if (this.actor.id === user.id) {
+          images = user.images
+          primaryImageId = user.primaryImageId
+          break
+        }
+      }
+      return {images, primaryImageId}
+    },
+
+    /**
+     * Gets a business's list of images and their primaryImageId
+     */
+    getBusinessPrimaryImageDetails(currImages, currPrimaryImageId) {
+      let images = currImages
+      let primaryImageId = currPrimaryImageId
+      for(const business of this.businessAccounts) {
+        if (this.actor.id === business.id) {
+          images = business.images
+          primaryImageId = business.primaryImageId
+          break
+        }
+      }
+      return {images, primaryImageId}
+    },
+
+    /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
+    },
     /** Logs the user out **/
     logOut() {
       this.$root.$data.user.logout();
@@ -142,12 +224,16 @@ export default {
 
     /** Sets the current logged in user to act as a business account **/
     actAsBusiness(business) {
+      console.log(business)
       this.$root.$data.user.setActingAs(business.id, business.name, 'business')
+      this.$router.push({name: 'home'})
     },
 
     /** Sets the current logged in user to act as a user account **/
     actAsUser(userData) {
+      console.log(userData)
       this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
+      this.$router.push({name: 'home'})
     }
   }
 }
