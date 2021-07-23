@@ -98,7 +98,7 @@
                     <span v-if="item.moreInfo" style="font-size: small"><br/>{{ item.moreInfo }}</span>
                   </td>
                   <td>{{ item.quantity }}</td>
-                  <td>{{ formatPrice(item.price) }}</td>
+                  <td>{{ formatPrice(item) }}</td>
                   <td>{{ formatDate(item.created) }}</td>
                   <td>{{ formatDate(item.closes) }}</td>
                   <td>
@@ -417,8 +417,8 @@ export default {
     /**
      * Formats the price to correct currency.
      */
-    formatPrice(price) {
-      return this.$root.$data.product.formatPrice(this.currency, price);
+    formatPrice(listing) {
+      return this.$root.$data.product.formatPrice(listing.currency, listing.price);
     },
 
     /**
@@ -438,13 +438,15 @@ export default {
       this.page = 1;
 
       Business.getListings(this.$route.params.businessId)
-          .then((res) => {
+          .then(async (res) => {
             this.error = null;
-            this.listings = res.data;
+            const business = (await Business.getBusinessData(this.businessId)).data
+            this.listings = await this.$root.$data.product.addSaleListingCurrencies(res.data, business.address.country)
             this.loading = false;
           })
           .catch((err) => {
             this.error = err;
+            console.error(err)
             this.loading = false;
           })
     },

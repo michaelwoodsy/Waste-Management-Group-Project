@@ -90,8 +90,8 @@
               <span v-if="!selectingItem">{{ item.quantity }}</span>
               <span v-if="selectingItem">{{ getMaxQuantity(item) }}/{{ item.quantity }}</span>
             </td>
-            <td>{{ formatPrice(item.pricePerItem) }}</td>
-            <td>{{ formatPrice(item.totalPrice) }}</td>
+            <td>{{ formatPrice(item.currency, item.pricePerItem) }}</td>
+            <td>{{ formatPrice(item.currency, item.totalPrice) }}</td>
             <td>{{ formatDate(item.manufactured) }}</td>
             <td>{{ formatDate(item.sellBy) }}</td>
             <td>{{ formatDate(item.bestBefore) }}</td>
@@ -104,7 +104,7 @@
                       @click="changeViewedProduct(item.product)">View Images</button>
             </td>
             <td v-if="selectingItem">
-              <button class="btn btn-primary" @click="selectProduct(item.id)">Select</button>
+              <button class="btn btn-primary" @click="selectProduct(item)">Select</button>
             </td>
           </tr>
           </tbody>
@@ -368,8 +368,11 @@ export default {
       this.$router.push({name: 'editInventoryItem', params: {businessId: this.businessId, inventoryItemId: id}})
     },
 
-    selectProduct(id) {
-      this.$parent.inventoryItemId = id;
+    selectProduct(item) {
+      console.log(item)
+      this.$parent.inventoryItemId = item.id;
+      this.$parent.currencySymbol = item.currency.symbol;
+      this.$parent.currencyCode = item.currency.code;
       this.$parent.updateInventoryItem();
       this.$parent.finishSelectItem();
     },
@@ -391,10 +394,10 @@ export default {
     },
 
     /**
-     * calls the formatPrice method in the product module to format the products recommended retail price
+     * calls the formatPrice method in the product module to format the products prices
      */
-    formatPrice(price) {
-      return this.$root.$data.product.formatPrice(this.currency, price)
+    formatPrice(currency, price) {
+      return this.$root.$data.product.formatPrice(currency, price)
     },
 
     /**
@@ -421,9 +424,9 @@ export default {
       this.page = 1;
 
       Business.getInventory(this.$route.params.businessId)
-          .then((res) => {
+          .then(async (res) => {
             this.error = null;
-            this.inventoryItems = res.data;
+            this.inventoryItems = await this.$root.$data.product.addInventoryItemCurrencies(res.data, this.currency)
             this.filterAvailableItems()
             this.loading = false;
           })
