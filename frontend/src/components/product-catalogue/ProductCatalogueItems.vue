@@ -85,7 +85,7 @@
                       @click="changeViewedProduct(product)">View Images</button>
             </td>
             <td v-if="selectingItem">
-              <button class="btn btn-primary" @click="selectProduct(product.id)">Select</button>
+              <button class="btn btn-primary" @click="selectProduct(product)">Select</button>
             </td>
           </tr>
           </tbody>
@@ -339,8 +339,10 @@ export default {
       this.isViewingImages = true
     },
 
-    selectProduct(id) {
-      this.$parent.productCode = id;
+    selectProduct(product) {
+      this.$parent.productCode = product.id;
+      this.$parent.currencySymbol = product.currency.symbol
+      this.$parent.currencyCode = product.currency.code
       this.$parent.finishSelectItem();
     },
 
@@ -387,6 +389,15 @@ export default {
             this.loading = false;
           })
     },
+
+    /**
+     * Sets the searched products currency and shows them on the table
+     * @param products products retrieved from the search
+     * @returns {Promise<void>}
+     */
+    async applySearch(products) {
+      this.products = await this.$root.$data.product.addProductCurrencies(products, this.currency)
+    }
   }
 }
 </script>
