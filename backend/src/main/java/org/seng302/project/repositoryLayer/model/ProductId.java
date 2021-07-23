@@ -8,7 +8,6 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 public class ProductId implements Serializable {
-
     private String id;
     private Integer businessId;
 
