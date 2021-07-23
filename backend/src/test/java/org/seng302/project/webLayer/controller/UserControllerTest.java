@@ -324,7 +324,7 @@ class UserControllerTest extends AbstractInitializer {
     @Test
     void userSearch_blueSky_200() throws Exception {
         // Mock the searchUsers method to return an empty list
-        when(userService.searchUsers(any(String.class), any(Integer.class))).thenReturn(List.of());
+        when(userService.searchUsers(any(String.class), any(Integer.class), any(String.class))).thenReturn(List.of());
 
         // Make the request, and check it is 200
         mvc.perform(MockMvcRequestBuilders

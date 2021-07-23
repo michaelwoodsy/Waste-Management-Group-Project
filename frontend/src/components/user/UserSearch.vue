@@ -70,7 +70,7 @@
                 </th>
 
                 <!--    Middle Name    -->
-                <th class="pointer" scope="col" @click="orderSearch()">
+                <th class="pointer" scope="col" @click="orderSearch('middleName')">
                   <p class="d-inline">Middlename</p>
                   <p v-if="orderCol === 'middleName'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
@@ -238,6 +238,8 @@ export default {
       this.users = [];
       this.loading = true;
       this.page = 1;
+      this.orderCol = null
+      this.orderDirection = false
 
       User.getUsers(this.searchTerm, this.page-1, "firstNameASC")
           .then((res) => {
@@ -276,19 +278,26 @@ export default {
             this.loading = false;
           })
     },
-
+    /**
+     * Function called when you click on one of the columns to order the results
+     * Makes another call to the backend to get the correct users when ordered
+     */
     async orderSearch(sortBy) {
       this.blurSearch();
       this.loading = true;
-      this.orderCol = sortBy
-      if(this.orderDirection){
-        sortBy += "ASC"
-        this.orderDirection = !this.orderDirection
+
+      if(this.orderCol !== sortBy){
+        this.orderDirection = false
       } else {
-        sortBy += "DESC"
         this.orderDirection = !this.orderDirection
       }
-      console.log(sortBy)
+
+      this.orderCol = sortBy
+      if(!this.orderDirection){
+        sortBy += "ASC"
+      } else {
+        sortBy += "DESC"
+      }
       await User.getUsers(this.searchTerm, this.page - 1, sortBy)
           .then((res) => {
             this.error = null;

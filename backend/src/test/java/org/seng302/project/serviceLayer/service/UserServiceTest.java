@@ -109,7 +109,7 @@ class UserServiceTest extends AbstractInitializer {
         // Mock the findAll method to return an empty list
         when(userRepository.findAll()).thenReturn(List.of());
 
-        userService.searchUsers("Tom", 1);
+        userService.searchUsers("Tom", 1, null);
 
         // findAll will be called twice if a simple and non quoted search is made, check the repository was called twice
         verify(userRepository, times(2)).findAll(any(Specification.class));
@@ -123,7 +123,7 @@ class UserServiceTest extends AbstractInitializer {
         // Mock the findAll method to return an empty list
         when(userRepository.findAll()).thenReturn(List.of());
 
-        userService.searchUsers("\"Tom\"", 1);
+        userService.searchUsers("\"Tom\"", 1, null);
 
         // check the repository was called once
         verify(userRepository, times(1)).findAll(any(Specification.class));

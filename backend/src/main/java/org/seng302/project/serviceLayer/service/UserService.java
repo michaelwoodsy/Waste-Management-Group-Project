@@ -65,6 +65,9 @@ public class UserService {
         Set<User> result = new LinkedHashSet<>();
         Boolean sortASC;
         //Check if the sort is ascending or descending
+        if(sortBy == null || sortBy.equals("")){
+            sortBy = "firstNameASC";
+        }
         sortASC = sortBy.contains("ASC");
         System.out.println(sortBy);
         searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
@@ -99,6 +102,7 @@ public class UserService {
 
         totalCount = users.size();
         logger.info("Retrieved {} users", users.size());
+        //Split users into correct amount to be returned
         if(!users.isEmpty()){
             if(pageNumber*10+10 > users.size()-1){
                 var remainder = users.size()%10;
@@ -287,10 +291,10 @@ public class UserService {
     public List<User> sortUserSearch(Specification searchSpec, String sortBy, Boolean sortASC){
         if(sortASC){
             sortBy = sortBy.substring(0, sortBy.lastIndexOf("A"));
-            return userRepository.findAll(searchSpec, Sort.by(sortBy).ascending());
+            return userRepository.findAll(searchSpec, Sort.by(Sort.Order.asc(sortBy).ignoreCase()));
         } else {
             sortBy = sortBy.substring(0, sortBy.lastIndexOf("D"));
-            return userRepository.findAll(searchSpec, Sort.by(sortBy).descending());
+            return userRepository.findAll(searchSpec, Sort.by(Sort.Order.desc(sortBy).ignoreCase()));
         }
     }
 
