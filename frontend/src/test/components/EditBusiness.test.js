@@ -100,5 +100,32 @@ describe('EditBusiness component test', () => {
         expect(wrapper.vm.$data.successfulEdit).toBeFalsy()
     })
 
+    test("Currency modal is opened if the country has been changed", async () => {
+        wrapper.vm.$data.valid = true
+        wrapper.vm.$data.addressIsValid = true
+        wrapper.vm.$data.address.country = "true"
+        wrapper.vm.validateBusinessName = jest.fn()
+        wrapper.vm.validateAddress = jest.fn()
+        wrapper.vm.validateBusinessType = jest.fn()
+        wrapper.vm.validatePrimaryAdmin = jest.fn()
+        wrapper.vm.openModal = jest.fn()
+        await wrapper.vm.checkInputs()
+        expect(wrapper.vm.openModal).toBeCalled()
+    })
+
+    test("Currency modal is not opened if the country remains unchanged", async () => {
+        wrapper.vm.$data.valid = true
+        wrapper.vm.$data.addressIsValid = true
+        wrapper.vm.$data.address.country = "true"
+        wrapper.vm.$data.originalCountry = "true"
+        wrapper.vm.validateBusinessName = jest.fn()
+        wrapper.vm.validateAddress = jest.fn()
+        wrapper.vm.validateBusinessType = jest.fn()
+        wrapper.vm.validatePrimaryAdmin = jest.fn()
+        wrapper.vm.openModal = jest.fn()
+        await wrapper.vm.checkInputs()
+        expect(wrapper.vm.openModal).toBeCalledTimes(0)
+    })
+
 
 })
