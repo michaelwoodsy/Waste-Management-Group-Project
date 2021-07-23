@@ -399,10 +399,16 @@ export default {
       })
       this.numImagesToUpload = imagesToUpload.length
 
+      let promises = []
       for (const image of imagesToUpload) {
-        await Business.addBusinessImage(businessId, image.data)
-        this.numImagesUploaded += 1;
+        const promise = Business.addBusinessImage(businessId, image.data).then(() => {
+          this.numImagesUploaded += 1;
+        })
+        promises.push(promise)
       }
+      //Wait for all images to be uploaded
+      await Promise.all(promises)
+
     }
   }
 }

@@ -698,11 +698,16 @@ export default {
       })
       this.numImagesToUpload = imagesToUpload.length
 
+      let promises = []
       for (const image of imagesToUpload) {
         //Id is undefined if it was just added
-        await Business.addProductImage(this.businessId, this.newProduct.id, image.data)
-        this.numImagesUploaded += 1;
+        const promise = Business.addProductImage(this.businessId, this.newProduct.id, image.data).then(() => {
+          this.numImagesUploaded += 1;
+        })
+        promises.push(promise)
       }
+      //Wait for all images to be uploaded
+      await Promise.all(promises)
     },
 
     changeDeletingImage(image) {

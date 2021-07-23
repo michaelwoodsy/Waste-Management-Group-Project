@@ -254,11 +254,7 @@ export default {
           this.addImages().then(() => {
             this.$refs.close.click()
             this.close()
-          }).catch((err) => {
-            this.msg.errorChecks = err.response ?
-                err.response.data.slice(err.response.data.indexOf(':') + 2) :
-                err
-          });
+          })
       }).catch((err) => {
         this.msg.errorChecks = err.response ?
             err.response.data.slice(err.response.data.indexOf(':') + 2) :
@@ -329,12 +325,19 @@ export default {
      */
     async addImages() {
       this.uploadingImages = true
+
+      let promises = []
       for (const image of this.images) {
-        await this.$root.$data.business.addProductImage(
-            this.businessId, this.id, image.data)
-        this.numImagesUploaded += 1;
+        const promise = await this.$root.$data.business.addProductImage(
+            this.businessId, this.id, image.data).then(() => {
+          this.numImagesUploaded += 1;
+        })
+        promises.push(promise)
       }
       this.uploadingImages = false
+
+      //Wait for all images to be uploaded
+      await Promise.all(promises)
     }
   }
 }
