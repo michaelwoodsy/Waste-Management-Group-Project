@@ -185,12 +185,13 @@ public class UserController {
      */
     @GetMapping("/users/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<Object> searchUsers(@RequestParam("searchQuery") String searchQuery, @RequestParam("pageNumber") Integer pageNumber) {
+    public List<Object> searchUsers(@RequestParam("searchQuery") String searchQuery, @RequestParam("pageNumber") Integer pageNumber
+    , @RequestParam("sortBy") String sortBy) {
 
         logger.info("Request to search users with query: {}", searchQuery);
 
         try {
-            return userService.searchUsers(searchQuery, pageNumber);
+            return userService.searchUsers(searchQuery, pageNumber, sortBy);
         } catch (BadRequestException badRequestException) {
             logger.error(badRequestException.getMessage());
             throw badRequestException;

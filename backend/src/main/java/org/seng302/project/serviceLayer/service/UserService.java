@@ -17,6 +17,7 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -58,11 +59,14 @@ public class UserService {
      * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
      * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
      */
-    public List<Object> searchUsers(String searchQuery, Integer pageNumber) {
+    public List<Object> searchUsers(String searchQuery, Integer pageNumber, String sortBy) {
         List<User> users;
         int totalCount;
         Set<User> result = new LinkedHashSet<>();
-
+        Boolean sortASC;
+        //Check if the sort is ascending or descending
+        sortASC = sortBy.contains("ASC");
+        System.out.println(sortBy);
         searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
         String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
@@ -85,9 +89,9 @@ public class UserService {
             }
 
             // query the repository and add to results set
-            result.addAll(userRepository.findAll(hasSpec));
+            result.addAll(sortUserSearch(hasSpec, sortBy, sortASC));
             if (searchContains) {
-                result.addAll(userRepository.findAll(containsSpec));
+                result.addAll(sortUserSearch(containsSpec, sortBy, sortASC));
             }
         }
         // convert set to a list
@@ -270,6 +274,23 @@ public class UserService {
         User requestMaker = userRepository.findByEmail(appUser.getUsername()).get(0);
         if (!requestMaker.getRole().equals("defaultGlobalApplicationAdmin")) {
             throw new ForbiddenDGAAActionException();
+        }
+    }
+
+    /**
+     * Helper function for user search, does the sorting
+     * @param searchSpec the specification used to search by
+     * @param sortBy the column that is to be sorted
+     * @param sortASC the direction of the sort
+     * @return
+     */
+    public List<User> sortUserSearch(Specification searchSpec, String sortBy, Boolean sortASC){
+        if(sortASC){
+            sortBy = sortBy.substring(0, sortBy.lastIndexOf("A"));
+            return userRepository.findAll(searchSpec, Sort.by(sortBy).ascending());
+        } else {
+            sortBy = sortBy.substring(0, sortBy.lastIndexOf("D"));
+            return userRepository.findAll(searchSpec, Sort.by(sortBy).descending());
         }
     }
 
