@@ -140,13 +140,14 @@ export default {
           this.fieldOptions[2].checked,
           this.fieldOptions[3].checked,
           )
-          .then((response) => {
+          .then(async (response) => {
+            const products = await this.$root.$data.product.addProductCurrencies(response.data, this.currency)
             if(this.$parent.$options._componentTag === "create-inventory-item"){
               //This is for in the product look up in inventory
-              this.$parent.applySearch(response.data)
+              this.$parent.applySearch(products)
             } else {
               //This is for the product catalogue
-              this.$parent.$parent.applySearch(response.data)
+              this.$parent.$parent.applySearch(products)
             }
       })
           .catch((err) => {
@@ -157,7 +158,7 @@ export default {
     /**
      * Filters autocomplete options (product ids) based on the user's input for a product.
      */
-     searchProductIds() {
+    searchProductIds() {
        if(this.productLookup){
          //Set ID to true
          this.fieldOptions[0].checked = true
@@ -169,8 +170,8 @@ export default {
              this.fieldOptions[2].checked,
              this.fieldOptions[3].checked,
          )
-             .then((response) => {
-               this.productSuggestions = response.data
+             .then(async (response) => {
+               this.productSuggestions = await this.$root.$data.product.addProductCurrencies(response.data, this.currency)
              })
              .catch((err) => {
                console.log(`There was an error searching products: ${err}`)
