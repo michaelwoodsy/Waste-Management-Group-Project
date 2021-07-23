@@ -646,14 +646,13 @@ export default {
       this.imagesEdited = true
       //If image has already been uploaded
       if(imageRemoving.id){
-        //TODO: Fill this in when removing images has been implemented
-        // User.removeImage(this.userId, imageRemoving.id)
-        //     .then(() => {
-        //       this.removeImageFromList(imageRemoving)
-        //     })
-        //     .catch((err) => {
-        //       this.errorMessage = err.response.data.message || err;
-        //     })
+        Business.removeBusinessImage(this.businessId, imageRemoving.id)
+            .then(() => {
+              this.removeImageFromList(imageRemoving)
+            })
+            .catch((err) => {
+              this.errorMessage = err.response.data.message || err;
+            })
       } else {
         //If the image has just been uploaded and then is removed
         this.removeImageFromList(imageRemoving)
@@ -709,7 +708,7 @@ export default {
         this.numImagesUploaded += 1;
       }
 
-      if (this.currentPrimaryImageId !== this.oldBusiness.primaryImageId) {
+      if (this.images.length !== 0 && this.currentPrimaryImageId !== this.oldBusiness.primaryImageId) {
         await Business.makePrimaryBusinessImage(this.businessId, this.currentPrimaryImageId)
       }
     },
