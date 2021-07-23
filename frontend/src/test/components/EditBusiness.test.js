@@ -55,6 +55,14 @@ describe('EditBusiness component test', () => {
                 isPrimaryAdmin() {
                     return true
                 }
+            },
+            methods: {
+                addImages() {
+
+                },
+                updateData() {
+
+                }
             }
         })
     })

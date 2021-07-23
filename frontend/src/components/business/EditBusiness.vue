@@ -605,7 +605,7 @@ export default {
         await this.addImages()
 
         this.submitting = false
-        this.$root.$data.user.updateData()
+        this.updateData()
 
         this.successfulEdit = true
       } catch (error) {
@@ -613,6 +613,13 @@ export default {
         console.log(error)
         this.msg['errorChecks'] = error
       }
+    },
+
+    /**
+     * Calls the user updateData method to update the users data in the store
+     */
+    updateData() {
+      this.$root.$data.user.updateData()
     },
 
     /**
