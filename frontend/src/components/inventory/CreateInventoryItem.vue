@@ -115,7 +115,7 @@
         <span class="invalid-feedback">{{ msg.expires }}</span>
       </div>
 
-      <!-- Create Product button -->
+      <!-- Create Inventory Item button -->
       <div class="form-group row mb-0">
         <div class="btn-group" style="width: 100%">
           <button ref="close" class="btn btn-secondary col-4" data-dismiss="modal" @click="close">Cancel</button>

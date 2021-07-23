@@ -14,11 +14,11 @@
                  type="text"
                  @keyup.enter="search"
                  data-toggle="dropdown"
-                 @input="searchProductNames">
+                 @input="searchProductIds">
           <div class="input-group-append">
             <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
           </div>
-          <!-- Autocomplete dropdown -->
+          <!-- Autocomplete dropdown, only on CreateInventoryItem -->
           <div v-if="productLookup" class="dropdown-menu overflow-auto" id="dropdown">
             <!-- If no user input -->
             <p class="text-muted dropdown-item left-padding mb-0 disabled"
@@ -28,16 +28,16 @@
             </p>
             <!-- If no matches -->
             <p class="text-muted dropdown-item left-padding mb-0 disabled"
-               v-else-if="filteredProducts.length === 0 && searchTerm.length > 0"
+               v-else-if="productSuggestions.length === 0 && searchTerm.length > 0"
             >
               No results found.
             </p>
             <!-- If there are matches -->
             <a class="dropdown-item pointer left-padding"
-               v-for="product in filteredProducts"
+               v-for="product in productSuggestions"
                v-else
                :key="product.id"
-               @click="searchTerm=product.id">
+               @click="searchById(product.id)">
               <span>{{ product.id }}</span>
             </a>
           </div>
@@ -76,7 +76,7 @@ export default {
   data() {
     return {
       searchTerm: "",
-      filteredProducts: [],
+      productSuggestions: [],
       fieldOptions: [
         {
           name: "Id",
@@ -110,11 +110,7 @@ export default {
      * Checks if the user is on the product catalogue page or the inventory page
      */
     productLookup(){
-      if(this.$parent.$options._componentTag === "create-inventory-item"){
-        return true
-      } else {
-        return false
-      }
+      return this.$parent.$options._componentTag === "create-inventory-item"
     }
   },
   methods: {
@@ -123,6 +119,15 @@ export default {
      */
     toggleFieldChecked(field) {
       field.checked = !(field.checked);
+    },
+
+    /**
+     * Called when the user clicks on a product id suggestion
+     * Applies search based on the product id clicked
+     */
+    searchById(productId) {
+      this.searchTerm = productId
+      this.search()
     },
 
     /**
@@ -150,9 +155,9 @@ export default {
     },
 
     /**
-     * Filters autocomplete options based on the user's input for a product.
+     * Filters autocomplete options (product ids) based on the user's input for a product.
      */
-     searchProductNames() {
+     searchProductIds() {
        if(this.productLookup){
          //Set ID to true
          this.fieldOptions[0].checked = true
@@ -165,7 +170,7 @@ export default {
              this.fieldOptions[3].checked,
          )
              .then((response) => {
-               this.filteredProducts = response.data
+               this.productSuggestions = response.data
              })
              .catch((err) => {
                console.log(`There was an error searching products: ${err}`)
