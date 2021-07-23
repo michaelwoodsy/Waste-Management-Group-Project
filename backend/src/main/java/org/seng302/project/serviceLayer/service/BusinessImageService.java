@@ -11,7 +11,6 @@ import org.seng302.project.serviceLayer.dto.business.DeleteBusinessImageDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessImageInvalidException;
-import org.seng302.project.serviceLayer.exceptions.business.BusinessImageNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.business.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -24,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -167,7 +165,7 @@ public class BusinessImageService {
         }
 
         //Retrieve image to be deleted.
-        List<Image> businessImages = business.getImages();
+        var businessImages = business.getImages();
         Image imageToDelete = null;
         Image newPrimaryImage = null;
         var imageIsPresent = false;
@@ -207,7 +205,8 @@ public class BusinessImageService {
                 throw exception;
             }
         } else {
-            throw new BusinessImageNotFoundException(dto.getBusinessId(), dto.getImageId());
+            throw new NotAcceptableException(String.format(
+                    "Business %s does not have an image with id %d", dto.getBusinessId(), dto.getImageId()));
 
         }
     }

@@ -14,15 +14,11 @@ import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageDTO;
 import org.seng302.project.serviceLayer.dto.business.DeleteBusinessImageDTO;
-import org.seng302.project.serviceLayer.dto.product.DeleteProductImageDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
-import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
-import org.seng302.project.serviceLayer.exceptions.business.BusinessImageNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.business.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
-import org.seng302.project.serviceLayer.exceptions.product.ProductImageNotFoundException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
 import org.seng302.project.serviceLayer.util.SpringEnvironment;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -266,7 +262,7 @@ class BusinessImageServiceTest extends AbstractInitializer {
                 new AppUserDetails(testUserBusinessAdmin)
         );
 
-        Assertions.assertThrows(BusinessImageNotFoundException.class,
+        Assertions.assertThrows(NotAcceptableException.class,
                 () -> businessImageService.deleteImage(deleteBusinessImageDTO));
     }
 

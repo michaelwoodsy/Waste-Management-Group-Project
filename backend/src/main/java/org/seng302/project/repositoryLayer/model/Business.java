@@ -155,10 +155,8 @@ public class Business {
      */
     public void removeImage(Image image){ this.images.remove(image); }
 
-//    @OneToMany(targetEntity=Image.class, fetch= FetchType.EAGER)
-@OneToMany(targetEntity=Image.class)
-public List<Image> getImages() {
+    @OneToMany(targetEntity=Image.class)
+    public List<Image> getImages() {
         return this.images;
     }
-
 }
