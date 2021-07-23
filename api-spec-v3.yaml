@@ -1767,6 +1767,12 @@ paths:
           required: true
           schema:
             type: integer
+        - name: updateProductCurrency
+          in: query
+          description: Determines whether to update all current products to use the new currency specified.
+          required: false
+          schema:
+            type: boolean
       requestBody:
         content:
           application/json:
@@ -2295,6 +2301,10 @@ components:
           description: List of images of a product (implemented in U16).
           items:
             $ref: '#/components/schemas/Image'
+        currencyCountry:
+          type: string
+          description: The country that the products price is based on. Can be null.
+          readOnly: true
 
 
     Business:

@@ -9,9 +9,7 @@ import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNot
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Business class for storing data about a specific business.
@@ -73,12 +71,6 @@ public class Business {
     public List<User> getAdministrators() {
         return this.administrators;
     }
-
-    @OneToMany(targetEntity=Image.class)
-    public List<Image> getImages() {
-        return this.images;
-    }
-
 
     /**
      * Adds a User to the list of administrators of a business.
@@ -163,4 +155,8 @@ public class Business {
      */
     public void removeImage(Image image){ this.images.remove(image); }
 
+    @OneToMany(targetEntity=Image.class)
+    public List<Image> getImages() {
+        return this.images;
+    }
 }

@@ -7,9 +7,11 @@ import org.seng302.project.repositoryLayer.repository.ImageRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageDTO;
 import org.seng302.project.serviceLayer.dto.business.AddBusinessImageResponseDTO;
+import org.seng302.project.serviceLayer.dto.business.DeleteBusinessImageDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
 import org.seng302.project.serviceLayer.exceptions.NotAcceptableException;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessImageInvalidException;
+import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.business.NoBusinessExistsException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.serviceLayer.util.ImageUtil;
@@ -37,10 +39,10 @@ public class BusinessImageService {
 
     @Autowired
     public BusinessImageService(UserRepository userRepository,
-                               BusinessRepository businessRepository,
-                               ImageRepository imageRepository,
-                               ImageUtil imageUtil,
-                               SpringEnvironment springEnvironment) {
+                                BusinessRepository businessRepository,
+                                ImageRepository imageRepository,
+                                ImageUtil imageUtil,
+                                SpringEnvironment springEnvironment) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.imageRepository = imageRepository;
@@ -110,8 +112,8 @@ public class BusinessImageService {
      * throws exceptions up to the controller to handle
      *
      * @param businessId The Id of the business that you wish to change primary image of
-     * @param imageId The Id of the image you wish to make the primary image
-     * @param appUser The user that is trying to perform this action
+     * @param imageId    The Id of the image you wish to make the primary image
+     * @param appUser    The user that is trying to perform this action
      */
     public void setPrimaryImage(Integer businessId, Integer imageId, AppUserDetails appUser) {
         logger.info("Request to update primary image for Business {}", businessId);
@@ -146,6 +148,66 @@ public class BusinessImageService {
         } else {
             throw new NotAcceptableException(String.format(
                     "Business with ID %d does not have an image with ID %d", businessId, imageId));
+        }
+    }
+
+
+    public void deleteImage(DeleteBusinessImageDTO dto) {
+        logger.info("Request to delete image business {}", dto.getBusinessId());
+
+        var business = businessRepository.findById(dto.getBusinessId())
+                .orElseThrow(() -> new BusinessNotFoundException(dto.getBusinessId()));
+
+        //Check user is business admin/dgaa/gaa
+        var loggedInUser = userRepository.findByEmail(dto.getAppUser().getUsername()).get(0);
+        if (!business.userCanDoAction(loggedInUser)) {
+            throw new ForbiddenAdministratorActionException(dto.getBusinessId());
+        }
+
+        //Retrieve image to be deleted.
+        var businessImages = business.getImages();
+        Image imageToDelete = null;
+        Image newPrimaryImage = null;
+        var imageIsPresent = false;
+        for (Image image : businessImages) {
+            if (image.getId().equals(dto.getImageId())) {
+                imageIsPresent = true;
+                imageToDelete = image;
+            } else {
+                //Assign a candidate for new primary image
+                if (newPrimaryImage == null) {
+                    newPrimaryImage = image;
+                }
+            }
+        }
+
+        //remove image if present
+        if (imageIsPresent) {
+            String imageFilePath = springEnvironment.getMediaFolderPath() + imageToDelete.getFilename();
+            String thumbnailFilePath = springEnvironment.getMediaFolderPath() + imageToDelete.getThumbnailFilename();
+
+            business.removeImage(imageToDelete);
+
+            //Reassign primary image if necessary
+            if (newPrimaryImage != null && dto.getImageId().equals(business.getPrimaryImageId())) {
+                business.setPrimaryImageId(newPrimaryImage.getId());
+            }
+
+            businessRepository.save(business);
+            imageRepository.delete(imageToDelete);
+
+            try {
+                imageUtil.deleteImage(imageFilePath);
+                imageUtil.deleteImage(thumbnailFilePath);
+            } catch (IOException ex) {
+                var exception = new BusinessImageInvalidException();
+                logger.error(exception.getMessage());
+                throw exception;
+            }
+        } else {
+            throw new NotAcceptableException(String.format(
+                    "Business %s does not have an image with id %d", dto.getBusinessId(), dto.getImageId()));
+
         }
     }
 }

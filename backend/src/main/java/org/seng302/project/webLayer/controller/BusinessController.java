@@ -72,8 +72,9 @@ public class BusinessController {
     @PutMapping("/businesses/{businessId}")
     public void editBusiness(@PathVariable Integer businessId,
                              @Valid @RequestBody PostBusinessDTO requestDTO,
-                             @AuthenticationPrincipal AppUserDetails appUser) {
-        businessService.editBusiness(requestDTO, businessId, appUser);
+                             @AuthenticationPrincipal AppUserDetails appUser,
+                             @RequestParam(required = false) Boolean updateProductCurrency) {
+        businessService.editBusiness(requestDTO, businessId, appUser, updateProductCurrency);
     }
 
     /**

@@ -33,8 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class BusinessServiceTest extends AbstractInitializer {
 
@@ -43,6 +42,7 @@ class BusinessServiceTest extends AbstractInitializer {
     private AddressRepository addressRepository;
     private UserRepository userRepository;
     private BusinessRepository businessRepository;
+    private ProductCatalogueService productCatalogueService;
 
     private User testPrimaryAdmin;
     private User testUser;
@@ -56,7 +56,9 @@ class BusinessServiceTest extends AbstractInitializer {
         addressRepository = Mockito.mock(AddressRepository.class);
         userRepository = Mockito.mock(UserRepository.class);
         businessRepository = Mockito.mock(BusinessRepository.class);
-        businessService = new BusinessService(businessRepository, addressRepository, userRepository);
+        productCatalogueService = Mockito.mock(ProductCatalogueService.class);
+        businessService = new BusinessService(businessRepository, addressRepository,
+                userRepository, productCatalogueService);
 
         //Mock a test user to be used as business primary admin
         testPrimaryAdmin = this.getTestUserBusinessAdmin();
@@ -508,6 +510,59 @@ class BusinessServiceTest extends AbstractInitializer {
         Integer businessId = testBusiness.getId();
         Assertions.assertThrows(BadRequestException.class,
                 () -> businessService.editBusiness(requestDTO, businessId, appUser));
+    }
+
+    @Test
+    void editBusiness_updateProductCurrencyTrue_usesNewCountry() {
+        // Setup test objects
+        testBusiness.addAdministrator(testUser);
+        AddressDTO newAddress = new AddressDTO(testBusiness.getAddress());
+        newAddress.setCountry(newAddress.getCountry() + "a");
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                newAddress,
+                testBusiness.getBusinessType(),
+                testUser.getId()
+        );
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+
+        // Run method
+        businessService.editBusiness(requestDTO, testBusiness.getId(), appUser, true);
+
+
+        // Check the updateProductCurrency method was called with correct parameters
+        ArgumentCaptor<String> countryCaptor = ArgumentCaptor.forClass(String.class);
+        verify(productCatalogueService, times(1))
+                .updateProductCurrency(any(Integer.class), countryCaptor.capture());
+        Assertions.assertEquals(newAddress.getCountry(), countryCaptor.getValue());
+    }
+
+    @Test
+    void editBusiness_updateProductCurrencyTrue_usesOldCountry() {
+        // Setup test objects
+        testBusiness.addAdministrator(testUser);
+        AddressDTO newAddress = new AddressDTO(testBusiness.getAddress());
+        newAddress.setCountry(newAddress.getCountry() + "a");
+        String originalCountry = testBusiness.getAddress().getCountry();
+        PostBusinessDTO requestDTO = new PostBusinessDTO(
+                testBusiness.getName(),
+                testBusiness.getDescription(),
+                newAddress,
+                testBusiness.getBusinessType(),
+                testUser.getId()
+        );
+        AppUserDetails appUser = new AppUserDetails(testPrimaryAdmin);
+
+        // Run method
+        businessService.editBusiness(requestDTO, testBusiness.getId(), appUser, false);
+
+
+        // Check the updateProductCurrency method was called with correct parameters
+        ArgumentCaptor<String> countryCaptor = ArgumentCaptor.forClass(String.class);
+        verify(productCatalogueService, times(1))
+                .updateProductCurrency(any(Integer.class), countryCaptor.capture());
+        Assertions.assertEquals(originalCountry, countryCaptor.getValue());
     }
 
 }

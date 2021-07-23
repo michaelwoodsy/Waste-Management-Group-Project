@@ -75,7 +75,7 @@
               <span v-if="product.description" style="font-size: small"><br/>{{ product.description }}</span>
             </td>
             <td>{{ product.manufacturer }}</td>
-            <td>{{ formatPrice(product.recommendedRetailPrice) }}</td>
+            <td>{{ formatPrice(product) }}</td>
             <td>{{ new Date(product.created).toDateString() }}</td>
             <td v-if="!selectingItem">
               <button class="btn btn-primary" @click="editProduct(product.id)">Edit</button>
@@ -253,7 +253,7 @@ export default {
      * @returns {number}
      */
     totalCount() {
-      return this.products.length
+      return this.products.length || 0
     }
   },
   watch: {
@@ -353,9 +353,9 @@ export default {
 
       //The country variable  will always be an actual country as it is a requirement when creating a business
       //Get Businesses country
-      const country = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
+      const businessCountry = (await Business.getBusinessData(parseInt(this.$route.params.businessId))).data.address.country
 
-      this.currency = await this.$root.$data.product.getCurrency(country)
+      this.currency = await this.$root.$data.product.getCurrency(businessCountry)
 
       this.fillTable()
     },
@@ -363,8 +363,9 @@ export default {
     /**
      * calls the formatPrice method in the product module to format the products recommended retail price
      */
-    formatPrice(price) {
-      return this.$root.$data.product.formatPrice(this.currency, price)
+    formatPrice(product) {
+      console.log(product)
+      return this.$root.$data.product.formatPrice(product.currency, product.recommendedRetailPrice)
     },
 
     /**
@@ -376,9 +377,9 @@ export default {
       this.page = 1;
 
       Business.getProducts(this.$route.params.businessId)
-          .then((res) => {
+          .then(async (res) => {
             this.error = null;
-            this.products = res.data;
+            this.products = await this.$root.$data.product.addProductCurrencies(res.data, this.currency)
             this.loading = false;
           })
           .catch((err) => {
