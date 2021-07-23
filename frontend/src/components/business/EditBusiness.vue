@@ -210,7 +210,7 @@
 
                         <!-- Body section of modal -->
                         <div class="modal-body">
-                          <p>Do you really want to remove this image?</p>
+                          <p>Do you really want to remove this image?</p><br><p>This will be permanent.</p>
                         </div>
 
                         <!-- Footer / button section of modal -->
@@ -766,16 +766,11 @@ export default {
       })
       this.numImagesToUpload = imagesToUpload.length
 
-      let promises = []
       for (const image of imagesToUpload) {
         //Id is undefined if it was just added
-        const promise = Business.addBusinessImage(this.businessId, image.data).then(() => {
-          this.numImagesUploaded += 1;
-        })
-        promises.push(promise)
+        await Business.addBusinessImage(this.businessId, image.data)
+        this.numImagesUploaded += 1;
       }
-      //Wait for all images to be uploaded
-      await Promise.all(promises)
 
       if (this.images.length !== 0 && this.currentPrimaryImageId !== this.oldBusiness.primaryImageId) {
         await Business.makePrimaryBusinessImage(this.businessId, this.currentPrimaryImageId)

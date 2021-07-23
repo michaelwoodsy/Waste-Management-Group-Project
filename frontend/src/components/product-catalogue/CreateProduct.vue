@@ -325,19 +325,12 @@ export default {
      */
     async addImages() {
       this.uploadingImages = true
-
-      let promises = []
       for (const image of this.images) {
-        const promise = await this.$root.$data.business.addProductImage(
-            this.businessId, this.id, image.data).then(() => {
-          this.numImagesUploaded += 1;
-        })
-        promises.push(promise)
+        await this.$root.$data.business.addProductImage(
+            this.businessId, this.id, image.data)
+        this.numImagesUploaded += 1;
       }
       this.uploadingImages = false
-
-      //Wait for all images to be uploaded
-      await Promise.all(promises)
     }
   }
 }
