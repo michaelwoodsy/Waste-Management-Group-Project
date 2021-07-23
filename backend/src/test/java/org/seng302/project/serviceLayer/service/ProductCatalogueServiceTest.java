@@ -31,6 +31,8 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.util.AssertionErrors.fail;
 
 @SpringBootTest
@@ -200,7 +202,7 @@ class ProductCatalogueServiceTest {
         productCatalogueService.newProduct(dto);
 
         ArgumentCaptor<Product> newProductArgumentCaptor = ArgumentCaptor.forClass(Product.class);
-        Mockito.verify(productRepository).save(newProductArgumentCaptor.capture());
+        verify(productRepository).save(newProductArgumentCaptor.capture());
 
         Product savedProduct = newProductArgumentCaptor.getValue();
 
@@ -261,7 +263,7 @@ class ProductCatalogueServiceTest {
         productCatalogueService.editProduct(dto);
 
         ArgumentCaptor<Product> newProductArgumentCaptor = ArgumentCaptor.forClass(Product.class);
-        Mockito.verify(productRepository).save(newProductArgumentCaptor.capture());
+        verify(productRepository).save(newProductArgumentCaptor.capture());
 
         Product savedProduct = newProductArgumentCaptor.getValue();
 
@@ -300,7 +302,7 @@ class ProductCatalogueServiceTest {
         productCatalogueService.editProduct(dto);
 
         ArgumentCaptor<InventoryItem> newInventoryItemArgumentCaptor = ArgumentCaptor.forClass(InventoryItem.class);
-        Mockito.verify(inventoryItemRepository).save(newInventoryItemArgumentCaptor.capture());
+        verify(inventoryItemRepository).save(newInventoryItemArgumentCaptor.capture());
 
         InventoryItem savedInventoryItem = newInventoryItemArgumentCaptor.getValue();
         Product inventoryItemProduct = savedInventoryItem.getProduct();
@@ -361,6 +363,24 @@ class ProductCatalogueServiceTest {
 
         Assertions.assertEquals(1, returnedProducts.size());
         Assertions.assertEquals(existingProduct.getId(), returnedProducts.get(0).getId());
+    }
+
+    @Test
+    void updateProductCurrency_blueSky_updatesProduct() {
+        // Mock the product repo
+        Product testProduct = new Product();
+        when(productRepository.findAllByBusinessId(any(Integer.class))).thenReturn(List.of(testProduct));
+
+        // Run the method
+        String newCurrencyCountry = "NZ";
+        productCatalogueService.updateProductCurrency(1, newCurrencyCountry);
+
+        // Capture the product that was saved
+        ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
+        verify(productRepository).save(productCaptor.capture());
+
+        // Check the products currency was updated
+        Assertions.assertEquals(newCurrencyCountry, productCaptor.getValue().getCurrencyCountry());
     }
 
 }

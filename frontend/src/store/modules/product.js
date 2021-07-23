@@ -47,5 +47,76 @@ export default {
         } else {
             return null;
         }
+    },
+
+    /**
+     * Takes a list of products, and adds currency object to them.
+     * @param products List of product objects.
+     * @param businessCurrency The location of the business the product belongs to.
+     * @returns {*[]} List of product objects with currency field added.
+     */
+    async addProductCurrencies(products, businessCurrency) {
+        let currenciesToFind = {}
+
+        // Iterate over all products and find the currency countries that need to be found
+        for (let product of products) {
+            let currency = null;
+            if (product.currencyCountry) {
+                currency = product.currencyCountry
+                currenciesToFind[currency] = null
+            }
+        }
+
+        // Iterate over the countries and find the currency
+        for (let country of Object.keys(currenciesToFind)) {
+            currenciesToFind[country] = await this.getCurrency(country)
+        }
+        console.log(currenciesToFind)
+
+        // Add the found currencies to the objects
+        for (let product of products) {
+            if (product.currencyCountry) {
+                product.currency = currenciesToFind[product.currencyCountry]
+            } else {
+                product.currency = businessCurrency
+            }
+
+        }
+
+        return products
+    },
+
+    /**
+     * Takes a list of sale listings, and adds currency object to them.
+     * @param listings List of sale listing objects.
+     * @returns {*[]} List of product objects with currency field added.
+     */
+    async addSaleListingCurrencies(listings) {
+        let currenciesToFind = {}
+
+        // Iterate over all products and find the currency countries that need to be found
+        for (let listing of listings) {
+            let currency = null;
+            if (listing.inventoryItem.product.currencyCountry) {
+                currency = listing.inventoryItem.product.currencyCountry
+            } else {
+                currency = listing.sellerAddress.country
+            }
+            if (!(currency in currenciesToFind)) {
+                currenciesToFind[currency] = null
+            }
+        }
+
+        // Iterate over the countries and find the currency
+        for (let country of Object.keys(currenciesToFind)) {
+            currenciesToFind[country] = await this.getCurrency(country)
+        }
+
+        // Add the found currencies to the objects
+        for (let listing of listings) {
+            listing.currency = currenciesToFind[listing.inventoryItem.product.currencyCountry || listing.sellerAddress.country]
+        }
+
+        return listings
     }
 }
