@@ -16,13 +16,13 @@ import java.time.LocalDateTime;
 @IdClass(SaleListingId.class)
 public class SaleListing {
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Id
-    private Integer businessId; // The id of the business that offers this product
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "listing_id")
     private Integer id;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Id
+    private Integer businessId; // The id of the business that offers this product
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "inventory_item_id")
     private InventoryItem inventoryItem;
