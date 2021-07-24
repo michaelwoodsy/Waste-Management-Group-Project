@@ -659,6 +659,7 @@ export default {
     async validateAddress() {
       if (!await this.$refs.addressInput.checkAddressCountry()) {
         this.valid = false
+        this.submitting = false
       }
       if (!this.$refs.addressInput.valid) {
         this.valid = false
