@@ -164,13 +164,12 @@ export default {
     Notification
   },
   async mounted() {
-    await this.getCardData()
-    await this.getNotificationData()
-    if (this.user.canDoAdminAction()) {
-      await this.getAdminNotifications();
+    await this.getData()
+  },
+  watch: {
+    async actingAs() {
+      await this.getData()
     }
-    await this.getMessages()
-    $('.toast').toast('show')
   },
   data() {
     return {
@@ -186,6 +185,13 @@ export default {
     }
   },
   computed: {
+    /**
+     * The currently acting as user or business
+     */
+    actingAs() {
+      return this.$root.$data.user.state.actingAs
+    },
+
     /**
      * Returns true if a user has expired cards
      */
@@ -246,6 +252,25 @@ export default {
 
   },
   methods: {
+    /**
+     * Gets the user or businesses notifications, cards and messages
+     */
+    async getData() {
+      if (this.actingAs.type === "user") {
+        await this.getCardData()
+        await this.getNotificationData()
+        if (this.user.canDoAdminAction()) {
+          await this.getAdminNotifications();
+        }
+        await this.getMessages()
+      } else {
+        this.notifications = []
+        this.adminNotifications = []
+        this.cards = []
+        this.messages = []
+      }
+      $('.toast').toast('show')
+    },
     /**
      * Displays the notifications section
      */

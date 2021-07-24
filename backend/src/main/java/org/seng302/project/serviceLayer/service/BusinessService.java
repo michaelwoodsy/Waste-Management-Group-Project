@@ -231,9 +231,9 @@ public class BusinessService {
         if (requestDTO.getAddress() != null &&
                 requestDTO.getAddress().getCountry() != null) {
             if (Boolean.TRUE.equals(updateProductCurrency)) {
-                productCatalogueService.updateProductCurrency(businessId, requestDTO.getAddress().getCountry());
+                productCatalogueService.updateProductCurrency(businessId, requestDTO.getAddress().getCountry(), true);
             } else {
-                productCatalogueService.updateProductCurrency(businessId, business.getAddress().getCountry());
+                productCatalogueService.updateProductCurrency(businessId, business.getAddress().getCountry(), false);
             }
         }
 

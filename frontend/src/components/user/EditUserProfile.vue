@@ -26,6 +26,43 @@
         <div class="col-12 col-sm-8 offset-sm-2">
           <div class="alert alert-success">Successfully saved changes!</div>
 
+          <!-- Currency change modal -->
+          <div v-if="showCurrencyChange">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <!-- Title section of modal -->
+                  <div class="modal-header">
+                    <h5 class="modal-title">Currency Change</h5>
+                  </div>
+
+                  <!-- Body section of modal -->
+                  <div class="modal-body">
+                    Your currency has changed from {{currentCurrency.code}} to {{newCurrency.code}}.
+                    <br>
+                    Would you like all your active products to have their currency changed to {{newCurrency.code}}?
+                    <br>
+                    If you say 'No', only future products will be in {{newCurrency.code}}.
+                  </div>
+
+                  <!-- Footer / button section of modal -->
+                  <div class="modal-footer">
+                    <button class="btn btn-primary" id="changeCurrencyYes"
+                            data-dismiss="modal" type="button" @click="showCurrencyChange=false">
+                      Yes
+                    </button>
+                    <button class="btn btn-secondary"  id="changeCurrencyNo" data-dismiss="modal" type="button"
+                            @click="showCurrencyChange=false">
+                      No
+                    </button>
+                  </div>
+
+
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Make more changes button -->
           <button
               class="btn btn-secondary float-left"
@@ -242,7 +279,7 @@
 
                       <!-- Body section of modal -->
                       <div class="modal-body">
-                        <p>Do you really want to remove this image?</p>
+                        <p>Do you really want to remove this image?</p><br><p>This will be permanent.</p>
                       </div>
 
                       <!-- Footer / button section of modal -->
@@ -351,9 +388,10 @@
           </div>
         </div>
       </div>
-
     </div>
+
   </page-wrapper>
+
 </template>
 
 <script>
@@ -387,6 +425,7 @@ export default {
       phoneNumber: null,
       addressValid: false,
       homeAddress: {},
+      oldCountry: null,
       newPassword: '',
       currentPassword: '',
 
@@ -418,7 +457,11 @@ export default {
       imagesEdited: false,
       //Used to show progress in uploading images
       numImagesUploaded: 0,
-      numImagesToUpload: 0
+      numImagesToUpload: 0,
+
+      showCurrencyChange: false,
+      currentCurrency: null,
+      newCurrency: null
     };
   },
   async mounted() {
@@ -519,6 +562,7 @@ export default {
         this.dateOfBirth = response.data.dateOfBirth
         this.phoneNumber = response.data.phoneNumber
         this.homeAddress = response.data.homeAddress
+        this.oldCountry = response.data.homeAddress.country
         this.images = response.data.images
         this.currentPrimaryImageId = response.data.primaryImageId
         this.$refs.addressInput.fullAddressMode = false
@@ -615,6 +659,7 @@ export default {
     async validateAddress() {
       if (!await this.$refs.addressInput.checkAddressCountry()) {
         this.valid = false
+        this.submitting = false
       }
       if (!this.$refs.addressInput.valid) {
         this.valid = false
@@ -657,6 +702,7 @@ export default {
      * Check all inputs are valid, if not show error message otherwise save edit
      */
     async checkInputs() {
+
       this.submitting = true
       this.validateFirstName();
       this.validateLastName();
@@ -665,6 +711,7 @@ export default {
       this.validatePhoneNumber();
       await this.validateAddress();
       this.validatePassword();
+      await this.handleCountryChange();
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
@@ -678,9 +725,22 @@ export default {
     },
 
     /**
+     * Checks whether country has changed and if so,
+     * informs user of currency change
+     */
+    async handleCountryChange() {
+      if (this.oldCountry !== this.homeAddress.country) {
+        this.currentCurrency = await this.$root.$data.product.getCurrency(this.oldCountry)
+        this.newCurrency = await this.$root.$data.product.getCurrency(this.homeAddress.country)
+        this.showCurrencyChange = true
+      }
+    },
+
+    /**
      * Saves the changes from editing the user
      */
     async editUser() {
+
       let requestJSON = {
         firstName: this.firstName,
         lastName: this.lastName,
@@ -716,11 +776,13 @@ export default {
         this.submitError = null
         this.submitting = false
         this.success = true
+        //Sets the correct user data (So the name changes in the nav bar)
+        let name = `${this.firstName} ${this.lastName}`
+        if (this.isEditingSelf && this.$root.$data.user.state.actingAs.name !== name) {
+          this.$root.$data.user.state.actingAs.name = name
+        }
+        this.$root.$data.user.updateData()
       })
-      //Sets the correct user data (So the name changes in the nav bar)
-      if (this.isEditingSelf) {
-        this.$root.$data.user.setLoggedIn(this.userId)
-      }
     },
 
     /**

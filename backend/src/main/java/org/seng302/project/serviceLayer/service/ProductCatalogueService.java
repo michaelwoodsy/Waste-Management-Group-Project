@@ -410,11 +410,13 @@ public class ProductCatalogueService {
      * @param currencyCountry New country to update all products with.
      */
     @Transactional
-    public void updateProductCurrency(Integer businessId, String currencyCountry) {
+    public void updateProductCurrency(Integer businessId, String currencyCountry, boolean updateCurrency) {
         List<Product> products = productRepository.findAllByBusinessId(businessId);
         for (Product product : products) {
-            product.setCurrencyCountry(currencyCountry);
-            productRepository.save(product);
+            if (updateCurrency || product.getCurrencyCountry() == null) {
+                product.setCurrencyCountry(currencyCountry);
+                productRepository.save(product);
+            }
         }
     }
 }

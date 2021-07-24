@@ -17,7 +17,7 @@
             alt="profile image"
             class="profile-image rounded-left rounded-right"
             style="max-width: 400px"
-            :src="getPrimaryImageThumbnail()"
+            :src="getPrimaryImage()"
         />
       </div>
     </div>
@@ -355,7 +355,6 @@ export default {
         this.phoneNumber = response.data.phoneNumber
       }
 
-      //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
       this.homeAddress = this.$root.$data.address.formatAddress(response.data.homeAddress)
 
       this.dateJoined = response.data.created
@@ -369,7 +368,7 @@ export default {
      * Uses the primaryImageId of the user to find the primary image and return its imageURL,
      * else it returns the default user image url
      */
-    getPrimaryImageThumbnail() {
+    getPrimaryImage() {
       if (this.primaryImageId !== null) {
         const primaryImageId = this.primaryImageId
         const filteredImages = this.images.filter(function(specificImage) {

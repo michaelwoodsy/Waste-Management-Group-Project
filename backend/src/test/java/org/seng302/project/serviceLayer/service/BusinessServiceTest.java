@@ -534,7 +534,7 @@ class BusinessServiceTest extends AbstractInitializer {
         // Check the updateProductCurrency method was called with correct parameters
         ArgumentCaptor<String> countryCaptor = ArgumentCaptor.forClass(String.class);
         verify(productCatalogueService, times(1))
-                .updateProductCurrency(any(Integer.class), countryCaptor.capture());
+                .updateProductCurrency(any(Integer.class), countryCaptor.capture(), any(boolean.class));
         Assertions.assertEquals(newAddress.getCountry(), countryCaptor.getValue());
     }
 
@@ -561,7 +561,7 @@ class BusinessServiceTest extends AbstractInitializer {
         // Check the updateProductCurrency method was called with correct parameters
         ArgumentCaptor<String> countryCaptor = ArgumentCaptor.forClass(String.class);
         verify(productCatalogueService, times(1))
-                .updateProductCurrency(any(Integer.class), countryCaptor.capture());
+                .updateProductCurrency(any(Integer.class), countryCaptor.capture(), any(boolean.class));
         Assertions.assertEquals(originalCountry, countryCaptor.getValue());
     }
 

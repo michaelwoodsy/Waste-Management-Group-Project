@@ -71,7 +71,6 @@ export default {
         for (let country of Object.keys(currenciesToFind)) {
             currenciesToFind[country] = await this.getCurrency(country)
         }
-        console.log(currenciesToFind)
 
         // Add the found currencies to the objects
         for (let product of products) {
@@ -87,16 +86,56 @@ export default {
     },
 
     /**
-     * Takes a list of sale listings, and adds currency object to them.
-     * @param listings List of sale listing objects.
+     * Takes a list of inventory items, and adds currency object to them.
+     * @param items List of inventory item objects.
      * @returns {*[]} List of product objects with currency field added.
      */
-    async addSaleListingCurrencies(listings) {
+    async addInventoryItemCurrencies(items, businessCurrency) {
+        let currenciesToFind = {}
+
+        // Iterate over all products and find the currency countries that need to be found
+        for (let item of items) {
+            let currency = null;
+            if (item.product.currencyCountry) {
+                currency = item.product.currencyCountry
+                currenciesToFind[currency] = null
+            }
+        }
+
+        // Iterate over the countries and find the currency
+        for (let country of Object.keys(currenciesToFind)) {
+            currenciesToFind[country] = await this.getCurrency(country)
+        }
+
+        // Add the found currencies to the objects
+        for (let item of items) {
+            if (item.product.currencyCountry) {
+                item.currency = currenciesToFind[item.product.currencyCountry]
+            } else {
+                item.currency = businessCurrency
+            }
+
+        }
+
+        return items
+    },
+
+    /**
+     * Takes a list of sale listings, and adds currency object to them.
+     * @param listings List of sale listing objects.
+     * @param businessCountry Country of the business (could be undefined if coming from the browse sales listings page)
+     * @returns {*[]} List of product objects with currency field added.
+     */
+    async addSaleListingCurrencies(listings, businessCountry) {
         let currenciesToFind = {}
 
         // Iterate over all products and find the currency countries that need to be found
         for (let listing of listings) {
             let currency = null;
+            if (listing.sellerAddress === undefined) {
+                listing.sellerAddress = {}
+                listing.sellerAddress.country = businessCountry
+            }
             if (listing.inventoryItem.product.currencyCountry) {
                 currency = listing.inventoryItem.product.currencyCountry
             } else {

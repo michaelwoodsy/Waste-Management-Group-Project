@@ -186,9 +186,12 @@
 
 
         <div class="form-row mb-3">
-          <button id="createButton" class="btn btn-block btn-primary" style="width: 100%; margin:0 20px"
+          <button v-if="!submitting" id="createButton" class="btn btn-block btn-primary" style="width: 100%; margin:0 20px"
                   v-on:click="checkInputs">Create
             Account
+          </button>
+          <button v-else class="btn btn-block btn-primary disabled" style="width: 100%; margin:0 20px"
+                  v-on:click="checkInputs">Creating Account
           </button>
           <!--    Error message for the registering process    -->
 
