@@ -51,7 +51,7 @@
                             data-dismiss="modal" type="button" @click="showCurrencyChange=false">
                       Yes
                     </button>
-                    <button class="btn btn-secondary" data-dismiss="modal" type="button"
+                    <button class="btn btn-secondary"  id="changeCurrencyNo" data-dismiss="modal" type="button"
                             @click="showCurrencyChange=false">
                       No
                     </button>
@@ -710,6 +710,7 @@ export default {
       this.validatePhoneNumber();
       await this.validateAddress();
       this.validatePassword();
+      await this.handleCountryChange();
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
@@ -723,16 +724,21 @@ export default {
     },
 
     /**
-     * Saves the changes from editing the user
+     * Checks whether country has changed and if so,
+     * informs user of currency change
      */
-    async editUser() {
-      //Country has changed
+    async handleCountryChange() {
       if (this.oldCountry !== this.homeAddress.country) {
-        console.log("Country changed")
         this.currentCurrency = await this.$root.$data.product.getCurrency(this.oldCountry)
         this.newCurrency = await this.$root.$data.product.getCurrency(this.homeAddress.country)
         this.showCurrencyChange = true
       }
+    },
+
+    /**
+     * Saves the changes from editing the user
+     */
+    async editUser() {
 
       let requestJSON = {
         firstName: this.firstName,
