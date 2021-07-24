@@ -25,7 +25,7 @@ public class BusinessSpecifications {
      */
     public static Specification<Business> hasName(String name) {
         return ((root, query, builder) ->
-                                builder.like(builder.lower(root.get("name")), name));
+                builder.like(builder.lower(root.get("name")), name));
     }
 
     /**
@@ -38,5 +38,29 @@ public class BusinessSpecifications {
     public static Specification<Business> containsName(String name) {
         return ((root, query, builder) ->
                 builder.like(builder.lower(root.get("name")), '%' + name + '%'));
+    }
+
+    /**
+     * Creates a Specification object to search businesses by country exact matches
+     *
+     * @param country country name to search by
+     * @return a specification object to search repository with
+     */
+    public static Specification<Business> hasCountry(String country) {
+        return ((root, query, builder) ->
+                builder.like(builder.lower(root.get("address").get("country")), country)
+        );
+    }
+
+    /**
+     * Creates a Specification object to search businesses by country
+     *
+     * @param country country name to search by
+     * @return a specification object to search repository with
+     */
+    public static Specification<Business> containsCountry(String country) {
+        return ((root, query, builder) ->
+                builder.like(builder.lower(root.get("address").get("country")), "%" + country + "%")
+        );
     }
 }
