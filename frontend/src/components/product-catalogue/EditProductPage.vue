@@ -212,7 +212,7 @@
 
                           <!-- Body section of modal -->
                           <div class="modal-body">
-                            <p>Do you really want to remove this image?</p>
+                            <p>Do you really want to remove this image?</p><br><p>This will be permanent.</p>
                           </div>
 
                           <!-- Footer / button section of modal -->
