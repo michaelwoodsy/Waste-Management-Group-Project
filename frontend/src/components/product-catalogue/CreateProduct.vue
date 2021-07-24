@@ -254,11 +254,7 @@ export default {
           this.addImages().then(() => {
             this.$refs.close.click()
             this.close()
-          }).catch((err) => {
-            this.msg.errorChecks = err.response ?
-                err.response.data.slice(err.response.data.indexOf(':') + 2) :
-                err
-          });
+          })
       }).catch((err) => {
         this.msg.errorChecks = err.response ?
             err.response.data.slice(err.response.data.indexOf(':') + 2) :

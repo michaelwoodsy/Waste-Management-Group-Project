@@ -76,12 +76,83 @@
             <br>
           </div>
 
+
+
+
+
+          <hr/>
+
+          <div class="form-group row">
+            <div class="col text-center">
+              <h3 class="">Images</h3>
+            </div>
+            <div class="col text-center">
+              <button
+                  id="addImage"
+                  class="btn btn-primary ml-1 my-1 pad1"
+                  type="button"
+                  @click="addImageClicked"
+              >
+                Add image
+              </button>
+              <input
+                  type="file"
+                  style="display: none"
+                  ref="fileInput"
+                  accept="image/png, image/jpeg"
+                  @change="imageUpload"/>
+            </div>
+          </div>
+
+
+
+          <!-- Images -->
+          <div class="form-group row">
+            <div class="col">
+
+
+
+              <div v-for="image in images"
+                   :key="image.url" class="pad1"
+                   @mouseover="image.hover = true"
+                   @mouseleave="image.hover = false"
+              >
+                <img width="250"
+                     :src="image.url"
+                     alt="Uploaded business image"
+                />
+                <button class="btn btn-danger ml-1 my-1 pad1"
+                        @click="removeImage(image.url)">
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col text-center">
+              <!--    Image upload progress counter    -->
+              <p v-if="submitting && images.length > 0"
+                 class="ml-1 my-2 ">
+                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+              </p>
+            </div>
+
+          </div>
+
+
+
+
+
           <p style="width: 100%; text-align: center; margin: 0"><small>You must be at least 16 years old to register a
             business</small></p>
           <div class="form-row">
-            <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px"
+            <button v-if="!submitting" class="btn btn-block btn-primary" style="width: 100%; margin:0 20px"
                     v-on:click="checkInputs">
               Create Business
+            </button>
+            <button v-else class="btn btn-block btn-primary disabled" style="width: 100%; margin:0 20px"
+                    v-on:click="checkInputs">Creating Business
             </button>
             <!--    Error message for the registering process    -->
 
@@ -104,6 +175,7 @@ import LoginRequired from "@/components/LoginRequired";
 import Alert from "../Alert"
 import AddressInputFields from "@/components/AddressInputFields";
 import PageWrapper from "@/components/PageWrapper";
+import {Business} from "@/Api";
 
 /**
  * Default starting parameters
@@ -134,6 +206,13 @@ export default {
       addressIsValid: false,
       businessType: '',    //Required
 
+      images: [],
+      imageWantingToDelete: null, //Sets when the user clicks the remove button on an image, used to preserve image through modal
+      //Used to show progress in uploading images
+      numImagesUploaded: 0,
+      numImagesToUpload: 0,
+
+
       msg: {
         'businessName': '',
         'description': '',
@@ -143,7 +222,8 @@ export default {
         'errorChecks': null
       },
       valid: true,
-      submitClicked: 0
+      submitting: false,
+      submitClicked: false
     }
   },
 
@@ -158,73 +238,6 @@ export default {
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     }
-  },
-
-  /**
-   * these methods are called when their respective input field is changed
-   */
-  watch: {
-    /**
-     * Called when the addressCountry variable is updated.
-     * cant be when the business.country variable is updated as it cant check a variable in an object
-     * Checks if the country can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressCountry(value) {
-      this.address.country = value
-      //re enable autofill
-      if (!this.autofillCountry && this.address.country !== this.prevAutofilledCountry) {
-        this.prevAutofilledCountry = ''
-        this.autofillCountry = true
-      }
-
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into country field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCountry && this.address.country.length > 3) {
-        this.countries = this.photon(value, 'place:country')
-      }
-    },
-
-    /**
-     * Called when the addressRegion variable is updated.
-     * cant be when the business.region variable is updated as it cant check a variable in an object
-     * Checks if the region can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressRegion(value) {
-      this.address.region = value
-      //re enable autofill
-      if (!this.autofillRegion && this.address.region !== this.prevAutofilledRegion) {
-        this.prevAutofilledRegion = ''
-        this.autofillRegion = true
-      }
-
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into region field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillRegion && this.address.region.length > 3) {
-        this.regions = this.photon(value, 'boundary:administrative')
-      }
-    },
-
-    /**
-     * Called when the addressCity variable is updated.
-     * cant be when the business.city variable is updated as it cant check a variable in an object
-     * Checks if the city can be autofilled, and if so, calls the proton function which returns autofill candidates
-     */
-    addressCity(value) {
-      this.address.city = value
-      //re enable autofill
-      if (!this.autofillCity && this.address.city !== this.prevAutofilledCity) {
-        this.prevAutofilledCity = ''
-        this.autofillCity = true
-      }
-      //Cancel Previous axios request if there are any
-      this.cancelRequest && this.cancelRequest("User entered more characters into city field")
-      //Only autofill address if the number of characters typed is more than 3
-      if (this.autofillCity && this.address.city.length > 3) {
-        this.cities = this.photon(value, 'place:city&osm_tag=place:town')
-      }
-    },
   },
 
   /**
@@ -275,7 +288,6 @@ export default {
     isUnder16YearsOld() {
       const dateOfBirth = new Date(this.$root.$data.user.state.userData.dateOfBirth)
       const dateNow = new Date()
-      console.log(dateNow.getUTCFullYear() - dateOfBirth.getUTCFullYear())
       return (dateNow.getUTCFullYear() - dateOfBirth.getUTCFullYear()) < 16
     },
 
@@ -284,7 +296,8 @@ export default {
      * If not an error message is displayed
      */
     async checkInputs() {
-      this.submitClicked++;
+      this.submitClicked = true
+      this.submitting = true
       this.validateBusinessName();
       await this.validateAddress();
       this.validateBusinessType();
@@ -295,6 +308,7 @@ export default {
       } else if (!this.valid) {
         this.msg['errorChecks'] = 'Please fix the shown errors and try again';
         console.log('Please fix the shown errors and try again');
+        this.submitting = false
         this.valid = true;//Reset the value
       } else {
         this.msg['errorChecks'] = '';
@@ -316,9 +330,13 @@ export default {
           this.description,
           this.address,
           this.businessType
-      ).then(() => {
-        this.$router.push({name: 'home'})
-        this.$root.$data.user.updateData()
+      ).then((res) => {
+        this.addImages(res.data.businessId).then(() => {
+          this.submitting = false
+          this.$root.$data.user.updateData()
+          this.$root.$data.user.setActingAs(res.data.businessId, this.businessName, "business")
+          this.$router.push({name: 'home'})
+        })
       })
           .catch((err) => {
             this.msg.errorChecks = err.response
@@ -326,6 +344,66 @@ export default {
                 : err
           });
     },
+
+
+    //IMAGES
+
+    /**
+     * Programmatically triggers the file input field when the
+     * 'Add image' button is clicked.
+     */
+    addImageClicked () {
+      this.imagesEdited = true
+      this.$refs.fileInput.click()
+    },
+
+    /**
+     * Handles the file being uploaded
+     * @param event the button click event that triggers this function
+     */
+    imageUpload (event) {
+      const files = event.target.files
+
+      const formData = new FormData()
+      formData.append("file", files[0])
+
+      const fileReader = new FileReader()
+      console.log(`File with name ${files[0].name} uploaded`)
+      fileReader.addEventListener('load', () => {
+        this.images.push({
+          data: formData,
+          url: fileReader.result,
+          file: files[0]
+        })
+      })
+      fileReader.readAsDataURL(files[0])
+    },
+
+    /**
+     * Called by the remove button next to an uploaded image.
+     * Removes the image from the frontends list of images.
+     * @param imageUrl the url of the image to be removed
+     */
+    removeImage(imageUrl) {
+      this.images = this.images.filter(function(image) {
+        return image.url !== imageUrl;
+      })
+    },
+
+    /**
+     * Makes requests to add the business's images
+     */
+    async addImages(businessId) {
+      const imagesToUpload = this.images.filter(function(image) {
+        return image.id === undefined;
+      })
+      this.numImagesToUpload = imagesToUpload.length
+
+      for (const image of imagesToUpload) {
+        await Business.addBusinessImage(businessId, image.data)
+        this.numImagesUploaded += 1;
+      }
+    }
   }
 }
 

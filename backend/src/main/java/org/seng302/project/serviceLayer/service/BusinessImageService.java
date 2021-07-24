@@ -153,7 +153,7 @@ public class BusinessImageService {
 
 
     public void deleteImage(DeleteBusinessImageDTO dto) {
-        logger.info("Request to delete image business {}", dto.getBusinessId());
+        logger.info("Request to delete image {} from business {}", dto.getImageId(), dto.getBusinessId());
 
         var business = businessRepository.findById(dto.getBusinessId())
                 .orElseThrow(() -> new BusinessNotFoundException(dto.getBusinessId()));
