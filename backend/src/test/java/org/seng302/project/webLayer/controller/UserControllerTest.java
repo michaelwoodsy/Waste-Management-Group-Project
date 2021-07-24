@@ -331,6 +331,7 @@ class UserControllerTest extends AbstractInitializer {
                 .get("/users/search")
                 .param("searchQuery", "testquery string")
                 .param("pageNumber", String.valueOf(1))
+                .param("sortBy", "")
                 .with(user(new AppUserDetails(getTestUser()))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }

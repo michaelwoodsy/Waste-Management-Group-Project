@@ -118,7 +118,6 @@ public class UserService {
         }
         // Map user objects to GetUserDTO objects and return
         return Arrays.asList(users.stream().map(GetUserDTO::new).collect(Collectors.toList()), totalCount);
-
     }
 
     /**
@@ -291,7 +290,7 @@ public class UserService {
      * @param searchSpec the specification used to search by
      * @param sortBy the column that is to be sorted
      * @param sortASC the direction of the sort
-     * @return
+     * @return the sorted list of users searched for
      */
     public List<User> sortUserSearch(Specification searchSpec, String sortBy, Boolean sortASC){
         if(sortASC){

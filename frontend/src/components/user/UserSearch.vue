@@ -261,11 +261,12 @@ export default {
       this.blurSearch();
       this.loading = true;
       let sortBy = this.orderCol
-      if(!this.orderDirection){
+      if (!this.orderDirection){
         sortBy += "ASC"
       } else {
         sortBy += "DESC"
       }
+      if (this.orderCol === null) sortBy = ""
       await User.getUsers(this.searchTerm, this.page - 1, sortBy)
           .then((res) => {
             this.error = null;
