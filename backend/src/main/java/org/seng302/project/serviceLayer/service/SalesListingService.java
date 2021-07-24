@@ -36,15 +36,24 @@ public class SalesListingService {
     private void searchNameField(Set<SaleListing> currentResult, String[] conjunctions) {
         for (String conjunction : conjunctions) {
             String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
-            Specification<SaleListing> spec = Specification.where(null);//empty spec to start off with
+            Specification<SaleListing> hasSpec = Specification.where(null);//empty spec to start off with
+            Specification<SaleListing> containsSpec = Specification.where(null);//empty spec to start off with
+            var searchContains = false;
             for (String term : terms) {
                 //Remove quotes from quoted string, then search by full contents inside the quotes
                 if (Pattern.matches(QUOTE_REGEX, term)) {
                     term = term.replace("\"", "");
+                    hasSpec = hasSpec.and(SaleListingSpecifications.hasProductName(term));
+                } else {
+                    hasSpec = hasSpec.and(SaleListingSpecifications.hasProductName(term));
+                    containsSpec = containsSpec.and(SaleListingSpecifications.containsProductName(term));
+                    searchContains = true;
                 }
-                spec = spec.and(SaleListingSpecifications.containsProductName(term));
             }
-            currentResult.addAll(saleListingRepository.findAll(spec));
+            currentResult.addAll(saleListingRepository.findAll(hasSpec));
+            if (searchContains) {
+                currentResult.addAll(saleListingRepository.findAll(containsSpec));
+            }
         }
     }
 }
