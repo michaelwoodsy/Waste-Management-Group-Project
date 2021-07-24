@@ -11,6 +11,7 @@ import org.seng302.project.serviceLayer.exceptions.dgaa.ForbiddenDGAAActionExcep
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -184,12 +185,13 @@ public class UserController {
      */
     @GetMapping("/users/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<GetUserDTO> searchUsers(@RequestParam("searchQuery") String searchQuery) {
+    public List<Object> searchUsers(@RequestParam("searchQuery") String searchQuery, @RequestParam("pageNumber") Integer pageNumber
+    , @RequestParam("sortBy") String sortBy) {
 
         logger.info("Request to search users with query: {}", searchQuery);
 
         try {
-            return userService.searchUsers(searchQuery);
+            return userService.searchUsers(searchQuery, pageNumber, sortBy);
         } catch (BadRequestException badRequestException) {
             logger.error(badRequestException.getMessage());
             throw badRequestException;

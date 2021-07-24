@@ -313,30 +313,9 @@ class UserControllerTest extends AbstractInitializer {
     void userSearch_notLoggedIn_401() throws Exception {
         mvc.perform(MockMvcRequestBuilders
                 .get("/users/search")
-                .param("searchQuery", ""))
+                .param("searchQuery", "")
+                .param("pageNumber", String.valueOf(1)))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
-    }
-
-    /**
-     * Checks the search query is passed to the UserService.
-     */
-    @Test
-    void userSearch_withQueryParam_queryPassedToService() throws Exception {
-        // Mock the searchUsers method to return an empty list
-        when(userService.searchUsers(any(String.class))).thenReturn(List.of());
-
-        // Make the request
-        mvc.perform(MockMvcRequestBuilders
-                .get("/users/search")
-                .param("searchQuery", "testquery string")
-                .with(user(new AppUserDetails(getTestUser()))));
-
-        // Capture query string passed to UserService method
-        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
-        verify(userService).searchUsers(queryCaptor.capture());
-
-        // Check the query string is correct
-        Assertions.assertEquals("testquery string", queryCaptor.getValue());
     }
 
     /**
@@ -345,12 +324,14 @@ class UserControllerTest extends AbstractInitializer {
     @Test
     void userSearch_blueSky_200() throws Exception {
         // Mock the searchUsers method to return an empty list
-        when(userService.searchUsers(any(String.class))).thenReturn(List.of());
+        when(userService.searchUsers(any(String.class), any(Integer.class), any(String.class))).thenReturn(List.of());
 
         // Make the request, and check it is 200
         mvc.perform(MockMvcRequestBuilders
                 .get("/users/search")
                 .param("searchQuery", "testquery string")
+                .param("pageNumber", String.valueOf(1))
+                .param("sortBy", "")
                 .with(user(new AppUserDetails(getTestUser()))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
