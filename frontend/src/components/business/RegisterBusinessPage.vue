@@ -119,7 +119,7 @@
               >
                 <img width="250"
                      :src="image.url"
-                     alt="Uploaded product image"
+                     alt="Uploaded business image"
                 />
                 <button class="btn btn-danger ml-1 my-1 pad1"
                         @click="removeImage(image.url)">
@@ -391,7 +391,7 @@ export default {
     },
 
     /**
-     * Makes requests to add the product's images
+     * Makes requests to add the business's images
      */
     async addImages(businessId) {
       const imagesToUpload = this.images.filter(function(image) {

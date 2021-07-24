@@ -285,7 +285,7 @@ export default {
     },
 
     /**
-     * Computes if the current user is the primary admin
+     * Computes if the current user is the primary admin or DGAA/GAA
      * @returns {boolean|*}
      */
     isPrimaryAdmin() {
@@ -347,7 +347,9 @@ export default {
     },
 
     /**
-     * Computes if the current user is one of the administrators of the business
+     * Computes if the current user is one of the administrators of the business.
+     * We don't account for DGAA/GAA here because they are given a different button
+     * than the one this function is used for.
      */
     checkCanDoAdminAction() {
       for (const users of this.administrators) {
@@ -357,8 +359,8 @@ export default {
     },
 
     /**
-     * Uses the primaryImageId of the user to find the primary image and return its imageURL,
-     * else it returns the default user image url
+     * Uses the primaryImageId of the business to find the primary image and return its imageURL,
+     * else it returns the default business image url
      */
     getPrimaryImage() {
       if (this.primaryImageId !== null) {

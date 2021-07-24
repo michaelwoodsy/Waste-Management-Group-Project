@@ -616,7 +616,7 @@ export default {
     },
 
     /**
-     * Calls the user updateData method to update the users data in the store
+     * Calls the user updateData method to update the user's data in the store
      */
     updateData() {
       this.$root.$data.user.updateData()
@@ -747,7 +747,7 @@ export default {
     },
 
     /**
-     * Called to make the image the primary image of the user.
+     * Called to make the image the primary image of the business.
      * Sets the variable currentPrimaryImage, which is then sent to the backend when the save changes button is clicked
      * @param imageId the id of the image to make primary
      */
@@ -758,7 +758,7 @@ export default {
     },
 
     /**
-     * Makes requests to add the user's images
+     * Makes requests to add the business's images
      */
     async addImages() {
       const imagesToUpload = this.images.filter(function(image) {

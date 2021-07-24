@@ -30,7 +30,7 @@ export default {
                 this.state.userId = userId;
                 this.state.loggedIn = true;
 
-                // Set acting as if its null
+                // Set acting as if it's null
                 if (this.state.actingAs == null) {
                     let name = `${res.data.firstName} ${res.data.lastName}`
                     this.setActingAs(res.data.id, name, 'user')

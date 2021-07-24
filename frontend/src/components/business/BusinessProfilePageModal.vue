@@ -371,8 +371,8 @@ export default {
     },
 
     /**
-     * Uses the primaryImageId of the user to find the primary image and return its imageURL,
-     * else it returns the default user image url
+     * Uses the primaryImageId of the business to find the primary image and return its imageURL,
+     * else it returns the default business image url
      */
     getPrimaryImage() {
       if (this.primaryImageId !== null) {
