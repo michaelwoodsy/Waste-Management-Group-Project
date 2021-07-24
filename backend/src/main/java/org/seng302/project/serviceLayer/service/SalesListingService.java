@@ -30,6 +30,7 @@ public class SalesListingService {
     /**
      * Searches the product name field, handling ORs, ANDs, spaces and quotes
      * Updates the set of Sales Listings.
+     *
      * @param currentResult The listings that have already been retrieved
      * @param conjunctions The list of strings that have been split by OR
      */
@@ -55,5 +56,30 @@ public class SalesListingService {
                 currentResult.addAll(saleListingRepository.findAll(containsSpec));
             }
         }
+    }
+
+    /**
+     * Searches the price field of Sales Listings to find sales listings with a price between two Doubles
+     * Updates the set of Sales Listings.
+     * This is assuming that if one of the prices is null, they only want to search by the other price
+     *
+     * @param currentResult The listings that have already been retrieved
+     * @param minimum The minimum price for a sales listing
+     * @param maximum The maximum price for a sales listing
+     */
+    private void searchPriceInBetween(Set<SaleListing> currentResult, Double minimum, Double maximum) {
+        Specification<SaleListing> priceSpec = Specification.where(null);
+
+        //Minimum price spec
+        if (minimum != null) {
+            priceSpec = priceSpec.and(Specification.where(SaleListingSpecifications.priceGreaterThan(minimum)));
+        }
+
+        //Maximum price spec
+        if (maximum != null) {
+            priceSpec = priceSpec.and(Specification.where(SaleListingSpecifications.priceLessThan(maximum)));
+        }
+
+        currentResult.addAll(saleListingRepository.findAll(priceSpec));
     }
 }
