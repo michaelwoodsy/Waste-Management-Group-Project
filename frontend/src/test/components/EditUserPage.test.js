@@ -30,7 +30,12 @@ let methods = {
     },
     async validateAddress() {
         return this.homeAddress.country !== null && this.homeAddress.country !== ""
-    }
+    },
+    async handleCountryChange() {
+        if (this.oldCountry !== this.homeAddress.country) {
+            this.showCurrencyChange = true
+        }
+    },
 }
 
 
@@ -177,5 +182,17 @@ describe('EditUserProfile Validity Tests', () => {
         expect(wrapper.vm.$data.msg.newPassword).toStrictEqual('Password does not meet the requirements')
         expect(wrapper.vm.$data.msg.currentPassword).toStrictEqual('Your current password is required')
     })
-
 })
+
+describe('Currency Change tests',  () => {
+
+    test("Changing the country from Australia to New Zealand causes currency change modal to show", async () => {
+        wrapper.setData({
+            showCurrencyChange: false,
+            oldCountry: "Australia",
+            homeAddress: {country: "New Zealand"}
+        })
+        await wrapper.vm.handleCountryChange()
+        expect(wrapper.vm.$data.showCurrencyChange).toBeTruthy()
+    })
+});

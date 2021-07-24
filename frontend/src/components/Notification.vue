@@ -41,6 +41,7 @@
                           :modal-id="'deleteKeyword' + data.keyword.id"
                           modal-confirm-colour="btn-danger"
                           modal-confirm-text="Delete"
+                          modal-dismiss-text="Cancel"
                           modal-message="Are you sure you wish to delete this keyword?"
                           @confirm="deleteKeyword"/>
     </div>
