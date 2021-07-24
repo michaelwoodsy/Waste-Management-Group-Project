@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -81,5 +82,30 @@ public class SalesListingService {
         }
 
         currentResult.addAll(saleListingRepository.findAll(priceSpec));
+    }
+
+    /**
+     * Searches the closes field of Sales Listings to find sales listings with a closing date between two LocalDateTimes
+     * Updates the set of Sales Listings.
+     * This is assuming that if one of the dates is null, they only want to search by the other date
+     *
+     * @param currentResult The listings that have already been retrieved
+     * @param afterDate The minimum closes date for a sales listing
+     * @param beforeDate The maximum closes date for a sales listing
+     */
+    private void searchClosesInBetween(Set<SaleListing> currentResult, LocalDateTime afterDate, LocalDateTime beforeDate) {
+        Specification<SaleListing> closingSpec = Specification.where(null);
+
+        //Minimum closing date spec
+        if (afterDate != null) {
+            closingSpec = closingSpec.and(Specification.where(SaleListingSpecifications.closesAfter(afterDate)));
+        }
+
+        //Maximum closing date spec
+        if (beforeDate != null) {
+            closingSpec = closingSpec.and(Specification.where(SaleListingSpecifications.closesBefore(beforeDate)));
+        }
+
+        currentResult.addAll(saleListingRepository.findAll(closingSpec));
     }
 }
