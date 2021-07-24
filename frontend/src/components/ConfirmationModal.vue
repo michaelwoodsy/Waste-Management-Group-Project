@@ -18,10 +18,13 @@
 
         <!-- Footer / button section of modal -->
         <div class="modal-footer">
-          <button :class="modalConfirmColour" id="confirmButton" class="btn" data-dismiss="modal" type="button" @click="confirm">
+          <button :class="modalConfirmColour" id="confirmButton" class="btn"
+                  data-dismiss="modal" type="button" @click="confirm">
             {{ modalConfirmText }}
           </button>
-          <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
+          <button class="btn btn-secondary" data-dismiss="modal" type="button">
+            {{ modalDismissText }}
+          </button>
         </div>
 
       </div>
@@ -37,6 +40,7 @@ export default {
     modalHeader: String,
     modalMessage: String,
     modalConfirmText: String,
+    modalDismissText: String,
     modalConfirmColour: String
   },
   methods: {

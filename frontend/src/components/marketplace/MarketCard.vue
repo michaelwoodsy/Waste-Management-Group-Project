@@ -159,6 +159,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
                         :modal-header="`Delete Card: ${cardData.title}`"
                         modal-message="Do you really want to permanently delete this card?"
                         modal-confirm-text="Delete"
+                        modal-dismiss-text="Cancel"
                         modal-confirm-colour="btn-danger"
                         @confirm="deleteCard"/>
 

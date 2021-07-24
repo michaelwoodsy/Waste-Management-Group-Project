@@ -26,6 +26,43 @@
         <div class="col-12 col-sm-8 offset-sm-2">
           <div class="alert alert-success">Successfully saved changes!</div>
 
+          <!-- Currency change modal -->
+          <div v-if="showCurrencyChange">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <!-- Title section of modal -->
+                  <div class="modal-header">
+                    <h5 class="modal-title">Currency Change</h5>
+                  </div>
+
+                  <!-- Body section of modal -->
+                  <div class="modal-body">
+                    Your currency has changed from {{currentCurrency.code}} to {{newCurrency.code}}.
+                    <br>
+                    Would you like all your active products to have their currency changed to {{newCurrency.code}}?
+                    <br>
+                    If you say 'No', only future products will be in {{newCurrency.code}}.
+                  </div>
+
+                  <!-- Footer / button section of modal -->
+                  <div class="modal-footer">
+                    <button class="btn btn-primary" id="changeCurrencyYes"
+                            data-dismiss="modal" type="button" @click="showCurrencyChange=false">
+                      Yes
+                    </button>
+                    <button class="btn btn-secondary" data-dismiss="modal" type="button"
+                            @click="showCurrencyChange=false">
+                      No
+                    </button>
+                  </div>
+
+
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Make more changes button -->
           <button
               class="btn btn-secondary float-left"
@@ -351,9 +388,10 @@
           </div>
         </div>
       </div>
-
     </div>
+
   </page-wrapper>
+
 </template>
 
 <script>
@@ -387,6 +425,7 @@ export default {
       phoneNumber: null,
       addressValid: false,
       homeAddress: {},
+      oldCountry: null,
       newPassword: '',
       currentPassword: '',
 
@@ -418,7 +457,11 @@ export default {
       imagesEdited: false,
       //Used to show progress in uploading images
       numImagesUploaded: 0,
-      numImagesToUpload: 0
+      numImagesToUpload: 0,
+
+      showCurrencyChange: false,
+      currentCurrency: null,
+      newCurrency: null
     };
   },
   async mounted() {
@@ -519,6 +562,7 @@ export default {
         this.dateOfBirth = response.data.dateOfBirth
         this.phoneNumber = response.data.phoneNumber
         this.homeAddress = response.data.homeAddress
+        this.oldCountry = response.data.homeAddress.country
         this.images = response.data.images
         this.currentPrimaryImageId = response.data.primaryImageId
         this.$refs.addressInput.fullAddressMode = false
@@ -657,6 +701,7 @@ export default {
      * Check all inputs are valid, if not show error message otherwise save edit
      */
     async checkInputs() {
+
       this.submitting = true
       this.validateFirstName();
       this.validateLastName();
@@ -681,6 +726,14 @@ export default {
      * Saves the changes from editing the user
      */
     async editUser() {
+      //Country has changed
+      if (this.oldCountry !== this.homeAddress.country) {
+        console.log("Country changed")
+        this.currentCurrency = await this.$root.$data.product.getCurrency(this.oldCountry)
+        this.newCurrency = await this.$root.$data.product.getCurrency(this.homeAddress.country)
+        this.showCurrencyChange = true
+      }
+
       let requestJSON = {
         firstName: this.firstName,
         lastName: this.lastName,
