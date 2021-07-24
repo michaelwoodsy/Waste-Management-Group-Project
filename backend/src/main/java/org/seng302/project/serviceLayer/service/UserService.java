@@ -64,12 +64,9 @@ public class UserService {
         int totalCount;
         Set<User> result = new LinkedHashSet<>();
         Boolean sortASC;
-        //Check if the sort is ascending or descending
-        if(sortBy == null || sortBy.equals("")){
-            sortBy = "firstNameASC";
-        }
-        sortASC = sortBy.contains("ASC");
-        System.out.println(sortBy);
+        List<Object> sortChecker = checkSort(sortBy);
+        sortASC = (Boolean) sortChecker.get(0);
+        sortBy = (String) sortChecker.get(1);
         searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
         String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
@@ -91,11 +88,19 @@ public class UserService {
                 }
             }
 
-            // query the repository and add to results set
-            result.addAll(sortUserSearch(hasSpec, sortBy, sortASC));
-            if (searchContains) {
-                result.addAll(sortUserSearch(containsSpec, sortBy, sortASC));
+            // query the repository and add to results set (use the search with sort if there is a sort)
+            if(!sortBy.isEmpty()){
+                result.addAll(sortUserSearch(hasSpec, sortBy, sortASC));
+                if (searchContains) {
+                    result.addAll(sortUserSearch(containsSpec, sortBy, sortASC));
+                }
+            } else {
+                result.addAll(userRepository.findAll(hasSpec));
+                if (searchContains) {
+                    result.addAll(userRepository.findAll(containsSpec));
+                }
             }
+
         }
         // convert set to a list
         users = new ArrayList<>(result);
@@ -296,6 +301,17 @@ public class UserService {
             sortBy = sortBy.substring(0, sortBy.lastIndexOf("D"));
             return userRepository.findAll(searchSpec, Sort.by(Sort.Order.desc(sortBy).ignoreCase()));
         }
+    }
+
+    public List<Object> checkSort(String sortBy){
+        switch(sortBy){
+            case "idASC": case "idDESC": case "firstNameASC": case "firstNameDESC": case "middleNameASC": case "middleNameDESC":
+            case "lastNameASC": case  "lastNameDESC": case "emailASC": case  "emailDESC": case "homeAddressASC": case  "homeAddressDESC":
+                break;
+            default:
+                sortBy = "";
+        }
+        return List.of(sortBy.contains("ASC"), sortBy);
     }
 
 

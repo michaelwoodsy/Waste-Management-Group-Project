@@ -241,7 +241,7 @@ export default {
       this.orderCol = null
       this.orderDirection = false
 
-      User.getUsers(this.searchTerm, this.page-1, "firstNameASC")
+      User.getUsers(this.searchTerm, this.page-1, "")
           .then((res) => {
             this.error = null;
             this.users = res.data[0];
