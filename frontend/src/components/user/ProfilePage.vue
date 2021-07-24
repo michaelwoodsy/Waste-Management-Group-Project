@@ -385,7 +385,6 @@ export default {
         this.phoneNumber = response.data.phoneNumber
       }
 
-      //Uncomment the following statements and remove the two lines above when the home address is an object. Hopefully it works
       this.homeAddress = this.$root.$data.address.formatAddress(response.data.homeAddress)
 
       this.dateJoined = response.data.created
