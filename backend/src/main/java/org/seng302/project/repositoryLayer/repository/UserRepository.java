@@ -1,6 +1,7 @@
 package org.seng302.project.repositoryLayer.repository;
 
 import org.seng302.project.repositoryLayer.model.User;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.query.Param;
@@ -19,5 +20,7 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
 
     //Role can be one of [user, globalApplicationAdmin, defaultGlobalApplicationAdmin]
     List<User> findByRole(@Param("role") String role);
+
+    List<User> findAll(Sort sort);
 
 }

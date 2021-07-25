@@ -27,7 +27,7 @@
             @click="actAsBusiness(business)"
         >
           <img alt="profile" class="profile-image-sm rounded-circle"
-               :src="getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')">
+               :src="getPrimaryImageThumbnail(business.images, business.primaryImageId)">
           {{ business.name }}
         </a>
         <div class="dropdown-divider"/>

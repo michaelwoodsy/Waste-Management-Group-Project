@@ -164,6 +164,7 @@ export default {
      */
     changePage(page) {
       this.$emit('update:currentPage', page);
+      this.$parent.$parent.changePage()
       this.scrollToTop()
     },
 

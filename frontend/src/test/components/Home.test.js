@@ -9,6 +9,13 @@ jest.mock('@/Api')
 jest.mock('@/store/modules/user')
 
 let wrapper;
+
+const computed = {
+    actingAs() {
+        return {type: "user"}
+    }
+}
+
 const cards = [
     {
         "id": 1,
@@ -154,7 +161,7 @@ describe('Jest tests for the home component', () => {
             return false
         }))
 
-        wrapper = shallowMount(Home)
+        wrapper = shallowMount(Home, {computed})
         await wrapper.vm.$nextTick()
 
     })
@@ -215,7 +222,7 @@ describe('Jest tests for the home component', () => {
         userState.canDoAdminAction.mockImplementationOnce(jest.fn(() => {
             return true
         }))
-        wrapper = shallowMount(Home)
+        wrapper = shallowMount(Home, {computed})
         await wrapper.vm.$nextTick()
         expect(User.getAdminNotifications).toHaveBeenCalledTimes(1)
     })

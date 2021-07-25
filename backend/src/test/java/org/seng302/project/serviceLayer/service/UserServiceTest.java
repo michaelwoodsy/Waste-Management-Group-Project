@@ -20,6 +20,8 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -106,13 +108,15 @@ class UserServiceTest extends AbstractInitializer {
      */
     @Test
     void searchUsers_singleNameQuery_usesContainsSpec() {
-        // Mock the findAll method to return an empty list
-        when(userRepository.findAll()).thenReturn(List.of());
+        //Mock the findAll call to return a page
+        Page<User> users = Mockito.mock(Page.class);
+        Mockito.when(userRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(users);
 
-        userService.searchUsers("Tom");
 
-        // findAll will be called twice if a simple and non quoted search is made, check the repository was called twice
-        verify(userRepository, times(2)).findAll(any(Specification.class));
+        userService.searchUsers("Tom", 0, "");
+
+        // check the repository was called once
+        verify(userRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
     }
 
     /**
@@ -120,13 +124,14 @@ class UserServiceTest extends AbstractInitializer {
      */
     @Test
     void searchUsers_quotedNameQuery_notUseContainsSpec() {
-        // Mock the findAll method to return an empty list
-        when(userRepository.findAll()).thenReturn(List.of());
+        //Mock the findAll call to return a page
+        Page<User> users = Mockito.mock(Page.class);
+        Mockito.when(userRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(users);
 
-        userService.searchUsers("\"Tom\"");
+        userService.searchUsers("\"Tom\"", 0, "");
 
         // check the repository was called once
-        verify(userRepository, times(1)).findAll(any(Specification.class));
+        verify(userRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
     }
 
     /**
