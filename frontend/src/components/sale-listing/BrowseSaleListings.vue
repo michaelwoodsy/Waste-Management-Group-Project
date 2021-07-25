@@ -16,13 +16,13 @@
             <div class="col-sm-5">
               <div class="input-group">
                 <input id="search"
-                       v-model="searchTerm"
+                       v-model="searchQuery"
                        class="form-control no-outline"
                        placeholder="Search listings"
                        type="search"
-                       @keyup.enter="search">
+                       @keyup.enter="checkInputs">
                 <div class="input-group-append">
-                  <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
+                  <button class="btn btn-primary no-outline" type="button" @click="checkInputs">Search</button>
                 </div>
               </div>
             </div>
@@ -240,7 +240,7 @@ export default {
   },
   data() {
     return {
-      searchTerm: "",
+      searchQuery: "",
       fieldOptions: [
         {
           id: "productName",
@@ -287,7 +287,9 @@ export default {
       listings: [],
       listingToView: null,
       viewListingModal: false,
-      error: null
+      error: null,
+
+      totalCount: 0
     }
   },
   async mounted() {
@@ -314,15 +316,16 @@ export default {
       }
       return newListings;
     },
-
-    /**
-     * The total number of listings.
-     */
-    totalCount() {
-      return this.listings.length;
-    },
   },
   methods: {
+    /**
+     * Function is called by pagination component to make another call to the backend
+     * to update the list of users that should be displayed
+     */
+    async changePage() {
+      this.loading = true;
+      await this.search()
+    },
 
     /**
      * Fills the table with all sale listings when the page is loaded
@@ -497,8 +500,28 @@ export default {
     /**
      * Applies the user's search input
      */
-    search() {
-      //TODO: implement me!
+    async search() {
+      await Business.searchSaleListings(
+          this.searchQuery,
+          this.fieldOptions[0].checked,
+          this.fieldOptions[1].checked,
+          this.fieldOptions[2].checked,
+          this.priceLowerBound,
+          this.priceUpperBound,
+          this.closingDateLowerBound,
+          this.closingDateUpperBound,
+          this.page - 1,
+          this.orderBy)
+          .then((res) => {
+        this.error = null;
+        this.listings = res.data[0];
+        this.totalCount = res.data[1];
+        this.loading = false;
+      })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
     },
   }
 }

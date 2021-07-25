@@ -364,7 +364,45 @@ export const Business = {
      * @param imageId The ID of the image for the product in the database
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
-    makePrimaryBusinessImage: (businessId, imageId) => instance.put(`businesses/${businessId}/images/${imageId}/makeprimary`)
+    makePrimaryBusinessImage: (businessId, imageId) => instance.put(`businesses/${businessId}/images/${imageId}/makeprimary`),
+
+
+    /**
+     * requests to get sales listings matching supplied properties
+     * @param searchQuery query searched by
+     * @param matchingProductName weather to match product name with the search query
+     * @param matchingBusinessName weather to match business name with the search query
+     * @param MatchingBusinessLocation weather to match business location with the search query
+     * @param priceRangeLower lower price range
+     * @param priceRangeUpper upper price range
+     * @param closingDateLower lower closing date range
+     * @param closingDateUpper upper closing date range
+     * @param pageNumber the page number to get
+     * @param sortBy the sort parameter
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    searchSaleListings: (searchQuery,
+                         matchingProductName,
+                         matchingBusinessName,
+                         MatchingBusinessLocation,
+                         priceRangeLower,
+                         priceRangeUpper,
+                         closingDateLower,
+                         closingDateUpper,
+                         pageNumber,
+                         sortBy) => instance.get(`listings`,
+        {params:
+                {
+                    'searchQuery': searchQuery,
+                    'matchingProductName': matchingProductName,
+                    'MatchingBusinessLocation': MatchingBusinessLocation,
+                    'priceRangeLower': priceRangeLower,
+                    'priceRangeUpper': priceRangeUpper,
+                    'closingDateLower': closingDateLower,
+                    'closingDateUpper': closingDateUpper,
+                    'pageNumber': pageNumber,
+                    'sortBy': sortBy
+                }})
 };
 
 export const Card = {
