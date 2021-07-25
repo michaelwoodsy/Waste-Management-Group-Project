@@ -58,7 +58,6 @@ class SaleListingSpecificationsTest {
     void hasName_firstProduct_returnsFirstListing() {
         Specification<SaleListing> spec = SaleListingSpecifications.hasProductName("First Product");
         List<SaleListing> result = saleListingRepository.findAll(spec);
-        System.out.println(result.get(0).getInventoryItem().getProduct());
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("First Product", result.get(0).getInventoryItem().getProduct().getName());
     }
@@ -224,6 +223,40 @@ class SaleListingSpecificationsTest {
     @Test
     void priceGreaterThan_twentyFive_returnsNothing() {
         Specification<SaleListing> spec = SaleListingSpecifications.priceGreaterThan(25.00);
+        List<SaleListing> result = saleListingRepository.findAll(spec);
+        Assertions.assertEquals(0, result.size());
+    }
+
+    /**
+     * Tests that finding sale listing by business ID 1 returns first listing
+     */
+    @Test
+    void isBusinessId_firstBusiness_returnsFirstListing() {
+        List<Business> business = businessRepository.findByName("First Business");
+        Specification<SaleListing> spec = SaleListingSpecifications.isBusinessId(business.get(0).getId());
+        List<SaleListing> result = saleListingRepository.findAll(spec);
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals("First Product", result.get(0).getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Tests that finding sale listing by business ID 1 returns first listing
+     */
+    @Test
+    void isBusinessId_secondBusiness_returnsSecondListing() {
+        List<Business> business = businessRepository.findByName("Second Business");
+        Specification<SaleListing> spec = SaleListingSpecifications.isBusinessId(business.get(0).getId());
+        List<SaleListing> result = saleListingRepository.findAll(spec);
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals("Second Product", result.get(0).getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Tests that finding sale listing by business ID 1 returns first listing
+     */
+    @Test
+    void isBusinessId_nonExistentBusiness_returnsNothing() {
+        Specification<SaleListing> spec = SaleListingSpecifications.isBusinessId(1000);
         List<SaleListing> result = saleListingRepository.findAll(spec);
         Assertions.assertEquals(0, result.size());
     }

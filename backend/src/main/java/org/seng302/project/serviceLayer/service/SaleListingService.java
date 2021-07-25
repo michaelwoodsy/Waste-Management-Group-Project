@@ -2,8 +2,8 @@ package org.seng302.project.serviceLayer.service;
 
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.SaleListing;
-import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.repositoryLayer.repository.*;
+import org.seng302.project.repositoryLayer.repository.BusinessRepository;
+import org.seng302.project.repositoryLayer.repository.SaleListingRepository;
 import org.seng302.project.repositoryLayer.specification.BusinessSpecifications;
 import org.seng302.project.repositoryLayer.specification.SaleListingSpecifications;
 import org.slf4j.Logger;
@@ -14,21 +14,22 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Service
-public class SalesListingService {
-    private static final Logger logger = LoggerFactory.getLogger(SalesListingService.class.getName());
+public class SaleListingService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SaleListingService.class.getName());
+    private static final String AND_SPACE_REGEX = "( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+    private static final String QUOTE_REGEX = "^\".*\"$";
 
     private final SaleListingRepository saleListingRepository;
     private final BusinessRepository businessRepository;
 
-    private static final String AND_SPACE_REGEX = "( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
-    private static final String QUOTE_REGEX = "^\".*\"$";
-
     @Autowired
-    public SalesListingService(SaleListingRepository saleListingRepository, BusinessRepository businessRepository) {
+    public SaleListingService(SaleListingRepository saleListingRepository,
+                              BusinessRepository businessRepository) {
         this.saleListingRepository = saleListingRepository;
         this.businessRepository = businessRepository;
     }
@@ -96,7 +97,7 @@ public class SalesListingService {
      * Searches the closes field of Sales Listings to find sales listings with a closing date between two LocalDateTimes
      * This is assuming that if one of the dates is null, they only want to search by the other date
      *
-     * @param afterDate The minimum closes date for a sales listing
+     * @param afterDate  The minimum closes date for a sales listing
      * @param beforeDate The maximum closes date for a sales listing
      * @return specification you can add to the current specification
      */
@@ -152,10 +153,51 @@ public class SalesListingService {
         List<Business> businesses = businessRepository.findAll(hasSpec);
 
         Specification<SaleListing> spec = Specification.where(null);
-        for (Business business: businesses) {
+        for (Business business : businesses) {
             spec.or(SaleListingSpecifications.isBusinessId(business.getId()));
         }
 
         return spec;
+    }
+
+    /**
+     * Searches for sales listings by business name
+     *
+     * @param conjunctions list of strings representing conjunctive search terms
+     * @return specification for querying the JPA repository of sale listings with
+     */
+    public Specification<SaleListing> searchByBusinessName(String[] conjunctions) {
+        Specification<Business> businessSpec = null;
+
+        for (String conjunction : conjunctions) {
+            Specification<Business> newSpec = Specification.where(null);
+
+            String[] terms = conjunction.split(AND_SPACE_REGEX);
+            for (String term : terms) {
+                if (Pattern.matches(QUOTE_REGEX, term)) {
+                    term = term.replace("\"", "");
+                    newSpec = newSpec.and(BusinessSpecifications.hasName(term));
+                } else {
+                    newSpec = newSpec.and(BusinessSpecifications.hasName(term)
+                            .or(BusinessSpecifications.containsName(term)));
+                }
+            }
+            if (businessSpec == null) {
+                businessSpec = newSpec;
+            } else {
+                businessSpec = businessSpec.or(newSpec);
+            }
+        }
+
+        Specification<SaleListing> spec = null;
+        List<Business> businesses = businessRepository.findAll(businessSpec);
+        for (Business business : businesses) {
+            if (spec == null) {
+                spec = SaleListingSpecifications.isBusinessId(business.getId());
+            } else {
+                spec = spec.or(SaleListingSpecifications.isBusinessId(business.getId()));
+            }
+        }
+        return Objects.requireNonNullElseGet(spec, () -> SaleListingSpecifications.isBusinessId(-1));
     }
 }
