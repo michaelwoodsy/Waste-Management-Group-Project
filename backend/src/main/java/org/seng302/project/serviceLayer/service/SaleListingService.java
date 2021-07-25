@@ -73,7 +73,7 @@ public class SaleListingService {
 
         //Business name
         if (dto.isMatchBusinessName()) {
-            //TODO: replace with searchBusinessName method when completed
+            spec = spec.and(searchByBusinessName(conjunctions));
         }
 
         //Business location
@@ -167,30 +167,30 @@ public class SaleListingService {
      */
     private Specification<SaleListing> searchNameField(String[] conjunctions) {
 
-        Specification<SaleListing> hasSpec = Specification.where(null);//empty spec to start off with
-        Specification<SaleListing> containsSpec = Specification.where(null);//empty spec to start off with
+        Specification<SaleListing> spec = null;
 
         for (String conjunction : conjunctions) {
-            Specification<SaleListing> newHasSpec = Specification.where(null);
-            Specification<SaleListing> newContainsSpec = Specification.where(null);
+            Specification<SaleListing> newSpec = Specification.where(null);
 
             String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
             for (String term : terms) {
                 //Remove quotes from quoted string, then search by full contents inside the quotes
                 if (Pattern.matches(QUOTE_REGEX, term)) {
                     term = term.replace("\"", "");
-                    newHasSpec = newHasSpec.and(SaleListingSpecifications.hasProductName(term));
+                    newSpec = newSpec.and(SaleListingSpecifications.hasProductName(term));
                 } else {
-                    newHasSpec = newHasSpec.and(SaleListingSpecifications.hasProductName(term));
-                    newContainsSpec = newContainsSpec.and(SaleListingSpecifications.containsProductName(term));
+                    newSpec = newSpec.and(SaleListingSpecifications.hasProductName(term))
+                            .or(SaleListingSpecifications.containsProductName(term));
                 }
             }
-            //Add the new specification to the full specification using .or
-            hasSpec = hasSpec.or(newHasSpec);
-            containsSpec = containsSpec.or(newContainsSpec);
+            if (spec == null) {
+                spec = newSpec;
+            } else {
+                spec = spec.or(newSpec);
+            }
         }
         //Return the two hasSpec and containsSpec added together with a .or
-        return hasSpec.or(containsSpec);
+        return spec;
     }
 
     /**
@@ -249,39 +249,42 @@ public class SaleListingService {
      */
     private Specification<SaleListing> searchByBusinessCountry(String[] conjunctions) {
 
-        Specification<Business> hasSpec = Specification.where(null);//empty spec to start off with
-        Specification<Business> containsSpec = Specification.where(null);//empty spec to start off with
+        Specification<Business> spec = null;
 
         for (String conjunction : conjunctions) {
-            Specification<Business> newHasSpec = Specification.where(null);
-            Specification<Business> newContainsSpec = Specification.where(null);
+            Specification<Business> newSpec = Specification.where(null);
 
             String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
             for (String term : terms) {
                 //Remove quotes from quoted string, then search by full contents inside the quotes
                 if (Pattern.matches(QUOTE_REGEX, term)) {
                     term = term.replace("\"", "");
-                    newHasSpec = newHasSpec.and(BusinessSpecifications.hasCountry(term));
+                    newSpec = newSpec.and(BusinessSpecifications.hasCountry(term));
                 } else {
-                    newHasSpec = newHasSpec.and(BusinessSpecifications.hasCountry(term));
-                    newContainsSpec = newContainsSpec.and(BusinessSpecifications.containsCountry(term));
+                    newSpec = newSpec.and(BusinessSpecifications.hasCountry(term))
+                            .or(BusinessSpecifications.containsCountry(term));
                 }
             }
-            //Add the new specification to the full specification using .or
-            hasSpec = hasSpec.or(newHasSpec);
-            containsSpec = containsSpec.or(newContainsSpec);
+            if (spec == null) {
+                spec = newSpec;
+            } else {
+                spec = spec.or(newSpec);
+            }
         }
-        hasSpec = hasSpec.or(containsSpec);
 
         //Get businesses with country matching and add their id's to spec
-        List<Business> businesses = businessRepository.findAll(hasSpec);
+        List<Business> businesses = businessRepository.findAll(spec);
 
-        Specification<SaleListing> spec = Specification.where(null);
+        Specification<SaleListing> listingSpec = null;
         for (Business business : businesses) {
-            spec.or(SaleListingSpecifications.isBusinessId(business.getId()));
+            if (listingSpec == null) {
+                listingSpec = SaleListingSpecifications.isBusinessId(business.getId());
+            } else {
+                listingSpec = listingSpec.or(SaleListingSpecifications.isBusinessId(business.getId()));
+            }
         }
 
-        return spec;
+        return listingSpec;
     }
 
     /**

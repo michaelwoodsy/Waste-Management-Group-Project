@@ -11,6 +11,8 @@ import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.repositoryLayer.repository.InventoryItemRepository;
 import org.seng302.project.repositoryLayer.repository.ProductRepository;
 import org.seng302.project.repositoryLayer.repository.SaleListingRepository;
+import org.seng302.project.serviceLayer.dto.saleListings.GetSalesListingDTO;
+import org.seng302.project.serviceLayer.dto.saleListings.SearchSaleListingsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.domain.Specification;
@@ -46,6 +48,7 @@ class SaleListingServiceTest {
     void setup() {
         Business business1 = new Business("First Business", null, null, "Retail Trade", 1);
         businessRepository.save(business1);
+
         Product product1 = new Product("TEST-1", "First Product", null, null, 5.00, business1.getId());
         productRepository.save(product1);
         InventoryItem inventoryItem1 = new InventoryItem(product1, 5, null, null, "2021-01-01", null, null, "2021-12-31");
@@ -53,14 +56,31 @@ class SaleListingServiceTest {
         SaleListing saleListing1 = new SaleListing(business1.getId(), inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
         saleListingRepository.save(saleListing1);
 
+        Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
+        productRepository.save(product2);
+        InventoryItem inventoryItem2 = new InventoryItem(product2, 10, null, null, "2021-01-01", null, null, "2021-12-31");
+        inventoryItemRepository.save(inventoryItem1);
+        SaleListing saleListing2 = new SaleListing(business1.getId(), inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
+        saleListingRepository.save(saleListing2);
+
+
+
         Business business2 = new Business("Second Business", null, null, "Retail Trade", 1);
         businessRepository.save(business2);
-        Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business2.getId());
-        productRepository.save(product2);
-        InventoryItem inventoryItem2 = new InventoryItem(product2, 5, null, null, "2021-01-01", null, null, "2021-12-31");
-        inventoryItemRepository.save(inventoryItem2);
-        SaleListing saleListing2 = new SaleListing(business2.getId(), inventoryItem2, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
-        saleListingRepository.save(saleListing2);
+
+        Product product3 = new Product("TEST-3", "Third Product", null, null, 5.00, business2.getId());
+        productRepository.save(product3);
+        InventoryItem inventoryItem3 = new InventoryItem(product3, 5, null, null, "2021-01-01", null, null, "2021-12-31");
+        inventoryItemRepository.save(inventoryItem3);
+        SaleListing saleListing3 = new SaleListing(business2.getId(), inventoryItem3, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
+        saleListingRepository.save(saleListing3);
+
+        Product product4 = new Product("TEST-4", "Fourth Product", null, null, 5.00, business2.getId());
+        productRepository.save(product4);
+        InventoryItem inventoryItem4 = new InventoryItem(product4, 5, null, null, "2021-01-01", null, null, "2021-12-31");
+        inventoryItemRepository.save(inventoryItem4);
+        SaleListing saleListing4 = new SaleListing(business2.getId(), inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
+        saleListingRepository.save(saleListing4);
     }
 
     /**
@@ -71,8 +91,9 @@ class SaleListingServiceTest {
         String searchTerm = "first";
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(1, listings.size());
+        Assertions.assertEquals(2, listings.size());
         Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
     }
 
     /**
@@ -83,19 +104,20 @@ class SaleListingServiceTest {
         String searchTerm = "second";
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(1, listings.size());
-        Assertions.assertEquals("Second Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals(2, listings.size());
+        Assertions.assertEquals("Third Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Fourth Product", listings.get(1).getInventoryItem().getProduct().getName());
     }
 
     /**
-     * Tests that searching for listing by business name with string 'business' returns both listings
+     * Tests that searching for listing by business name with string 'business' returns all four listings
      */
     @Test
     void searchByBusinessName_business_returnsBothListings() {
         String searchTerm = "business";
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(2, listings.size());
+        Assertions.assertEquals(4, listings.size());
     }
 
     /**
@@ -117,8 +139,9 @@ class SaleListingServiceTest {
         String searchTerm = "\"first business\"";
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(1, listings.size());
+        Assertions.assertEquals(2, listings.size());
         Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
     }
 
     /**
@@ -133,13 +156,14 @@ class SaleListingServiceTest {
     }
 
     /**
-     * Tests that searching for listing by business name with string 'first' and 'second' returns both listings
+     * Tests that searching for listing by business name with string 'first' and 'second' returns all four listings
      */
     @Test
     void searchByBusinessName_firstOrSecond_returnsBothListings() {
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{"first", "second"});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(2, listings.size());
+        System.out.println(listings);
+        Assertions.assertEquals(4, listings.size());
     }
 
     /**
@@ -151,6 +175,122 @@ class SaleListingServiceTest {
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
         Assertions.assertEquals(0, listings.size());
+    }
+
+
+    /**
+     * Test that using an empty search returns the four sales listings
+     */
+    @Test
+    void emptySearch_returns_four_listings() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                true,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+    }
+
+    /**
+     * Test that searching by "fou" returns one sale listing with name "Fourth Product"
+     */
+    @Test
+    void search_fou_returns_one_listing() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "fou",
+                true,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(1, total);
+
+        GetSalesListingDTO listing = listings.get(0);
+
+        Assertions.assertEquals("Fourth Product", listing.getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Test that searching by ""First Product"" (in quotes) returns one sale listing with name "First Product"
+     */
+    @Test
+    void search_product_name_quoted_returns_one_listing() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "\"First Product\"",
+                true,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(1, total);
+
+        GetSalesListingDTO listing = listings.get(0);
+
+        Assertions.assertEquals("First Product", listing.getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Test that searching by "first" returns the sale listings from the first business (two of them)
+     */
+    @Test
+    void search_first_in_businesses_returns_two_listing() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "first",
+                false,
+                true,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(2, total);
+
+        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
     }
 
 }
