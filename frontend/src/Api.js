@@ -209,10 +209,12 @@ export const Business = {
      * @param businessSearchType Criteria to limit the search for only businesses with this type
      * @returns {Promise<AxiosResponse<any>>} Response from request
      */
-    getBusinesses: (searchTerm, businessSearchType) => instance.get('businesses/search', {
+    getBusinesses: (searchTerm, businessSearchType, pageNumber, sortBy) => instance.get('businesses/search', {
         params: {
             'searchQuery': searchTerm,
-            'businessType': businessSearchType
+            'businessType': businessSearchType,
+            'pageNumber': pageNumber,
+            'sortBy': sortBy
         }
     }),
 

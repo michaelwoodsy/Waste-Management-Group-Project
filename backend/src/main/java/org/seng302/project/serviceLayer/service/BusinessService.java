@@ -11,6 +11,7 @@ import org.seng302.project.repositoryLayer.specification.BusinessSpecifications;
 import org.seng302.project.serviceLayer.dto.business.GetBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
+import org.seng302.project.serviceLayer.dto.user.GetUserDTO;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.AdministratorAlreadyExistsException;
@@ -22,6 +23,10 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +34,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class BusinessService {
@@ -370,56 +376,92 @@ public class BusinessService {
      * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
      * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
      */
-    public List<Business> searchBusiness(String searchQuery, BusinessType businessType) {
-        logger.info("Request to search businesses with searchQuery: {} and businessType: {}",
-                searchQuery, businessType);
-
-        try {
-            List<Business> retrievedBusinesses;
-
-            if (searchQuery.length() < 3) {
-                throw new BadRequestException("Please enter at least 3 characters to search.");
-            } else {
-                Set<Business> result = new LinkedHashSet<>();
-
-                searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
-                String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
-
-                for (String conjunction : conjunctions) {
-                    Specification<Business> hasSpec = Specification.where(null);
-                    Specification<Business> containsSpec = Specification.where(null);
-                    var searchContains = false;
-                    String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
-
-                    for (String name : names) {
-                        if (Pattern.matches("^\".*\"$", name)) {
-                            name = name.replace("\"", "");
-                            hasSpec = hasSpec.and(BusinessSpecifications.hasName(name));
-                        } else {
-                            hasSpec = hasSpec.and(BusinessSpecifications.hasName(name));
-                            containsSpec = containsSpec.and(BusinessSpecifications.containsName(name));
-                            searchContains = true;
-                        }
-                    }
-
-                    result.addAll(businessRepository.findAll(hasSpec));
-                    if (searchContains) {
-                        result.addAll(businessRepository.findAll(containsSpec));
-                    }
+    public List<Object> searchBusiness(String searchQuery, BusinessType businessType, Integer pageNumber, String sortBy) {
+        List<Business> businesses;
+        long totalCount;
+        boolean sortASC;
+        List<Object> sortChecker = checkSort(sortBy);
+        sortASC = (boolean) sortChecker.get(0);
+        sortBy = (String) sortChecker.get(1);
+        searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
+        String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
+        Specification<Business> hasSpec = Specification.where(null);
+        Specification<Business> containsSpec = Specification.where(null);
+        for (String conjunction : conjunctions) {
+            Specification<Business> newHasSpec = Specification.where(null);
+            Specification<Business> newContainsSpec = Specification.where(null);
+            var searchContains = false;
+            String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
+            // Iterate over the names in the search and check if they are quoted
+            for (String name : names) {
+                if (Pattern.matches("^\".*\"$", name)) {
+                    name = name.replace("\"", "");
+                    newHasSpec = newHasSpec.and(BusinessSpecifications.hasName(name));
+                } else {
+                    newHasSpec = newHasSpec.and(BusinessSpecifications.hasName(name));
+                    newContainsSpec = newContainsSpec.and(BusinessSpecifications.containsName(name));
+                    searchContains = true;
                 }
-
-                logger.info("Retrieved {} businesses", result.size());
-                retrievedBusinesses = new ArrayList<>(result);
             }
+            hasSpec = hasSpec.or(newHasSpec);
+            containsSpec = containsSpec.or(newContainsSpec);
+        }
 
-            return filterBusinesses(retrievedBusinesses, businessType);
+        Specification<Business> spec = hasSpec.or(containsSpec);
 
-        } catch (BadRequestException badRequestException) {
-            logger.error(badRequestException.getMessage());
-            throw badRequestException;
-        } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while searching businesses: %s", exception.getMessage()));
-            throw exception;
+        // query the repository and get a Page object, from which you can get the content by doing page.getContent()
+        if(!sortBy.isEmpty()){
+            Page<Business> page = sortBusinessSearch(spec, sortBy, sortASC, pageNumber);
+            totalCount = page.getTotalElements();
+            businesses = page.getContent();
+        } else {
+            Pageable pageable = PageRequest.of(pageNumber, 10);
+            Page<Business> page = businessRepository.findAll(spec, pageable);
+            totalCount = page.getTotalElements();
+            businesses = page.getContent();
+        }
+
+        logger.info("Retrieved {} businesses, showing {}", totalCount, businesses.size());
+
+        // Map user objects to GetUserDTO objects and return
+        return Arrays.asList(businesses.stream().map(GetBusinessDTO::new).collect(Collectors.toList()), totalCount);
+    }
+
+    /**
+     * Helper function for business search, does the sorting
+     * @param spec the specification used to search by
+     * @param sortBy the column that is to be sorted
+     * @param sortASC the direction of the sort
+     * @return the sorted list of users searched for
+     */
+    public Page<Business> sortBusinessSearch(Specification<Business> spec, String sortBy, boolean sortASC, Integer pageNumber){
+        if(sortASC){
+            sortBy = sortBy.substring(0, sortBy.lastIndexOf("A"));
+            Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by(Sort.Order.asc(sortBy).ignoreCase()));
+            return businessRepository.findAll(spec, pageable);
+        } else {
+            sortBy = sortBy.substring(0, sortBy.lastIndexOf("D"));
+            Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by(Sort.Order.desc(sortBy).ignoreCase()));
+            return businessRepository.findAll(spec, pageable);
         }
     }
+
+    /**
+     * Checks if the sort column is one of the valid ones, if not replaces it with the empty string and no sorting is done
+     * @param sortBy This is the string that will contain information about what column to sort by
+     * @return A list that contains a boolean to describe if the sort is ascending or descending, and the sortby string
+     * in case it has changed
+     */
+    public List<Object> checkSort(String sortBy){
+        switch(sortBy){
+            case "idASC": case "idDESC": case "nameASC": case "nameDESC": case "businessTypeASC": case "businessTypeDESC":
+            case "addressASC": case  "addressDESC":
+                break;
+            default:
+                sortBy = "";
+        }
+        return List.of(sortBy.contains("ASC"), sortBy);
+    }
 }
+
+

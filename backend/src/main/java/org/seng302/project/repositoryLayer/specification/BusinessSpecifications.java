@@ -1,6 +1,7 @@
 package org.seng302.project.repositoryLayer.specification;
 
 import org.seng302.project.repositoryLayer.model.Business;
+import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -25,7 +26,9 @@ public class BusinessSpecifications {
      */
     public static Specification<Business> hasName(String name) {
         return ((root, query, builder) ->
-                builder.like(builder.lower(root.get("name")), name));
+                builder.or(
+                        builder.like(builder.lower(root.get("name")), name))
+        );
     }
 
     /**
@@ -37,7 +40,9 @@ public class BusinessSpecifications {
      */
     public static Specification<Business> containsName(String name) {
         return ((root, query, builder) ->
-                builder.like(builder.lower(root.get("name")), '%' + name + '%'));
+                builder.or(
+                        builder.like(builder.lower(root.get("name")), '%' + name + '%'))
+        );
     }
 
     /**
@@ -48,7 +53,8 @@ public class BusinessSpecifications {
      */
     public static Specification<Business> hasCountry(String country) {
         return ((root, query, builder) ->
-                builder.like(builder.lower(root.get("address").get("country")), country)
+                builder.or(
+                        builder.like(builder.lower(root.get("address").get("country")), country))
         );
     }
 
@@ -60,7 +66,20 @@ public class BusinessSpecifications {
      */
     public static Specification<Business> containsCountry(String country) {
         return ((root, query, builder) ->
-                builder.like(builder.lower(root.get("address").get("country")), "%" + country + "%")
+                builder.or(
+                        builder.like(builder.lower(root.get("address").get("country")), "%" + country + "%"))
+        );
+    }
+
+    /**
+     * Creates a Specification object to search businesses by businessType
+     * @param businessType This is the businessType to search by
+     * @return a specification object to search repository with
+     */
+    public static Specification<Business> hasBusinessType(BusinessType businessType){
+        return ((root, query, builder) ->
+                builder.or(
+                        builder.like(builder.lower(root.get("businessType")), businessType.name()))
         );
     }
 }
