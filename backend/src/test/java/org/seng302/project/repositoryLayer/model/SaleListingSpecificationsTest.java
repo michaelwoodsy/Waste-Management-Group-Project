@@ -56,7 +56,7 @@ class SaleListingSpecificationsTest {
      */
     @Test
     void hasName_firstProduct_returnsFirstListing() {
-        Specification<SaleListing> spec = SaleListingSpecifications.hasProductName("First Product");
+        Specification<SaleListing> spec = SaleListingSpecifications.hasProductName("first product");
         List<SaleListing> result = saleListingRepository.findAll(spec);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("First Product", result.get(0).getInventoryItem().getProduct().getName());
@@ -67,7 +67,7 @@ class SaleListingSpecificationsTest {
      */
     @Test
     void hasName_secondProduct_returnsSecondListing() {
-        Specification<SaleListing> spec = SaleListingSpecifications.hasProductName("Second Product");
+        Specification<SaleListing> spec = SaleListingSpecifications.hasProductName("second product");
         List<SaleListing> result = saleListingRepository.findAll(spec);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("Second Product", result.get(0).getInventoryItem().getProduct().getName());
@@ -78,7 +78,7 @@ class SaleListingSpecificationsTest {
      */
     @Test
     void hasName_product_returnsNothing() {
-        Specification<SaleListing> spec = SaleListingSpecifications.hasProductName("Product");
+        Specification<SaleListing> spec = SaleListingSpecifications.hasProductName("product");
         List<SaleListing> result = saleListingRepository.findAll(spec);
         Assertions.assertEquals(0, result.size());
     }
@@ -88,7 +88,7 @@ class SaleListingSpecificationsTest {
      */
     @Test
     void containsName_product_returnsBothListings() {
-        Specification<SaleListing> spec = SaleListingSpecifications.containsProductName("Product");
+        Specification<SaleListing> spec = SaleListingSpecifications.containsProductName("product");
         List<SaleListing> result = saleListingRepository.findAll(spec);
         Assertions.assertEquals(2, result.size());
     }
@@ -98,7 +98,7 @@ class SaleListingSpecificationsTest {
      */
     @Test
     void containsName_random_returnsNothing() {
-        Specification<SaleListing> spec = SaleListingSpecifications.containsProductName("Random");
+        Specification<SaleListing> spec = SaleListingSpecifications.containsProductName("random");
         List<SaleListing> result = saleListingRepository.findAll(spec);
         Assertions.assertEquals(0, result.size());
     }
