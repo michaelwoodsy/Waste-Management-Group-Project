@@ -1,6 +1,7 @@
 package org.seng302.project.serviceLayer.service;
 
 import org.seng302.project.repositoryLayer.model.SaleListing;
+import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.repositoryLayer.specification.SaleListingSpecifications;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -29,45 +31,47 @@ public class SalesListingService {
 
     /**
      * Searches the product name field, handling ORs, ANDs, spaces and quotes
-     * Updates the set of Sales Listings.
      *
-     * @param currentResult The listings that have already been retrieved
      * @param conjunctions The list of strings that have been split by OR
+     * @return specification you can add to the current specification
      */
-    private void searchNameField(Set<SaleListing> currentResult, String[] conjunctions) {
+    private Specification<SaleListing> searchNameField(String[] conjunctions) {
+
+        Specification<SaleListing> hasSpec = Specification.where(null);//empty spec to start off with
+        Specification<SaleListing> containsSpec = Specification.where(null);//empty spec to start off with
+
         for (String conjunction : conjunctions) {
+            Specification<SaleListing> newHasSpec = Specification.where(null);
+            Specification<SaleListing> newContainsSpec = Specification.where(null);
+
             String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
-            Specification<SaleListing> hasSpec = Specification.where(null);//empty spec to start off with
-            Specification<SaleListing> containsSpec = Specification.where(null);//empty spec to start off with
-            var searchContains = false;
             for (String term : terms) {
                 //Remove quotes from quoted string, then search by full contents inside the quotes
                 if (Pattern.matches(QUOTE_REGEX, term)) {
                     term = term.replace("\"", "");
-                    hasSpec = hasSpec.and(SaleListingSpecifications.hasProductName(term));
+                    newHasSpec = newHasSpec.and(SaleListingSpecifications.hasProductName(term));
                 } else {
-                    hasSpec = hasSpec.and(SaleListingSpecifications.hasProductName(term));
-                    containsSpec = containsSpec.and(SaleListingSpecifications.containsProductName(term));
-                    searchContains = true;
+                    newHasSpec = newHasSpec.and(SaleListingSpecifications.hasProductName(term));
+                    newContainsSpec = newContainsSpec.and(SaleListingSpecifications.containsProductName(term));
                 }
             }
-            currentResult.addAll(saleListingRepository.findAll(hasSpec));
-            if (searchContains) {
-                currentResult.addAll(saleListingRepository.findAll(containsSpec));
-            }
+            //Add the new specification to the full specification using .or
+            hasSpec = hasSpec.or(newHasSpec);
+            containsSpec = containsSpec.or(newContainsSpec);
         }
+        //Return the two hasSpec and containsSpec added together with a .or
+        return hasSpec.or(containsSpec);
     }
 
     /**
      * Searches the price field of Sales Listings to find sales listings with a price between two Doubles
-     * Updates the set of Sales Listings.
      * This is assuming that if one of the prices is null, they only want to search by the other price
      *
-     * @param currentResult The listings that have already been retrieved
      * @param minimum The minimum price for a sales listing
      * @param maximum The maximum price for a sales listing
+     * @return specification you can add to the current specification
      */
-    private void searchPriceInBetween(Set<SaleListing> currentResult, Double minimum, Double maximum) {
+    private Specification<SaleListing> searchPriceInBetween(Double minimum, Double maximum) {
         Specification<SaleListing> priceSpec = Specification.where(null);
 
         //Minimum price spec
@@ -80,6 +84,30 @@ public class SalesListingService {
             priceSpec = priceSpec.and(Specification.where(SaleListingSpecifications.priceLessThan(maximum)));
         }
 
-        currentResult.addAll(saleListingRepository.findAll(priceSpec));
+        return priceSpec;
+    }
+
+    /**
+     * Searches the closes field of Sales Listings to find sales listings with a closing date between two LocalDateTimes
+     * This is assuming that if one of the dates is null, they only want to search by the other date
+     *
+     * @param afterDate The minimum closes date for a sales listing
+     * @param beforeDate The maximum closes date for a sales listing
+     * @return specification you can add to the current specification
+     */
+    private Specification<SaleListing> searchClosesInBetween(LocalDateTime afterDate, LocalDateTime beforeDate) {
+        Specification<SaleListing> closingSpec = Specification.where(null);
+
+        //Minimum closing date spec
+        if (afterDate != null) {
+            closingSpec = closingSpec.and(Specification.where(SaleListingSpecifications.closesAfter(afterDate)));
+        }
+
+        //Maximum closing date spec
+        if (beforeDate != null) {
+            closingSpec = closingSpec.and(Specification.where(SaleListingSpecifications.closesBefore(beforeDate)));
+        }
+
+        return closingSpec;
     }
 }
