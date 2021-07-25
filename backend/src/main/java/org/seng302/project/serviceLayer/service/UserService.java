@@ -17,6 +17,9 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -61,61 +64,51 @@ public class UserService {
      */
     public List<Object> searchUsers(String searchQuery, Integer pageNumber, String sortBy) {
         List<User> users;
-        int totalCount;
-        Set<User> result = new LinkedHashSet<>();
-        Boolean sortASC;
+        long totalCount;
+        boolean sortASC;
         List<Object> sortChecker = checkSort(sortBy);
-        sortASC = (Boolean) sortChecker.get(0);
+        sortASC = (boolean) sortChecker.get(0);
         sortBy = (String) sortChecker.get(1);
         searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
         String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
-        for (String conjunction : conjunctions) {
-            Specification<User> hasSpec = Specification.where(null);
-            Specification<User> containsSpec = Specification.where(null);
-            var searchContains = false;
-            String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
+        Specification<User> hasSpec = Specification.where(null);
+        Specification<User> containsSpec = Specification.where(null);
 
+        for (String conjunction : conjunctions) {
+            Specification<User> newHasSpec = Specification.where(null);
+            Specification<User> newContainsSpec = Specification.where(null);
+            String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
             // Iterate over the names in the search and check if they are quoted
             for (String name : names) {
                 if (Pattern.matches("^\".*\"$", name)) {
                     name = name.replace("\"", "");
-                    hasSpec = hasSpec.and(UserSpecifications.hasName(name));
+                    newHasSpec = newHasSpec.and(UserSpecifications.hasName(name));
                 } else {
-                    hasSpec = hasSpec.and(UserSpecifications.hasName(name));
-                    containsSpec = containsSpec.and(UserSpecifications.containsName(name));
-                    searchContains = true;
+                    newHasSpec = newHasSpec.and(UserSpecifications.hasName(name));
+                    newContainsSpec = newContainsSpec.and(UserSpecifications.containsName(name));
                 }
             }
-
-            // query the repository and add to results set (use the search with sort if there is a sort)
-            if(!sortBy.isEmpty()){
-                result.addAll(sortUserSearch(hasSpec, sortBy, sortASC));
-                if (searchContains) {
-                    result.addAll(sortUserSearch(containsSpec, sortBy, sortASC));
-                }
-            } else {
-                result.addAll(userRepository.findAll(hasSpec));
-                if (searchContains) {
-                    result.addAll(userRepository.findAll(containsSpec));
-                }
-            }
-
+            hasSpec = hasSpec.or(newHasSpec);
+            containsSpec = containsSpec.or(newContainsSpec);
         }
-        // convert set to a list
-        users = new ArrayList<>(result);
 
-        totalCount = users.size();
-        logger.info("Retrieved {} users", users.size());
-        //Split users into correct amount to be returned
-        if(!users.isEmpty()){
-            if(pageNumber*10+10 > users.size()-1){
-                var remainder = users.size()%10;
-                users = users.subList(pageNumber*10, pageNumber*10 + remainder);
-            } else {
-                users = users.subList(pageNumber*10, pageNumber*10 + 10);
-            }
+        Specification<User> spec = hasSpec.or(containsSpec);
+
+        // query the repository and get a Page object, from which you can get the content by doing page.getContent()
+        if(!sortBy.isEmpty()){
+            Page<User> page = sortUserSearch(spec, sortBy, sortASC, pageNumber);
+            totalCount = page.getTotalElements();
+            users = page.getContent();
+        } else {
+            Pageable pageable = PageRequest.of(pageNumber, 10);
+            Page<User> page = userRepository.findAll(spec, pageable);
+            totalCount = page.getTotalElements();
+            users = page.getContent();
         }
+
+        logger.info("Retrieved {} users, showing {}", totalCount, users.size());
+
         // Map user objects to GetUserDTO objects and return
         return Arrays.asList(users.stream().map(GetUserDTO::new).collect(Collectors.toList()), totalCount);
     }
@@ -287,18 +280,20 @@ public class UserService {
 
     /**
      * Helper function for user search, does the sorting
-     * @param searchSpec the specification used to search by
+     * @param spec the specification used to search by
      * @param sortBy the column that is to be sorted
      * @param sortASC the direction of the sort
      * @return the sorted list of users searched for
      */
-    public List<User> sortUserSearch(Specification searchSpec, String sortBy, Boolean sortASC){
+    public Page<User> sortUserSearch(Specification<User> spec, String sortBy, boolean sortASC, Integer pageNumber){
         if(sortASC){
             sortBy = sortBy.substring(0, sortBy.lastIndexOf("A"));
-            return userRepository.findAll(searchSpec, Sort.by(Sort.Order.asc(sortBy).ignoreCase()));
+            Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by(Sort.Order.asc(sortBy).ignoreCase()));
+            return userRepository.findAll(spec, pageable);
         } else {
             sortBy = sortBy.substring(0, sortBy.lastIndexOf("D"));
-            return userRepository.findAll(searchSpec, Sort.by(Sort.Order.desc(sortBy).ignoreCase()));
+            Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by(Sort.Order.desc(sortBy).ignoreCase()));
+            return userRepository.findAll(spec, pageable);
         }
     }
 
