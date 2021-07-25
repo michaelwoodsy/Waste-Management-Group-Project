@@ -23,7 +23,7 @@ public final class SaleListingSpecifications {
      */
     public static Specification<SaleListing> hasProductName(String name) {
         return ((root, query, builder) ->
-                builder.like(root.get("inventoryItem").get("product").get("name"), name)
+                builder.like(builder.lower(root.get("inventoryItem").get("product").get("name")), name)
         );
     }
 
@@ -35,7 +35,7 @@ public final class SaleListingSpecifications {
      */
     public static Specification<SaleListing> containsProductName(String name) {
         return ((root, query, builder) ->
-                builder.like(root.get("inventoryItem").get("product").get("name"), "%" + name + "%")
+                builder.like(builder.lower(root.get("inventoryItem").get("product").get("name")), "%" + name + "%")
         );
     }
 
