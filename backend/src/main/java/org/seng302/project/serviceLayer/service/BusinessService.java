@@ -1,5 +1,6 @@
 package org.seng302.project.serviceLayer.service;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
@@ -347,27 +348,6 @@ public class BusinessService {
     }
 
     /**
-     * Filters businesses based on a given business type
-     *
-     * @param retrievedBusinesses list of businesses found by specifications
-     * @param businessType        the business type to filter by e.g. RETAIL_TRADE
-     */
-    public List<Business> filterBusinesses(List<Business> retrievedBusinesses, BusinessType businessType) {
-        //In DTO, businessType is either a valid type or null
-        if (businessType != null) {
-            var filteredBusinesses = new ArrayList<Business>();
-            for (Business business : retrievedBusinesses) {
-                if (businessType.matchesType(business.getBusinessType())) {
-                    filteredBusinesses.add(business);
-                }
-            }
-            return filteredBusinesses;
-        } else {
-            return retrievedBusinesses;
-        }
-    }
-
-    /**
      * Searches for business based on name and type
      * Regular expression for splitting search query taken from linked website
      *
@@ -380,6 +360,7 @@ public class BusinessService {
         List<Business> businesses;
         long totalCount;
         boolean sortASC;
+        String checkedBusinessType;
         List<Object> sortChecker = checkSort(sortBy);
         sortASC = (boolean) sortChecker.get(0);
         sortBy = (String) sortChecker.get(1);
@@ -409,6 +390,11 @@ public class BusinessService {
 
         Specification<Business> spec = hasSpec.or(containsSpec);
 
+        //Convert business type to string to be able to search database with it
+        if(businessType != null){
+            checkedBusinessType = checkBusinessType(businessType);
+            spec = spec.and(Specification.where(BusinessSpecifications.hasBusinessType(checkedBusinessType)));
+        }
         // query the repository and get a Page object, from which you can get the content by doing page.getContent()
         if(!sortBy.isEmpty()){
             Page<Business> page = sortBusinessSearch(spec, sortBy, sortASC, pageNumber);
@@ -422,8 +408,6 @@ public class BusinessService {
         }
 
         logger.info("Retrieved {} businesses, showing {}", totalCount, businesses.size());
-
-        // Map user objects to GetUserDTO objects and return
         return Arrays.asList(businesses.stream().map(GetBusinessDTO::new).collect(Collectors.toList()), totalCount);
     }
 
@@ -461,6 +445,27 @@ public class BusinessService {
                 sortBy = "";
         }
         return List.of(sortBy.contains("ASC"), sortBy);
+    }
+
+    public String checkBusinessType(BusinessType businessType){
+        String returnedBusinessType;
+        switch (businessType){
+            case RETAIL_TRADE:
+                returnedBusinessType = "Retail Trade";
+                break;
+            case CHARITABLE_ORG:
+                returnedBusinessType = "Charitable organisation";
+                break;
+            case NON_PROFIT_ORG:
+                returnedBusinessType = "Non-profit organisation";
+                break;
+            case ACCOMMODATION_AND_FOOD:
+                returnedBusinessType = "Accommodation and Food Services";
+                break;
+            default:
+                returnedBusinessType = "";
+        }
+        return returnedBusinessType;
     }
 }
 

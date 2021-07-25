@@ -4,11 +4,14 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
+import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -19,6 +22,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -65,21 +73,22 @@ public class BusinessSearchSteps {
     }
 
     //AC2
-
     @Given("A business exists with the name {string}")
     public void a_business_exists_with_the_name(String businessName) {
-        testBusiness1 = new Business(businessName, "description", null, "Retail Trade", 1);
+        Address address = new Address();
+        address.setCountry("New Zealand");
+
+        testBusiness1 = new Business(businessName, "description", address, "Retail Trade", 1);
         businessRepository.save(testBusiness1);
     }
 
     @When("I enter {string} as a search term")
     public void i_enter_as_a_search_term(String searchTerm) {
         searchBusinessRequest = MockMvcRequestBuilders
-                .get("/businesses/search?searchQuery={searchQuery}", searchTerm)
+                .get("/businesses/search?searchQuery={searchQuery}&pageNumber=0&sortBy=", searchTerm)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
-
     }
 
     @Then("The business called {string} is in the search results")
@@ -87,11 +96,11 @@ public class BusinessSearchSteps {
         MvcResult searchResult = this.mockMvc.perform(searchBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
-
         String searchResultString = searchResult.getResponse().getContentAsString();
         JSONArray searchResultArray = new JSONArray(searchResultString);
+        System.out.println(searchResultArray);
 
-        Assertions.assertEquals(businessName, searchResultArray.getJSONObject(0).getString("name"));
+        Assertions.assertEquals(businessName, searchResultArray.get(0));
     }
 
     @Then("The business called {string} is NOT in the search results")
@@ -117,7 +126,7 @@ public class BusinessSearchSteps {
     @When("I enter \"\"Cara's Cookies\"\" as a search term")
     public void i_enter_cara_s_cookies_as_a_search_term() {
         searchBusinessRequest = MockMvcRequestBuilders
-                .get("/businesses/search?searchQuery={searchQuery}", "\"Cara's Cookies\"")
+                .get("/businesses/search?searchQuery={searchQuery}&pageNumber=0&sortBy=", "\"Cara's Cookies\"")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
@@ -150,7 +159,7 @@ public class BusinessSearchSteps {
     @When("I search by the business type {string}")
     public void i_search_by_the_business_type(String businessType) {
         searchBusinessRequest = MockMvcRequestBuilders
-                .get("/businesses/search?searchQuery={searchQuery}&businessType={businessType}", "Business", businessType)
+                .get("/businesses/search?searchQuery={searchQuery}&businessType={businessType}&pageNumber=0&sortBy=", "Business", businessType)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
@@ -182,7 +191,7 @@ public class BusinessSearchSteps {
     @When("I search by the business type {string} and the search term {string}")
     public void i_search_by_the_business_type_and_the_search_term(String businessType, String searchTerm) {
         searchBusinessRequest = MockMvcRequestBuilders
-                .get("/businesses/search?searchQuery={searchQuery}&businessType={businessType}", searchTerm, businessType)
+                .get("/businesses/search?searchQuery={searchQuery}&businessType={businessType}&pageNumber=0&sortBy=", searchTerm, businessType)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));

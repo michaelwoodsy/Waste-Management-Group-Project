@@ -76,10 +76,10 @@ public class BusinessSpecifications {
      * @param businessType This is the businessType to search by
      * @return a specification object to search repository with
      */
-    public static Specification<Business> hasBusinessType(BusinessType businessType){
+    public static Specification<Business> hasBusinessType(String businessType){
         return ((root, query, builder) ->
                 builder.or(
-                        builder.like(builder.lower(root.get("businessType")), businessType.name()))
+                        builder.like(root.get("businessType"), businessType))
         );
     }
 }
