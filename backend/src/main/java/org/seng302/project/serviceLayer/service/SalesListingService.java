@@ -31,9 +31,9 @@ public class SalesListingService {
 
     /**
      * Searches the product name field, handling ORs, ANDs, spaces and quotes
-     * Updates the set of Sales Listings.
      *
      * @param conjunctions The list of strings that have been split by OR
+     * @return specification you can add to the current specification
      */
     private Specification<SaleListing> searchNameField(String[] conjunctions) {
 
@@ -65,7 +65,6 @@ public class SalesListingService {
 
     /**
      * Searches the price field of Sales Listings to find sales listings with a price between two Doubles
-     * Updates the set of Sales Listings.
      * This is assuming that if one of the prices is null, they only want to search by the other price
      *
      * @param minimum The minimum price for a sales listing
@@ -90,7 +89,6 @@ public class SalesListingService {
 
     /**
      * Searches the closes field of Sales Listings to find sales listings with a closing date between two LocalDateTimes
-     * Updates the set of Sales Listings.
      * This is assuming that if one of the dates is null, they only want to search by the other date
      *
      * @param afterDate The minimum closes date for a sales listing
