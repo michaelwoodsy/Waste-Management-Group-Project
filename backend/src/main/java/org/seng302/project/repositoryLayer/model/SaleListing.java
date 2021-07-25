@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class SaleListing {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "listing_id")
     private Integer id;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
