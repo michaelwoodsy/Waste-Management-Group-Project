@@ -32,9 +32,6 @@
               <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
             </div>
           </div>
-          <div v-if="!searchError" class="text-center">
-            <small>Requires at least 3 characters to search</small>
-          </div>
           <span class="invalid-feedback d-block text-center">{{ searchError }}</span>
         </div>
       </div>
@@ -58,7 +55,7 @@
               <thead>
               <tr>
                 <!--    ID    -->
-                <th class="pointer" scope="col" @click="orderResults('id')">
+                <th class="pointer" scope="col" @click="orderSearch('id')">
                   <p class="d-inline">Id</p>
                   <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
@@ -67,31 +64,31 @@
                 <th id="userImage"></th>
 
                 <!--    First Name    -->
-                <th class="pointer" scope="col" @click="orderResults('firstName')">
+                <th class="pointer" scope="col" @click="orderSearch('firstName')">
                   <p class="d-inline">Firstname</p>
                   <p v-if="orderCol === 'firstName'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
 
                 <!--    Middle Name    -->
-                <th class="pointer" scope="col" @click="orderResults('middleName')">
+                <th class="pointer" scope="col" @click="orderSearch('middleName')">
                   <p class="d-inline">Middlename</p>
                   <p v-if="orderCol === 'middleName'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
 
                 <!--    Last Name    -->
-                <th class="pointer" scope="col" @click="orderResults('lastName')">
+                <th class="pointer" scope="col" @click="orderSearch('lastName')">
                   <p class="d-inline">Lastname</p>
                   <p v-if="orderCol === 'lastName'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
 
                 <!--    Email    -->
-                <th class="pointer" scope="col" @click="orderResults('email')">
+                <th class="pointer" scope="col" @click="orderSearch('email')">
                   <p class="d-inline">Email</p>
                   <p v-if="orderCol === 'email'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
 
                 <!--    Home Address    -->
-                <th class="pointer" scope="col" @click="orderResults('homeAddress')">
+                <th class="pointer" scope="col" @click="orderSearch('homeAddress')" >
                   <p class="d-inline">Address</p>
                   <p v-if="orderCol === 'homeAddress'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
@@ -99,7 +96,7 @@
               </thead>
               <!--    User Information    -->
               <tbody v-if="!loading">
-              <tr v-for="user in paginatedUsers"
+              <tr v-for="user in users"
                   v-bind:key="user.id"
                   class="pointer"
                   data-target="#viewUserModal"
@@ -197,6 +194,7 @@ export default {
       orderCol: null,
       orderDirection: false, // False -> Ascending
       resultsPerPage: 10,
+      totalCount: 0,
       page: 1,
       loading: false
     }
@@ -223,56 +221,6 @@ export default {
     },
 
     /**
-     * Sort Users Logic
-     * @returns {[]|*[]}
-     */
-    sortedUsers() {
-      if (this.orderCol === null) {
-        return this.users
-      }
-
-      // Create new users array and sort
-      let newUsers = [...this.users];
-      // Order direction multiplier for sorting
-      const orderDir = (this.orderDirection ? 1 : -1);
-
-      // Sort users if there are any
-      if (newUsers.length > 0) {
-        // Sort users
-        newUsers.sort((a, b) => {
-          return orderDir * this.sortAlpha(a, b)
-        });
-      }
-
-      return newUsers
-    },
-
-    /**
-     * Paginate the users
-     * @returns {*[]|*[]}
-     */
-    paginatedUsers() {
-      let newUsers = this.sortedUsers;
-
-      // Sort users if there are any
-      if (newUsers.length > 0) {
-        // Splice the results to showing size
-        const startIndex = this.resultsPerPage * (this.page - 1);
-        const endIndex = this.resultsPerPage * this.page;
-        newUsers = newUsers.slice(startIndex, endIndex)
-      }
-
-      return newUsers
-    },
-
-    /**
-     * Calculates the number of results in users array
-     * @returns {number}
-     */
-    totalCount() {
-      return this.users.length
-    },
-    /**
      * Returns whether the currently logged in user is the DGAA
      * @returns {boolean|*}
      */
@@ -286,20 +234,76 @@ export default {
      * Search Logic
      */
     search() {
-      if (this.searchTerm.length < 3) {
-        this.searchError = 'Please enter at least 3 characters to search'
-        return
-      } else this.searchError = null
-
       this.blurSearch();
       this.users = [];
       this.loading = true;
       this.page = 1;
+      this.orderCol = null
+      this.orderDirection = false
 
-      User.getUsers(this.searchTerm)
+      User.getUsers(this.searchTerm, this.page-1, "")
           .then((res) => {
             this.error = null;
-            this.users = res.data;
+            this.users = res.data[0];
+            this.totalCount = res.data[1];
+            this.loading = false;
+          })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
+    },
+    /**
+     * Function is called by pagination component to make another call to the backend
+     * to update the list of users that should be displayed
+     */
+    async changePage() {
+      this.blurSearch();
+      this.loading = true;
+      let sortBy = this.orderCol
+      if (!this.orderDirection){
+        sortBy += "ASC"
+      } else {
+        sortBy += "DESC"
+      }
+      if (this.orderCol === null) sortBy = ""
+      await User.getUsers(this.searchTerm, this.page - 1, sortBy)
+          .then((res) => {
+            this.error = null;
+            this.users = res.data[0];
+            this.totalCount = res.data[1];
+            this.loading = false;
+          })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
+    },
+    /**
+     * Function called when you click on one of the columns to order the results
+     * Makes another call to the backend to get the correct users when ordered
+     */
+    async orderSearch(sortBy) {
+      this.blurSearch();
+      this.loading = true;
+
+      if(this.orderCol !== sortBy){
+        this.orderDirection = false
+      } else {
+        this.orderDirection = !this.orderDirection
+      }
+
+      this.orderCol = sortBy
+      if(!this.orderDirection){
+        sortBy += "ASC"
+      } else {
+        sortBy += "DESC"
+      }
+      await User.getUsers(this.searchTerm, this.page - 1, sortBy)
+          .then((res) => {
+            this.error = null;
+            this.users = res.data[0];
+            this.totalCount = res.data[1];
             this.loading = false;
           })
           .catch((err) => {

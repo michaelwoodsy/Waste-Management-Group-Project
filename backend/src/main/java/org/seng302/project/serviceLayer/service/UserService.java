@@ -17,6 +17,10 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -58,51 +62,55 @@ public class UserService {
      * @see <a href="https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes">
      * https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes</a>
      */
-    public List<GetUserDTO> searchUsers(String searchQuery) {
+    public List<Object> searchUsers(String searchQuery, Integer pageNumber, String sortBy) {
         List<User> users;
+        long totalCount;
+        boolean sortASC;
+        List<Object> sortChecker = checkSort(sortBy);
+        sortASC = (boolean) sortChecker.get(0);
+        sortBy = (String) sortChecker.get(1);
+        searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
+        String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
-        if (searchQuery.length() < 3) {
-            throw new BadRequestException("Please enter at least 3 characters to search.");
-        } else {
-            Set<User> result = new LinkedHashSet<>();
+        Specification<User> hasSpec = Specification.where(null);
+        Specification<User> containsSpec = Specification.where(null);
 
-            searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
-            String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
-
-            for (String conjunction : conjunctions) {
-                Specification<User> hasSpec = Specification.where(null);
-                Specification<User> containsSpec = Specification.where(null);
-                var searchContains = false;
-                String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
-
-                // Iterate over the names in the search and check if they are quoted
-                for (String name : names) {
-                    if (Pattern.matches("^\".*\"$", name)) {
-                        name = name.replace("\"", "");
-                        hasSpec = hasSpec.and(UserSpecifications.hasName(name));
-                    } else {
-                        hasSpec = hasSpec.and(UserSpecifications.hasName(name));
-                        containsSpec = containsSpec.and(UserSpecifications.containsName(name));
-                        searchContains = true;
-                    }
+        for (String conjunction : conjunctions) {
+            Specification<User> newHasSpec = Specification.where(null);
+            Specification<User> newContainsSpec = Specification.where(null);
+            String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
+            // Iterate over the names in the search and check if they are quoted
+            for (String name : names) {
+                if (Pattern.matches("^\".*\"$", name)) {
+                    name = name.replace("\"", "");
+                    newHasSpec = newHasSpec.and(UserSpecifications.hasName(name));
+                } else {
+                    newHasSpec = newHasSpec.and(UserSpecifications.hasName(name));
+                    newContainsSpec = newContainsSpec.and(UserSpecifications.containsName(name));
                 }
-
-                // query the repository and add to results set
-                result.addAll(userRepository.findAll(hasSpec));
-                if (searchContains) {
-                    result.addAll(userRepository.findAll(containsSpec));
-                }
-
             }
-
-            // convert set to a list
-            users = new ArrayList<>(result);
+            hasSpec = hasSpec.or(newHasSpec);
+            containsSpec = containsSpec.or(newContainsSpec);
         }
 
-        logger.info("Retrieved {} users", users.size());
+        Specification<User> spec = hasSpec.or(containsSpec);
+
+        // query the repository and get a Page object, from which you can get the content by doing page.getContent()
+        if(!sortBy.isEmpty()){
+            Page<User> page = sortUserSearch(spec, sortBy, sortASC, pageNumber);
+            totalCount = page.getTotalElements();
+            users = page.getContent();
+        } else {
+            Pageable pageable = PageRequest.of(pageNumber, 10);
+            Page<User> page = userRepository.findAll(spec, pageable);
+            totalCount = page.getTotalElements();
+            users = page.getContent();
+        }
+
+        logger.info("Retrieved {} users, showing {}", totalCount, users.size());
 
         // Map user objects to GetUserDTO objects and return
-        return users.stream().map(GetUserDTO::new).collect(Collectors.toList());
+        return Arrays.asList(users.stream().map(GetUserDTO::new).collect(Collectors.toList()), totalCount);
     }
 
     /**
@@ -268,6 +276,36 @@ public class UserService {
         if (!requestMaker.getRole().equals("defaultGlobalApplicationAdmin")) {
             throw new ForbiddenDGAAActionException();
         }
+    }
+
+    /**
+     * Helper function for user search, does the sorting
+     * @param spec the specification used to search by
+     * @param sortBy the column that is to be sorted
+     * @param sortASC the direction of the sort
+     * @return the sorted list of users searched for
+     */
+    public Page<User> sortUserSearch(Specification<User> spec, String sortBy, boolean sortASC, Integer pageNumber){
+        if(sortASC){
+            sortBy = sortBy.substring(0, sortBy.lastIndexOf("A"));
+            Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by(Sort.Order.asc(sortBy).ignoreCase()));
+            return userRepository.findAll(spec, pageable);
+        } else {
+            sortBy = sortBy.substring(0, sortBy.lastIndexOf("D"));
+            Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by(Sort.Order.desc(sortBy).ignoreCase()));
+            return userRepository.findAll(spec, pageable);
+        }
+    }
+
+    public List<Object> checkSort(String sortBy){
+        switch(sortBy){
+            case "idASC": case "idDESC": case "firstNameASC": case "firstNameDESC": case "middleNameASC": case "middleNameDESC":
+            case "lastNameASC": case  "lastNameDESC": case "emailASC": case  "emailDESC": case "homeAddressASC": case  "homeAddressDESC":
+                break;
+            default:
+                sortBy = "";
+        }
+        return List.of(sortBy.contains("ASC"), sortBy);
     }
 
 
