@@ -47,7 +47,7 @@ public final class SaleListingSpecifications {
      */
     public static Specification<SaleListing> isBusinessId(Integer id) {
         return ((root, query, builder) ->
-                builder.like(root.get("businessId").as(String.class), id.toString())
+                builder.equal(root.get("businessId"), id)
         );
     }
 
