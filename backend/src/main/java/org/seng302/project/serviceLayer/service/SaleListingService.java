@@ -182,7 +182,6 @@ public class SaleListingService {
      * @return specification you can add to the current specification
      */
     private Specification<SaleListing> searchNameField(String[] conjunctions) {
-
         Specification<SaleListing> spec = null;
 
         for (String conjunction : conjunctions) {
@@ -264,21 +263,20 @@ public class SaleListingService {
      * @return specification you can add to the current specification
      */
     private Specification<SaleListing> searchByBusinessCountry(String[] conjunctions) {
-
-        Specification<Business> spec = null;
+        Specification<SaleListing> spec = null;
 
         for (String conjunction : conjunctions) {
-            Specification<Business> newSpec = Specification.where(null);
+            Specification<SaleListing> newSpec = Specification.where(null);
 
             String[] terms = conjunction.split(AND_SPACE_REGEX); // Split by AND and spaces
             for (String term : terms) {
                 //Remove quotes from quoted string, then search by full contents inside the quotes
                 if (Pattern.matches(QUOTE_REGEX, term)) {
                     term = term.replace("\"", "");
-                    newSpec = newSpec.and(BusinessSpecifications.hasCountry(term));
+                    newSpec = newSpec.and(SaleListingSpecifications.hasCountry(term));
                 } else {
-                    newSpec = newSpec.and(BusinessSpecifications.hasCountry(term))
-                            .or(BusinessSpecifications.containsCountry(term));
+                    newSpec = newSpec.and(SaleListingSpecifications.hasCountry(term))
+                            .or(SaleListingSpecifications.containsCountry(term));
                 }
             }
             if (spec == null) {
@@ -287,20 +285,7 @@ public class SaleListingService {
                 spec = spec.or(newSpec);
             }
         }
-
-        //Get businesses with country matching and add their id's to spec
-        List<Business> businesses = businessRepository.findAll(spec);
-
-        Specification<SaleListing> listingSpec = null;
-        for (Business business : businesses) {
-            if (listingSpec == null) {
-                listingSpec = SaleListingSpecifications.isBusinessId(business.getId());
-            } else {
-                listingSpec = listingSpec.or(SaleListingSpecifications.isBusinessId(business.getId()));
-            }
-        }
-
-        return Objects.requireNonNullElseGet(listingSpec, () -> SaleListingSpecifications.isBusinessId(-1));
+        return spec;
     }
 
     /**
@@ -341,37 +326,27 @@ public class SaleListingService {
      * @return specification for querying the JPA repository of sale listings with
      */
     public Specification<SaleListing> searchByBusinessType(String[] conjunctions) {
-        Specification<Business> businessSpec = null;
+        Specification<SaleListing> spec = null;
 
         for (String conjunction : conjunctions) {
-            Specification<Business> newSpec = Specification.where(null);
+            Specification<SaleListing> newSpec = Specification.where(null);
 
             String[] terms = conjunction.split(AND_SPACE_REGEX);
             for (String term : terms) {
                 if (Pattern.matches(QUOTE_REGEX, term)) {
                     term = term.replace("\"", "");
-                    newSpec = newSpec.and(BusinessSpecifications.hasType(term));
+                    newSpec = newSpec.and(SaleListingSpecifications.hasBusinessType(term));
                 } else {
-                    newSpec = newSpec.and(BusinessSpecifications.hasType(term)
-                            .or(BusinessSpecifications.containsType(term)));
+                    newSpec = newSpec.and(SaleListingSpecifications.hasBusinessType(term)
+                            .or(SaleListingSpecifications.containsBusinessType(term)));
                 }
             }
-            if (businessSpec == null) {
-                businessSpec = newSpec;
-            } else {
-                businessSpec = businessSpec.or(newSpec);
-            }
-        }
-
-        Specification<SaleListing> spec = null;
-        List<Business> businesses = businessRepository.findAll(businessSpec);
-        for (Business business : businesses) {
             if (spec == null) {
-                spec = SaleListingSpecifications.isBusinessId(business.getId());
+                spec = newSpec;
             } else {
-                spec = spec.or(SaleListingSpecifications.isBusinessId(business.getId()));
+                spec = spec.or(newSpec);
             }
         }
-        return Objects.requireNonNullElseGet(spec, () -> SaleListingSpecifications.isBusinessId(-1));
+        return spec;
     }
 }

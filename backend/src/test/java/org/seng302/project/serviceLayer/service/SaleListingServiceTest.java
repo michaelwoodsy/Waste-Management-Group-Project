@@ -191,8 +191,8 @@ class SaleListingServiceTest {
         Specification<SaleListing> spec = saleListingService.searchByBusinessType(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
         Assertions.assertEquals(2, listings.size());
-        Assertions.assertEquals(business1Id, listings.get(0).getBusinessId());
-        Assertions.assertEquals(business1Id, listings.get(1).getBusinessId());
+        Assertions.assertEquals(business1Id, listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business1Id, listings.get(1).getBusiness().getId());
     }
 
     /**
@@ -204,8 +204,8 @@ class SaleListingServiceTest {
         Specification<SaleListing> spec = saleListingService.searchByBusinessType(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
         Assertions.assertEquals(2, listings.size());
-        Assertions.assertEquals(business2Id, listings.get(0).getBusinessId());
-        Assertions.assertEquals(business2Id, listings.get(1).getBusinessId());
+        Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
     }
 
 

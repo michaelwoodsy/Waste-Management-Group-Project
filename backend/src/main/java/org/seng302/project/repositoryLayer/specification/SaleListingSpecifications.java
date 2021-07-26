@@ -83,6 +83,35 @@ public final class SaleListingSpecifications {
     }
 
     /**
+     * Creates a Specification object used to search listings by exact match for businesses type
+     *
+     * @param type of the business to search sales listings by
+     * @return a specification object to search repository with
+     */
+    public static Specification<SaleListing> hasBusinessType(String type) {
+        return ((root, query, builder) ->
+                builder.like(
+                        builder.lower(root.get("business").get("businessType")),
+                        type.toLowerCase()
+                ));
+    }
+
+    /**
+     * Creates a Specification object used to search listings by match for businesses type
+     *
+     * @param type of the business to search sales listings by
+     * @return a specification object to search repository with
+     */
+    public static Specification<SaleListing> containsBusinessType(String type) {
+        return ((root, query, builder) ->
+                builder.like(
+                        builder.lower(root.get("business").get("businessType")),
+                        "%" + type.toLowerCase() + "%"
+                ));
+    }
+
+
+    /**
      * Creates a Specification object used to search listings by exact match for businesses country
      *
      * @param name of the business' country to search sales listings by
