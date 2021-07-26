@@ -137,10 +137,10 @@ public class SaleListingService {
                 sort = Sort.by(Sort.Order.asc("business.address.city"));
                 break;
             case "expiryDateAsc":
-                sort = Sort.by(Sort.Order.asc("closes"));
+                sort = Sort.by(Sort.Order.asc("inventoryItem.expires"));
                 break;
             case "expiryDateDesc":
-                sort = Sort.by(Sort.Order.desc("closes"));
+                sort = Sort.by(Sort.Order.desc("inventoryItem.expires"));
                 break;
             case "seller":
                 sort = Sort.by(Sort.Order.asc("business.name"));

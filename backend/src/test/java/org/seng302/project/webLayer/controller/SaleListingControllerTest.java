@@ -412,7 +412,7 @@ class SaleListingControllerTest {
     }
 
     /**
-     * Test the user must be authorised
+     * Test the user must be authorised to view sale listings
      */
     @Test
     void listingSearch_notLoggedIn_401() throws Exception {

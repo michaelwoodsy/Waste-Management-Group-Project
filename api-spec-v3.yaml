@@ -1984,7 +1984,7 @@ paths:
           schema:
             type: string
           required: true
-          description: 'the sorting parameter'
+          description: 'The sorting parameter. One of "priceAsc", "priceDesc", "productName", "country", "city", "expiryDateAsc", "expiryDateDesc", "seller"'
       responses:
         '200':
           description: Request successful, a (possibly empty) list of listings is returned

@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -120,7 +119,7 @@ public class SaleListingController {
      * @param closingDateUpper          the upper closing date range (can be null)
      * @param pageNumber                the page number to get
      * @param sortBy                    the sorting parameter
-     * @return
+     * @return A list of sale listings, with the specified sorting and page applied
      */
     @GetMapping("/listings")
     public List<Object> searchSaleListings(
@@ -173,11 +172,10 @@ public class SaleListingController {
             // Get the user that made the request
             User user = getLoggedInUser(appUser);
 
-            logger.info("User with id " + user.getId() +
-                    " trying to get sale listings of business with id " + businessId  + ".");
+            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId );
 
-            // Get the business of the request
-            Business business = getBusiness(businessId);
+            // To check the business exists
+            getBusiness(businessId);
 
             // Get the sale listings of the business
             List<SaleListing> listings = saleListingRepository.findAllByBusinessId(businessId);
