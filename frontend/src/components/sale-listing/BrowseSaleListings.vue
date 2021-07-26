@@ -304,6 +304,9 @@ export default {
       totalCount: 0
     }
   },
+  mounted() {
+    this.search()
+  },
   computed: {
     /**
      * Checks if user is logged in
