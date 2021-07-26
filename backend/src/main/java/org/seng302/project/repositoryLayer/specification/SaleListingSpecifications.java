@@ -40,6 +40,18 @@ public final class SaleListingSpecifications {
     }
 
     /**
+     * Creates a Specification object used to search listings by exact match for businesses country
+     *
+     * @param id id of the business to search sales listings by (used to find matching businesses with country)
+     * @return a specification object to search repository with
+     */
+    public static Specification<SaleListing> isBusinessId(Integer id) {
+        return ((root, query, builder) ->
+                builder.equal(root.get("businessId"), id)
+        );
+    }
+
+    /**
      * Creates a Specification object used to search sale listings by price less than
      *
      * @param price price to search sale listings by
