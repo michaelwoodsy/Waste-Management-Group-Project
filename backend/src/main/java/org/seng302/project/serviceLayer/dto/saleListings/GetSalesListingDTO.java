@@ -22,7 +22,7 @@ public class GetSalesListingDTO {
 
     public GetSalesListingDTO(SaleListing listing) {
         this.id = listing.getId();
-        this.businessId = listing.getBusinessId();
+        this.businessId = listing.getBusiness().getId();
         this.inventoryItem = listing.getInventoryItem();
         this.price = listing.getPrice();
         this.moreInfo = listing.getMoreInfo();

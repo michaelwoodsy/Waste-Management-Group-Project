@@ -176,7 +176,7 @@ public class SaleListingControllerTest {
     @Test
     public void testSaleListingsAreReturned() throws Exception {
         // Create new sale listing
-        listing = new SaleListing(business.getId(), inventoryItem, 15.00, null,
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
                 LocalDateTime.now(), 1);
         listing = saleListingRepository.save(listing);
 

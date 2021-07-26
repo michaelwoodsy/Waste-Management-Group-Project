@@ -327,7 +327,7 @@ public class SaleListingController {
             }
             System.out.println(closesDateTime);
 
-            SaleListing saleListing = new SaleListing(businessId, item, price, moreInfo, closesDateTime, quantity);
+            SaleListing saleListing = new SaleListing(business, item, price, moreInfo, closesDateTime, quantity);
             saleListingRepository.save(saleListing);
 
         } catch (BusinessNotFoundException | ForbiddenAdministratorActionException | NotEnoughOfInventoryItemException |

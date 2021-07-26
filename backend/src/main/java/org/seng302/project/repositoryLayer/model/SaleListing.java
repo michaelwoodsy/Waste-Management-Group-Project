@@ -13,16 +13,17 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @Entity
-@IdClass(SaleListingId.class)
 public class SaleListing {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "listing_id")
     private Integer id;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Id
-    private Integer businessId; // The id of the business that offers this product
+
+    @ManyToOne
+    @JoinColumn(name = "business_id")
+    private Business business;
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "inventory_item_id")
     private InventoryItem inventoryItem;
@@ -32,9 +33,9 @@ public class SaleListing {
     private LocalDateTime created = LocalDateTime.now();
     private Integer quantity;
 
-    public SaleListing(Integer businessId, InventoryItem inventoryItem, Double price, String moreInfo,
+    public SaleListing(Business business, InventoryItem inventoryItem, Double price, String moreInfo,
                        LocalDateTime closes, Integer quantity) {
-        this.businessId = businessId;
+        this.business = business;
         this.inventoryItem = inventoryItem;
         this.price = price;
         this.moreInfo = moreInfo;

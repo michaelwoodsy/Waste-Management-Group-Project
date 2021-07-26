@@ -56,14 +56,14 @@ class SaleListingServiceTest {
         productRepository.save(product1);
         InventoryItem inventoryItem1 = new InventoryItem(product1, 5, null, null, "2021-01-01", null, null, "2021-12-31");
         inventoryItemRepository.save(inventoryItem1);
-        SaleListing saleListing1 = new SaleListing(business1.getId(), inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
+        SaleListing saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
         saleListingRepository.save(saleListing1);
 
         Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
         productRepository.save(product2);
         InventoryItem inventoryItem2 = new InventoryItem(product2, 10, null, null, "2021-01-01", null, null, "2021-12-31");
         inventoryItemRepository.save(inventoryItem1);
-        SaleListing saleListing2 = new SaleListing(business1.getId(), inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
+        SaleListing saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
         saleListingRepository.save(saleListing2);
 
 
@@ -77,14 +77,14 @@ class SaleListingServiceTest {
         productRepository.save(product3);
         InventoryItem inventoryItem3 = new InventoryItem(product3, 5, null, null, "2021-01-01", null, null, "2021-12-31");
         inventoryItemRepository.save(inventoryItem3);
-        SaleListing saleListing3 = new SaleListing(business2.getId(), inventoryItem3, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
+        SaleListing saleListing3 = new SaleListing(business2, inventoryItem3, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
         saleListingRepository.save(saleListing3);
 
         Product product4 = new Product("TEST-4", "Fourth Product", null, null, 5.00, business2.getId());
         productRepository.save(product4);
         InventoryItem inventoryItem4 = new InventoryItem(product4, 5, null, null, "2021-01-01", null, null, "2021-12-31");
         inventoryItemRepository.save(inventoryItem4);
-        SaleListing saleListing4 = new SaleListing(business2.getId(), inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
+        SaleListing saleListing4 = new SaleListing(business2, inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
         saleListingRepository.save(saleListing4);
     }
 

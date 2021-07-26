@@ -4,6 +4,7 @@ import org.seng302.project.repositoryLayer.model.SaleListing;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 public final class SaleListingSpecifications {
 
@@ -48,6 +49,66 @@ public final class SaleListingSpecifications {
     public static Specification<SaleListing> isBusinessId(Integer id) {
         return ((root, query, builder) ->
                 builder.equal(root.get("businessId"), id)
+        );
+    }
+
+    /**
+     * Creates a Specification object used to search listings by exact match for businesses name
+     *
+     * @param name of the business to search sales listings by
+     * @return a specification object to search repository with
+     */
+    public static Specification<SaleListing> hasBusinessName(String name) {
+        return ((root, query, builder) ->
+                builder.like(
+                        builder.lower(root.get("business").get("name")),
+                        name.toLowerCase()
+                )
+        );
+    }
+
+    /**
+     * Creates a Specification object used to search listings by match for businesses name
+     *
+     * @param name of the business to search sales listings by
+     * @return a specification object to search repository with
+     */
+    public static Specification<SaleListing> containsBusinessName(String name) {
+        return ((root, query, builder) ->
+                builder.like(
+                        builder.lower(root.get("business").get("name")),
+                        "%" + name.toLowerCase() + "%"
+                )
+        );
+    }
+
+    /**
+     * Creates a Specification object used to search listings by exact match for businesses country
+     *
+     * @param name of the business' country to search sales listings by
+     * @return a specification object to search repository with
+     */
+    public static Specification<SaleListing> hasCountry(String name) {
+        return ((root, query, builder) ->
+                builder.like(
+                        builder.lower(root.get("business").get("address").get("country")),
+                        name.toLowerCase()
+                )
+        );
+    }
+
+    /**
+     * Creates a Specification object used to search listings by match for businesses country
+     *
+     * @param name of the business' country to search sales listings by
+     * @return a specification object to search repository with
+     */
+    public static Specification<SaleListing> containsCountry(String name) {
+        return ((root, query, builder) ->
+                builder.like(
+                        builder.lower(root.get("business").get("address").get("country")),
+                        "%" + name.toLowerCase() + "%"
+                )
         );
     }
 
