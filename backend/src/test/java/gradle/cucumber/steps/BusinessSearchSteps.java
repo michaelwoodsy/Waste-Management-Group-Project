@@ -99,11 +99,16 @@ public class BusinessSearchSteps {
         MvcResult searchResult = this.mockMvc.perform(searchBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
+        //Convert result into string
         String searchResultString = searchResult.getResponse().getContentAsString();
+        //Convert result string into JSONArray
         JSONArray searchResultArray = new JSONArray(searchResultString);
-        System.out.println(searchResultArray);
+        //Get the list of businesses in the result array
+        JSONArray businessesArray = searchResultArray.getJSONArray(0);
+        //Get the first business in the businessesArray
+        JSONObject business = businessesArray.getJSONObject(0);
 
-        Assertions.assertEquals(businessName, searchResultArray.get(0));
+        Assertions.assertEquals(businessName, business.getString("name"));
     }
 
     @Then("The business called {string} is NOT in the search results")
@@ -112,17 +117,25 @@ public class BusinessSearchSteps {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
+        //Convert result into string
         String searchResultString = searchResult.getResponse().getContentAsString();
+        //Convert result string into JSONArray
         JSONArray searchResultArray = new JSONArray(searchResultString);
+        //Get the list of businesses in the result array
+        JSONArray businessesArray = searchResultArray.getJSONArray(0);
 
-        Assertions.assertEquals(0, searchResultArray.length());
+        Assertions.assertEquals(0, businessesArray.length());
     }
 
     @Given("A business exists with the name {string} and a business exists with the name {string}")
     public void a_business_exists_with_the_name_and_a_business_exists_with_the_name(String businessName1, String businessName2) {
-        testBusiness1 = new Business(businessName1, "description", null, "Retail Trade", 1);
+        Address address = new Address();
+        address.setCountry("New Zealand");
+        addressRepository.save(address);
+
+        testBusiness1 = new Business(businessName1, "description", address, "Retail Trade", 1);
         businessRepository.save(testBusiness1);
-        testBusiness2 = new Business(businessName2, "description", null, "Retail Trade", 1);
+        testBusiness2 = new Business(businessName2, "description", address, "Retail Trade", 1);
         businessRepository.save(testBusiness2);
     }
 
@@ -142,20 +155,30 @@ public class BusinessSearchSteps {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
+        //Convert result into string
         String searchResultString = searchResult.getResponse().getContentAsString();
+        //Convert result string into JSONArray
         JSONArray searchResultArray = new JSONArray(searchResultString);
+        //Get the list of businesses in the result array
+        JSONArray businessesArray = searchResultArray.getJSONArray(0);
+        //Get the first business in the businessesArray
+        JSONObject business = businessesArray.getJSONObject(0);
 
-        Assertions.assertEquals(1, searchResultArray.length());
-        Assertions.assertEquals(businessName1, searchResultArray.getJSONObject(0).getString("name"));
+        Assertions.assertEquals(1, businessesArray.length());
+        Assertions.assertEquals(businessName1, business.getString("name"));
     }
 
     //AC4
 
     @Given("Two businesses exist with the type {string}")
     public void two_businesses_exist_with_the_type(String businessType) {
-        testBusiness1 = new Business("Business1", "description", null, businessType, 1);
+        Address address = new Address();
+        address.setCountry("New Zealand");
+        addressRepository.save(address);
+
+        testBusiness1 = new Business("Business1", "description", address, businessType, 1);
         businessRepository.save(testBusiness1);
-        testBusiness2 = new Business("Business2", "description", null, businessType, 1);
+        testBusiness2 = new Business("Business2", "description", address, businessType, 1);
         businessRepository.save(testBusiness2);
     }
 
@@ -174,20 +197,32 @@ public class BusinessSearchSteps {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
+        //Convert result into string
         String searchResultString = searchResult.getResponse().getContentAsString();
+        //Convert result string into JSONArray
         JSONArray searchResultArray = new JSONArray(searchResultString);
+        //Get the list of businesses in the result array
+        JSONArray businessesArray = searchResultArray.getJSONArray(0);
+        //Get the businesses in the businessesArray
+        JSONObject firstBusiness = businessesArray.getJSONObject(0);
+        JSONObject secondBusiness = businessesArray.getJSONObject(1);
 
-        Assertions.assertEquals(2, searchResultArray.length());
-        Assertions.assertEquals(testBusiness1.getName(), searchResultArray.getJSONObject(0).getString("name"));
-        Assertions.assertEquals(testBusiness2.getName(), searchResultArray.getJSONObject(1).getString("name"));
+
+        Assertions.assertEquals(2, businessesArray.length());
+        Assertions.assertEquals(testBusiness1.getName(), firstBusiness.getString("name"));
+        Assertions.assertEquals(testBusiness2.getName(), secondBusiness.getString("name"));
     }
 
     @Given("Two businesses, with the names {string} and {string} exist with the type {string}")
     public void two_businesses_with_the_names_and_exist_with_the_type(String businessName1, String businessName2,
                                                                       String businessType) {
-        testBusiness1 = new Business(businessName1, "description", null, businessType, 1);
+        Address address = new Address();
+        address.setCountry("New Zealand");
+        addressRepository.save(address);
+
+        testBusiness1 = new Business(businessName1, "description", address, businessType, 1);
         businessRepository.save(testBusiness1);
-        testBusiness2 = new Business(businessName2, "description", null, businessType, 1);
+        testBusiness2 = new Business(businessName2, "description", address, businessType, 1);
         businessRepository.save(testBusiness2);
     }
 
