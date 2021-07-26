@@ -21,6 +21,11 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
     //Role can be one of [user, globalApplicationAdmin, defaultGlobalApplicationAdmin]
     List<User> findByRole(@Param("role") String role);
 
+    /**
+     * Used when searching for users
+     * @param sort this is used to sort the search
+     * @return list of users that match the sort
+     */
     List<User> findAll(Sort sort);
 
 }
