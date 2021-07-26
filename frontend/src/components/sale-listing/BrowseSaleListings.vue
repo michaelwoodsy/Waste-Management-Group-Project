@@ -304,6 +304,9 @@ export default {
       totalCount: 0
     }
   },
+  mounted() {
+    this.search()
+  },
   computed: {
     /**
      * Checks if user is logged in
@@ -400,7 +403,7 @@ export default {
         if (upperPriceNotNumber || !/^([0-9]+(.[0-9]{0,2})?)?$/.test(this.priceUpperBound)) {
           this.msg.priceUpperBound = "Please enter a valid price for the price's upper bound";
           this.valid = false
-        } else if (this.priceUpperBound < this.priceLowerBound){
+        } else if (parseFloat(this.priceUpperBound) < parseFloat(this.priceLowerBound)){
           this.msg.priceUpperBound = "The price's upper bound is less than the lower bound"
           this.valid = false
         }

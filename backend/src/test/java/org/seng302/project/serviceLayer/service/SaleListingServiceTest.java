@@ -38,7 +38,7 @@ class SaleListingServiceTest {
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
-        this.saleListingService = new SaleListingService(this.saleListingRepository, this.businessRepository);
+        this.saleListingService = new SaleListingService(this.saleListingRepository);
     }
 
     /**
@@ -46,7 +46,7 @@ class SaleListingServiceTest {
      */
     @BeforeEach
     void setup() {
-        Address address1 = new Address(null, null, null, null, "Netherlands", null);
+        Address address1 = new Address(null, null, "Rangiora", null, "Netherlands", null);
         Business business1 = new Business("First Business", null, address1, "Retail Trade", 1);
         addressRepository.save(address1);
         businessRepository.save(business1);
@@ -67,7 +67,7 @@ class SaleListingServiceTest {
         saleListingRepository.save(saleListing2);
 
 
-        Address address2 = new Address(null, null, null, null, "New Zealand", null);
+        Address address2 = new Address(null, null, "Christchurch", null, "New Zealand", null);
         Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
         addressRepository.save(address2);
         businessRepository.save(business2);
@@ -642,6 +642,102 @@ class SaleListingServiceTest {
         Assertions.assertEquals("Fourth Product", listings.get(1).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("Third Product", listings.get(3).getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Test that ordering listings by business country returns a ordered list
+     */
+    @Test
+    void search_order_business_country() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "country",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals(business1Id, listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business1Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business2Id, listings.get(2).getBusiness().getId());
+        Assertions.assertEquals(business2Id, listings.get(3).getBusiness().getId());
+    }
+
+    /**
+     * Test that ordering listings by business city returns a ordered list
+     */
+    @Test
+    void search_order_business_city() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "city",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business1Id, listings.get(2).getBusiness().getId());
+        Assertions.assertEquals(business1Id, listings.get(3).getBusiness().getId());
+    }
+
+    /**
+     * Test that ordering listings by business name returns a ordered list
+     */
+    @Test
+    void search_order_business_name() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "seller",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals(business1Id, listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business1Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business2Id, listings.get(2).getBusiness().getId());
+        Assertions.assertEquals(business2Id, listings.get(3).getBusiness().getId());
     }
 
     /**

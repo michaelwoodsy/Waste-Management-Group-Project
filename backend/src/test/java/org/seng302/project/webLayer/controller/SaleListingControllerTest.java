@@ -4,12 +4,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,6 +28,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -408,5 +409,39 @@ class SaleListingControllerTest {
 
         String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new NotEnoughOfInventoryItemException(inventoryItem.getId(), 1, inventoryItem.getQuantity() - 1).getMessage(), returnedExceptionString);
+    }
+
+    /**
+     * Test the user must be authorised
+     */
+    @Test
+    void listingSearch_notLoggedIn_401() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/listings")
+                .param("searchQuery", "")
+                .param("matchingProductName", String.valueOf(false))
+                .param("matchingBusinessName", String.valueOf(false))
+                .param("matchingBusinessLocation", String.valueOf(false))
+                .param("matchingBusinessType", String.valueOf(false))
+                .param("pageNumber", String.valueOf(1))
+                .param("sortBy", ""))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Test successful retrieval of sales listings (by getting a OK response)
+     */
+    @Test
+    void listingSearch_OK_200() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/listings")
+                .param("searchQuery", "")
+                .param("matchingProductName", String.valueOf(false))
+                .param("matchingBusinessName", String.valueOf(false))
+                .param("matchingBusinessLocation", String.valueOf(false))
+                .param("matchingBusinessType", String.valueOf(false))
+                .param("pageNumber", String.valueOf(1))
+                .param("sortBy", "").with(user(new AppUserDetails(user))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
