@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.serviceLayer.dto.address.AddressDTO;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
@@ -40,6 +41,7 @@ public class BusinessSearchSteps {
     private MockMvc mockMvc;
 
     private final BusinessRepository businessRepository;
+    private final AddressRepository addressRepository;
 
     private User testUser;
     private Business testBusiness1;
@@ -49,9 +51,9 @@ public class BusinessSearchSteps {
 
 
     @Autowired
-    public BusinessSearchSteps(BusinessRepository businessRepository) {
+    public BusinessSearchSteps(BusinessRepository businessRepository, AddressRepository addressRepository) {
         this.businessRepository =  businessRepository;
-
+        this.addressRepository = addressRepository;
     }
 
     /**
@@ -77,6 +79,7 @@ public class BusinessSearchSteps {
     public void a_business_exists_with_the_name(String businessName) {
         Address address = new Address();
         address.setCountry("New Zealand");
+        addressRepository.save(address);
 
         testBusiness1 = new Business(businessName, "description", address, "Retail Trade", 1);
         businessRepository.save(testBusiness1);
