@@ -382,8 +382,8 @@ class SaleListingServiceTest {
 
         Assertions.assertEquals(2, total);
 
-        Assertions.assertEquals(business1Id, listings.get(0).getBusinessId());
-        Assertions.assertEquals(business1Id, listings.get(1).getBusinessId());
+        Assertions.assertEquals(business1Id, listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business1Id, listings.get(1).getBusiness().getId());
     }
 
     /**
@@ -412,8 +412,8 @@ class SaleListingServiceTest {
 
         Assertions.assertEquals(2, total);
 
-        Assertions.assertEquals(business1Id, listings.get(0).getBusinessId());
-        Assertions.assertEquals(business1Id, listings.get(1).getBusinessId());
+        Assertions.assertEquals(business1Id, listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business1Id, listings.get(1).getBusiness().getId());
     }
 
     /**
@@ -442,8 +442,8 @@ class SaleListingServiceTest {
 
         Assertions.assertEquals(2, total);
 
-        Assertions.assertEquals(business2Id, listings.get(0).getBusinessId());
-        Assertions.assertEquals(business2Id, listings.get(1).getBusinessId());
+        Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
     }
 
     /**

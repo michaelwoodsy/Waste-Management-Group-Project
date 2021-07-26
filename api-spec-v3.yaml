@@ -2196,10 +2196,8 @@ components:
           format: date-time
           example: '2021-07-21T23:59:00Z'
           description: Date and time when the listing closes (defaults to expiry date of related inventory item)
-        businessId:
-          type: integer
-          readOnly: true
-          description: The id of the business that offers this product. Used to get business info when browsing sale listings.
+        business:
+          $ref: '#/components/schemas/Business'
 
     InventoryItem:
       type: object
