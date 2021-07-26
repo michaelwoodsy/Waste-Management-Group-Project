@@ -352,7 +352,7 @@ export const Business = {
 
     /**
      * Sends a request to delete a specific image for a specific business
-     * @param userId The ID of the business in the database
+     * @param businessId The ID of the business in the database
      * @param imageId The ID of the image for the product in the database
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
@@ -360,7 +360,7 @@ export const Business = {
 
     /**
      * Sends a request to make a specific image the primary image of a specific business
-     * @param userId The ID of the business in the database
+     * @param businessId The ID of the business in the database
      * @param imageId The ID of the image for the product in the database
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
@@ -395,7 +395,8 @@ export const Business = {
                 {
                     'searchQuery': searchQuery,
                     'matchingProductName': matchingProductName,
-                    'MatchingBusinessLocation': MatchingBusinessLocation,
+                    'matchingBusinessName': matchingBusinessName,
+                    'matchingBusinessLocation': MatchingBusinessLocation,
                     'priceRangeLower': priceRangeLower,
                     'priceRangeUpper': priceRangeUpper,
                     'closingDateLower': closingDateLower,

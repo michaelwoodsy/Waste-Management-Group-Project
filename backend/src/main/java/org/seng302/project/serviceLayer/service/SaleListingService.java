@@ -18,10 +18,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -56,55 +58,102 @@ public class SaleListingService {
      * @return List of the paginated list of sales listings, and the total number of sales listings
      */
     public List<Object> searchSaleListings(SearchSaleListingsDTO dto) {
-        Specification<SaleListing> spec = Specification.where(null);
+        Specification<SaleListing> spec = null;
         List<SaleListing> listings;
         long totalCount;
         boolean sortASC;
-        List<Object> sortChecker = checkSort(dto.getSortBy());
-        sortASC = (boolean) sortChecker.get(0);
-        String sortBy = (String) sortChecker.get(1);
         String searchQuery = dto.getSearchQuery().toLowerCase(); // Convert search query to all lowercase.
         String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
         //Product name
         if (dto.isMatchProductName()) {
-            spec = spec.and(searchNameField(conjunctions));
+            if (spec == null) {
+                spec = searchNameField(conjunctions);
+            } else {
+                spec = spec.or(searchNameField(conjunctions));
+            }
         }
 
         //Business name
         if (dto.isMatchBusinessName()) {
-            spec = spec.and(searchByBusinessName(conjunctions));
+            if (spec == null) {
+                spec = searchByBusinessName(conjunctions);
+            } else {
+                spec = spec.or(searchByBusinessName(conjunctions));
+            }
         }
 
         //Business location
         if (dto.isMatchBusinessLocation()) {
-            spec = spec.and(searchByBusinessCountry(conjunctions));
+            if (spec == null) {
+                spec = searchByBusinessCountry(conjunctions);
+            } else {
+                spec = spec.or(searchByBusinessCountry(conjunctions));
+            }
         }
 
         //Price range
-        spec = spec.and(searchPriceInBetween(dto.getPriceRangeLower(), dto.getPriceRangeUpper()));
+        if (spec == null) {
+            spec = searchPriceInBetween(dto.getPriceRangeLower(), dto.getPriceRangeUpper());
+        } else {
+            spec = spec.and(searchPriceInBetween(dto.getPriceRangeLower(), dto.getPriceRangeUpper()));
+        }
 
         //Closing date range
         try {
             LocalDateTime closingDateLower = null;
             LocalDateTime closingDateUpper = null;
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             if (dto.getClosingDateLower() != null) {
-                closingDateLower = LocalDateTime.parse(dto.getClosingDateLower(), formatter);
+                Date date = formatter.parse(dto.getClosingDateLower());
+                closingDateLower = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
             }
             if (dto.getClosingDateUpper() != null) {
-                closingDateUpper = LocalDateTime.parse(dto.getClosingDateUpper(), formatter);
+                Date date = formatter.parse(dto.getClosingDateUpper());
+                closingDateUpper = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
             }
             spec = spec.and(searchClosesInBetween(closingDateLower, closingDateUpper));
-        } catch (DateTimeParseException parseException) {
+        } catch (ParseException parseException) {
             InvalidDateException invalidDateException = new InvalidDateException();
             logger.warn(invalidDateException.getMessage());
             throw invalidDateException;
         }
 
 
-        if (!sortBy.isEmpty()) {
-            Page<SaleListing> page = sortListingSearch(spec, sortBy, sortASC, dto.getPageNumber());
+
+        Sort sort = null;
+
+        switch (dto.getSortBy()) {
+            case "priceAsc":
+                sort = Sort.by(Sort.Order.asc("price"));
+                break;
+            case "priceDesc":
+                sort = Sort.by(Sort.Order.desc("price"));
+                break;
+            case "productName":
+                sort = Sort.by(Sort.Order.asc("inventoryItem.product.name"));
+                break;
+            case "country":
+                //TODO: Figure out how to sort by country
+                break;
+            case "city":
+                //TODO: Figure out how to sort by city
+                break;
+            case "expiryDateAsc":
+                sort = Sort.by(Sort.Order.asc("closes"));
+                break;
+            case "expiryDateDesc":
+                sort = Sort.by(Sort.Order.desc("closes"));
+                break;
+            case "seller":
+                //TODO: Figure out how to sort by seller name
+                break;
+        }
+
+
+        if (sort != null) {
+            Pageable pageable = PageRequest.of(dto.getPageNumber(), 10, sort);
+            Page<SaleListing> page = saleListingRepository.findAll(spec, pageable);
             totalCount = page.getTotalElements();
             listings = page.getContent();
         } else {
@@ -116,48 +165,8 @@ public class SaleListingService {
 
         logger.info("Retrieved {} Sales Listings, showing {}", totalCount, listings.size());
 
-        // Map user objects to GetUserDTO objects and return
         return Arrays.asList(listings.stream().map(GetSalesListingDTO::new).collect(Collectors.toList()), totalCount);
     }
-
-
-
-
-    /**
-     * Helper function for listing search, does the sorting
-     * @param spec the specification used to search by
-     * @param sortBy the column that is to be sorted
-     * @param sortASC the direction of the sort
-     * @return the sorted list of sales listings searched for
-     */
-    public Page<SaleListing> sortListingSearch(Specification<SaleListing> spec, String sortBy, boolean sortASC, Integer pageNumber){
-        if(sortASC){
-            sortBy = sortBy.substring(0, sortBy.lastIndexOf("A"));
-            Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by(Sort.Order.asc(sortBy).ignoreCase()));
-            return saleListingRepository.findAll(spec, pageable);
-        } else {
-            sortBy = sortBy.substring(0, sortBy.lastIndexOf("D"));
-            Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by(Sort.Order.desc(sortBy).ignoreCase()));
-            return saleListingRepository.findAll(spec, pageable);
-        }
-    }
-
-    public List<Object> checkSort(String sortBy){
-        switch(sortBy){
-            //TODO: Order by product name and seller somehow
-            case "quantityASC": case "quantityDESC": case "priceASC": case "priceDESC":
-            case "createdASC": case  "createdDESC": case "closesASC": case  "closesDESC":
-                break;
-            default:
-                sortBy = "";
-        }
-        return List.of(sortBy.contains("ASC"), sortBy);
-    }
-
-
-
-
-
 
     /**
      * Searches the product name field, handling ORs, ANDs, spaces and quotes

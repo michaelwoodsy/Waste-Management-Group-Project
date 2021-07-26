@@ -3,14 +3,8 @@ package org.seng302.project.serviceLayer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.seng302.project.repositoryLayer.model.Business;
-import org.seng302.project.repositoryLayer.model.InventoryItem;
-import org.seng302.project.repositoryLayer.model.Product;
-import org.seng302.project.repositoryLayer.model.SaleListing;
-import org.seng302.project.repositoryLayer.repository.BusinessRepository;
-import org.seng302.project.repositoryLayer.repository.InventoryItemRepository;
-import org.seng302.project.repositoryLayer.repository.ProductRepository;
-import org.seng302.project.repositoryLayer.repository.SaleListingRepository;
+import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.serviceLayer.dto.saleListings.GetSalesListingDTO;
 import org.seng302.project.serviceLayer.dto.saleListings.SearchSaleListingsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +18,23 @@ import java.util.List;
 class SaleListingServiceTest {
 
     private final BusinessRepository businessRepository;
+    private final AddressRepository addressRepository;
     private final ProductRepository productRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
     private final SaleListingService saleListingService;
 
+    Integer business1Id;
+    Integer business2Id;
+
     @Autowired
     SaleListingServiceTest(BusinessRepository businessRepository,
+                           AddressRepository addressRepository,
                            ProductRepository productRepository,
                            InventoryItemRepository inventoryItemRepository,
                            SaleListingRepository saleListingRepository) {
         this.businessRepository = businessRepository;
+        this.addressRepository = addressRepository;
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
@@ -46,8 +46,11 @@ class SaleListingServiceTest {
      */
     @BeforeEach
     void setup() {
-        Business business1 = new Business("First Business", null, null, "Retail Trade", 1);
+        Address address1 = new Address(null, null, null, null, "Netherlands", null);
+        Business business1 = new Business("First Business", null, address1, "Retail Trade", 1);
+        addressRepository.save(address1);
         businessRepository.save(business1);
+        business1Id = business1.getId();
 
         Product product1 = new Product("TEST-1", "First Product", null, null, 5.00, business1.getId());
         productRepository.save(product1);
@@ -64,9 +67,11 @@ class SaleListingServiceTest {
         saleListingRepository.save(saleListing2);
 
 
-
-        Business business2 = new Business("Second Business", null, null, "Retail Trade", 1);
+        Address address2 = new Address(null, null, null, null, "New Zealand", null);
+        Business business2 = new Business("Second Business", null, address2, "Retail Trade", 1);
+        addressRepository.save(address2);
         businessRepository.save(business2);
+        business2Id = business2.getId();
 
         Product product3 = new Product("TEST-3", "Third Product", null, null, 5.00, business2.getId());
         productRepository.save(product3);
@@ -268,7 +273,7 @@ class SaleListingServiceTest {
      * Test that searching by "first" returns the sale listings from the first business (two of them)
      */
     @Test
-    void search_first_in_businesses_returns_two_listing() {
+    void search_first_in_businesses_returns_two_listings() {
         SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
                 "first",
                 false,
@@ -293,4 +298,158 @@ class SaleListingServiceTest {
         Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
     }
 
+    /**
+     * Test that searching by "second" in business and product name returns 3 sale listings.
+     * the sale listings from the second business (two of them) and the sale listing with the title "Second Product"
+     */
+    @Test
+    void search_second_in_businesses_and_product_returns_three_listings() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "second",
+                true,
+                true,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(3, total);
+    }
+
+    /**
+     * Test that searching by "Nether" in business country returns two listings from the first business
+     */
+    @Test
+    void search_nether_in_businesses_country_returns_two_listings() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "Nether",
+                false,
+                false,
+                true,
+                null,
+                null,
+                null,
+                null,
+                "",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(2, total);
+
+        Assertions.assertEquals(business1Id, listings.get(0).getBusinessId());
+        Assertions.assertEquals(business1Id, listings.get(1).getBusinessId());
+    }
+
+    /**
+     * Test that searching by price in between 15.00 and 40.00 returns three listings
+     */
+    @Test
+    void search_price_between_14_40_returns_three_listings() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                15.00,
+                40.00,
+                null,
+                null,
+                "",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(3, total);
+
+        GetSalesListingDTO listing1 = listings.get(0);
+        Assertions.assertTrue(listing1.getPrice() >= 15 && listing1.getPrice() <= 40);
+
+        GetSalesListingDTO listing2 = listings.get(0);
+        Assertions.assertTrue(listing2.getPrice() >= 15 && listing2.getPrice() <= 40);
+
+        GetSalesListingDTO listing3 = listings.get(0);
+        Assertions.assertTrue(listing3.getPrice() >= 15 && listing3.getPrice() <= 40);
+    }
+
+    /**
+     * Test that searching by price in less than or equal to 20 returns three listings
+     */
+    @Test
+    void search_price_less_than_20_returns_three_listings() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                null,
+                20.00,
+                null,
+                null,
+                "",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(3, total);
+
+        GetSalesListingDTO listing1 = listings.get(0);
+        Assertions.assertTrue(listing1.getPrice() <= 20);
+
+        GetSalesListingDTO listing2 = listings.get(0);
+        Assertions.assertTrue(listing2.getPrice() <= 20);
+
+        GetSalesListingDTO listing3 = listings.get(0);
+        Assertions.assertTrue(listing3.getPrice() <= 20);
+    }
+
+    /**
+     * Test that searching by closing date between 2021-10-20 and 2021-12-5 returns two listings
+     */
+    @Test
+    void search_date_between_returns_two_listings() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                null,
+                null,
+                "2021-10-20",
+                "2021-12-5",
+                "",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(2, total);
+
+        Assertions.assertEquals("Second Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Third Product", listings.get(1).getInventoryItem().getProduct().getName());
+    }
 }
