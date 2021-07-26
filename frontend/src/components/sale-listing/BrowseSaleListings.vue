@@ -262,6 +262,11 @@ export default {
           id: "sellerLocation",
           name: "Seller location",
           checked: false
+        },
+        {
+          id: "sellerType",
+          name: "Seller Type",
+          checked: false
         }
       ],
       priceLowerBound: null,
@@ -284,8 +289,8 @@ export default {
           {id: "productName", name: "Product Name"},
           {id: "country", name: "Country"},
           {id: "city", name: "City"},
-          {id: "expiryDateAsc", name: "Expiry Date Soonest"},
-          {id: "expiryDateDesc", name: "Expiry Date Latest"},
+          {id: "expiryDateAsc", name: "Closes Soonest"},
+          {id: "expiryDateDesc", name: "Closes Latest"},
           {id: "seller", name: "Seller"}
       ],
       loading: false,
@@ -439,7 +444,11 @@ export default {
     validateFieldOptions() {
       this.msg.fieldOptions = null
       //If no field options are checked
-      if (!this.fieldOptions[0].checked && !this.fieldOptions[1].checked && !this.fieldOptions[2].checked && this.searchQuery !== "") {
+      if (!this.fieldOptions[0].checked &&
+          !this.fieldOptions[1].checked &&
+          !this.fieldOptions[2].checked &&
+          !this.fieldOptions[3].checked &&
+          this.searchQuery !== "") {
         this.msg.fieldOptions = "Please select a field to search by"
         this.valid = false
       }
@@ -488,6 +497,7 @@ export default {
           this.fieldOptions[0].checked,
           this.fieldOptions[1].checked,
           this.fieldOptions[2].checked,
+          this.fieldOptions[3].checked,
           this.priceLowerBound,
           this.priceUpperBound,
           this.closingDateLowerBound,

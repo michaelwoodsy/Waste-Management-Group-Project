@@ -372,7 +372,8 @@ export const Business = {
      * @param searchQuery query searched by
      * @param matchingProductName weather to match product name with the search query
      * @param matchingBusinessName weather to match business name with the search query
-     * @param MatchingBusinessLocation weather to match business location with the search query
+     * @param matchingBusinessLocation weather to match business location with the search query
+     * @param matchingBusinessType weather to match business type with the search query
      * @param priceRangeLower lower price range
      * @param priceRangeUpper upper price range
      * @param closingDateLower lower closing date range
@@ -384,7 +385,8 @@ export const Business = {
     searchSaleListings: (searchQuery,
                          matchingProductName,
                          matchingBusinessName,
-                         MatchingBusinessLocation,
+                         matchingBusinessLocation,
+                         matchingBusinessType,
                          priceRangeLower,
                          priceRangeUpper,
                          closingDateLower,
@@ -396,7 +398,8 @@ export const Business = {
                     'searchQuery': searchQuery,
                     'matchingProductName': matchingProductName,
                     'matchingBusinessName': matchingBusinessName,
-                    'matchingBusinessLocation': MatchingBusinessLocation,
+                    'matchingBusinessLocation': matchingBusinessLocation,
+                    'matchingBusinessType': matchingBusinessType,
                     'priceRangeLower': priceRangeLower,
                     'priceRangeUpper': priceRangeUpper,
                     'closingDateLower': closingDateLower,

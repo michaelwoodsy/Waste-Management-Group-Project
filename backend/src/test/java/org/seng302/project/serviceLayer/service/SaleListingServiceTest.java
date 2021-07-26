@@ -68,7 +68,7 @@ class SaleListingServiceTest {
 
 
         Address address2 = new Address(null, null, null, null, "New Zealand", null);
-        Business business2 = new Business("Second Business", null, address2, "Retail Trade", 1);
+        Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
         addressRepository.save(address2);
         businessRepository.save(business2);
         business2Id = business2.getId();
@@ -182,6 +182,32 @@ class SaleListingServiceTest {
         Assertions.assertEquals(0, listings.size());
     }
 
+    /**
+     * Tests that searching for listing by business type with exact string 'trade' returns two listings from the first business
+     */
+    @Test
+    void searchByBusinessType_trade_returnsTwoListings() {
+        String searchTerm = "trade";
+        Specification<SaleListing> spec = saleListingService.searchByBusinessType(new String[]{searchTerm});
+        List<SaleListing> listings = saleListingRepository.findAll(spec);
+        Assertions.assertEquals(2, listings.size());
+        Assertions.assertEquals(business1Id, listings.get(0).getBusinessId());
+        Assertions.assertEquals(business1Id, listings.get(1).getBusinessId());
+    }
+
+    /**
+     * Tests that searching for listing by business type with string ""Charitable Organisation"" returns two listings from the second business
+     */
+    @Test
+    void searchByBusinessType_exact_returnsTwoListings() {
+        String searchTerm = "\"charitable organisation\"";
+        Specification<SaleListing> spec = saleListingService.searchByBusinessType(new String[]{searchTerm});
+        List<SaleListing> listings = saleListingRepository.findAll(spec);
+        Assertions.assertEquals(2, listings.size());
+        Assertions.assertEquals(business2Id, listings.get(0).getBusinessId());
+        Assertions.assertEquals(business2Id, listings.get(1).getBusinessId());
+    }
+
 
     /**
      * Test that using an empty search returns the four sales listings
@@ -191,6 +217,7 @@ class SaleListingServiceTest {
         SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
                 "",
                 true,
+                false,
                 false,
                 false,
                 null,
@@ -217,6 +244,7 @@ class SaleListingServiceTest {
         SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
                 "fou",
                 true,
+                false,
                 false,
                 false,
                 null,
@@ -249,6 +277,7 @@ class SaleListingServiceTest {
                 true,
                 false,
                 false,
+                false,
                 null,
                 null,
                 null,
@@ -278,6 +307,7 @@ class SaleListingServiceTest {
                 "first",
                 false,
                 true,
+                false,
                 false,
                 null,
                 null,
@@ -309,6 +339,7 @@ class SaleListingServiceTest {
                 true,
                 true,
                 false,
+                false,
                 null,
                 null,
                 null,
@@ -335,6 +366,7 @@ class SaleListingServiceTest {
                 false,
                 false,
                 true,
+                false,
                 null,
                 null,
                 null,
@@ -355,12 +387,73 @@ class SaleListingServiceTest {
     }
 
     /**
+     * Test that searching by "retail" in business type returns two listings from the first business
+     */
+    @Test
+    void search_retail_in_businesses_type_returns_two_listings() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "retail",
+                false,
+                false,
+                false,
+                true,
+                null,
+                null,
+                null,
+                null,
+                "",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(2, total);
+
+        Assertions.assertEquals(business1Id, listings.get(0).getBusinessId());
+        Assertions.assertEquals(business1Id, listings.get(1).getBusinessId());
+    }
+
+    /**
+     * Test that searching by exact string ""Charitable Organisation"" in business type returns two listings from the second business
+     */
+    @Test
+    void search_exact_in_businesses_type_returns_two_listings() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "\"Charitable Organisation\"",
+                false,
+                false,
+                false,
+                true,
+                null,
+                null,
+                null,
+                null,
+                "",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(2, total);
+
+        Assertions.assertEquals(business2Id, listings.get(0).getBusinessId());
+        Assertions.assertEquals(business2Id, listings.get(1).getBusinessId());
+    }
+
+    /**
      * Test that searching by price in between 15.00 and 40.00 returns three listings
      */
     @Test
     void search_price_between_14_40_returns_three_listings() {
         SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
                 "",
+                false,
                 false,
                 false,
                 false,
@@ -399,6 +492,7 @@ class SaleListingServiceTest {
                 false,
                 false,
                 false,
+                false,
                 null,
                 20.00,
                 null,
@@ -434,6 +528,7 @@ class SaleListingServiceTest {
                 false,
                 false,
                 false,
+                false,
                 null,
                 null,
                 "2021-10-20",
@@ -451,5 +546,165 @@ class SaleListingServiceTest {
 
         Assertions.assertEquals("Second Product", listings.get(0).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("Third Product", listings.get(1).getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Test that ordering listings by lowest price returns a ordered list
+     */
+    @Test
+    void search_order_lowest_price() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "priceAsc",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals(10.00, listings.get(0).getPrice());
+        Assertions.assertEquals(15.00, listings.get(1).getPrice());
+        Assertions.assertEquals(20.00, listings.get(2).getPrice());
+        Assertions.assertEquals(30.00, listings.get(3).getPrice());
+    }
+
+    /**
+     * Test that ordering listings by highest price returns a ordered list
+     */
+    @Test
+    void search_order_highest_price() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "priceDesc",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals(30.00, listings.get(0).getPrice());
+        Assertions.assertEquals(20.00, listings.get(1).getPrice());
+        Assertions.assertEquals(15.00, listings.get(2).getPrice());
+        Assertions.assertEquals(10.00, listings.get(3).getPrice());
+    }
+
+    /**
+     * Test that ordering listings by product name returns a ordered list
+     */
+    @Test
+    void search_order_product_name() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "productName",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Fourth Product", listings.get(1).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Third Product", listings.get(3).getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Test that ordering listings by expiry date soonest returns a ordered list
+     */
+    @Test
+    void search_order_closes_soonest() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "expiryDateAsc",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Third Product", listings.get(2).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Fourth Product", listings.get(3).getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Test that ordering listings by expiry date latest returns a ordered list
+     */
+    @Test
+    void search_order_closes_latest() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "expiryDateDesc",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals("Fourth Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Third Product", listings.get(1).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("First Product", listings.get(3).getInventoryItem().getProduct().getName());
     }
 }

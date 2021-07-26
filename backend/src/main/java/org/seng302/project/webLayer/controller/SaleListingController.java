@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @RestController
 public class SaleListingController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProductCatalogueController.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(SaleListingController.class.getName());
     private final BusinessRepository businessRepository;
     private final SaleListingRepository saleListingRepository;
     private final UserRepository userRepository;
@@ -128,6 +128,7 @@ public class SaleListingController {
             @RequestParam("matchingProductName") boolean matchingProductName,
             @RequestParam("matchingBusinessName") boolean matchingBusinessName,
             @RequestParam("matchingBusinessLocation") boolean matchingBusinessLocation,
+            @RequestParam("matchingBusinessType") boolean matchingBusinessType,
             @RequestParam(name = "priceRangeLower", required = false) Double priceRangeLower,
             @RequestParam(name = "priceRangeUpper", required = false) Double priceRangeUpper,
             @RequestParam(name = "closingDateLower", required = false) String closingDateLower,
@@ -142,6 +143,7 @@ public class SaleListingController {
                     matchingProductName,
                     matchingBusinessName,
                     matchingBusinessLocation,
+                    matchingBusinessType,
                     priceRangeLower,
                     priceRangeUpper,
                     closingDateLower,
@@ -150,12 +152,11 @@ public class SaleListingController {
                     pageNumber);
 
             return saleListingService.searchSaleListings(dto);
-
-
-        } catch (Exception e) {
-
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while searching sales listings: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
         }
-        return new ArrayList<>();
     }
 
     /**
@@ -206,8 +207,7 @@ public class SaleListingController {
             // Get the user that made the request
             User user = getLoggedInUser(appUser);
 
-            logger.info("User with id " + user.getId() +
-                    " trying to get sale listings of business with id " + businessId  + ".");
+            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
 
             // Get the business of the request
             Business business = getBusiness(businessId);
@@ -325,7 +325,6 @@ public class SaleListingController {
                 logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
                 throw exception;
             }
-            System.out.println(closesDateTime);
 
             SaleListing saleListing = new SaleListing(business, item, price, moreInfo, closesDateTime, quantity);
             saleListingRepository.save(saleListing);

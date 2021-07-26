@@ -61,17 +61,13 @@ public class SaleListingService {
         Specification<SaleListing> spec = null;
         List<SaleListing> listings;
         long totalCount;
-        boolean sortASC;
         String searchQuery = dto.getSearchQuery().toLowerCase(); // Convert search query to all lowercase.
         String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
         //Product name
         if (dto.isMatchProductName()) {
-            if (spec == null) {
-                spec = searchNameField(conjunctions);
-            } else {
-                spec = spec.or(searchNameField(conjunctions));
-            }
+            //Always first
+            spec = searchNameField(conjunctions);
         }
 
         //Business name
@@ -89,6 +85,15 @@ public class SaleListingService {
                 spec = searchByBusinessCountry(conjunctions);
             } else {
                 spec = spec.or(searchByBusinessCountry(conjunctions));
+            }
+        }
+
+        //Business type
+        if (dto.isMatchBusinessType()) {
+            if (spec == null) {
+                spec = searchByBusinessType(conjunctions);
+            } else {
+                spec = spec.or(searchByBusinessType(conjunctions));
             }
         }
 
@@ -147,6 +152,8 @@ public class SaleListingService {
                 break;
             case "seller":
                 sort = Sort.by(Sort.Order.asc("business.name"));
+                break;
+            default:
                 break;
         }
 
@@ -293,7 +300,7 @@ public class SaleListingService {
             }
         }
 
-        return listingSpec;
+        return Objects.requireNonNullElseGet(listingSpec, () -> SaleListingSpecifications.isBusinessId(-1));
     }
 
     /**
@@ -325,5 +332,46 @@ public class SaleListingService {
             }
         }
         return spec;
+    }
+
+    /**
+     * Searches for sales listings by business type
+     *
+     * @param conjunctions list of strings representing conjunctive search terms
+     * @return specification for querying the JPA repository of sale listings with
+     */
+    public Specification<SaleListing> searchByBusinessType(String[] conjunctions) {
+        Specification<Business> businessSpec = null;
+
+        for (String conjunction : conjunctions) {
+            Specification<Business> newSpec = Specification.where(null);
+
+            String[] terms = conjunction.split(AND_SPACE_REGEX);
+            for (String term : terms) {
+                if (Pattern.matches(QUOTE_REGEX, term)) {
+                    term = term.replace("\"", "");
+                    newSpec = newSpec.and(BusinessSpecifications.hasType(term));
+                } else {
+                    newSpec = newSpec.and(BusinessSpecifications.hasType(term)
+                            .or(BusinessSpecifications.containsType(term)));
+                }
+            }
+            if (businessSpec == null) {
+                businessSpec = newSpec;
+            } else {
+                businessSpec = businessSpec.or(newSpec);
+            }
+        }
+
+        Specification<SaleListing> spec = null;
+        List<Business> businesses = businessRepository.findAll(businessSpec);
+        for (Business business : businesses) {
+            if (spec == null) {
+                spec = SaleListingSpecifications.isBusinessId(business.getId());
+            } else {
+                spec = spec.or(SaleListingSpecifications.isBusinessId(business.getId()));
+            }
+        }
+        return Objects.requireNonNullElseGet(spec, () -> SaleListingSpecifications.isBusinessId(-1));
     }
 }
