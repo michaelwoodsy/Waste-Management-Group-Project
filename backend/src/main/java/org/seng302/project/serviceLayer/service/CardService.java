@@ -1,5 +1,6 @@
 package org.seng302.project.serviceLayer.service;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.repositoryLayer.specification.CardSpecifications;
@@ -17,12 +18,16 @@ import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service class with methods for handling community marketplace cards.
@@ -113,21 +118,30 @@ public class CardService {
      * @param section the section to get all cards from
      * @return a list of response DTOs containing card data
      */
-    public List<GetCardResponseDTO> getAllCardsForSection(String section) {
+    public JSONObject getAllCardsForSection(String section, Integer page, String sortBy) {
+        // TODO: Implement sorting on backend
         try {
-            logger.info("Request to get all cards by section: {}", section);
+            logger.info("Request to get all cards by section: {}, page {}", section, page);
 
             // Check if the section is invalid
-            if (!("Exchange".equals(section) ||
-                    "ForSale".equals(section) ||
-                    "Wanted".equals(section))) {
+            if (!("Exchange".equals(section) || "ForSale".equals(section) || "Wanted".equals(section))) {
                 throw new InvalidMarketplaceSectionException();
             }
 
             // Return all cards in the section
-            List<Card> cards = cardRepository.findAllBySection(section);
-            List<GetCardResponseDTO> response = new ArrayList<>();
-            cards.forEach(card -> response.add(new GetCardResponseDTO(card)));
+            Specification<Card> spec = CardSpecifications.inSection(section);
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Card> cardsPage = cardRepository.findAll(spec, pageable);
+            List<Card> cards = cardsPage.getContent();
+            Long totalCards = cardsPage.getTotalElements();
+            List<GetCardResponseDTO> responseCards = new ArrayList<>();
+            for (Card card : cards) {
+                responseCards.add(new GetCardResponseDTO(card));
+            }
+
+            JSONObject response = new JSONObject();
+            response.put("cards", responseCards);
+            response.put("totalCards", totalCards);
             return response;
         } catch (Exception exception) {
             logger.error("Unexpected error while getting all cards");
@@ -199,7 +213,7 @@ public class CardService {
 
             //Delete messages about the card
             var cardMessages = messageRepository.findAllByCard(retrievedCard);
-            for (Message message: cardMessages) {
+            for (Message message : cardMessages) {
                 messageRepository.delete(message);
             }
             logger.info("Deleted {} messages about the card wanting to be deleted", cardMessages.size());
@@ -247,8 +261,8 @@ public class CardService {
     /**
      * Service method for editing a card
      *
-     * @param cardId id of the card to edit
-     * @param dto dto of the edited card
+     * @param cardId  id of the card to edit
+     * @param dto     dto of the edited card
      * @param appUser user who is making the request
      */
     public void editCard(Integer cardId, EditCardDTO dto, AppUserDetails appUser) {
@@ -302,6 +316,7 @@ public class CardService {
      * @return a list of cards that matches the query
      */
     public List<GetCardResponseDTO> searchCards(String section, List<Integer> keywordIds, Boolean union) {
+        // TODO: change method to use pagination
         if (section == null || !List.of("ForSale", "Wanted", "Exchange").contains(section)) {
             var exception = new BadRequestException("Bad Request: invalid section");
             logger.warn(exception.getMessage());
@@ -354,7 +369,7 @@ public class CardService {
         List<Card> cardsDeleted = cardRepository.deleteByDisplayPeriodEndBefore(oneDayAgo);
 
         //Create a CardExpiryNotification for each expired card
-        for (Card card: cardsDeleted) {
+        for (Card card : cardsDeleted) {
             var newNotification = new CardExpiryNotification(
                     card.getCreator(),
                     "This card has expired and was deleted.",

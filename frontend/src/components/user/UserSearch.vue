@@ -140,6 +140,7 @@
               :items-per-page="resultsPerPage"
               :total-items="totalCount"
               class="mx-auto"
+              @change-page="changePage"
           />
         </div>
       </div>
@@ -257,9 +258,10 @@ export default {
      * Function is called by pagination component to make another call to the backend
      * to update the list of users that should be displayed
      */
-    async changePage() {
+    async changePage(page) {
       this.blurSearch();
       this.loading = true;
+      this.page = page
       let sortBy = this.orderCol
       if (!this.orderDirection){
         sortBy += "ASC"

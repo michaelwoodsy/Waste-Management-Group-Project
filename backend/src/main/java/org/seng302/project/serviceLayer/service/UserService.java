@@ -300,7 +300,7 @@ public class UserService {
     public List<Object> checkSort(String sortBy){
         switch(sortBy){
             case "idASC": case "idDESC": case "firstNameASC": case "firstNameDESC": case "middleNameASC": case "middleNameDESC":
-            case "lastNameASC": case  "lastNameDESC": case "emailASC": case  "emailDESC": case "homeAddressASC": case  "homeAddressDESC":
+            case "lastNameASC": case "lastNameDESC": case "emailASC": case "emailDESC": case "homeAddressASC": case "homeAddressDESC":
                 break;
             default:
                 sortBy = "";

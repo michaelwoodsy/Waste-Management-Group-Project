@@ -86,6 +86,7 @@ public class SearchCardByKeywordSteps {
             return(userRepository.findByEmail(wantedUser.getEmail()).get(0));
         } else {
             // User doesn't exist, save it to repository
+            addressRepository.save(wantedUser.getHomeAddress());
             userRepository.save(wantedUser);
             return wantedUser;
         }
@@ -112,7 +113,7 @@ public class SearchCardByKeywordSteps {
         // Create the logged in user
         testUser = new User("John", "Smith", "Bob", "Jonny",
                 "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
-                "+64 3 555 0129", null, "");
+                "+64 3 555 0129", new Address(), "");
         testUser.setEmail(email);
         testUser = createUser(testUser);
 

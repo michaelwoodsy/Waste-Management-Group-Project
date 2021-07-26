@@ -20,7 +20,7 @@ describe('Tests for the ConfirmationModal Component', function () {
         const button = wrapper.find(".page-link")
         window.scrollTo = jest.fn(); // Mock the window.scrollTo function so the test doesn't fail
         await button.trigger('click')
-        expect(wrapper.emitted('update:currentPage')).toBeTruthy()
+        expect(wrapper.emitted('change-page')).toBeTruthy()
     })
 
 });
