@@ -1,9 +1,7 @@
 package org.seng302.project.serviceLayer.service;
 
-import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.SaleListing;
 import org.seng302.project.repositoryLayer.repository.*;
-import org.seng302.project.repositoryLayer.specification.BusinessSpecifications;
 import org.seng302.project.repositoryLayer.specification.SaleListingSpecifications;
 import org.seng302.project.serviceLayer.dto.saleListings.GetSalesListingDTO;
 import org.seng302.project.serviceLayer.dto.saleListings.SearchSaleListingsDTO;
@@ -25,7 +23,6 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -37,13 +34,10 @@ public class SaleListingService {
     private static final String QUOTE_REGEX = "^\".*\"$";
 
     private final SaleListingRepository saleListingRepository;
-    private final BusinessRepository businessRepository;
 
     @Autowired
-    public SaleListingService(SaleListingRepository saleListingRepository,
-                              BusinessRepository businessRepository) {
+    public SaleListingService(SaleListingRepository saleListingRepository) {
         this.saleListingRepository = saleListingRepository;
-        this.businessRepository = businessRepository;
     }
 
 
@@ -124,8 +118,6 @@ public class SaleListingService {
             throw invalidDateException;
         }
 
-
-
         Sort sort = null;
 
         switch (dto.getSortBy()) {
@@ -156,7 +148,6 @@ public class SaleListingService {
             default:
                 break;
         }
-
 
         if (sort != null) {
             Pageable pageable = PageRequest.of(dto.getPageNumber(), 10, sort);

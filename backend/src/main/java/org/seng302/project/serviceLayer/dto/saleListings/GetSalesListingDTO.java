@@ -13,6 +13,7 @@ public class GetSalesListingDTO {
 
     private Integer id;
     private Integer businessId;
+    private Business business;
     private InventoryItem inventoryItem;
     private Double price;
     private String moreInfo;
@@ -23,6 +24,7 @@ public class GetSalesListingDTO {
     public GetSalesListingDTO(SaleListing listing) {
         this.id = listing.getId();
         this.businessId = listing.getBusiness().getId();
+        this.business = listing.getBusiness();
         this.inventoryItem = listing.getInventoryItem();
         this.price = listing.getPrice();
         this.moreInfo = listing.getMoreInfo();
