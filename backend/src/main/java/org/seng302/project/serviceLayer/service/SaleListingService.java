@@ -88,6 +88,15 @@ public class SaleListingService {
             }
         }
 
+        //Business type
+        if (dto.isMatchBusinessType()) {
+            if (spec == null) {
+                spec = searchByBusinessType(conjunctions);
+            } else {
+                spec = spec.or(searchByBusinessType(conjunctions));
+            }
+        }
+
         //Price range
         if (spec == null) {
             spec = searchPriceInBetween(dto.getPriceRangeLower(), dto.getPriceRangeUpper());
@@ -291,7 +300,7 @@ public class SaleListingService {
             }
         }
 
-        return listingSpec;
+        return Objects.requireNonNullElseGet(listingSpec, () -> SaleListingSpecifications.isBusinessId(-1));
     }
 
     /**
@@ -314,6 +323,47 @@ public class SaleListingService {
                 } else {
                     newSpec = newSpec.and(BusinessSpecifications.hasName(term)
                             .or(BusinessSpecifications.containsName(term)));
+                }
+            }
+            if (businessSpec == null) {
+                businessSpec = newSpec;
+            } else {
+                businessSpec = businessSpec.or(newSpec);
+            }
+        }
+
+        Specification<SaleListing> spec = null;
+        List<Business> businesses = businessRepository.findAll(businessSpec);
+        for (Business business : businesses) {
+            if (spec == null) {
+                spec = SaleListingSpecifications.isBusinessId(business.getId());
+            } else {
+                spec = spec.or(SaleListingSpecifications.isBusinessId(business.getId()));
+            }
+        }
+        return Objects.requireNonNullElseGet(spec, () -> SaleListingSpecifications.isBusinessId(-1));
+    }
+
+    /**
+     * Searches for sales listings by business type
+     *
+     * @param conjunctions list of strings representing conjunctive search terms
+     * @return specification for querying the JPA repository of sale listings with
+     */
+    public Specification<SaleListing> searchByBusinessType(String[] conjunctions) {
+        Specification<Business> businessSpec = null;
+
+        for (String conjunction : conjunctions) {
+            Specification<Business> newSpec = Specification.where(null);
+
+            String[] terms = conjunction.split(AND_SPACE_REGEX);
+            for (String term : terms) {
+                if (Pattern.matches(QUOTE_REGEX, term)) {
+                    term = term.replace("\"", "");
+                    newSpec = newSpec.and(BusinessSpecifications.hasType(term));
+                } else {
+                    newSpec = newSpec.and(BusinessSpecifications.hasType(term)
+                            .or(BusinessSpecifications.containsType(term)));
                 }
             }
             if (businessSpec == null) {

@@ -13,6 +13,7 @@ public class SearchSaleListingsDTO {
     private boolean matchProductName;
     private boolean matchBusinessName;
     private boolean matchBusinessLocation;
+    private boolean matchBusinessType;
     private Double priceRangeLower;
     private Double priceRangeUpper;
     private String closingDateLower;
