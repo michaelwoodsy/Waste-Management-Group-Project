@@ -63,4 +63,28 @@ public class BusinessSpecifications {
                 builder.like(builder.lower(root.get("address").get("country")), "%" + country + "%")
         );
     }
+
+    /**
+     * Specification to find a business based on a queried type.
+     * Matches exact types.
+     *
+     * @param type type to search by.
+     * @return new specification to use when querying repository.
+     */
+    public static Specification<Business> hasType(String type) {
+        return ((root, query, builder) ->
+                builder.like(builder.lower(root.get("businessType")), type));
+    }
+
+    /**
+     * Specification to find a business based on a queried type.
+     * Matches similar types.
+     *
+     * @param type name to search by.
+     * @return new specification to use when querying repository.
+     */
+    public static Specification<Business> containsType(String type) {
+        return ((root, query, builder) ->
+                builder.like(builder.lower(root.get("businessType")), '%' + type + '%'));
+    }
 }

@@ -1944,6 +1944,12 @@ paths:
           required: false
           description: 'Whether we are using the searchQuery to match business locations'
         - in: query
+          name: matchingBusinessType
+          schema:
+            type: boolean
+          required: false
+          description: 'Whether we are using the searchQuery to match business type'
+        - in: query
           name: priceRangeLower
           schema:
             type: number
@@ -1967,6 +1973,18 @@ paths:
             type: string
           required: false
           description: 'An upper bound on the closing date'
+        - in: query
+          name: pageNumber
+          schema:
+            type: integer
+          required: true
+          description: 'The page to get'
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          required: true
+          description: 'The sorting parameter. One of "priceAsc", "priceDesc", "productName", "country", "city", "expiryDateAsc", "expiryDateDesc", "seller"'
       responses:
         '200':
           description: Request successful, a (possibly empty) list of listings is returned

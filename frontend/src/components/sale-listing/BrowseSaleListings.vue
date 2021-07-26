@@ -16,13 +16,13 @@
             <div class="col-sm-5">
               <div class="input-group">
                 <input id="search"
-                       v-model="searchTerm"
+                       v-model="searchQuery"
                        class="form-control no-outline"
                        placeholder="Search listings"
                        type="search"
-                       @keyup.enter="search">
+                       @keyup.enter="checkInputs">
                 <div class="input-group-append">
-                  <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
+                  <button class="btn btn-primary no-outline" type="button" @click="checkInputs">Search</button>
                 </div>
               </div>
             </div>
@@ -41,6 +41,8 @@
                 />
                 {{ field.name }}
               </label>
+              <br>
+              <span v-if="msg.fieldOptions" style="text-align: center; color: red">{{ msg.fieldOptions }}</span>
             </div>
           </div>
 
@@ -49,7 +51,7 @@
             <div class="col form-group text-center">
               <label class="d-inline-block option-title mx-2">Order By: </label>
               <select class="form-control d-inline-block w-auto"
-                      @change="search"
+                      @change="checkInputs"
                       v-model="orderBy">
                 <option
                     :value="orderBy.id"
@@ -103,6 +105,10 @@
                       v-on:click="checkInputs">
                 Apply Filters
               </button>
+              <button class="btn btn-danger m-2"
+                      v-on:click="clearFilters">
+                Clear Filters
+              </button>
             </div>
           </div>
 
@@ -134,52 +140,52 @@
               <!-- Product Image -->
               <th scope="col"></th>
               <!-- Product Info -->
-              <th class="pointer" scope="col">
+              <th scope="col">
                 <p class="d-inline">Product Info</p>
               </th>
               <!-- Quantity of product being sold -->
-              <th class="pointer" scope="col">
+              <th scope="col">
                 <p class="d-inline">Quantity</p>
               </th>
               <!-- Price of listing -->
-              <th class="pointer" scope="col">
+              <th scope="col">
                 <p class="d-inline">Price</p>
               </th>
               <!-- Date listing was created -->
-              <th class="pointer" scope="col">
+              <th scope="col">
                 <p class="d-inline">Created</p>
               </th>
               <!-- Date listing closes -->
-              <th class="pointer" scope="col">
+              <th scope="col">
                 <p class="d-inline">Closes</p>
               </th>
               <!-- Seller's details -->
-              <th class="pointer" scope="col">
+              <th scope="col">
                 <p class="d-inline">Seller</p>
               </th>
             </tr>
             </thead>
             <tbody v-if="!loading">
-            <tr v-for="item in paginatedListings"
-                v-bind:key="item.id"
+            <tr v-for="listing in listings"
+                v-bind:key="listing.id"
                 class="pointer"
                 data-target="#viewListingModal"
                 data-toggle="modal"
-                @click="viewListing(item)"
+                @click="viewListing(listing)"
             >
               <td>
                 <img alt="productImage" class="ui-icon-image"
-                     :src="getPrimaryImageThumbnail(item.inventoryItem.product)">
+                     :src="getPrimaryImageThumbnail(listing.inventoryItem.product)">
               </td>
               <td style="word-break: break-word; width: 50%">
-                {{ item.inventoryItem.product.name }}
-                <span v-if="item.moreInfo" style="font-size: small"><br/>{{ item.moreInfo }}</span>
+                {{ listing.inventoryItem.product.name }}
+                <span v-if="listing.moreInfo" style="font-size: small"><br/>{{ listing.moreInfo }}</span>
               </td>
-              <td>{{ item.quantity }}</td>
-              <td>{{ formatPrice(item) }}</td>
-              <td>{{ formatDate(item.created) }}</td>
-              <td>{{ formatDate(item.closes) }}</td>
-              <td>{{ formatSeller(item) }}</td>
+              <td>{{ listing.quantity }}</td>
+              <td>{{ formatPrice(listing) }}</td>
+              <td>{{ formatDate(listing.created) }}</td>
+              <td>{{ formatDate(listing.closes) }}</td>
+              <td>{{ formatSeller(listing) }}</td>
             </tr>
             </tbody>
           </table>
@@ -240,7 +246,7 @@ export default {
   },
   data() {
     return {
-      searchTerm: "",
+      searchQuery: "",
       fieldOptions: [
         {
           id: "productName",
@@ -256,6 +262,11 @@ export default {
           id: "sellerLocation",
           name: "Seller location",
           checked: false
+        },
+        {
+          id: "sellerType",
+          name: "Seller Type",
+          checked: false
         }
       ],
       priceLowerBound: null,
@@ -267,7 +278,8 @@ export default {
         priceLowerBound: '',
         priceUpperBound: '',
         closingDateLowerBound: '',
-        closingDateUpperBound: ''
+        closingDateUpperBound: '',
+        fieldOptions: ''
       },
       orderBy: "bestMatch",
       orderByOptions: [
@@ -287,11 +299,13 @@ export default {
       listings: [],
       listingToView: null,
       viewListingModal: false,
-      error: null
+      error: null,
+
+      totalCount: 0
     }
   },
-  async mounted() {
-    await this.fillTable();
+  mounted() {
+    this.search()
   },
   computed: {
     /**
@@ -301,60 +315,17 @@ export default {
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
     },
-
-    /**
-     * Returns paginated sale listings.
-     */
-    paginatedListings() {
-      let newListings = this.listings;
-      if (newListings.length > 0) {
-        const startIndex = this.resultsPerPage * (this.page - 1);
-        const endIndex = this.resultsPerPage * this.page;
-        newListings = newListings.slice(startIndex, endIndex);
-      }
-      return newListings;
-    },
-
-    /**
-     * The total number of listings.
-     */
-    totalCount() {
-      return this.listings.length;
-    },
   },
   methods: {
-
     /**
-     * Fills the table with all sale listings when the page is loaded
+     * Function is called by pagination component to make another call to the backend
+     * to update the list of users that should be displayed
      */
-    async fillTable() {
-      //TODO: use GET /listings endpoint to show everyone's listings
-      //Currently just show's the current business's listings
-      this.listings = [];
+    async changePage() {
       this.loading = true;
-      this.page = 1;
-
-      try {
-        const listingsResponse = await Business.getListings(this.$root.$data.user.state.actingAs.id)
-        this.error = null
-        this.listings = listingsResponse.data
-
-        this.listings = await Promise.all(this.listings.map(async (listing) => {
-          //TODO: remove the below line once the backend returns businessId as part of a listing
-          listing.businessId = this.$root.$data.user.state.actingAs.id
-          const businessResponse = await Business.getBusinessData(listing.businessId)
-          listing.sellerName = businessResponse.data.name
-          listing.sellerAddress = businessResponse.data.address
-          return listing
-        }))
-
-        this.listings = await this.$root.$data.product.addSaleListingCurrencies(this.listings)
-        this.loading = false
-      } catch (err) {
-        this.error = err;
-        this.loading = false
-      }
+      await this.search()
     },
+
     /**
      * Formats the price of a listing based on
      * the country of the business offering the listing
@@ -395,10 +366,22 @@ export default {
       this.valid = true
       this.validatePrices()
       this.validateDates()
+      this.validateFieldOptions()
 
       if (this.valid) {
         this.search()
       }
+    },
+
+    /**
+     * Clears the price and date filters and searches again
+     */
+    clearFilters() {
+      this.priceLowerBound = null
+      this.priceUpperBound = null
+      this.closingDateLowerBound = null
+      this.closingDateUpperBound = null
+      this.search()
     },
 
     /**
@@ -420,7 +403,7 @@ export default {
         if (upperPriceNotNumber || !/^([0-9]+(.[0-9]{0,2})?)?$/.test(this.priceUpperBound)) {
           this.msg.priceUpperBound = "Please enter a valid price for the price's upper bound";
           this.valid = false
-        } else if (this.priceUpperBound < this.priceLowerBound){
+        } else if (parseFloat(this.priceUpperBound) < parseFloat(this.priceLowerBound)){
           this.msg.priceUpperBound = "The price's upper bound is less than the lower bound"
           this.valid = false
         }
@@ -461,6 +444,19 @@ export default {
       }
     },
 
+    validateFieldOptions() {
+      this.msg.fieldOptions = null
+      //If no field options are checked
+      if (!this.fieldOptions[0].checked &&
+          !this.fieldOptions[1].checked &&
+          !this.fieldOptions[2].checked &&
+          !this.fieldOptions[3].checked &&
+          this.searchQuery !== "") {
+        this.msg.fieldOptions = "Please select a field to search by"
+        this.valid = false
+      }
+    },
+
     /**
      * Uses the primaryImageId of the product to find the primary image and return its imageURL,
      * else it returns the default product image url
@@ -497,8 +493,37 @@ export default {
     /**
      * Applies the user's search input
      */
-    search() {
-      //TODO: implement me!
+    async search() {
+      this.loading = true
+      await Business.searchSaleListings(
+          this.searchQuery,
+          this.fieldOptions[0].checked,
+          this.fieldOptions[1].checked,
+          this.fieldOptions[2].checked,
+          this.fieldOptions[3].checked,
+          this.priceLowerBound,
+          this.priceUpperBound,
+          this.closingDateLowerBound,
+          this.closingDateUpperBound,
+          this.page - 1,
+          this.orderBy)
+          .then(async (res) => {
+            this.listings = res.data[0]
+            this.listings = await Promise.all(this.listings.map(async (listing) => {
+              const businessResponse = await Business.getBusinessData(listing.businessId)
+              listing.sellerName = businessResponse.data.name
+              listing.sellerAddress = businessResponse.data.address
+              return listing
+            }))
+            this.listings = await this.$root.$data.product.addSaleListingCurrencies(this.listings)
+            this.totalCount = res.data[1]
+            this.error = null
+            this.loading = false
+      })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
     },
   }
 }
