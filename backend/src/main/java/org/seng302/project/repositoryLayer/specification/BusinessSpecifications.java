@@ -26,9 +26,7 @@ public class BusinessSpecifications {
      */
     public static Specification<Business> hasName(String name) {
         return ((root, query, builder) ->
-                builder.or(
-                        builder.like(builder.lower(root.get("name")), name))
-        );
+                builder.like(builder.lower(root.get("name")), name));
     }
 
     /**
@@ -40,9 +38,7 @@ public class BusinessSpecifications {
      */
     public static Specification<Business> containsName(String name) {
         return ((root, query, builder) ->
-                builder.or(
-                        builder.like(builder.lower(root.get("name")), '%' + name + '%'))
-        );
+                builder.like(builder.lower(root.get("name")), '%' + name + '%'));
     }
 
     /**
@@ -53,9 +49,7 @@ public class BusinessSpecifications {
      */
     public static Specification<Business> hasCountry(String country) {
         return ((root, query, builder) ->
-                builder.or(
-                        builder.like(builder.lower(root.get("address").get("country")), country))
-        );
+                builder.like(builder.lower(root.get("address").get("country")), country));
     }
 
     /**
@@ -66,9 +60,7 @@ public class BusinessSpecifications {
      */
     public static Specification<Business> containsCountry(String country) {
         return ((root, query, builder) ->
-                builder.or(
-                        builder.like(builder.lower(root.get("address").get("country")), "%" + country + "%"))
-        );
+                builder.like(builder.lower(root.get("address").get("country")), "%" + country + "%"));
     }
 
     /**
@@ -78,8 +70,6 @@ public class BusinessSpecifications {
      */
     public static Specification<Business> hasBusinessType(String businessType){
         return ((root, query, builder) ->
-                builder.or(
-                        builder.like(root.get("businessType"), businessType))
-        );
+                builder.like(root.get("businessType"), businessType));
     }
 }
