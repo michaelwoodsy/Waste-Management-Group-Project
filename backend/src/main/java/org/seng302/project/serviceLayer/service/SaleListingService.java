@@ -61,17 +61,13 @@ public class SaleListingService {
         Specification<SaleListing> spec = null;
         List<SaleListing> listings;
         long totalCount;
-        boolean sortASC;
         String searchQuery = dto.getSearchQuery().toLowerCase(); // Convert search query to all lowercase.
         String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
         //Product name
         if (dto.isMatchProductName()) {
-            if (spec == null) {
-                spec = searchNameField(conjunctions);
-            } else {
-                spec = spec.or(searchNameField(conjunctions));
-            }
+            //Always first
+            spec = searchNameField(conjunctions);
         }
 
         //Business name
@@ -147,6 +143,8 @@ public class SaleListingService {
                 break;
             case "seller":
                 //TODO: Figure out how to sort by seller name
+                break;
+            default:
                 break;
         }
 

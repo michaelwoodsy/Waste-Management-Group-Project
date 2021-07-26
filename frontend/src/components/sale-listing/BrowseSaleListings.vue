@@ -284,8 +284,8 @@ export default {
           {id: "productName", name: "Product Name"},
           {id: "country", name: "Country"},
           {id: "city", name: "City"},
-          {id: "expiryDateAsc", name: "Expiry Date Soonest"},
-          {id: "expiryDateDesc", name: "Expiry Date Latest"},
+          {id: "expiryDateAsc", name: "Closes Soonest"},
+          {id: "expiryDateDesc", name: "Closes Latest"},
           {id: "seller", name: "Seller"}
       ],
       loading: false,

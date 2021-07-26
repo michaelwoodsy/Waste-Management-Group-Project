@@ -56,7 +56,7 @@ class SaleListingServiceTest {
         productRepository.save(product1);
         InventoryItem inventoryItem1 = new InventoryItem(product1, 5, null, null, "2021-01-01", null, null, "2021-12-31");
         inventoryItemRepository.save(inventoryItem1);
-        SaleListing saleListing1 = new SaleListing(business1.getId(), inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
+        SaleListing saleListing1 = new SaleListing(business1.getId(), inventoryItem1, 20.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
         saleListingRepository.save(saleListing1);
 
         Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
@@ -77,7 +77,7 @@ class SaleListingServiceTest {
         productRepository.save(product3);
         InventoryItem inventoryItem3 = new InventoryItem(product3, 5, null, null, "2021-01-01", null, null, "2021-12-31");
         inventoryItemRepository.save(inventoryItem3);
-        SaleListing saleListing3 = new SaleListing(business2.getId(), inventoryItem3, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
+        SaleListing saleListing3 = new SaleListing(business2.getId(), inventoryItem3, 10.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
         saleListingRepository.save(saleListing3);
 
         Product product4 = new Product("TEST-4", "Fourth Product", null, null, 5.00, business2.getId());
@@ -451,5 +451,160 @@ class SaleListingServiceTest {
 
         Assertions.assertEquals("Second Product", listings.get(0).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("Third Product", listings.get(1).getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Test that ordering listings by lowest price returns a ordered list
+     */
+    @Test
+    void search_order_lowest_price() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "priceAsc",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals(10.00, listings.get(0).getPrice());
+        Assertions.assertEquals(15.00, listings.get(1).getPrice());
+        Assertions.assertEquals(20.00, listings.get(2).getPrice());
+        Assertions.assertEquals(30.00, listings.get(3).getPrice());
+    }
+
+    /**
+     * Test that ordering listings by highest price returns a ordered list
+     */
+    @Test
+    void search_order_highest_price() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "priceDesc",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals(30.00, listings.get(0).getPrice());
+        Assertions.assertEquals(20.00, listings.get(1).getPrice());
+        Assertions.assertEquals(15.00, listings.get(2).getPrice());
+        Assertions.assertEquals(10.00, listings.get(3).getPrice());
+    }
+
+    /**
+     * Test that ordering listings by product name returns a ordered list
+     */
+    @Test
+    void search_order_product_name() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "productName",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Fourth Product", listings.get(1).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Third Product", listings.get(3).getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Test that ordering listings by expiry date soonest returns a ordered list
+     */
+    @Test
+    void search_order_closes_soonest() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "expiryDateAsc",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Third Product", listings.get(2).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Fourth Product", listings.get(3).getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Test that ordering listings by expiry date latest returns a ordered list
+     */
+    @Test
+    void search_order_closes_latest() {
+        SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
+                "",
+                false,
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                "expiryDateDesc",
+                0
+        );
+
+        List<Object> response = saleListingService.searchSaleListings(dto);
+        System.out.println(response);
+        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        long total = (long) response.get(1);
+
+        Assertions.assertEquals(4, total);
+
+        Assertions.assertEquals("Fourth Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Third Product", listings.get(1).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("First Product", listings.get(3).getInventoryItem().getProduct().getName());
     }
 }
