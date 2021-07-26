@@ -128,21 +128,6 @@ class SaleListingControllerTest {
 
     }
 
-    @AfterEach
-    public void tearDown() {
-        saleListingRepository.deleteAll();
-        inventoryItemRepository.deleteAll();
-        if (listing != null) {
-            saleListingRepository.delete(listing);
-        }
-        inventoryItemRepository.delete(inventoryItem);
-        productRepository.delete(product);
-        businessRepository.delete(business);
-        userRepository.delete(user);
-        userRepository.delete(owner);
-        addressRepository.delete(testAddress1);
-    }
-
     @Test
     void checkUnauthenticatedRequest() throws Exception {
         mockMvc.perform(get("/businesses/{id}/listings", business.getId()))
