@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service class with methods for handling community marketplace cards.
@@ -139,10 +140,7 @@ public class CardService {
             Page<Card> cardsPage = cardRepository.findAll(spec, pageable);
             List<Card> cards = cardsPage.getContent();
             Long totalCards = cardsPage.getTotalElements();
-            List<GetCardResponseDTO> responseCards = new ArrayList<>();
-            for (Card card : cards) {
-                responseCards.add(new GetCardResponseDTO(card));
-            }
+            List<GetCardResponseDTO> responseCards = cards.stream().map(GetCardResponseDTO::new).collect(Collectors.toList());
 
             JSONObject response = new JSONObject();
             response.put("cards", responseCards);
