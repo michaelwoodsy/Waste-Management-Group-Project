@@ -42,7 +42,7 @@ class SaleListingServiceTest {
     }
 
     /**
-     * Before each test, setup two sale listings with different parameters
+     * Before each test, setup four sale listings with different parameters
      */
     @BeforeEach
     void setup() {

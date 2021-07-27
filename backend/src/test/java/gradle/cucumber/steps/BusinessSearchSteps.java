@@ -13,6 +13,7 @@ import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
 import org.seng302.project.serviceLayer.dto.address.AddressDTO;
+import org.seng302.project.repositoryLayer.repository.SaleListingRepository;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -42,6 +43,7 @@ public class BusinessSearchSteps {
 
     private final BusinessRepository businessRepository;
     private final AddressRepository addressRepository;
+    private final SaleListingRepository saleListingRepository;
 
     private User testUser;
     private Business testBusiness1;
@@ -51,9 +53,11 @@ public class BusinessSearchSteps {
 
 
     @Autowired
-    public BusinessSearchSteps(BusinessRepository businessRepository, AddressRepository addressRepository) {
+    public BusinessSearchSteps(BusinessRepository businessRepository, AddressRepository addressRepository,
+                               SaleListingRepository saleListingRepository) {
         this.businessRepository =  businessRepository;
         this.addressRepository = addressRepository;
+        this.saleListingRepository = saleListingRepository;
     }
 
     /**
@@ -71,6 +75,7 @@ public class BusinessSearchSteps {
         testUser = new User("Test", "User", "", "", "I'm a test user", "testuser@gmail.com",
                 "2000-07-28", "123 123 1234", null, "SecurePassword789");
 
+        saleListingRepository.deleteAll();
         businessRepository.deleteAll();
     }
 
