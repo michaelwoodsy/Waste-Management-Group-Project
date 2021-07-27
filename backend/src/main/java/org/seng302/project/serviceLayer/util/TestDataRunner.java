@@ -289,7 +289,7 @@ public class TestDataRunner {
             if (testItemOptions.isPresent()) {
                 InventoryItem testItem = testItemOptions.get();
                 var testListing = new SaleListing(
-                        jsonSaleListing.getAsNumber("businessId").intValue(),
+                        businessRepository.findById(jsonSaleListing.getAsNumber("businessId").intValue()).get(),
                         testItem,
                         jsonSaleListing.getAsNumber("price").doubleValue(),
                         jsonSaleListing.getAsString("moreInfo"),

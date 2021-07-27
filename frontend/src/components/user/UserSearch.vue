@@ -111,7 +111,7 @@
                         class="badge badge-danger admin-badge">DGAA</span>
                 </th>
                 <td>
-                  <img alt="productImage"
+                  <img alt="userImage"
                        :src="getPrimaryImageThumbnail(user)">
                 </td>
                 <td>{{ nameAndNickname(user) }}</td>
@@ -315,8 +315,8 @@ export default {
     },
 
     /**
-     * Uses the primaryImageId of the product to find the primary image and return its imageURL,
-     * else it returns the default product image url
+     * Uses the primaryImageId of the user to find the primary image and return its imageURL,
+     * else it returns the default user image url
      */
     getPrimaryImageThumbnail(user) {
       if (user.primaryImageId === null) {
@@ -344,40 +344,6 @@ export default {
      */
     blurSearch() {
       document.getElementById('search').blur()
-    },
-
-    /**
-     * Function to order search results by specific column
-     * @param col column to be sorted by
-     */
-    orderResults(col) {
-      // Remove the ordering if the column is clicked and the arrow is down
-      if (this.orderCol === col && this.orderDirection) {
-        this.orderCol = null;
-        this.orderDirection = false;
-        return
-      }
-
-      // Updated order direction if the new column is the same as what is currently clicked
-      this.orderDirection = this.orderCol === col;
-      this.orderCol = col;
-    },
-
-    // Function for sorting a list by orderCol alphabetically
-    sortAlpha(a, b) {
-      if (a[this.orderCol] === null) {
-        return -1
-      }
-      if (b[this.orderCol] === null) {
-        return 1
-      }
-      if (a[this.orderCol] < b[[this.orderCol]]) {
-        return 1;
-      }
-      if (a[this.orderCol] > b[[this.orderCol]]) {
-        return -1;
-      }
-      return 0;
     },
 
     /**

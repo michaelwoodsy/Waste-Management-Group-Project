@@ -124,7 +124,7 @@
 
       <div class="row justify-content-center" style="margin-bottom: 10px">
         <router-link :to="`businesses/${this.businessId}/listings`" class="btn btn-outline-primary mx-2">
-          View Business Listings
+          View Business' Listings
         </router-link>
       </div>
 
@@ -183,7 +183,7 @@
 
       <div class="row">
         <div class="col text-left mb-2">
-          <h2>Business Images</h2>
+          <h2>Business' Images</h2>
         </div>
       </div>
 

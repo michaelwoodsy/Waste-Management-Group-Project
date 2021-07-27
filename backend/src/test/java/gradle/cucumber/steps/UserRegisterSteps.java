@@ -36,6 +36,7 @@ public class UserRegisterSteps {
     private final CardRepository cardRepository;
     private final MessageRepository messageRepository;
     private final UserNotificationRepository userNotificationRepository;
+    private final BusinessRepository businessRepository;
     private Integer existingRegisteredEmailExceptionCount = 0;
     private Integer requiredFieldsMissingExceptionCount = 0;
     private Integer invalidEmailExceptionCount = 0;
@@ -52,6 +53,7 @@ public class UserRegisterSteps {
                              CardRepository cardRepository,
                              MessageRepository messageRepository,
                              UserNotificationRepository userNotificationRepository,
+                             BusinessRepository businessRepository,
                              ObjectMapper  objectMapper) {
         this.userRepository = userRepository;
         this.userController = userController;
@@ -59,6 +61,7 @@ public class UserRegisterSteps {
         this.cardRepository = cardRepository;
         this.messageRepository = messageRepository;
         this.userNotificationRepository = userNotificationRepository;
+        this.businessRepository = businessRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -77,7 +80,9 @@ public class UserRegisterSteps {
         messageRepository.deleteAll();
         cardRepository.deleteAll();
         userRepository.deleteAll();
+        businessRepository.deleteAll();
         addressRepository.deleteAll();
+
     }
 
     @When("I try to create the account with details:")

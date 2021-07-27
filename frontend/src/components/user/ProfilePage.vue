@@ -194,7 +194,7 @@
 
       <div class="row">
         <div class="col text-left mb-2">
-          <h2>Users Images</h2>
+          <h2>User's Images</h2>
         </div>
       </div>
 

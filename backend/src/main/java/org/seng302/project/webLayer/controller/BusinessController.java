@@ -10,6 +10,8 @@ import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.service.BusinessService;
 import org.seng302.project.serviceLayer.service.UserService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +29,7 @@ public class BusinessController {
 
     private final BusinessService businessService;
     private final UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(BusinessController.class.getName());
 
 
     @Autowired
@@ -126,9 +129,10 @@ public class BusinessController {
      * 401 if not authenticated.
      */
     @GetMapping("/businesses/search")
-    public List<Business> searchBusiness(@RequestParam("searchQuery") String searchQuery,
+    public List<Object> searchBusiness(@RequestParam("searchQuery") String searchQuery,
                                          @RequestParam(name = "businessType", required = false)
-                                                 String businessTypeParam) {
+                                                 String businessTypeParam, @RequestParam("pageNumber") Integer pageNumber,
+                                         @RequestParam("sortBy") String sortBy){
 
         BusinessType businessType = null;
         if (businessTypeParam != null) {
@@ -139,7 +143,17 @@ public class BusinessController {
             }
         }
 
-        return businessService.searchBusiness(searchQuery, businessType);
+        logger.info("Request to search businesses with searchQuery: {} and businessType: {}",
+                searchQuery, businessType);
+        try{
+            return businessService.searchBusiness(searchQuery, businessType, pageNumber, sortBy);
+        } catch (BadRequestException badRequestException) {
+            logger.error(badRequestException.getMessage());
+            throw badRequestException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while searching businesses: %s", exception.getMessage()));
+            throw exception;
+        }
     }
 
 }

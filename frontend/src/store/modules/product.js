@@ -132,14 +132,14 @@ export default {
         // Iterate over all products and find the currency countries that need to be found
         for (let listing of listings) {
             let currency = null;
-            if (listing.sellerAddress === undefined) {
-                listing.sellerAddress = {}
-                listing.sellerAddress.country = businessCountry
+            if (listing.business.address === undefined) {
+                listing.business.address = {}
+                listing.business.address.country = businessCountry
             }
             if (listing.inventoryItem.product.currencyCountry) {
                 currency = listing.inventoryItem.product.currencyCountry
             } else {
-                currency = listing.sellerAddress.country
+                currency = listing.business.address.country
             }
             if (!(currency in currenciesToFind)) {
                 currenciesToFind[currency] = null
@@ -153,7 +153,7 @@ export default {
 
         // Add the found currencies to the objects
         for (let listing of listings) {
-            listing.currency = currenciesToFind[listing.inventoryItem.product.currencyCountry || listing.sellerAddress.country]
+            listing.currency = currenciesToFind[listing.inventoryItem.product.currencyCountry || listing.business.address.country]
         }
 
         return listings

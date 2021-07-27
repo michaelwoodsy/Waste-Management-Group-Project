@@ -203,10 +203,12 @@ export const Business = {
      * @param businessSearchType Criteria to limit the search for only businesses with this type
      * @returns {Promise<AxiosResponse<any>>} Response from request
      */
-    getBusinesses: (searchTerm, businessSearchType) => instance.get('businesses/search', {
+    getBusinesses: (searchTerm, businessSearchType, pageNumber, sortBy) => instance.get('businesses/search', {
         params: {
             'searchQuery': searchTerm,
-            'businessType': businessSearchType
+            'businessType': businessSearchType,
+            'pageNumber': pageNumber,
+            'sortBy': sortBy
         }
     }),
 
@@ -346,7 +348,7 @@ export const Business = {
 
     /**
      * Sends a request to delete a specific image for a specific business
-     * @param userId The ID of the business in the database
+     * @param businessId The ID of the business in the database
      * @param imageId The ID of the image for the product in the database
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
@@ -354,11 +356,53 @@ export const Business = {
 
     /**
      * Sends a request to make a specific image the primary image of a specific business
-     * @param userId The ID of the business in the database
+     * @param businessId The ID of the business in the database
      * @param imageId The ID of the image for the product in the database
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
-    makePrimaryBusinessImage: (businessId, imageId) => instance.put(`businesses/${businessId}/images/${imageId}/makeprimary`)
+    makePrimaryBusinessImage: (businessId, imageId) => instance.put(`businesses/${businessId}/images/${imageId}/makeprimary`),
+
+
+    /**
+     * requests to get sales listings matching supplied properties
+     * @param searchQuery query searched by
+     * @param matchingProductName weather to match product name with the search query
+     * @param matchingBusinessName weather to match business name with the search query
+     * @param matchingBusinessLocation weather to match business location with the search query
+     * @param matchingBusinessType weather to match business type with the search query
+     * @param priceRangeLower lower price range
+     * @param priceRangeUpper upper price range
+     * @param closingDateLower lower closing date range
+     * @param closingDateUpper upper closing date range
+     * @param pageNumber the page number to get
+     * @param sortBy the sort parameter
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    searchSaleListings: (searchQuery,
+                         matchingProductName,
+                         matchingBusinessName,
+                         matchingBusinessLocation,
+                         matchingBusinessType,
+                         priceRangeLower,
+                         priceRangeUpper,
+                         closingDateLower,
+                         closingDateUpper,
+                         pageNumber,
+                         sortBy) => instance.get(`listings`,
+        {params:
+                {
+                    'searchQuery': searchQuery,
+                    'matchingProductName': matchingProductName,
+                    'matchingBusinessName': matchingBusinessName,
+                    'matchingBusinessLocation': matchingBusinessLocation,
+                    'matchingBusinessType': matchingBusinessType,
+                    'priceRangeLower': priceRangeLower,
+                    'priceRangeUpper': priceRangeUpper,
+                    'closingDateLower': closingDateLower,
+                    'closingDateUpper': closingDateUpper,
+                    'pageNumber': pageNumber,
+                    'sortBy': sortBy
+                }})
 };
 
 export const Card = {
