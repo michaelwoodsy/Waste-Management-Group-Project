@@ -249,7 +249,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-
     /**
      * Checks if the logged in user is able to perform actions on the user with id userId's account
      * If the user logged in has the ID userId, or the logged in user is a GAA.
