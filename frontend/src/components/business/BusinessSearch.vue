@@ -80,6 +80,9 @@ Component on Search page for searching businesses
                   <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
 
+                <!--    Business Image    -->
+                <th id="businessImage"></th>
+
                 <!--    First Name    -->
                 <th class="pointer" scope="col" @click="orderSearch('name')">
                   <p class="d-inline">Name</p>
@@ -112,6 +115,10 @@ Component on Search page for searching businesses
                 <th scope="row">
                   {{ business.id }}
                 </th>
+                <td>
+                  <img alt="businessImage"
+                       :src="getPrimaryImageThumbnail(business)">
+                </td>
                 <td>{{ business.name }}</td>
                 <td>{{ business.businessType }}</td>
                 <td>{{ formattedAddress(business.address) }}</td>
@@ -162,7 +169,7 @@ import ShowingResultsText from "@/components/ShowingResultsText";
 import PageWrapper from "@/components/PageWrapper";
 import Alert from "@/components/Alert";
 import Pagination from "@/components/Pagination";
-import {Business} from "@/Api";
+import {Images, Business} from "@/Api";
 import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 
 export default {
@@ -323,6 +330,31 @@ export default {
     viewBusiness(id) {
       this.viewBusinessModalId = id
       this.viewBusinessModal = true
+    },
+
+    /**
+     * Uses the primaryImageId of the business to find the primary image and return its imageURL,
+     * else it returns the default business image url
+     */
+    getPrimaryImageThumbnail(user) {
+      if (user.primaryImageId === null) {
+        return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
+      }
+      const filteredImages = user.images.filter(function(specificImage) {
+        return specificImage.id === user.primaryImageId;
+      })
+      if (filteredImages.length === 1) {
+        return this.getImageURL(filteredImages[0].thumbnailFilename)
+      }
+      //Return the default image if the program gets to this point (if it does something went wrong)
+      return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
+    },
+
+    /**
+     * Retrieves the image specified by the path
+     */
+    getImageURL(path) {
+      return Images.getImageURL(path)
     },
   }
 }

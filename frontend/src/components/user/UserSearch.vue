@@ -111,7 +111,7 @@
                         class="badge badge-danger admin-badge">DGAA</span>
                 </th>
                 <td>
-                  <img alt="productImage"
+                  <img alt="userImage"
                        :src="getPrimaryImageThumbnail(user)">
                 </td>
                 <td>{{ nameAndNickname(user) }}</td>
@@ -313,8 +313,8 @@ export default {
     },
 
     /**
-     * Uses the primaryImageId of the product to find the primary image and return its imageURL,
-     * else it returns the default product image url
+     * Uses the primaryImageId of the user to find the primary image and return its imageURL,
+     * else it returns the default user image url
      */
     getPrimaryImageThumbnail(user) {
       if (user.primaryImageId === null) {
