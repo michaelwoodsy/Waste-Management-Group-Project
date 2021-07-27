@@ -13,13 +13,13 @@
           <div v-if="listing.inventoryItem.product.images.length === 0">
             <p class="text-center"><strong>This Product has no Images</strong></p>
           </div>
-          <div v-else class="row" style="height: 500px">
+          <div v-else class="row">
             <div class="col col-12 justify-content-center">
               <div id="imageCarousel" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
                   <div v-for="(image, index) in listing.inventoryItem.product.images" v-bind:key="image.id"
                        :class="{'carousel-item': true, 'active': index === 0}">
-                    <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL(image.filename)" alt="ProductImage">
+                    <img class="d-block img-fluid rounded mx-auto w-auto" style="max-height: 500px" :src="getImageURL(image.filename)" alt="ProductImage">
                   </div>
                 </div>
                 <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
@@ -201,8 +201,8 @@ export default {
      * Formats the name and address of the business offering the listing
      */
     formatSeller(listing) {
-      return `${listing.sellerName} from ${this.$root.$data.address.formatAddress(listing.sellerAddress)}`
-    },
+      return `${listing.business.name} from ${this.$root.$data.address.formatAddress(listing.business.address)}`
+    }
   }
 }
 </script>
