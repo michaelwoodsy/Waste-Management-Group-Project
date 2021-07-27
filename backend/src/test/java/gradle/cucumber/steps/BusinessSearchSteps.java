@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.BusinessRepository;
+import org.seng302.project.repositoryLayer.repository.SaleListingRepository;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -32,6 +33,7 @@ public class BusinessSearchSteps {
     private MockMvc mockMvc;
 
     private final BusinessRepository businessRepository;
+    private final SaleListingRepository saleListingRepository;
 
     private User testUser;
     private Business testBusiness1;
@@ -41,9 +43,10 @@ public class BusinessSearchSteps {
 
 
     @Autowired
-    public BusinessSearchSteps(BusinessRepository businessRepository) {
+    public BusinessSearchSteps(BusinessRepository businessRepository,
+                               SaleListingRepository saleListingRepository) {
         this.businessRepository =  businessRepository;
-
+        this.saleListingRepository = saleListingRepository;
     }
 
     /**
@@ -61,6 +64,7 @@ public class BusinessSearchSteps {
         testUser = new User("Test", "User", "", "", "I'm a test user", "testuser@gmail.com",
                 "2000-07-28", "123 123 1234", null, "SecurePassword789");
 
+        saleListingRepository.deleteAll();
         businessRepository.deleteAll();
     }
 
