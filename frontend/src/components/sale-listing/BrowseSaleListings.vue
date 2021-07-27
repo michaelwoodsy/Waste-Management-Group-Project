@@ -35,8 +35,8 @@
               <br>
               <label v-for="field in fieldOptions"
                      v-bind:key="field.id">
-                <input type="checkbox" class="ml-2"
-                       v-model="field.checked" v-bind:id="field.id"
+                <input v-bind:id="field.id" v-model="field.checked"
+                       class="ml-2" type="checkbox"
                        @click="toggleFieldChecked(field)"
                 />
                 {{ field.name }}
@@ -50,13 +50,13 @@
           <div class="row form justify-content-center">
             <div class="col form-group text-center">
               <label class="d-inline-block option-title mx-2">Order By: </label>
-              <select class="form-control d-inline-block w-auto"
-                      @change="checkInputs"
-                      v-model="orderBy">
+              <select v-model="orderBy"
+                      class="form-control d-inline-block w-auto"
+                      @change="checkInputs">
                 <option
-                    :value="orderBy.id"
-                    v-bind:key="orderBy.id"
                     v-for="orderBy in orderByOptions"
+                    v-bind:key="orderBy.id"
+                    :value="orderBy.id"
                 >
                   {{ orderBy.name }}
                 </option>
@@ -71,14 +71,14 @@
 
               <!-- Price range -->
               <label class="d-inline-block option-title mt-2">Price Range:</label>
-              <input class="d-inline-block ml-2 w-25"
+              <input v-model="priceLowerBound"
                      :class="{'form-control': true, 'is-invalid': msg.priceLowerBound}"
-                     v-model="priceLowerBound"
+                     class="d-inline-block ml-2 w-25"
               >
               to
-              <input class="d-inline-block w-25"
+              <input v-model="priceUpperBound"
                      :class="{'form-control': true, 'is-invalid': msg.priceUpperBound}"
-                     v-model="priceUpperBound"
+                     class="d-inline-block w-25"
               >
               <span class="invalid-feedback" style="text-align: center">{{ msg.priceLowerBound }}</span>
               <span class="invalid-feedback" style="text-align: center">{{ msg.priceUpperBound }}</span>
@@ -87,15 +87,15 @@
               <!-- Closing date range -->
               <label class="d-inline-block option-title mt-2">Closing Date:</label>
               <input id="closingDateLowerBound" v-model="closingDateLowerBound"
-                     class="d-inline-block w-25 ml-2"
                      :class="{'form-control': true, 'is-invalid': msg.closingDateLowerBound}"
+                     class="d-inline-block w-25 ml-2"
                      type="date"
               >
               to
               <input id="closingDateUpperBound" v-model="closingDateUpperBound"
-                     maxlength="100"
-                     class="d-inline-block w-25"
                      :class="{'form-control': true, 'is-invalid': msg.closingDateUpperBound}"
+                     class="d-inline-block w-25"
+                     maxlength="100"
                      type="date"
               >
               <span class="invalid-feedback" style="text-align: center">{{ msg.closingDateLowerBound }}</span>
@@ -132,8 +132,8 @@
 
         <!-- Table of results -->
         <div class="overflow-auto">
-          <table class="table table-hover"
-                 aria-label="Table of Sale Listings"
+          <table aria-label="Table of Sale Listings"
+                 class="table table-hover"
           >
             <thead>
             <tr>
@@ -174,8 +174,8 @@
                 @click="viewListing(listing)"
             >
               <td>
-                <img alt="productImage" class="ui-icon-image"
-                     :src="getPrimaryImageThumbnail(listing.inventoryItem.product)">
+                <img :src="getPrimaryImageThumbnail(listing.inventoryItem.product)" alt="productImage"
+                     class="ui-icon-image">
               </td>
               <td style="word-break: break-word; width: 50%">
                 {{ listing.inventoryItem.product.name }}
@@ -205,6 +205,7 @@
               :current-page.sync="page"
               :items-per-page="resultsPerPage"
               :total-items="totalCount"
+              @change-page="changePage"
           />
         </div>
       </div>
@@ -214,7 +215,7 @@
       <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-body">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="viewListingModal=false">
+            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewListingModal=false">
               <span aria-hidden="true">&times;</span>
             </button>
             <individual-sale-listing-modal :listing="listingToView"></individual-sale-listing-modal>
@@ -283,15 +284,15 @@ export default {
       },
       orderBy: "bestMatch",
       orderByOptions: [
-          {id: "bestMatch", name: "Best Match"},
-          {id: "priceAsc", name: "Price Low"},
-          {id: "priceDesc", name: "Price High"},
-          {id: "productName", name: "Product Name"},
-          {id: "country", name: "Country"},
-          {id: "city", name: "City"},
-          {id: "expiryDateAsc", name: "Expiry Date Soonest"},
-          {id: "expiryDateDesc", name: "Expiry Date Latest"},
-          {id: "seller", name: "Seller"}
+        {id: "bestMatch", name: "Best Match"},
+        {id: "priceAsc", name: "Price Low"},
+        {id: "priceDesc", name: "Price High"},
+        {id: "productName", name: "Product Name"},
+        {id: "country", name: "Country"},
+        {id: "city", name: "City"},
+        {id: "expiryDateAsc", name: "Expiry Date Soonest"},
+        {id: "expiryDateDesc", name: "Expiry Date Latest"},
+        {id: "seller", name: "Seller"}
       ],
       loading: false,
       resultsPerPage: 10,
@@ -321,7 +322,8 @@ export default {
      * Function is called by pagination component to make another call to the backend
      * to update the list of users that should be displayed
      */
-    async changePage() {
+    async changePage(page) {
+      this.page = page
       this.loading = true;
       await this.search()
     },
@@ -403,7 +405,7 @@ export default {
         if (upperPriceNotNumber || !/^([0-9]+(.[0-9]{0,2})?)?$/.test(this.priceUpperBound)) {
           this.msg.priceUpperBound = "Please enter a valid price for the price's upper bound";
           this.valid = false
-        } else if (parseFloat(this.priceUpperBound) < parseFloat(this.priceLowerBound)){
+        } else if (parseFloat(this.priceUpperBound) < parseFloat(this.priceLowerBound)) {
           this.msg.priceUpperBound = "The price's upper bound is less than the lower bound"
           this.valid = false
         }
@@ -463,7 +465,7 @@ export default {
      */
     getPrimaryImageThumbnail(product) {
       if (product.primaryImageId !== null) {
-        const filteredImages = product.images.filter(function(specificImage) {
+        const filteredImages = product.images.filter(function (specificImage) {
           return specificImage.id === product.primaryImageId;
         })
         if (filteredImages.length === 1) {
@@ -519,7 +521,7 @@ export default {
             this.totalCount = res.data[1]
             this.error = null
             this.loading = false
-      })
+          })
           .catch((err) => {
             this.error = err;
             this.loading = false;

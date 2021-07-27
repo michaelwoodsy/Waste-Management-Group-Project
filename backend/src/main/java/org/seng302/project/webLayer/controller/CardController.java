@@ -67,7 +67,7 @@ public class CardController {
     @GetMapping("/cards")
     public JSONObject getAllCards(@RequestParam String section,
                                   @RequestParam(defaultValue = "0") Integer page,
-                                  @RequestParam(required = false) String sortBy) {
+                                  @RequestParam(defaultValue = "newest") String sortBy) {
         return cardService.getAllCardsForSection(section, page, sortBy);
     }
 
@@ -132,7 +132,7 @@ public class CardController {
             @RequestParam List<Integer> keywordIds,
             @RequestParam Boolean union,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(required = false) String sortBy
+            @RequestParam(defaultValue = "newest") String sortBy
     ) {
         return cardService.searchCards(section, keywordIds, union, page, sortBy);
     }

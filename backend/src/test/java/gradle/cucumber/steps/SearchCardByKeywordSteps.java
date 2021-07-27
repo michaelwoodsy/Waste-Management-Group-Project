@@ -175,7 +175,7 @@ public class SearchCardByKeywordSteps {
 
     @Then("I am returned {int} cards")
     public void i_am_returned_cards(Integer cardCount) throws Exception {
-        result.andExpect(jsonPath("$", hasSize(cardCount)));
+        result.andExpect(jsonPath("$.cards", hasSize(cardCount)));
     }
 
 
@@ -183,7 +183,8 @@ public class SearchCardByKeywordSteps {
     public void allReturnedCardsAreWithSection(String desiredSection) throws Exception {
         // Get the json result
         String contentAsString = result.andReturn().getResponse().getContentAsString();
-        JSONArray results = new JSONArray(contentAsString);
+        JSONObject response = new JSONObject(contentAsString);
+        JSONArray results = new JSONArray(response.getString("cards"));
 
         // Iterate over the json results and check the creator email
         for (int i = 0; i < results.length(); i++) {
@@ -267,7 +268,8 @@ public class SearchCardByKeywordSteps {
     public void allReturnedCardsHaveAtLeastOneOfTheKeywordsOrOr(String keyword1, String keyword2, String keyword3) throws Exception {
         // Get the json result
         String contentAsString = result.andReturn().getResponse().getContentAsString();
-        JSONArray results = new JSONArray(contentAsString);
+        JSONObject response = new JSONObject(contentAsString);
+        JSONArray results = new JSONArray(response.getString("cards"));
 
         // Iterate over the json results and check the creator email
         for (int i = 0; i < results.length(); i++) {
@@ -350,7 +352,8 @@ public class SearchCardByKeywordSteps {
     public void allReturnedCardsHaveAllOfTheKeywordsAnd(String keyword1, String keyword2) throws Exception {
         // Get the json result
         String contentAsString = result.andReturn().getResponse().getContentAsString();
-        JSONArray results = new JSONArray(contentAsString);
+        JSONObject response = new JSONObject(contentAsString);
+        JSONArray results = new JSONArray(response.getString("cards"));
 
         // Iterate over the json results and check the creator email
         for (int i = 0; i < results.length(); i++) {

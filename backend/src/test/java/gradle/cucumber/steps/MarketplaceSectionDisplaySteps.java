@@ -13,6 +13,7 @@ import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
 import org.seng302.project.webLayer.controller.CardController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
@@ -61,6 +62,7 @@ public class MarketplaceSectionDisplaySteps {
     }
 
     @When("A user gets that card")
+    @Transactional
     public void a_user_gets_that_card() {
         retrivedCard = cardController.getCard(cardId);
     }

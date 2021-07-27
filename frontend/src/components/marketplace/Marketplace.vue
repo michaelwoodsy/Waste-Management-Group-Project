@@ -155,7 +155,7 @@ Page for displaying the marketplace.
 
       <!-- Div with cards -->
       <div class="row row-cols-1 row-cols-lg-2">
-        <div v-for="card in orderedCards" v-bind:key="card.id" class="col">
+        <div v-for="card in filteredCards" v-bind:key="card.id" class="col">
           <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="false"
                       @card-deleted="deleteCard"
                       @refresh-cards="refreshCards()"></MarketCard>
@@ -267,27 +267,6 @@ export default {
         }
       }
       return newCards
-    },
-
-    /** List of cards, ordered by the selected ordering **/
-    orderedCards() {
-      // Create new card array
-      let newCards = [...this.filteredCards];
-
-      // Order it appropriately
-      if (this.order === 'created-asc') {
-        newCards.sort((a, b) => -this.sortCreatedDate(a, b))
-      } else if (this.order === 'created-desc') {
-        newCards.sort((a, b) => this.sortCreatedDate(a, b))
-      } else if (this.order === 'title') {
-        newCards.sort((a, b) => this.sortTitle(a, b))
-      } else if (this.order === 'location') {
-        newCards.sort((a, b) => {
-          this.sortLocation(a, b)
-        })
-      }
-
-      return newCards
     }
   },
   components: {
@@ -304,61 +283,25 @@ export default {
      * Gets called when a tab is selected and updates contents
      * @param tab selected. is a string
      */
-    changeSection(tab) {
+    async changeSection(tab) {
       this.tabSelected = tab
       this.page = 1 // Reset the page number
       //Call Api to get new cards for tab here
-      this.searchCards()
+      await this.searchCards()
     },
 
+    /**
+     * Method to change the currently viewed page
+     * @param page the page to go to
+     */
     async changePage(page) {
       this.page = page
       await this.searchCards()
     },
 
-    /** Function for sorting a list of cards by created date **/
-    sortCreatedDate(a, b) {
-      if (a.created < b.created) {
-        return -1
-      }
-      if ((a.created > b.created)) {
-        return 1
-      }
-      return 0
-    },
-
-    /** Function for sorting a list by title alphabetically **/
-    sortTitle(a, b) {
-      if (a.title < b.title) {
-        return -1
-      }
-      if ((a.title > b.title)) {
-        return 1
-      }
-      return 0
-    },
-
-    /** Function for sorting a list by location alphabetically **/
-    sortLocation(a, b) {
-      const aTerm = a.creator.homeAddress.city;
-      const bTerm = b.creator.homeAddress.city;
-
-      if (aTerm === null) {
-        return -1
-      }
-      if (bTerm === null) {
-        return 1
-      }
-      if (aTerm < bTerm) {
-        return 1;
-      }
-      if (aTerm > bTerm) {
-        return -1;
-      }
-      return 0;
-    },
-
-    /** Deletes a card with the corresponding id from the list of cards **/
+    /**
+     * Deletes a card with the corresponding id from the list of cards
+     */
     deleteCard(id) {
       const index = this.cards.findIndex((a) => a.id === id)
       if (index > -1) {
