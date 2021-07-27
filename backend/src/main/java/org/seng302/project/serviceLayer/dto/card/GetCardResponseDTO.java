@@ -4,6 +4,7 @@ import lombok.Data;
 import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.serviceLayer.dto.user.GetUserDTO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.List;
 public class GetCardResponseDTO {
 
     private Integer id;
-    private User creator;
+    private GetUserDTO creator;
     private String section;
     private LocalDateTime created;
     private LocalDateTime displayPeriodEnd;
@@ -26,7 +27,7 @@ public class GetCardResponseDTO {
 
     public GetCardResponseDTO(Card card) {
         this.id = card.getId();
-        this.creator = card.getCreator();
+        this.creator = new GetUserDTO(card.getCreator());
         this.section = card.getSection();
         this.created = card.getCreated();
         this.displayPeriodEnd = card.getDisplayPeriodEnd();

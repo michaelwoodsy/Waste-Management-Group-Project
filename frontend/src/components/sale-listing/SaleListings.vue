@@ -124,6 +124,7 @@
                   :current-page.sync="page"
                   :items-per-page="resultsPerPage"
                   :total-items="totalCount"
+                  @change-page="changePage"
               />
             </div>
           </div>
@@ -315,6 +316,12 @@ export default {
   },
 
   methods: {
+    /**
+     * Updates the current page
+     */
+    changePage(page) {
+      this.page = page
+    },
     /**
      * Uses the primaryImageId of the product to find the primary image and return its imageURL,
      * else it returns the default product image url

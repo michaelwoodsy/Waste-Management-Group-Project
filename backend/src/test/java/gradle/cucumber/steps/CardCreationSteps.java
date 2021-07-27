@@ -6,11 +6,13 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.model.Address;
+import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.model.Keyword;
+import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
@@ -37,10 +39,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class CardCreationSteps {
 
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final AddressRepository addressRepository;
+    private final CardRepository cardRepository;
+    private final ObjectMapper objectMapper;
+    private final KeywordRepository keywordRepository;
+    List<String> keywordNames;
     private User testUser;
     private Card testCard;
     private CreateCardDTO createCardDTO;
-
     private String testUserEmail;
     private String testUserPassword;
     private Integer testUserId;
@@ -48,18 +56,7 @@ public class CardCreationSteps {
     private String testCardSection;
     private Address testAddress;
     private MockMvc mockMvc;
-    List<String> keywordNames;
-
     private ResultActions reqResult;
-
-
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
-    private final AddressRepository addressRepository;
-    private final CardRepository cardRepository;
-    private final ObjectMapper objectMapper;
-
-    private final KeywordRepository keywordRepository;
 
     @Autowired
     public CardCreationSteps(UserRepository userRepository,
@@ -79,12 +76,13 @@ public class CardCreationSteps {
     /**
      * Creates the user if it's not already created.
      * If it is already created, the user is returned.
+     *
      * @return User
      */
     private User createUser(User wantedUser) {
         if (userRepository.findByEmail(wantedUser.getEmail()).size() > 0) {
             // Already exists, return it
-            return(userRepository.findByEmail(wantedUser.getEmail()).get(0));
+            return (userRepository.findByEmail(wantedUser.getEmail()).get(0));
         } else {
             // User doesn't exist, save it to repository
             userRepository.save(wantedUser);
@@ -115,7 +113,7 @@ public class CardCreationSteps {
     public void a_user_exists() {
         testUserEmail = "test.user@gmail.com";
         testUserPassword = "I'mT3sting";
-        testAddress = new Address("", "", "", "", "New Zealand","");
+        testAddress = new Address("", "", "", "", "New Zealand", "");
         testUser = new User("Admin", "Admin", "", "", "", testUserEmail,
                 "2000-05-21", "+64 3 555 0129", testAddress, testUserPassword);
         testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
@@ -169,7 +167,8 @@ public class CardCreationSteps {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        JSONArray retrievedCards = new JSONArray(result.getResponse().getContentAsString());
+        JSONObject response = new JSONObject(result.getResponse().getContentAsString());
+        JSONArray retrievedCards = new JSONArray(response.getString("cards"));
         for (int i = 0; i < retrievedCards.length(); i++) {
             JSONObject retrievedCard = retrievedCards.getJSONObject(i);
             JSONObject retrievedCreator = retrievedCard.getJSONObject("creator");
@@ -193,7 +192,8 @@ public class CardCreationSteps {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        JSONArray retrievedCards = new JSONArray(result.getResponse().getContentAsString());
+        JSONObject response = new JSONObject(result.getResponse().getContentAsString());
+        JSONArray retrievedCards = new JSONArray(response.getString("cards"));
         for (int i = 0; i < retrievedCards.length(); i++) {
             JSONObject retrievedCard = retrievedCards.getJSONObject(i);
             String retrievedTitle = retrievedCard.getString("title");
@@ -214,12 +214,13 @@ public class CardCreationSteps {
     }
 
     @Then("The card's description is shown")
-    public void the_card_s_description_is_shown() throws Exception{
+    public void the_card_s_description_is_shown() throws Exception {
         MvcResult result = reqResult
                 .andExpect(status().isOk())
                 .andReturn();
 
-        JSONArray retrievedCards = new JSONArray(result.getResponse().getContentAsString());
+        JSONObject response = new JSONObject(result.getResponse().getContentAsString());
+        JSONArray retrievedCards = new JSONArray(response.getString("cards"));
         for (int i = 0; i < retrievedCards.length(); i++) {
             JSONObject retrievedCard = retrievedCards.getJSONObject(i);
             String retrievedDescription = retrievedCard.getString("description");
@@ -300,7 +301,8 @@ public class CardCreationSteps {
 
         // Iterate over retrieved cards and check the created card is there
         boolean cardIsInSection = false;
-        JSONArray retrievedCards = new JSONArray(result.getResponse().getContentAsString());
+        JSONObject response = new JSONObject(result.getResponse().getContentAsString());
+        JSONArray retrievedCards = new JSONArray(response.getString("cards"));
         for (int i = 0; i < retrievedCards.length(); i++) {
             JSONObject retrievedCard = retrievedCards.getJSONObject(i);
             int cardId = retrievedCard.getInt("id");

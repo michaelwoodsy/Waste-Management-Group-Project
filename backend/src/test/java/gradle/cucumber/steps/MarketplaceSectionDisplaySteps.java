@@ -4,13 +4,16 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
-import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
-import org.seng302.project.webLayer.controller.CardController;
+import org.seng302.project.repositoryLayer.model.Address;
 import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.repositoryLayer.model.User;
+import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
+import org.seng302.project.webLayer.controller.CardController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
@@ -19,6 +22,7 @@ public class MarketplaceSectionDisplaySteps {
     private final CardController cardController;
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
 
     private String cardTitle;
     private String cardDescription;
@@ -30,10 +34,13 @@ public class MarketplaceSectionDisplaySteps {
     public MarketplaceSectionDisplaySteps(
             CardController cardController,
             UserRepository userRepository,
-            CardRepository cardRepository) {
+            CardRepository cardRepository,
+            AddressRepository addressRepository
+    ) {
         this.cardController = cardController;
         this.userRepository = userRepository;
         this.cardRepository = cardRepository;
+        this.addressRepository = addressRepository;
     }
 
     @Given("There exists a card with title {string} and a description {string} and a section {string}")
@@ -42,9 +49,12 @@ public class MarketplaceSectionDisplaySteps {
         cardDescription = description;
         cardSection = section;
 
+        Address address = new Address();
+        address.setCountry("New Zealand");
         User user = new User("John", "Smith", "Bob", "Jonny",
                 "Likes long walks on the beach", "testEmail@email.com", "1999-04-27",
-                "+64 3 555 0129", null, "Password123");
+                "+64 3 555 0129", address, "Password123");
+        addressRepository.save(user.getHomeAddress());
         userRepository.save(user);
         Card newCard = new Card(user, section, title, description, Collections.emptySet());
         cardRepository.save(newCard);
@@ -52,6 +62,7 @@ public class MarketplaceSectionDisplaySteps {
     }
 
     @When("A user gets that card")
+    @Transactional
     public void a_user_gets_that_card() {
         retrivedCard = cardController.getCard(cardId);
     }

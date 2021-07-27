@@ -81,12 +81,6 @@ export const User = {
     createCard: (data) => instance.post('cards', data),
 
     /**
-     * Get all cards from the market place from a particular section (For Sale, Wanted, or Exchange)
-     * @param section The particular section you want the cards for
-     */
-    getCardsSection: (section) => instance.get(`cards`, {params: {'section': section}}),
-
-    /**
      * Gets a user's cards from the backend
      * @param userId User ID to get cards from
      * @returns {Promise<AxiosResponse<any>>} response containing user's cards
@@ -413,6 +407,15 @@ export const Business = {
 
 export const Card = {
     /**
+     * Get all cards from the market place from a particular section (For Sale, Wanted, or Exchange)
+     * @param section The particular section you want the cards for
+     * @param page The page number to display results from
+     * @param sortBy String representing sort field and direction
+     */
+    getCardsSection: (section, page, sortBy) =>
+        instance.get(`cards`, {params: {section, page, sortBy}}),
+
+    /**
      * Extends the display period of a card that is nearing expiry
      * @param cardId The ID of the card in the database
      */
@@ -429,7 +432,7 @@ export const Card = {
      * @param params parameters to search by, the keywords, the section, and whether to match all keywords or only some
      * @returns {Promise<AxiosResponse<any>>} Response from request
      */
-    searchCards: (params) => instance.get(`cards/search/${params}`, {}),
+    searchCards: (params) => instance.get(`cards/search${params}`, {}),
 
     /**
      * Edits a card

@@ -70,7 +70,8 @@
             <div class="row row-cols-1 row-cols-lg-2">
               <div v-for="card in expiredCards" v-bind:key="card.id" class="col">
                 <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
-                             @card-deleted="deleteCard" @card-extended="extendCard"></market-card>
+                             @card-deleted="deleteCard" @card-extended="extendCard"
+                             @refresh-cards="getCardData"></market-card>
               </div>
             </div>
           </div>
@@ -78,7 +79,8 @@
           <div class="row row-cols-1 row-cols-lg-2">
             <div v-for="card in activeCards" v-bind:key="card.id" class="col">
               <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
-                           @card-deleted="deleteCard" @card-extended="extendCard"></market-card>
+                           @card-deleted="deleteCard" @card-extended="extendCard"
+                           @refresh-cards="getCardData"></market-card>
             </div>
           </div>
         </div>

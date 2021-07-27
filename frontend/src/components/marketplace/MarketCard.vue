@@ -147,7 +147,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
     <div :id="'editCard' + cardData.id" :key="this.editCurrentCard" class="modal fade" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-body">
+          <div class="modal-body" v-if="this.editCurrentCard">
             <edit-card :card-id="cardData.id" @card-edited="refreshCards()"></edit-card>
           </div>
         </div>
