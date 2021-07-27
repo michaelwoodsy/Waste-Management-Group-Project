@@ -371,6 +371,7 @@ export default {
       this.validateFieldOptions()
 
       if (this.valid) {
+        this.page = 1
         this.search()
       }
     },
