@@ -39,9 +39,6 @@ Component on Search page for searching businesses
               <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
             </div>
           </div>
-          <div v-if="!searchError" class="text-center">
-            <small>Requires at least 3 characters to search</small>
-          </div>
           <span class="invalid-feedback d-block text-center">{{ searchError }}</span>
         </div>
         <!--    Select business type    -->
@@ -78,25 +75,25 @@ Component on Search page for searching businesses
               <thead>
               <tr>
                 <!--    ID    -->
-                <th class="pointer" scope="col" @click="orderResults('id')">
+                <th class="pointer" scope="col" @click="orderSearch('id')">
                   <p class="d-inline">Id</p>
                   <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
 
                 <!--    First Name    -->
-                <th class="pointer" scope="col" @click="orderResults('name')">
+                <th class="pointer" scope="col" @click="orderSearch('name')">
                   <p class="d-inline">Name</p>
                   <p v-if="orderCol === 'name'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
 
                 <!--    Business Type    -->
-                <th class="pointer" scope="col" @click="orderResults('businessType')">
+                <th class="pointer" scope="col" @click="orderSearch('businessType')">
                   <p class="d-inline">Type</p>
                   <p v-if="orderCol === 'businessType'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
 
                 <!--    Address    -->
-                <th class="pointer" scope="col" @click="orderResults('address')">
+                <th class="pointer" scope="col" @click="orderSearch('address')">
                   <p class="d-inline">Address</p>
                   <p v-if="orderCol === 'address'" class="d-inline">{{ orderDirArrow }}</p>
                 </th>
@@ -105,7 +102,7 @@ Component on Search page for searching businesses
 
               <!--    Business Information    -->
               <tbody v-if="!loading">
-              <tr v-for="business in paginatedBusinesses"
+              <tr v-for="business in businesses"
                   v-bind:key="business.id"
                   class="pointer"
                   data-target="#viewBusinessModal"
@@ -189,6 +186,7 @@ export default {
       orderCol: null,
       orderDirection: false, // False -> Ascending
       resultsPerPage: 10,
+      totalCount: 0,
       page: 1,
       loading: false
     }
@@ -212,81 +210,88 @@ export default {
         return '↓'
       }
       return '↑'
-    },
-
-    /**
-     * Sort Businesses Logic
-     * @returns {[]|*[]}
-     */
-    sortedBusinesses() {
-      if (this.orderCol === null) {
-        return this.businesses
-      }
-
-      // Create new businesses array and sort
-      let newBusinesses = [...this.businesses];
-      // Order direction multiplier for sorting
-      const orderDir = (this.orderDirection ? 1 : -1);
-
-      // Sort businesses if there are any
-      if (newBusinesses.length > 0) {
-        // Sort businesses
-        newBusinesses.sort((a, b) => {
-          return orderDir * this.sortAlpha(a, b)
-        });
-      }
-
-      return newBusinesses
-    },
-
-    /**
-     * Paginate the businesses
-     * @returns {*[]|*[]}
-     */
-    paginatedBusinesses() {
-      let newBusinesses = this.sortedBusinesses;
-
-      // Sort businesses if there are any
-      if (newBusinesses.length > 0) {
-        // Splice the results to showing size
-        const startIndex = this.resultsPerPage * (this.page - 1);
-        const endIndex = this.resultsPerPage * this.page;
-        newBusinesses = newBusinesses.slice(startIndex, endIndex)
-      }
-
-      return newBusinesses
-    },
-
-    /**
-     * Calculates the number of results in businesses array
-     * @returns {number}
-     */
-    totalCount() {
-      return this.businesses.length
-    },
+    }
   },
   methods: {
     /**
      * This is the search logic, that handles a call with or without businessType
      */
     search() {
-      if (this.searchTerm.length < 3) {
-        this.searchError = 'Please enter at least 3 characters to search'
-        return
-      } else this.searchError = null
-
       this.blurSearch()
       this.businesses = []
       this.loading = true;
       this.page = 1
-
+      this.orderCol = null
+      this.orderDirection = false
       if (this.businessType === 'Any type' || this.businessType === '') {
         this.businessType = null;
       }
-      Business.getBusinesses(this.searchTerm, this.businessType)
+      Business.getBusinesses(this.searchTerm, this.businessType, this.page-1, "")
           .then((res) => {
             this.error = null;
-            this.businesses = res.data;
+            this.businesses = res.data[0]
+            this.totalCount = res.data[1]
+            this.loading = false;
+            console.log(this.businesses)
+          })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
+    },
+
+    /**
+     * Function is called by pagination component to make another call to the backend
+     * to update the list of businesses that should be displayed
+     */
+    async changePage() {
+      this.blurSearch();
+      this.loading = true;
+      let sortBy = this.orderCol
+      if (!this.orderDirection){
+        sortBy += "ASC"
+      } else {
+        sortBy += "DESC"
+      }
+      if (this.orderCol === null) sortBy = ""
+      await Business.getBusinesses(this.searchTerm, this.businessType, this.page-1, sortBy)
+          .then((res) => {
+            this.error = null;
+            this.businesses = res.data[0];
+            this.totalCount = res.data[1];
+            this.loading = false;
+          })
+          .catch((err) => {
+            this.error = err;
+            this.loading = false;
+          })
+    },
+
+    /**
+     * Function called when you click on one of the columns to order the results
+     * Makes another call to the backend to get the correct businesses when ordered
+     */
+    async orderSearch(sortBy) {
+      this.blurSearch();
+      this.loading = true;
+
+      if(this.orderCol !== sortBy){
+        this.orderDirection = false
+      } else {
+        this.orderDirection = !this.orderDirection
+      }
+
+      this.orderCol = sortBy
+      if(!this.orderDirection){
+        sortBy += "ASC"
+      } else {
+        sortBy += "DESC"
+      }
+      await Business.getBusinesses(this.searchTerm, this.businessType, this.page-1, sortBy)
+          .then((res) => {
+            this.error = null;
+            this.businesses = res.data[0];
+            this.totalCount = res.data[1];
             this.loading = false;
           })
           .catch((err) => {
@@ -300,40 +305,6 @@ export default {
      */
     blurSearch() {
       document.getElementById('search').blur()
-    },
-
-    /**
-     * Function to order search results by specific column
-     * @param col column to be sorted by
-     */
-    orderResults(col) {
-      // Remove the ordering if the column is clicked and the arrow is down
-      if (this.orderCol === col && this.orderDirection) {
-        this.orderCol = null;
-        this.orderDirection = false;
-        return
-      }
-
-      // Updated order direction if the new column is the same as what is currently clicked
-      this.orderDirection = this.orderCol === col;
-      this.orderCol = col;
-    },
-
-    // Function for sorting a list by orderCol alphabetically
-    sortAlpha(a, b) {
-      if (a[this.orderCol] === null) {
-        return -1
-      }
-      if (b[this.orderCol] === null) {
-        return 1
-      }
-      if (a[this.orderCol] < b[[this.orderCol]]) {
-        return 1;
-      }
-      if (a[this.orderCol] > b[[this.orderCol]]) {
-        return -1;
-      }
-      return 0;
     },
 
     /**

@@ -297,6 +297,12 @@ public class UserService {
         }
     }
 
+    /**
+     * Checks if the sort column is one of the valid ones, if not replaces it with the empty string and no sorting is done
+     * @param sortBy This is the string that will contain information about what column to sort by
+     * @return A list that contains a boolean to describe if the sort is ascending or descending, and the sortby string
+     * in case it has changed
+     */
     public List<Object> checkSort(String sortBy){
         switch(sortBy){
             case "idASC": case "idDESC": case "firstNameASC": case "firstNameDESC": case "middleNameASC": case "middleNameDESC":

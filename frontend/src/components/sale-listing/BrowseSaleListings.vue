@@ -349,7 +349,7 @@ export default {
      * Formats the name and address of the business offering the listing
      */
     formatSeller(listing) {
-      return `${listing.sellerName} from ${this.$root.$data.address.formatAddress(listing.sellerAddress)}`
+      return `${listing.business.name} from ${this.$root.$data.address.formatAddress(listing.business.address)}`
     },
     /**
      * Toggles whether a field is selected to be searched by
@@ -509,12 +509,12 @@ export default {
           this.orderBy)
           .then(async (res) => {
             this.listings = res.data[0]
-            this.listings = await Promise.all(this.listings.map(async (listing) => {
-              const businessResponse = await Business.getBusinessData(listing.businessId)
-              listing.sellerName = businessResponse.data.name
-              listing.sellerAddress = businessResponse.data.address
-              return listing
-            }))
+            // this.listings = await Promise.all(this.listings.map(async (listing) => {
+            //   const businessResponse = await Business.getBusinessData(listing.businessId)
+            //   listing.sellerName = businessResponse.data.name
+            //   listing.sellerAddress = businessResponse.data.address
+            //   return listing
+            // }))
             this.listings = await this.$root.$data.product.addSaleListingCurrencies(this.listings)
             this.totalCount = res.data[1]
             this.error = null

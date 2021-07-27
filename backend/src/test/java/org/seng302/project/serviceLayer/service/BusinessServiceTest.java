@@ -27,10 +27,13 @@ import org.seng302.project.serviceLayer.exceptions.businessAdministrator.CantRem
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.UserNotAdministratorException;
 import org.seng302.project.serviceLayer.exceptions.register.UserUnderageException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -339,36 +342,37 @@ class BusinessServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that searching a business by exact name succeeds
+     * Checks the user repository is called the correct amount of times when a simple and non-quoted search
      */
     @Test
-    void searchBusiness_exactNameMatch() {
-        Mockito.when(businessRepository.findAll(any(Specification.class)))
-                .thenReturn(List.of(testBusiness));
+    void searchBusiness_singleNameQuery_usesContainsSpec() {
+        Page<Business> businesses = Mockito.mock(Page.class);
 
-        List<Business> retrievedBusinesses = businessService.searchBusiness(testBusiness.getName(), null);
+        Mockito.when(businessRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(businesses);
 
-        Assertions.assertEquals(1, retrievedBusinesses.size());
-        Assertions.assertEquals(testBusiness.getName(), retrievedBusinesses.get(0).getName());
+        BusinessType type = BusinessType.getType(testBusiness.getBusinessType());
+        //Name of testBusiness is "Test Business"
+        businessService.searchBusiness("Test Business", type, 0, "");
+
+        verify(businessRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
     }
 
     /**
-     * Tests that when there are multiple matches by name,
-     * filtering them by business type works
+     * Checks the user repository is called the correct amount of times when it's a simple and quoted query string
      */
     @Test
-    void searchBusiness_filterByType() {
-        Business otherBusiness = new Business("Another Business", "Some Description",
-                null, "Accommodation and Food Services", testPrimaryAdmin.getId());
+    void searchBusiness_quotedNameQuery_notUseContainsSpec() {
+        Page<Business> businesses = Mockito.mock(Page.class);
 
-        Mockito.when(businessRepository.findAll(any(Specification.class)))
-                .thenReturn(List.of(testBusiness, otherBusiness));
-
+        Mockito.when(businessRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(businesses);
+        System.out.println(testBusiness.getName());
         BusinessType type = BusinessType.getType(testBusiness.getBusinessType());
-        List<Business> retrievedBusinesses = businessService.searchBusiness(testBusiness.getName(), type);
+        //Name of testBusiness is "Test Business"
+        businessService.searchBusiness("\"Test Business\"", type, 0, "");
 
-        Assertions.assertEquals(1, retrievedBusinesses.size());
-        Assertions.assertEquals(testBusiness.getBusinessType(), retrievedBusinesses.get(0).getBusinessType());
+        verify(businessRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
     }
 
     /**

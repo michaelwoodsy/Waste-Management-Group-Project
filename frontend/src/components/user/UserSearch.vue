@@ -345,40 +345,6 @@ export default {
     },
 
     /**
-     * Function to order search results by specific column
-     * @param col column to be sorted by
-     */
-    orderResults(col) {
-      // Remove the ordering if the column is clicked and the arrow is down
-      if (this.orderCol === col && this.orderDirection) {
-        this.orderCol = null;
-        this.orderDirection = false;
-        return
-      }
-
-      // Updated order direction if the new column is the same as what is currently clicked
-      this.orderDirection = this.orderCol === col;
-      this.orderCol = col;
-    },
-
-    // Function for sorting a list by orderCol alphabetically
-    sortAlpha(a, b) {
-      if (a[this.orderCol] === null) {
-        return -1
-      }
-      if (b[this.orderCol] === null) {
-        return 1
-      }
-      if (a[this.orderCol] < b[[this.orderCol]]) {
-        return 1;
-      }
-      if (a[this.orderCol] > b[[this.orderCol]]) {
-        return -1;
-      }
-      return 0;
-    },
-
-    /**
      * Formats address of user by using their home address object
      * @param address object that stores the users home address
      * @returns {string}
