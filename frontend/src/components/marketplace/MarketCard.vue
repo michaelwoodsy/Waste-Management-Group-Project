@@ -243,7 +243,9 @@ export default {
     location() {
       const address = this.cardData.creator.homeAddress
       let response = (address.city || address.region || "")
-      if (response !== "" && response.country !== null && response.country !== undefined) response = response + ", "
+      if (response !== "" && address.country !== null && address.country !== undefined) {
+        response = response + ", "
+      }
       response = response + (address.country || "")
       return response
     },
