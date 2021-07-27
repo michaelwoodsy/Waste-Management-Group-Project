@@ -242,7 +242,10 @@ export default {
      **/
     location() {
       const address = this.cardData.creator.homeAddress
-      return address.city || address.region || address.country
+      let response = (address.city || address.region || "")
+      if (response !== "" && response.country !== null && response.country !== undefined) response = response + ", "
+      response = response + (address.country || "")
+      return response
     },
 
     /** Returns the image url for the card.
