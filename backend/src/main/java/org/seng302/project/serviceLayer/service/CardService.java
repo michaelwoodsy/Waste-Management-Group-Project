@@ -21,13 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Service class with methods for handling community marketplace cards.
@@ -75,7 +75,6 @@ public class CardService {
                 throw badRequestException;
             }
 
-
             Set<Keyword> keywords = Collections.emptySet();
             if (dto.getKeywordIds() != null) {
                 keywords = new HashSet<>(keywordRepository.findAllById(dto.getKeywordIds()));
@@ -115,11 +114,13 @@ public class CardService {
     /**
      * Service method for getting all cards from a marketplace section
      *
-     * @param section the section to get all cards from
+     * @param section     the section to get all cards from
+     * @param page        page opf results to get from
+     * @param sortBy      string representing how to sort cards
+     * @param keywordSpec specification to filter by keyword IDs
      * @return a list of response DTOs containing card data
      */
-    public JSONObject getAllCardsForSection(String section, Integer page, String sortBy) {
-        // TODO: Implement sorting on backend
+    public JSONObject getAllCardsForSection(String section, Integer page, String sortBy, Specification<Card> keywordSpec) {
         try {
             logger.info("Request to get all cards by section: {}, page {}", section, page);
 
@@ -130,7 +131,11 @@ public class CardService {
 
             // Return all cards in the section
             Specification<Card> spec = CardSpecifications.inSection(section);
-            Pageable pageable = PageRequest.of(page, 10);
+            if (keywordSpec != null) {
+                spec = spec.and(keywordSpec);
+            }
+            Sort sort = parseSortBy(sortBy);
+            Pageable pageable = PageRequest.of(page, 10, sort);
             Page<Card> cardsPage = cardRepository.findAll(spec, pageable);
             List<Card> cards = cardsPage.getContent();
             Long totalCards = cardsPage.getTotalElements();
@@ -147,6 +152,48 @@ public class CardService {
             logger.error("Unexpected error while getting all cards");
             throw exception;
         }
+    }
+
+    /**
+     * Overloaded method for getting all cards from a marketplace section, without filtering by keyword
+     *
+     * @param section the section to get all cards from
+     * @param page    page opf results to get from
+     * @param sortBy  string representing how to sort cards
+     * @return JSONObject containing page of cards and total number of results
+     */
+    public JSONObject getAllCardsForSection(String section, Integer page, String sortBy) {
+        return getAllCardsForSection(section, page, sortBy, null);
+    }
+
+    /**
+     * Returns a Sort object to use with repository given a sortBy string
+     *
+     * @param sortBy string to parse
+     * @return Sort object used with repository to sort
+     */
+    public Sort parseSortBy(String sortBy) {
+        if (sortBy == null) {
+            return Sort.unsorted();
+        }
+        Sort sort;
+        switch (sortBy) {
+            case "newest":
+                sort = Sort.by(Sort.Order.desc("created"));
+                break;
+            case "oldest":
+                sort = Sort.by(Sort.Order.asc("created"));
+                break;
+            case "title":
+                sort = Sort.by(Sort.Order.asc("title"));
+                break;
+            case "location":
+                sort = Sort.by(Sort.Order.asc("creator.homeAddress.country"));
+                break;
+            default:
+                sort = Sort.unsorted();
+        }
+        return sort;
     }
 
     /**
@@ -315,8 +362,8 @@ public class CardService {
      * @param union      whether cards should match with any or all keywords
      * @return a list of cards that matches the query
      */
-    public List<GetCardResponseDTO> searchCards(String section, List<Integer> keywordIds, Boolean union) {
-        // TODO: change method to use pagination
+    public JSONObject searchCards(String section, List<Integer> keywordIds, Boolean union, Integer page, String sortBy) {
+        logger.info("Request to search for cards by keyword ID");
         if (section == null || !List.of("ForSale", "Wanted", "Exchange").contains(section)) {
             var exception = new BadRequestException("Bad Request: invalid section");
             logger.warn(exception.getMessage());
@@ -333,7 +380,7 @@ public class CardService {
             throw exception;
         }
 
-        Specification<Card> spec = Specification.where(null);
+        Specification<Card> spec = null;
         for (Integer keywordId : keywordIds) {
             Optional<Keyword> keyword = keywordRepository.findById(keywordId);
             if (keyword.isEmpty()) {
@@ -341,21 +388,16 @@ public class CardService {
                 logger.warn(exception.getMessage());
                 throw exception;
             }
-            if (union) {
+            if (spec == null) {
+                spec = CardSpecifications.hasKeyword(keyword.get());
+            } else if (union) {
                 spec = spec.or(CardSpecifications.hasKeyword(keyword.get()));
             } else {
                 spec = spec.and(CardSpecifications.hasKeyword(keyword.get()));
             }
         }
 
-        spec = CardSpecifications.inSection(section).and(spec);
-
-        List<Card> cards = cardRepository.findAll(spec);
-        List<GetCardResponseDTO> response = new ArrayList<>();
-        for (Card card : cards) {
-            response.add(new GetCardResponseDTO(card));
-        }
-        return response;
+        return getAllCardsForSection(section, page, sortBy, spec);
     }
 
 

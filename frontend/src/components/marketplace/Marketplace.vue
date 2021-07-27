@@ -69,9 +69,11 @@ Page for displaying the marketplace.
           <label class="d-inline-block" for="order-select">Order By</label>
           <select id="order-select"
                   v-model="order"
-                  class="form-control ml-2 d-inline-block w-auto">
-            <option value="created-asc">Newest</option>
-            <option value="created-desc">Oldest</option>
+                  class="form-control ml-2 d-inline-block w-auto"
+                  @change="searchCards"
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
             <option value="title">Title</option>
             <option value="location">Location</option>
           </select>
@@ -194,7 +196,7 @@ export default {
       cards: [],
       hideImages: true,
       error: "",
-      order: 'created-asc',
+      order: 'newest',
       resultsPerPage: 10,
       page: 1,
       totalCount: 1,
@@ -384,7 +386,7 @@ export default {
      * Gets all the cards for a particular section
      */
     getCards(tab) {
-      Card.getCardsSection(tab, this.page - 1, null)
+      Card.getCardsSection(tab, this.page - 1, this.order)
           .then((res) => {
             this.error = "";
             this.cards = res.data["cards"]
@@ -463,7 +465,7 @@ export default {
      * Searches for cards by calling backend api endpoint and displaying the cards returned
      */
     async searchCards() {
-      //return if there are no keywords to search for
+      // Return if there are no keywords to search for
       if (this.keywords.length <= 0) return this.getCards(this.tabSelected)
 
       let apiParams = '?'
@@ -472,12 +474,15 @@ export default {
       }
       apiParams += `section=${this.tabSelected}&`
       //union=false is match ALL, union=true is match ANY
-      apiParams += `union=${!this.keywordUnion}`
+      apiParams += `union=${!this.keywordUnion}&`
+      apiParams += `page=${this.page - 1}&`
+      apiParams += `sortBy=${this.order}`
 
       await Card.searchCards(apiParams)
           .then((res) => {
             this.error = "";
-            this.cards = res.data
+            this.cards = res.data['cards']
+            this.totalCount = res.data['totalCards']
           })
           .catch((err) => {
             this.error = err;

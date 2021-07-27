@@ -65,9 +65,10 @@ public class CardController {
      * @return List of Cards in the corresponding section.
      */
     @GetMapping("/cards")
-    public JSONObject getAllCards(@RequestParam("section") String section,
-                                  @RequestParam("page") Integer page) {
-        return cardService.getAllCardsForSection(section, page, null);
+    public JSONObject getAllCards(@RequestParam String section,
+                                  @RequestParam(defaultValue = "0") Integer page,
+                                  @RequestParam(required = false) String sortBy) {
+        return cardService.getAllCardsForSection(section, page, sortBy);
     }
 
     /**
@@ -126,12 +127,14 @@ public class CardController {
      */
     @GetMapping("/cards/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<GetCardResponseDTO> searchCards(
+    public JSONObject searchCards(
             @RequestParam String section,
             @RequestParam List<Integer> keywordIds,
-            @RequestParam Boolean union
+            @RequestParam Boolean union,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(required = false) String sortBy
     ) {
-        return cardService.searchCards(section, keywordIds, union);
+        return cardService.searchCards(section, keywordIds, union, page, sortBy);
     }
 
 }

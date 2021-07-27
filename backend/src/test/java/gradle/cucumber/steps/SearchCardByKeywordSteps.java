@@ -8,7 +8,10 @@ import io.cucumber.java.en.When;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
-import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.model.Address;
+import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.model.Keyword;
+import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.KeywordRepository;
@@ -28,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -37,17 +40,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class SearchCardByKeywordSteps {
 
-    private User testUser;
-    private Integer keyword1Id;
-    private Integer keyword2Id;
-
-    private ResultActions result;
-    private MockMvc mockMvc;
-
     private final UserRepository userRepository;
     private final CardRepository cardRepository;
     private final AddressRepository addressRepository;
     private final KeywordRepository keywordRepository;
+    private User testUser;
+    private Integer keyword1Id;
+    private Integer keyword2Id;
+    private ResultActions result;
+    private MockMvc mockMvc;
 
     @Autowired
     public SearchCardByKeywordSteps(
@@ -60,6 +61,7 @@ public class SearchCardByKeywordSteps {
         this.addressRepository = addressRepository;
         this.keywordRepository = keywordRepository;
     }
+
     @BeforeEach
     @Autowired
     public void setup(WebApplicationContext context) {
@@ -78,12 +80,13 @@ public class SearchCardByKeywordSteps {
     /**
      * Creates the user if it's not already created.
      * If it is already created, the user is returned.
+     *
      * @return User
      */
     private User createUser(User wantedUser) {
         if (userRepository.findByEmail(wantedUser.getEmail()).size() > 0) {
             // Already exists, return it
-            return(userRepository.findByEmail(wantedUser.getEmail()).get(0));
+            return userRepository.findByEmail(wantedUser.getEmail()).get(0);
         } else {
             // User doesn't exist, save it to repository
             addressRepository.save(wantedUser.getHomeAddress());
@@ -95,25 +98,29 @@ public class SearchCardByKeywordSteps {
     /**
      * Creates the keyword if it's not already created.
      * If it is already created, the keyword is returned.
+     *
      * @return Keyword this is the keyword whether it exists or not
      */
-    private Keyword createKeyword(Keyword keyword){
-        if(keywordRepository.findByName(keyword.getName()).size() > 0){
+    private Keyword createKeyword(Keyword keyword) {
+        if (keywordRepository.findByName(keyword.getName()).size() > 0) {
             //Already Exists, return it
-            return(keywordRepository.findByName(keyword.getName()).get(0));
+            return (keywordRepository.findByName(keyword.getName()).get(0));
         } else {
             // Keyword does not exist return it so card can make it
             keywordRepository.save(keyword);
             return keyword;
         }
     }
+
     @Transactional
     @Given("I am logged in with email {string} with the following 3 cards exist with keywords:")
     public void i_am_logged_in_with_email_with_the_following_3_cards_exist_with_keywords(String email, DataTable cardsTable) {
         // Create the logged in user
+        Address userAddress = new Address();
+        userAddress.setCountry("New Zealand");
         testUser = new User("John", "Smith", "Bob", "Jonny",
                 "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
-                "+64 3 555 0129", new Address(), "");
+                "+64 3 555 0129", userAddress, "");
         testUser.setEmail(email);
         testUser = createUser(testUser);
 
@@ -124,9 +131,11 @@ public class SearchCardByKeywordSteps {
         for (List<String> cols : rows) {
 
             // Create the card creator user
+            Address ownerAddress = new Address();
+            ownerAddress.setCountry("New Zealand");
             User owner = new User("Jane", "Doe", "Bob", "Jonny",
                     "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
-                    "+64 3 555 0129", null, "");
+                    "+64 3 555 0129", ownerAddress, "");
             owner.setEmail(cols.get(3));
             owner = createUser(owner);
 
@@ -193,9 +202,11 @@ public class SearchCardByKeywordSteps {
     @Given("The Following cards exist:")
     public void theFollowingCardsExist(DataTable cardsTable) {
         // Create the logged in user
+        Address userAddress = new Address();
+        userAddress.setCountry("New Zealand");
         testUser = new User("John", "Smith", "Bob", "Jonny",
                 "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
-                "+64 3 555 0129", null, "");
+                "+64 3 555 0129", userAddress, "");
         testUser = createUser(testUser);
 
         Card newCard;
@@ -205,9 +216,11 @@ public class SearchCardByKeywordSteps {
         for (List<String> cols : rows) {
 
             // Creat the card creator user
+            Address ownerAddress = new Address();
+            ownerAddress.setCountry("New Zealand");
             User owner = new User("Jane", "Doe", "Bob", "Jonny",
                     "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
-                    "+64 3 555 0129", null, "");
+                    "+64 3 555 0129", ownerAddress, "");
             owner.setEmail(cols.get(3));
             owner = createUser(owner);
 
@@ -264,7 +277,7 @@ public class SearchCardByKeywordSteps {
             // Get the list of keywords on the card
             JSONArray keywordsArray = cardJson.getJSONArray("keywords");
             ArrayList<String> keywordNames = new ArrayList<>();
-            for(int j = 0; j < keywordsArray.length(); j++){
+            for (int j = 0; j < keywordsArray.length(); j++) {
                 //Add each name of the keyword to a list
                 keywordNames.add(keywordsArray.getJSONObject(j).getString("name"));
             }
@@ -347,7 +360,7 @@ public class SearchCardByKeywordSteps {
             // Get the list of keywords on the card
             JSONArray keywordsArray = cardJson.getJSONArray("keywords");
             ArrayList<String> keywordNames = new ArrayList<>();
-            for(int j = 0; j < keywordsArray.length(); j++){
+            for (int j = 0; j < keywordsArray.length(); j++) {
                 //Add each name of the keyword to a list
                 keywordNames.add(keywordsArray.getJSONObject(j).getString("name"));
             }
