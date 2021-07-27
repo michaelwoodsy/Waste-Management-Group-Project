@@ -1,6 +1,5 @@
 package org.seng302.project.serviceLayer.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,19 +14,13 @@ import org.seng302.project.repositoryLayer.model.Card;
 import org.seng302.project.repositoryLayer.model.CardExpiryNotification;
 import org.seng302.project.repositoryLayer.model.Keyword;
 import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.repositoryLayer.repository.CardRepository;
-import org.seng302.project.repositoryLayer.repository.KeywordRepository;
-import org.seng302.project.repositoryLayer.repository.UserNotificationRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
+import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.dto.card.GetCardResponseDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.card.NoCardExistsException;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -41,55 +34,52 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
  * Tests for the CardServiceClass
  */
-@SpringBootTest
 class CardServiceTest extends AbstractInitializer {
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private User testUser;
     private Card testUsersCard1;
     private Card testUsersCard2;
     private List<Card> testCards;
 
-    @Autowired
     private CardService cardService;
-
-    @MockBean
     private CardRepository cardRepository;
-
-    @MockBean
     private KeywordRepository keywordRepository;
-
-
-    @MockBean
-    private UserRepository userRepository;
-
-    @MockBean
     private UserNotificationRepository userNotificationRepository;
 
     @BeforeEach
     void setup() {
+        this.cardRepository = Mockito.mock(CardRepository.class);
+        this.keywordRepository = Mockito.mock(KeywordRepository.class);
+        this.userNotificationRepository = Mockito.mock(UserNotificationRepository.class);
+        UserRepository userRepository = Mockito.mock(UserRepository.class);
+        MessageRepository messageRepository = Mockito.mock(MessageRepository.class);
+        this.cardService = new CardService(
+                this.cardRepository,
+                messageRepository,
+                userRepository,
+                this.keywordRepository,
+                this.userNotificationRepository
+        );
         this.initialise();
         testUser = this.getTestUser();
         testCards = this.getTestCards();
-        given(userRepository.findByEmail(testUser.getEmail())).willReturn(List.of(testUser));
-        given(userRepository.findById(testUser.getId())).willReturn(Optional.of(testUser));
+        Mockito.when(userRepository.findByEmail(testUser.getEmail())).thenReturn(List.of(testUser));
+        Mockito.when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
         // Create mock cards
         // Card 1
         testUsersCard1 = testCards.get(0);
-        given(cardRepository.findById(testUsersCard1.getId())).willReturn(Optional.of(testUsersCard1));
+        Mockito.when(cardRepository.findById(testUsersCard1.getId())).thenReturn(Optional.of(testUsersCard1));
 
         // Card 2
         testUsersCard2 = testCards.get(1);
-        given(cardRepository.findById(testUsersCard2.getId())).willReturn(Optional.of(testUsersCard2));
+        Mockito.when(cardRepository.findById(testUsersCard2.getId())).thenReturn(Optional.of(testUsersCard2));
 
     }
 
@@ -100,7 +90,7 @@ class CardServiceTest extends AbstractInitializer {
     @Test
     void getAllCardsByUser_onlyCardsCreatedByCreatorWithId() {
         List<Card> expectedCards = List.of(testUsersCard1, testUsersCard2);
-        given(cardRepository.findAllByCreator(testUser)).willReturn(expectedCards);
+        Mockito.when(cardRepository.findAllByCreator(testUser)).thenReturn(expectedCards);
 
         List<GetCardResponseDTO> cards = cardService.getAllCardsByUser(testUser.getId());
 
@@ -122,11 +112,11 @@ class CardServiceTest extends AbstractInitializer {
         expiredCard.setId(4);
         LocalDateTime timeInPast = LocalDateTime.now().minus(2, ChronoUnit.HOURS);
         expiredCard.setDisplayPeriodEnd(timeInPast);
-        given(cardRepository.findById(expiredCard.getId())).willReturn(Optional.of(expiredCard));
+        Mockito.when(cardRepository.findById(expiredCard.getId())).thenReturn(Optional.of(expiredCard));
 
         // Mock the card repository call
         List<Card> expectedCards = List.of(testUsersCard1, expiredCard);
-        given(cardRepository.findAllByCreator(testUser)).willReturn(expectedCards);
+        Mockito.when(cardRepository.findAllByCreator(testUser)).thenReturn(expectedCards);
 
         // Run the method
         List<GetCardResponseDTO> cards = cardService.getAllCardsByUser(testUser.getId());
@@ -163,7 +153,7 @@ class CardServiceTest extends AbstractInitializer {
     @Test
     void testGetCardDoesNotExist() {
         // Mock card with id 1 being empty
-        given(cardRepository.findById(1)).willReturn(Optional.empty());
+        Mockito.when(cardRepository.findById(1)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(NoCardExistsException.class,
                 () -> cardService.getCard(1));
@@ -176,7 +166,7 @@ class CardServiceTest extends AbstractInitializer {
     @Test
     void testExtendCardDoesNotExist() {
         // Mock card with id 1 being empty
-        given(cardRepository.findById(1)).willReturn(Optional.empty());
+        Mockito.when(cardRepository.findById(1)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(NoCardExistsException.class,
                 () -> cardService.getCard(1));
@@ -207,7 +197,7 @@ class CardServiceTest extends AbstractInitializer {
     @Test
     void testDeleteCardDoesNotExist() {
         // Mock card with id 1 being empty
-        given(cardRepository.findById(1)).willReturn(Optional.empty());
+        Mockito.when(cardRepository.findById(1)).thenReturn(Optional.empty());
 
         AppUserDetails appUser = new AppUserDetails(testUser);
         Assertions.assertThrows(NoCardExistsException.class,
@@ -230,7 +220,7 @@ class CardServiceTest extends AbstractInitializer {
         );
 
         // Mock the save method on the cardRepository
-        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+        Mockito.when(cardRepository.save(any(Card.class))).thenReturn(testUsersCard1);
 
         cardService.createCard(requestDTO);
 
@@ -334,7 +324,7 @@ class CardServiceTest extends AbstractInitializer {
     @Test
     void testEditCardDoesNotExist() {
         // Mock card with id 1 being empty
-        given(cardRepository.findById(1)).willReturn(Optional.empty());
+        Mockito.when(cardRepository.findById(1)).thenReturn(Optional.empty());
 
         EditCardDTO requestDTO = new EditCardDTO(
                 "ForSale",
@@ -360,7 +350,7 @@ class CardServiceTest extends AbstractInitializer {
                 Collections.emptyList());
 
         // Mock the save method on the cardRepository
-        given(cardRepository.save(any(Card.class))).willReturn(testUsersCard1);
+        Mockito.when(cardRepository.save(any(Card.class))).thenReturn(testUsersCard1);
 
         cardService.editCard(testUsersCard1.getId(), requestDTO, new AppUserDetails(testUser));
 
@@ -380,7 +370,7 @@ class CardServiceTest extends AbstractInitializer {
     @Test
     void testCardExpirySendsNotification() {
         //Mocking that the card is returned from the delete function, making it look like it was deleted
-        given(cardRepository.deleteByDisplayPeriodEndBefore(any(LocalDateTime.class))).willReturn(List.of(testUsersCard1));
+        Mockito.when(cardRepository.deleteByDisplayPeriodEndBefore(any(LocalDateTime.class))).thenReturn(List.of(testUsersCard1));
 
         //Simulating an automatic call for removal of expired cards
         cardService.removeCardsAfter24Hrs();

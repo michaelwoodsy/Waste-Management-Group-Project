@@ -432,7 +432,7 @@ export const Card = {
      * @param params parameters to search by, the keywords, the section, and whether to match all keywords or only some
      * @returns {Promise<AxiosResponse<any>>} Response from request
      */
-    searchCards: (params) => instance.get(`cards/search/${params}`, {}),
+    searchCards: (params) => instance.get(`cards/search${params}`, {}),
 
     /**
      * Edits a card
