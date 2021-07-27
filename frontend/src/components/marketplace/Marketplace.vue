@@ -22,7 +22,7 @@ Page for displaying the marketplace.
               <a id="for-sale-link"
                  :class="{'nav-link': true, 'active': this.tabSelected === 'ForSale'}"
                  class="pointer"
-                 @click="changePage('ForSale')">
+                 @click="changeSection('ForSale')">
                 For Sale
               </a>
             </li>
@@ -30,7 +30,7 @@ Page for displaying the marketplace.
               <a id="wanted-link"
                  :class="{'nav-link': true, 'active': this.tabSelected === 'Wanted'}"
                  class="pointer"
-                 @click="changePage('Wanted')">
+                 @click="changeSection('Wanted')">
                 Wanted
               </a>
             </li>
@@ -38,14 +38,15 @@ Page for displaying the marketplace.
               <a id="exchange-link"
                  :class="{'nav-link': true, 'active': this.tabSelected === 'Exchange'}"
                  class="pointer"
-                 @click="changePage('Exchange')">
+                 @click="changeSection('Exchange')">
                 Exchange
               </a>
             </li>
           </ul>
         </div>
         <div class="col">
-          <button v-if="actingAsUser" class="btn btn-primary float-right" data-target="#createCard" data-toggle="modal" @click="newCard">
+          <button v-if="actingAsUser" class="btn btn-primary float-right" data-target="#createCard" data-toggle="modal"
+                  @click="newCard">
             New Card
           </button>
         </div>
@@ -68,9 +69,11 @@ Page for displaying the marketplace.
           <label class="d-inline-block" for="order-select">Order By</label>
           <select id="order-select"
                   v-model="order"
-                  class="form-control ml-2 d-inline-block w-auto">
-            <option value="created-asc">Newest</option>
-            <option value="created-desc">Oldest</option>
+                  class="form-control ml-2 d-inline-block w-auto"
+                  @change="searchCards"
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
             <option value="title">Title</option>
             <option value="location">Location</option>
           </select>
@@ -79,7 +82,7 @@ Page for displaying the marketplace.
           <showing-results-text
               :items-per-page="resultsPerPage"
               :page="page"
-              :total-count="totalCardCount"
+              :total-count="totalCount"
               class="ml-4"
           />
         </div>
@@ -91,42 +94,42 @@ Page for displaying the marketplace.
           <label class="d-inline-block" for="order-select">Filter By Keywords</label>
           <!-- Keyword Input -->
           <input id="keywordSearchValue" v-model="keywordValue"
+                 aria-expanded="false"
+                 aria-haspopup="true" autocomplete="off"
                  class="form-control ml-2 d-inline-block w-auto dropdown-toggle"
-                 aria-haspopup="true" aria-expanded="false"
-                 placeholder="Enter Keywords"
-                 required maxlength="25" type="text"
+                 data-toggle="dropdown" maxlength="25" placeholder="Enter Keywords"
+                 required
                  style="margin-bottom: 2px"
-                 autocomplete="off"
-                 data-toggle="dropdown"
+                 type="text"
                  @input="searchKeywords"
                  @keyup.enter="setKeyword()"/>
 
           <!-- Checkbox to select whether all a cards must match all keywords -->
           <span
               class="custom-control custom-switch m-2">
-            <input v-model="keywordUnion" type="checkbox" class="custom-control-input" id="any-all-keyword-switch">
+            <input id="any-all-keyword-switch" v-model="keywordUnion" class="custom-control-input" type="checkbox">
             <label class="custom-control-label" for="any-all-keyword-switch">Match all</label>
           </span>
 
           <!-- Autocomplete dropdown -->
-          <div class="dropdown-menu overflow-auto" id="dropdown">
+          <div id="dropdown" class="dropdown-menu overflow-auto">
             <!-- If no user input -->
-            <p class="text-muted dropdown-item left-padding mb-0 disabled"
-               v-if="keywordValue.length === 0"
+            <p v-if="keywordValue.length === 0"
+               class="text-muted dropdown-item left-padding mb-0 disabled"
             >
               Start typing...
             </p>
             <!-- If no matches -->
-            <p class="text-muted dropdown-item left-padding mb-0 disabled"
-               v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
+            <p v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
+               class="text-muted dropdown-item left-padding mb-0 disabled"
             >
               No results found.
             </p>
             <!-- If there are matches -->
-            <a class="dropdown-item pointer left-padding" href="#"
-               v-for="keyword in filteredKeywords"
-               v-else
+            <a v-for="keyword in filteredKeywords" v-else
                :key="keyword.id"
+               class="dropdown-item pointer left-padding"
+               href="#"
                @click="setKeyword(keyword)">
               <span>{{ keyword.name }}</span>
             </a>
@@ -134,16 +137,16 @@ Page for displaying the marketplace.
           <!-- Keyword Bubbles -->
           <div class="keyword">
             <button
-                class="btn btn-primary d-inline-block m-2"
                 v-for="(keyword, index) in keywords"
-                :key="'keyword' + index">
-              <span>{{  keyword.name  }}</span>
+                :key="'keyword' + index"
+                class="btn btn-primary d-inline-block m-2">
+              <span>{{ keyword.name }}</span>
               <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
             </button>
           </div>
           <!-- Button to clear keyword filter -->
-          <button  v-if="keywords.length > 0"
-                   class="btn btn-danger ml-5" @click="clearFilter">
+          <button v-if="keywords.length > 0"
+                  class="btn btn-danger ml-5" @click="clearFilter">
             Clear Keywords
           </button>
         </div>
@@ -152,7 +155,7 @@ Page for displaying the marketplace.
 
       <!-- Div with cards -->
       <div class="row row-cols-1 row-cols-lg-2">
-        <div v-for="card in orderedCards" v-bind:key="card.id" class="col">
+        <div v-for="card in filteredCards" v-bind:key="card.id" class="col">
           <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="false"
                       @card-deleted="deleteCard"
                       @refresh-cards="refreshCards()"></MarketCard>
@@ -163,8 +166,9 @@ Page for displaying the marketplace.
       <pagination
           :current-page.sync="page"
           :items-per-page="resultsPerPage"
-          :total-items="totalCardCount"
+          :total-items="totalCount"
           class="mx-auto"
+          @change-page="changePage"
       />
 
     </div>
@@ -180,7 +184,7 @@ import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import CreateCardPage from "@/components/marketplace/CreateCardPage";
 import PageWrapper from "@/components/PageWrapper";
-import {Keyword, User, Card} from "@/Api";
+import {Card, Keyword} from "@/Api";
 
 export default {
   name: "Marketplace",
@@ -192,9 +196,10 @@ export default {
       cards: [],
       hideImages: true,
       error: "",
-      order: 'created-asc',
+      order: 'newest',
       resultsPerPage: 10,
       page: 1,
+      totalCount: 1,
       keywordValue: '',
       keywordUnion: false,
       keywords: [],
@@ -203,7 +208,7 @@ export default {
   },
 
   mounted() {
-    this.changePage(this.tabSelected)
+    this.changeSection(this.tabSelected)
   },
 
   watch: {
@@ -262,32 +267,6 @@ export default {
         }
       }
       return newCards
-    },
-
-    /** List of cards, ordered by the selected ordering **/
-    orderedCards() {
-      // Create new card array
-      let newCards = [...this.filteredCards];
-
-      // Order it appropriately
-      if (this.order === 'created-asc') {
-        newCards.sort((a, b) => -this.sortCreatedDate(a, b))
-      } else if (this.order === 'created-desc') {
-        newCards.sort((a, b) => this.sortCreatedDate(a, b))
-      } else if (this.order === 'title') {
-        newCards.sort((a, b) => this.sortTitle(a, b))
-      } else if (this.order === 'location') {
-        newCards.sort((a, b) => {
-          this.sortLocation(a, b)
-        })
-      }
-
-      return newCards
-    },
-
-    /** Total number of cards on the current tab **/
-    totalCardCount() {
-      return this.orderedCards.length
     }
   },
   components: {
@@ -304,56 +283,25 @@ export default {
      * Gets called when a tab is selected and updates contents
      * @param tab selected. is a string
      */
-    changePage(tab) {
+    async changeSection(tab) {
       this.tabSelected = tab
       this.page = 1 // Reset the page number
       //Call Api to get new cards for tab here
-      this.searchCards()
+      await this.searchCards()
     },
 
-    /** Function for sorting a list of cards by created date **/
-    sortCreatedDate(a, b) {
-      if (a.created < b.created) {
-        return -1
-      }
-      if ((a.created > b.created)) {
-        return 1
-      }
-      return 0
+    /**
+     * Method to change the currently viewed page
+     * @param page the page to go to
+     */
+    async changePage(page) {
+      this.page = page
+      await this.searchCards()
     },
 
-    /** Function for sorting a list by title alphabetically **/
-    sortTitle(a, b) {
-        if (a.title < b.title) {
-          return -1
-        }
-        if ((a.title > b.title)) {
-          return 1
-        }
-        return 0
-    },
-
-    /** Function for sorting a list by location alphabetically **/
-    sortLocation(a, b) {
-      const aTerm = a.creator.homeAddress.city;
-      const bTerm = b.creator.homeAddress.city;
-
-      if (aTerm === null) {
-        return -1
-      }
-      if (bTerm === null) {
-        return 1
-      }
-      if (aTerm < bTerm) {
-        return 1;
-      }
-      if (aTerm > bTerm) {
-        return -1;
-      }
-      return 0;
-    },
-
-    /** Deletes a card with the corresponding id from the list of cards **/
+    /**
+     * Deletes a card with the corresponding id from the list of cards
+     */
     deleteCard(id) {
       const index = this.cards.findIndex((a) => a.id === id)
       if (index > -1) {
@@ -380,11 +328,12 @@ export default {
     /**
      * Gets all the cards for a particular section
      */
-    getCards(tab){
-      User.getCardsSection(tab)
+    getCards(tab) {
+      Card.getCardsSection(tab, this.page - 1, this.order)
           .then((res) => {
             this.error = "";
-            this.cards = res.data
+            this.cards = res.data["cards"]
+            this.totalCount = res.data["totalCards"]
           })
           .catch((err) => {
             this.error = err;
@@ -395,7 +344,7 @@ export default {
      */
     addKeyword(keyword) {
       this.keywordValue = this.keywordValue.trim()
-      if((this.keywordValue === '' || this.keywordValue === ' ')
+      if ((this.keywordValue === '' || this.keywordValue === ' ')
           || this.keywords.includes(this.keywordValue)) {
         this.keywordValue = '';
       }
@@ -444,14 +393,14 @@ export default {
       if (keyword === undefined && this.filteredKeywords.length > 0) {
         keyword = this.filteredKeywords[0]
       }
-      const filterKeywords = this.keywords.filter(function(indKeyword) {
+      const filterKeywords = this.keywords.filter(function (indKeyword) {
         return indKeyword.name === keyword.name;
       })
       if (filterKeywords.length === 0) {
         this.keywordValue = keyword.name
         this.addKeyword(keyword)
       } else {
-        this.keywordValue =  ''
+        this.keywordValue = ''
       }
     },
 
@@ -459,7 +408,7 @@ export default {
      * Searches for cards by calling backend api endpoint and displaying the cards returned
      */
     async searchCards() {
-      //return if there are no keywords to search for
+      // Return if there are no keywords to search for
       if (this.keywords.length <= 0) return this.getCards(this.tabSelected)
 
       let apiParams = '?'
@@ -468,12 +417,15 @@ export default {
       }
       apiParams += `section=${this.tabSelected}&`
       //union=false is match ALL, union=true is match ANY
-      apiParams += `union=${!this.keywordUnion}`
+      apiParams += `union=${!this.keywordUnion}&`
+      apiParams += `page=${this.page - 1}&`
+      apiParams += `sortBy=${this.order}`
 
       await Card.searchCards(apiParams)
           .then((res) => {
             this.error = "";
-            this.cards = res.data
+            this.cards = res.data['cards']
+            this.totalCount = res.data['totalCards']
           })
           .catch((err) => {
             this.error = err;
@@ -499,9 +451,11 @@ export default {
 .nav-item {
   font-size: 20px;
 }
+
 .row {
   margin-bottom: 20px;
 }
+
 .keyword {
   font-size: 16px;
 }

@@ -7,7 +7,9 @@ import io.cucumber.java.en.When;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
-import org.seng302.project.repositoryLayer.model.*;
+import org.seng302.project.repositoryLayer.model.Address;
+import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.AddressRepository;
 import org.seng302.project.repositoryLayer.repository.CardRepository;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
@@ -23,7 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -31,15 +33,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class FindMyCardsSteps {
 
+    private final UserRepository userRepository;
+    private final CardRepository cardRepository;
+    private final AddressRepository addressRepository;
     private User testUser;
     private Address testAddress;
     private ResultActions result;
     private JSONArray results;
     private MockMvc mockMvc;
-
-    private final UserRepository userRepository;
-    private final CardRepository cardRepository;
-    private final AddressRepository addressRepository;
 
     @Autowired
     public FindMyCardsSteps(
@@ -59,7 +60,7 @@ public class FindMyCardsSteps {
                 .apply(springSecurity())
                 .build();
 
-        testAddress = new Address("", "", "", "", "New Zealand","");
+        testAddress = new Address("", "", "", "", "New Zealand", "");
         addressRepository.save(testAddress);
         cardRepository.deleteAll();
     }
@@ -67,14 +68,16 @@ public class FindMyCardsSteps {
     /**
      * Creates the user if it's not already created.
      * If it is already created, the user is returned.
+     *
      * @return User
      */
     private User createUser(User wantedUser) {
         if (userRepository.findByEmail(wantedUser.getEmail()).size() > 0) {
             // Already exists, return it
-            return(userRepository.findByEmail(wantedUser.getEmail()).get(0));
+            return (userRepository.findByEmail(wantedUser.getEmail()).get(0));
         } else {
             // User doesn't exist, save it to repository
+            addressRepository.save(wantedUser.getHomeAddress());
             userRepository.save(wantedUser);
             return wantedUser;
         }
@@ -83,9 +86,11 @@ public class FindMyCardsSteps {
     @Given("I am logged in with email {string} and the following cards exist:")
     public void i_am_logged_in_with_email_and_the_following_cards_exist(String email, DataTable cardsTable) {
         // Create the logged in user
+        Address address = new Address();
+        address.setCountry("New Zealand");
         testUser = new User("John", "Smith", "Bob", "Jonny",
                 "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
-                "+64 3 555 0129", null, "");
+                "+64 3 555 0129", address, "");
         testUser.setEmail(email);
         testUser = createUser(testUser);
         Card newCard;
@@ -94,9 +99,11 @@ public class FindMyCardsSteps {
         List<List<String>> rows = cardsTable.asLists(String.class);
         for (List<String> cols : rows) {
             // Creat the card creator user
+            Address ownerAddress = new Address();
+            ownerAddress.setCountry("New Zealand");
             User owner = new User("John", "Smith", "Bob", "Jonny",
                     "Likes long walks on the beach", "test@gmail.com", "1999-04-27",
-                    "+64 3 555 0129", null, "");
+                    "+64 3 555 0129", ownerAddress, "");
             owner.setEmail(cols.get(3));
             owner = createUser(owner);
 
@@ -127,9 +134,10 @@ public class FindMyCardsSteps {
                 .andExpect(MockMvcResultMatchers.status().isOk()); // We expect a 200 response
 
     }
+
     @Then("I find {int} cards")
     public void i_find_cards(Integer cardCount) throws Exception {
-       result.andExpect(jsonPath("$", hasSize(cardCount)));
+        result.andExpect(jsonPath("$", hasSize(cardCount)));
     }
 
     @Then("All returned cards are by user with email {string}")
@@ -150,7 +158,6 @@ public class FindMyCardsSteps {
             assertEquals(email, desiredEmail);
         }
     }
-
 
 
 }

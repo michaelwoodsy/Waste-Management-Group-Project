@@ -1,5 +1,6 @@
 package org.seng302.project.webLayer.controller;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
 import org.seng302.project.serviceLayer.dto.card.CreateCardResponseDTO;
 import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
@@ -64,8 +65,10 @@ public class CardController {
      * @return List of Cards in the corresponding section.
      */
     @GetMapping("/cards")
-    public List<GetCardResponseDTO> getAllCards(@RequestParam String section) {
-        return cardService.getAllCardsForSection(section);
+    public JSONObject getAllCards(@RequestParam String section,
+                                  @RequestParam(defaultValue = "0") Integer page,
+                                  @RequestParam(defaultValue = "newest") String sortBy) {
+        return cardService.getAllCardsForSection(section, page, sortBy);
     }
 
     /**
@@ -116,19 +119,22 @@ public class CardController {
 
     /**
      * Endpoint to get all cards that fit the search query
-     * @param section The section to search by
+     *
+     * @param section    The section to search by
      * @param keywordIds The list of keyword IDs to search by
-     * @param union Option to match the search with all or some of the inputs
+     * @param union      Option to match the search with all or some of the inputs
      * @return List of cards that fit the search criteria
      */
     @GetMapping("/cards/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<GetCardResponseDTO> searchCards(
+    public JSONObject searchCards(
             @RequestParam String section,
             @RequestParam List<Integer> keywordIds,
-            @RequestParam Boolean union
+            @RequestParam Boolean union,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "newest") String sortBy
     ) {
-        return cardService.searchCards(section, keywordIds, union);
+        return cardService.searchCards(section, keywordIds, union, page, sortBy);
     }
 
 }

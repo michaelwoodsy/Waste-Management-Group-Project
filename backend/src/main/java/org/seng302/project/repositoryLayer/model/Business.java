@@ -61,7 +61,7 @@ public class Business {
         return this.address;
     }
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_administers_business",
             joinColumns = @JoinColumn(name = "business_id"),

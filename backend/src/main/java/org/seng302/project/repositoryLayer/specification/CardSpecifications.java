@@ -23,7 +23,7 @@ public class CardSpecifications {
      */
     public static Specification<Card> inSection(String section) {
         return ((root, query, builder) ->
-                builder.like(builder.toString(root.get("section")), section));
+                builder.like(root.get("section"), section));
     }
 
     /**

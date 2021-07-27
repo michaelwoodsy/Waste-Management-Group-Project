@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,8 @@ public abstract class AbstractInitializer {
     private Card testCard;
     private UserNotification testUserNotification;
 
+    private List<SaleListing> saleListings;
+
     public AbstractInitializer() {
         WebSecurityConfig webSecurityConfig = new WebSecurityConfig();
         passwordEncoder = webSecurityConfig.passwordEncoder();
@@ -57,6 +60,7 @@ public abstract class AbstractInitializer {
         this.initialiseTestCard();
         this.initialiseTestUserNotification();
         this.initialiseTestMessages();
+        this.initialiseTestSaleListings();
     }
 
     public void initialiseTestUsers() {
@@ -249,6 +253,41 @@ public abstract class AbstractInitializer {
         message2.setId(2);
         testMessages = new ArrayList<>();
         testMessages.addAll(List.of(message1, message2));
+    }
+
+    public void initialiseTestSaleListings() {
+        saleListings = new ArrayList<>();
+        Address address1 = new Address(null, null, "Rangiora", null, "Netherlands", null);
+        Business business1 = new Business("First Business", null, address1, "Retail Trade", 1);
+
+
+        Product product1 = new Product("TEST-1", "First Product", null, null, 5.00, business1.getId());
+        InventoryItem inventoryItem1 = new InventoryItem(product1, 5, null, null, "2021-01-01", null, null, "2021-12-01");
+        SaleListing saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
+        saleListings.add(saleListing1);
+
+
+        Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
+        InventoryItem inventoryItem2 = new InventoryItem(product2, 10, null, null, "2021-01-01", null, null, "2021-12-02");
+        SaleListing saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
+        saleListings.add(saleListing2);
+
+
+        Address address2 = new Address(null, null, "Christchurch", null, "New Zealand", null);
+        Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
+
+
+        Product product3 = new Product("TEST-3", "Third Product", null, null, 5.00, business2.getId());
+        InventoryItem inventoryItem3 = new InventoryItem(product3, 5, null, null, "2021-01-01", null, null, "2021-12-03");
+        SaleListing saleListing3 = new SaleListing(business2, inventoryItem3, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
+        saleListings.add(saleListing3);
+
+
+        Product product4 = new Product("TEST-4", "Fourth Product", null, null, 5.00, business2.getId());
+        InventoryItem inventoryItem4 = new InventoryItem(product4, 5, null, null, "2021-01-01", null, null, "2021-12-04");
+        SaleListing saleListing4 = new SaleListing(business2, inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
+        saleListings.add(saleListing4);
+
     }
 
 }

@@ -1,6 +1,7 @@
 package org.seng302.project.webLayer.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,7 @@ import org.seng302.project.repositoryLayer.model.Business;
 import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.model.types.BusinessType;
 import org.seng302.project.serviceLayer.dto.address.AddressDTO;
+import org.seng302.project.serviceLayer.dto.business.GetBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.PostBusinessDTO;
 import org.seng302.project.serviceLayer.dto.business.PutBusinessAdminDTO;
 import org.seng302.project.serviceLayer.exceptions.ForbiddenException;
@@ -34,6 +36,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -65,6 +68,7 @@ class BusinessControllerTest extends AbstractInitializer {
     private User testPrimaryAdmin;
     private User testUser;
     private Business testBusiness;
+    private Object JSONObject;
 
     @BeforeEach
     public void setup() {
@@ -518,18 +522,17 @@ class BusinessControllerTest extends AbstractInitializer {
      */
     @Test
     void searchBusiness_validQueryNoType_200() throws Exception {
-        Mockito.when(businessService.searchBusiness(any(String.class), any(BusinessType.class)))
-                .thenReturn(List.of(testBusiness));
+        Mockito.when(businessService.searchBusiness(any(String.class), any(BusinessType.class), any(Integer.class), any(String.class)))
+                .thenReturn(List.of(testBusiness, 1));
 
         RequestBuilder searchBusinessRequest = MockMvcRequestBuilders
-                .get("/businesses/search?searchQuery=General")
+                .get("/businesses/search?searchQuery=General&pageNumber=0&sortBy=")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
         this.mvc.perform(searchBusinessRequest)
                 .andExpect(MockMvcResultMatchers.status().isOk());
-
     }
 
     /**
@@ -538,11 +541,12 @@ class BusinessControllerTest extends AbstractInitializer {
      */
     @Test
     void searchBusiness_validQueryValidType_200() throws Exception {
-        Mockito.when(businessService.searchBusiness(any(String.class), any(BusinessType.class)))
-                .thenReturn(List.of(testBusiness));
+
+        Mockito.when(businessService.searchBusiness(any(String.class), any(BusinessType.class), any(Integer.class), any(String.class)))
+                .thenReturn(List.of(testBusiness, 1));
 
         RequestBuilder searchBusinessRequest = MockMvcRequestBuilders
-                .get("/businesses/search?searchQuery=General&businessType={businessType}", testBusiness.getBusinessType())
+                .get("/businesses/search?searchQuery=General&businessType={businessType}&pageNumber=0&sortBy=", testBusiness.getBusinessType())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
@@ -560,7 +564,7 @@ class BusinessControllerTest extends AbstractInitializer {
     void searchBusiness_invalidType_400() throws Exception {
         RequestBuilder searchBusinessRequest = MockMvcRequestBuilders
                 // %20 encodes a space character in a URL
-                .get("/businesses/search?searchQuery=General&businessType=Not%20a%20Type")
+                .get("/businesses/search?searchQuery=General&businessType=Not%20a%20Type&pageNumber=0&sortBy=")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));

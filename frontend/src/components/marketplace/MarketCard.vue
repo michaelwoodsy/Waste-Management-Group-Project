@@ -147,7 +147,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
     <div :id="'editCard' + cardData.id" :key="this.editCurrentCard" class="modal fade" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-body">
+          <div class="modal-body" v-if="this.editCurrentCard">
             <edit-card :card-id="cardData.id" @card-edited="refreshCards()"></edit-card>
           </div>
         </div>
@@ -242,7 +242,12 @@ export default {
      **/
     location() {
       const address = this.cardData.creator.homeAddress
-      return address.city || address.region || address.country
+      let response = (address.city || address.region || "")
+      if (response !== "" && address.country !== null && address.country !== undefined) {
+        response = response + ", "
+      }
+      response = response + (address.country || "")
+      return response
     },
 
     /** Returns the image url for the card.

@@ -14,9 +14,8 @@ Page for searching users or businesses
     <div v-else>
       <br>
       <!--    Div for search tabs    -->
-      <div class="row justify-content-center">
-        <div class="col"/>
-        <div class="col-12">
+      <div class="row justify-content-center mb-3">
+        <div class="col-6">
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
               <a id="for-sale-link"
@@ -51,6 +50,7 @@ import UserSearch from "@/components/user/UserSearch";
 import BusinessSearch from "@/components/business/BusinessSearch";
 import LoginRequired from "@/components/LoginRequired";
 import PageWrapper from "@/components/PageWrapper";
+
 export default {
   name: "Search.vue",
   components: {

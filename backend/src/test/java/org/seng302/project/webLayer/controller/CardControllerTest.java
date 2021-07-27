@@ -1,36 +1,32 @@
 package org.seng302.project.webLayer.controller;
 
-import org.json.JSONObject;
+import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repositoryLayer.model.Card;
+import org.seng302.project.repositoryLayer.model.User;
 import org.seng302.project.repositoryLayer.repository.UserRepository;
 import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
 import org.seng302.project.serviceLayer.exceptions.BadRequestException;
 import org.seng302.project.serviceLayer.exceptions.NoUserExistsException;
-import org.seng302.project.serviceLayer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.serviceLayer.exceptions.card.ForbiddenCardActionException;
 import org.seng302.project.serviceLayer.exceptions.card.NoCardExistsException;
 import org.seng302.project.serviceLayer.service.CardService;
 import org.seng302.project.webLayer.authentication.AppUserDetails;
-import org.seng302.project.repositoryLayer.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -183,7 +179,7 @@ class CardControllerTest extends AbstractInitializer {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
-       mockMvc.perform(deleteCardRequest)
+        mockMvc.perform(deleteCardRequest)
                 .andExpect(MockMvcResultMatchers.status().isNotAcceptable()); // We expect a 406 response
     }
 
@@ -317,8 +313,12 @@ class CardControllerTest extends AbstractInitializer {
     @Test
     void searchCard_successful_200() throws Exception {
         Mockito.when(cardService.searchCards(
-                Mockito.any(String.class), Mockito.any(List.class), Mockito.any(Boolean.class))
-        ).thenReturn(Collections.emptyList());
+                Mockito.any(String.class),
+                Mockito.any(List.class),
+                Mockito.any(Boolean.class),
+                Mockito.any(Integer.class),
+                Mockito.any(String.class))
+        ).thenReturn(new JSONObject());
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/cards/search?section=ForSale&keywordIds=1&union=true")
@@ -334,7 +334,11 @@ class CardControllerTest extends AbstractInitializer {
     @Test
     void searchCard_badRequest_400() throws Exception {
         Mockito.when(cardService.searchCards(
-                Mockito.any(String.class), Mockito.any(List.class), Mockito.any(Boolean.class))
+                Mockito.any(String.class),
+                Mockito.any(List.class),
+                Mockito.any(Boolean.class),
+                Mockito.any(Integer.class),
+                Mockito.any(String.class))
         ).thenThrow(new BadRequestException("Test exception"));
 
         RequestBuilder request = MockMvcRequestBuilders

@@ -166,62 +166,6 @@ describe('Pagination, ordering and deletion tests', () => {
         wrapper.vm.$data.cards = [...cards]
     });
 
-    test("orderedCards computed value by created-asc", () => {
-        // const call = {cards, order: 'created-asc', ...Marketplace.methods}
-        wrapper.vm.$data.order = 'created-asc'
-
-        // Check ordering by created date ascending
-        const orderedCards = [...wrapper.vm.orderedCards]
-        expect(orderedCards[0].id)
-            .toBe(501)
-        expect(orderedCards[1].id)
-            .toBe(500)
-        expect(orderedCards[2].id)
-            .toBe(502)
-    })
-
-    test("orderedCards computed value by created-desc", () => {
-        // Mocks the 'this' state of the component
-        wrapper.vm.$data.order = 'created-desc'
-
-        // Check ordering by created date descending
-        const orderedCards = [...wrapper.vm.orderedCards]
-        expect(orderedCards[0].id)
-            .toBe(502)
-        expect(orderedCards[1].id)
-            .toBe(500)
-        expect(orderedCards[2].id)
-            .toBe(501)
-    })
-
-    test("orderedCards computed value by title", () => {
-        // Mocks the 'this' state of the component
-        wrapper.vm.$data.order = 'title'
-
-        // Check ordering by title
-        const orderedCards = [...wrapper.vm.orderedCards]
-        expect(orderedCards[0].id)
-            .toBe(500)
-        expect(orderedCards[1].id)
-            .toBe(501)
-        expect(orderedCards[2].id)
-            .toBe(502)
-    })
-
-    test("orderedCards computed value by location", () => {
-        // Mocks the 'this' state of the component
-        wrapper.vm.$data.order = 'location'
-
-        // Check ordering by location
-        const orderedCards = [...wrapper.vm.orderedCards]
-        expect(orderedCards[0].id)
-            .toBe(500)
-        expect(orderedCards[1].id)
-            .toBe(501)
-        expect(orderedCards[2].id)
-            .toBe(502)
-    })
-
     test("deleteCard method deletes the card", () => {
         // Expect the card to be there at first
         expect(wrapper.vm.$data.cards.find((a) => a.id === 502)).toBeDefined()

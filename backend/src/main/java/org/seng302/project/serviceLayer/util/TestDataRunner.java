@@ -289,7 +289,7 @@ public class TestDataRunner {
             if (testItemOptions.isPresent()) {
                 InventoryItem testItem = testItemOptions.get();
                 var testListing = new SaleListing(
-                        jsonSaleListing.getAsNumber("businessId").intValue(),
+                        businessRepository.findById(jsonSaleListing.getAsNumber("businessId").intValue()).get(),
                         testItem,
                         jsonSaleListing.getAsNumber("price").doubleValue(),
                         jsonSaleListing.getAsString("moreInfo"),
@@ -368,6 +368,13 @@ public class TestDataRunner {
                 testCard.get().setDisplayPeriodEnd(LocalDateTime.now());
                 cardRepository.save(testCard.get());
             }
+        }
+
+        Optional<User> userOp = userRepository.findById(1);
+        User user = userOp.get();
+
+        for (int i = 1; i < 20; i++) {
+            cardRepository.save(new Card(user, "Wanted", String.format("NewCard%d", i), null, null));
         }
 
         logger.info("Finished adding sample data to card repository");

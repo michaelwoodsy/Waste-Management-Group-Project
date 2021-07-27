@@ -761,28 +761,28 @@ export default {
         requestJSON.currentPassword = this.currentPassword
       }
 
-      await User.editUser(this.userId, requestJSON).then(() => {
+      await User.editUser(this.userId, requestJSON).then(async() => {
         //If email has changed (need to log in again)
         this.successfulEdit = true
         if (this.isEditingSelf && this.successfulEdit && this.oldEmail !== this.email) {
-          this.reLogIn()
+          await this.reLogIn()
         }
+        await this.addImages().then(() => {
+          this.submitError = null
+          this.submitting = false
+          this.success = true
+          //Sets the correct user data (So the name changes in the nav bar)
+          let name = `${this.firstName} ${this.lastName}`
+          if (this.isEditingSelf && this.$root.$data.user.state.actingAs.name !== name) {
+            this.$root.$data.user.state.actingAs.name = name
+          }
+          this.$root.$data.user.updateData()
+        })
       }).catch((err) => {
         this.showError(err)
         console.log(err)
         this.submitting = false
       });
-      await this.addImages().then(() => {
-        this.submitError = null
-        this.submitting = false
-        this.success = true
-        //Sets the correct user data (So the name changes in the nav bar)
-        let name = `${this.firstName} ${this.lastName}`
-        if (this.isEditingSelf && this.$root.$data.user.state.actingAs.name !== name) {
-          this.$root.$data.user.state.actingAs.name = name
-        }
-        this.$root.$data.user.updateData()
-      })
     },
 
     /**

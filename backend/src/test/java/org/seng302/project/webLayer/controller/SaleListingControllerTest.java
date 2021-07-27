@@ -4,13 +4,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repositoryLayer.model.*;
 import org.seng302.project.repositoryLayer.repository.*;
 import org.seng302.project.serviceLayer.exceptions.*;
 import org.seng302.project.serviceLayer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.webLayer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -20,19 +21,22 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class SaleListingControllerTest {
+@AutoConfigureTestDatabase
+class SaleListingControllerTest {
 
     // Test users
     private User user;
@@ -125,23 +129,8 @@ public class SaleListingControllerTest {
 
     }
 
-    @AfterEach
-    public void tearDown() {
-        saleListingRepository.deleteAll();
-        inventoryItemRepository.deleteAll();
-        if (listing != null) {
-            saleListingRepository.delete(listing);
-        }
-        inventoryItemRepository.delete(inventoryItem);
-        productRepository.delete(product);
-        businessRepository.delete(business);
-        userRepository.delete(user);
-        userRepository.delete(owner);
-        addressRepository.delete(testAddress1);
-    }
-
     @Test
-    public void checkUnauthenticatedRequest() throws Exception {
+    void checkUnauthenticatedRequest() throws Exception {
         mockMvc.perform(get("/businesses/{id}/listings", business.getId()))
                 .andExpect(status().isUnauthorized());
 
@@ -153,7 +142,7 @@ public class SaleListingControllerTest {
      * Check a user that is an administrator gets a 200.
      */
     @Test
-    public void testBusinessAdminCanAccess() throws Exception {
+    void testBusinessAdminCanAccess() throws Exception {
         mockMvc.perform(get("/businesses/{businessId}/listings", business.getId())
                 .with(httpBasic(ownerEmail, ownerPassword)))
                 .andExpect(status().isOk());
@@ -163,7 +152,7 @@ public class SaleListingControllerTest {
      * Test a non existent business returns 406 for an authenticated user.
      */
     @Test
-    public void testNonExistentBusiness() throws Exception {
+    void testNonExistentBusiness() throws Exception {
         mockMvc.perform(get("/businesses/{businessId}/listings", business.getId() + 9999)
                 .with(httpBasic(userEmail, userPassword)))
                 .andExpect(status().isNotAcceptable());
@@ -174,9 +163,10 @@ public class SaleListingControllerTest {
      * Check a user that is an administrator gets a list of sale listings returned.
      */
     @Test
-    public void testSaleListingsAreReturned() throws Exception {
+    @Transactional
+    void testSaleListingsAreReturned() throws Exception {
         // Create new sale listing
-        listing = new SaleListing(business.getId(), inventoryItem, 15.00, null,
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
                 LocalDateTime.now(), 1);
         listing = saleListingRepository.save(listing);
 
@@ -220,7 +210,7 @@ public class SaleListingControllerTest {
      * Test creating a sales listing with a not authorized user.
      */
     @Test
-    public void testCreateSalesListingNotAuthorized() throws Exception {
+    void testCreateSalesListingNotAuthorized() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
@@ -250,7 +240,7 @@ public class SaleListingControllerTest {
      * Test creating a sales listing with an invalid inventoryItemId.
      */
     @Test
-    public void testCreateSalesListingInvalidInventoryItemId() throws Exception {
+    void testCreateSalesListingInvalidInventoryItemId() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
@@ -280,7 +270,7 @@ public class SaleListingControllerTest {
      * Test creating a sales listing with no quantity.
      */
     @Test
-    public void testCreateSalesListingMissingQuantity() throws Exception {
+    void testCreateSalesListingMissingQuantity() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
@@ -310,7 +300,7 @@ public class SaleListingControllerTest {
      * Test creating a sales listing with no price.
      */
     @Test
-    public void testCreateSalesListingMissingPrice() throws Exception {
+    void testCreateSalesListingMissingPrice() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
@@ -340,7 +330,7 @@ public class SaleListingControllerTest {
      * Test creating a sales listing with to many items (not enough quantity of inventory item).
      */
     @Test
-    public void testCreateSalesListingToManyItems() throws Exception {
+    void testCreateSalesListingToManyItems() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
@@ -370,7 +360,7 @@ public class SaleListingControllerTest {
      * Test creating a sales listing.
      */
     @Test
-    public void testCreateSalesListing() throws Exception {
+    void testCreateSalesListing() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
@@ -419,5 +409,39 @@ public class SaleListingControllerTest {
 
         String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
         Assertions.assertEquals(new NotEnoughOfInventoryItemException(inventoryItem.getId(), 1, inventoryItem.getQuantity() - 1).getMessage(), returnedExceptionString);
+    }
+
+    /**
+     * Test the user must be authorised to view sale listings
+     */
+    @Test
+    void listingSearch_notLoggedIn_401() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/listings")
+                .param("searchQuery", "")
+                .param("matchingProductName", String.valueOf(false))
+                .param("matchingBusinessName", String.valueOf(false))
+                .param("matchingBusinessLocation", String.valueOf(false))
+                .param("matchingBusinessType", String.valueOf(false))
+                .param("pageNumber", String.valueOf(1))
+                .param("sortBy", ""))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Test successful retrieval of sales listings (by getting a OK response)
+     */
+    @Test
+    void listingSearch_OK_200() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/listings")
+                .param("searchQuery", "")
+                .param("matchingProductName", String.valueOf(false))
+                .param("matchingBusinessName", String.valueOf(false))
+                .param("matchingBusinessLocation", String.valueOf(false))
+                .param("matchingBusinessType", String.valueOf(false))
+                .param("pageNumber", String.valueOf(1))
+                .param("sortBy", "").with(user(new AppUserDetails(user))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
