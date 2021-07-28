@@ -1,24 +1,21 @@
 package gradle.cucumber.steps;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.seng302.project.repositoryLayer.model.Address;
-import org.seng302.project.repositoryLayer.model.Card;
-import org.seng302.project.repositoryLayer.model.Keyword;
-import org.seng302.project.repositoryLayer.model.User;
-import org.seng302.project.repositoryLayer.repository.AddressRepository;
-import org.seng302.project.repositoryLayer.repository.CardRepository;
-import org.seng302.project.repositoryLayer.repository.KeywordRepository;
-import org.seng302.project.repositoryLayer.repository.UserRepository;
-import org.seng302.project.serviceLayer.dto.card.CreateCardDTO;
-import org.seng302.project.serviceLayer.dto.card.EditCardDTO;
-import org.seng302.project.webLayer.authentication.AppUserDetails;
+import org.seng302.project.repository_layer.model.Address;
+import org.seng302.project.repository_layer.model.Card;
+import org.seng302.project.repository_layer.model.Keyword;
+import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.repository.AddressRepository;
+import org.seng302.project.repository_layer.repository.CardRepository;
+import org.seng302.project.repository_layer.repository.KeywordRepository;
+import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.service_layer.dto.card.EditCardDTO;
+import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 

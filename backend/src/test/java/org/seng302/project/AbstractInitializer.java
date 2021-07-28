@@ -1,8 +1,8 @@
 package org.seng302.project;
 
 import lombok.Data;
-import org.seng302.project.repositoryLayer.model.*;
-import org.seng302.project.webLayer.authentication.WebSecurityConfig;
+import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.web_layer.authentication.WebSecurityConfig;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
