@@ -216,13 +216,19 @@ export default {
       const keywordIds = []
       for (const keyword of this.keywords) {
         const response = await Keyword.searchKeywords(keyword)
-        if (response.data.length === 0) {
+        //Filter to see if the keyword is already in the database
+        const filterKeywords = response.data.filter(function(indKeyword) {
+          return indKeyword.name === keyword;
+        })
+        //if keyword is not in database
+        if (filterKeywords.length === 0) {
           const keywordId = (await Keyword.createKeyword(keyword)).data['keywordId']
           keywordIds.push(keywordId)
         } else {
           for (const result of response.data) {
             if (result['name'] === keyword) {
               keywordIds.push(result['id'])
+              break
             }
           }
         }

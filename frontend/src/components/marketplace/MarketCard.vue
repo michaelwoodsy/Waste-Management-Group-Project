@@ -258,7 +258,7 @@ export default {
 
     /** True if the logged in user is the creator of the card and acting as themself **/
     isCardCreator() {
-      return this.$root.$data.user.isUser(this.cardData.creator.id) || this.canDoAdminAction
+      return this.$root.$data.user.isUser(this.cardData.creator.id)
     },
 
     /** True if the logged in user is the creator of the card or an admin **/
