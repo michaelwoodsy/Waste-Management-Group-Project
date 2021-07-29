@@ -234,6 +234,11 @@ export default {
       primaryImageId: null,
     }
   },
+  watch: {
+    async id() {
+      Business.getBusinessData(this.id).then((response) => this.profile(response))
+    }
+  },
   mounted() {
     Business.getBusinessData(this.id).then((response) => this.profile(response))
   },

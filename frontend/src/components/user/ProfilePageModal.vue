@@ -269,10 +269,13 @@ export default {
       hideImages: true
     }
   },
+  watch: {
+    async id() {
+      await this.getData()
+    }
+  },
   async mounted() {
-    User.getUserData(this.id).then((response) => this.profile(response))
-    await this.getCardData();
-    this.filterCards();
+    await this.getData()
   },
   computed: {
     /**
@@ -336,6 +339,14 @@ export default {
     }
   },
   methods: {
+    /**
+     * Retrieves the data for a user
+     */
+    async getData() {
+      User.getUserData(this.id).then((response) => this.profile(response))
+      await this.getCardData();
+      this.filterCards();
+    },
     /**
      * Assigns the data from the response to the profile variables
      * @param response is the response from the server
