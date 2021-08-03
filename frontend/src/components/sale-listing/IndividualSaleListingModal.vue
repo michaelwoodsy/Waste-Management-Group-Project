@@ -36,7 +36,7 @@
         </div>
 
         <!-- Business Button -->
-        <div class="row">
+        <div class="row py-1">
           <div class="col text-center">
             <button class="btn btn-primary" @click="viewBusiness(listing)">View Business</button>
           </div>
