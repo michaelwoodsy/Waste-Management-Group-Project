@@ -3,8 +3,10 @@
     <div class="row mb-3">
       <div class="col">
         <div class="row">
-          <div class="col-12 text-center mb-2">
+          <div class="col-12 d-flex justify-content-center">
             <h2>{{ listing.inventoryItem.product.name }}</h2>
+            <em :class="{bi:true, 'bi-heart-fill':liked, 'bi-heart':!liked, heart:true}" @click="likeListing"/>
+            <h2 style="margin-left: 10px">{{ likes }}</h2>
           </div>
         </div>
 
@@ -165,7 +167,8 @@ export default {
   },
   data() {
     return {
-
+      liked: false,
+      likes: 0
     }
   },
   methods: {
@@ -202,11 +205,28 @@ export default {
      */
     formatSeller(listing) {
       return `${listing.business.name} from ${this.$root.$data.address.formatAddress(listing.business.address)}`
+    },
+
+    /**
+     * Likes the displayed listing
+     */
+    likeListing() {
+      this.liked = !this.liked
+      //TODO: Include code to like a listing here
+
+      if (this.liked) this.likes = this.likes + 1
+      else this.likes = this.likes - 1
     }
   }
 }
 </script>
 
 <style scoped>
+
+.heart {
+  color: red;
+  font-size: 30px;
+  margin-left: 20px;
+}
 
 </style>
