@@ -35,6 +35,13 @@
           </div>
         </div>
 
+        <!-- Business Button -->
+        <div class="row">
+          <div class="col text-center">
+            <button class="btn btn-primary" @click="viewBusiness(listing)">View Business</button>
+          </div>
+        </div>
+
         <!-- Product info -->
         <div class="row">
           <div class="col-6 text-right font-weight-bold">
@@ -202,7 +209,15 @@ export default {
      */
     formatSeller(listing) {
       return `${listing.business.name} from ${this.$root.$data.address.formatAddress(listing.business.address)}`
-    }
+    },
+
+    /**
+     * Lets user view the business the listing belongs to
+     * @param listing
+     */
+    viewBusiness(listing) {
+      this.$emit('viewBusiness', listing)
+    },
   }
 }
 </script>
