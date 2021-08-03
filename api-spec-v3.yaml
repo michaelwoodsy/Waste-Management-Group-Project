@@ -47,6 +47,7 @@ tags:
   - name: 'U10: Modifying Individuals'
   - name: 'U11: Modifying Businesses'
   - name: 'U29: Browse/Search Sale Listings'
+  - name: 'U30: Individual full sale listing'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -2004,6 +2005,60 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
+  '/listings/{listingId}/like':
+    patch:
+      tags:
+        - 'U30: Individual full sale listing'
+        - 'Listings / sales'
+      summary: Adds a sale listing to the user's liked sale listings
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: listingId
+          in: path
+          description: ID of the listing to like
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Request successful
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+  '/listings/{listingId}/unlike':
+    patch:
+      tags:
+        - 'U30: Individual full sale listing'
+        - 'Listings / sales'
+      summary: Removes a sale listing from the user's liked sale listings
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: listingId
+          in: path
+          description: ID of the listing to unlike
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Request successful
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
 
 
 components:
