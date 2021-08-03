@@ -231,7 +231,7 @@
             <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewBusinessModal=false">
               <span aria-hidden="true">&times;</span>
             </button>
-            <business-profile-page-modal :id="businessToView"></business-profile-page-modal>
+            <business-profile-page-modal :id="businessToViewId"></business-profile-page-modal>
           </div>
         </div>
       </div>
@@ -316,7 +316,7 @@ export default {
       listingToView: null,
       viewListingModal: false,
       viewBusinessModal: false,
-      businessToView: null,
+      businessToViewId: null,
       error: null,
 
       totalCount: 0
@@ -368,7 +368,7 @@ export default {
      * Formats the name and address of the business offering the listing
      */
     formatSeller(listing) {
-      return `${listing.business.name} from ${this.$root.$data.address.formatAddress(listing.business.address)}`
+      return `${listing.business.name} (${listing.business.businessType}) from ${this.$root.$data.address.formatAddress(listing.business.address)}`
     },
     /**
      * Toggles whether a field is selected to be searched by
@@ -506,6 +506,7 @@ export default {
      * @param listing the listing object for the modal to show
      */
     viewListing(listing) {
+      this.viewBusinessModal = false
       this.listingToView = listing
       this.viewListingModal = true
     },
@@ -516,7 +517,7 @@ export default {
      */
     viewBusiness(listing) {
       this.viewListingModal = false
-      this.businessToView = listing.business.id
+      this.businessToViewId = listing.business.id
       this.viewBusinessModal = true
     },
 
