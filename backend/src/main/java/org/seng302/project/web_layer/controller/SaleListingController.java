@@ -159,6 +159,23 @@ public class SaleListingController {
     }
 
     /**
+     * Buys a sale listing acting as the logged in user.
+     *
+     * @param listingId Sales Listing to purchase
+     * @param appUser   Logged in user to purchase the Sale Listing
+     */
+    @PostMapping("/listings/{listingId}/buy")
+    public void buySaleListing(@PathVariable int listingId, @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+            saleListingService.buySaleListing(listingId, appUser);
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while buying sale listing: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
+
+    /**
      * Gets a list of sale listings for a business.
      * @param businessId Business to get the sale listings from.
      * @param appUser The user that made the request.

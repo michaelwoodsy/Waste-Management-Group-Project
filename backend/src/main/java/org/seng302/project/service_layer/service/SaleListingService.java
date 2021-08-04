@@ -6,6 +6,7 @@ import org.seng302.project.repository_layer.specification.SaleListingSpecificati
 import org.seng302.project.service_layer.dto.saleListings.GetSalesListingDTO;
 import org.seng302.project.service_layer.dto.saleListings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
+import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -339,5 +340,18 @@ public class SaleListingService {
             }
         }
         return spec;
+    }
+
+    /**
+     * Service method to purchase a sales listing. This method:
+     * updates the sellers inventory
+     * removes the sales listing
+     * records the sale in sales history
+     *
+     * @param listingId     Sales Listing ID to purchase
+     * @param appUser       User purchasing the sales listing
+     */
+    public void buySaleListing(Integer listingId, AppUserDetails appUser) {
+        //TODO: Complete this
     }
 }
