@@ -1,0 +1,213 @@
+{
+	"info": {
+		"_postman_id": "f907a0bd-6d1a-495a-8978-869b3d857795",
+		"name": "U30 Individual Full Sale Listing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "200 Like Listing",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings/1/like",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings",
+						"1",
+						"like"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "200 Unlike Listing",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings/1/unlike",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings",
+						"1",
+						"unlike"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "400 Like Listing",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings/null/like",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings",
+						"null",
+						"like"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "400 Unlike Listing",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings/null/unlike",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings",
+						"null",
+						"unlike"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "406 Like Listing",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(406);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings/-1/like",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings",
+						"-1",
+						"like"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "406 Unlike Listing",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(406);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings/-1/unlike",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings",
+						"-1",
+						"unlike"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
