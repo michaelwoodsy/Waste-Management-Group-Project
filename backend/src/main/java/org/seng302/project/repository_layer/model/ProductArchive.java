@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 
 /**
@@ -15,21 +14,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ProductArchive {
 
-    private String id;
+    private String productId;
     private String name;
     private String description;
     private String manufacturer;
     private Double recommendedRetailPrice;
-    private LocalDateTime created;
     private String currencyCountry;
 
     public ProductArchive(Product product) {
-        this.id = product.getId();
+        this.productId = product.getId();
         this.name = product.getName();
         this.description = product.getDescription();
         this.manufacturer = product.getManufacturer();
         this.recommendedRetailPrice = product.getRecommendedRetailPrice();
-        this.created = product.getCreated();
         this.currencyCountry = product.getCurrencyCountry();
     }
 

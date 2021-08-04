@@ -14,7 +14,7 @@ import javax.persistence.Embedded;
 @NoArgsConstructor
 public class InventoryItemArchive {
 
-    private Integer id;
+    private Integer inventoryItemId;
     @Embedded
     private ProductArchive product;
     private Double pricePerItem;
@@ -24,7 +24,7 @@ public class InventoryItemArchive {
     private String expires;
 
     public InventoryItemArchive(InventoryItem item) {
-        this.id = item.getId();
+        this.inventoryItemId = item.getId();
         this.product = new ProductArchive(item.getProduct());
         this.pricePerItem = item.getPricePerItem();
         this.manufactured = item.getManufactured();

@@ -15,7 +15,8 @@ import java.time.LocalDateTime;
 public class Sale {
 
     @Id
-    private Integer id;  // Same as the sale listing id that was sold
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer saleId;
     @ManyToOne
     @JoinColumn(name = "business_id")
     private Business business;
@@ -29,7 +30,6 @@ public class Sale {
     private Integer quantity;
 
     public Sale(SaleListing saleListing) {
-        this.id = saleListing.getId();
         this.business = saleListing.getBusiness();
         this.inventoryItem = new InventoryItemArchive(saleListing.getInventoryItem());
         this.price = saleListing.getPrice();
