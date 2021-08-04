@@ -1,11 +1,13 @@
 package org.seng302.project.service_layer.service;
 
+import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.repository_layer.model.SaleListing;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
 import org.seng302.project.service_layer.dto.saleListings.GetSalesListingDTO;
 import org.seng302.project.service_layer.dto.saleListings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +37,22 @@ public class SaleListingService {
     private static final String QUOTE_REGEX = "^\".*\"$";
 
     private final SaleListingRepository saleListingRepository;
+    private final SaleHistoryRepository saleHistoryRepository;
+    private final InventoryItemRepository inventoryItemRepository;
+    private final UserRepository userRepository;
+    private final UserNotificationRepository userNotificationRepository;
 
     @Autowired
-    public SaleListingService(SaleListingRepository saleListingRepository) {
+    public SaleListingService(SaleListingRepository saleListingRepository,
+                              SaleHistoryRepository saleHistoryRepository,
+                              InventoryItemRepository inventoryItemRepository,
+                              UserRepository userRepository,
+                              UserNotificationRepository userNotificationRepository) {
         this.saleListingRepository = saleListingRepository;
+        this.saleHistoryRepository = saleHistoryRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
+        this.userRepository = userRepository;
+        this.userNotificationRepository = userNotificationRepository;
     }
 
 
@@ -352,6 +366,40 @@ public class SaleListingService {
      * @param appUser       User purchasing the sales listing
      */
     public void buySaleListing(Integer listingId, AppUserDetails appUser) {
-        //TODO: Complete this
+        var user = userRepository.findByEmail(appUser.getUsername()).get(0);
+        var listingOptional = saleListingRepository.findById(listingId);
+        if (listingOptional.isEmpty()) {
+            throw new NotAcceptableException("Sales Listing does not exist");
+        }
+        var listing = listingOptional.get();
+
+        //Record the sale
+        var sale = new Sale(listing);
+        saleHistoryRepository.save(sale);
+
+        //Updating the inventory items quantity
+        var inventoryItem = listing.getInventoryItem();
+        inventoryItem.setQuantity(inventoryItem.getQuantity() - listing.getQuantity());
+
+        //Remove the inventory item if the quantity is 0
+        if (inventoryItem.getQuantity() <= 0) {
+            //Check if sale listings exist for current inventory item wanting to be deleted (there shouldn't be..)
+            var saleListings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(
+                    listing.getBusiness().getId(), inventoryItem.getId());
+            for (var saleListing: saleListings) {
+                //TODO: remove users likes on sale listing
+                saleListingRepository.delete(saleListing);
+            }
+        }
+
+
+        inventoryItemRepository.save(inventoryItem);
+
+        //TODO: remove users likes on sale listing
+        //TODO: Send notification to users who liked the sales listing
+
+
+        //Remove the sales listing
+        saleListingRepository.delete(listing);
     }
 }

@@ -168,6 +168,9 @@ public class SaleListingController {
     public void buySaleListing(@PathVariable int listingId, @AuthenticationPrincipal AppUserDetails appUser) {
         try {
             saleListingService.buySaleListing(listingId, appUser);
+        } catch (NotAcceptableException handledException) {
+            logger.error(handledException.getMessage());
+            throw handledException;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while buying sale listing: %s",
                     unhandledException.getMessage()));

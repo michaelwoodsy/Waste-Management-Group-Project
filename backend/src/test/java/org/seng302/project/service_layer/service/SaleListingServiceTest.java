@@ -22,6 +22,9 @@ class SaleListingServiceTest {
     private final ProductRepository productRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
+    private final SaleHistoryRepository saleHistoryRepository;
+    private final UserRepository userRepository;
+    private final UserNotificationRepository userNotificationRepository;
     private final SaleListingService saleListingService;
 
     Integer business1Id;
@@ -32,13 +35,24 @@ class SaleListingServiceTest {
                            AddressRepository addressRepository,
                            ProductRepository productRepository,
                            InventoryItemRepository inventoryItemRepository,
-                           SaleListingRepository saleListingRepository) {
+                           SaleListingRepository saleListingRepository,
+                           SaleHistoryRepository saleHistoryRepository,
+                           UserRepository userRepository,
+                           UserNotificationRepository userNotificationRepository) {
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
-        this.saleListingService = new SaleListingService(this.saleListingRepository);
+        this.saleHistoryRepository = saleHistoryRepository;
+        this.userRepository = userRepository;
+        this.userNotificationRepository = userNotificationRepository;
+        this.saleListingService = new SaleListingService(
+                this.saleListingRepository,
+                this.saleHistoryRepository,
+                this.inventoryItemRepository,
+                this.userRepository,
+                this.userNotificationRepository);
     }
 
     /**
