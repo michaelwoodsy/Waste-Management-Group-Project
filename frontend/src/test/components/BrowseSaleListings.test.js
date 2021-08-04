@@ -102,8 +102,6 @@ describe("Tests for the BrowseSaleListings price range", () => {
 
 })
 
-
-
 describe("Tests for the BrowseSaleListings closing date range", () => {
 
     test("Entering a closing date lower bound in the past gives an error", async () => {
@@ -177,3 +175,104 @@ describe("Tests for the BrowseSaleListings closing date range", () => {
             .toBeNull()
     })
 })
+
+describe("tests the browse sale listing methods", () => {
+    beforeEach(() => {
+        wrapper.vm.$data.listings = [
+            {
+                "id": 57,
+                "inventoryItem": {
+                    "id": 101,
+                    "product": {
+                        "id": "WATT-420-BEANS",
+                        "name": "Watties Baked Beans - 420g can",
+                        "description": "Baked Beans as they should be.",
+                        "manufacturer": "Heinz Wattie's Limited",
+                        "recommendedRetailPrice": 2.2,
+                        "created": "2021-08-04T05:36:43.910Z",
+                        "images": [
+                            {
+                                "id": 1234,
+                                "filename": "/media/images/23987192387509-123908794328.png",
+                                "thumbnailFilename": "/media/images/23987192387509-123908794328_thumbnail.png"
+                            }
+                        ],
+                        "currencyCountry": "string"
+                    },
+                    "quantity": 4,
+                    "pricePerItem": 6.5,
+                    "totalPrice": 21.99,
+                    "manufactured": "2021-08-04",
+                    "sellBy": "2021-08-04",
+                    "bestBefore": "2021-08-04",
+                    "expires": "2021-08-04"
+                },
+                "quantity": 3,
+                "price": 17.99,
+                "moreInfo": "Seller may be willing to consider near offers",
+                "created": "2021-07-14T11:44:00Z",
+                "closes": "2021-07-21T23:59:00Z",
+                "business": {
+                    "id": 100,
+                    "administrators": [
+                        {
+                            "id": 100,
+                            "firstName": "John",
+                            "lastName": "Smith",
+                            "middleName": "Hector",
+                            "nickname": "Jonny",
+                            "bio": "Likes long walks on the beach",
+                            "email": "johnsmith99@gmail.com",
+                            "dateOfBirth": "1999-04-27",
+                            "phoneNumber": "+64 3 555 0129",
+                            "homeAddress": {
+                                "streetNumber": "3/24",
+                                "streetName": "Ilam Road",
+                                "suburb": "Upper Riccarton",
+                                "city": "Christchurch",
+                                "region": "Canterbury",
+                                "country": "New Zealand",
+                                "postcode": "90210"
+                            },
+                            "created": "2020-07-14T14:32:00Z",
+                            "role": "user",
+                            "businessesAdministered": [
+                                "string"
+                            ]
+                        }
+                    ],
+                    "primaryAdministratorId": 20,
+                    "name": "Lumbridge General Store",
+                    "description": "A one-stop shop for all your adventuring needs",
+                    "address": {
+                        "streetNumber": "3/24",
+                        "streetName": "Ilam Road",
+                        "suburb": "Upper Riccarton",
+                        "city": "Christchurch",
+                        "region": "Canterbury",
+                        "country": "New Zealand",
+                        "postcode": "90210"
+                    },
+                    "businessType": "Accommodation and Food Services",
+                    "created": "2020-07-14T14:52:00Z"
+                }
+            }
+        ]
+    })
+    test("tests that the sale listing to be viewed is saved", async () => {
+        const listing = wrapper.vm.$data.listings[0]
+        wrapper.vm.viewListing(listing)
+        expect(wrapper.vm.$data.viewListingModal).toBeTruthy()
+        expect(wrapper.vm.$data.viewBusinessModal).toBeFalsy()
+        expect(wrapper.vm.$data.listingToView).toStrictEqual(listing)
+    })
+
+    test("tests that the business to be viewed is saved", async () => {
+        const listing = wrapper.vm.$data.listings[0]
+        wrapper.vm.viewBusiness(listing)
+        expect(wrapper.vm.$data.viewListingModal).toBeFalsy()
+        expect(wrapper.vm.$data.viewBusinessModal).toBeTruthy()
+        expect(wrapper.vm.$data.businessToViewId).toStrictEqual(listing.business.id)
+    })
+})
+
