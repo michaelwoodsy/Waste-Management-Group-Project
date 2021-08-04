@@ -267,12 +267,24 @@ describe("tests the browse sale listing methods", () => {
         expect(wrapper.vm.$data.listingToView).toStrictEqual(listing)
     })
 
+    test("tests that the sale listing modal appears", async () => {
+        const listing = wrapper.vm.$data.listings[0]
+        wrapper.vm.viewListing(listing)
+        expect(wrapper.find("#viewListingModal")).toBeTruthy()
+    })
+
     test("tests that the business to be viewed is saved", async () => {
         const listing = wrapper.vm.$data.listings[0]
         wrapper.vm.viewBusiness(listing)
         expect(wrapper.vm.$data.viewListingModal).toBeFalsy()
         expect(wrapper.vm.$data.viewBusinessModal).toBeTruthy()
         expect(wrapper.vm.$data.businessToViewId).toStrictEqual(listing.business.id)
+    })
+
+    test("tests that the view business modal appears", async () => {
+        const listing = wrapper.vm.$data.listings[0]
+        wrapper.vm.viewBusiness(listing)
+        expect(wrapper.find("#viewBusinessModal")).toBeTruthy()
     })
 })
 
