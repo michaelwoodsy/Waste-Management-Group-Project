@@ -4,7 +4,7 @@
       <div class="col">
         <div class="row">
           <div class="col-12 d-flex justify-content-center">
-            <h2>{{ listing.inventoryItem.product.name }}</h2>
+            <h2><strong>{{ listing.inventoryItem.product.name }}</strong></h2>
             <em :class="{bi:true, 'bi-heart-fill':liked, 'bi-heart':!liked, heart:true}" @click="likeListing"/>
             <h2 style="margin-left: 10px">{{ likes }}</h2>
           </div>
@@ -167,7 +167,9 @@ export default {
   },
   data() {
     return {
+      //TODO: Set liked status based on user viewing
       liked: false,
+      //TODO: Set number of likes based on product
       likes: 0
     }
   },
@@ -212,7 +214,7 @@ export default {
      */
     likeListing() {
       this.liked = !this.liked
-      //TODO: Include code to like a listing here
+      //TODO: Include code to like a listing here (Call backend)
 
       if (this.liked) this.likes = this.likes + 1
       else this.likes = this.likes - 1
