@@ -1,4 +1,4 @@
-package org.seng302.project.service_layer.dto.saleListings;
+package org.seng302.project.service_layer.dto.sale_listings;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
