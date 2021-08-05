@@ -59,6 +59,7 @@
           <h1><span v-if="user.isActingAsUser()">Hello </span>{{ user.actor().name }}</h1>
           <hr>
         </div>
+
         <!-- Cards Section -->
         <div v-if="user.isActingAsUser()">
           <h2>My Cards</h2>
@@ -81,6 +82,16 @@
               <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
                            @card-deleted="deleteCard" @card-extended="extendCard"
                            @refresh-cards="getCardData"></market-card>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liked Listing Section -->
+        <div v-if="user.isActingAsUser()">
+          <h2>My Liked Listings</h2>
+          <div class="row row-cols-1 row-cols-lg-3">
+            <div v-for="listing in likedListings" v-bind:key="listing.id" class="col">
+              <liked-listing :listing-data="listing"></liked-listing>
             </div>
           </div>
         </div>
@@ -151,14 +162,16 @@ import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/marketplace/MarketCard";
 import Alert from "@/components/Alert";
 import Notification from "@/components/Notification";
-import {User} from "@/Api";
+import {Business, User} from "@/Api";
 import userState from "@/store/modules/user"
 import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
+import LikedListing from "@/components/sale-listing/LikedListing";
 
 export default {
   name: "Home",
   components: {
+    LikedListing,
     Message,
     Alert,
     LoginRequired,
@@ -177,6 +190,48 @@ export default {
     return {
       user: userState,
       cards: [],
+      likedListings: [
+        {
+          "businessId": 1,
+          "inventoryItemId": 1,
+          "quantity": 2,
+          "price": 6.98,
+          "moreInfo": "Seller may be willing to consider near offers",
+          "closes": "2021-07-21T23:59:00Z"
+        },
+        {
+          "businessId": 1,
+          "inventoryItemId": 2,
+          "quantity": 3,
+          "price": 6.50,
+          "moreInfo": "Seller may be willing to consider near offers",
+          "closes": "2021-08-21T23:59:00Z"
+        },
+        {
+          "businessId": 2,
+          "inventoryItemId": 5,
+          "quantity": 4,
+          "price": 15.00,
+          "moreInfo": null,
+          "closes": "2021-08-21T23:59:00Z"
+        },
+        {
+          "businessId": 2,
+          "inventoryItemId": 5,
+          "quantity": 4,
+          "price": 15.00,
+          "moreInfo": null,
+          "closes": "2021-08-21T23:59:00Z"
+        },
+        {
+          "businessId": 3,
+          "inventoryItemId": 9,
+          "quantity": 4,
+          "price": 10.00,
+          "moreInfo": null,
+          "closes": "2021-08-21T23:59:00Z"
+        }
+      ],
       hideImages: true,
       notificationsShown: true,
       //Test data
@@ -261,6 +316,7 @@ export default {
       if (this.actingAs.type === "user") {
         await this.getCardData()
         await this.getNotificationData()
+        await this.getLikedListings()
         if (this.user.canDoAdminAction()) {
           await this.getAdminNotifications();
         }
@@ -302,6 +358,33 @@ export default {
         console.error(error)
         this.error = error
       }
+    },
+
+    /**
+     * Gets the user's liked listings
+     */
+    async getLikedListings() {
+      //TODO: Update this to proper API call once backend sorted
+      await Business.searchSaleListings(
+          "",
+          false,
+          false,
+          false,
+          false,
+          null,
+          null,
+          null,
+          null,
+          0,
+          "bestMatch")
+          .then(async (res) => {
+            this.likedListings = res.data[0]
+            this.likedListings = await this.$root.$data.product.addSaleListingCurrencies(this.likedListings)
+            this.error = null
+          })
+          .catch((err) => {
+            this.error = err;
+          })
     },
 
     /**

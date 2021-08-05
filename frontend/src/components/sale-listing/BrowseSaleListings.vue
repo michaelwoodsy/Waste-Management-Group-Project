@@ -512,12 +512,6 @@ export default {
           this.orderBy)
           .then(async (res) => {
             this.listings = res.data[0]
-            // this.listings = await Promise.all(this.listings.map(async (listing) => {
-            //   const businessResponse = await Business.getBusinessData(listing.businessId)
-            //   listing.sellerName = businessResponse.data.name
-            //   listing.sellerAddress = businessResponse.data.address
-            //   return listing
-            // }))
             this.listings = await this.$root.$data.product.addSaleListingCurrencies(this.listings)
             this.totalCount = res.data[1]
             this.error = null
