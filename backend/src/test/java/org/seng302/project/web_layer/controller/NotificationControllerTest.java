@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -266,5 +267,18 @@ class NotificationControllerTest extends AbstractInitializer {
                 .with(user(new AppUserDetails(testSystemAdmin)));
 
         mockMvc.perform(request).andExpect(status().isNotAcceptable());
+    }
+
+
+
+    /**
+     * Testing the /users/{userId}/notifications endpoint can handle PurchaserNotification objects.
+     */
+    @Test
+    void getAllNotificationsByUser_purchaserNotification_ValidRequest200() throws Exception {
+        when(notificationService.getUserNotifications(any(), any())).thenReturn(List.of(new PurchaserNotification()));
+        mockMvc.perform(get("/users/{userId}/notifications", testUser.getId())
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isOk());
     }
 }
