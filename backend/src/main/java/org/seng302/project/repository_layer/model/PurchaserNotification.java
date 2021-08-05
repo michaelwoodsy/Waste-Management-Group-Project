@@ -4,8 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.*;
 
 /**
  * Notification for the buyer of a sale listing.
@@ -18,24 +17,24 @@ import javax.persistence.PrimaryKeyJoinColumn;
 public class PurchaserNotification extends UserNotification {
 
     static final String MESSAGE_TEMPLATE = "You have bought %d %s";
-    // The price and currency country so the frontend can work out the currency
+    // The price and currency country needed so the frontend can work out the currency
     private Double price;
     private String currencyCountry;
-    private Address businessAddress;
+    private Address address;
 
-    public PurchaserNotification(User user, SaleListing saleListing, Address businessAddress) {
-        super();
+    public PurchaserNotification(User user, SaleListing saleListing, Address address) {
+        super( );
         var product = saleListing.getInventoryItem().getProduct();
         this.setType("purchase");
         this.setUser(user);
         this.setMessage(createMessage(saleListing, product));
 
         this.price = saleListing.getPrice();
-        this.businessAddress = businessAddress;
+        this.address = address;
         // Either the currency country on the product or the business country
         this.currencyCountry = product.getCurrencyCountry();
         if (this.currencyCountry == null) {
-            this.currencyCountry = businessAddress.getCountry();
+            this.currencyCountry = address.getCountry();
         }
     }
 
@@ -47,6 +46,12 @@ public class PurchaserNotification extends UserNotification {
      */
     private String createMessage(SaleListing saleListing, Product product) {
         return String.format(MESSAGE_TEMPLATE, saleListing.getQuantity(), product.getName());
+    }
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "address_id")
+    public Address getAddress() {
+        return this.address;
     }
 
 }
