@@ -55,6 +55,12 @@
           </div>
         </div>
 
+        <!-- Business Button -->
+        <div class="row py-1">
+          <div class="col text-center">
+            <button class="btn btn-primary" @click="viewBusiness(listing)">View Business</button>
+          </div>
+        </div>
 
         <!-- Product info -->
         <div class="row">
@@ -226,7 +232,7 @@ export default {
      * Formats the name and address of the business offering the listing
      */
     formatSeller(listing) {
-      return `${listing.business.name} from ${this.$root.$data.address.formatAddress(listing.business.address)}`
+      return `${listing.business.name} (${listing.business.businessType}) from ${this.$root.$data.address.formatAddress(listing.business.address)}`
     },
 
     /**
@@ -246,7 +252,16 @@ export default {
     buy() {
       this.buyClicked = true
 
-    }
+    },
+
+    /**
+     * Lets user view the business the listing belongs to
+     * @param listing
+     */
+    viewBusiness(listing) {
+      this.$emit('viewBusiness', listing)
+    },
+
   }
 }
 </script>

@@ -3,7 +3,7 @@
 
     <login-required
         v-if="!isLoggedIn"
-        page="view a users profile page"
+        page="view a user's profile page"
     />
 
     <div v-else>
