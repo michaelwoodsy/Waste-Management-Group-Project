@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class SaleListing {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
+    @GeneratedValue(strategy = GenerationType.SEQUENCE) // autoincrement the ID
     @Column(name = "listing_id")
     private Integer id;
 
