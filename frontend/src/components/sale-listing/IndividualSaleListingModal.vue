@@ -37,6 +37,25 @@
           </div>
         </div>
 
+        <!-- Buy button -->
+        <div class="row">
+          <div class="col-12 d-flex justify-content-center">
+            <button id="buyButton"
+                    class="btn btn-primary m-3 buy-button"
+                    v-if="!buyClicked"
+                    @click="buy"
+            >
+              Buy
+            </button>
+            <button v-else
+                    class="btn btn-secondary m-3 buy-button"
+            >
+              Bought
+            </button>
+          </div>
+        </div>
+
+
         <!-- Product info -->
         <div class="row">
           <div class="col-6 text-right font-weight-bold">
@@ -170,7 +189,8 @@ export default {
       //TODO: Set liked status based on user viewing
       liked: false,
       //TODO: Set number of likes based on product
-      likes: 0
+      likes: 0,
+      buyClicked: false
     }
   },
   methods: {
@@ -218,6 +238,14 @@ export default {
 
       if (this.liked) this.likes = this.likes + 1
       else this.likes = this.likes - 1
+    },
+
+    /**
+     * Buy the listing
+     */
+    buy() {
+      this.buyClicked = true
+
     }
   }
 }
@@ -229,6 +257,10 @@ export default {
   color: red;
   font-size: 30px;
   margin-left: 20px;
+}
+
+.buy-button {
+  width: 150px;
 }
 
 </style>
