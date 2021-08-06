@@ -1,11 +1,18 @@
 package org.seng302.project.service_layer.service;
 
+import org.seng302.project.repository_layer.model.Business;
+import org.seng302.project.repository_layer.model.InventoryItem;
 import org.seng302.project.repository_layer.model.SaleListing;
+import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
+import org.seng302.project.service_layer.dto.saleListings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
-import org.seng302.project.service_layer.exceptions.InvalidDateException;
+import org.seng302.project.service_layer.exceptions.*;
+import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
+import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +27,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -34,11 +44,216 @@ public class SaleListingService {
     private static final String QUOTE_REGEX = "^\".*\"$";
 
     private final SaleListingRepository saleListingRepository;
+    private final BusinessRepository businessRepository;
+    private final UserRepository userRepository;
+    private final InventoryItemRepository inventoryItemRepository;
 
     @Autowired
-    public SaleListingService(SaleListingRepository saleListingRepository) {
+    public SaleListingService(SaleListingRepository saleListingRepository,
+                              BusinessRepository businessRepository,
+                              UserRepository userRepository,
+                              InventoryItemRepository inventoryItemRepository) {
         this.saleListingRepository = saleListingRepository;
+        this.businessRepository = businessRepository;
+        this.userRepository = userRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
     }
+
+
+    /**
+     * Returns the current logged in user that made the request.
+     * @param appUser The AppUserDetails object passed in from the authentication principle.
+     * @return User: the user that made the request.
+     */
+    private User getLoggedInUser(AppUserDetails appUser) {
+        String userEmail = appUser.getUsername();
+        return userRepository.findByEmail(userEmail).get(0);
+    }
+
+    /**
+     * Gets a business with the provided id.
+     * @param businessId The id of the business to look for.
+     * @return The business with the corresponding id.
+     * @throws BusinessNotFoundException Thrown if the business doesn't exist.
+     */
+    private Business getBusiness(Integer businessId) throws BusinessNotFoundException {
+        // Get business from repository
+        Optional<Business> foundBusiness = businessRepository.findById(businessId);
+
+        // Check if the business exists
+        if (foundBusiness.isEmpty()) {
+            BusinessNotFoundException exception = new BusinessNotFoundException(businessId);
+            logger.warn(exception.getMessage());
+            throw exception;
+        }
+
+        // Return the found business
+        return foundBusiness.get();
+    }
+
+    /**
+     * Checks if the user is the owner or administrator of the business. Throws an exception if they aren't
+     * @param user The user to check.
+     * @param business The business to check.
+     * @throws ForbiddenAdministratorActionException Thrown if the user isn't and owner or admin of the business.
+     */
+    private void checkUserIsAdminOfBusiness(User user, Business business) throws ForbiddenAdministratorActionException {
+        // Check if the logged in user is the business owner / administrator or a GAA
+        if (!(business.userIsAdmin(user.getId()) ||
+                business.getPrimaryAdministratorId().equals(user.getId())) && !user.isGAA()) {
+            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(business.getId());
+            logger.warn(exception.getMessage());
+            throw exception;
+        }
+    }
+
+    /**
+     * Gets a list of sale listings for a business.
+     * @param businessId Business to get the sale listings from.
+     * @param appUser The user that made the request.
+     * @return List of sale listings.
+     */
+    public List<GetSaleListingDTO> getBusinessListings(Integer businessId, AppUserDetails appUser) {
+        try {
+            // Get the user that made the request
+            User user = getLoggedInUser(appUser);
+
+            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId );
+
+            // To check the business exists
+            getBusiness(businessId);
+
+            // Get the sale listings of the business
+            List<SaleListing> listings = saleListingRepository.findAllByBusinessId(businessId);
+            return listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList());
+
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException exception) {
+            throw exception;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while getting business sale listings: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
+
+    /**
+     * Converts date from string to LocalDateTime
+     * and checks it's a valid closing date
+     * @param closesDateString the closing date in string format
+     * @return the closing date in LocalDateTime format
+     */
+    private LocalDateTime getClosesDateTime(String closesDateString, InventoryItem item) {
+        LocalDateTime closesDateTime;
+        try {
+            if (closesDateString != null && !closesDateString.equals("")) {
+                closesDateTime = LocalDateTime.parse(closesDateString, DateTimeFormatter.ISO_DATE_TIME);
+
+                //Check if closes date is in the past
+                if ((LocalDateTime.now()).isAfter(closesDateTime)) {
+                    InvalidClosesDateException exception = new InvalidClosesDateException();
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
+            } else {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                Date expiryDate = formatter.parse(item.getExpires());
+                closesDateTime = expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            }
+        } catch (DateTimeParseException | ParseException parseException) {
+            InvalidDateException invalidDateException = new InvalidDateException();
+            logger.warn(invalidDateException.getMessage());
+            throw invalidDateException;
+        } catch (InvalidClosesDateException handledException) {
+            throw handledException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
+            throw exception;
+        }
+        return closesDateTime;
+
+    }
+
+
+    /**
+     * Adds a new sale listing to a business.
+     * @param requestDTO DTO containing fields for the new sale listing
+     * @param businessId Business to get the sale listings from.
+     * @param appUser The user that made the request.
+     */
+    public void newBusinessListing(PostSaleListingDTO requestDTO, Integer businessId, AppUserDetails appUser) {
+        try {
+
+            // Get the user that made the request
+            User user = getLoggedInUser(appUser);
+
+            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
+
+            // Get the business of the request
+            Business business = getBusiness(businessId);
+
+            // Check the user is an admin of the business
+            checkUserIsAdminOfBusiness(user, business);
+
+            Integer inventoryItemId = requestDTO.getInventoryItemId();
+            //Check if inventory item exists in businesses inventory items
+            Optional<InventoryItem> retrievedItemOptions = inventoryItemRepository.findById(inventoryItemId);
+            if (retrievedItemOptions.isEmpty()) {
+                BadRequestException exception = new BadRequestException(String.format(
+                        "No inventory item with id %d exists in business with id %d.",
+                        inventoryItemId, businessId));
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+            InventoryItem item = retrievedItemOptions.get();
+
+
+            Integer quantity = requestDTO.getQuantity();
+            List<SaleListing> listings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(businessId, inventoryItemId);
+
+            //Calculates the quantity used of this Inventory item in other sales listings, if any
+            Integer quantityUsed = 0;
+            for(SaleListing listing: listings) {
+                quantityUsed += listing.getQuantity();
+            }
+            //Check if there is enough of the inventory item
+            if (quantity > (item.getQuantity() - quantityUsed)) {
+                NotEnoughOfInventoryItemException exception = new NotEnoughOfInventoryItemException(inventoryItemId, item.getQuantity() - quantityUsed, quantityUsed);
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+
+            //Price
+            Double price = requestDTO.getPrice();
+
+            //More Info
+            String moreInfo = requestDTO.getMoreInfo();
+
+            //Closes
+            //Closes string should be in the format: "yyyy-mm-ddThh:mm:ss.sssZ", e.g: "2021-05-29T04:34:55.931Z"
+            String closesDateString = requestDTO.getCloses();
+
+            LocalDateTime closesDateTime = getClosesDateTime(closesDateString, item);
+
+
+            SaleListing saleListing = new SaleListing(business, item, price, moreInfo, closesDateTime, quantity);
+            saleListingRepository.save(saleListing);
+
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException | NotEnoughOfInventoryItemException |
+                BadRequestException |
+                InvalidQuantityException | InvalidPriceException |
+                InvalidClosesDateException | InvalidDateException exception) {
+            throw exception;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while adding sales listing: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
+
+
+
+
+
 
 
     /**

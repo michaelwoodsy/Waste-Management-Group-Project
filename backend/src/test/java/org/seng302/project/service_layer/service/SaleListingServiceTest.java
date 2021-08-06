@@ -17,6 +17,7 @@ import java.util.List;
 @DataJpaTest
 class SaleListingServiceTest {
 
+    private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
     private final AddressRepository addressRepository;
     private final ProductRepository productRepository;
@@ -24,21 +25,26 @@ class SaleListingServiceTest {
     private final SaleListingRepository saleListingRepository;
     private final SaleListingService saleListingService;
 
+
     Integer business1Id;
     Integer business2Id;
 
     @Autowired
-    SaleListingServiceTest(BusinessRepository businessRepository,
+    SaleListingServiceTest(UserRepository userRepository,
+                           BusinessRepository businessRepository,
                            AddressRepository addressRepository,
                            ProductRepository productRepository,
                            InventoryItemRepository inventoryItemRepository,
                            SaleListingRepository saleListingRepository) {
+        this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
-        this.saleListingService = new SaleListingService(this.saleListingRepository);
+        this.saleListingService = new SaleListingService(
+                this.saleListingRepository, this.businessRepository,
+                this.userRepository, this.inventoryItemRepository);
     }
 
     /**
