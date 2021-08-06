@@ -302,13 +302,13 @@ public class TestDataRunner {
                 );
                 saleListingRepository.save(testListing);
                 if (testListing.getId() == 1) {
-                    var user = userRepository.findById(0);
+                    var user = userRepository.findById(1);
                     user.ifPresent(value -> likedSaleListingRepository.save(new LikedSaleListing(value, testListing, false, null)));
 
-                    var user2 = userRepository.findById(1);
+                    var user2 = userRepository.findById(2);
                     user2.ifPresent(value -> likedSaleListingRepository.save(new LikedSaleListing(value, testListing, false, null)));
 
-                    var user3 = userRepository.findById(2);
+                    var user3 = userRepository.findById(3);
                     user3.ifPresent(value -> likedSaleListingRepository.save(new LikedSaleListing(value, testListing, true, null)));
                 }
             }

@@ -1,8 +1,6 @@
 package org.seng302.project.service_layer.service;
 
-import org.seng302.project.repository_layer.model.LikedSaleListing;
-import org.seng302.project.repository_layer.model.Sale;
-import org.seng302.project.repository_layer.model.SaleListing;
+import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
@@ -370,12 +368,25 @@ public class SaleListingService {
      * @param appUser       User purchasing the sales listing
      */
     public void buySaleListing(Integer listingId, AppUserDetails appUser) {
-        var user = userRepository.findByEmail(appUser.getUsername()).get(0);
+        var buyer = userRepository.findByEmail(appUser.getUsername()).get(0);
+        //System.out.println(buyer.getLikedSaleListings());
+        var likes1 = likedSaleListingRepository.findAll();
+        for (var like: likes1) {
+            System.out.println(like.getUser().getFirstName());
+            System.out.println(like.getListing().getInventoryItem().getProduct().getName());
+        }
+
         var listingOptional = saleListingRepository.findById(listingId);
         if (listingOptional.isEmpty()) {
             throw new NotAcceptableException("Sales Listing does not exist");
         }
         var listing = listingOptional.get();
+
+        logger.info("User with ID: {} Request to buy Sale Listing with ID: {}", buyer.getId(), listing.getId());
+
+        //Send notification to buyer
+        var purchaseNotification = new PurchaserNotification(buyer, listing, listing.getBusiness());
+        userNotificationRepository.save(purchaseNotification);
 
         //Record the sale
         var sale = new Sale(listing);
@@ -400,14 +411,30 @@ public class SaleListingService {
         }
         inventoryItemRepository.save(inventoryItem);
 
+        //Send notifications to the users who liked the listing saying it was brought
         List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(listing);
         for (var like: likes) {
-            //TODO: Send notification
+            //Make sure not to send this notification to the buyer
+            if (!like.getUser().getId().equals(buyer.getId())) {
+                var interestedUserNotification = new InterestedUserNotification(like.getUser(), like.getListing());
+                userNotificationRepository.save(interestedUserNotification);
+            }
             likedSaleListingRepository.delete(like);
         }
 
-
         //Remove the sales listing
         saleListingRepository.delete(listing);
+
+        System.out.println("----------------------------------------SOLD----------------------------------------");
+
+        var listings = saleListingRepository.findAll();
+        for (var list: listings) {
+            System.out.println(list.getInventoryItem().getProduct().getName());
+        }
+
+        var notifications = userNotificationRepository.findAll();
+        for (var notification: notifications) {
+            System.out.println(notification.getMessage());
+        }
     }
 }
