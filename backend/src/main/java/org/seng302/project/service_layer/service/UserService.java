@@ -72,28 +72,29 @@ public class UserService {
         searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
         String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
 
-        Specification<User> hasSpec = Specification.where(null);
-        Specification<User> containsSpec = Specification.where(null);
+        Specification<User> spec = null;
 
         for (String conjunction : conjunctions) {
-            Specification<User> newHasSpec = Specification.where(null);
-            Specification<User> newContainsSpec = Specification.where(null);
+            Specification<User> newSpec = Specification.where(null);
+
             String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
             // Iterate over the names in the search and check if they are quoted
             for (String name : names) {
                 if (Pattern.matches("^\".*\"$", name)) {
                     name = name.replace("\"", "");
-                    newHasSpec = newHasSpec.and(UserSpecifications.hasName(name));
+                    newSpec = newSpec.and(UserSpecifications.hasName(name));
                 } else {
-                    newHasSpec = newHasSpec.and(UserSpecifications.hasName(name));
-                    newContainsSpec = newContainsSpec.and(UserSpecifications.containsName(name));
+                    newSpec = newSpec.and(UserSpecifications.hasName(name))
+                            .or(UserSpecifications.containsName(name));
                 }
             }
-            hasSpec = hasSpec.or(newHasSpec);
-            containsSpec = containsSpec.or(newContainsSpec);
+            if (spec == null) {
+                spec = newSpec;
+            } else {
+                spec = spec.or(newSpec);
+            }
         }
 
-        Specification<User> spec = hasSpec.or(containsSpec);
 
         // query the repository and get a Page object, from which you can get the content by doing page.getContent()
         if(!sortBy.isEmpty()){
