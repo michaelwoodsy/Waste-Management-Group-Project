@@ -1,11 +1,12 @@
 package org.seng302.project.service_layer.service;
 
 import org.seng302.project.repository_layer.model.SaleListing;
-import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.repository_layer.repository.SaleListingRepository;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
 import org.seng302.project.service_layer.dto.saleListings.GetSalesListingDTO;
 import org.seng302.project.service_layer.dto.saleListings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
+import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,6 @@ public class SaleListingService {
         this.saleListingRepository = saleListingRepository;
     }
 
-
     /**
      * Searches sales listings to match specific requirements set out in the SearchSaleListingsDTO
      *
@@ -52,11 +52,40 @@ public class SaleListingService {
      * @return List of the paginated list of sales listings, and the total number of sales listings
      */
     public List<Object> searchSaleListings(SearchSaleListingsDTO dto) {
-        Specification<SaleListing> spec = null;
         List<SaleListing> listings;
         long totalCount;
         String searchQuery = dto.getSearchQuery().toLowerCase(); // Convert search query to all lowercase.
         String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
+
+        Specification<SaleListing> spec = buildListingSpec(dto, conjunctions);
+
+        Sort sort = buildListingSort(dto.getSortBy());
+
+        Pageable pageable;
+        if (sort != null) {
+            pageable = PageRequest.of(dto.getPageNumber(), 10, sort);
+        } else {
+            pageable = PageRequest.of(dto.getPageNumber(), 10);
+        }
+
+        Page<SaleListing> page = saleListingRepository.findAll(spec, pageable);
+        totalCount = page.getTotalElements();
+        listings = page.getContent();
+
+        logger.info("Retrieved {} Sales Listings, showing {}", totalCount, listings.size());
+
+        return Arrays.asList(listings.stream().map(GetSalesListingDTO::new).collect(Collectors.toList()), totalCount);
+    }
+
+    /**
+     * Method which builds the specification used to search sale listings with.
+     *
+     * @param dto          DTO containing parameters to search by
+     * @param conjunctions Search query split by AND keyword
+     * @return Spec used to search sale listing repository by
+     */
+    private Specification<SaleListing> buildListingSpec(SearchSaleListingsDTO dto, String[] conjunctions) {
+        Specification<SaleListing> spec = null;
 
         //Product name
         if (dto.isMatchProductName()) {
@@ -118,52 +147,7 @@ public class SaleListingService {
             throw invalidDateException;
         }
 
-        Sort sort = null;
-
-        switch (dto.getSortBy()) {
-            case "priceAsc":
-                sort = Sort.by(Sort.Order.asc("price"));
-                break;
-            case "priceDesc":
-                sort = Sort.by(Sort.Order.desc("price"));
-                break;
-            case "productName":
-                sort = Sort.by(Sort.Order.asc("inventoryItem.product.name"));
-                break;
-            case "country":
-                sort = Sort.by(Sort.Order.asc("business.address.country"));
-                break;
-            case "city":
-                sort = Sort.by(Sort.Order.asc("business.address.city"));
-                break;
-            case "expiryDateAsc":
-                sort = Sort.by(Sort.Order.asc("inventoryItem.expires"));
-                break;
-            case "expiryDateDesc":
-                sort = Sort.by(Sort.Order.desc("inventoryItem.expires"));
-                break;
-            case "seller":
-                sort = Sort.by(Sort.Order.asc("business.name"));
-                break;
-            default:
-                break;
-        }
-
-        if (sort != null) {
-            Pageable pageable = PageRequest.of(dto.getPageNumber(), 10, sort);
-            Page<SaleListing> page = saleListingRepository.findAll(spec, pageable);
-            totalCount = page.getTotalElements();
-            listings = page.getContent();
-        } else {
-            Pageable pageable = PageRequest.of(dto.getPageNumber(), 10);
-            Page<SaleListing> page = saleListingRepository.findAll(spec, pageable);
-            totalCount = page.getTotalElements();
-            listings = page.getContent();
-        }
-
-        logger.info("Retrieved {} Sales Listings, showing {}", totalCount, listings.size());
-
-        return Arrays.asList(listings.stream().map(GetSalesListingDTO::new).collect(Collectors.toList()), totalCount);
+        return spec;
     }
 
     /**
@@ -339,5 +323,54 @@ public class SaleListingService {
             }
         }
         return spec;
+    }
+
+    /**
+     * Given a sort query string, returns a Sort object used to sort sale listings by.
+     *
+     * @param sortQuery String query to sort by.
+     * @return Sort object used to sort entries retrieved from the Sale Listing Repository
+     */
+    private Sort buildListingSort(String sortQuery) {
+        Sort sort = null;
+        switch (sortQuery) {
+            case "priceAsc":
+                sort = Sort.by(Sort.Order.asc("price"));
+                break;
+            case "priceDesc":
+                sort = Sort.by(Sort.Order.desc("price"));
+                break;
+            case "productName":
+                sort = Sort.by(Sort.Order.asc("inventoryItem.product.name"));
+                break;
+            case "country":
+                sort = Sort.by(Sort.Order.asc("business.address.country"));
+                break;
+            case "city":
+                sort = Sort.by(Sort.Order.asc("business.address.city"));
+                break;
+            case "expiryDateAsc":
+                sort = Sort.by(Sort.Order.asc("inventoryItem.expires"));
+                break;
+            case "expiryDateDesc":
+                sort = Sort.by(Sort.Order.desc("inventoryItem.expires"));
+                break;
+            case "seller":
+                sort = Sort.by(Sort.Order.asc("business.name"));
+                break;
+            default:
+                break;
+        }
+        return sort;
+    }
+
+    /**
+     * Unlikes a sale listing if it is liked by a user
+     *
+     * @param listingId ID of the sale listing to unlike
+     * @param user      User who is unliking the sale listing
+     */
+    public void unlikeSaleListing(Integer listingId, AppUserDetails user) {
+
     }
 }
