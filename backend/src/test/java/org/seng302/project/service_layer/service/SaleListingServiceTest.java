@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
-import org.seng302.project.service_layer.dto.saleListings.GetSalesListingDTO;
-import org.seng302.project.service_layer.dto.saleListings.SearchSaleListingsDTO;
+import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
+import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.domain.Specification;
@@ -244,7 +244,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(4, total);
@@ -271,12 +271,12 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(1, total);
 
-        GetSalesListingDTO listing = listings.get(0);
+        GetSaleListingDTO listing = listings.get(0);
 
         Assertions.assertEquals("Fourth Product", listing.getInventoryItem().getProduct().getName());
     }
@@ -302,12 +302,12 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(1, total);
 
-        GetSalesListingDTO listing = listings.get(0);
+        GetSaleListingDTO listing = listings.get(0);
 
         Assertions.assertEquals("First Product", listing.getInventoryItem().getProduct().getName());
     }
@@ -333,7 +333,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(2, total);
@@ -364,7 +364,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(3, total);
@@ -391,7 +391,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(2, total);
@@ -421,7 +421,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(2, total);
@@ -451,7 +451,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(2, total);
@@ -481,18 +481,18 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(3, total);
 
-        GetSalesListingDTO listing1 = listings.get(0);
+        GetSaleListingDTO listing1 = listings.get(0);
         Assertions.assertTrue(listing1.getPrice() >= 15 && listing1.getPrice() <= 40);
 
-        GetSalesListingDTO listing2 = listings.get(0);
+        GetSaleListingDTO listing2 = listings.get(0);
         Assertions.assertTrue(listing2.getPrice() >= 15 && listing2.getPrice() <= 40);
 
-        GetSalesListingDTO listing3 = listings.get(0);
+        GetSaleListingDTO listing3 = listings.get(0);
         Assertions.assertTrue(listing3.getPrice() >= 15 && listing3.getPrice() <= 40);
     }
 
@@ -517,18 +517,18 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(3, total);
 
-        GetSalesListingDTO listing1 = listings.get(0);
+        GetSaleListingDTO listing1 = listings.get(0);
         Assertions.assertTrue(listing1.getPrice() <= 20);
 
-        GetSalesListingDTO listing2 = listings.get(0);
+        GetSaleListingDTO listing2 = listings.get(0);
         Assertions.assertTrue(listing2.getPrice() <= 20);
 
-        GetSalesListingDTO listing3 = listings.get(0);
+        GetSaleListingDTO listing3 = listings.get(0);
         Assertions.assertTrue(listing3.getPrice() <= 20);
     }
 
@@ -553,7 +553,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(2, total);
@@ -583,7 +583,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(4, total);
@@ -615,7 +615,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(4, total);
@@ -647,7 +647,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(4, total);
@@ -679,7 +679,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(4, total);
@@ -711,7 +711,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(4, total);
@@ -743,7 +743,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(4, total);
@@ -775,7 +775,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(4, total);
@@ -807,7 +807,7 @@ class SaleListingServiceTest {
 
         List<Object> response = saleListingService.searchSaleListings(dto);
         System.out.println(response);
-        List<GetSalesListingDTO> listings = (List<GetSalesListingDTO>) response.get(0);
+        List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
         Assertions.assertEquals(4, total);

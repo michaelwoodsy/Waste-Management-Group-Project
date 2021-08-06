@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.User;
-import org.seng302.project.repository_layer.model.types.BusinessType;
+import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
 import org.seng302.project.service_layer.dto.business.PostBusinessDTO;
 import org.seng302.project.service_layer.dto.business.PutBusinessAdminDTO;

@@ -6,8 +6,8 @@ import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.InventoryItemRepository;
 import org.seng302.project.repository_layer.repository.SaleListingRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
-import org.seng302.project.service_layer.dto.saleListings.GetSalesListingDTO;
-import org.seng302.project.service_layer.dto.saleListings.SearchSaleListingsDTO;
+import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
+import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.*;
 import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -185,7 +185,7 @@ public class SaleListingController {
      * @return List of sale listings.
      */
     @GetMapping("/businesses/{businessId}/listings")
-    public List<GetSalesListingDTO> getBusinessesListings(
+    public List<GetSaleListingDTO> getBusinessesListings(
             @PathVariable int businessId,
             @AuthenticationPrincipal AppUserDetails appUser) {
         try {
@@ -199,7 +199,7 @@ public class SaleListingController {
 
             // Get the sale listings of the business
             List<SaleListing> listings = saleListingRepository.findAllByBusinessId(businessId);
-            return listings.stream().map(GetSalesListingDTO::new).collect(Collectors.toList());
+            return listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList());
 
         } catch (BusinessNotFoundException | ForbiddenAdministratorActionException exception) {
             throw exception;
