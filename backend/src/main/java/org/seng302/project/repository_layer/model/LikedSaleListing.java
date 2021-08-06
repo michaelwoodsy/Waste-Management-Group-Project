@@ -1,12 +1,14 @@
 package org.seng302.project.repository_layer.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.seng302.project.repository_layer.model.enums.Tag;
 
 import javax.persistence.*;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class LikedSaleListing {
 
     @Id
