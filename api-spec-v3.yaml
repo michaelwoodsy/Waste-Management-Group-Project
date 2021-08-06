@@ -2125,6 +2125,100 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
+  '/users/{userId}/notifications/{notificationId}/read':
+    patch:
+      tags:
+        - 'U32: Managing my feed'
+        - 'Notifications'
+      summary: 'Marks a user notification as read or unread'
+      description: 'Marks the notification as either read or unread based on the "read" value in the request body.'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: userId
+          in: path
+          description: The ID of the user
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: notificationId
+          in: path
+          description: The ID of the notification
+          required: true
+          schema:
+            type: integer
+            example: 100
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                read:
+                  type: boolean
+      responses:
+        200:
+          description: Success
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        406:
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/users/{userId}/messages/{messageId}/read':
+    patch:
+      tags:
+        - 'U32: Managing my feed'
+        - 'Messages'
+      summary: 'Marks a message as read or unread'
+      description: 'Marks the message as either read or unread based on the "read" value in the request body.'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: userId
+          in: path
+          description: The id of the user the message is for
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: messageId
+          in: path
+          description: The id of the message to delete
+          required: true
+          schema:
+            type: integer
+            example: 100
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                read:
+                  type: boolean
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
   '/listings/{listingId}/tag':
     post:
       tags:
