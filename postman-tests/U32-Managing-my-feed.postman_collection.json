@@ -1,0 +1,161 @@
+{
+	"info": {
+		"_postman_id": "af95c87d-d9f3-4436-8154-3075fed436ef",
+		"name": "U32 Managing my feed",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PATCH /listing/{id}/star",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings/:listingId/star",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings",
+						":listingId",
+						"star"
+					],
+					"variable": [
+						{
+							"key": "listingId",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PATCH /users/{userId}/notifications/{notificationId}/read",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/users/:userId/notifications/:notificationId/read",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"users",
+						":userId",
+						"notifications",
+						":notificationId",
+						"read"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": ""
+						},
+						{
+							"key": "notificationId",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PATCH /users/{userId}/messages/{messageId}/read",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/users/:userId/messages/:messageId/read",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"users",
+						":userId",
+						"messages",
+						":messageId",
+						"read"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": ""
+						},
+						{
+							"key": "messageId",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST /listings/{listingId}/tag",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings/:listingId/tag",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings",
+						":listingId",
+						"tag"
+					],
+					"variable": [
+						{
+							"key": "listingId",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE /listings/{listingId}/tag/{tagId}",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/listings/:listingId/tag/:tagId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"listings",
+						":listingId",
+						"tag",
+						":tagId"
+					],
+					"variable": [
+						{
+							"key": "listingId",
+							"value": ""
+						},
+						{
+							"key": "tagId",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
