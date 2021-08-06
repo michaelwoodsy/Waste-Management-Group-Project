@@ -275,8 +275,21 @@ class NotificationControllerTest extends AbstractInitializer {
      * Testing the /users/{userId}/notifications endpoint can handle PurchaserNotification objects.
      */
     @Test
-    void getAllNotificationsByUser_purchaserNotification_ValidRequest200() throws Exception {
+    void getAllNotificationsByUser_purchaserNotification_validRequest200() throws Exception {
         when(notificationService.getUserNotifications(any(), any())).thenReturn(List.of(new PurchaserNotification()));
+        mockMvc.perform(get("/users/{userId}/notifications", testUser.getId())
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isOk());
+    }
+
+
+    /**
+     * Testing the /users/{userId}/notifications endpoint can handle InterestedUserNotification objects.
+     */
+    @Test
+    void getAllNotificationsByUser_interestedUserNotification_validRequest200() throws Exception {
+        when(notificationService.getUserNotifications(any(), any()))
+                .thenReturn(List.of(new InterestedUserNotification()));
         mockMvc.perform(get("/users/{userId}/notifications", testUser.getId())
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isOk());
