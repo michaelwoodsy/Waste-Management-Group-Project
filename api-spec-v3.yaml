@@ -2546,6 +2546,12 @@ components:
           description: '(Implemented in U6): A list of businesses for which the user is an administrator'
           items:
             $ref: '#/components/schemas/Business'
+        likedSaleListings:
+          type: array
+          readOnly: true
+          description: 'A list of sale listings the user has liked'
+          items:
+            $ref: '#/components/schemas/LikedSaleListing'
 
 
     EditUser:
@@ -2633,7 +2639,7 @@ components:
           readOnly: true
           description: 'The date and time the notification was created'
         user:
-          $ref: '#components/schemas/User'
+          $ref: '#/components/schemas/User'
 
     AdminNotification:
       type: object
@@ -2667,3 +2673,39 @@ components:
           example: '2020-07-14T14:32:00Z'
           readOnly: true
           description: 'The date and time the notification was created'
+
+    LikedSaleListing:
+      type: object
+      description: Entity representing a sale listing liked by a user
+      required:
+        - id
+        - user
+        - listing
+        - starred
+        - tag
+      properties:
+        id:
+          type: integer
+          example: 100
+          readOnly: true
+          description: ID of the LikedSaleListing entity. Used for storage in database.
+        user:
+          $ref: '#/components/schemas/User'
+        listing:
+          $ref: '#/components/schemas/Listing'
+        starred:
+          type: boolean
+          example: false
+          description: Boolean for if a liked sale listing is starred or not
+        tag:
+          type: string
+          example: 'red'
+          description: Tag that the liked sale listing has
+          enum:
+            - red
+            - orange
+            - yellow
+            - green
+            - blue
+            - purple
+            - none

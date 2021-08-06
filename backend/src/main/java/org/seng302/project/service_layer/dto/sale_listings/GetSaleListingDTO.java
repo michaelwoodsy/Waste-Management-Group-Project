@@ -1,4 +1,4 @@
-package org.seng302.project.service_layer.dto.saleListings;
+package org.seng302.project.service_layer.dto.sale_listings;
 
 import lombok.Data;
 import org.seng302.project.repository_layer.model.*;
@@ -7,10 +7,10 @@ import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
 import java.time.LocalDateTime;
 
 /**
- * Response DTO for business entities.
+ * Response DTO for SaleListing entities.
  */
 @Data
-public class GetSalesListingDTO {
+public class GetSaleListingDTO {
 
     private Integer id;
     private GetBusinessDTO business;
@@ -21,7 +21,7 @@ public class GetSalesListingDTO {
     private LocalDateTime created;
     private Integer quantity;
 
-    public GetSalesListingDTO(SaleListing listing) {
+    public GetSaleListingDTO(SaleListing listing) {
         this.id = listing.getId();
         this.business = new GetBusinessDTO(listing.getBusiness());
         this.inventoryItem = listing.getInventoryItem();
