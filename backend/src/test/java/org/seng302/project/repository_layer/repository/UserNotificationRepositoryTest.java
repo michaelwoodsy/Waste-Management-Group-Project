@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.InterestedUserNotification;
 import org.seng302.project.repository_layer.model.PurchaserNotification;
 import org.seng302.project.repository_layer.model.User;
@@ -22,12 +23,23 @@ class UserNotificationRepositoryTest extends AbstractInitializer {
     @Autowired
     private AddressRepository addressRepository;
 
+    @Autowired
+    private BusinessRepository businessRepository;
+
     private User testUser;
+    private Business testBusiness;
 
     @BeforeEach
     void setup() {
+        // Save test user and associated entities
         testUser = userRepository.save(getTestUser());
         testUser.setHomeAddress(addressRepository.save(getTestUser().getHomeAddress()));
+
+        // Save test business and associated entities
+        testBusiness = getTestBusiness();
+        testBusiness.setAddress(addressRepository.save(testBusiness.getAddress()));
+        testBusiness.setPrimaryAdministratorId(testUser.getId());
+        testBusiness = businessRepository.save(getTestBusiness());
     }
 
     /**
@@ -36,7 +48,7 @@ class UserNotificationRepositoryTest extends AbstractInitializer {
     @Test
     void purchaseNotification_whenSaved_noError() {
         PurchaserNotification notification = new PurchaserNotification(
-                testUser, getSaleListings().get(0), testUser.getHomeAddress());
+                testUser, getSaleListings().get(0), testBusiness);
         Assertions.assertDoesNotThrow(() -> userNotificationRepository.save(notification));
     }
 
