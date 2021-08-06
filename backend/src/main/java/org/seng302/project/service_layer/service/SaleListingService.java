@@ -6,7 +6,7 @@ import org.seng302.project.repository_layer.model.SaleListing;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
-import org.seng302.project.service_layer.dto.saleListings.PostSaleListingDTO;
+import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.*;
@@ -150,7 +150,7 @@ public class SaleListingService {
 
                 //Check if closes date is in the past
                 if ((LocalDateTime.now()).isAfter(closesDateTime)) {
-                    InvalidClosesDateException exception = new InvalidClosesDateException();
+                    BadRequestException exception = new BadRequestException("Closing date must be in the future.");
                     logger.warn(exception.getMessage());
                     throw exception;
                 }
@@ -163,7 +163,7 @@ public class SaleListingService {
             InvalidDateException invalidDateException = new InvalidDateException();
             logger.warn(invalidDateException.getMessage());
             throw invalidDateException;
-        } catch (InvalidClosesDateException handledException) {
+        } catch (BadRequestException handledException) {
             throw handledException;
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
@@ -241,7 +241,7 @@ public class SaleListingService {
         } catch (BusinessNotFoundException | ForbiddenAdministratorActionException | NotEnoughOfInventoryItemException |
                 BadRequestException |
                 InvalidQuantityException | InvalidPriceException |
-                InvalidClosesDateException | InvalidDateException exception) {
+                InvalidDateException exception) {
             throw exception;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while adding sales listing: %s",

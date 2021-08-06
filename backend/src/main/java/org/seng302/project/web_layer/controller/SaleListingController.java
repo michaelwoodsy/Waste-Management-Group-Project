@@ -5,7 +5,7 @@ import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.InventoryItemRepository;
 import org.seng302.project.repository_layer.repository.SaleListingRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
-import org.seng302.project.service_layer.dto.saleListings.PostSaleListingDTO;
+import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;

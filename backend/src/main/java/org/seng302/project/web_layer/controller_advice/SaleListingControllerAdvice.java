@@ -23,15 +23,4 @@ public class SaleListingControllerAdvice {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Exception thrown by the newBusinessesListing() function in SalesListingController
-     * when a user tries to create a sales listing with a closing date that is in the past
-     *
-     * @return a 400 response with an appropriate message
-     */
-    @ExceptionHandler(InvalidClosesDateException.class)
-    public ResponseEntity<String> pastClosingDate(InvalidClosesDateException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
 }

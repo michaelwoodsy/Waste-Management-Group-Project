@@ -264,7 +264,7 @@ class SaleListingControllerTest {
 
         String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
         Assertions.assertEquals(String.format(
-                "No inventory item with id 254645756 exists in business with id %d.", business.getId()),
+                "BadRequestException: No inventory item with id 254645756 exists in business with id %d.", business.getId()),
                returnedExceptionString);
     }
 
@@ -295,7 +295,7 @@ class SaleListingControllerTest {
                 .andReturn();
 
         String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new InvalidQuantityException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: Quantity is a mandatory field.", returnedExceptionString);
     }
 
     /**
@@ -325,7 +325,7 @@ class SaleListingControllerTest {
                 .andReturn();
 
         String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals("Price is a mandatory field.", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: Price is a mandatory field.", returnedExceptionString);
     }
 
     /**
