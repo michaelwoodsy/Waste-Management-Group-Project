@@ -1,15 +1,8 @@
 package org.seng302.project.web_layer.controller;
 
-import org.seng302.project.repository_layer.model.*;
-import org.seng302.project.repository_layer.repository.BusinessRepository;
-import org.seng302.project.repository_layer.repository.InventoryItemRepository;
-import org.seng302.project.repository_layer.repository.SaleListingRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
-import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
-import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.service_layer.service.SaleListingService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -21,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
+
 
 
 /**
@@ -31,72 +24,14 @@ import java.util.Optional;
 public class SaleListingController {
 
     private static final Logger logger = LoggerFactory.getLogger(SaleListingController.class.getName());
-    private final BusinessRepository businessRepository;
-    private final SaleListingRepository saleListingRepository;
-    private final UserRepository userRepository;
-    private final InventoryItemRepository inventoryItemRepository;
+
 
     private final SaleListingService saleListingService;
 
     @Autowired
     public SaleListingController(
-            BusinessRepository businessRepository,
-            SaleListingRepository saleListingRepository,
-            UserRepository userRepository,
-            InventoryItemRepository inventoryItemRepository,
             SaleListingService saleListingService) {
-        this.businessRepository = businessRepository;
-        this.saleListingRepository = saleListingRepository;
-        this.userRepository = userRepository;
-        this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingService = saleListingService;
-    }
-
-    /**
-     * Returns the current logged in user that made the request.
-     * @param appUser The AppUserDetails object passed in from the authentication principle.
-     * @return User: the user that made the request.
-     */
-    private User getLoggedInUser(AppUserDetails appUser) {
-        String userEmail = appUser.getUsername();
-        return userRepository.findByEmail(userEmail).get(0);
-    }
-
-    /**
-     * Gets a business with the provided id.
-     * @param businessId The id of the business to look for.
-     * @return The business with the corresponding id.
-     * @throws BusinessNotFoundException Thrown if the business doesn't exist.
-     */
-    private Business getBusiness(Integer businessId) throws BusinessNotFoundException {
-        // Get business from repository
-        Optional<Business> foundBusiness = businessRepository.findById(businessId);
-
-        // Check if the business exists
-        if (foundBusiness.isEmpty()) {
-            BusinessNotFoundException exception = new BusinessNotFoundException(businessId);
-            logger.warn(exception.getMessage());
-            throw exception;
-        }
-
-        // Return the found business
-        return foundBusiness.get();
-    }
-
-    /**
-     * Checks if the user is the owner or administrator of the business. Throws an exception if they aren't
-     * @param user The user to check.
-     * @param business The business to check.
-     * @throws ForbiddenAdministratorActionException Thrown if the user isn't and owner or admin of the business.
-     */
-    private void checkUserIsAdminOfBusiness(User user, Business business) throws ForbiddenAdministratorActionException {
-        // Check if the logged in user is the business owner / administrator or a GAA
-        if (!(business.userIsAdmin(user.getId()) ||
-                business.getPrimaryAdministratorId().equals(user.getId())) && !user.isGAA()) {
-            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(business.getId());
-            logger.warn(exception.getMessage());
-            throw exception;
-        }
     }
 
     /**
