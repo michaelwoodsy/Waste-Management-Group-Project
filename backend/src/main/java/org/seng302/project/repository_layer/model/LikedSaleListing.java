@@ -11,36 +11,23 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class LikedSaleListing {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
+    @ManyToOne
+    @JoinColumn(name = "listing_id")
     private SaleListing listing;
     private boolean starred;
     private Tag tag;
 
-    public LikedSaleListing(User user, SaleListing listing, boolean starred, Tag tag) {
+    public LikedSaleListing(User user, SaleListing listing) {
         this.user = user;
         this.listing = listing;
-        this.starred = starred;
-        this.tag = tag;
-    }
-
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
-    public Integer getId() {
-        return id;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    public User getUser() {
-        return user;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "listing_id")
-    public SaleListing getListing() {
-        return listing;
+        this.starred = false;
+        this.tag = Tag.NONE;
     }
 
 }

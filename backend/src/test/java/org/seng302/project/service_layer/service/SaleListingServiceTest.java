@@ -3,10 +3,14 @@ package org.seng302.project.service_layer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
+import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @DataJpaTest
-class SaleListingServiceTest {
+class SaleListingServiceTest extends AbstractInitializer {
 
     private final BusinessRepository businessRepository;
     private final AddressRepository addressRepository;
@@ -28,8 +32,13 @@ class SaleListingServiceTest {
     private final UserNotificationRepository userNotificationRepository;
     private final SaleListingService saleListingService;
 
+    User testUser;
+
     Integer business1Id;
     Integer business2Id;
+
+    SaleListing saleListing1;
+    SaleListing saleListing2;
 
     @Autowired
     SaleListingServiceTest(BusinessRepository businessRepository,
@@ -64,6 +73,10 @@ class SaleListingServiceTest {
      */
     @BeforeEach
     void setup() {
+        this.testUser = this.getTestUser();
+        addressRepository.save(testUser.getHomeAddress());
+        userRepository.save(testUser);
+
         Address address1 = new Address(null, null, "Rangiora", null, "Netherlands", null);
         Business business1 = new Business("First Business", null, address1, "Retail Trade", 1);
         addressRepository.save(address1);
@@ -74,16 +87,15 @@ class SaleListingServiceTest {
         productRepository.save(product1);
         InventoryItem inventoryItem1 = new InventoryItem(product1, 5, null, null, "2021-01-01", null, null, "2021-12-01");
         inventoryItemRepository.save(inventoryItem1);
-        SaleListing saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
+        saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
         saleListingRepository.save(saleListing1);
 
         Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
         productRepository.save(product2);
         InventoryItem inventoryItem2 = new InventoryItem(product2, 10, null, null, "2021-01-01", null, null, "2021-12-02");
         inventoryItemRepository.save(inventoryItem1);
-        SaleListing saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
+        saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
         saleListingRepository.save(saleListing2);
-
 
         Address address2 = new Address(null, null, "Christchurch", null, "New Zealand", null);
         Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
@@ -225,7 +237,6 @@ class SaleListingServiceTest {
         Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
         Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
     }
-
 
     /**
      * Test that using an empty search returns the four sales listings
@@ -820,5 +831,29 @@ class SaleListingServiceTest {
         Assertions.assertEquals("Third Product", listings.get(1).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("First Product", listings.get(3).getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Test that trying to unlike a sale listing that doesn't exist throws a NotAcceptableException
+     */
+    @Test
+    void unlikeSaleListing_invalidListingId_throwsException() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.unlikeSaleListing(1000, user));
+    }
+
+    /**
+     * Test that trying to unlike a sale listing that isn't liked by the user throws a BadRequestException
+     */
+    @Test
+    void unlikeSaleListing_listingNotLiked_throwsException() {
+        LikedSaleListing listing = new LikedSaleListing(this.testUser, this.saleListing1);
+        likedSaleListingRepository.save(listing);
+
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Assertions.assertThrows(BadRequestException.class,
+                () -> saleListingService.unlikeSaleListing(this.saleListing2.getId(), user));
     }
 }
