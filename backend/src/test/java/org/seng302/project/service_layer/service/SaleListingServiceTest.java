@@ -53,10 +53,8 @@ class SaleListingServiceTest extends AbstractInitializer {
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
-        this.saleListingService = new SaleListingService(
-                this.saleListingRepository,
-                this.likedSaleListingRepository
-        );
+        this.saleListingService = new SaleListingService(this.saleListingRepository,
+                this.likedSaleListingRepository, this.userRepository);
     }
 
     /**
@@ -825,26 +823,28 @@ class SaleListingServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Test that trying to unlike a sale listing that doesn't exist throws a NotAcceptableException
+     * Test that trying to like a sale listing that hasn't been liked by this user adds it to the sale listing repository
      */
     @Test
-    void unlikeSaleListing_invalidListingId_throwsException() {
-        AppUserDetails user = new AppUserDetails(this.testUser);
-
-        Assertions.assertThrows(NotAcceptableException.class,
-                () -> saleListingService.unlikeSaleListing(1000, user));
+    void likedSaleListing_listingNotLiked_success(){
+        //Check that the given listing is not liked
+        Assertions.assertEquals(0, likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).size());
+        //Like the listing
+        saleListingService.likeSaleListing(this.saleListing1.getId(), new AppUserDetails(this.testUser));
+        //Check that the given listing is now liked
+        Assertions.assertEquals(1, likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).size());
     }
 
     /**
-     * Test that trying to unlike a sale listing that isn't liked by the user throws a BadRequestException
+     * Test that trying to like a sale listing that has already been liked by this user throws and exception
      */
     @Test
-    void unlikeSaleListing_listingNotLiked_throwsException() {
-        LikedSaleListing listing = new LikedSaleListing(this.testUser, this.saleListing1);
-        likedSaleListingRepository.save(listing);
-
-        AppUserDetails user = new AppUserDetails(this.testUser);
+    void likedSaleListing_listingAlreadyLiked_throwsException(){
+        saleListingService.likeSaleListing(this.saleListing1.getId(), new AppUserDetails(this.testUser));
+        //Check that the given listing is already liked
+        Assertions.assertEquals(1, likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).size());
+        //Try to like the listing
         Assertions.assertThrows(BadRequestException.class,
-                () -> saleListingService.unlikeSaleListing(this.saleListing2.getId(), user));
+                () -> saleListingService.likeSaleListing(this.saleListing1.getId(), new AppUserDetails(this.testUser)));
     }
 }

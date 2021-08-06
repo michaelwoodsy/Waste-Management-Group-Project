@@ -1,12 +1,17 @@
 package org.seng302.project.service_layer.service;
 
+
+import org.seng302.project.repository_layer.model.LikedSaleListing;
 import org.seng302.project.repository_layer.model.SaleListing;
 import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
 import org.seng302.project.repository_layer.repository.SaleListingRepository;
+import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
-import org.seng302.project.service_layer.dto.saleListings.GetSalesListingDTO;
-import org.seng302.project.service_layer.dto.saleListings.SearchSaleListingsDTO;
+import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
+import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +30,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -37,12 +43,14 @@ public class SaleListingService {
 
     private final SaleListingRepository saleListingRepository;
     private final LikedSaleListingRepository likedSaleListingRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public SaleListingService(SaleListingRepository saleListingRepository,
-                              LikedSaleListingRepository likedSaleListingRepository) {
+                              LikedSaleListingRepository likedSaleListingRepository, UserRepository userRepository) {
         this.saleListingRepository = saleListingRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -375,6 +383,35 @@ public class SaleListingService {
      * @param user      User who is unliking the sale listing
      */
     public void unlikeSaleListing(Integer listingId, AppUserDetails user) {
+
+    }
+
+    /**
+     * Likes a sale listing if it is liked by a user
+     * @param listingId ID of the sale listing to like
+     * @param user      User who is liking the sale listing
+     */
+    public void likeSaleListing(Integer listingId, AppUserDetails user){
+        // Get the logged in user from the users email
+        String userEmail = user.getUsername();
+        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+        //Get Sale Listing from repository
+        Optional<SaleListing> foundSaleListingOptional = saleListingRepository.findById(listingId);
+        // Check if the listing exists
+        if (foundSaleListingOptional.isEmpty()){
+            throw new NotAcceptableException(String.format("There is no sale listing that exists with the id %d",
+                    listingId));
+        }
+        SaleListing listing = foundSaleListingOptional.get();
+
+        //Check that the user hasn't already liked the sale listing
+        if (likedSaleListingRepository.findByListingAndUser(listing, loggedInUser).isEmpty()){
+            LikedSaleListing likedSaleListing = new LikedSaleListing(loggedInUser, listing);
+            likedSaleListingRepository.save(likedSaleListing);
+        } else {
+            throw new BadRequestException("This user has already liked this sale listing");
+        }
 
     }
 }
