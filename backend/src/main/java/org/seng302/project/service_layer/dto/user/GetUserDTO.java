@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.Image;
+import org.seng302.project.repository_layer.model.LikedSaleListing;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
+import org.seng302.project.service_layer.dto.sale_listings.GetLikedSaleListingDTO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,10 +31,11 @@ public class GetUserDTO {
     private String phoneNumber;
     private AddressDTO homeAddress;
     private String role;
-    private List<GetBusinessDTO> businessesAdministered;
+    private List<GetBusinessDTO> businessesAdministered = new ArrayList<>();
     private LocalDateTime created;
     private Integer primaryImageId;
     private List<Image> images;
+    private List<GetLikedSaleListingDTO> likedSaleListings = new ArrayList<>();
 
     public GetUserDTO(User user) {
         this.id = user.getId();
@@ -47,12 +50,14 @@ public class GetUserDTO {
         this.homeAddress = new AddressDTO(user.getHomeAddress());
         this.role = user.getRole();
         this.created = user.getCreated();
-        this.businessesAdministered = new ArrayList<>();
         for (Business business : user.getBusinessesAdministered()) {
             this.businessesAdministered.add(new GetBusinessDTO(business));
         }
         this.primaryImageId = user.getPrimaryImageId();
         this.images = new ArrayList<>(user.getImages());
+        for (LikedSaleListing listing : user.getLikedSaleListings()) {
+            this.likedSaleListings.add(new GetLikedSaleListingDTO(listing));
+        }
     }
 
     @JsonIgnoreProperties("administrators") // Stops infinite nesting when used in BusinessResponseDTO

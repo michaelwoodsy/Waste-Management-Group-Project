@@ -3,8 +3,8 @@ package org.seng302.project.service_layer.service;
 import org.seng302.project.repository_layer.model.SaleListing;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
-import org.seng302.project.service_layer.dto.saleListings.GetSalesListingDTO;
-import org.seng302.project.service_layer.dto.saleListings.SearchSaleListingsDTO;
+import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
+import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,7 +163,7 @@ public class SaleListingService {
 
         logger.info("Retrieved {} Sales Listings, showing {}", totalCount, listings.size());
 
-        return Arrays.asList(listings.stream().map(GetSalesListingDTO::new).collect(Collectors.toList()), totalCount);
+        return Arrays.asList(listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList()), totalCount);
     }
 
     /**
