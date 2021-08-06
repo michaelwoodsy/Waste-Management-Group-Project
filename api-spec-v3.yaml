@@ -2125,6 +2125,42 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
+  '/listings/{listingId}/tag':
+    post:
+      tags:
+        - 'U32: Managing my feed'
+        - 'Listings / sales'
+      summary: Adds a tag to a sale listing
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: listingId
+          in: path
+          description: ID of the listing to like
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tagId:
+                  type: integer
+      responses:
+        '200':
+          description: Request successful
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
 components:
   securitySchemes:
     CookieAuth:
