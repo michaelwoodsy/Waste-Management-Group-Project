@@ -1,6 +1,7 @@
 package org.seng302.project.service_layer.service;
 
 import org.seng302.project.repository_layer.model.SaleListing;
+import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
 import org.seng302.project.repository_layer.repository.SaleListingRepository;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
 import org.seng302.project.service_layer.dto.saleListings.GetSalesListingDTO;
@@ -35,10 +36,13 @@ public class SaleListingService {
     private static final String QUOTE_REGEX = "^\".*\"$";
 
     private final SaleListingRepository saleListingRepository;
+    private final LikedSaleListingRepository likedSaleListingRepository;
 
     @Autowired
-    public SaleListingService(SaleListingRepository saleListingRepository) {
+    public SaleListingService(SaleListingRepository saleListingRepository,
+                              LikedSaleListingRepository likedSaleListingRepository) {
         this.saleListingRepository = saleListingRepository;
+        this.likedSaleListingRepository = likedSaleListingRepository;
     }
 
     /**
@@ -74,7 +78,7 @@ public class SaleListingService {
 
         logger.info("Retrieved {} Sales Listings, showing {}", totalCount, listings.size());
 
-        return Arrays.asList(listings.stream().map(GetSalesListingDTO::new).collect(Collectors.toList()), totalCount);
+        return Arrays.asList(listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList()), totalCount);
     }
 
     /**
