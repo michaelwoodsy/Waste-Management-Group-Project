@@ -2139,7 +2139,7 @@ paths:
       parameters:
         - name: listingId
           in: path
-          description: ID of the listing to like
+          description: ID of the listing to tag
           required: true
           schema:
             type: integer
@@ -2151,6 +2151,40 @@ paths:
               properties:
                 tagId:
                   type: integer
+      responses:
+        '200':
+          description: Request successful
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/listings/{listingId}/tag/{tagId}':
+    delete:
+      tags:
+        - 'U32: Managing my feed'
+        - 'Listings / sales'
+      summary: Deletes a tag from a sale listing
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: listingId
+          in: path
+          description: ID of the listing to remove a tag from
+          required: true
+          schema:
+            type: integer
+        - name: tagId
+          in: path
+          description: The tag to remove from the listing
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
           description: Request successful
@@ -2179,7 +2213,7 @@ components:
     AuthenticatedResponse:
       description: >
         Response returned to client when they have performed an action to gain authentication (registering or logging in).
-        This response includes a session token that the client can use in future API requests to authenticate itself. 
+        This response includes a session token that the client can use in future API requests to authenticate itself.
         This session token is set as a cookie with name 'JSESSIONID', and will need to be included in subsequent requests to the server.
       content:
         application/json:
@@ -2438,10 +2472,10 @@ components:
           type: string
           example: 'WATT-420-BEANS'
           description: >
-            Developers can choose whether or not to make this a required field (i.e user 
-            specified vs. auto-generated). In the case that the team automatically 
-            generates the IDs, they should still allow this field to be present when 
-            creating (POST) or modifying (PUT) a product, and then simply ignore its 
+            Developers can choose whether or not to make this a required field (i.e user
+            specified vs. auto-generated). In the case that the team automatically
+            generates the IDs, they should still allow this field to be present when
+            creating (POST) or modifying (PUT) a product, and then simply ignore its
             value (i.e do not return a 400 code if it is present but not needed). An
             ID only needs to be unique within its catalogue, not system-wide.
         name:
