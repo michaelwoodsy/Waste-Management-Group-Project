@@ -37,6 +37,7 @@ public class User {
     private LocalDateTime created = LocalDateTime.now();
     private Integer primaryImageId;
     private List<Image> images = new ArrayList<>();
+    private List<LikedSaleListing> likedSaleListings = new ArrayList<>();
 
     public User(String firstName, String lastName, String middleName,
                 String nickname, String bio, String email, String dateOfBirth,
@@ -86,7 +87,7 @@ public class User {
         return this.homeAddress;
     }
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_administers_business",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -97,11 +98,15 @@ public class User {
         return this.businessesAdministered;
     }
 
-    @OneToMany(targetEntity=Image.class)
+    @OneToMany(targetEntity = Image.class)
     public List<Image> getImages() {
         return this.images;
     }
 
+    @OneToMany(targetEntity = LikedSaleListing.class)
+    public List<LikedSaleListing> getLikedSaleListings() {
+        return this.likedSaleListings;
+    }
 
     public boolean businessIsAdministered(Integer businessId) {
         for (Business business : this.businessesAdministered) {

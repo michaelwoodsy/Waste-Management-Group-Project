@@ -1,4 +1,4 @@
-package org.seng302.project.repository_layer.model.types;
+package org.seng302.project.repository_layer.model.enums;
 
 /**
  * Enumeration containing valid business types.
