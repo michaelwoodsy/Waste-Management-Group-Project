@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.seng302.project.repository_layer.model.types.Tag;
+import org.seng302.project.repository_layer.model.enums.Tag;
 
 class LikedSaleListingTest {
 

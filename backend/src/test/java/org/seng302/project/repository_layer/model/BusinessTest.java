@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repository_layer.model.types.BusinessType;
+import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
 import org.seng302.project.service_layer.dto.business.PostBusinessDTO;
 

@@ -1,7 +1,7 @@
 package org.seng302.project.repository_layer.model;
 
 import lombok.Data;
-import org.seng302.project.repository_layer.model.types.Tag;
+import org.seng302.project.repository_layer.model.enums.Tag;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
