@@ -22,6 +22,7 @@ class SaleListingServiceTest {
     private final ProductRepository productRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
+    private final LikedSaleListingRepository likedSaleListingRepository;
     private final SaleHistoryRepository saleHistoryRepository;
     private final UserRepository userRepository;
     private final UserNotificationRepository userNotificationRepository;
@@ -36,6 +37,7 @@ class SaleListingServiceTest {
                            ProductRepository productRepository,
                            InventoryItemRepository inventoryItemRepository,
                            SaleListingRepository saleListingRepository,
+                           LikedSaleListingRepository likedSaleListingRepository,
                            SaleHistoryRepository saleHistoryRepository,
                            UserRepository userRepository,
                            UserNotificationRepository userNotificationRepository) {
@@ -44,11 +46,13 @@ class SaleListingServiceTest {
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
+        this.likedSaleListingRepository = likedSaleListingRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.userRepository = userRepository;
         this.userNotificationRepository = userNotificationRepository;
         this.saleListingService = new SaleListingService(
                 this.saleListingRepository,
+                this.likedSaleListingRepository,
                 this.saleHistoryRepository,
                 this.inventoryItemRepository,
                 this.userRepository,

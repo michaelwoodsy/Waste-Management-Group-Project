@@ -5,6 +5,7 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.model.enums.Tag;
 import org.seng302.project.repository_layer.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ public class TestDataRunner {
     private final ProductRepository productRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
+    private final LikedSaleListingRepository likedSaleListingRepository;
     private final CardRepository cardRepository;
     private final ImageRepository imageRepository;
     private final KeywordRepository keywordRepository;
@@ -46,6 +48,7 @@ public class TestDataRunner {
     public TestDataRunner(UserRepository userRepository, BusinessRepository businessRepository, AddressRepository addressRepository,
                           ProductRepository productRepository, InventoryItemRepository inventoryItemRepository,
                           ImageRepository imageRepository, SaleListingRepository saleListingRepository,
+                          LikedSaleListingRepository likedSaleListingRepository,
                           CardRepository cardRepository, KeywordRepository keywordRepository,
                           BCryptPasswordEncoder passwordEncoder, UserNotificationRepository userNotificationRepository,
                           AdminNotificationRepository adminNotificationRepository) {
@@ -55,6 +58,7 @@ public class TestDataRunner {
         this.inventoryItemRepository = inventoryItemRepository;
         this.addressRepository = addressRepository;
         this.saleListingRepository = saleListingRepository;
+        this.likedSaleListingRepository = likedSaleListingRepository;
         this.cardRepository = cardRepository;
         this.imageRepository = imageRepository;
         this.passwordEncoder = passwordEncoder;
@@ -297,8 +301,17 @@ public class TestDataRunner {
                         jsonSaleListing.getAsNumber("quantity").intValue()
                 );
                 saleListingRepository.save(testListing);
-            }
+                if (testListing.getId() == 1) {
+                    var user = userRepository.findById(0);
+                    user.ifPresent(value -> likedSaleListingRepository.save(new LikedSaleListing(value, testListing, false, null)));
 
+                    var user2 = userRepository.findById(1);
+                    user2.ifPresent(value -> likedSaleListingRepository.save(new LikedSaleListing(value, testListing, false, null)));
+
+                    var user3 = userRepository.findById(2);
+                    user3.ifPresent(value -> likedSaleListingRepository.save(new LikedSaleListing(value, testListing, true, null)));
+                }
+            }
         }
         logger.info("Finished adding sample data to sale listing repository");
         logger.info("Added {} entries to sale listing repository", saleListingRepository.count());

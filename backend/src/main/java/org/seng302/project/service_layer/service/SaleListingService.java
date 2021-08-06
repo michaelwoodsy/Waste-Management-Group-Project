@@ -1,5 +1,6 @@
 package org.seng302.project.service_layer.service;
 
+import org.seng302.project.repository_layer.model.LikedSaleListing;
 import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.repository_layer.model.SaleListing;
 import org.seng302.project.repository_layer.repository.*;
@@ -37,6 +38,7 @@ public class SaleListingService {
     private static final String QUOTE_REGEX = "^\".*\"$";
 
     private final SaleListingRepository saleListingRepository;
+    private final LikedSaleListingRepository likedSaleListingRepository;
     private final SaleHistoryRepository saleHistoryRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final UserRepository userRepository;
@@ -44,11 +46,13 @@ public class SaleListingService {
 
     @Autowired
     public SaleListingService(SaleListingRepository saleListingRepository,
+                              LikedSaleListingRepository likedSaleListingRepository,
                               SaleHistoryRepository saleHistoryRepository,
                               InventoryItemRepository inventoryItemRepository,
                               UserRepository userRepository,
                               UserNotificationRepository userNotificationRepository) {
         this.saleListingRepository = saleListingRepository;
+        this.likedSaleListingRepository = likedSaleListingRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.userRepository = userRepository;
@@ -387,16 +391,20 @@ public class SaleListingService {
             var saleListings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(
                     listing.getBusiness().getId(), inventoryItem.getId());
             for (var saleListing: saleListings) {
-                //TODO: remove users likes on sale listing
+                List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(saleListing);
+                for (var like: likes) {
+                    likedSaleListingRepository.delete(like);
+                }
                 saleListingRepository.delete(saleListing);
             }
         }
-
-
         inventoryItemRepository.save(inventoryItem);
 
-        //TODO: remove users likes on sale listing
-        //TODO: Send notification to users who liked the sales listing
+        List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(listing);
+        for (var like: likes) {
+            //TODO: Send notification
+            likedSaleListingRepository.delete(like);
+        }
 
 
         //Remove the sales listing
