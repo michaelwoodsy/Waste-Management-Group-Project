@@ -4,6 +4,9 @@ import lombok.Data;
 import org.seng302.project.repository_layer.model.LikedSaleListing;
 import org.seng302.project.service_layer.dto.user.GetUserDTO;
 
+/**
+ * Response DTO for LikedSaleListing entities.
+ */
 @Data
 public class GetLikedSaleListingDTO {
 

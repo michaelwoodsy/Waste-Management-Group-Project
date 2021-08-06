@@ -7,7 +7,7 @@ import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
 import java.time.LocalDateTime;
 
 /**
- * Response DTO for business entities.
+ * Response DTO for SaleListing entities.
  */
 @Data
 public class GetSaleListingDTO {

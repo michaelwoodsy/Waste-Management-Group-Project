@@ -1,7 +1,7 @@
 package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
-import org.seng302.project.repository_layer.model.types.BusinessType;
+import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
 import org.seng302.project.service_layer.dto.business.PostBusinessDTO;
 import org.seng302.project.service_layer.dto.business.PutBusinessAdminDTO;
