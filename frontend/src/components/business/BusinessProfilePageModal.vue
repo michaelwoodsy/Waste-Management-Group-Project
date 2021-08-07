@@ -173,7 +173,7 @@
 
     <div class="row">
       <div class="col text-left mb-2">
-        <h2>Businesses Images</h2>
+        <h2>Business's Images</h2>
       </div>
     </div>
 
