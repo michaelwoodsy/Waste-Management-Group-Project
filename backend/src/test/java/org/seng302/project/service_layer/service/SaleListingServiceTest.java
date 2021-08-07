@@ -94,6 +94,22 @@ class SaleListingServiceTest {
         saleListingRepository.save(saleListing4);
     }
 
+
+    //TODO: Tests for getting sale listings:
+    //ForbiddenAdministratorActionException
+    //BusinessNotFoundException
+    //Success
+
+    //TODO: Tests for posting sale listings:
+    //BadRequestException for invalid quantity (not enough of item left)
+    //BadRequestException for invalid inventory item id
+    //ForbiddenAdministratorActionException
+    //BusinessNotFoundException
+    //InvalidDateException
+    //Success
+
+
+
     /**
      * Tests that searching for listing by business name with string 'first' returns first listing
      */

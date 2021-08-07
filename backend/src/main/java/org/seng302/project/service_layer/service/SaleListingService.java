@@ -146,6 +146,7 @@ public class SaleListingService {
         LocalDateTime closesDateTime;
         try {
             if (closesDateString != null && !closesDateString.equals("")) {
+                //Closes string should be in the format: "yyyy-mm-ddThh:mm:ss.sssZ", e.g: "2021-05-29T04:34:55.931Z"
                 closesDateTime = LocalDateTime.parse(closesDateString, DateTimeFormatter.ISO_DATE_TIME);
 
                 //Check if closes date is in the past
@@ -182,7 +183,6 @@ public class SaleListingService {
      */
     public void newBusinessListing(PostSaleListingDTO requestDTO, Integer businessId, AppUserDetails appUser) {
         try {
-
             // Get the user that made the request
             User user = getLoggedInUser(appUser);
 
@@ -206,7 +206,6 @@ public class SaleListingService {
             }
             InventoryItem item = retrievedItemOptions.get();
 
-
             Integer quantity = requestDTO.getQuantity();
             List<SaleListing> listings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(businessId, inventoryItemId);
 
@@ -217,31 +216,24 @@ public class SaleListingService {
             }
             //Check if there is enough of the inventory item
             if (quantity > (item.getQuantity() - quantityUsed)) {
-                NotEnoughOfInventoryItemException exception = new NotEnoughOfInventoryItemException(inventoryItemId, item.getQuantity() - quantityUsed, quantityUsed);
+                BadRequestException exception = new BadRequestException(
+                        String.format(
+                                "You do not have enough of item with id %d for this listing (you have %d, with %d used in other sale listings).",
+                                inventoryItemId, item.getQuantity() - quantityUsed, quantityUsed));
                 logger.warn(exception.getMessage());
                 throw exception;
             }
 
-            //Price
             Double price = requestDTO.getPrice();
-
-            //More Info
             String moreInfo = requestDTO.getMoreInfo();
-
-            //Closes
-            //Closes string should be in the format: "yyyy-mm-ddThh:mm:ss.sssZ", e.g: "2021-05-29T04:34:55.931Z"
             String closesDateString = requestDTO.getCloses();
-
             LocalDateTime closesDateTime = getClosesDateTime(closesDateString, item);
-
 
             SaleListing saleListing = new SaleListing(business, item, price, moreInfo, closesDateTime, quantity);
             saleListingRepository.save(saleListing);
 
-        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException | NotEnoughOfInventoryItemException |
-                BadRequestException |
-                InvalidQuantityException | InvalidPriceException |
-                InvalidDateException exception) {
+        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException |
+                BadRequestException | InvalidDateException exception) {
             throw exception;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while adding sales listing: %s",
