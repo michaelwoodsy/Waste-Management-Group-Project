@@ -14,9 +14,11 @@ import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @DataJpaTest
 class SaleListingServiceTest extends AbstractInitializer {
@@ -827,12 +829,22 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @Test
     void likedSaleListing_listingNotLiked_success(){
-        //Check that the given listing is not liked
-        Assertions.assertEquals(0, likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).size());
-        //Like the listing
+        //Check that there are no liked listings and the user has no liked listings
+        Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
+        Assertions.assertEquals(0, userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().size());
+
+        //Like the listing (this changes the user in the repository)
         saleListingService.likeSaleListing(this.saleListing1.getId(), new AppUserDetails(this.testUser));
-        //Check that the given listing is now liked
-        Assertions.assertEquals(1, likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).size());
+
+        //Get user from repository
+        this.testUser = userRepository.findByEmail(this.testUser.getEmail()).get(0);
+
+        //Check that the liked sale listing has been added to the repository
+        Assertions.assertEquals(1, likedSaleListingRepository.findAll().size());
+        //Check that the user's liked listing list contains the same liked listing as in the repository
+        Assertions.assertEquals(likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).get(0),
+                userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().get(0));
+
     }
 
     /**
@@ -840,11 +852,43 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @Test
     void likedSaleListing_listingAlreadyLiked_throwsException(){
+        //Check that there are no liked listings
+        Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
+
+        //Like the listing (this changes the user in the repository)
         saleListingService.likeSaleListing(this.saleListing1.getId(), new AppUserDetails(this.testUser));
-        //Check that the given listing is already liked
-        Assertions.assertEquals(1, likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).size());
-        //Try to like the listing
+
+        //Get user from repository
+        this.testUser = userRepository.findByEmail(this.testUser.getEmail()).get(0);
+
+        //Check that the liked sale listing has been added to the repository
+        Assertions.assertEquals(1, likedSaleListingRepository.findAll().size());
+        //Check that the user's liked listing list contains the same liked listing as in the repository
+        Assertions.assertEquals(likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).get(0),
+                userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().get(0));
+
+        Integer saleListingId = this.saleListing1.getId();
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+        //Try to like the listing again
         Assertions.assertThrows(BadRequestException.class,
-                () -> saleListingService.likeSaleListing(this.saleListing1.getId(), new AppUserDetails(this.testUser)));
+                () -> saleListingService.likeSaleListing(saleListingId, appUser));
+    }
+    
+    /**
+     * Test that trying to like a sale listing that does not exist throws an exception
+     */
+    @Test
+    void likedSaleListing_listingDoesNotExist_throwsException(){
+        Integer saleListingId = 100;
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+
+        //Check that there are no liked listings
+        Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
+        //Check that the listing doesn't exist
+        Assertions.assertEquals(Optional.empty(), saleListingRepository.findById(saleListingId));
+        //Try to like the listing that doesn't exist
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.likeSaleListing(saleListingId, appUser));
     }
 }

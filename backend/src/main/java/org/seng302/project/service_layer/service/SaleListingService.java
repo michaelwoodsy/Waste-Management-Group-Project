@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -377,20 +378,11 @@ public class SaleListingService {
     }
 
     /**
-     * Unlikes a sale listing if it is liked by a user
-     *
-     * @param listingId ID of the sale listing to unlike
-     * @param user      User who is unliking the sale listing
-     */
-    public void unlikeSaleListing(Integer listingId, AppUserDetails user) {
-
-    }
-
-    /**
      * Likes a sale listing if it is liked by a user
      * @param listingId ID of the sale listing to like
      * @param user      User who is liking the sale listing
      */
+    @Transactional
     public void likeSaleListing(Integer listingId, AppUserDetails user){
         // Get the logged in user from the users email
         String userEmail = user.getUsername();
@@ -407,8 +399,16 @@ public class SaleListingService {
 
         //Check that the user hasn't already liked the sale listing
         if (likedSaleListingRepository.findByListingAndUser(listing, loggedInUser).isEmpty()){
+            //Make the new liked sale listing
             LikedSaleListing likedSaleListing = new LikedSaleListing(loggedInUser, listing);
+            //Save the liked sale listing
             likedSaleListingRepository.save(likedSaleListing);
+            //Add liked sale listing to the list of liked sale listings of user
+            var currentlyLikedSaleListings = loggedInUser.getLikedSaleListings();
+            currentlyLikedSaleListings.add(likedSaleListing);
+            //Save the list to the user
+            loggedInUser.setLikedSaleListings(currentlyLikedSaleListings);
+            userRepository.save(loggedInUser);
         } else {
             throw new BadRequestException("This user has already liked this sale listing");
         }
