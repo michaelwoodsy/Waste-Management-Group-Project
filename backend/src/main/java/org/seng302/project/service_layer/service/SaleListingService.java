@@ -127,7 +127,7 @@ public class SaleListingService {
             List<SaleListing> listings = saleListingRepository.findAllByBusinessId(businessId);
             return listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList());
 
-        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException exception) {
+        } catch (BusinessNotFoundException exception) {
             throw exception;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while getting business sale listings: %s",

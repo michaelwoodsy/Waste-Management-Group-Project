@@ -114,6 +114,19 @@ class SaleListingControllerTest extends AbstractInitializer {
     }
 
     /**
+     * Check a random gets a 200 when getting a business' listings.
+     */
+    @Test
+    void getBusinessListings_normalUser_200() throws Exception {
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/listings", business.getId())
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
      * Test a non existent business returns 406 for an authenticated user.
      */
     @Test
