@@ -55,13 +55,6 @@
           </div>
         </div>
 
-        <!-- Business Button -->
-        <div class="row py-1">
-          <div class="col text-center">
-            <button class="btn btn-primary" @click="viewBusiness(listing)">View Business</button>
-          </div>
-        </div>
-
         <!-- Product info -->
         <div class="row">
           <div class="col-6 text-right font-weight-bold">
@@ -118,7 +111,14 @@
             <p>Seller: </p>
           </div>
           <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ formatSeller(listing) }}</p>
+            <div class="row">
+              <div class="col-6">
+                <p style="word-wrap: break-word; max-width: 70%">{{ formatSeller(listing) }}</p>
+              </div>
+              <div class="col-1 text-left">
+                <button class="btn btn-primary" @click="viewBusiness(listing)">View Business</button>
+              </div>
+            </div>
           </div>
         </div>
 
