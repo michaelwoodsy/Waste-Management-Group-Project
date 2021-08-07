@@ -438,6 +438,9 @@ public class SaleListingService {
             for (var saleListing: saleListings) {
                 List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(saleListing);
                 for (var like: likes) {
+                    var user = like.getUser();
+                    user.removeLikedSaleListing(like);
+                    userRepository.save(user);
                     likedSaleListingRepository.delete(like);
                 }
                 saleListingRepository.delete(saleListing);
@@ -454,6 +457,9 @@ public class SaleListingService {
                 var interestedUserNotification = new InterestedUserNotification(like.getUser(), like.getListing());
                 userNotificationRepository.save(interestedUserNotification);
             }
+            var user = like.getUser();
+            user.removeLikedSaleListing(like);
+            userRepository.save(user);
             likedSaleListingRepository.delete(like);
         }
 

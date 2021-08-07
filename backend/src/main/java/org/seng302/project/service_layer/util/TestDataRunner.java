@@ -303,22 +303,32 @@ public class TestDataRunner {
                 saleListingRepository.save(testListing);
                 if (testListing.getId() == 1) {
                     var user = userRepository.findById(1);
-                    user.ifPresent(value -> likedSaleListingRepository.save(new LikedSaleListing(value, testListing)));
+                    user.ifPresent(value -> {
+                        var likedListing = new LikedSaleListing(value, testListing);
+                        likedSaleListingRepository.save(likedListing);
+                        value.addLikedSaleListing(likedListing);
+                        userRepository.save(value);
+                    });
 
                     var user2 = userRepository.findById(2);
-                    user2.ifPresent(value -> likedSaleListingRepository.save(new LikedSaleListing(value, testListing)));
+                    user2.ifPresent(value -> {
+                        var likedListing = new LikedSaleListing(value, testListing);
+                        likedSaleListingRepository.save(likedListing);
+                        value.addLikedSaleListing(likedListing);
+                        userRepository.save(value);
+                    });
 
                     var user3 = userRepository.findById(3);
-                    user3.ifPresent(value -> likedSaleListingRepository.save(new LikedSaleListing(value, testListing)));
+                    user3.ifPresent(value -> {
+                        var likedListing = new LikedSaleListing(value, testListing);
+                        likedSaleListingRepository.save(likedListing);
+                        value.addLikedSaleListing(likedListing);
+                        userRepository.save(value);
+                    });
                 }
             }
         }
-        System.out.println(userRepository.findById(1).get().getLikedSaleListings());
 
-        var likes = likedSaleListingRepository.findAll();
-        for (var like: likes) {
-            System.out.println(like.getUser().getFirstName());
-        }
         logger.info("Finished adding sample data to sale listing repository");
         logger.info("Added {} entries to sale listing repository", saleListingRepository.count());
     }

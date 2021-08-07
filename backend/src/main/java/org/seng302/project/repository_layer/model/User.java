@@ -138,5 +138,17 @@ public class User {
      */
     public void removeImage(Image image){ this.images.remove(image); }
 
+    /**
+     * Function used to add a LikedSalesListing to the list of liked sales listings associated with a user
+     */
+    public void addLikedSaleListing(LikedSaleListing saleListing){
+        this.likedSaleListings.add(saleListing);
+    }
+
+    /**
+     * Function used to remove an image from the list of images associated with a user
+     */
+    public void removeLikedSaleListing(LikedSaleListing saleListing){ this.likedSaleListings.remove(saleListing); }
+
 
 }
