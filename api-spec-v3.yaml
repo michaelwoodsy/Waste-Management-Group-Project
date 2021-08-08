@@ -2220,11 +2220,11 @@ paths:
           $ref: '#/components/responses/NotAcceptableError'
 
   '/listings/{listingId}/tag':
-    post:
+    patch:
       tags:
         - 'U32: Managing my feed'
         - 'Listings / sales'
-      summary: Adds a tag to a sale listing
+      summary: Sets the tag on a sale listing
       security:
         - CookieAuth:
             - user
@@ -2233,7 +2233,7 @@ paths:
       parameters:
         - name: listingId
           in: path
-          description: ID of the listing to tag
+          description: Tag to add to sale listing
           required: true
           schema:
             type: integer
@@ -2243,8 +2243,8 @@ paths:
             schema:
               type: object
               properties:
-                tagId:
-                  type: integer
+                tag:
+                  $ref: '#/components/schemas/Tag'
       responses:
         '200':
           description: Request successful
@@ -2255,7 +2255,6 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
-  '/listings/{listingId}/tag/{tagId}':
     delete:
       tags:
         - 'U32: Managing my feed'
@@ -2270,12 +2269,6 @@ paths:
         - name: listingId
           in: path
           description: ID of the listing to remove a tag from
-          required: true
-          schema:
-            type: integer
-        - name: tagId
-          in: path
-          description: The tag to remove from the listing
           required: true
           schema:
             type: integer
@@ -2900,14 +2893,16 @@ components:
           example: false
           description: Boolean for if a liked sale listing is starred or not
         tag:
-          type: string
-          example: 'red'
-          description: Tag that the liked sale listing has
-          enum:
-            - red
-            - orange
-            - yellow
-            - green
-            - blue
-            - purple
-            - none
+          $ref: '#/components/schemas/Tag'
+    Tag:
+      type: string
+      example: 'red'
+      description: Tag that the liked sale listing has
+      enum:
+        - red
+        - orange
+        - yellow
+        - green
+        - blue
+        - purple
+        - none
