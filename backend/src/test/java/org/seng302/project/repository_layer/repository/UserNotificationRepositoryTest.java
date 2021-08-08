@@ -32,8 +32,10 @@ class UserNotificationRepositoryTest extends AbstractInitializer {
     @BeforeEach
     void setup() {
         // Save test user and associated entities
-        testUser = userRepository.save(getTestUser());
+        testUser = getTestUser();
         testUser.setHomeAddress(addressRepository.save(getTestUser().getHomeAddress()));
+        testUser = userRepository.save(testUser);
+
 
         // Save test business and associated entities
         testBusiness = getTestBusiness();
@@ -58,7 +60,7 @@ class UserNotificationRepositoryTest extends AbstractInitializer {
     @Test
     void interestedUserNotification_whenSaved_noError() {
         InterestedUserNotification notification = new InterestedUserNotification(
-                getTestUser(), getSaleListings().get(0));
+                testUser, getSaleListings().get(0));
         Assertions.assertDoesNotThrow(() -> userNotificationRepository.save(notification));
     }
 
