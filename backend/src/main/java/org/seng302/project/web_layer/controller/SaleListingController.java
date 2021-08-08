@@ -1,7 +1,10 @@
 package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
-import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.model.Business;
+import org.seng302.project.repository_layer.model.InventoryItem;
+import org.seng302.project.repository_layer.model.SaleListing;
+import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.InventoryItemRepository;
 import org.seng302.project.repository_layer.repository.SaleListingRepository;
@@ -61,6 +64,7 @@ public class SaleListingController {
 
     /**
      * Returns the current logged in user that made the request.
+     *
      * @param appUser The AppUserDetails object passed in from the authentication principle.
      * @return User: the user that made the request.
      */
@@ -71,6 +75,7 @@ public class SaleListingController {
 
     /**
      * Gets a business with the provided id.
+     *
      * @param businessId The id of the business to look for.
      * @return The business with the corresponding id.
      * @throws BusinessNotFoundException Thrown if the business doesn't exist.
@@ -92,7 +97,8 @@ public class SaleListingController {
 
     /**
      * Checks if the user is the owner or administrator of the business. Throws an exception if they aren't
-     * @param user The user to check.
+     *
+     * @param user     The user to check.
      * @param business The business to check.
      * @throws ForbiddenAdministratorActionException Thrown if the user isn't and owner or admin of the business.
      */
@@ -109,16 +115,16 @@ public class SaleListingController {
     /**
      * Searches all sale listings by supplied parameters
      *
-     * @param searchQuery               query to search by
-     * @param matchingProductName       whether you want to search by product name
-     * @param matchingBusinessName      whether you want to search by business name
-     * @param matchingBusinessLocation  whether you want to search by business location
-     * @param priceRangeLower           the lower price range (can be null)
-     * @param priceRangeUpper           the upper price range (can be null)
-     * @param closingDateLower          the lower closing date range (can be null)
-     * @param closingDateUpper          the upper closing date range (can be null)
-     * @param pageNumber                the page number to get
-     * @param sortBy                    the sorting parameter
+     * @param searchQuery              query to search by
+     * @param matchingProductName      whether you want to search by product name
+     * @param matchingBusinessName     whether you want to search by business name
+     * @param matchingBusinessLocation whether you want to search by business location
+     * @param priceRangeLower          the lower price range (can be null)
+     * @param priceRangeUpper          the upper price range (can be null)
+     * @param closingDateLower         the lower closing date range (can be null)
+     * @param closingDateUpper         the upper closing date range (can be null)
+     * @param pageNumber               the page number to get
+     * @param sortBy                   the sorting parameter
      * @return A list of sale listings, with the specified sorting and page applied
      */
     @GetMapping("/listings")
@@ -133,9 +139,7 @@ public class SaleListingController {
             @RequestParam(name = "closingDateLower", required = false) String closingDateLower,
             @RequestParam(name = "closingDateUpper", required = false) String closingDateUpper,
             @RequestParam("pageNumber") Integer pageNumber,
-            @RequestParam("sortBy") String sortBy)
-
-    {
+            @RequestParam("sortBy") String sortBy) {
         try {
             SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
                     searchQuery,
@@ -160,8 +164,9 @@ public class SaleListingController {
 
     /**
      * Gets a list of sale listings for a business.
+     *
      * @param businessId Business to get the sale listings from.
-     * @param appUser The user that made the request.
+     * @param appUser    The user that made the request.
      * @return List of sale listings.
      */
     @GetMapping("/businesses/{businessId}/listings")
@@ -172,7 +177,7 @@ public class SaleListingController {
             // Get the user that made the request
             User user = getLoggedInUser(appUser);
 
-            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId );
+            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
 
             // To check the business exists
             getBusiness(businessId);
@@ -192,8 +197,9 @@ public class SaleListingController {
 
     /**
      * Adds a new sale listing to a business.
+     *
      * @param businessId Business to get the sale listings from.
-     * @param appUser The user that made the request.
+     * @param appUser    The user that made the request.
      */
     @PostMapping("/businesses/{businessId}/listings")
     @ResponseStatus(HttpStatus.CREATED)
@@ -249,7 +255,7 @@ public class SaleListingController {
 
                 //Calculates the quantity used of this Inventory item in other sales listings, if any
                 Integer quantityUsed = 0;
-                for(SaleListing listing: listings) {
+                for (SaleListing listing : listings) {
                     quantityUsed += listing.getQuantity();
                 }
                 //Check if there is enough of the inventory item
@@ -337,6 +343,13 @@ public class SaleListingController {
                     unhandledException.getMessage()));
             throw unhandledException;
         }
+    }
+
+    @PatchMapping("/listings/{listingId}/unlike")
+    @ResponseStatus(HttpStatus.OK)
+    public void unlikeSaleListing(@PathVariable Integer listingId,
+                                  @AuthenticationPrincipal AppUserDetails user) {
+        saleListingService.unlikeSaleListing(listingId, user);
     }
 
 }

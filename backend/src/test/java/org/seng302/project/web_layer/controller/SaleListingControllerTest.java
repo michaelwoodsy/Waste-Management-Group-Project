@@ -5,6 +5,8 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
+import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.exceptions.*;
@@ -78,6 +80,8 @@ class SaleListingControllerTest {
     private SaleListingRepository saleListingRepository;
     @Autowired
     private AddressRepository addressRepository;
+    @Autowired
+    private LikedSaleListingRepository likedSaleListingRepository;
 
     /**
      * Creates the user if it's not already created.
@@ -443,5 +447,71 @@ class SaleListingControllerTest {
                 .param("pageNumber", String.valueOf(1))
                 .param("sortBy", "").with(user(new AppUserDetails(user))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests that unliking a sale listing works with a valid request
+     */
+    @Test
+    void unlikeSaleListing_validRequest_statusOK() throws Exception {
+        LocalDateTime closesDate = LocalDateTime.now();
+        closesDate = closesDate.plusDays(10);
+
+        listing = new SaleListing(
+                business,
+                inventoryItem,
+                10.00,
+                "Some info",
+                closesDate,
+                5
+        );
+
+        saleListingRepository.save(listing);
+        LikedSaleListing likedSaleListing = new LikedSaleListing(user, listing);
+        likedSaleListingRepository.save(likedSaleListing);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/unlike", listing.getId())
+                .with(user(new AppUserDetails(user)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Test that trying to unlike a listing that does not exist returns a 406 status
+     */
+    @Test
+    void unlikeSaleListing_saleListingNotFound_returns406() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/unlike", 1000)
+                .with(user(new AppUserDetails(user)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Test that trying to unlike a listing that isn't liked returns a 400 status code
+     */
+    @Test
+    void unlikeSaleListing_saleListingNotLiked_returns400() throws Exception {
+        LocalDateTime closesDate = LocalDateTime.now();
+        closesDate = closesDate.plusDays(10);
+
+        listing = new SaleListing(
+                business,
+                inventoryItem,
+                10.00,
+                "Some info",
+                closesDate,
+                5
+        );
+
+        saleListingRepository.save(listing);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/unlike", listing.getId())
+                .with(user(new AppUserDetails(user)));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 }

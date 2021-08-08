@@ -176,8 +176,8 @@ public abstract class AbstractInitializer {
                 "TEST-PROD",
                 "Test Product",
                 "A test product",
-                null,
-                null,
+                "Some Manufacturer",
+                5.00,
                 1);
     }
 
