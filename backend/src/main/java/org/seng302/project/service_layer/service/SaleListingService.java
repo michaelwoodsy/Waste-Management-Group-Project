@@ -424,6 +424,7 @@ public class SaleListingService {
         //Updating the inventory items quantity
         var inventoryItem = listing.getInventoryItem();
         inventoryItem.setQuantity(inventoryItem.getQuantity() - listing.getQuantity());
+        System.out.println(inventoryItem.getQuantity());
 
         //Remove the inventory item if the quantity is 0
         if (inventoryItem.getQuantity() <= 0) {

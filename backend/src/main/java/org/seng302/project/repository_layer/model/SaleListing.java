@@ -24,7 +24,7 @@ public class SaleListing {
     @JoinColumn(name = "business_id")
     private Business business;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "inventory_item_id")
     private InventoryItem inventoryItem;
     private Double price;

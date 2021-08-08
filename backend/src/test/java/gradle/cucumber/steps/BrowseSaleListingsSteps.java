@@ -107,7 +107,8 @@ public class BrowseSaleListingsSteps extends AbstractInitializer {
             Product product = listing.getInventoryItem().getProduct();
             product.setBusinessId(business.getId());
             productRepository.save(product);
-            inventoryItemRepository.save(listing.getInventoryItem());
+            //TODO: Uncomment this
+            //inventoryItemRepository.save(listing.getInventoryItem());
             saleListingRepository.save(listing);
         }
     }
