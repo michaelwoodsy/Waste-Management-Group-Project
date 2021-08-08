@@ -16,6 +16,7 @@ import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,6 +39,10 @@ class SaleListingServiceTest extends AbstractInitializer {
 
     private final SaleListingService saleListingService;
 
+    @MockBean
+    private AuthenticationManager authenticationManager;
+    @MockBean
+    private BCryptPasswordEncoder passwordEncoder;
 
     Integer business1Id;
     Integer business2Id;
@@ -51,10 +56,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                            AddressRepository addressRepository,
                            ProductRepository productRepository,
                            InventoryItemRepository inventoryItemRepository,
-                           SaleListingRepository saleListingRepository,
-                           //no bean for AuthenticationManager :,(
-                           AuthenticationManager authenticationManager,
-                           BCryptPasswordEncoder passwordEncoder) {
+                           SaleListingRepository saleListingRepository) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
