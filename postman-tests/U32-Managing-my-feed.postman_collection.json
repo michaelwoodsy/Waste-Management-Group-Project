@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "af95c87d-d9f3-4436-8154-3075fed436ef",
+		"_postman_id": "4fc47521-cb2d-4f26-bbcb-ca68dd2af84c",
 		"name": "U32 Managing my feed",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -30,7 +30,211 @@
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "200 Un-star",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"star\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/star",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"star"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "400 Body Missing",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/star",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"star"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "200 Star",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"star\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/star",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"star"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "406",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/star",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"star"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"code": 406,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "400 Listing Id",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"star\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/star",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"star"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": "hello"
+								}
+							]
+						}
+					},
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
 		},
 		{
 			"name": "PATCH /users/{userId}/notifications/{notificationId}/read",
@@ -63,7 +267,241 @@
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "400 Body Missing",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9599/users/:userId/notifications/:notificationId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"users",
+								":userId",
+								"notifications",
+								":notificationId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "notificationId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "200 Read",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"read\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/users/:userId/notifications/:notificationId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"users",
+								":userId",
+								"notifications",
+								":notificationId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "notificationId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "200 Unread",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"read\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/users/:userId/notifications/:notificationId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"users",
+								":userId",
+								"notifications",
+								":notificationId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "notificationId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "400 Path Variables",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9599/users/:userId/notifications/:notificationId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"users",
+								":userId",
+								"notifications",
+								":notificationId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "tom"
+								},
+								{
+									"key": "notificationId",
+									"value": "hello"
+								}
+							]
+						}
+					},
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "406",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"read\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/users/:userId/notifications/:notificationId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"users",
+								":userId",
+								"notifications",
+								":notificationId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "0"
+								},
+								{
+									"key": "notificationId",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"code": 406,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
 		},
 		{
 			"name": "PATCH /users/{userId}/messages/{messageId}/read",
@@ -96,13 +534,276 @@
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "200 Unread",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"read\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/users/:userId/messages/:messageId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"users",
+								":userId",
+								"messages",
+								":messageId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "messageId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "200 Read",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"read\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/users/:userId/messages/:messageId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"users",
+								":userId",
+								"messages",
+								":messageId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "messageId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "400 Path Variables",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9599/users/:userId/messages/:messageId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"users",
+								":userId",
+								"messages",
+								":messageId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "tom"
+								},
+								{
+									"key": "messageId",
+									"value": "hello"
+								}
+							]
+						}
+					},
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "406",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"read\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/users/:userId/messages/:messageId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"users",
+								":userId",
+								"messages",
+								":messageId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "0"
+								},
+								{
+									"key": "messageId",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"code": 406,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "400 Body Missing",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9599/users/:userId/messages/:messageId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"users",
+								":userId",
+								"messages",
+								":messageId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "messageId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
 		},
 		{
 			"name": "POST /listings/{listingId}/tag",
 			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "key",
+							"value": "JSESSIONID",
+							"type": "string"
+						},
+						{
+							"key": "value",
+							"value": true,
+							"type": "boolean"
+						},
+						{
+							"key": "in",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"tagId\": \"<integer>\"\n}"
+				},
 				"url": {
 					"raw": "http://localhost:9599/listings/:listingId/tag",
 					"protocol": "http",
@@ -118,12 +819,237 @@
 					"variable": [
 						{
 							"key": "listingId",
-							"value": ""
+							"value": "<integer>",
+							"description": "(Required) ID of the listing to tag"
 						}
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "401 Access token is missing or invalid",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "Added as a part of security scheme: apikey",
+								"key": "JSESSIONID",
+								"value": "<API Key>"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tagId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/tag",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"tag"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "400 There was some error with the data supplied by the user, appropriate error message(s) should be shown to user",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "Added as a part of security scheme: apikey",
+								"key": "JSESSIONID",
+								"value": "<API Key>"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tagId\": \"b\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/tag",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"tag"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": "hello"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "200 Request successful",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "Added as a part of security scheme: apikey",
+								"key": "JSESSIONID",
+								"value": "<API Key>"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tagId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/tag",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"tag"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "406 The requested route does exist (so not a 404) but some part of the request is not acceptable, for example trying to access a resource by an ID that does not exist.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "Added as a part of security scheme: apikey",
+								"key": "JSESSIONID",
+								"value": "<API Key>"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/tag",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"tag"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": "9999999999"
+								}
+							]
+						}
+					},
+					"status": "Not Acceptable",
+					"code": 406,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				}
+			]
 		},
 		{
 			"name": "DELETE /listings/{listingId}/tag/{tagId}",
@@ -146,16 +1072,125 @@
 					"variable": [
 						{
 							"key": "listingId",
-							"value": ""
+							"value": "1"
 						},
 						{
 							"key": "tagId",
-							"value": ""
+							"value": "1"
 						}
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "200 Success",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/tag/:tagId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"tag",
+								":tagId"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": "1"
+								},
+								{
+									"key": "tagId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "400 Bad Request",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/tag/:tagId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"tag",
+								":tagId"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": "hello"
+								},
+								{
+									"key": "tagId",
+									"value": "hi"
+								}
+							]
+						}
+					},
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "406",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9599/listings/:listingId/tag/:tagId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"listings",
+								":listingId",
+								"tag",
+								":tagId"
+							],
+							"variable": [
+								{
+									"key": "listingId",
+									"value": "999999999999"
+								},
+								{
+									"key": "tagId",
+									"value": "9999999999999"
+								}
+							]
+						}
+					},
+					"code": 406,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
 		}
 	]
 }
