@@ -810,7 +810,7 @@
 			]
 		},
 		{
-			"name": "POST /listings/{listingId}/tag",
+			"name": "PATCH /listings/{listingId}/tag",
 			"event": [
 				{
 					"listen": "test",
@@ -845,7 +845,7 @@
 						}
 					]
 				},
-				"method": "POST",
+				"method": "PATCH",
 				"header": [
 					{
 						"key": "Content-Type",
@@ -854,7 +854,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"tagId\": \"<integer>\"\n}"
+					"raw": "{\n    \"tag\": \"<string>\"\n}"
 				},
 				"url": {
 					"raw": "http://localhost:9599/listings/:listingId/tag",
@@ -871,7 +871,7 @@
 					"variable": [
 						{
 							"key": "listingId",
-							"value": "<integer>",
+							"value": "",
 							"description": "(Required) ID of the listing to tag"
 						}
 					]
@@ -897,7 +897,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"tagId\": 1\n}",
+							"raw": "{\n    \"tag\": \"green\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -955,7 +955,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"tagId\": \"b\"\n}",
+							"raw": "{\n    \"tag\": \"hello\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1013,7 +1013,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"tagId\": 1\n}",
+							"raw": "{\n    \"tag\": \"green\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1069,6 +1069,15 @@
 								"type": "text"
 							}
 						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tag\": \"green\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "http://localhost:9599/listings/:listingId/tag",
 							"protocol": "http",
@@ -1122,7 +1131,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:9599/listings/:listingId/tag/:tagId",
+					"raw": "http://localhost:9599/listings/:listingId/tag/",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1132,15 +1141,11 @@
 						"listings",
 						":listingId",
 						"tag",
-						":tagId"
+						""
 					],
 					"variable": [
 						{
 							"key": "listingId",
-							"value": "1"
-						},
-						{
-							"key": "tagId",
 							"value": "1"
 						}
 					]
@@ -1153,7 +1158,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:9599/listings/:listingId/tag/:tagId",
+							"raw": "http://localhost:9599/listings/:listingId/tag/",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1163,15 +1168,11 @@
 								"listings",
 								":listingId",
 								"tag",
-								":tagId"
+								""
 							],
 							"variable": [
 								{
 									"key": "listingId",
-									"value": "1"
-								},
-								{
-									"key": "tagId",
 									"value": "1"
 								}
 							]
@@ -1189,7 +1190,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:9599/listings/:listingId/tag/:tagId",
+							"raw": "http://localhost:9599/listings/:listingId/tag/",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1199,16 +1200,12 @@
 								"listings",
 								":listingId",
 								"tag",
-								":tagId"
+								""
 							],
 							"variable": [
 								{
 									"key": "listingId",
 									"value": "hello"
-								},
-								{
-									"key": "tagId",
-									"value": "hi"
 								}
 							]
 						}
@@ -1225,7 +1222,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:9599/listings/:listingId/tag/:tagId",
+							"raw": "http://localhost:9599/listings/:listingId/tag/",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1235,16 +1232,12 @@
 								"listings",
 								":listingId",
 								"tag",
-								":tagId"
+								""
 							],
 							"variable": [
 								{
 									"key": "listingId",
 									"value": "999999999999"
-								},
-								{
-									"key": "tagId",
-									"value": "9999999999999"
 								}
 							]
 						}
