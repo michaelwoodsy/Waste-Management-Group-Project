@@ -1,9 +1,10 @@
-package org.seng302.project.web_layer.controllerAdvice;
+package org.seng302.project.web_layer.controller_advice;
 
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NoUserExistsException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
+import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -95,5 +96,15 @@ public class SharedControllerAdvice {
     @ExceptionHandler(NoUserExistsException.class)
     public ResponseEntity<String> userDoesNotExist(NoUserExistsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    /**
+     * Exception thrown when a user tries to perform a function when they are not an administrator.
+     *
+     * @return a 403 response with an appropriate message
+     */
+    @ExceptionHandler(ForbiddenAdministratorActionException.class)
+    public ResponseEntity<String> forbiddenAdministratorAction(ForbiddenAdministratorActionException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 }
