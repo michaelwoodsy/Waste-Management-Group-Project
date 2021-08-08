@@ -1249,6 +1249,219 @@
 					"body": null
 				}
 			]
+		},
+		{
+			"name": "PATCH /notifications/{notificationId}/read",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response must be ok\", function () {",
+							"     pm.response.to.be.ok;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"read\": \"<boolean>\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9599/notifications/:notificationId/read",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"notifications",
+						":notificationId",
+						"read"
+					],
+					"variable": [
+						{
+							"key": "notificationId",
+							"value": "",
+							"description": "Id of the notification to mark as read or unread"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Success",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"read\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/notifications/:notificationId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"notifications",
+								":notificationId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "notificationId",
+									"value": "1",
+									"description": "Id of the notification to mark as read or unread"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "400 Non-integer notification id",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"read\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/notifications/:notificationId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"notifications",
+								":notificationId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "notificationId",
+									"value": "hi",
+									"description": "Id of the notification to mark as read or unread"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "406",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"read\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/notifications/:notificationId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"notifications",
+								":notificationId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "notificationId",
+									"value": "0",
+									"description": "Id of the notification to mark as read or unread"
+								}
+							]
+						}
+					},
+					"code": 406,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "400 Missing body",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9599/notifications/:notificationId/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9599",
+							"path": [
+								"notifications",
+								":notificationId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "notificationId",
+									"value": "1",
+									"description": "Id of the notification to mark as read or unread"
+								}
+							]
+						}
+					},
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
 		}
 	]
 }

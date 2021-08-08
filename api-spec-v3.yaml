@@ -2282,6 +2282,45 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
+  '/notifications/{notificationId}/read':
+    patch:
+      tags:
+        - 'U32: Managing my feed'
+        - 'Notifications'
+      summary: 'Marks an admin notification as read or unread'
+      description: 'Marks the notification as either read or unread based on the "read" value in the request body.'
+      security:
+        - CookieAuth:
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: notificationId
+          in: path
+          description: The ID of the notification
+          required: true
+          schema:
+            type: integer
+            example: 100
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                read:
+                  type: boolean
+      responses:
+        200:
+          description: Success
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        406:
+          $ref: '#/components/responses/NotAcceptableError'
+
 components:
   securitySchemes:
     CookieAuth:
