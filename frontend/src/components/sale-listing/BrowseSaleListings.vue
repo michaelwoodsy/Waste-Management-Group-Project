@@ -218,7 +218,20 @@
             <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewListingModal=false">
               <span aria-hidden="true">&times;</span>
             </button>
-            <individual-sale-listing-modal :listing="listingToView"></individual-sale-listing-modal>
+            <individual-sale-listing-modal :listing="listingToView" @viewBusiness="viewBusiness"></individual-sale-listing-modal>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="viewBusinessModal" id="viewBusinessModal" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-body">
+            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewBusinessModal=false">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <business-profile-page-modal :id="businessToViewId"></business-profile-page-modal>
           </div>
         </div>
       </div>
@@ -234,12 +247,14 @@ import Pagination from "@/components/Pagination";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import {Business, Images} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
+import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 import Alert from "@/components/Alert";
 
 export default {
   name: "BrowseSaleListings.vue",
   components: {
     IndividualSaleListingModal,
+    BusinessProfilePageModal,
     PageWrapper,
     Pagination,
     ShowingResultsText,
@@ -300,6 +315,8 @@ export default {
       listings: [],
       listingToView: null,
       viewListingModal: false,
+      viewBusinessModal: false,
+      businessToViewId: null,
       error: null,
 
       totalCount: 0
@@ -351,7 +368,7 @@ export default {
      * Formats the name and address of the business offering the listing
      */
     formatSeller(listing) {
-      return `${listing.business.name} from ${this.$root.$data.address.formatAddress(listing.business.address)}`
+      return `${listing.business.name} (${listing.business.businessType}) from ${this.$root.$data.address.formatAddress(listing.business.address)}`
     },
     /**
      * Toggles whether a field is selected to be searched by
@@ -485,12 +502,23 @@ export default {
     },
 
     /**
-     * Turns popup modal to view  business on
+     * Turns popup modal to view  listing on
      * @param listing the listing object for the modal to show
      */
     viewListing(listing) {
+      this.viewBusinessModal = false
       this.listingToView = listing
       this.viewListingModal = true
+    },
+
+    /**
+     * Turns popup modal to view  business on
+     * @param listing the listing object with the business information to show
+     */
+    viewBusiness(listing) {
+      this.viewListingModal = false
+      this.businessToViewId = listing.business.id
+      this.viewBusinessModal = true
     },
 
     /**
@@ -512,12 +540,6 @@ export default {
           this.orderBy)
           .then(async (res) => {
             this.listings = res.data[0]
-            // this.listings = await Promise.all(this.listings.map(async (listing) => {
-            //   const businessResponse = await Business.getBusinessData(listing.businessId)
-            //   listing.sellerName = businessResponse.data.name
-            //   listing.sellerAddress = businessResponse.data.address
-            //   return listing
-            // }))
             this.listings = await this.$root.$data.product.addSaleListingCurrencies(this.listings)
             this.totalCount = res.data[1]
             this.error = null
