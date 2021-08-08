@@ -103,8 +103,7 @@ public class User {
         return this.images;
     }
 
-    @OneToMany(targetEntity = LikedSaleListing.class,
-            fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = LikedSaleListing.class)
     public List<LikedSaleListing> getLikedSaleListings() {
         return this.likedSaleListings;
     }

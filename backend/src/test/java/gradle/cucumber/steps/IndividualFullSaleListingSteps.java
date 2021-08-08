@@ -5,6 +5,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
@@ -17,6 +18,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
@@ -27,6 +29,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 /**
  * Steps for the Cucumber tests relating to U30 - Individual Full Sale Listing
  */
+@Transactional
 public class IndividualFullSaleListingSteps extends AbstractInitializer {
     private MockMvc mockMvc;
 
@@ -135,4 +138,39 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
         Assertions.assertEquals(saleListing, likedListing.getListing());
         Assertions.assertEquals(likedListing, usersLikedListing);
     }
+
+    //AC5 - Any user (including myself) can “like” the listing at most once.
+
+    @Given("I am logged in and I have already liked a sale listing")
+    public void iAmLoggedInAndIHaveAlreadyLikedASaleListing() {
+        var saleListing = saleListingRepository.findAll().get(1);
+        LikedSaleListing likedSaleListing = new LikedSaleListing(testUser, saleListing);
+        likedSaleListingRepository.save(likedSaleListing);
+        var usersLikedListings = testUser.getLikedSaleListings();
+        usersLikedListings.add(likedSaleListing);
+        testUser.setLikedSaleListings(usersLikedListings);
+        userRepository.save(testUser);
+        testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
+
+        Assertions.assertEquals(1, userRepository.findByEmail(testUser.getEmail()).size());
+        Assertions.assertEquals(likedSaleListingRepository.findByListingAndUser(saleListing, testUser).get(0), testUser.getLikedSaleListings().get(0));
+    }
+
+    @When("I try to like the sale listing again")
+    public void iTryToLikeTheSaleListingAgain() throws Exception {
+        var listingId = saleListingRepository.findAll().get(1).getId();
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listingId)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Then("An error is thrown")
+    public void anErrorIsThrown() {
+        String ErrorMessage = result.andReturn().getResponse().getErrorMessage();
+        Assertions.assertEquals("This user has already liked this sale listing", ErrorMessage);
+    }
+
+
 }
