@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.exceptions.*;
@@ -24,6 +25,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -78,6 +80,8 @@ class SaleListingControllerTest {
     private SaleListingRepository saleListingRepository;
     @Autowired
     private AddressRepository addressRepository;
+    @Autowired
+    private LikedSaleListingRepository likedSaleListingRepository;
 
     /**
      * Creates the user if it's not already created.
@@ -443,5 +447,78 @@ class SaleListingControllerTest {
                 .param("pageNumber", String.valueOf(1))
                 .param("sortBy", "").with(user(new AppUserDetails(user))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests successful liking of a sale listing (by getting a OK response)
+     */
+    @Test
+    @Transactional
+    void likeSaleListing_OK_200() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing = saleListingRepository.save(listing);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId())
+                .with(user(new AppUserDetails(user))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests that liking of a sale listing that has already been liked by the same user throws
+     * an error (by getting a isBadRequest response)
+     */
+    @Test
+    @Transactional
+    void likeSaleListing_alreadyLikedSaleListing_400() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing = saleListingRepository.save(listing);
+
+        //Create new liked sale listing
+        var likedListing = new LikedSaleListing(user, listing);
+        likedSaleListingRepository.save(likedListing);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId())
+                .with(user(new AppUserDetails(user))))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tests that liking of a sale listing without a user throws and error (by getting a isUnauthorized response)
+     */
+    @Test
+    @Transactional
+    void likeSaleListing_notAuthorizedUser_401() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing = saleListingRepository.save(listing);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId()))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Tests that liking of a sale listing with a sale listing ID that does not exist throws
+     * an error (by getting a isNotAcceptable response)
+     */
+    @Test
+    @Transactional
+    void likeSaleListing_nonexistentSaleListingID_406() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing = saleListingRepository.save(listing);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId() + 9999)
+                .with(user(new AppUserDetails(user))))
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
 }

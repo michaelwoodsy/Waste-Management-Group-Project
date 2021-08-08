@@ -231,8 +231,9 @@ public class SaleListingController {
 
             //Quantity
             int quantity;
+            String quantityString = "quantity";
             try {
-                if (json.getAsNumber("quantity") != null) {
+                if (json.getAsNumber(quantityString) != null) {
                     quantity = json.getAsNumber("quantity").intValue();
                     //If quantity is at or below 0
                     if (quantity <= 0) {
@@ -264,19 +265,20 @@ public class SaleListingController {
                 logger.warn(exception.getMessage());
                 throw exception;
             } catch (NumberFormatException numberFormatException) { //Field is not a number
-                InvalidNumberFormatException exception = new InvalidNumberFormatException("quantity");
+                InvalidNumberFormatException exception = new InvalidNumberFormatException(quantityString);
                 logger.warn(exception.getMessage());
                 throw exception;
             }
 
             //Price
             double price;
+            String priceString = "price";
             try {
-                if (json.getAsNumber("price") != null) {
-                    price = json.getAsNumber("price").doubleValue();
+                if (json.getAsNumber(priceString) != null) {
+                    price = json.getAsNumber(priceString).doubleValue();
                     //If price per item is below 0
                     if (price < 0) {
-                        InvalidPriceException exception = new InvalidPriceException("price");
+                        InvalidPriceException exception = new InvalidPriceException(priceString);
                         logger.warn(exception.getMessage());
                         throw exception;
                     }
@@ -286,7 +288,7 @@ public class SaleListingController {
                     throw exception;
                 }
             } catch (NumberFormatException numberFormatException) { //Field is not a number
-                InvalidNumberFormatException exception = new InvalidNumberFormatException("price");
+                InvalidNumberFormatException exception = new InvalidNumberFormatException(priceString);
                 logger.warn(exception.getMessage());
                 throw exception;
             }
@@ -336,6 +338,28 @@ public class SaleListingController {
             logger.error(String.format("Unexpected error while adding sales listing: %s",
                     unhandledException.getMessage()));
             throw unhandledException;
+        }
+    }
+
+    /**
+     * Likes a sale listing,
+     * @param listingId The sale listing ID the user is trying to like
+     * @param appUser The user that is trying to like a sale listing
+     */
+    @PutMapping("/listings/{listingId}/like")
+    @ResponseStatus(HttpStatus.OK)
+    public void likeSaleListing(@PathVariable Integer listingId,
+                     @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+            logger.info("Request to like a sale listing with ID: {}", listingId);
+
+            saleListingService.likeSaleListing(listingId, appUser);
+        } catch (NotAcceptableException | BadRequestException expectedException) {
+            logger.info(expectedException.getMessage());
+            throw expectedException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while liking sale listings : %s", exception.getMessage()));
+            throw exception;
         }
     }
 
