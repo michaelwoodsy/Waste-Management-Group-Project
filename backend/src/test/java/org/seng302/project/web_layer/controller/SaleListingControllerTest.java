@@ -9,8 +9,6 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.exceptions.*;
-import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
-import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.service_layer.service.SaleListingService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,7 +131,8 @@ class SaleListingControllerTest extends AbstractInitializer {
     void getBusinessListings_nonExistentBusiness_406() throws Exception {
 
         Mockito.when(saleListingService.getBusinessListings(any(Integer.class), any(AppUserDetails.class)))
-                .thenThrow(new BusinessNotFoundException(business.getId()));
+                .thenThrow(new NotAcceptableException(
+                        String.format("Business with ID %d does not exist", business.getId())));
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/businesses/{businessId}/listings", business.getId() + 9999)
@@ -156,7 +155,9 @@ class SaleListingControllerTest extends AbstractInitializer {
         testItem.put("price", 59.99);
         testItem.put("moreInfo", "Some more info about this listing");
         testItem.put("closes", closesDate.toString());
-        Mockito.doThrow(new ForbiddenAdministratorActionException(business.getId())).when(saleListingService)
+        Mockito.doThrow(new ForbiddenException(String.format(
+                "User with id %d can not perform this action as they are not an administrator of business with id %d.",
+                testUser.getId(), business.getId()))).when(saleListingService)
                 .newBusinessListing(any(PostSaleListingDTO.class), any(Integer.class), any(AppUserDetails.class));
 
         RequestBuilder postListingRequest = MockMvcRequestBuilders

@@ -10,8 +10,6 @@ import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.*;
-import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
-import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,69 +41,23 @@ public class SaleListingService {
     private static final String AND_SPACE_REGEX = "( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
     private static final String QUOTE_REGEX = "^\".*\"$";
 
+    private final UserService userService;
+    private final BusinessService businessService;
+
     private final SaleListingRepository saleListingRepository;
-    private final BusinessRepository businessRepository;
-    private final UserRepository userRepository;
     private final InventoryItemRepository inventoryItemRepository;
 
     @Autowired
-    public SaleListingService(SaleListingRepository saleListingRepository,
-                              BusinessRepository businessRepository,
-                              UserRepository userRepository,
+    public SaleListingService(UserService userService,
+                              BusinessService businessService,
+                              SaleListingRepository saleListingRepository,
                               InventoryItemRepository inventoryItemRepository) {
+        this.userService = userService;
+        this.businessService = businessService;
         this.saleListingRepository = saleListingRepository;
-        this.businessRepository = businessRepository;
-        this.userRepository = userRepository;
         this.inventoryItemRepository = inventoryItemRepository;
     }
 
-
-    /**
-     * Returns the current logged in user that made the request.
-     * @param appUser The AppUserDetails object passed in from the authentication principle.
-     * @return User: the user that made the request.
-     */
-    private User getLoggedInUser(AppUserDetails appUser) {
-        String userEmail = appUser.getUsername();
-        return userRepository.findByEmail(userEmail).get(0);
-    }
-
-    /**
-     * Gets a business with the provided id.
-     * @param businessId The id of the business to look for.
-     * @return The business with the corresponding id.
-     * @throws BusinessNotFoundException Thrown if the business doesn't exist.
-     */
-    private Business getBusiness(Integer businessId) throws BusinessNotFoundException {
-        // Get business from repository
-        Optional<Business> foundBusiness = businessRepository.findById(businessId);
-
-        // Check if the business exists
-        if (foundBusiness.isEmpty()) {
-            BusinessNotFoundException exception = new BusinessNotFoundException(businessId);
-            logger.warn(exception.getMessage());
-            throw exception;
-        }
-
-        // Return the found business
-        return foundBusiness.get();
-    }
-
-    /**
-     * Checks if the user is the owner or administrator of the business. Throws an exception if they aren't
-     * @param user The user to check.
-     * @param business The business to check.
-     * @throws ForbiddenAdministratorActionException Thrown if the user isn't and owner or admin of the business.
-     */
-    private void checkUserIsAdminOfBusiness(User user, Business business) throws ForbiddenAdministratorActionException {
-        // Check if the logged in user is the business owner / administrator or a GAA
-        if (!(business.userIsAdmin(user.getId()) ||
-                business.getPrimaryAdministratorId().equals(user.getId())) && !user.isGAA()) {
-            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(business.getId());
-            logger.warn(exception.getMessage());
-            throw exception;
-        }
-    }
 
     /**
      * Gets a list of sale listings for a business.
@@ -116,18 +68,18 @@ public class SaleListingService {
     public List<GetSaleListingDTO> getBusinessListings(Integer businessId, AppUserDetails appUser) {
         try {
             // Get the user that made the request
-            User user = getLoggedInUser(appUser);
+            User user = userService.getLoggedInUser(appUser);
 
             logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId );
 
             // To check the business exists
-            getBusiness(businessId);
+            businessService.checkBusiness(businessId);
 
             // Get the sale listings of the business
             List<SaleListing> listings = saleListingRepository.findAllByBusinessId(businessId);
             return listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList());
 
-        } catch (BusinessNotFoundException exception) {
+        } catch (NotAcceptableException exception) {
             throw exception;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while getting business sale listings: %s",
@@ -184,15 +136,15 @@ public class SaleListingService {
     public void newBusinessListing(PostSaleListingDTO requestDTO, Integer businessId, AppUserDetails appUser) {
         try {
             // Get the user that made the request
-            User user = getLoggedInUser(appUser);
+            User user = userService.getLoggedInUser(appUser);
 
             logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
 
             // Get the business of the request
-            Business business = getBusiness(businessId);
+            Business business = businessService.checkBusiness(businessId);
 
             // Check the user is an admin of the business
-            checkUserIsAdminOfBusiness(user, business);
+            businessService.checkUserCanDoBusinessAction(appUser, business);
 
             Integer inventoryItemId = requestDTO.getInventoryItemId();
             //Check if inventory item exists in businesses inventory items
@@ -232,7 +184,7 @@ public class SaleListingService {
             SaleListing saleListing = new SaleListing(business, item, price, moreInfo, closesDateTime, quantity);
             saleListingRepository.save(saleListing);
 
-        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException |
+        } catch (NotAcceptableException | ForbiddenException |
                 BadRequestException | InvalidDateException exception) {
             throw exception;
         } catch (Exception unhandledException) {
@@ -241,9 +193,6 @@ public class SaleListingService {
             throw unhandledException;
         }
     }
-
-
-
 
 
 

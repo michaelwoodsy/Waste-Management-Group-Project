@@ -10,19 +10,24 @@ import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
+import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
-import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
-import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @DataJpaTest
 class SaleListingServiceTest extends AbstractInitializer {
+
 
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
@@ -30,6 +35,7 @@ class SaleListingServiceTest extends AbstractInitializer {
     private final ProductRepository productRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
+
     private final SaleListingService saleListingService;
 
 
@@ -45,16 +51,27 @@ class SaleListingServiceTest extends AbstractInitializer {
                            AddressRepository addressRepository,
                            ProductRepository productRepository,
                            InventoryItemRepository inventoryItemRepository,
-                           SaleListingRepository saleListingRepository) {
+                           SaleListingRepository saleListingRepository,
+                           //no bean for AuthenticationManager :,(
+                           AuthenticationManager authenticationManager,
+                           BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
-        this.saleListingService = new SaleListingService(
-                this.saleListingRepository, this.businessRepository,
-                this.userRepository, this.inventoryItemRepository);
+
+        UserService userService = new UserService(this.userRepository, this.addressRepository,
+                authenticationManager, passwordEncoder);
+        ProductCatalogueService productCatalogueService = new ProductCatalogueService(this.userRepository,
+                this.businessRepository, this.productRepository, this.inventoryItemRepository);
+        BusinessService businessService = new BusinessService(this.businessRepository, this.addressRepository,
+                this.userRepository, productCatalogueService);
+
+        this.saleListingService = new SaleListingService(userService,
+                businessService, this.saleListingRepository,
+                 this.inventoryItemRepository);
     }
 
     /**
@@ -114,14 +131,14 @@ class SaleListingServiceTest extends AbstractInitializer {
 
 
     /**
-     * Tests that a BusinessNotFoundException is thrown when
+     * Tests that a NotAcceptableException is thrown when
      * a someone tries accessing the listings of a nonexistent business.
      */
     @Test
-    void getBusinessListings_nonExistentBusiness_BusinessNotFoundException() {
+    void getBusinessListings_nonExistentBusiness_NotAcceptableException() {
         AppUserDetails appUser = new AppUserDetails(testUser);
 
-        Assertions.assertThrows(BusinessNotFoundException.class,
+        Assertions.assertThrows(NotAcceptableException.class,
                 () -> saleListingService.getBusinessListings(99, appUser));
 
     }
@@ -139,33 +156,33 @@ class SaleListingServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that a BusinessNotFoundException is thrown when
+     * Tests that a NotAcceptableException is thrown when
      * a someone tries adding a listing to a nonexistent business.
      */
     @Test
-    void postBusinessListings_nonExistentBusiness_BusinessNotFoundException() {
+    void postBusinessListings_nonExistentBusiness_NotAcceptableException() {
         AppUserDetails appUser = new AppUserDetails(testUser);
 
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
                 1,2.20, "Hmmm", "2022-02-29T04:34:55.931Z", 5);
 
-        Assertions.assertThrows(BusinessNotFoundException.class,
+        Assertions.assertThrows(NotAcceptableException.class,
                 () -> saleListingService.newBusinessListing(requestDTO, 99, appUser));
     }
 
 
     /**
-     * Tests that a ForbiddenAdministratorActionException is thrown when
+     * Tests that a ForbiddenException is thrown when
      * a random user tries adding a listing to a business.
      */
     @Test
-    void postBusinessListings_notAdmin_ForbiddenAdministratorActionException() {
+    void postBusinessListings_notAdmin_ForbiddenException() {
         AppUserDetails appUser = new AppUserDetails(testUser);
 
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
                 1,2.20, "Hmmm", "2022-02-29T04:34:55.931Z", 5);
 
-        Assertions.assertThrows(ForbiddenAdministratorActionException.class,
+        Assertions.assertThrows(ForbiddenException.class,
                 () -> saleListingService.newBusinessListing(requestDTO, business1Id, appUser));
     }
 
