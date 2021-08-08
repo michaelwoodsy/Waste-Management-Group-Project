@@ -1,17 +1,27 @@
 package gradle.cucumber.steps;
 
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 /**
@@ -27,6 +37,7 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
     private final CardRepository cardRepository;
+    private final LikedSaleListingRepository likedSaleListingRepository;
 
     User testUser;
 
@@ -44,7 +55,9 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
                                    ProductRepository productRepository,
                                    InventoryItemRepository inventoryItemRepository,
                                    SaleListingRepository saleListingRepository,
-                                   CardRepository cardRepository) {
+                                   CardRepository cardRepository,
+                                   LikedSaleListingRepository likedSaleListingRepository) {
+        this.likedSaleListingRepository = likedSaleListingRepository;
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
@@ -63,6 +76,7 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
     void setup(WebApplicationContext context) {
         //need to clear the local repositories (these are repositories only used in this test class as I used the @AutoConfigureTestDatabase annotation)
         cardRepository.deleteAll();
+        likedSaleListingRepository.deleteAll();
         userRepository.deleteAll();
         saleListingRepository.deleteAll();
         inventoryItemRepository.deleteAll();
@@ -93,5 +107,32 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
         }
     }
 
+    //AC3 - can like a sale listing
+    @Given("I am logged in and there is a sale listing")
+    public void i_am_logged_in_and_there_is_a_sale_listing() {
+        Assertions.assertFalse(saleListingRepository.findAll().isEmpty());
+        Assertions.assertEquals(1, userRepository.findByEmail(testUser.getEmail()).size());
+    }
 
+
+    @When("I try to like the sale listing")
+    public void i_try_to_like_the_sale_listing() throws Exception {
+        var listingId = saleListingRepository.findAll().get(0).getId();
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listingId)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Then("The sale listing is added to my list of liked sale listings")
+    public void the_sale_listing_is_added_to_my_list_of_liked_sale_listings() {
+        var saleListing = saleListingRepository.findAll().get(0);
+        var user = userRepository.findByEmail(testUser.getEmail()).get(0);
+        var likedListing = likedSaleListingRepository.findByListingAndUser(saleListing, user).get(0);
+        var usersLikedListing = user.getLikedSaleListings().get(0);
+
+        Assertions.assertEquals(saleListing, likedListing.getListing());
+        Assertions.assertEquals(likedListing, usersLikedListing);
+    }
 }
