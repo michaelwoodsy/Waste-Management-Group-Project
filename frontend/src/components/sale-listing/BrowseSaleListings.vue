@@ -1,6 +1,12 @@
 <template>
   <page-wrapper>
-    <div v-if="isLoggedIn" class="container-fluid">
+
+    <login-required
+        v-if="!isLoggedIn"
+        page="browse sale listings"
+    />
+
+    <div v-else class="container-fluid">
       <!--    Sale Listings Header    -->
       <div class="row">
         <div class="col-12 text-center mb-2">
@@ -249,10 +255,12 @@ import {Business, Images} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
 import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 import Alert from "@/components/Alert";
+import LoginRequired from "@/components/LoginRequired";
 
 export default {
   name: "BrowseSaleListings.vue",
   components: {
+    LoginRequired,
     IndividualSaleListingModal,
     BusinessProfilePageModal,
     PageWrapper,
