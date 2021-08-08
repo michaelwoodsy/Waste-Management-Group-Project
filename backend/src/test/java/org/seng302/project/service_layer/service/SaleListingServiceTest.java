@@ -226,7 +226,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         AppUserDetails appUser = new AppUserDetails(testAdmin);
 
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
-                inventoryItem.getId(),2.20, "Hmmm", "2022-02-29T04:34:55.931Z", 1);
+                inventoryItem.getId(),2.20, "Hmmm", "2021-11-29T04:34:55.931Z", 1);
 
         saleListingService.newBusinessListing(requestDTO, business1Id, appUser);
         List<SaleListing> listings =  saleListingRepository.findAllByBusinessId(business1Id);
