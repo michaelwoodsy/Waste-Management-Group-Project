@@ -28,7 +28,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -97,7 +98,7 @@ public class UserService {
 
 
         // query the repository and get a Page object, from which you can get the content by doing page.getContent()
-        if(!sortBy.isEmpty()){
+        if (!sortBy.isEmpty()) {
             Page<User> page = sortUserSearch(spec, sortBy, sortASC, pageNumber);
             totalCount = page.getTotalElements();
             users = page.getContent();
@@ -116,6 +117,7 @@ public class UserService {
 
     /**
      * Service method for loging in a user
+     *
      * @param loginCredentials login credentials of a user
      * @return the userId of the user logged in inside of a JSONObject
      */
@@ -134,6 +136,7 @@ public class UserService {
 
     /**
      * Service method for creating a user
+     *
      * @param dto Validated dto containing the users information
      * @return the userId of the user logged in inside of a JSONObject
      */
@@ -156,6 +159,7 @@ public class UserService {
 
     /**
      * Service method for editing a user
+     *
      * @param dto Validated dto containing the users information
      */
     public void editUser(PutUserDTO dto) {
@@ -212,6 +216,7 @@ public class UserService {
 
     /**
      * Service method for retrieving a user
+     *
      * @param id ID of the user to retrieve
      * @return the user data inside of a GetUserDTO
      */
@@ -220,7 +225,27 @@ public class UserService {
     }
 
     /**
+     * Gets a user object from the database based on a provided email address
+     *
+     * @param email Email address to search user by
+     * @return User object if found, null otherwise
+     */
+    public User getUserByEmail(String email) {
+        List<User> returnedUsers = userRepository.findByEmail(email);
+        if (returnedUsers.isEmpty()) {
+            return null;
+        } else if (returnedUsers.size() > 1) {
+            String message = "Multiple users with the same email address found";
+            logger.warn(message);
+            throw new IllegalStateException(message);
+        } else {
+            return returnedUsers.get(0);
+        }
+    }
+
+    /**
      * Service method for making a user a GAA
+     *
      * @param dto dto containing the ID of the user and the details of the logged in user
      */
     public void dgaaMakeAdmin(DGAAMakeRevokeAdminDTO dto) {
@@ -234,6 +259,7 @@ public class UserService {
 
     /**
      * Service method for revoking a users GAA privileges
+     *
      * @param dto dto containing the ID of the user and the details of the logged in user
      */
     public void dgaaRevokeAdmin(DGAAMakeRevokeAdminDTO dto) {
@@ -253,7 +279,8 @@ public class UserService {
     /**
      * Checks if the logged in user is able to perform actions on the user with id userId's account
      * If the user logged in has the ID userId, or the logged in user is a GAA.
-     * @param userId ID of the user account wanting to preform actions on.
+     *
+     * @param userId  ID of the user account wanting to preform actions on.
      * @param appUser Details of the logged in user
      */
     public void checkForbidden(Integer userId, AppUserDetails appUser) {
@@ -269,6 +296,7 @@ public class UserService {
 
     /**
      * Checks if the logged in user has the role "defaultGlobalApplicationAdmin", if not throw an exception
+     *
      * @param appUser logged in users details
      */
     public void checkRequesterIsDGAA(AppUserDetails appUser) {
@@ -280,13 +308,14 @@ public class UserService {
 
     /**
      * Helper function for user search, does the sorting
-     * @param spec the specification used to search by
-     * @param sortBy the column that is to be sorted
+     *
+     * @param spec    the specification used to search by
+     * @param sortBy  the column that is to be sorted
      * @param sortASC the direction of the sort
      * @return the sorted list of users searched for
      */
-    public Page<User> sortUserSearch(Specification<User> spec, String sortBy, boolean sortASC, Integer pageNumber){
-        if(sortASC){
+    public Page<User> sortUserSearch(Specification<User> spec, String sortBy, boolean sortASC, Integer pageNumber) {
+        if (sortASC) {
             sortBy = sortBy.substring(0, sortBy.lastIndexOf("A"));
             Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by(Sort.Order.asc(sortBy).ignoreCase()));
             return userRepository.findAll(spec, pageable);
@@ -299,14 +328,25 @@ public class UserService {
 
     /**
      * Checks if the sort column is one of the valid ones, if not replaces it with the empty string and no sorting is done
+     *
      * @param sortBy This is the string that will contain information about what column to sort by
      * @return A list that contains a boolean to describe if the sort is ascending or descending, and the sortby string
      * in case it has changed
      */
-    public List<Object> checkSort(String sortBy){
-        switch(sortBy){
-            case "idASC": case "idDESC": case "firstNameASC": case "firstNameDESC": case "middleNameASC": case "middleNameDESC":
-            case "lastNameASC": case "lastNameDESC": case "emailASC": case "emailDESC": case "homeAddressASC": case "homeAddressDESC":
+    public List<Object> checkSort(String sortBy) {
+        switch (sortBy) {
+            case "idASC":
+            case "idDESC":
+            case "firstNameASC":
+            case "firstNameDESC":
+            case "middleNameASC":
+            case "middleNameDESC":
+            case "lastNameASC":
+            case "lastNameDESC":
+            case "emailASC":
+            case "emailDESC":
+            case "homeAddressASC":
+            case "homeAddressDESC":
                 break;
             default:
                 sortBy = "";

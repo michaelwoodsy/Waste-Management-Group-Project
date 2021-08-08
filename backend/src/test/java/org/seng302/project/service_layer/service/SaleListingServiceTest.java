@@ -3,6 +3,7 @@ package org.seng302.project.service_layer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
@@ -29,6 +30,7 @@ class SaleListingServiceTest extends AbstractInitializer {
     private final SaleListingRepository saleListingRepository;
     private final LikedSaleListingRepository likedSaleListingRepository;
     private final SaleListingService saleListingService;
+    private final UserService userService;
 
     User testUser;
 
@@ -53,9 +55,11 @@ class SaleListingServiceTest extends AbstractInitializer {
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
+        this.userService = Mockito.mock(UserService.class);
         this.saleListingService = new SaleListingService(
                 this.saleListingRepository,
-                this.likedSaleListingRepository
+                this.likedSaleListingRepository,
+                this.userService
         );
     }
 
@@ -64,9 +68,9 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @BeforeEach
     void setup() {
-        this.testUser = this.getTestUser();
+        testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
-        userRepository.save(testUser);
+        testUser = userRepository.save(testUser);
 
         Address address1 = new Address(null, null, "Rangiora", null, "Netherlands", null);
         Business business1 = new Business("First Business", null, address1, "Retail Trade", 1);
@@ -79,14 +83,14 @@ class SaleListingServiceTest extends AbstractInitializer {
         InventoryItem inventoryItem1 = new InventoryItem(product1, 5, null, null, "2021-01-01", null, null, "2021-12-01");
         inventoryItemRepository.save(inventoryItem1);
         saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
-        saleListingRepository.save(saleListing1);
+        saleListing1 = saleListingRepository.save(saleListing1);
 
         Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
         productRepository.save(product2);
         InventoryItem inventoryItem2 = new InventoryItem(product2, 10, null, null, "2021-01-01", null, null, "2021-12-02");
         inventoryItemRepository.save(inventoryItem1);
         saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
-        saleListingRepository.save(saleListing2);
+        saleListing2 = saleListingRepository.save(saleListing2);
 
         Address address2 = new Address(null, null, "Christchurch", null, "New Zealand", null);
         Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
@@ -829,6 +833,8 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @Test
     void unlikeSaleListing_invalidListingId_throwsException() {
+        Mockito.when(userService.getUserByEmail(testUser.getEmail()))
+                .thenReturn(testUser);
         AppUserDetails user = new AppUserDetails(this.testUser);
 
         Assertions.assertThrows(NotAcceptableException.class,
@@ -840,11 +846,32 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @Test
     void unlikeSaleListing_listingNotLiked_throwsException() {
+        Mockito.when(userService.getUserByEmail(testUser.getEmail()))
+                .thenReturn(testUser);
         LikedSaleListing listing = new LikedSaleListing(this.testUser, this.saleListing1);
         likedSaleListingRepository.save(listing);
 
+        Integer id = this.saleListing2.getId();
         AppUserDetails user = new AppUserDetails(this.testUser);
         Assertions.assertThrows(BadRequestException.class,
-                () -> saleListingService.unlikeSaleListing(this.saleListing2.getId(), user));
+                () -> saleListingService.unlikeSaleListing(id, user));
+    }
+
+    /**
+     * Test that trying to unlike a sale listing that has been liked by a user results in success
+     */
+    @Test
+    void unlikeSaleListing_validRequest_success() {
+        Mockito.when(userService.getUserByEmail(testUser.getEmail()))
+                .thenReturn(testUser);
+        LikedSaleListing listing = new LikedSaleListing(this.testUser, this.saleListing1);
+        likedSaleListingRepository.save(listing);
+        testUser.addLikedListing(listing);
+
+        Integer id = this.saleListing1.getId();
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        saleListingService.unlikeSaleListing(id, user);
+        List<LikedSaleListing> likedSaleListings = likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser);
+        Assertions.assertEquals(0, likedSaleListings.size());
     }
 }

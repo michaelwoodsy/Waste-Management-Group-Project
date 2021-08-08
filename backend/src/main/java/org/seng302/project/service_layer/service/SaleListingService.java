@@ -1,12 +1,16 @@
 package org.seng302.project.service_layer.service;
 
+import org.seng302.project.repository_layer.model.LikedSaleListing;
 import org.seng302.project.repository_layer.model.SaleListing;
+import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
 import org.seng302.project.repository_layer.repository.SaleListingRepository;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +29,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -37,12 +42,15 @@ public class SaleListingService {
 
     private final SaleListingRepository saleListingRepository;
     private final LikedSaleListingRepository likedSaleListingRepository;
+    private final UserService userService;
 
     @Autowired
     public SaleListingService(SaleListingRepository saleListingRepository,
-                              LikedSaleListingRepository likedSaleListingRepository) {
+                              LikedSaleListingRepository likedSaleListingRepository,
+                              UserService userService) {
         this.saleListingRepository = saleListingRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
+        this.userService = userService;
     }
 
     /**
@@ -375,6 +383,25 @@ public class SaleListingService {
      * @param user      User who is unliking the sale listing
      */
     public void unlikeSaleListing(Integer listingId, AppUserDetails user) {
+        User loggedInUser = userService.getUserByEmail(user.getUsername());
+        Optional<SaleListing> listing = saleListingRepository.findById(listingId);
 
+        if (listing.isEmpty()) {
+            String message = String.format("No sale listing with ID %d exists", listingId);
+            logger.warn(message);
+            throw new NotAcceptableException(message);
+        }
+
+        List<LikedSaleListing> result = likedSaleListingRepository.findByListingAndUser(listing.get(), loggedInUser);
+
+        if (result.isEmpty()) {
+            String message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listingId);
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
+
+        LikedSaleListing likedSaleListing = result.get(0);
+        loggedInUser.removeLikedListing(likedSaleListing);
+        likedSaleListingRepository.delete(likedSaleListing);
     }
 }
