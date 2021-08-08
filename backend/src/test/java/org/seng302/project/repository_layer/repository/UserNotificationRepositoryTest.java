@@ -33,7 +33,7 @@ class UserNotificationRepositoryTest extends AbstractInitializer {
     void setup() {
         // Save test user and associated entities
         testUser = getTestUser();
-        testUser.setHomeAddress(addressRepository.save(getTestUser().getHomeAddress()));
+        testUser.setHomeAddress(addressRepository.save(testUser.getHomeAddress()));
         testUser = userRepository.save(testUser);
 
 
