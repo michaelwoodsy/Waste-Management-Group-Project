@@ -59,6 +59,11 @@
           <h1><span v-if="user.isActingAsUser()">Hello </span>{{ user.actor().name }}</h1>
           <hr>
         </div>
+        <div>
+          <p>UNDO BuTTON: {{canUndo}}</p>
+          <button v-if="canUndo" @click="undoDelete()" class="btn btn-primary">Undo</button>
+        </div>
+
         <!-- Cards Section -->
         <div v-if="user.isActingAsUser()">
           <h2>My Cards</h2>
@@ -155,6 +160,7 @@ import {User} from "@/Api";
 import userState from "@/store/modules/user"
 import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
+import undo from "@/utils/undo"
 
 export default {
   name: "Home",
@@ -250,6 +256,13 @@ export default {
       let sortedMessages = [...this.messages]
       sortedMessages.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
       return sortedMessages
+    },
+
+    /**
+     * True if there is an operation that can be undone
+     */
+    canUndo() {
+      return undo.state.toDelete !== null
     }
 
   },
@@ -391,6 +404,18 @@ export default {
     },
 
     /**
+     * Adds a notification back to the list of notifications.
+     * Run after an undo operation is performed.
+     */
+    async addNotification(data) {
+      this.notifications.push(data);
+
+      // these lines are required to render the notification just added
+      await this.$nextTick()
+      $('.toast').toast('show')
+    },
+
+    /**
      * Remove a message from the list of visible messages
      * @param messageId the id of the message that is to be removed
      */
@@ -401,6 +426,14 @@ export default {
           this.messages.splice(index, 1)
         }
       }
+    },
+
+    /**
+     * Undoes the last delete operation.
+     */
+    undoDelete() {
+      this.addNotification(undo.state.toDelete.notification)
+      undo.cancelDelete()
     }
   }
 }
