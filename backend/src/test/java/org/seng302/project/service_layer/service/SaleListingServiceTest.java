@@ -3,21 +3,26 @@ package org.seng302.project.service_layer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
-import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 @DataJpaTest
 class SaleListingServiceTest extends AbstractInitializer {
@@ -34,12 +39,15 @@ class SaleListingServiceTest extends AbstractInitializer {
     private final SaleListingService saleListingService;
 
     User testUser;
+    User testOtherUser;
 
     Integer business1Id;
     Integer business2Id;
 
     SaleListing saleListing1;
     SaleListing saleListing2;
+    SaleListing saleListing3;
+    SaleListing saleListing4;
 
     @Autowired
     SaleListingServiceTest(BusinessRepository businessRepository,
@@ -75,9 +83,13 @@ class SaleListingServiceTest extends AbstractInitializer {
     @BeforeEach
     void setup() {
         this.testUser = this.getTestUser();
+        this.testOtherUser = this.getTestOtherUser();
         addressRepository.save(testUser.getHomeAddress());
+        addressRepository.save(testOtherUser.getHomeAddress());
         testUser.setId(null);
+        testOtherUser.setId(null);
         userRepository.save(testUser);
+        userRepository.save(testOtherUser);
 
         Address address1 = new Address(null, null, "Rangiora", null, "Netherlands", null);
         Business business1 = new Business("First Business", null, address1, "Retail Trade", 1);
@@ -109,14 +121,14 @@ class SaleListingServiceTest extends AbstractInitializer {
         productRepository.save(product3);
         InventoryItem inventoryItem3 = new InventoryItem(product3, 5, null, null, "2021-01-01", null, null, "2021-12-03");
         inventoryItem3 = inventoryItemRepository.save(inventoryItem3);
-        SaleListing saleListing3 = new SaleListing(business2, inventoryItem3, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
+        saleListing3 = new SaleListing(business2, inventoryItem3, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
         saleListingRepository.save(saleListing3);
 
         Product product4 = new Product("TEST-4", "Fourth Product", null, null, 5.00, business2.getId());
         productRepository.save(product4);
         InventoryItem inventoryItem4 = new InventoryItem(product4, 5, null, null, "2021-01-01", null, null, "2021-12-04");
         inventoryItem4 = inventoryItemRepository.save(inventoryItem4);
-        SaleListing saleListing4 = new SaleListing(business2, inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
+        saleListing4 = new SaleListing(business2, inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
         saleListingRepository.save(saleListing4);
     }
 
@@ -838,4 +850,49 @@ class SaleListingServiceTest extends AbstractInitializer {
 //        Assertions.assertThrows(BadRequestException.class,
 //                () -> saleListingService.unlikeSaleListing(this.saleListing2.getId(), user));
 //    }
+
+    /**
+     * Test that trying to purchase a listing that does not exist results in a NotAcceptableException being thrown
+     */
+    @Test
+    void purchase_listing_listing_not_exist() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.buySaleListing(1000, user));
+    }
+
+    /**
+     * Test that when purchasing a listing, a purchaser notification is created for the purchaser
+     */
+    @Test
+    void purchase_listing_listing_purchase_notification_sent() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Assertions.assertDoesNotThrow(() -> saleListingService.buySaleListing(saleListing1.getId(), user));
+
+        List<UserNotification> notifications = userNotificationRepository.findAll();
+        Assertions.assertEquals(1, notifications.size());
+        PurchaserNotification notification = (PurchaserNotification) notifications.get(0);
+        Assertions.assertEquals(testUser.getId(), notification.getUser().getId());
+        Assertions.assertEquals(testUser.getEmail(), notification.getUser().getEmail());
+    }
+
+    /**
+     * Test that when purchasing a listing, a InterestedUserNotifications' are created for the users who liked the listing
+     */
+    @Test
+    void purchase_listing_listing_interested_notifications_sent() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        LikedSaleListing like1 = new LikedSaleListing(testUser, saleListing1);
+        LikedSaleListing like2 = new LikedSaleListing(testOtherUser, saleListing1);
+        likedSaleListingRepository.save(like1);
+        testUser.addLikedSaleListing(like1);
+        likedSaleListingRepository.save(like2);
+        testOtherUser.addLikedSaleListing(like2);
+
+        saleListingService.buySaleListing(saleListing1.getId(), user);
+
+        List<UserNotification> notifications = userNotificationRepository.findAll();
+        System.out.println(notifications);
+        Assertions.assertEquals(2, notifications.size());
+    }
 }
