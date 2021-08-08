@@ -79,8 +79,9 @@ public class PurchaseSaleListingsSteps extends AbstractInitializer {
     @BeforeEach
     @Autowired
     void setup(WebApplicationContext context) {
-        userNotificationRepository.deleteAll();
         likedSaleListingRepository.deleteAll();
+        userNotificationRepository.deleteAll();
+        userRepository.deleteAll();
 
         this.initialise();
         mockMvc = MockMvcBuilders
@@ -90,10 +91,12 @@ public class PurchaseSaleListingsSteps extends AbstractInitializer {
 
         testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
+        testUser.setId(null);
         userRepository.save(testUser);
 
         testOtherUser = this.getTestOtherUser();
         addressRepository.save(testOtherUser.getHomeAddress());
+        testOtherUser.setId(null);
         userRepository.save(testOtherUser);
     }
 
@@ -101,7 +104,6 @@ public class PurchaseSaleListingsSteps extends AbstractInitializer {
     void teardown() {
         userNotificationRepository.deleteAll();
         likedSaleListingRepository.deleteAll();
-        userRepository.deleteAll();
         saleHistoryRepository.deleteAll();
         saleListingRepository.deleteAll();
         inventoryItemRepository.deleteAll();
@@ -134,14 +136,15 @@ public class PurchaseSaleListingsSteps extends AbstractInitializer {
 
     @And("Other users have liked that sales listing")
     public void otherUsersHaveLikedThatSalesListing() {
-        testUser = userRepository.save(testUser);
         LikedSaleListing like1 = new LikedSaleListing(testUser, listing);
         likedSaleListingRepository.save(like1);
+        testUser.addLikedSaleListing(like1);
+        userRepository.save(testUser);
 
-        testOtherUser = userRepository.save(testOtherUser);
         LikedSaleListing like2 = new LikedSaleListing(testOtherUser, listing);
         likedSaleListingRepository.save(like2);
-
+        testOtherUser.addLikedSaleListing(like2);
+        userRepository.save(testOtherUser);
     }
 
     @When("A user purchases the sale listing")
@@ -150,10 +153,10 @@ public class PurchaseSaleListingsSteps extends AbstractInitializer {
                 .with(user(new AppUserDetails(testUser)))).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
+    @Transactional
     @Then("Notifications are created for the users that liked that sales listing notifying them that it has been purchased")
     public void notificationsAreCreatedForTheUsersThatLikedThatSalesListingNotifyingThemThatItHasBeenPurchased() {
         List<UserNotification> notifications = userNotificationRepository.findAllByUser(testUser);
-        System.out.println(userNotificationRepository.findAll());
         Assertions.assertEquals(1, notifications.size());
         //The purchaser does not get a notification saying the listing has been sold
         Assertions.assertEquals(PurchaserNotification.class, notifications.get(0).getClass());
@@ -165,6 +168,14 @@ public class PurchaseSaleListingsSteps extends AbstractInitializer {
 
         InterestedUserNotification expectedNotification = new InterestedUserNotification(testOtherUser, listing);
         Assertions.assertEquals(expectedNotification.getMessage(), notifications.get(0).getMessage());
+
+        var user1 = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(user1.isPresent());
+        Assertions.assertEquals(0, user1.get().getLikedSaleListings().size());
+
+        var user2 = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(user2.isPresent());
+        Assertions.assertEquals(0, user2.get().getLikedSaleListings().size());
     }
 
     //AC2: A notification is sent to the purchaser of a sales listing detailing payment and collection details
@@ -172,7 +183,6 @@ public class PurchaseSaleListingsSteps extends AbstractInitializer {
     @Then("A notification is sent to the purchaser with payment and collection details")
     public void aNotificationIsSentToThePurchaserWithPaymentAndCollectionDetails() {
         List<UserNotification> notifications = userNotificationRepository.findAllByUser(testUser);
-        System.out.println(userNotificationRepository.findAll());
         Assertions.assertEquals(1, notifications.size());
         Assertions.assertEquals(PurchaserNotification.class, notifications.get(0).getClass());
 

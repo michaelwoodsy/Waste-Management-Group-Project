@@ -404,11 +404,6 @@ public class SaleListingService {
      */
     public void buySaleListing(Integer listingId, AppUserDetails appUser) {
         var buyer = userRepository.findByEmail(appUser.getUsername()).get(0);
-        var likes1 = likedSaleListingRepository.findAll();
-        for (var like: likes1) {
-            System.out.println(like.getUser().getFirstName());
-            System.out.println(like.getListing().getInventoryItem().getProduct().getName());
-        }
 
         var listingOptional = saleListingRepository.findById(listingId);
         if (listingOptional.isEmpty()) {
@@ -452,7 +447,6 @@ public class SaleListingService {
         List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(listing);
         for (var like: likes) {
             //Make sure not to send this notification to the buyer
-            System.out.println(like.getUser().getId() + "     " + buyer.getId());
             if (!like.getUser().getId().equals(buyer.getId())) {
                 var interestedUserNotification = new InterestedUserNotification(like.getUser(), like.getListing());
                 userNotificationRepository.save(interestedUserNotification);
@@ -465,17 +459,5 @@ public class SaleListingService {
 
         //Remove the sales listing
         saleListingRepository.delete(listing);
-
-//        System.out.println("----------------------------------------SOLD----------------------------------------");
-//
-//        var listings = saleListingRepository.findAll();
-//        for (var list: listings) {
-//            System.out.println(list.getInventoryItem().getProduct().getName());
-//        }
-//
-//        var notifications = userNotificationRepository.findAll();
-//        for (var notification: notifications) {
-//            System.out.println(notification.getMessage());
-//        }
     }
 }

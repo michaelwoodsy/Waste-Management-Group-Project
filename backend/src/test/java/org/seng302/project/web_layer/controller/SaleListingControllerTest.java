@@ -136,6 +136,9 @@ class SaleListingControllerTest {
 
         mockMvc.perform(post("/businesses/{id}/listings", business.getId()))
                 .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(post("/listings/{listingId}/buy", 1))
+                .andExpect(status().isUnauthorized());
     }
 
     /**
@@ -442,6 +445,22 @@ class SaleListingControllerTest {
                 .param("matchingBusinessType", String.valueOf(false))
                 .param("pageNumber", String.valueOf(1))
                 .param("sortBy", "").with(user(new AppUserDetails(user))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Test successful purchase of sale listing (by getting a OK response)
+     */
+    @Test
+    void listingPurchase_OK_200() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing = saleListingRepository.save(listing);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/listings/{listingId}/buy", listing.getId())
+                .with(user(new AppUserDetails(user))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
