@@ -125,7 +125,7 @@ public class PurchaseSaleListingsSteps extends AbstractInitializer {
         Product product = listing.getInventoryItem().getProduct();
         product.setBusinessId(business.getId());
         productRepository.save(product);
-        //inventoryItemRepository.save(listing.getInventoryItem());
+        inventoryItemRepository.save(listing.getInventoryItem());
         listing = saleListingRepository.save(listing);
 
         Assertions.assertEquals("First Product", listing.getInventoryItem().getProduct().getName());
@@ -196,11 +196,11 @@ public class PurchaseSaleListingsSteps extends AbstractInitializer {
         Integer newQuantity = listing.getInventoryItem().getQuantity() - listing.getQuantity();
 
         Optional<InventoryItem> itemOptional = inventoryItemRepository.findById(listing.getInventoryItem().getId());
-        //TODO: Uncomment this
-        //Assertions.assertTrue(itemOptional.isPresent());
-        //InventoryItem item = itemOptional.get();
 
-        //Assertions.assertEquals(newQuantity, item.getQuantity());
+        Assertions.assertTrue(itemOptional.isPresent());
+        InventoryItem item = itemOptional.get();
+
+        Assertions.assertEquals(newQuantity, item.getQuantity());
     }
 
     //AC4: The sale listing is removed after purchase

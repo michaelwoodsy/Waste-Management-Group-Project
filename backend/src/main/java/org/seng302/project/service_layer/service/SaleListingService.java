@@ -424,7 +424,6 @@ public class SaleListingService {
         //Updating the inventory items quantity
         var inventoryItem = listing.getInventoryItem();
         inventoryItem.setQuantity(inventoryItem.getQuantity() - listing.getQuantity());
-        System.out.println(inventoryItem.getQuantity());
 
         //Remove the inventory item if the quantity is 0
         if (inventoryItem.getQuantity() <= 0) {
@@ -441,8 +440,10 @@ public class SaleListingService {
                 }
                 saleListingRepository.delete(saleListing);
             }
+            inventoryItemRepository.delete(inventoryItem);
+        } else {
+            inventoryItemRepository.save(inventoryItem);
         }
-        inventoryItemRepository.save(inventoryItem);
 
         //Send notifications to the users who liked the listing saying it was brought
         List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(listing);
