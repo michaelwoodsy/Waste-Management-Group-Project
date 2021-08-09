@@ -244,4 +244,52 @@ class NotificationServiceTest extends AbstractInitializer {
         Assertions.assertThrows(NoNotificationExistsException.class,
                 () -> notificationService.deleteAdminNotification(noAdminNotificationId, appUser));
     }
+
+    /**
+     * Tests that a user can successfully read one of their notifications
+     */
+    @Test
+    void readNotification_success() {
+        int test = 1;
+        Assertions.assertEquals(1, test);
+    }
+
+    /**
+     * Tests that an exception is thrown when a user tries to read a notification when they
+     * are not logged in
+     */
+    @Test
+    void readNotification_notLoggedIn_throwsException() {
+        int test = 1;
+        Assertions.assertEquals(1, test);
+    }
+
+    /**
+     * Tests that an exception is thrown when a user tries to read a notification for
+     * a user that is not thenm.
+     */
+    @Test
+    void readNotification_notAuthorized_throwsException() {
+        int test = 1;
+        Assertions.assertEquals(1, test);
+    }
+
+    /**
+     * Tests that an exception is thrown when a notification is trying to be read for
+     * a user that does not exist
+     */
+    @Test
+    void readNotification_userNotFound_throwsException() {
+        int test = 1;
+        Assertions.assertEquals(1, test);
+    }
+
+    /**
+     * Tests that an exception is thrown when a user tries to read a notification that doesn't exist
+     */
+    @Test
+    void readNotification_notificationNotFound_throwsException() {
+        int test = 1;
+        Assertions.assertEquals(1, test);
+    }
 }

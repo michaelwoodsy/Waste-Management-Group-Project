@@ -1,5 +1,6 @@
 package org.seng302.project.web_layer.controller;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.repository_layer.model.AdminNotification;
 import org.seng302.project.repository_layer.model.UserNotification;
 import org.seng302.project.service_layer.dto.notifications.DeleteUserNotificationDTO;
@@ -78,7 +79,9 @@ public class NotificationController {
      * @param appUser The user trying to read/unread the notification
      */
     @PatchMapping("/users/{userId}/notifications/{notificationId}/read")
-    public void readNotification(@PathVariable int userId, @PathVariable int notificationId, @AuthenticationPrincipal AppUserDetails appUser) {
-        notificationService.readNotification(userId, notificationId, appUser);
+    public void readNotification(@RequestBody JSONObject requestBody, @PathVariable int userId,
+                                 @PathVariable int notificationId, @AuthenticationPrincipal AppUserDetails appUser) {
+        boolean read = (boolean) requestBody.get("read");
+        notificationService.readNotification(read, userId, notificationId, appUser);
     }
 }

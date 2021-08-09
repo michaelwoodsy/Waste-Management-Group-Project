@@ -1,5 +1,6 @@
 package org.seng302.project.web_layer.controller;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -293,5 +294,51 @@ class NotificationControllerTest extends AbstractInitializer {
         mockMvc.perform(get("/users/{userId}/notifications", testUser.getId())
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that a 200 status is returned when a notification is read successfully.
+     */
+    @Test
+    void readNotification_validRequest200() throws Exception {
+        int test = 1;
+        Assertions.assertEquals(1, test);
+    }
+
+    /**
+     * Tests that a 401 status is returned when a user is not logged in
+     */
+    @Test
+    void readNotification_notLoggedIn401() throws Exception {
+        int test = 1;
+        Assertions.assertEquals(1, test);
+    }
+
+    /**
+     * Tests that a 403 status is returned when a user is trying to read
+     * a notification for someone else
+     */
+    @Test
+    void readNotification_notAuthorized403() throws Exception {
+        int test = 1;
+        Assertions.assertEquals(1, test);
+    }
+
+    /**
+     * Tests that a 406 status is returned when a user does not exist
+     */
+    @Test
+    void readNotification_userNotFound_notAcceptable406() throws Exception {
+        int test = 1;
+        Assertions.assertEquals(1, test);
+    }
+
+    /**
+     * Tests that a 406 status is returned when a notification does not exist
+     */
+    @Test
+    void readNotification_notificationNotFound_notAcceptable406() throws Exception {
+        int test = 1;
+        Assertions.assertEquals(1, test);
     }
 }

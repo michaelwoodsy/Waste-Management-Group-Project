@@ -157,11 +157,12 @@ public class NotificationService {
      * Marks a notification as read/unread depending on the current
      * status of the notification
      *
+     * @param read boolean stating whether the message is to be changed to read or unread
      * @param userId ID of the user to read/unread the notification for
      * @param notificationId ID of the notification to read/unread
      * @param appUser The user trying to read/unread the notification
      */
-    public void readNotification(Integer userId, Integer notificationId, AppUserDetails appUser) {
+    public void readNotification(boolean read, Integer userId, Integer notificationId, AppUserDetails appUser) {
 
     }
 }
