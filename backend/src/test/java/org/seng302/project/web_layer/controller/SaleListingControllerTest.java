@@ -366,13 +366,13 @@ class SaleListingControllerTest extends AbstractInitializer {
     @Test
     void listingPurchase_OK_200() throws Exception {
         // Create new sale listing
-        listing = new SaleListing(business, inventoryItem, 15.00, null,
+        SaleListing listing = new SaleListing(business, inventoryItem, 15.00, null,
                 LocalDateTime.now(), 1);
-        listing = saleListingRepository.save(listing);
+        listing.setId(1000);
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/listings/{listingId}/buy", listing.getId())
-                .with(user(new AppUserDetails(user))))
+                .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }

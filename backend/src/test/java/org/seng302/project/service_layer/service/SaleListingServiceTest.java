@@ -46,7 +46,6 @@ class SaleListingServiceTest extends AbstractInitializer {
     private final SaleListingRepository saleListingRepository;
     private final LikedSaleListingRepository likedSaleListingRepository;
     private final SaleHistoryRepository saleHistoryRepository;
-    private final UserRepository userRepository;
     private final UserNotificationRepository userNotificationRepository;
 
     private final SaleListingService saleListingService;
@@ -87,13 +86,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         this.likedSaleListingRepository = likedSaleListingRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.userNotificationRepository = userNotificationRepository;
-        this.saleListingService = new SaleListingService(
-                this.saleListingRepository,
-                this.likedSaleListingRepository,
-                this.saleHistoryRepository,
-                this.inventoryItemRepository,
-                this.userRepository,
-                this.userNotificationRepository);
 
         UserService userService = new UserService(this.userRepository, this.addressRepository,
                 authenticationManager, passwordEncoder);
@@ -102,9 +94,15 @@ class SaleListingServiceTest extends AbstractInitializer {
         BusinessService businessService = new BusinessService(this.businessRepository, this.addressRepository,
                 this.userRepository, productCatalogueService);
 
-        this.saleListingService = new SaleListingService(userService,
-                businessService, this.saleListingRepository,
-                 this.inventoryItemRepository);
+        this.saleListingService = new SaleListingService(
+                userService,
+                businessService,
+                this.saleListingRepository,
+                this.likedSaleListingRepository,
+                this.saleHistoryRepository,
+                this.inventoryItemRepository,
+                this.userRepository,
+                this.userNotificationRepository);
     }
 
     /**
@@ -114,14 +112,17 @@ class SaleListingServiceTest extends AbstractInitializer {
     void setup() {
         testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
+        testUser.setId(null);
         testUser = userRepository.save(testUser);
 
         this.testOtherUser = this.getTestOtherUser();
         addressRepository.save(testOtherUser.getHomeAddress());
+        testOtherUser.setId(null);
         userRepository.save(testOtherUser);
 
         testAdmin = this.getTestUserBusinessAdmin();
         addressRepository.save(testAdmin.getHomeAddress());
+        testAdmin.setId(null);
         testAdmin = userRepository.save(testAdmin);
 
         Address address1 = new Address(null, null, "Rangiora", null, "Netherlands", null);
@@ -132,7 +133,7 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Product product1 = new Product("TEST-1", "First Product", null, null, 5.00, business1.getId());
         productRepository.save(product1);
-        InventoryItem inventoryItem1 = new InventoryItem(product1, 5, null, null, "2021-01-01", null, null, "2021-12-01");
+        InventoryItem inventoryItem1 = new InventoryItem(product1, 10, null, null, "2021-01-01", null, null, "2021-12-01");
         inventoryItem = inventoryItemRepository.save(inventoryItem1);
         saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
         saleListingRepository.save(saleListing1);
@@ -1034,10 +1035,12 @@ class SaleListingServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Test that when purchasing a listing, a InterestedUserNotifications' are created for the users who liked the listing
+     * Test that when purchasing a listing, a two notifications are created
+     * One for the purchaser and one for the other user who liked the listing
+     * note: the buyer also likes the listing but doesnt get sent the interested user notification as well
      */
     @Test
-    void purchase_listing_listing_interested_notifications_sent() {
+    void purchase_listing_listing_notifications_sent() {
         AppUserDetails user = new AppUserDetails(this.testUser);
         LikedSaleListing like1 = new LikedSaleListing(testUser, saleListing1);
         LikedSaleListing like2 = new LikedSaleListing(testOtherUser, saleListing1);
@@ -1051,5 +1054,15 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<UserNotification> notifications = userNotificationRepository.findAll();
         System.out.println(notifications);
         Assertions.assertEquals(2, notifications.size());
+
+        //First one is a purchaser notification
+        PurchaserNotification purchaserNotification = (PurchaserNotification) notifications.get(0);
+        Assertions.assertEquals(testUser.getId(), purchaserNotification.getUser().getId());
+        Assertions.assertEquals(testUser.getEmail(), purchaserNotification.getUser().getEmail());
+
+        //Second one is a Interested user notification
+        InterestedUserNotification interestedUserNotification = (InterestedUserNotification) notifications.get(1);
+        Assertions.assertEquals(testOtherUser.getId(), interestedUserNotification.getUser().getId());
+        Assertions.assertEquals(testOtherUser.getEmail(), interestedUserNotification.getUser().getEmail());
     }
 }

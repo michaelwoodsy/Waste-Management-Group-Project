@@ -600,7 +600,6 @@ public class SaleListingService {
 
         //Send notifications to the users who liked the listing saying it was brought
         List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(listing);
-        System.out.println(likedSaleListingRepository.findAll().size());
         for (var like: likes) {
             //Make sure not to send this notification to the buyer
             if (!like.getUser().getId().equals(buyer.getId())) {
