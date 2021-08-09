@@ -3,6 +3,7 @@ package org.seng302.project.web_layer.controller;
 import net.minidev.json.JSONObject;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.service_layer.dto.inventory_item.GetInventoryItemDTO;
 import org.seng302.project.service_layer.exceptions.*;
 import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
 import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
@@ -20,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Rest controller for products.
@@ -57,7 +59,7 @@ public class InventoryItemController {
      */
     @GetMapping("/businesses/{businessId}/inventory")
     @ResponseStatus(HttpStatus.OK)
-    public List<InventoryItem> getInventory(@PathVariable Integer businessId, @AuthenticationPrincipal AppUserDetails appUser) {
+    public List<GetInventoryItemDTO> getInventory(@PathVariable Integer businessId, @AuthenticationPrincipal AppUserDetails appUser) {
 
         try {
             Business business = businessRepository.findById(businessId).orElse(null);
@@ -72,8 +74,8 @@ public class InventoryItemController {
                 logger.warn(notAdminException.getMessage());
                 throw notAdminException;
             }
-
-            return inventoryItemRepository.findAllByBusinessId(businessId);
+            List<InventoryItem> items = inventoryItemRepository.findAllByBusinessId(businessId);
+            return items.stream().map(GetInventoryItemDTO::new).collect(Collectors.toList());
 
         } catch (BusinessNotFoundException | ForbiddenAdministratorActionException exception) {
             throw exception;
