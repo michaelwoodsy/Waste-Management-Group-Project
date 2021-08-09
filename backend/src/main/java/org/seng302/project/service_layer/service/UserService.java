@@ -54,6 +54,17 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+
+    /**
+     * Returns the current logged in user that made the request.
+     * @param appUser The AppUserDetails object passed in from the authentication principle.
+     * @return User: the user that made the request.
+     */
+    public User getLoggedInUser(AppUserDetails appUser) {
+        String userEmail = appUser.getUsername();
+        return userRepository.findByEmail(userEmail).get(0);
+    }
+
     /**
      * Searches for users based on a search query string.
      * Regular expression for splitting search query taken from linked website.
