@@ -2,13 +2,18 @@ package org.seng302.project.web_layer.controller;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.model.Business;
+import org.seng302.project.repository_layer.model.InventoryItem;
+import org.seng302.project.repository_layer.model.Product;
+import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
-import org.seng302.project.service_layer.exceptions.*;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
+import org.seng302.project.service_layer.exceptions.ForbiddenException;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.SaleListingService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +42,8 @@ class SaleListingControllerTest extends AbstractInitializer {
     private User testUser;
     private User owner;
     private User systemAdmin;
-
     private Business business;
-
     private InventoryItem inventoryItem;
-
 
     @Autowired
     private MockMvc mockMvc;
@@ -90,7 +92,6 @@ class SaleListingControllerTest extends AbstractInitializer {
      */
     @Test
     void getBusinessListings_asBusinessAdmin_200() throws Exception {
-
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/businesses/{businessId}/listings", business.getId())
                 .with(user(new AppUserDetails(owner)));
@@ -103,7 +104,6 @@ class SaleListingControllerTest extends AbstractInitializer {
      */
     @Test
     void getBusinessListings_asSystemAdmin_200() throws Exception {
-
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/businesses/{businessId}/listings", business.getId())
                 .with(user(new AppUserDetails(systemAdmin)));
@@ -116,7 +116,6 @@ class SaleListingControllerTest extends AbstractInitializer {
      */
     @Test
     void getBusinessListings_normalUser_200() throws Exception {
-
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/businesses/{businessId}/listings", business.getId())
                 .with(user(new AppUserDetails(testUser)));
@@ -156,8 +155,8 @@ class SaleListingControllerTest extends AbstractInitializer {
         testItem.put("moreInfo", "Some more info about this listing");
         testItem.put("closes", closesDate.toString());
         Mockito.doThrow(new ForbiddenException(String.format(
-                "User with id %d can not perform this action as they are not an administrator of business with id %d.",
-                testUser.getId(), business.getId()))).when(saleListingService)
+                        "User with id %d can not perform this action as they are not an administrator of business with id %d.",
+                        testUser.getId(), business.getId()))).when(saleListingService)
                 .newBusinessListing(any(PostSaleListingDTO.class), any(Integer.class), any(AppUserDetails.class));
 
         RequestBuilder postListingRequest = MockMvcRequestBuilders
@@ -187,8 +186,8 @@ class SaleListingControllerTest extends AbstractInitializer {
         testItem.put("closes", closesDate.toString());
 
         Mockito.doThrow(new BadRequestException(String.format(
-                "BadRequestException: No inventory item with id 254645756 exists in business with id %d.",
-                business.getId())))
+                        "BadRequestException: No inventory item with id 254645756 exists in business with id %d.",
+                        business.getId())))
                 .when(saleListingService)
                 .newBusinessListing(any(PostSaleListingDTO.class), any(Integer.class), any(AppUserDetails.class));
 
@@ -199,7 +198,7 @@ class SaleListingControllerTest extends AbstractInitializer {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(owner)));
 
-       mockMvc.perform(postListingRequest)
+        mockMvc.perform(postListingRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -282,8 +281,8 @@ class SaleListingControllerTest extends AbstractInitializer {
         testItem.put("closes", closesDate.toString());
 
         Mockito.doThrow(new BadRequestException(String.format(
-                "You do not have enough of item with id %d for this listing (you have %d, with %d used in other sale listings).",
-                inventoryItem.getId(), 5, 6))).when(saleListingService)
+                        "You do not have enough of item with id %d for this listing (you have %d, with %d used in other sale listings).",
+                        inventoryItem.getId(), 5, 6))).when(saleListingService)
                 .newBusinessListing(any(PostSaleListingDTO.class), any(Integer.class), any(AppUserDetails.class));
 
         RequestBuilder postListingRequest = MockMvcRequestBuilders
@@ -329,14 +328,14 @@ class SaleListingControllerTest extends AbstractInitializer {
     @Test
     void listingSearch_notLoggedIn_401() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/listings")
-                .param("searchQuery", "")
-                .param("matchingProductName", String.valueOf(false))
-                .param("matchingBusinessName", String.valueOf(false))
-                .param("matchingBusinessLocation", String.valueOf(false))
-                .param("matchingBusinessType", String.valueOf(false))
-                .param("pageNumber", String.valueOf(1))
-                .param("sortBy", ""))
+                        .get("/listings")
+                        .param("searchQuery", "")
+                        .param("matchingProductName", String.valueOf(false))
+                        .param("matchingBusinessName", String.valueOf(false))
+                        .param("matchingBusinessLocation", String.valueOf(false))
+                        .param("matchingBusinessType", String.valueOf(false))
+                        .param("pageNumber", String.valueOf(1))
+                        .param("sortBy", ""))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
@@ -346,14 +345,55 @@ class SaleListingControllerTest extends AbstractInitializer {
     @Test
     void listingSearch_OK_200() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/listings")
-                .param("searchQuery", "")
-                .param("matchingProductName", String.valueOf(false))
-                .param("matchingBusinessName", String.valueOf(false))
-                .param("matchingBusinessLocation", String.valueOf(false))
-                .param("matchingBusinessType", String.valueOf(false))
-                .param("pageNumber", String.valueOf(1))
-                .param("sortBy", "").with(user(new AppUserDetails(testUser))))
+                        .get("/listings")
+                        .param("searchQuery", "")
+                        .param("matchingProductName", String.valueOf(false))
+                        .param("matchingBusinessName", String.valueOf(false))
+                        .param("matchingBusinessLocation", String.valueOf(false))
+                        .param("matchingBusinessType", String.valueOf(false))
+                        .param("pageNumber", String.valueOf(1))
+                        .param("sortBy", "").with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests that unliking a sale listing works with a valid request
+     */
+    @Test
+    void unlikeSaleListing_validRequest_statusOK() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/unlike", 1)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Test that trying to unlike a listing that does not exist returns a 406 status
+     */
+    @Test
+    void unlikeSaleListing_saleListingNotFound_returns406() throws Exception {
+        Mockito.doThrow(NotAcceptableException.class)
+                .when(saleListingService).unlikeSaleListing(any(Integer.class), any(AppUserDetails.class));
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/unlike", 1000)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Test that trying to unlike a listing that isn't liked returns a 400 status code
+     */
+    @Test
+    void unlikeSaleListing_saleListingNotLiked_returns400() throws Exception {
+        Mockito.doThrow(BadRequestException.class)
+                .when(saleListingService).unlikeSaleListing(any(Integer.class), any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/unlike", 1)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 }

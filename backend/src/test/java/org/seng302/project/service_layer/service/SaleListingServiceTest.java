@@ -3,6 +3,7 @@ package org.seng302.project.service_layer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
@@ -16,19 +17,16 @@ import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+
 
 @DataJpaTest
 class SaleListingServiceTest extends AbstractInitializer {
-
 
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
@@ -36,19 +34,18 @@ class SaleListingServiceTest extends AbstractInitializer {
     private final ProductRepository productRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
-
+    private final LikedSaleListingRepository likedSaleListingRepository;
+    private final UserService userService;
+    private final BusinessService businessService;
     private final SaleListingService saleListingService;
 
-    @MockBean
-    private AuthenticationManager authenticationManager;
-    @MockBean
-    private BCryptPasswordEncoder passwordEncoder;
-
-    Integer business1Id;
+    Business business1;
     Integer business2Id;
     User testUser;
     User testAdmin;
     InventoryItem inventoryItem;
+    SaleListing saleListing1;
+    SaleListing saleListing2;
 
     @Autowired
     SaleListingServiceTest(UserRepository userRepository,
@@ -56,24 +53,25 @@ class SaleListingServiceTest extends AbstractInitializer {
                            AddressRepository addressRepository,
                            ProductRepository productRepository,
                            InventoryItemRepository inventoryItemRepository,
-                           SaleListingRepository saleListingRepository) {
+                           SaleListingRepository saleListingRepository,
+                           LikedSaleListingRepository likedSaleListingRepository) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
+        this.likedSaleListingRepository = likedSaleListingRepository;
 
-        UserService userService = new UserService(this.userRepository, this.addressRepository,
-                authenticationManager, passwordEncoder);
-        ProductCatalogueService productCatalogueService = new ProductCatalogueService(this.userRepository,
-                this.businessRepository, this.productRepository, this.inventoryItemRepository);
-        BusinessService businessService = new BusinessService(this.businessRepository, this.addressRepository,
-                this.userRepository, productCatalogueService);
+        this.userService = Mockito.mock(UserService.class);
+        this.businessService = Mockito.mock(BusinessService.class);
 
-        this.saleListingService = new SaleListingService(userService,
-                businessService, this.saleListingRepository,
-                 this.inventoryItemRepository);
+        this.saleListingService = new SaleListingService(
+                userService,
+                businessService,
+                this.saleListingRepository,
+                this.likedSaleListingRepository,
+                this.inventoryItemRepository);
     }
 
     /**
@@ -90,25 +88,23 @@ class SaleListingServiceTest extends AbstractInitializer {
         testAdmin = userRepository.save(testAdmin);
 
         Address address1 = new Address(null, null, "Rangiora", null, "Netherlands", null);
-        Business business1 = new Business("First Business", null, address1, "Retail Trade", testAdmin.getId());
+        business1 = new Business("First Business", null, address1, "Retail Trade", testAdmin.getId());
         addressRepository.save(address1);
-        businessRepository.save(business1);
-        business1Id = business1.getId();
+        business1 = businessRepository.save(business1);
 
         Product product1 = new Product("TEST-1", "First Product", null, null, 5.00, business1.getId());
         productRepository.save(product1);
-        InventoryItem inventoryItem1 = new InventoryItem(product1, 7, null, null, "2021-01-01", null, null, "2021-12-01");
-        inventoryItem = inventoryItemRepository.save(inventoryItem1);
-        SaleListing saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
-        saleListingRepository.save(saleListing1);
+        inventoryItem = new InventoryItem(product1, 10, null, null, "2021-01-01", null, null, "2021-12-01");
+        inventoryItem = inventoryItemRepository.save(inventoryItem);
+        saleListing1 = new SaleListing(business1, inventoryItem, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
+        saleListing1 = saleListingRepository.save(saleListing1);
 
         Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
         productRepository.save(product2);
         InventoryItem inventoryItem2 = new InventoryItem(product2, 10, null, null, "2021-01-01", null, null, "2021-12-02");
-        inventoryItemRepository.save(inventoryItem2);
-        SaleListing saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
-        saleListingRepository.save(saleListing2);
-
+        inventoryItem2 = inventoryItemRepository.save(inventoryItem2);
+        saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
+        saleListing2 = saleListingRepository.save(saleListing2);
 
         Address address2 = new Address(null, null, "Christchurch", null, "New Zealand", null);
         Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
@@ -119,18 +115,22 @@ class SaleListingServiceTest extends AbstractInitializer {
         Product product3 = new Product("TEST-3", "Third Product", null, null, 5.00, business2.getId());
         productRepository.save(product3);
         InventoryItem inventoryItem3 = new InventoryItem(product3, 5, null, null, "2021-01-01", null, null, "2021-12-03");
-        inventoryItemRepository.save(inventoryItem3);
+        inventoryItem3 = inventoryItemRepository.save(inventoryItem3);
         SaleListing saleListing3 = new SaleListing(business2, inventoryItem3, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
         saleListingRepository.save(saleListing3);
 
         Product product4 = new Product("TEST-4", "Fourth Product", null, null, 5.00, business2.getId());
         productRepository.save(product4);
         InventoryItem inventoryItem4 = new InventoryItem(product4, 5, null, null, "2021-01-01", null, null, "2021-12-04");
-        inventoryItemRepository.save(inventoryItem4);
+        inventoryItem4 = inventoryItemRepository.save(inventoryItem4);
         SaleListing saleListing4 = new SaleListing(business2, inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
         saleListingRepository.save(saleListing4);
-    }
 
+        Mockito.when(userService.getUserByEmail(testUser.getEmail()))
+                .thenReturn(testUser);
+        Mockito.when(userService.getUserByEmail(testAdmin.getEmail()))
+                .thenReturn(testAdmin);
+    }
 
     /**
      * Tests that a NotAcceptableException is thrown when
@@ -138,6 +138,9 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @Test
     void getBusinessListings_nonExistentBusiness_NotAcceptableException() {
+        Mockito.doThrow(new NotAcceptableException("message"))
+                .when(businessService).checkBusiness(any(Integer.class));
+
         AppUserDetails appUser = new AppUserDetails(testUser);
 
         Assertions.assertThrows(NotAcceptableException.class,
@@ -151,7 +154,7 @@ class SaleListingServiceTest extends AbstractInitializer {
     @Test
     void getBusinessListings_success() {
         AppUserDetails appUser = new AppUserDetails(testUser);
-        List<GetSaleListingDTO> listings = saleListingService.getBusinessListings(business1Id, appUser);
+        List<GetSaleListingDTO> listings = saleListingService.getBusinessListings(business1.getId(), appUser);
 
         //We expect to get the 2 listings added in the setup() method
         Assertions.assertEquals(2, listings.size());
@@ -163,15 +166,17 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @Test
     void postBusinessListings_nonExistentBusiness_NotAcceptableException() {
+        Mockito.doThrow(new NotAcceptableException(""))
+                .when(businessService).checkBusiness(any(Integer.class));
+
         AppUserDetails appUser = new AppUserDetails(testUser);
 
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
-                1,2.20, "Hmmm", "2022-02-29T04:34:55.931Z", 5);
+                inventoryItem.getId(), 2.20, "Hmmm", "2022-02-29T04:34:55.931Z", 5);
 
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> saleListingService.newBusinessListing(requestDTO, 99, appUser));
     }
-
 
     /**
      * Tests that a ForbiddenException is thrown when
@@ -179,15 +184,20 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @Test
     void postBusinessListings_notAdmin_ForbiddenException() {
+        Mockito.when(businessService.checkBusiness(business1.getId()))
+                .thenReturn(business1);
+
+        Mockito.doThrow(new ForbiddenException(""))
+                .when(businessService).checkUserCanDoBusinessAction(any(AppUserDetails.class), any(Business.class));
+
         AppUserDetails appUser = new AppUserDetails(testUser);
 
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
-                1,2.20, "Hmmm", "2022-02-29T04:34:55.931Z", 5);
+                inventoryItem.getId(), 2.20, "Hmmm", "2022-02-29T04:34:55.931Z", 5);
 
         Assertions.assertThrows(ForbiddenException.class,
-                () -> saleListingService.newBusinessListing(requestDTO, business1Id, appUser));
+                () -> saleListingService.newBusinessListing(requestDTO, business1.getId(), appUser));
     }
-
 
     /**
      * Tests that a BadRequestException is thrown when
@@ -198,12 +208,12 @@ class SaleListingServiceTest extends AbstractInitializer {
         AppUserDetails appUser = new AppUserDetails(testAdmin);
 
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
-                inventoryItem.getId(),2.20, "Hmmm", "2022-02-29T04:34:55.931Z", inventoryItem.getQuantity() + 2);
+                inventoryItem.getId(), 2.20, "Hmmm", "2022-02-29T04:34:55.931Z", inventoryItem.getQuantity() + 2);
 
+        Integer businessId = business1.getId();
         Assertions.assertThrows(BadRequestException.class,
-                () -> saleListingService.newBusinessListing(requestDTO, business1Id, appUser));
+                () -> saleListingService.newBusinessListing(requestDTO, businessId, appUser));
     }
-
 
     /**
      * Tests that a BadRequestException is thrown when
@@ -214,12 +224,12 @@ class SaleListingServiceTest extends AbstractInitializer {
         AppUserDetails appUser = new AppUserDetails(testAdmin);
 
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
-                inventoryItem.getId() + 50,2.20, "Hmmm", "2022-02-29T04:34:55.931Z", inventoryItem.getQuantity());
+                inventoryItem.getId() + 50, 2.20, "Hmmm", "2022-02-29T04:34:55.931Z", inventoryItem.getQuantity());
 
+        Integer businessId = business1.getId();
         Assertions.assertThrows(BadRequestException.class,
-                () -> saleListingService.newBusinessListing(requestDTO, business1Id, appUser));
+                () -> saleListingService.newBusinessListing(requestDTO, businessId, appUser));
     }
-
 
     /**
      * Tests that a InvalidDateException is thrown when
@@ -230,30 +240,32 @@ class SaleListingServiceTest extends AbstractInitializer {
         AppUserDetails appUser = new AppUserDetails(testAdmin);
 
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
-                inventoryItem.getId(),2.20, "Hmmm", "2021/02/26", 1);
+                inventoryItem.getId(), 2.20, "Hmmm", "2021/02/26", 1);
 
+        Integer businessId = business1.getId();
         Assertions.assertThrows(InvalidDateException.class,
-                () -> saleListingService.newBusinessListing(requestDTO, business1Id, appUser));
+                () -> saleListingService.newBusinessListing(requestDTO, businessId, appUser));
     }
-
 
     /**
      * Tests the successful case of adding a sale listing
      */
     @Test
     void postBusinessListings_success() {
+        Mockito.when(businessService.checkBusiness(business1.getId()))
+                .thenReturn(business1);
+
         AppUserDetails appUser = new AppUserDetails(testAdmin);
 
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
-                inventoryItem.getId(),2.20, "Hmmm", "2021-11-29T04:34:55.931Z", 1);
+                inventoryItem.getId(), 2.20, "Hmmm", "2021-11-29T04:34:55.931Z", 1);
 
-        saleListingService.newBusinessListing(requestDTO, business1Id, appUser);
-        List<SaleListing> listings =  saleListingRepository.findAllByBusinessId(business1Id);
+        saleListingService.newBusinessListing(requestDTO, business1.getId(), appUser);
+        List<SaleListing> listings = saleListingRepository.findAllByBusinessId(business1.getId());
 
         //The business had 2 listings added to it in the setup() method, and we check 1 more was added to this
         Assertions.assertEquals(3, listings.size());
     }
-
 
     /**
      * Tests that searching for listing by business name with string 'first' returns first listing
@@ -358,8 +370,8 @@ class SaleListingServiceTest extends AbstractInitializer {
         Specification<SaleListing> spec = saleListingService.searchByBusinessType(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
         Assertions.assertEquals(2, listings.size());
-        Assertions.assertEquals(business1Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business1Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
     }
 
     /**
@@ -374,7 +386,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
         Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
     }
-
 
     /**
      * Test that using an empty search returns the four sales listings
@@ -549,8 +560,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(2, total);
 
-        Assertions.assertEquals(business1Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business1Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
     }
 
     /**
@@ -579,8 +590,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(2, total);
 
-        Assertions.assertEquals(business1Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business1Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
     }
 
     /**
@@ -837,8 +848,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(4, total);
 
-        Assertions.assertEquals(business1Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business1Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
         Assertions.assertEquals(business2Id, listings.get(2).getBusiness().getId());
         Assertions.assertEquals(business2Id, listings.get(3).getBusiness().getId());
     }
@@ -871,8 +882,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
         Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
-        Assertions.assertEquals(business1Id, listings.get(2).getBusiness().getId());
-        Assertions.assertEquals(business1Id, listings.get(3).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(2).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(3).getBusiness().getId());
     }
 
     /**
@@ -901,8 +912,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(4, total);
 
-        Assertions.assertEquals(business1Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business1Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
         Assertions.assertEquals(business2Id, listings.get(2).getBusiness().getId());
         Assertions.assertEquals(business2Id, listings.get(3).getBusiness().getId());
     }
@@ -969,5 +980,53 @@ class SaleListingServiceTest extends AbstractInitializer {
         Assertions.assertEquals("Third Product", listings.get(1).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("First Product", listings.get(3).getInventoryItem().getProduct().getName());
+    }
+
+    /**
+     * Test that trying to unlike a sale listing that doesn't exist throws a NotAcceptableException
+     */
+    @Test
+    void unlikeSaleListing_invalidListingId_throwsException() {
+        Mockito.when(userService.getUserByEmail(testUser.getEmail()))
+                .thenReturn(testUser);
+        AppUserDetails user = new AppUserDetails(this.testUser);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.unlikeSaleListing(1000, user));
+    }
+
+    /**
+     * Test that trying to unlike a sale listing that isn't liked by the user throws a BadRequestException
+     */
+    @Test
+    void unlikeSaleListing_listingNotLiked_throwsException() {
+        Mockito.when(userService.getUserByEmail(testUser.getEmail()))
+                .thenReturn(testUser);
+
+        LikedSaleListing listing = new LikedSaleListing(this.testUser, this.saleListing1);
+        likedSaleListingRepository.save(listing);
+
+        Integer id = this.saleListing2.getId();
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Assertions.assertThrows(BadRequestException.class,
+                () -> saleListingService.unlikeSaleListing(id, user));
+    }
+
+    /**
+     * Test that trying to unlike a sale listing that has been liked by a user results in success
+     */
+    @Test
+    void unlikeSaleListing_validRequest_success() {
+        Mockito.when(userService.getUserByEmail(testUser.getEmail()))
+                .thenReturn(testUser);
+        LikedSaleListing listing = new LikedSaleListing(this.testUser, this.saleListing1);
+        likedSaleListingRepository.save(listing);
+        testUser.addLikedListing(listing);
+
+        Integer id = this.saleListing1.getId();
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        saleListingService.unlikeSaleListing(id, user);
+        List<LikedSaleListing> likedSaleListings = likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser);
+        Assertions.assertEquals(0, likedSaleListings.size());
     }
 }
