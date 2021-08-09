@@ -396,4 +396,102 @@ class SaleListingControllerTest extends AbstractInitializer {
 
         mockMvc.perform(request).andExpect(status().isBadRequest());
     }
+
+    //TODO: tests for patch /listings/{listingId}/tag endpoint:
+    //400 if listing not liked by user
+    //406 listing doesn't exist
+
+    /**
+     * Tests that trying to tag a sale listing when not logged in gives a 401
+     */
+    @Test
+    void tagSaleListing_notLoggedIn_401() throws Exception {
+
+        JSONObject body = new JSONObject();
+        body.put("tag", "red");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/tag", 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+
+    /**
+     * Tests that tagging a sale listing
+     * returns a 200 response
+     */
+    @Test
+    void tagSaleListing_valid_200() throws Exception {
+
+        JSONObject body = new JSONObject();
+        body.put("tag", "red");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/tag", 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+    }
+
+    /**
+     * Tests that tagging a sale listing with an invalid tag
+     * returns a 400 response with a message from the DTO
+     */
+    @Test
+    void tagSaleListing_invalidTag_400() throws Exception {
+
+        JSONObject body = new JSONObject();
+        body.put("tag", "maroon");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/tag", 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postInventoryResponse = mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
+        Assertions.assertEquals("MethodArgumentNotValidException: Invalid tag provided.",
+                returnedExceptionString);
+
+    }
+
+    /**
+     * Tests that tagging a sale listing with an no tag
+     * returns a 400 response with a message from the DTO
+     */
+    @Test
+    void tagSaleListing_noTag_400() throws Exception {
+
+        JSONObject body = new JSONObject();
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/tag", 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult postInventoryResponse = mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
+        Assertions.assertEquals("MethodArgumentNotValidException: Tag is a required field.",
+                returnedExceptionString);
+    }
 }

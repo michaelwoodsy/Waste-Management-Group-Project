@@ -195,8 +195,9 @@ class SaleListingServiceTest extends AbstractInitializer {
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
                 inventoryItem.getId(), 2.20, "Hmmm", "2022-02-29T04:34:55.931Z", 5);
 
+        Integer businessId = business1.getId();
         Assertions.assertThrows(ForbiddenException.class,
-                () -> saleListingService.newBusinessListing(requestDTO, business1.getId(), appUser));
+                () -> saleListingService.newBusinessListing(requestDTO, businessId, appUser));
     }
 
     /**
@@ -1029,4 +1030,9 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<LikedSaleListing> likedSaleListings = likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser);
         Assertions.assertEquals(0, likedSaleListings.size());
     }
+
+    //TODO: tests for patch /listings/{listingId}/tag endpoint:
+    //success
+    //400 listing not liked by user
+    //406 listing doesn't exist
 }

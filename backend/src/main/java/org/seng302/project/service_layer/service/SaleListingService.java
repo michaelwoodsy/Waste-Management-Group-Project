@@ -8,6 +8,7 @@ import org.seng302.project.repository_layer.specification.SaleListingSpecificati
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
+import org.seng302.project.service_layer.dto.sale_listings.TagSaleListingDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
@@ -21,8 +22,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -533,6 +538,8 @@ public class SaleListingService {
      */
     public void unlikeSaleListing(Integer listingId, AppUserDetails user) {
         User loggedInUser = userService.getUserByEmail(user.getUsername());
+
+        //TODO: refactor the listing existence check into its own method that can be called by tagSaleListing
         Optional<SaleListing> listing = saleListingRepository.findById(listingId);
 
         if (listing.isEmpty()) {
@@ -552,5 +559,19 @@ public class SaleListingService {
         LikedSaleListing likedSaleListing = result.get(0);
         loggedInUser.removeLikedListing(likedSaleListing);
         likedSaleListingRepository.delete(likedSaleListing);
+    }
+
+    /**
+     * Tags a user's liked sale listing
+     * @param listingId the id of the listing to tag
+     * @param requestDTO request body containing the tag for the listing
+     * @param user the AppUserDetails of the user tagging the listing
+     */
+    public void tagSaleListing(@PathVariable Integer listingId,
+                               @Valid @RequestBody TagSaleListingDTO requestDTO,
+                               @AuthenticationPrincipal AppUserDetails user) {
+        User loggedInUser = userService.getUserByEmail(user.getUsername());
+
+
     }
 }

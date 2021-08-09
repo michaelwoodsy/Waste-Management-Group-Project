@@ -3,6 +3,7 @@ package org.seng302.project.web_layer.controller;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
+import org.seng302.project.service_layer.dto.sale_listings.TagSaleListingDTO;
 import org.seng302.project.service_layer.service.SaleListingService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -111,10 +112,29 @@ public class SaleListingController {
         saleListingService.newBusinessListing(requestDTO, businessId, appUser);
     }
 
+    /**
+     * Handles request for a user to unlike a sale listing
+     * @param listingId the id of the listing to unlike
+     * @param user the AppUserDetails of the user unliking the listing
+     */
     @PatchMapping("/listings/{listingId}/unlike")
     @ResponseStatus(HttpStatus.OK)
     public void unlikeSaleListing(@PathVariable Integer listingId,
                                   @AuthenticationPrincipal AppUserDetails user) {
         saleListingService.unlikeSaleListing(listingId, user);
+    }
+
+    /**
+     * Handles request for a user to tag a sale listing
+     * @param listingId the id of the listing to tag
+     * @param requestDTO request body containing the tag for the listing
+     * @param user the AppUserDetails of the user tagging the listing
+     */
+    @PatchMapping("/listings/{listingId}/tag")
+    @ResponseStatus(HttpStatus.OK)
+    public void tagSaleListing(@PathVariable Integer listingId,
+                               @Valid @RequestBody TagSaleListingDTO requestDTO,
+                               @AuthenticationPrincipal AppUserDetails user) {
+        saleListingService.tagSaleListing(listingId, requestDTO, user);
     }
 }
