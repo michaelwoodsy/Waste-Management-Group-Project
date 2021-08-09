@@ -11,4 +11,6 @@ public interface LikedSaleListingRepository extends JpaRepository<LikedSaleListi
 
     List<LikedSaleListing> findByListingAndUser(SaleListing listing, User user);
 
+    List<LikedSaleListing> findAllByListing(SaleListing listing);
+
 }
