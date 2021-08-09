@@ -603,25 +603,35 @@ public class SaleListingService {
     private void updateInventoryItem(SaleListing listing) {
         var inventoryItem = listing.getInventoryItem();
         inventoryItem.setQuantity(inventoryItem.getQuantity() - listing.getQuantity());
+        inventoryItemRepository.save(inventoryItem);
 
         //Remove the inventory item if the quantity is 0
         if (inventoryItem.getQuantity() <= 0) {
             //Check if sale listings exist for current inventory item wanting to be deleted (there shouldn't be..)
-            var saleListings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(
-                    listing.getBusiness().getId(), inventoryItem.getId());
-            for (var saleListing: saleListings) {
-                List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(saleListing);
-                for (var like: likes) {
-                    var user = like.getUser();
-                    user.removeLikedListing(like);
-                    userRepository.save(user);
-                    likedSaleListingRepository.delete(like);
-                }
-                saleListingRepository.delete(saleListing);
-            }
+            removeSaleListings(listing.getBusiness().getId(), inventoryItem);
             inventoryItemRepository.delete(inventoryItem);
-        } else {
-            inventoryItemRepository.save(inventoryItem);
+        }
+    }
+
+    /**
+     * Helper method for the updateInventoryItem method, this is sort of a contingency method that removes
+     * sale listings for an inventory item that has a quantity of 0, which shouldn't happen.
+     *
+     * @param businessId Id of the business with the inventory item
+     * @param inventoryItem inventory item being removed
+     */
+    private void removeSaleListings(Integer businessId, InventoryItem inventoryItem) {
+        var saleListings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(
+                businessId, inventoryItem.getId());
+        for (var saleListing: saleListings) {
+            List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(saleListing);
+            for (var like: likes) {
+                var user = like.getUser();
+                user.removeLikedListing(like);
+                userRepository.save(user);
+                likedSaleListingRepository.delete(like);
+            }
+            saleListingRepository.delete(saleListing);
         }
     }
 
