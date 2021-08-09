@@ -28,6 +28,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 import static org.mockito.ArgumentMatchers.any;
@@ -1064,5 +1065,42 @@ class SaleListingServiceTest extends AbstractInitializer {
         InterestedUserNotification interestedUserNotification = (InterestedUserNotification) notifications.get(1);
         Assertions.assertEquals(testOtherUser.getId(), interestedUserNotification.getUser().getId());
         Assertions.assertEquals(testOtherUser.getEmail(), interestedUserNotification.getUser().getEmail());
+    }
+
+    /**
+     * Test that when purchasing a listing, the inventory items quantity is reduced and the sales listing is removed
+     */
+    @Test
+    void purchase_listing_item_quantity_reduced_and_listing_removed() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        InventoryItem item = saleListing1.getInventoryItem();
+        Integer requiredQuantity = item.getQuantity() - saleListing1.getQuantity();
+
+        saleListingService.buySaleListing(saleListing1.getId(), user);
+
+        Optional<InventoryItem> itemOptional = inventoryItemRepository.findById(item.getId());
+        Assertions.assertTrue(itemOptional.isPresent());
+        item = itemOptional.get();
+        Assertions.assertEquals(requiredQuantity, item.getQuantity());
+
+        Optional<SaleListing> listingOptional = saleListingRepository.findById(saleListing1.getId());
+        Assertions.assertTrue(listingOptional.isEmpty());
+    }
+
+    /**
+     * Test that when purchasing a listing which has the last of an inventory item in it, the inventory item is removed and so is the sale listing
+     */
+    @Test
+    void purchase_listing_item_item_and_listing_removed() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        InventoryItem item = saleListing3.getInventoryItem();
+
+        saleListingService.buySaleListing(saleListing3.getId(), user);
+
+        Optional<InventoryItem> itemOptional = inventoryItemRepository.findById(item.getId());
+        Assertions.assertTrue(itemOptional.isEmpty());
+
+        Optional<SaleListing> listingOptional = saleListingRepository.findById(saleListing3.getId());
+        Assertions.assertTrue(listingOptional.isEmpty());
     }
 }
