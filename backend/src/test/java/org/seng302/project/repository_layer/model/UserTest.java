@@ -1,16 +1,23 @@
 package org.seng302.project.repository_layer.model;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.seng302.project.AbstractInitializer;
 
 import java.time.LocalDateTime;
 
 /**
  * Unit tests for User class
  */
-@SpringBootTest
-class UserTest {
+class UserTest extends AbstractInitializer {
+
+    User testUser;
+
+    @BeforeEach
+    void setup() {
+        testUser = this.getTestUser();
+    }
 
     /**
      * Creates the test user from the API.
@@ -59,6 +66,33 @@ class UserTest {
 
         testUser.setRole("user");
         Assertions.assertFalse(testUser.isGAA());
+    }
+
+    /**
+     * Test that a liked sale listing can be added to a user
+     */
+    @Test
+    void testAddLikedListing() {
+        SaleListing listing = this.getSaleListings().get(0);
+        LikedSaleListing likedSaleListing = new LikedSaleListing(testUser, listing);
+
+        Assertions.assertEquals(0, testUser.getLikedSaleListings().size());
+        testUser.addLikedListing(likedSaleListing);
+        Assertions.assertEquals(1, testUser.getLikedSaleListings().size());
+    }
+
+    /**
+     * Test that a liked sale listing can be remvoed from a user
+     */
+    @Test
+    void testRemoveLikedListing() {
+        SaleListing listing = this.getSaleListings().get(0);
+        LikedSaleListing likedSaleListing = new LikedSaleListing(testUser, listing);
+        testUser.addLikedListing(likedSaleListing);
+
+        Assertions.assertEquals(1, testUser.getLikedSaleListings().size());
+        testUser.removeLikedListing(likedSaleListing);
+        Assertions.assertEquals(0, testUser.getLikedSaleListings().size());
     }
 
 }
