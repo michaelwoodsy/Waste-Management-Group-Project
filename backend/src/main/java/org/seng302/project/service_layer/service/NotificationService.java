@@ -163,6 +163,30 @@ public class NotificationService {
      * @param appUser The user trying to read/unread the notification
      */
     public void readNotification(boolean read, Integer userId, Integer notificationId, AppUserDetails appUser) {
+        try {
+            logger.info("Request to delete notification with ID: {} for user with ID: {}", notificationId, userId);
 
+            Optional<User> user = userRepository.findById(userId);
+            userService.checkForbidden(userId, appUser);
+
+            if (user.isEmpty()) {
+                throw new NotAcceptableException(String.format("No User exists with ID %d", userId));
+            }
+
+            Optional<UserNotification> notification = userNotificationRepository.findById(notificationId);
+            if (notification.isEmpty()) {
+                throw new NotAcceptableException(String.format("No User Notification exists with ID %d", notificationId));
+            }
+
+            var notificationFound = notification.get();
+            notificationFound.setRead(read);
+            userNotificationRepository.save(notificationFound);
+        } catch (ForbiddenNotificationActionException | NotAcceptableException handledException) {
+            logger.error(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while deleting user's notification: %s", unhandledException.getMessage()));
+            throw unhandledException;
+        }
     }
 }

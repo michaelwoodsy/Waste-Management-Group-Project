@@ -1,6 +1,5 @@
 package org.seng302.project.web_layer.controller;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,8 +28,7 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -301,8 +299,17 @@ class NotificationControllerTest extends AbstractInitializer {
      */
     @Test
     void readNotification_validRequest200() throws Exception {
-        int test = 1;
-        Assertions.assertEquals(1, test);
+        doNothing().when(notificationService).readNotification(Mockito.any(Boolean.class), Mockito.any(Integer.class),
+                        Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/users/{userId}/notifications/{notificationId}/read",
+                        true,
+                        testUser.getId(),
+                        testUserNotification.getId())
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
     }
 
     /**
@@ -310,8 +317,13 @@ class NotificationControllerTest extends AbstractInitializer {
      */
     @Test
     void readNotification_notLoggedIn401() throws Exception {
-        int test = 1;
-        Assertions.assertEquals(1, test);
+        RequestBuilder readNotificationRequest = MockMvcRequestBuilders
+                .multipart("/users/{userId}/notifications/{notificationId}/read",
+                        true,
+                        testUser.getId(),
+                        testUserNotification.getId());
+
+        mockMvc.perform(readNotificationRequest).andExpect(status().isUnauthorized());
     }
 
     /**
@@ -320,25 +332,34 @@ class NotificationControllerTest extends AbstractInitializer {
      */
     @Test
     void readNotification_notAuthorized403() throws Exception {
-        int test = 1;
-        Assertions.assertEquals(1, test);
+        doThrow(ForbiddenNotificationActionException.class)
+                .when(notificationService)
+                .readNotification(Mockito.any(boolean.class), Mockito.any(Integer.class),
+                        Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
+
+        mockMvc.perform(patch("/users/{userId}/notifications/{notificationId}/read",
+                        true,
+                        testUser.getId(),
+                        testUserNotification.getId())
+                        .with(user(new AppUserDetails(testSystemAdmin))))
+                .andExpect(status().isForbidden());
     }
 
     /**
-     * Tests that a 406 status is returned when a user does not exist
+     * Tests that a 406 status is returned when a user or notification does not exist
      */
     @Test
-    void readNotification_userNotFound_notAcceptable406() throws Exception {
-        int test = 1;
-        Assertions.assertEquals(1, test);
-    }
+    void readNotification_notAcceptable406() throws Exception {
+        doThrow(NotAcceptableException.class)
+                .when(notificationService)
+                .readNotification(Mockito.any(boolean.class), Mockito.any(Integer.class),
+                        Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
 
-    /**
-     * Tests that a 406 status is returned when a notification does not exist
-     */
-    @Test
-    void readNotification_notificationNotFound_notAcceptable406() throws Exception {
-        int test = 1;
-        Assertions.assertEquals(1, test);
+        mockMvc.perform(patch("/users/{userId}/notifications/{notificationId}/read",
+                        true,
+                        testUser.getId(),
+                        testUserNotification.getId())
+                        .with(user(new AppUserDetails(testSystemAdmin))))
+                .andExpect(status().isNotAcceptable());
     }
 }

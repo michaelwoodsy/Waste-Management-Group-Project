@@ -79,9 +79,8 @@ public class NotificationController {
      * @param appUser The user trying to read/unread the notification
      */
     @PatchMapping("/users/{userId}/notifications/{notificationId}/read")
-    public void readNotification(@RequestBody JSONObject requestBody, @PathVariable int userId,
+    public void readNotification(@RequestParam(value = "read") boolean read, @PathVariable int userId,
                                  @PathVariable int notificationId, @AuthenticationPrincipal AppUserDetails appUser) {
-        boolean read = (boolean) requestBody.get("read");
         notificationService.readNotification(read, userId, notificationId, appUser);
     }
 }
