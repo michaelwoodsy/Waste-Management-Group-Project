@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -140,27 +141,27 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
     }
 
     //AC5 - Any user (including myself) can “like” the listing at most once.
-
     @Given("I am logged in and I have already liked a sale listing")
     public void iAmLoggedInAndIHaveAlreadyLikedASaleListing() {
+        testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
         var saleListing = saleListingRepository.findAll().get(1);
         LikedSaleListing likedSaleListing = new LikedSaleListing(testUser, saleListing);
         likedSaleListingRepository.save(likedSaleListing);
+
         var usersLikedListings = testUser.getLikedSaleListings();
         usersLikedListings.add(likedSaleListing);
         testUser.setLikedSaleListings(usersLikedListings);
         userRepository.save(testUser);
-        testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
 
         Assertions.assertEquals(1, userRepository.findByEmail(testUser.getEmail()).size());
         Assertions.assertEquals(likedSaleListingRepository.findByListingAndUser(saleListing, testUser).get(0), testUser.getLikedSaleListings().get(0));
     }
-
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @When("I try to like the sale listing again")
     public void iTryToLikeTheSaleListingAgain() throws Exception {
         var listingId = saleListingRepository.findAll().get(1).getId();
 
-        mockMvc.perform(MockMvcRequestBuilders
+        result = mockMvc.perform(MockMvcRequestBuilders
                 .put("/listings/{listingId}/like", listingId)
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
@@ -168,7 +169,8 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
 
     @Then("An error is thrown")
     public void anErrorIsThrown() {
-        String ErrorMessage = result.andReturn().getResponse().getErrorMessage();
+        String ErrorMessage = result.andReturn().getResponse().toString();
+        System.out.println(result.andReturn().getResolvedException().getMessage().toString());
         Assertions.assertEquals("This user has already liked this sale listing", ErrorMessage);
     }
 
