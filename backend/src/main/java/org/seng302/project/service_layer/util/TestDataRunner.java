@@ -306,7 +306,7 @@ public class TestDataRunner {
                     user.ifPresent(value -> {
                         var likedListing = new LikedSaleListing(value, testListing);
                         likedSaleListingRepository.save(likedListing);
-                        value.addLikedSaleListing(likedListing);
+                        value.addLikedListing(likedListing);
                         userRepository.save(value);
                     });
 
@@ -314,7 +314,7 @@ public class TestDataRunner {
                     user2.ifPresent(value -> {
                         var likedListing = new LikedSaleListing(value, testListing);
                         likedSaleListingRepository.save(likedListing);
-                        value.addLikedSaleListing(likedListing);
+                        value.addLikedListing(likedListing);
                         userRepository.save(value);
                     });
 
@@ -322,7 +322,7 @@ public class TestDataRunner {
                     user3.ifPresent(value -> {
                         var likedListing = new LikedSaleListing(value, testListing);
                         likedSaleListingRepository.save(likedListing);
-                        value.addLikedSaleListing(likedListing);
+                        value.addLikedListing(likedListing);
                         userRepository.save(value);
                     });
                 }

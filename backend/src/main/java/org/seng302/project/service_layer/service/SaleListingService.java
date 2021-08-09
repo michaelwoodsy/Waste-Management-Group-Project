@@ -603,7 +603,7 @@ public class SaleListingService {
                 List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(saleListing);
                 for (var like: likes) {
                     var user = like.getUser();
-                    user.removeLikedSaleListing(like);
+                    user.removeLikedListing(like);
                     userRepository.save(user);
                     likedSaleListingRepository.delete(like);
                 }
@@ -623,7 +623,7 @@ public class SaleListingService {
                 userNotificationRepository.save(interestedUserNotification);
             }
             var user = like.getUser();
-            user.removeLikedSaleListing(like);
+            user.removeLikedListing(like);
             userRepository.save(user);
             likedSaleListingRepository.delete(like);
         }

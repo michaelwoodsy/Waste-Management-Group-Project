@@ -5,8 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.mockito.ArgumentCaptor;
-import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
@@ -19,7 +17,10 @@ import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -1081,9 +1082,9 @@ class SaleListingServiceTest extends AbstractInitializer {
         LikedSaleListing like1 = new LikedSaleListing(testUser, saleListing1);
         LikedSaleListing like2 = new LikedSaleListing(testOtherUser, saleListing1);
         likedSaleListingRepository.save(like1);
-        testUser.addLikedSaleListing(like1);
+        testUser.addLikedListing(like1);
         likedSaleListingRepository.save(like2);
-        testOtherUser.addLikedSaleListing(like2);
+        testOtherUser.addLikedListing(like2);
 
         saleListingService.buySaleListing(saleListing1.getId(), user);
 

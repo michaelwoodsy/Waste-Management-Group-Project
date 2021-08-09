@@ -137,12 +137,12 @@ public class PurchaseSaleListingsSteps extends AbstractInitializer {
     public void otherUsersHaveLikedThatSalesListing() {
         LikedSaleListing like1 = new LikedSaleListing(testUser, listing);
         likedSaleListingRepository.save(like1);
-        testUser.addLikedSaleListing(like1);
+        testUser.addLikedListing(like1);
         userRepository.save(testUser);
 
         LikedSaleListing like2 = new LikedSaleListing(testOtherUser, listing);
         likedSaleListingRepository.save(like2);
-        testOtherUser.addLikedSaleListing(like2);
+        testOtherUser.addLikedListing(like2);
         userRepository.save(testOtherUser);
     }
 
