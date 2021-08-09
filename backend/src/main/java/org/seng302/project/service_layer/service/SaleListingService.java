@@ -1,9 +1,6 @@
 package org.seng302.project.service_layer.service;
 
-import org.seng302.project.repository_layer.model.Business;
-import org.seng302.project.repository_layer.model.InventoryItem;
-import org.seng302.project.repository_layer.model.SaleListing;
-import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
@@ -21,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -46,23 +44,31 @@ public class SaleListingService {
 
     private final SaleListingRepository saleListingRepository;
     private final InventoryItemRepository inventoryItemRepository;
+    private final UserRepository userRepository;
+    private final LikedSaleListingRepository likedSaleListingRepository;
 
     @Autowired
     public SaleListingService(UserService userService,
                               BusinessService businessService,
                               SaleListingRepository saleListingRepository,
-                              InventoryItemRepository inventoryItemRepository) {
+                              InventoryItemRepository inventoryItemRepository,
+                              UserRepository userRepository,
+                              LikedSaleListingRepository likedSaleListingRepository
+    ) {
         this.userService = userService;
         this.businessService = businessService;
         this.saleListingRepository = saleListingRepository;
         this.inventoryItemRepository = inventoryItemRepository;
+        this.userRepository = userRepository;
+        this.likedSaleListingRepository = likedSaleListingRepository;
     }
 
 
     /**
      * Gets a list of sale listings for a business.
+     *
      * @param businessId Business to get the sale listings from.
-     * @param appUser The user that made the request.
+     * @param appUser    The user that made the request.
      * @return List of sale listings.
      */
     public List<GetSaleListingDTO> getBusinessListings(Integer businessId, AppUserDetails appUser) {
@@ -70,7 +76,7 @@ public class SaleListingService {
             // Get the user that made the request
             User user = userService.getLoggedInUser(appUser);
 
-            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId );
+            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
 
             // To check the business exists
             businessService.checkBusiness(businessId);
@@ -91,6 +97,7 @@ public class SaleListingService {
     /**
      * Converts date from string to LocalDateTime
      * and checks it's a valid closing date
+     *
      * @param closesDateString the closing date in string format
      * @return the closing date in LocalDateTime format
      */
@@ -129,9 +136,10 @@ public class SaleListingService {
 
     /**
      * Adds a new sale listing to a business.
+     *
      * @param requestDTO DTO containing fields for the new sale listing
      * @param businessId Business to get the sale listings from.
-     * @param appUser The user that made the request.
+     * @param appUser    The user that made the request.
      */
     public void newBusinessListing(PostSaleListingDTO requestDTO, Integer businessId, AppUserDetails appUser) {
         try {
@@ -163,7 +171,7 @@ public class SaleListingService {
 
             //Calculates the quantity used of this Inventory item in other sales listings, if any
             Integer quantityUsed = 0;
-            for(SaleListing listing: listings) {
+            for (SaleListing listing : listings) {
                 quantityUsed += listing.getQuantity();
             }
             //Check if there is enough of the inventory item
@@ -193,8 +201,6 @@ public class SaleListingService {
             throw unhandledException;
         }
     }
-
-
 
 
     /**
@@ -495,5 +501,43 @@ public class SaleListingService {
             }
         }
         return spec;
+    }
+
+    /**
+     * Likes a sale listing if it is liked by a user
+     *
+     * @param listingId ID of the sale listing to like
+     * @param user      User who is liking the sale listing
+     */
+    @Transactional
+    public void likeSaleListing(Integer listingId, AppUserDetails user) {
+        // Get the logged in user from the users email
+        String userEmail = user.getUsername();
+        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+        //Get Sale Listing from repository
+        Optional<SaleListing> foundSaleListingOptional = saleListingRepository.findById(listingId);
+        // Check if the listing exists
+        if (foundSaleListingOptional.isEmpty()) {
+            throw new NotAcceptableException(String.format("There is no sale listing that exists with the id %d",
+                    listingId));
+        }
+        SaleListing listing = foundSaleListingOptional.get();
+
+        //Check that the user hasn't already liked the sale listing
+        if (likedSaleListingRepository.findByListingAndUser(listing, loggedInUser).isEmpty()) {
+            //Make the new liked sale listing
+            LikedSaleListing likedSaleListing = new LikedSaleListing(loggedInUser, listing);
+            //Save the liked sale listing
+            likedSaleListingRepository.save(likedSaleListing);
+            //Add liked sale listing to the list of liked sale listings of user
+            var currentlyLikedSaleListings = loggedInUser.getLikedSaleListings();
+            currentlyLikedSaleListings.add(likedSaleListing);
+            //Save the list to the user
+            loggedInUser.setLikedSaleListings(currentlyLikedSaleListings);
+            userRepository.save(loggedInUser);
+        } else {
+            throw new BadRequestException("This user has already liked this sale listing");
+        }
     }
 }

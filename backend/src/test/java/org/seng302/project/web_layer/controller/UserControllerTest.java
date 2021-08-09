@@ -8,8 +8,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.AddressRepository;
+import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
+import org.seng302.project.repository_layer.repository.SaleListingRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
 import org.seng302.project.service_layer.dto.user.LoginCredentialsDTO;
@@ -29,6 +31,8 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +52,10 @@ class UserControllerTest extends AbstractInitializer {
 
     private User testUser;
     private User otherUser;
+    private SaleListing listing;
+    private Business business;
+    private Product product;
+    private InventoryItem inventoryItem;
 
     private PutUserDTO testPutUserDTO;
 
@@ -58,6 +66,12 @@ class UserControllerTest extends AbstractInitializer {
 
     @MockBean
     private AddressRepository addressRepository;
+
+    @MockBean
+    private SaleListingRepository saleListingRepository;
+
+    @MockBean
+    LikedSaleListingRepository likedSaleListingRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -75,6 +89,14 @@ class UserControllerTest extends AbstractInitializer {
 
         testUser = this.getTestUser();
         otherUser = this.getTestOtherUser();
+        business = this.getTestBusiness();
+        product = this.getTestProduct();
+        // Create inventory item
+        inventoryItem = new InventoryItem(product, 20,
+                10.99, 219.8, "2021-04-25",
+                "2021-04-25", "2021-04-25", "2021-04-25");
+
+
 
         testPutUserDTO = new PutUserDTO(
                 null, //ID is set in the controller
@@ -477,5 +499,94 @@ class UserControllerTest extends AbstractInitializer {
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         //Exception string from the validation class
         Assertions.assertEquals("MethodArgumentNotValidException: InvalidPhoneNumber: This Phone Number is not valid.", returnedExceptionString);
+    }
+
+    /**
+     * Tests successful liking of a sale listing (by getting a OK response)
+     */
+    @Test
+    void likeSaleListing_OK_200() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        Mockito.when(saleListingRepository.findById(any(Integer.class))).thenReturn(Optional.of(listing));
+
+        Mockito.when(likedSaleListingRepository.findByListingAndUser(any(SaleListing.class),
+                any(User.class))).thenReturn(Collections.emptyList());
+
+        mvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId())
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests that liking of a sale listing that has already been liked by the same user throws
+     * an error (by getting a isBadRequest response)
+     */
+    @Test
+    void likeSaleListing_alreadyLikedSaleListing_400() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        //Create new liked sale listing
+        var likedListing = new LikedSaleListing(testUser, listing);
+        likedListing.setId(1);
+
+        Mockito.when(saleListingRepository.findById(any(Integer.class))).thenReturn(Optional.of(listing));
+
+        Mockito.when(likedSaleListingRepository.findByListingAndUser(any(SaleListing.class),
+                any(User.class))).thenReturn(List.of(likedListing));
+
+        mvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId())
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tests that liking of a sale listing without a user throws and error (by getting a isUnauthorized response)
+     */
+    @Test
+    void likeSaleListing_notAuthorizedUser_401() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        Mockito.when(saleListingRepository.findById(any(Integer.class))).thenReturn(Optional.of(listing));
+
+        Mockito.when(likedSaleListingRepository.findByListingAndUser(any(SaleListing.class),
+                any(User.class))).thenReturn(Collections.emptyList());
+
+        mvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId()))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Tests that liking of a sale listing with a sale listing ID that does not exist throws
+     * an error (by getting a isNotAcceptable response)
+     */
+    @Test
+    void likeSaleListing_nonexistentSaleListingID_406() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        Mockito.when(saleListingRepository.findById(any(Integer.class))).thenReturn(Optional.empty());
+
+        Mockito.when(likedSaleListingRepository.findByListingAndUser(any(SaleListing.class),
+                any(User.class))).thenReturn(Collections.emptyList());
+
+        mvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId() + 9999)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
 }
