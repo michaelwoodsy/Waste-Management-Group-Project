@@ -19,7 +19,7 @@ class UserNotificationRepositoryTest extends AbstractInitializer {
 
     @Autowired
     private UserRepository userRepository;
-    
+
     @Autowired
     private AddressRepository addressRepository;
 

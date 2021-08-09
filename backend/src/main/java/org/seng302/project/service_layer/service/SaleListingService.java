@@ -1,21 +1,15 @@
 package org.seng302.project.service_layer.service;
 
-import org.seng302.project.repository_layer.model.Business;
-import org.seng302.project.repository_layer.model.InventoryItem;
-import org.seng302.project.repository_layer.model.LikedSaleListing;
-import org.seng302.project.repository_layer.model.SaleListing;
-import org.seng302.project.repository_layer.model.User;
-import org.seng302.project.repository_layer.repository.*;
-import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.repository.InventoryItemRepository;
 import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
 import org.seng302.project.repository_layer.repository.SaleListingRepository;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
-import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
+import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
-import org.seng302.project.service_layer.exceptions.*;
-import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
+import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -69,19 +63,19 @@ public class SaleListingService {
         this.inventoryItemRepository = inventoryItemRepository;
     }
 
-
     /**
      * Gets a list of sale listings for a business.
+     *
      * @param businessId Business to get the sale listings from.
-     * @param appUser The user that made the request.
+     * @param appUser    The user that made the request.
      * @return List of sale listings.
      */
     public List<GetSaleListingDTO> getBusinessListings(Integer businessId, AppUserDetails appUser) {
         try {
             // Get the user that made the request
-            User user = userService.getLoggedInUser(appUser);
+            User user = userService.getUserByEmail(appUser.getUsername());
 
-            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId );
+            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
 
             // To check the business exists
             businessService.checkBusiness(businessId);
@@ -102,6 +96,7 @@ public class SaleListingService {
     /**
      * Converts date from string to LocalDateTime
      * and checks it's a valid closing date
+     *
      * @param closesDateString the closing date in string format
      * @return the closing date in LocalDateTime format
      */
@@ -140,14 +135,15 @@ public class SaleListingService {
 
     /**
      * Adds a new sale listing to a business.
+     *
      * @param requestDTO DTO containing fields for the new sale listing
      * @param businessId Business to get the sale listings from.
-     * @param appUser The user that made the request.
+     * @param appUser    The user that made the request.
      */
     public void newBusinessListing(PostSaleListingDTO requestDTO, Integer businessId, AppUserDetails appUser) {
         try {
             // Get the user that made the request
-            User user = userService.getLoggedInUser(appUser);
+            User user = userService.getUserByEmail(appUser.getUsername());
 
             logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
 
@@ -174,7 +170,7 @@ public class SaleListingService {
 
             //Calculates the quantity used of this Inventory item in other sales listings, if any
             Integer quantityUsed = 0;
-            for(SaleListing listing: listings) {
+            for (SaleListing listing : listings) {
                 quantityUsed += listing.getQuantity();
             }
             //Check if there is enough of the inventory item
@@ -204,8 +200,6 @@ public class SaleListingService {
             throw unhandledException;
         }
     }
-
-
 
 
     /**
