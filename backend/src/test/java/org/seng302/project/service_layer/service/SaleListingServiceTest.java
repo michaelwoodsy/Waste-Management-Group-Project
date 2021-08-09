@@ -210,8 +210,9 @@ class SaleListingServiceTest extends AbstractInitializer {
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
                 inventoryItem.getId(), 2.20, "Hmmm", "2022-02-29T04:34:55.931Z", inventoryItem.getQuantity() + 2);
 
+        Integer businessId = business1.getId();
         Assertions.assertThrows(BadRequestException.class,
-                () -> saleListingService.newBusinessListing(requestDTO, business1.getId(), appUser));
+                () -> saleListingService.newBusinessListing(requestDTO, businessId, appUser));
     }
 
     /**
@@ -225,8 +226,9 @@ class SaleListingServiceTest extends AbstractInitializer {
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
                 inventoryItem.getId() + 50, 2.20, "Hmmm", "2022-02-29T04:34:55.931Z", inventoryItem.getQuantity());
 
+        Integer businessId = business1.getId();
         Assertions.assertThrows(BadRequestException.class,
-                () -> saleListingService.newBusinessListing(requestDTO, business1.getId(), appUser));
+                () -> saleListingService.newBusinessListing(requestDTO, businessId, appUser));
     }
 
     /**
@@ -240,8 +242,9 @@ class SaleListingServiceTest extends AbstractInitializer {
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
                 inventoryItem.getId(), 2.20, "Hmmm", "2021/02/26", 1);
 
+        Integer businessId = business1.getId();
         Assertions.assertThrows(InvalidDateException.class,
-                () -> saleListingService.newBusinessListing(requestDTO, business1.getId(), appUser));
+                () -> saleListingService.newBusinessListing(requestDTO, businessId, appUser));
     }
 
     /**
