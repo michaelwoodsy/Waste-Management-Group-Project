@@ -8,10 +8,7 @@ import org.seng302.project.web_layer.authentication.AppUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -70,5 +67,18 @@ public class NotificationController {
     @DeleteMapping("/notifications/{notificationId}")
     public void deleteAdminNotification(@PathVariable Integer notificationId, @AuthenticationPrincipal AppUserDetails appUser) {
         notificationService.deleteAdminNotification(notificationId, appUser);
+    }
+
+    /**
+     * Marks a notification as read/unread depending on the current
+     * status of the notification
+     *
+     * @param userId ID of the user to read/unread the notification for
+     * @param notificationId ID of the notification to read/unread
+     * @param appUser The user trying to read/unread the notification
+     */
+    @PatchMapping("/users/{userId}/notifications/{notificationId}/read")
+    public void readNotification(@PathVariable int userId, @PathVariable int notificationId, @AuthenticationPrincipal AppUserDetails appUser) {
+        notificationService.readNotification(userId, notificationId, appUser);
     }
 }

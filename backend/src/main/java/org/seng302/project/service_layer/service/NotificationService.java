@@ -152,4 +152,16 @@ public class NotificationService {
             throw unhandledException;
         }
     }
+
+    /**
+     * Marks a notification as read/unread depending on the current
+     * status of the notification
+     *
+     * @param userId ID of the user to read/unread the notification for
+     * @param notificationId ID of the notification to read/unread
+     * @param appUser The user trying to read/unread the notification
+     */
+    public void readNotification(Integer userId, Integer notificationId, AppUserDetails appUser) {
+
+    }
 }
