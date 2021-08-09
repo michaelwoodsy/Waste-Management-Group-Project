@@ -10,7 +10,6 @@ import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
-import org.seng302.project.service_layer.exceptions.*;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -572,25 +571,36 @@ public class SaleListingService {
      * @param appUser       User purchasing the sales listing
      */
     public void buySaleListing(Integer listingId, AppUserDetails appUser) {
-        var buyer = userRepository.findByEmail(appUser.getUsername()).get(0);
+        var buyer = userService.getUserByEmail(appUser.getUsername());
 
         var listingOptional = saleListingRepository.findById(listingId);
         if (listingOptional.isEmpty()) {
-            throw new NotAcceptableException("Sales Listing does not exist");
+            throw new NotAcceptableException(String.format("No sale listing with ID %d exists", listingId));
         }
         var listing = listingOptional.get();
 
         logger.info("User with ID: {} Request to buy Sale Listing with ID: {}", buyer.getId(), listing.getId());
 
-        //Send notification to buyer
-        var purchaseNotification = new PurchaserNotification(buyer, listing, listing.getBusiness());
-        userNotificationRepository.save(purchaseNotification);
-
         //Record the sale
         var sale = new Sale(listing);
         saleHistoryRepository.save(sale);
 
-        //Updating the inventory items quantity
+        //Update the inventory items quantity or remove it if its new quantity is 0
+        updateInventoryItem(listing);
+        //Send notifications to the users who liked the listing saying it was brought
+        sendPurchaseNotifications(listing, buyer);
+
+        //Remove the sales listing
+        saleListingRepository.delete(listing);
+    }
+
+    /**
+     * Helper method of the buySaleListing method that updates a sales listings inventory item after it has been purchased
+     * lowers the quantity of the inventory item, and removes the inventory item if the quantity is at or below zero
+     *
+     * @param listing listing purchased
+     */
+    private void updateInventoryItem(SaleListing listing) {
         var inventoryItem = listing.getInventoryItem();
         inventoryItem.setQuantity(inventoryItem.getQuantity() - listing.getQuantity());
 
@@ -613,8 +623,21 @@ public class SaleListingService {
         } else {
             inventoryItemRepository.save(inventoryItem);
         }
+    }
 
-        //Send notifications to the users who liked the listing saying it was brought
+    /**
+     * Helper method of the buySaleListing method that sends a notification to the purchaser of the sale listing
+     * and notifications to the users that liked the sale listing
+     *
+     * @param listing listing purchased
+     * @param buyer user who purchased the listing
+     */
+    private void sendPurchaseNotifications(SaleListing listing, User buyer) {
+        //Send notification to buyer
+        var purchaseNotification = new PurchaserNotification(buyer, listing, listing.getBusiness());
+        userNotificationRepository.save(purchaseNotification);
+
+        //Send notifications to interested users
         List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(listing);
         for (var like: likes) {
             //Make sure not to send this notification to the buyer
@@ -627,8 +650,5 @@ public class SaleListingService {
             userRepository.save(user);
             likedSaleListingRepository.delete(like);
         }
-
-        //Remove the sales listing
-        saleListingRepository.delete(listing);
     }
 }
