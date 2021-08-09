@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -156,6 +157,7 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
         Assertions.assertEquals(1, userRepository.findByEmail(testUser.getEmail()).size());
         Assertions.assertEquals(likedSaleListingRepository.findByListingAndUser(saleListing, testUser).get(0), testUser.getLikedSaleListings().get(0));
     }
+
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @When("I try to like the sale listing again")
     public void iTryToLikeTheSaleListingAgain() throws Exception {
@@ -169,10 +171,7 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
 
     @Then("An error is thrown")
     public void anErrorIsThrown() {
-        String ErrorMessage = result.andReturn().getResponse().toString();
-        System.out.println(result.andReturn().getResolvedException().getMessage().toString());
-        Assertions.assertEquals("This user has already liked this sale listing", ErrorMessage);
+        String ErrorMessage = Objects.requireNonNull(result.andReturn().getResolvedException()).getMessage().toString();
+        Assertions.assertEquals("BadRequestException: This user has already liked this sale listing", ErrorMessage);
     }
-
-
 }

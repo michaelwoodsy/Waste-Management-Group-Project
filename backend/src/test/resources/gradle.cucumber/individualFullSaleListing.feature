@@ -5,8 +5,6 @@ Feature: U30 - Individual Full Sale Listing
     When I try to like the sale listing
     Then The sale listing is added to my list of liked sale listings
 
-  Scenario: AC5: I can see how many users have also liked/bookmarked this sale listing.
-
   Scenario: AC5: Any user (including myself) can “like” the listing at most once.
     Given I am logged in and I have already liked a sale listing
     When I try to like the sale listing again
