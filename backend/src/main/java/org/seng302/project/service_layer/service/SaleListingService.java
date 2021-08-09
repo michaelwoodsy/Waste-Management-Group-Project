@@ -1,17 +1,15 @@
 package org.seng302.project.service_layer.service;
 
-
-import org.seng302.project.repository_layer.model.LikedSaleListing;
+import org.seng302.project.repository_layer.model.Business;
+import org.seng302.project.repository_layer.model.InventoryItem;
 import org.seng302.project.repository_layer.model.SaleListing;
-import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
-import org.seng302.project.repository_layer.repository.SaleListingRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
+import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
-import org.seng302.project.service_layer.exceptions.BadRequestException;
-import org.seng302.project.service_layer.exceptions.InvalidDateException;
-import org.seng302.project.service_layer.exceptions.NotAcceptableException;
+import org.seng302.project.service_layer.exceptions.*;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +21,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -42,17 +41,161 @@ public class SaleListingService {
     private static final String AND_SPACE_REGEX = "( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
     private static final String QUOTE_REGEX = "^\".*\"$";
 
+    private final UserService userService;
+    private final BusinessService businessService;
+
     private final SaleListingRepository saleListingRepository;
-    private final LikedSaleListingRepository likedSaleListingRepository;
-    private final UserRepository userRepository;
+    private final InventoryItemRepository inventoryItemRepository;
 
     @Autowired
-    public SaleListingService(SaleListingRepository saleListingRepository,
-                              LikedSaleListingRepository likedSaleListingRepository, UserRepository userRepository) {
+    public SaleListingService(UserService userService,
+                              BusinessService businessService,
+                              SaleListingRepository saleListingRepository,
+                              InventoryItemRepository inventoryItemRepository) {
+        this.userService = userService;
+        this.businessService = businessService;
         this.saleListingRepository = saleListingRepository;
-        this.likedSaleListingRepository = likedSaleListingRepository;
-        this.userRepository = userRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
     }
+
+
+    /**
+     * Gets a list of sale listings for a business.
+     * @param businessId Business to get the sale listings from.
+     * @param appUser The user that made the request.
+     * @return List of sale listings.
+     */
+    public List<GetSaleListingDTO> getBusinessListings(Integer businessId, AppUserDetails appUser) {
+        try {
+            // Get the user that made the request
+            User user = userService.getLoggedInUser(appUser);
+
+            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId );
+
+            // To check the business exists
+            businessService.checkBusiness(businessId);
+
+            // Get the sale listings of the business
+            List<SaleListing> listings = saleListingRepository.findAllByBusinessId(businessId);
+            return listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList());
+
+        } catch (NotAcceptableException exception) {
+            throw exception;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while getting business sale listings: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
+
+    /**
+     * Converts date from string to LocalDateTime
+     * and checks it's a valid closing date
+     * @param closesDateString the closing date in string format
+     * @return the closing date in LocalDateTime format
+     */
+    private LocalDateTime getClosesDateTime(String closesDateString, InventoryItem item) {
+        LocalDateTime closesDateTime;
+        try {
+            if (closesDateString != null && !closesDateString.equals("")) {
+                //Closes string should be in the format: "yyyy-mm-ddThh:mm:ss.sssZ", e.g: "2021-05-29T04:34:55.931Z"
+                closesDateTime = LocalDateTime.parse(closesDateString, DateTimeFormatter.ISO_DATE_TIME);
+
+                //Check if closes date is in the past
+                if ((LocalDateTime.now()).isAfter(closesDateTime)) {
+                    BadRequestException exception = new BadRequestException("Closing date must be in the future.");
+                    logger.warn(exception.getMessage());
+                    throw exception;
+                }
+            } else {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                Date expiryDate = formatter.parse(item.getExpires());
+                closesDateTime = expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            }
+        } catch (DateTimeParseException | ParseException parseException) {
+            InvalidDateException invalidDateException = new InvalidDateException();
+            logger.warn(invalidDateException.getMessage());
+            throw invalidDateException;
+        } catch (BadRequestException handledException) {
+            throw handledException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
+            throw exception;
+        }
+        return closesDateTime;
+
+    }
+
+
+    /**
+     * Adds a new sale listing to a business.
+     * @param requestDTO DTO containing fields for the new sale listing
+     * @param businessId Business to get the sale listings from.
+     * @param appUser The user that made the request.
+     */
+    public void newBusinessListing(PostSaleListingDTO requestDTO, Integer businessId, AppUserDetails appUser) {
+        try {
+            // Get the user that made the request
+            User user = userService.getLoggedInUser(appUser);
+
+            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
+
+            // Get the business of the request
+            Business business = businessService.checkBusiness(businessId);
+
+            // Check the user is an admin of the business
+            businessService.checkUserCanDoBusinessAction(appUser, business);
+
+            Integer inventoryItemId = requestDTO.getInventoryItemId();
+            //Check if inventory item exists in businesses inventory items
+            Optional<InventoryItem> retrievedItemOptions = inventoryItemRepository.findById(inventoryItemId);
+            if (retrievedItemOptions.isEmpty()) {
+                BadRequestException exception = new BadRequestException(String.format(
+                        "No inventory item with id %d exists in business with id %d.",
+                        inventoryItemId, businessId));
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+            InventoryItem item = retrievedItemOptions.get();
+
+            Integer quantity = requestDTO.getQuantity();
+            List<SaleListing> listings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(businessId, inventoryItemId);
+
+            //Calculates the quantity used of this Inventory item in other sales listings, if any
+            Integer quantityUsed = 0;
+            for(SaleListing listing: listings) {
+                quantityUsed += listing.getQuantity();
+            }
+            //Check if there is enough of the inventory item
+            if (quantity > (item.getQuantity() - quantityUsed)) {
+                BadRequestException exception = new BadRequestException(
+                        String.format(
+                                "You do not have enough of item with id %d for this listing (you have %d, with %d used in other sale listings).",
+                                inventoryItemId, item.getQuantity() - quantityUsed, quantityUsed));
+                logger.warn(exception.getMessage());
+                throw exception;
+            }
+
+            Double price = requestDTO.getPrice();
+            String moreInfo = requestDTO.getMoreInfo();
+            String closesDateString = requestDTO.getCloses();
+            LocalDateTime closesDateTime = getClosesDateTime(closesDateString, item);
+
+            SaleListing saleListing = new SaleListing(business, item, price, moreInfo, closesDateTime, quantity);
+            saleListingRepository.save(saleListing);
+
+        } catch (NotAcceptableException | ForbiddenException |
+                BadRequestException | InvalidDateException exception) {
+            throw exception;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while adding sales listing: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
+
+
+
 
     /**
      * Searches sales listings to match specific requirements set out in the SearchSaleListingsDTO
@@ -65,40 +208,11 @@ public class SaleListingService {
      * @return List of the paginated list of sales listings, and the total number of sales listings
      */
     public List<Object> searchSaleListings(SearchSaleListingsDTO dto) {
+        Specification<SaleListing> spec = null;
         List<SaleListing> listings;
         long totalCount;
         String searchQuery = dto.getSearchQuery().toLowerCase(); // Convert search query to all lowercase.
         String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
-
-        Specification<SaleListing> spec = buildListingSpec(dto, conjunctions);
-
-        Sort sort = buildListingSort(dto.getSortBy());
-
-        Pageable pageable;
-        if (sort != null) {
-            pageable = PageRequest.of(dto.getPageNumber(), 10, sort);
-        } else {
-            pageable = PageRequest.of(dto.getPageNumber(), 10);
-        }
-
-        Page<SaleListing> page = saleListingRepository.findAll(spec, pageable);
-        totalCount = page.getTotalElements();
-        listings = page.getContent();
-
-        logger.info("Retrieved {} Sales Listings, showing {}", totalCount, listings.size());
-
-        return Arrays.asList(listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList()), totalCount);
-    }
-
-    /**
-     * Method which builds the specification used to search sale listings with.
-     *
-     * @param dto          DTO containing parameters to search by
-     * @param conjunctions Search query split by AND keyword
-     * @return Spec used to search sale listing repository by
-     */
-    private Specification<SaleListing> buildListingSpec(SearchSaleListingsDTO dto, String[] conjunctions) {
-        Specification<SaleListing> spec = null;
 
         //Product name
         if (dto.isMatchProductName()) {
@@ -160,7 +274,52 @@ public class SaleListingService {
             throw invalidDateException;
         }
 
-        return spec;
+        Sort sort = null;
+
+        switch (dto.getSortBy()) {
+            case "priceAsc":
+                sort = Sort.by(Sort.Order.asc("price"));
+                break;
+            case "priceDesc":
+                sort = Sort.by(Sort.Order.desc("price"));
+                break;
+            case "productName":
+                sort = Sort.by(Sort.Order.asc("inventoryItem.product.name"));
+                break;
+            case "country":
+                sort = Sort.by(Sort.Order.asc("business.address.country"));
+                break;
+            case "city":
+                sort = Sort.by(Sort.Order.asc("business.address.city"));
+                break;
+            case "expiryDateAsc":
+                sort = Sort.by(Sort.Order.asc("inventoryItem.expires"));
+                break;
+            case "expiryDateDesc":
+                sort = Sort.by(Sort.Order.desc("inventoryItem.expires"));
+                break;
+            case "seller":
+                sort = Sort.by(Sort.Order.asc("business.name"));
+                break;
+            default:
+                break;
+        }
+
+        if (sort != null) {
+            Pageable pageable = PageRequest.of(dto.getPageNumber(), 10, sort);
+            Page<SaleListing> page = saleListingRepository.findAll(spec, pageable);
+            totalCount = page.getTotalElements();
+            listings = page.getContent();
+        } else {
+            Pageable pageable = PageRequest.of(dto.getPageNumber(), 10);
+            Page<SaleListing> page = saleListingRepository.findAll(spec, pageable);
+            totalCount = page.getTotalElements();
+            listings = page.getContent();
+        }
+
+        logger.info("Retrieved {} Sales Listings, showing {}", totalCount, listings.size());
+
+        return Arrays.asList(listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList()), totalCount);
     }
 
     /**
@@ -336,82 +495,5 @@ public class SaleListingService {
             }
         }
         return spec;
-    }
-
-    /**
-     * Given a sort query string, returns a Sort object used to sort sale listings by.
-     *
-     * @param sortQuery String query to sort by.
-     * @return Sort object used to sort entries retrieved from the Sale Listing Repository
-     */
-    private Sort buildListingSort(String sortQuery) {
-        Sort sort = null;
-        switch (sortQuery) {
-            case "priceAsc":
-                sort = Sort.by(Sort.Order.asc("price"));
-                break;
-            case "priceDesc":
-                sort = Sort.by(Sort.Order.desc("price"));
-                break;
-            case "productName":
-                sort = Sort.by(Sort.Order.asc("inventoryItem.product.name"));
-                break;
-            case "country":
-                sort = Sort.by(Sort.Order.asc("business.address.country"));
-                break;
-            case "city":
-                sort = Sort.by(Sort.Order.asc("business.address.city"));
-                break;
-            case "expiryDateAsc":
-                sort = Sort.by(Sort.Order.asc("inventoryItem.expires"));
-                break;
-            case "expiryDateDesc":
-                sort = Sort.by(Sort.Order.desc("inventoryItem.expires"));
-                break;
-            case "seller":
-                sort = Sort.by(Sort.Order.asc("business.name"));
-                break;
-            default:
-                break;
-        }
-        return sort;
-    }
-
-    /**
-     * Likes a sale listing if it is liked by a user
-     * @param listingId ID of the sale listing to like
-     * @param user      User who is liking the sale listing
-     */
-    @Transactional
-    public void likeSaleListing(Integer listingId, AppUserDetails user){
-        // Get the logged in user from the users email
-        String userEmail = user.getUsername();
-        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
-
-        //Get Sale Listing from repository
-        Optional<SaleListing> foundSaleListingOptional = saleListingRepository.findById(listingId);
-        // Check if the listing exists
-        if (foundSaleListingOptional.isEmpty()){
-            throw new NotAcceptableException(String.format("There is no sale listing that exists with the id %d",
-                    listingId));
-        }
-        SaleListing listing = foundSaleListingOptional.get();
-
-        //Check that the user hasn't already liked the sale listing
-        if (likedSaleListingRepository.findByListingAndUser(listing, loggedInUser).isEmpty()){
-            //Make the new liked sale listing
-            LikedSaleListing likedSaleListing = new LikedSaleListing(loggedInUser, listing);
-            //Save the liked sale listing
-            likedSaleListingRepository.save(likedSaleListing);
-            //Add liked sale listing to the list of liked sale listings of user
-            var currentlyLikedSaleListings = loggedInUser.getLikedSaleListings();
-            currentlyLikedSaleListings.add(likedSaleListing);
-            //Save the list to the user
-            loggedInUser.setLikedSaleListings(currentlyLikedSaleListings);
-            userRepository.save(loggedInUser);
-        } else {
-            throw new BadRequestException("This user has already liked this sale listing");
-        }
-
     }
 }

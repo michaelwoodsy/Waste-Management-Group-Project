@@ -19,7 +19,7 @@ class UserNotificationRepositoryTest extends AbstractInitializer {
 
     @Autowired
     private UserRepository userRepository;
-
+    
     @Autowired
     private AddressRepository addressRepository;
 
@@ -36,11 +36,12 @@ class UserNotificationRepositoryTest extends AbstractInitializer {
         testUser.setHomeAddress(addressRepository.save(testUser.getHomeAddress()));
         testUser = userRepository.save(testUser);
 
+
         // Save test business and associated entities
         testBusiness = getTestBusiness();
         testBusiness.setAddress(addressRepository.save(testBusiness.getAddress()));
         testBusiness.setPrimaryAdministratorId(testUser.getId());
-        testBusiness = businessRepository.save(testBusiness);
+        testBusiness = businessRepository.save(getTestBusiness());
     }
 
     /**

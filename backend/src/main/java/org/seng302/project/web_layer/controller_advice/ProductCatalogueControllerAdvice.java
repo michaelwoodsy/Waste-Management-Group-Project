@@ -1,8 +1,7 @@
-package org.seng302.project.web_layer.controllerAdvice;
+package org.seng302.project.web_layer.controller_advice;
 
 import org.seng302.project.service_layer.exceptions.*;
 import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
-import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
 import org.seng302.project.service_layer.exceptions.product.NoProductExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,16 +37,6 @@ public class ProductCatalogueControllerAdvice {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Exception thrown by the getBusinessesProducts() and newProduct() functions in ProductCatalogueController
-     * when a user tries to perform a function when they are not an administrator.
-     *
-     * @return a 403 response with an appropriate message
-     */
-    @ExceptionHandler(ForbiddenAdministratorActionException.class)
-    public ResponseEntity<String> forbiddenAdministratorAction(ForbiddenAdministratorActionException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
-    }
 
     /**
      * Exception thrown by newProduct() and editProduct() in ProductCatalogueController

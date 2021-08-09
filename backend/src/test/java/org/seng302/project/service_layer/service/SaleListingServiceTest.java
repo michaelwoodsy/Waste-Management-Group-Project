@@ -7,21 +7,28 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
+import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
+import org.seng302.project.service_layer.exceptions.ForbiddenException;
+import org.seng302.project.service_layer.exceptions.InvalidDateException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+
 
 @DataJpaTest
 class SaleListingServiceTest extends AbstractInitializer {
+
 
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
@@ -29,16 +36,19 @@ class SaleListingServiceTest extends AbstractInitializer {
     private final ProductRepository productRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
-    private final LikedSaleListingRepository likedSaleListingRepository;
+
     private final SaleListingService saleListingService;
 
-    User testUser;
+    @MockBean
+    private AuthenticationManager authenticationManager;
+    @MockBean
+    private BCryptPasswordEncoder passwordEncoder;
 
     Integer business1Id;
     Integer business2Id;
-
-    SaleListing saleListing1;
-    SaleListing saleListing2;
+    User testUser;
+    User testAdmin;
+    InventoryItem inventoryItem;
 
     @Autowired
     SaleListingServiceTest(UserRepository userRepository,
@@ -46,17 +56,24 @@ class SaleListingServiceTest extends AbstractInitializer {
                            AddressRepository addressRepository,
                            ProductRepository productRepository,
                            InventoryItemRepository inventoryItemRepository,
-                           SaleListingRepository saleListingRepository,
-                           LikedSaleListingRepository likedSaleListingRepository) {
+                           SaleListingRepository saleListingRepository) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
-        this.likedSaleListingRepository = likedSaleListingRepository;
-        this.saleListingService = new SaleListingService(this.saleListingRepository,
-                this.likedSaleListingRepository, this.userRepository);
+
+        UserService userService = new UserService(this.userRepository, this.addressRepository,
+                authenticationManager, passwordEncoder);
+        ProductCatalogueService productCatalogueService = new ProductCatalogueService(this.userRepository,
+                this.businessRepository, this.productRepository, this.inventoryItemRepository);
+        BusinessService businessService = new BusinessService(this.businessRepository, this.addressRepository,
+                this.userRepository, productCatalogueService);
+
+        this.saleListingService = new SaleListingService(userService,
+                businessService, this.saleListingRepository,
+                 this.inventoryItemRepository);
     }
 
     /**
@@ -64,29 +81,34 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @BeforeEach
     void setup() {
-        this.testUser = this.getTestUser();
+        testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
-        userRepository.save(testUser);
+        testUser = userRepository.save(testUser);
+
+        testAdmin = this.getTestUserBusinessAdmin();
+        addressRepository.save(testAdmin.getHomeAddress());
+        testAdmin = userRepository.save(testAdmin);
 
         Address address1 = new Address(null, null, "Rangiora", null, "Netherlands", null);
-        Business business1 = new Business("First Business", null, address1, "Retail Trade", 1);
+        Business business1 = new Business("First Business", null, address1, "Retail Trade", testAdmin.getId());
         addressRepository.save(address1);
         businessRepository.save(business1);
         business1Id = business1.getId();
 
         Product product1 = new Product("TEST-1", "First Product", null, null, 5.00, business1.getId());
         productRepository.save(product1);
-        InventoryItem inventoryItem1 = new InventoryItem(product1, 5, null, null, "2021-01-01", null, null, "2021-12-01");
-        inventoryItemRepository.save(inventoryItem1);
-        saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
+        InventoryItem inventoryItem1 = new InventoryItem(product1, 7, null, null, "2021-01-01", null, null, "2021-12-01");
+        inventoryItem = inventoryItemRepository.save(inventoryItem1);
+        SaleListing saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
         saleListingRepository.save(saleListing1);
 
         Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
         productRepository.save(product2);
         InventoryItem inventoryItem2 = new InventoryItem(product2, 10, null, null, "2021-01-01", null, null, "2021-12-02");
-        inventoryItemRepository.save(inventoryItem1);
-        saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
+        inventoryItemRepository.save(inventoryItem2);
+        SaleListing saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
         saleListingRepository.save(saleListing2);
+
 
         Address address2 = new Address(null, null, "Christchurch", null, "New Zealand", null);
         Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
@@ -108,6 +130,130 @@ class SaleListingServiceTest extends AbstractInitializer {
         SaleListing saleListing4 = new SaleListing(business2, inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
         saleListingRepository.save(saleListing4);
     }
+
+
+    /**
+     * Tests that a NotAcceptableException is thrown when
+     * a someone tries accessing the listings of a nonexistent business.
+     */
+    @Test
+    void getBusinessListings_nonExistentBusiness_NotAcceptableException() {
+        AppUserDetails appUser = new AppUserDetails(testUser);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.getBusinessListings(99, appUser));
+
+    }
+
+    /**
+     * Tests the successful case of getting the listings for a business
+     */
+    @Test
+    void getBusinessListings_success() {
+        AppUserDetails appUser = new AppUserDetails(testUser);
+        List<GetSaleListingDTO> listings = saleListingService.getBusinessListings(business1Id, appUser);
+
+        //We expect to get the 2 listings added in the setup() method
+        Assertions.assertEquals(2, listings.size());
+    }
+
+    /**
+     * Tests that a NotAcceptableException is thrown when
+     * a someone tries adding a listing to a nonexistent business.
+     */
+    @Test
+    void postBusinessListings_nonExistentBusiness_NotAcceptableException() {
+        AppUserDetails appUser = new AppUserDetails(testUser);
+
+        PostSaleListingDTO requestDTO = new PostSaleListingDTO(
+                1,2.20, "Hmmm", "2022-02-29T04:34:55.931Z", 5);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.newBusinessListing(requestDTO, 99, appUser));
+    }
+
+
+    /**
+     * Tests that a ForbiddenException is thrown when
+     * a random user tries adding a listing to a business.
+     */
+    @Test
+    void postBusinessListings_notAdmin_ForbiddenException() {
+        AppUserDetails appUser = new AppUserDetails(testUser);
+
+        PostSaleListingDTO requestDTO = new PostSaleListingDTO(
+                1,2.20, "Hmmm", "2022-02-29T04:34:55.931Z", 5);
+
+        Assertions.assertThrows(ForbiddenException.class,
+                () -> saleListingService.newBusinessListing(requestDTO, business1Id, appUser));
+    }
+
+
+    /**
+     * Tests that a BadRequestException is thrown when
+     * a business admin tries adding a listing with an invalid quantity
+     */
+    @Test
+    void postBusinessListings_invalidQuantity_BadRequestException() {
+        AppUserDetails appUser = new AppUserDetails(testAdmin);
+
+        PostSaleListingDTO requestDTO = new PostSaleListingDTO(
+                inventoryItem.getId(),2.20, "Hmmm", "2022-02-29T04:34:55.931Z", inventoryItem.getQuantity() + 2);
+
+        Assertions.assertThrows(BadRequestException.class,
+                () -> saleListingService.newBusinessListing(requestDTO, business1Id, appUser));
+    }
+
+
+    /**
+     * Tests that a BadRequestException is thrown when
+     * a business admin tries adding a listing with an invalid inventory item id
+     */
+    @Test
+    void postBusinessListings_invalidInventoryItem_BadRequestException() {
+        AppUserDetails appUser = new AppUserDetails(testAdmin);
+
+        PostSaleListingDTO requestDTO = new PostSaleListingDTO(
+                inventoryItem.getId() + 50,2.20, "Hmmm", "2022-02-29T04:34:55.931Z", inventoryItem.getQuantity());
+
+        Assertions.assertThrows(BadRequestException.class,
+                () -> saleListingService.newBusinessListing(requestDTO, business1Id, appUser));
+    }
+
+
+    /**
+     * Tests that a InvalidDateException is thrown when
+     * a business admin tries adding a listing with an invalid closing date
+     */
+    @Test
+    void postBusinessListings_invalidDate_InvalidDateException() {
+        AppUserDetails appUser = new AppUserDetails(testAdmin);
+
+        PostSaleListingDTO requestDTO = new PostSaleListingDTO(
+                inventoryItem.getId(),2.20, "Hmmm", "2021/02/26", 1);
+
+        Assertions.assertThrows(InvalidDateException.class,
+                () -> saleListingService.newBusinessListing(requestDTO, business1Id, appUser));
+    }
+
+
+    /**
+     * Tests the successful case of adding a sale listing
+     */
+    @Test
+    void postBusinessListings_success() {
+        AppUserDetails appUser = new AppUserDetails(testAdmin);
+
+        PostSaleListingDTO requestDTO = new PostSaleListingDTO(
+                inventoryItem.getId(),2.20, "Hmmm", "2021-11-29T04:34:55.931Z", 1);
+
+        saleListingService.newBusinessListing(requestDTO, business1Id, appUser);
+        List<SaleListing> listings =  saleListingRepository.findAllByBusinessId(business1Id);
+
+        //The business had 2 listings added to it in the setup() method, and we check 1 more was added to this
+        Assertions.assertEquals(3, listings.size());
+    }
+
 
     /**
      * Tests that searching for listing by business name with string 'first' returns first listing
@@ -228,6 +374,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
         Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
     }
+
 
     /**
      * Test that using an empty search returns the four sales listings
@@ -822,73 +969,5 @@ class SaleListingServiceTest extends AbstractInitializer {
         Assertions.assertEquals("Third Product", listings.get(1).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("First Product", listings.get(3).getInventoryItem().getProduct().getName());
-    }
-
-    /**
-     * Test that trying to like a sale listing that hasn't been liked by this user adds it to the sale listing repository
-     */
-    @Test
-    void likedSaleListing_listingNotLiked_success(){
-        //Check that there are no liked listings and the user has no liked listings
-        Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
-        Assertions.assertEquals(0, userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().size());
-
-        //Like the listing (this changes the user in the repository)
-        saleListingService.likeSaleListing(this.saleListing1.getId(), new AppUserDetails(this.testUser));
-
-        //Get user from repository
-        this.testUser = userRepository.findByEmail(this.testUser.getEmail()).get(0);
-
-        //Check that the liked sale listing has been added to the repository
-        Assertions.assertEquals(1, likedSaleListingRepository.findAll().size());
-        //Check that the user's liked listing list contains the same liked listing as in the repository
-        Assertions.assertEquals(likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).get(0),
-                userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().get(0));
-
-    }
-
-    /**
-     * Test that trying to like a sale listing that has already been liked by this user throws and exception
-     */
-    @Test
-    void likedSaleListing_listingAlreadyLiked_throwsException(){
-        //Check that there are no liked listings
-        Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
-
-        //Like the listing (this changes the user in the repository)
-        saleListingService.likeSaleListing(this.saleListing1.getId(), new AppUserDetails(this.testUser));
-
-        //Get user from repository
-        this.testUser = userRepository.findByEmail(this.testUser.getEmail()).get(0);
-
-        //Check that the liked sale listing has been added to the repository
-        Assertions.assertEquals(1, likedSaleListingRepository.findAll().size());
-        //Check that the user's liked listing list contains the same liked listing as in the repository
-        Assertions.assertEquals(likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).get(0),
-                userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().get(0));
-
-        Integer saleListingId = this.saleListing1.getId();
-        AppUserDetails appUser = new AppUserDetails(this.testUser);
-        //Try to like the listing again
-        Assertions.assertThrows(BadRequestException.class,
-                () -> saleListingService.likeSaleListing(saleListingId, appUser));
-    }
-    
-    /**
-     * Test that trying to like a sale listing that does not exist throws an exception
-     */
-    @Test
-    void likedSaleListing_listingDoesNotExist_throwsException(){
-        Integer saleListingId = 100;
-        AppUserDetails appUser = new AppUserDetails(this.testUser);
-
-        //Check that there are no liked listings
-        Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
-        //Check that the listing doesn't exist
-        Assertions.assertEquals(Optional.empty(), saleListingRepository.findById(saleListingId));
-        //Try to like the listing that doesn't exist
-
-        Assertions.assertThrows(NotAcceptableException.class,
-                () -> saleListingService.likeSaleListing(saleListingId, appUser));
     }
 }

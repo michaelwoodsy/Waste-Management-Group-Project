@@ -1,4 +1,4 @@
-package org.seng302.project.web_layer.controllerAdvice;
+package org.seng302.project.web_layer.controller_advice;
 
 import org.seng302.project.service_layer.exceptions.product.ProductImageNotFoundException;
 import org.seng302.project.service_layer.exceptions.product.ProductNotFoundException;
