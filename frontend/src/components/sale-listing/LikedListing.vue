@@ -10,23 +10,21 @@ Displays a user's liked listings.
     <div class="card shadow card-size">
 
       <!-- Listing Image -->
-      <img :src="getPrimaryImageThumbnail(listingData.inventoryItem.product)" alt="productImage"
-           class="ui-icon-image listing-image">
+      <img v-if="imageUrl != null" :src="imageUrl" alt="productImage" class="card-img-top">
 
       <div class="card-body">
 
         <!-- Product Name -->
-        <h6 class="card-title d-inline"> {{ listingData.inventoryItem.product.name }} </h6>
+        <h6 class="card-title"> {{ listingData.listing.inventoryItem.product.name }} </h6>
 
-        <!-- Quantity and Price, cause sizing issues
+        <!-- Quantity and Price, cause sizing issues -->
         <p class="card-text text-muted small mb-1">
-          Quantity: {{ listingData.quantity }}
+          Quantity: {{ listingData.listing.quantity }}
         </p>
 
         <p class="card-text text-muted small mb-1">
-          Price: {{ formatPrice(listingData) }}
+          Price: {{ formatPrice(listingData.listing) }}
         </p>
-         -->
 
         <div class="text-right">
 
@@ -35,7 +33,7 @@ Displays a user's liked listings.
               class="btn btn-sm btn-outline-primary ml-5"
               data-target="#viewListingModal"
               data-toggle="modal"
-              @click="viewListing(listingData)"
+              @click="viewListing(listingData.listing)"
           >
             View Details
           </button>
@@ -82,7 +80,12 @@ export default {
     return {
       listingToView: null,
       viewListingModal: false,
+      imageUrl: null
     }
+  },
+
+  mounted() {
+    this.getPrimaryImage(this.listingData.listing.inventoryItem.product)
   },
 
   methods: {
@@ -118,17 +121,15 @@ export default {
      * Uses the primaryImageId of the product to find the primary image and return its imageURL,
      * else it returns the default product image url
      */
-    getPrimaryImageThumbnail(product) {
+    getPrimaryImage(product) {
       if (product.primaryImageId !== null) {
         const filteredImages = product.images.filter(function (specificImage) {
           return specificImage.id === product.primaryImageId;
         })
         if (filteredImages.length === 1) {
-          return this.getImageURL(filteredImages[0].thumbnailFilename)
+          this.imageUrl = this.getImageURL(filteredImages[0].filename)
         }
       }
-      //Return the default image if the program gets to this point (if it does something went wrong)
-      return this.getImageURL('/media/defaults/defaultProduct_thumbnail.jpg')
     },
 
     /**
@@ -152,8 +153,12 @@ export default {
 
 <style scoped>
 .card-size {
-  max-height: 400px;
-  max-width: 400px;
   margin-bottom: 40px;
 }
+
+.card-img-top {
+  object-fit: cover;
+  max-height: 200px;
+}
+
 </style>

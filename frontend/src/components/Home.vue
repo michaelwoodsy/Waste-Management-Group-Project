@@ -60,41 +60,44 @@
           <hr>
         </div>
 
-        <!-- Cards Section -->
-        <div v-if="user.isActingAsUser()">
-          <h2>My Cards</h2>
-          <alert v-if="hasExpiredCards" class="text-center">
-            You have cards that have recently expired and will be deleted within 24 hours if not extended!
-          </alert>
-          <div v-if="hasExpiredCards">
-            <h5>Recently Expired Cards</h5>
-            <div class="row row-cols-1 row-cols-lg-2">
-              <div v-for="card in expiredCards" v-bind:key="card.id" class="col">
+        <div class="row row-cols-1 row-cols-lg-2">
+          <!-- Cards Section -->
+          <div v-if="user.isActingAsUser()" class="col">
+            <h2>My Cards</h2>
+            <alert v-if="hasExpiredCards" class="text-center">
+              You have cards that have recently expired and will be deleted within 24 hours if not extended!
+            </alert>
+            <div v-if="hasExpiredCards">
+              <h5>Recently Expired Cards</h5>
+              <div class="row row-cols-1">
+                <div v-for="card in expiredCards" v-bind:key="card.id" class="col">
+                  <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
+                               @card-deleted="deleteCard" @card-extended="extendCard"
+                               @refresh-cards="getCardData"></market-card>
+                </div>
+              </div>
+            </div>
+            <h5 v-if="hasExpiredCards">Active Cards</h5>
+            <div class="row row-cols-1">
+              <div v-for="card in activeCards" v-bind:key="card.id" class="col">
                 <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
                              @card-deleted="deleteCard" @card-extended="extendCard"
                              @refresh-cards="getCardData"></market-card>
               </div>
             </div>
           </div>
-          <h5 v-if="hasExpiredCards">Active Cards</h5>
-          <div class="row row-cols-1 row-cols-lg-2">
-            <div v-for="card in activeCards" v-bind:key="card.id" class="col">
-              <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
-                           @card-deleted="deleteCard" @card-extended="extendCard"
-                           @refresh-cards="getCardData"></market-card>
+
+          <!-- Liked Listing Section -->
+          <div v-if="user.isActingAsUser()" class="col">
+            <h2>My Liked Listings</h2>
+            <div class="row row-cols-1">
+              <div v-for="listing in likedListings" v-bind:key="listing.id" class="col">
+                <liked-listing :listing-data="listing"></liked-listing>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Liked Listing Section -->
-        <div v-if="user.isActingAsUser()">
-          <h2>My Liked Listings</h2>
-          <div class="row row-cols-1 row-cols-lg-3">
-            <div v-for="listing in likedListings" v-bind:key="listing.id" class="col">
-              <liked-listing :listing-data="listing"></liked-listing>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Side Bar Right-->
@@ -148,7 +151,7 @@
             <message v-for="message in sortedMessages"
                      :key="message.id"
                      :message="message"
-                      @remove-message="removeMessage(message.id)"/>
+                     @remove-message="removeMessage(message.id)"/>
           </div>
         </div>
 
@@ -162,11 +165,12 @@ import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/marketplace/MarketCard";
 import Alert from "@/components/Alert";
 import Notification from "@/components/Notification";
-import {Business, User} from "@/Api";
+import {User} from "@/Api";
 import userState from "@/store/modules/user"
 import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
+import product from "@/store/modules/product"
 
 export default {
   name: "Home",
@@ -190,48 +194,7 @@ export default {
     return {
       user: userState,
       cards: [],
-      likedListings: [
-        {
-          "businessId": 1,
-          "inventoryItemId": 1,
-          "quantity": 2,
-          "price": 6.98,
-          "moreInfo": "Seller may be willing to consider near offers",
-          "closes": "2021-07-21T23:59:00Z"
-        },
-        {
-          "businessId": 1,
-          "inventoryItemId": 2,
-          "quantity": 3,
-          "price": 6.50,
-          "moreInfo": "Seller may be willing to consider near offers",
-          "closes": "2021-08-21T23:59:00Z"
-        },
-        {
-          "businessId": 2,
-          "inventoryItemId": 5,
-          "quantity": 4,
-          "price": 15.00,
-          "moreInfo": null,
-          "closes": "2021-08-21T23:59:00Z"
-        },
-        {
-          "businessId": 2,
-          "inventoryItemId": 5,
-          "quantity": 4,
-          "price": 15.00,
-          "moreInfo": null,
-          "closes": "2021-08-21T23:59:00Z"
-        },
-        {
-          "businessId": 3,
-          "inventoryItemId": 9,
-          "quantity": 4,
-          "price": 10.00,
-          "moreInfo": null,
-          "closes": "2021-08-21T23:59:00Z"
-        }
-      ],
+      likedListings: [],
       hideImages: true,
       notificationsShown: true,
       //Test data
@@ -316,16 +279,17 @@ export default {
       if (this.actingAs.type === "user") {
         await this.getCardData()
         await this.getNotificationData()
-        await this.getLikedListings()
         if (this.user.canDoAdminAction()) {
           await this.getAdminNotifications();
         }
         await this.getMessages()
+        await this.getLikedListings()
       } else {
         this.notifications = []
         this.adminNotifications = []
         this.cards = []
         this.messages = []
+        this.likedListings = []
       }
       $('.toast').toast('show')
     },
@@ -365,26 +329,11 @@ export default {
      */
     async getLikedListings() {
       //TODO: Update this to proper API call once backend sorted
-      await Business.searchSaleListings(
-          "",
-          false,
-          false,
-          false,
-          false,
-          null,
-          null,
-          null,
-          null,
-          0,
-          "bestMatch")
-          .then(async (res) => {
-            this.likedListings = res.data[0]
-            this.likedListings = await this.$root.$data.product.addSaleListingCurrencies(this.likedListings)
-            this.error = null
-          })
-          .catch((err) => {
-            this.error = err;
-          })
+      this.likedListings = this.user.state.userData.likedSaleListings
+      for (const [index, likedListing] of this.likedListings.entries()) {
+        likedListing.listing = (await product.addSaleListingCurrencies([likedListing.listing]))[0]
+        this.likedListings[index] = likedListing
+      }
     },
 
     /**
