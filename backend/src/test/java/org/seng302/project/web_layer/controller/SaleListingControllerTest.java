@@ -484,17 +484,18 @@ class SaleListingControllerTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that tagging a sale listing with an no tag
+     * Tests that tagging a sale listing with no tag
      * returns a 400 response
      */
     @Test
-    void tagSaleListing_noTag_400() throws Exception { //TODO: this actually gives a 200
+    void tagSaleListing_noTag_400() throws Exception {
 
         Mockito.doThrow(new BadRequestException("message"))
                 .when(saleListingService)
                 .tagSaleListing(any(Integer.class), any(String.class), any(AppUserDetails.class));
 
         JSONObject body = new JSONObject();
+        body.put("tag", "tag");
 
         RequestBuilder request = MockMvcRequestBuilders
                 .patch("/listings/{listingId}/tag", 1)
@@ -508,17 +509,18 @@ class SaleListingControllerTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that tagging a sale listing with an no tag
+     * Tests that tagging a sale listing when not liked
      * returns a 400 response
      */
     @Test
-    void tagSaleListing_notLiked_400() throws Exception { //TODO: this actually gives a 200
+    void tagSaleListing_notLiked_400() throws Exception {
 
         Mockito.doThrow(new BadRequestException("message"))
                 .when(saleListingService)
                 .tagSaleListing(any(Integer.class), any(String.class), any(AppUserDetails.class));
 
         JSONObject body = new JSONObject();
+        body.put("tag", "tag");
 
         RequestBuilder request = MockMvcRequestBuilders
                 .patch("/listings/{listingId}/tag", 5)
@@ -536,13 +538,14 @@ class SaleListingControllerTest extends AbstractInitializer {
      * Tests that a 406 response is given when tagging a nonexistent listing
      */
     @Test
-    void tagSaleListing_nonExistentListing_406() throws Exception { //TODO: this actually gives a 200
+    void tagSaleListing_nonExistentListing_406() throws Exception {
 
         Mockito.doThrow(new NotAcceptableException("message"))
                 .when(saleListingService)
                 .tagSaleListing(any(Integer.class), any(String.class), any(AppUserDetails.class));
 
         JSONObject body = new JSONObject();
+        body.put("tag", "tag");
 
         RequestBuilder request = MockMvcRequestBuilders
                 .patch("/listings/{listingId}/tag", 89892)

@@ -1079,7 +1079,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         saleListingService.buySaleListing(saleListing1.getId(), user);
 
         List<UserNotification> notifications = userNotificationRepository.findAll();
-        System.out.println(notifications);
         Assertions.assertEquals(2, notifications.size());
 
         //First one is a purchaser notification

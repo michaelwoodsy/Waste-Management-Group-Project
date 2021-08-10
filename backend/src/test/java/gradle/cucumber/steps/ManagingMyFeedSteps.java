@@ -21,6 +21,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.transaction.Transactional;
+import java.util.Collections;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
@@ -70,6 +73,11 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     @BeforeEach
     @Autowired
     void setup(WebApplicationContext context) {
+        var users = userRepository.findAll();
+        for (var user: users) {
+            user.setLikedSaleListings(Collections.emptyList());
+            userRepository.save(user);
+        }
         likedSaleListingRepository.deleteAll();
         cardRepository.deleteAll();
         userRepository.deleteAll();
@@ -272,14 +280,17 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     }
 
     //AC7
-
     @Given("I have a liked sale listing tagged as {string}")
+    @Transactional
     public void i_have_a_liked_sale_listing_tagged_as(String colour) {
-        LikedSaleListing likedListing = new LikedSaleListing(testUser, listing);
+        var userOptional = userRepository.findById(testUser.getId());
+        Assertions.assertTrue(userOptional.isPresent());
+        var user = userOptional.get();
+        LikedSaleListing likedListing = new LikedSaleListing(user, listing);
         likedListing.setTag(Tag.getTag(colour));
         likedSaleListingRepository.save(likedListing);
-        testUser.addLikedListing(likedListing);
-        userRepository.save(testUser);
+        user.addLikedListing(likedListing);
+        testUser = userRepository.save(user);
 
     }
 

@@ -31,10 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -90,6 +87,11 @@ public class ModifyingBusinessesSteps extends AbstractInitializer {
     public void setup(WebApplicationContext context, CardRepository cardRepository) {
         this.initialise();
         cardRepository.deleteAll();
+        var users = userRepository.findAll();
+        for (var user: users) {
+            user.setLikedSaleListings(Collections.emptyList());
+            userRepository.save(user);
+        }
         likedSaleListingRepository.deleteAll();
         saleListingRepository.deleteAll();
         businessRepository.deleteAll();
