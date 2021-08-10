@@ -22,6 +22,7 @@ public class Sale {
     private Business business;
     @Embedded
     private InventoryItemArchive inventoryItem;
+    private Integer oldListingId;
     private Double price;
     private String moreInfo;
     private LocalDateTime closes;
@@ -32,6 +33,7 @@ public class Sale {
     public Sale(SaleListing saleListing) {
         this.business = saleListing.getBusiness();
         this.inventoryItem = new InventoryItemArchive(saleListing.getInventoryItem());
+        this.oldListingId = saleListing.getId();
         this.price = saleListing.getPrice();
         this.moreInfo = saleListing.getMoreInfo();
         this.closes = saleListing.getCloses();

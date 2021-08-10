@@ -17,16 +17,26 @@ import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 
 
 @DataJpaTest
 class SaleListingServiceTest extends AbstractInitializer {
+
 
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
@@ -37,15 +47,27 @@ class SaleListingServiceTest extends AbstractInitializer {
     private final LikedSaleListingRepository likedSaleListingRepository;
     private final UserService userService;
     private final BusinessService businessService;
+    private final SaleHistoryRepository saleHistoryRepository;
+    private final UserNotificationRepository userNotificationRepository;
+
     private final SaleListingService saleListingService;
 
+    @MockBean
+    private AuthenticationManager authenticationManager;
+    @MockBean
+    private BCryptPasswordEncoder passwordEncoder;
+
+    Integer business1Id;
     Business business1;
     Integer business2Id;
     User testUser;
+    User testOtherUser;
     User testAdmin;
     InventoryItem inventoryItem;
     SaleListing saleListing1;
     SaleListing saleListing2;
+    SaleListing saleListing3;
+    SaleListing saleListing4;
 
     @Autowired
     SaleListingServiceTest(UserRepository userRepository,
@@ -54,7 +76,9 @@ class SaleListingServiceTest extends AbstractInitializer {
                            ProductRepository productRepository,
                            InventoryItemRepository inventoryItemRepository,
                            SaleListingRepository saleListingRepository,
-                           LikedSaleListingRepository likedSaleListingRepository) {
+                           LikedSaleListingRepository likedSaleListingRepository,
+                           SaleHistoryRepository saleHistoryRepository,
+                           UserNotificationRepository userNotificationRepository) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
@@ -62,6 +86,8 @@ class SaleListingServiceTest extends AbstractInitializer {
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
+        this.saleHistoryRepository = saleHistoryRepository;
+        this.userNotificationRepository = userNotificationRepository;
 
         this.userService = Mockito.mock(UserService.class);
         this.businessService = Mockito.mock(BusinessService.class);
@@ -71,7 +97,10 @@ class SaleListingServiceTest extends AbstractInitializer {
                 businessService,
                 this.saleListingRepository,
                 this.likedSaleListingRepository,
-                this.inventoryItemRepository);
+                this.saleHistoryRepository,
+                this.inventoryItemRepository,
+                this.userRepository,
+                this.userNotificationRepository);
     }
 
     /**
@@ -81,10 +110,17 @@ class SaleListingServiceTest extends AbstractInitializer {
     void setup() {
         testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
+        testUser.setId(null);
         testUser = userRepository.save(testUser);
+
+        this.testOtherUser = this.getTestOtherUser();
+        addressRepository.save(testOtherUser.getHomeAddress());
+        testOtherUser.setId(null);
+        userRepository.save(testOtherUser);
 
         testAdmin = this.getTestUserBusinessAdmin();
         addressRepository.save(testAdmin.getHomeAddress());
+        testAdmin.setId(null);
         testAdmin = userRepository.save(testAdmin);
 
         Address address1 = new Address(null, null, "Rangiora", null, "Netherlands", null);
@@ -116,14 +152,14 @@ class SaleListingServiceTest extends AbstractInitializer {
         productRepository.save(product3);
         InventoryItem inventoryItem3 = new InventoryItem(product3, 5, null, null, "2021-01-01", null, null, "2021-12-03");
         inventoryItem3 = inventoryItemRepository.save(inventoryItem3);
-        SaleListing saleListing3 = new SaleListing(business2, inventoryItem3, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
+        saleListing3 = new SaleListing(business2, inventoryItem3, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
         saleListingRepository.save(saleListing3);
 
         Product product4 = new Product("TEST-4", "Fourth Product", null, null, 5.00, business2.getId());
         productRepository.save(product4);
         InventoryItem inventoryItem4 = new InventoryItem(product4, 5, null, null, "2021-01-01", null, null, "2021-12-04");
         inventoryItem4 = inventoryItemRepository.save(inventoryItem4);
-        SaleListing saleListing4 = new SaleListing(business2, inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
+        saleListing4 = new SaleListing(business2, inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
         saleListingRepository.save(saleListing4);
 
         Mockito.when(userService.getUserByEmail(testUser.getEmail()))
@@ -347,7 +383,6 @@ class SaleListingServiceTest extends AbstractInitializer {
     void searchByBusinessName_firstOrSecond_returnsBothListings() {
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{"first", "second"});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        System.out.println(listings);
         Assertions.assertEquals(4, listings.size());
     }
 
@@ -408,7 +443,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -435,7 +469,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -466,7 +499,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -497,7 +529,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -528,7 +559,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -555,7 +585,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -585,7 +614,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -615,7 +643,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -645,7 +672,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -681,7 +707,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -717,7 +742,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -747,7 +771,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -779,7 +802,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -811,7 +833,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -843,7 +864,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -875,7 +895,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -907,7 +926,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -939,7 +957,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -971,7 +988,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         );
 
         List<Object> response = saleListingService.searchSaleListings(dto);
-        System.out.println(response);
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -1029,6 +1045,100 @@ class SaleListingServiceTest extends AbstractInitializer {
         saleListingService.unlikeSaleListing(id, user);
         List<LikedSaleListing> likedSaleListings = likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser);
         Assertions.assertEquals(0, likedSaleListings.size());
+    }
+
+    /**
+     * Test that trying to purchase a listing that does not exist results in a NotAcceptableException being thrown
+     */
+    @Test
+    void purchase_listing_listing_not_exist() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.buySaleListing(1000, user));
+    }
+
+    /**
+     * Test that when purchasing a listing, a purchaser notification is created for the purchaser
+     */
+    @Test
+    void purchase_listing_listing_purchase_notification_sent() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Assertions.assertDoesNotThrow(() -> saleListingService.buySaleListing(saleListing1.getId(), user));
+
+        List<UserNotification> notifications = userNotificationRepository.findAll();
+        Assertions.assertEquals(1, notifications.size());
+        PurchaserNotification notification = (PurchaserNotification) notifications.get(0);
+        Assertions.assertEquals(testUser.getId(), notification.getUser().getId());
+        Assertions.assertEquals(testUser.getEmail(), notification.getUser().getEmail());
+    }
+
+    /**
+     * Test that when purchasing a listing, a two notifications are created
+     * One for the purchaser and one for the other user who liked the listing
+     * note: the buyer also likes the listing but doesnt get sent the interested user notification as well
+     */
+    @Test
+    void purchase_listing_listing_notifications_sent() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        LikedSaleListing like1 = new LikedSaleListing(testUser, saleListing1);
+        LikedSaleListing like2 = new LikedSaleListing(testOtherUser, saleListing1);
+        likedSaleListingRepository.save(like1);
+        testUser.addLikedListing(like1);
+        likedSaleListingRepository.save(like2);
+        testOtherUser.addLikedListing(like2);
+
+        saleListingService.buySaleListing(saleListing1.getId(), user);
+
+        List<UserNotification> notifications = userNotificationRepository.findAll();
+        System.out.println(notifications);
+        Assertions.assertEquals(2, notifications.size());
+
+        //First one is a purchaser notification
+        PurchaserNotification purchaserNotification = (PurchaserNotification) notifications.get(0);
+        Assertions.assertEquals(testUser.getId(), purchaserNotification.getUser().getId());
+        Assertions.assertEquals(testUser.getEmail(), purchaserNotification.getUser().getEmail());
+
+        //Second one is a Interested user notification
+        InterestedUserNotification interestedUserNotification = (InterestedUserNotification) notifications.get(1);
+        Assertions.assertEquals(testOtherUser.getId(), interestedUserNotification.getUser().getId());
+        Assertions.assertEquals(testOtherUser.getEmail(), interestedUserNotification.getUser().getEmail());
+    }
+
+    /**
+     * Test that when purchasing a listing, the inventory items quantity is reduced and the sales listing is removed
+     */
+    @Test
+    void purchase_listing_item_quantity_reduced_and_listing_removed() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        InventoryItem item = saleListing1.getInventoryItem();
+        Integer requiredQuantity = item.getQuantity() - saleListing1.getQuantity();
+
+        saleListingService.buySaleListing(saleListing1.getId(), user);
+
+        Optional<InventoryItem> itemOptional = inventoryItemRepository.findById(item.getId());
+        Assertions.assertTrue(itemOptional.isPresent());
+        item = itemOptional.get();
+        Assertions.assertEquals(requiredQuantity, item.getQuantity());
+
+        Optional<SaleListing> listingOptional = saleListingRepository.findById(saleListing1.getId());
+        Assertions.assertTrue(listingOptional.isEmpty());
+    }
+
+    /**
+     * Test that when purchasing a listing which has the last of an inventory item in it, the inventory item is removed and so is the sale listing
+     */
+    @Test
+    void purchase_listing_item_item_and_listing_removed() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        InventoryItem item = saleListing3.getInventoryItem();
+
+        saleListingService.buySaleListing(saleListing3.getId(), user);
+
+        Optional<InventoryItem> itemOptional = inventoryItemRepository.findById(item.getId());
+        Assertions.assertTrue(itemOptional.isEmpty());
+
+        Optional<SaleListing> listingOptional = saleListingRepository.findById(saleListing3.getId());
+        Assertions.assertTrue(listingOptional.isEmpty());
     }
 
     //TODO: tests for patch /listings/{listingId}/tag endpoint:

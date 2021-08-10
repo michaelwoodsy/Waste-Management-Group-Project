@@ -6,10 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repository_layer.model.Business;
-import org.seng302.project.repository_layer.model.InventoryItem;
-import org.seng302.project.repository_layer.model.Product;
-import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
@@ -84,6 +81,9 @@ class SaleListingControllerTest extends AbstractInitializer {
     @Test
     void postBusinessListings_notLoggedIn_401() throws Exception {
         mockMvc.perform(post("/businesses/{id}/listings", business.getId()))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(post("/listings/{listingId}/buy", 1))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -395,6 +395,22 @@ class SaleListingControllerTest extends AbstractInitializer {
                 .with(user(new AppUserDetails(testUser)));
 
         mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Test successful purchase of sale listing (by getting a OK response)
+     */
+    @Test
+    void listingPurchase_OK_200() throws Exception {
+        // Create new sale listing
+        SaleListing listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1000);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/listings/{listingId}/buy", listing.getId())
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     //TODO: tests for patch /listings/{listingId}/tag endpoint:
