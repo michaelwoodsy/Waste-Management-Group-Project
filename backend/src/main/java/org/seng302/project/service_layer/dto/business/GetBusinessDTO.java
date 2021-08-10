@@ -43,6 +43,11 @@ public class GetBusinessDTO {
         this.images = business.getImages();
     }
 
+    /**
+     * Method which attaches a business' administrators to the DTO
+     *
+     * @param business Business to get admins from
+     */
     public void attachAdministrators(Business business) {
         for (User user : business.getAdministrators()) {
             this.administrators.add(new GetUserDTO(user));

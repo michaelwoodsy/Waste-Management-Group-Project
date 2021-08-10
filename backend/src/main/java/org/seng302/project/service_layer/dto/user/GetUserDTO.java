@@ -55,12 +55,22 @@ public class GetUserDTO {
         this.likedSaleListings = new ArrayList<>();
     }
 
+    /**
+     * Method that attaches a User's administered businesses to the DTO
+     *
+     * @param user User to get administered businesses from
+     */
     public void attachBusinessesAdministered(User user) {
         for (Business business : user.getBusinessesAdministered()) {
             this.businessesAdministered.add(new GetBusinessDTO(business));
         }
     }
 
+    /**
+     * Method that attaches a User's liked sale listings to the DTO
+     *
+     * @param user User to get liked sale listings from
+     */
     public void attachLikedSaleListings(User user) {
         for (LikedSaleListing listing : user.getLikedSaleListings()) {
             this.likedSaleListings.add(new GetLikedSaleListingDTO(listing));
