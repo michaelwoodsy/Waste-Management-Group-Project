@@ -12,10 +12,11 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @Entity
+@Table(name = "sale_listing")
 public class SaleListing {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
+    @GeneratedValue(strategy = GenerationType.SEQUENCE) // autoincrement the ID
     @Column(name = "listing_id")
     private Integer id;
 
@@ -23,7 +24,7 @@ public class SaleListing {
     @JoinColumn(name = "business_id")
     private Business business;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "inventory_item_id")
     private InventoryItem inventoryItem;
     private Double price;

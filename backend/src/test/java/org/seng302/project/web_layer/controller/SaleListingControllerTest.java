@@ -1,33 +1,32 @@
 package org.seng302.project.web_layer.controller;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
-import org.seng302.project.repository_layer.repository.*;
-import org.seng302.project.service_layer.exceptions.*;
-import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
+import org.seng302.project.service_layer.exceptions.ForbiddenException;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
+import org.seng302.project.service_layer.service.SaleListingService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -35,212 +34,147 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@AutoConfigureTestDatabase
-class SaleListingControllerTest {
+class SaleListingControllerTest extends AbstractInitializer {
 
-    // Test users
-    private User user;
-    private final String userEmail = "basicUser@gmail.com";
-    private final String userPassword = "123";
+    private User testUser;
     private User owner;
-    private final String ownerEmail = "ownerUser@gmail.com";
-    private final String ownerPassword = "123";
-
-    // Test business
+    private User systemAdmin;
     private Business business;
-
-    // Test product
-    private Product product;
-
-    // Test inventory
     private InventoryItem inventoryItem;
-
-    private SaleListing listing;
-
-    // Test address
-    private Address testAddress1;
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private BusinessRepository businessRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private InventoryItemRepository inventoryItemRepository;
-    @Autowired
-    private SaleListingRepository saleListingRepository;
-    @Autowired
-    private AddressRepository addressRepository;
-
-    /**
-     * Creates the user if it's not already created.
-     * If it is already created, the user is returned.
-     * @return User
-     */
-    private User createUser(User wantedUser) {
-        if (userRepository.findByEmail(wantedUser.getEmail()).size() > 0) {
-            // Already exists, return it
-            return(userRepository.findByEmail(wantedUser.getEmail()).get(0));
-        } else {
-            // User doesn't exist, save it to repository
-            wantedUser.setPassword(passwordEncoder.encode(wantedUser.getPassword()));
-            userRepository.save(wantedUser);
-            return wantedUser;
-        }
-    }
+    @MockBean
+    private SaleListingService saleListingService;
 
     @BeforeEach
-    public void initialise() {
+    public void setup() {
+        testUser = this.getTestUser();
+        owner = this.getTestUserBusinessAdmin();
+        systemAdmin = this.getTestSystemAdmin();
 
-        // Create address
-        testAddress1 = new Address();
-        addressRepository.save(testAddress1);
+        business = this.getTestBusiness();
 
-        // Create the users
-        user = createUser(new User("John", "Smith", "Bob", "Jonny",
-                "Likes long walks on the beach", userEmail, "1999-04-27",
-                "+64 3 555 0129", testAddress1, userPassword));
-        owner = createUser(new User("Jane", "Smith", "Rose", "Jonny",
-                "Likes long walks on the beach", ownerEmail, "1999-04-27",
-                "+64 3 555 0120", testAddress1, ownerPassword));
+        Product product = this.getTestProduct();
 
-        // Create the business
-        business = new Business("Business", "A Business", testAddress1, "Retail",
-                owner.getId());
-        businessRepository.save(business);
-
-        // Create a product
-        product = new Product("p1", "Watties Beans", "beans in a can", "Watties", 2.00,
-                business.getId());
-        productRepository.save(product);
-
-        // Create inventory item
         inventoryItem = new InventoryItem(product, 20,
                 10.99, 219.8, "2021-04-25",
                 "2021-04-25", "2021-04-25", "2021-04-25");
-        inventoryItem = inventoryItemRepository.save(inventoryItem);
+        inventoryItem.setId(1);
 
     }
 
+    /**
+     * Tests that getting listings from a business
+     * when not logged in gives a 401 response
+     */
     @Test
-    void checkUnauthenticatedRequest() throws Exception {
+    void getBusinessListings_notLoggedIn_401() throws Exception {
         mockMvc.perform(get("/businesses/{id}/listings", business.getId()))
-                .andExpect(status().isUnauthorized());
-
-        mockMvc.perform(post("/businesses/{id}/listings", business.getId()))
                 .andExpect(status().isUnauthorized());
     }
 
     /**
-     * Check a user that is an administrator gets a 200.
+     * Tests that creating a listing
+     * when not logged in gives a 401 response
      */
     @Test
-    void testBusinessAdminCanAccess() throws Exception {
-        mockMvc.perform(get("/businesses/{businessId}/listings", business.getId())
-                .with(httpBasic(ownerEmail, ownerPassword)))
-                .andExpect(status().isOk());
+    void postBusinessListings_notLoggedIn_401() throws Exception {
+        mockMvc.perform(post("/businesses/{id}/listings", business.getId()))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(post("/listings/{listingId}/buy", 1))
+                .andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * Check a user that is a business admin gets a 200 when getting their listings.
+     */
+    @Test
+    void getBusinessListings_asBusinessAdmin_200() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/listings", business.getId())
+                .with(user(new AppUserDetails(owner)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Check a system admin gets a 200 when getting a business' listings.
+     */
+    @Test
+    void getBusinessListings_asSystemAdmin_200() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/listings", business.getId())
+                .with(user(new AppUserDetails(systemAdmin)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Check a random gets a 200 when getting a business' listings.
+     */
+    @Test
+    void getBusinessListings_normalUser_200() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/listings", business.getId())
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
     }
 
     /**
      * Test a non existent business returns 406 for an authenticated user.
      */
     @Test
-    void testNonExistentBusiness() throws Exception {
-        mockMvc.perform(get("/businesses/{businessId}/listings", business.getId() + 9999)
-                .with(httpBasic(userEmail, userPassword)))
-                .andExpect(status().isNotAcceptable());
-    }
+    void getBusinessListings_nonExistentBusiness_406() throws Exception {
 
+        Mockito.when(saleListingService.getBusinessListings(any(Integer.class), any(AppUserDetails.class)))
+                .thenThrow(new NotAcceptableException(
+                        String.format("Business with ID %d does not exist", business.getId())));
 
-    /**
-     * Check a user that is an administrator gets a list of sale listings returned.
-     */
-    @Test
-    @Transactional
-    void testSaleListingsAreReturned() throws Exception {
-        // Create new sale listing
-        listing = new SaleListing(business, inventoryItem, 15.00, null,
-                LocalDateTime.now(), 1);
-        listing = saleListingRepository.save(listing);
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/listings", business.getId() + 9999)
+                .with(user(new AppUserDetails(testUser)));
 
-        MvcResult returnedListingResult = mockMvc.perform(get("/businesses/{businessId}/listings", business.getId())
-                .with(httpBasic(ownerEmail, ownerPassword)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String returnedListingString = returnedListingResult.getResponse().getContentAsString();
-        JSONArray returnedArray = new JSONArray(returnedListingString);
-
-        // Check 1 item is in the array
-        assertEquals(1, returnedArray.length());
-
-        // Check the item has the correct values
-        JSONObject returnedListing = returnedArray.getJSONObject(0);
-        assertEquals(listing.getId(), returnedListing.get("id"));
-        assertEquals(listing.getQuantity(), returnedListing.get("quantity"));
-        assertEquals(listing.getPrice(), returnedListing.get("price"));
-        assertNotNull(returnedListing.get("closes"));
-        assertNotNull(returnedListing.get("created"));
-
-        // Check the embedded inventory item
-        JSONObject returnedItem = returnedListing.getJSONObject("inventoryItem");
-        assertNotNull(returnedItem);
-        assertEquals(inventoryItem.getId(), returnedItem.get("id"));
-        JSONObject returnedProduct = returnedItem.getJSONObject("product");
-        assertNotNull(returnedProduct);
-
-        // Check embedded product
-        assertEquals(product.getId(), returnedProduct.get("id"));
-        assertEquals(product.getName(), returnedProduct.get("name"));
-        assertEquals(product.getDescription(), returnedProduct.get("description"));
-        assertEquals(product.getManufacturer(), returnedProduct.get("manufacturer"));
-        assertEquals(product.getRecommendedRetailPrice(), returnedProduct.get("recommendedRetailPrice"));
-        assertNotNull(product.getCreated());
-        assertTrue(returnedProduct.has("images"));
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
     }
 
     /**
-     * Test creating a sales listing with a not authorized user.
+     * Test creating a sales listing with a random user (not admin)
      */
     @Test
-    void testCreateSalesListingNotAuthorized() throws Exception {
+    void createSaleListing_notAdmin_403() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
         JSONObject testItem = new JSONObject();
         testItem.put("inventoryItemId", inventoryItem.getId());
-        testItem.put("quantity", 6);
+        testItem.put("quantity", inventoryItem.getQuantity() - 1);
         testItem.put("price", 59.99);
         testItem.put("moreInfo", "Some more info about this listing");
         testItem.put("closes", closesDate.toString());
+        Mockito.doThrow(new ForbiddenException(String.format(
+                        "User with id %d can not perform this action as they are not an administrator of business with id %d.",
+                        testUser.getId(), business.getId()))).when(saleListingService)
+                .newBusinessListing(any(PostSaleListingDTO.class), any(Integer.class), any(AppUserDetails.class));
 
         RequestBuilder postListingRequest = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/listings", business.getId())
                 .content(testItem.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(userEmail, userPassword));
+                .with(user(new AppUserDetails(testUser)));
 
-        MvcResult postInventoryResponse = this.mockMvc.perform(postListingRequest)
-                .andExpect(MockMvcResultMatchers.status().isForbidden()) // We expect a 400 response
-                .andReturn();
-
-        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new ForbiddenAdministratorActionException(business.getId()).getMessage(), returnedExceptionString);
+        mockMvc.perform(postListingRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
     /**
      * Test creating a sales listing with an invalid inventoryItemId.
      */
     @Test
-    void testCreateSalesListingInvalidInventoryItemId() throws Exception {
+    void createSaleListing_invalidInventoryItemId_400() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
@@ -251,26 +185,29 @@ class SaleListingControllerTest {
         testItem.put("moreInfo", "Some more info about this listing");
         testItem.put("closes", closesDate.toString());
 
+        Mockito.doThrow(new BadRequestException(String.format(
+                        "BadRequestException: No inventory item with id 254645756 exists in business with id %d.",
+                        business.getId())))
+                .when(saleListingService)
+                .newBusinessListing(any(PostSaleListingDTO.class), any(Integer.class), any(AppUserDetails.class));
+
         RequestBuilder postListingRequest = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/listings", business.getId())
                 .content(testItem.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(ownerEmail, ownerPassword));
+                .with(user(new AppUserDetails(owner)));
 
-        MvcResult postInventoryResponse = this.mockMvc.perform(postListingRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
-                .andReturn();
-
-        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new NoInventoryItemExistsException(254645756, business.getId()).getMessage(), returnedExceptionString);
+        mockMvc.perform(postListingRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     /**
      * Test creating a sales listing with no quantity.
+     * Expects a 400 with a message from the DTO.
      */
     @Test
-    void testCreateSalesListingMissingQuantity() throws Exception {
+    void createSaleListing_missingQuantity_400() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
@@ -281,26 +218,28 @@ class SaleListingControllerTest {
         testItem.put("moreInfo", "Some more info about this listing");
         testItem.put("closes", closesDate.toString());
 
+
         RequestBuilder postListingRequest = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/listings", business.getId())
                 .content(testItem.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(ownerEmail, ownerPassword));
+                .with(user(new AppUserDetails(owner)));
 
         MvcResult postInventoryResponse = this.mockMvc.perform(postListingRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
         String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new InvalidQuantityException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: Quantity is a mandatory field.", returnedExceptionString);
     }
 
     /**
      * Test creating a sales listing with no price.
+     * Expects a 400 with a message from the DTO.
      */
     @Test
-    void testCreateSalesListingMissingPrice() throws Exception {
+    void createSaleListing_missingPrice_400() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
@@ -316,21 +255,21 @@ class SaleListingControllerTest {
                 .content(testItem.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(ownerEmail, ownerPassword));
+                .with(user(new AppUserDetails(owner)));
 
         MvcResult postInventoryResponse = this.mockMvc.perform(postListingRequest)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
                 .andReturn();
 
         String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new MissingPriceException().getMessage(), returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: Price is a mandatory field.", returnedExceptionString);
     }
 
     /**
-     * Test creating a sales listing with to many items (not enough quantity of inventory item).
+     * Test creating a sales listing with too many items (not enough quantity of inventory item).
      */
     @Test
-    void testCreateSalesListingToManyItems() throws Exception {
+    void createSaleListing_tooManyItems_400() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
@@ -341,26 +280,27 @@ class SaleListingControllerTest {
         testItem.put("moreInfo", "Some more info about this listing");
         testItem.put("closes", closesDate.toString());
 
+        Mockito.doThrow(new BadRequestException(String.format(
+                        "You do not have enough of item with id %d for this listing (you have %d, with %d used in other sale listings).",
+                        inventoryItem.getId(), 5, 6))).when(saleListingService)
+                .newBusinessListing(any(PostSaleListingDTO.class), any(Integer.class), any(AppUserDetails.class));
+
         RequestBuilder postListingRequest = MockMvcRequestBuilders
                 .post("/businesses/{businessId}/listings", business.getId())
                 .content(testItem.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(ownerEmail, ownerPassword));
+                .with(user(new AppUserDetails(owner)));
 
-        MvcResult postInventoryResponse = this.mockMvc.perform(postListingRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
-                .andReturn();
-
-        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new NotEnoughOfInventoryItemException(inventoryItem.getId(), inventoryItem.getQuantity(), 0).getMessage(), returnedExceptionString);
+        mockMvc.perform(postListingRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()); // We expect a 400 response
     }
 
     /**
-     * Test creating a sales listing.
+     * Test creating a sale listing gives a 201 response.
      */
     @Test
-    void testCreateSalesListing() throws Exception {
+    void createSalesListing_201() throws Exception {
         LocalDateTime closesDate = LocalDateTime.now();
         closesDate = closesDate.plusDays(10);
 
@@ -376,39 +316,10 @@ class SaleListingControllerTest {
                 .content(testItem.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(ownerEmail, ownerPassword));
+                .with(user(new AppUserDetails(owner)));
 
-        this.mockMvc.perform(postListingRequest)
-                .andExpect(MockMvcResultMatchers.status().isCreated()) // We expect a 400 response
-                .andReturn();
-
-        List<SaleListing> retrievedSaleListings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(business.getId(), inventoryItem.getId());
-        assertEquals(1, retrievedSaleListings.size());
-        SaleListing retrievedListing = retrievedSaleListings.get(0);
-
-        Assertions.assertEquals(inventoryItem.getId(), retrievedListing.getInventoryItem().getId());
-        Assertions.assertEquals(inventoryItem.getQuantity() - 1, retrievedListing.getQuantity());
-        Assertions.assertEquals(59.99, retrievedListing.getPrice());
-        Assertions.assertEquals("Some more info about this listing", retrievedListing.getMoreInfo());
-
-
-        //Try creating a new sales listing with a quantity of 2 (should throw NotEnoughOfInventoryItemException)
-
-        testItem.put("quantity", 2);
-
-        postListingRequest = MockMvcRequestBuilders
-                .post("/businesses/{businessId}/listings", business.getId())
-                .content(testItem.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(httpBasic(ownerEmail, ownerPassword));
-
-        MvcResult postInventoryResponse = this.mockMvc.perform(postListingRequest)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()) // We expect a 400 response
-                .andReturn();
-
-        String returnedExceptionString = postInventoryResponse.getResponse().getContentAsString();
-        Assertions.assertEquals(new NotEnoughOfInventoryItemException(inventoryItem.getId(), 1, inventoryItem.getQuantity() - 1).getMessage(), returnedExceptionString);
+        mockMvc.perform(postListingRequest)
+                .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 
     /**
@@ -417,14 +328,14 @@ class SaleListingControllerTest {
     @Test
     void listingSearch_notLoggedIn_401() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/listings")
-                .param("searchQuery", "")
-                .param("matchingProductName", String.valueOf(false))
-                .param("matchingBusinessName", String.valueOf(false))
-                .param("matchingBusinessLocation", String.valueOf(false))
-                .param("matchingBusinessType", String.valueOf(false))
-                .param("pageNumber", String.valueOf(1))
-                .param("sortBy", ""))
+                        .get("/listings")
+                        .param("searchQuery", "")
+                        .param("matchingProductName", String.valueOf(false))
+                        .param("matchingBusinessName", String.valueOf(false))
+                        .param("matchingBusinessLocation", String.valueOf(false))
+                        .param("matchingBusinessType", String.valueOf(false))
+                        .param("pageNumber", String.valueOf(1))
+                        .param("sortBy", ""))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
@@ -434,14 +345,71 @@ class SaleListingControllerTest {
     @Test
     void listingSearch_OK_200() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/listings")
-                .param("searchQuery", "")
-                .param("matchingProductName", String.valueOf(false))
-                .param("matchingBusinessName", String.valueOf(false))
-                .param("matchingBusinessLocation", String.valueOf(false))
-                .param("matchingBusinessType", String.valueOf(false))
-                .param("pageNumber", String.valueOf(1))
-                .param("sortBy", "").with(user(new AppUserDetails(user))))
+                        .get("/listings")
+                        .param("searchQuery", "")
+                        .param("matchingProductName", String.valueOf(false))
+                        .param("matchingBusinessName", String.valueOf(false))
+                        .param("matchingBusinessLocation", String.valueOf(false))
+                        .param("matchingBusinessType", String.valueOf(false))
+                        .param("pageNumber", String.valueOf(1))
+                        .param("sortBy", "").with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests that unliking a sale listing works with a valid request
+     */
+    @Test
+    void unlikeSaleListing_validRequest_statusOK() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/unlike", 1)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Test that trying to unlike a listing that does not exist returns a 406 status
+     */
+    @Test
+    void unlikeSaleListing_saleListingNotFound_returns406() throws Exception {
+        Mockito.doThrow(NotAcceptableException.class)
+                .when(saleListingService).unlikeSaleListing(any(Integer.class), any(AppUserDetails.class));
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/unlike", 1000)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Test that trying to unlike a listing that isn't liked returns a 400 status code
+     */
+    @Test
+    void unlikeSaleListing_saleListingNotLiked_returns400() throws Exception {
+        Mockito.doThrow(BadRequestException.class)
+                .when(saleListingService).unlikeSaleListing(any(Integer.class), any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/unlike", 1)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Test successful purchase of sale listing (by getting a OK response)
+     */
+    @Test
+    void listingPurchase_OK_200() throws Exception {
+        // Create new sale listing
+        SaleListing listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1000);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/listings/{listingId}/buy", listing.getId())
+                .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }

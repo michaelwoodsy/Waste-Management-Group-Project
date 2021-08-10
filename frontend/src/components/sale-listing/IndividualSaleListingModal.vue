@@ -37,6 +37,24 @@
           </div>
         </div>
 
+        <!-- Buy button -->
+        <div class="row">
+          <div class="col-12 d-flex justify-content-center">
+            <button id="buyButton"
+                    class="btn btn-primary m-3 buy-button"
+                    v-if="!buyClicked"
+                    @click="buy"
+            >
+              Buy
+            </button>
+            <button v-else
+                    class="btn btn-secondary m-3 buy-button"
+            >
+              Bought
+            </button>
+          </div>
+        </div>
+
         <!-- Product info -->
         <div class="row">
           <div class="col-6 text-right font-weight-bold">
@@ -93,7 +111,14 @@
             <p>Seller: </p>
           </div>
           <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ formatSeller(listing) }}</p>
+            <div class="row">
+              <div class="col-6">
+                <p style="word-wrap: break-word; max-width: 70%">{{ formatSeller(listing) }}</p>
+              </div>
+              <div class="col-1 text-left">
+                <button class="btn btn-primary" @click="viewBusiness(listing)">View Business</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -170,7 +195,8 @@ export default {
       //TODO: Set liked status based on user viewing
       liked: false,
       //TODO: Set number of likes based on product
-      likes: 0
+      likes: 0,
+      buyClicked: false
     }
   },
   methods: {
@@ -206,7 +232,7 @@ export default {
      * Formats the name and address of the business offering the listing
      */
     formatSeller(listing) {
-      return `${listing.business.name} from ${this.$root.$data.address.formatAddress(listing.business.address)}`
+      return `${listing.business.name} (${listing.business.businessType}) from ${this.$root.$data.address.formatAddress(listing.business.address)}`
     },
 
     /**
@@ -218,7 +244,24 @@ export default {
 
       if (this.liked) this.likes = this.likes + 1
       else this.likes = this.likes - 1
-    }
+    },
+
+    /**
+     * Buy the listing
+     */
+    buy() {
+      this.buyClicked = true
+
+    },
+
+    /**
+     * Lets user view the business the listing belongs to
+     * @param listing
+     */
+    viewBusiness(listing) {
+      this.$emit('viewBusiness', listing)
+    },
+
   }
 }
 </script>
@@ -229,6 +272,10 @@ export default {
   color: red;
   font-size: 30px;
   margin-left: 20px;
+}
+
+.buy-button {
+  width: 150px;
 }
 
 </style>

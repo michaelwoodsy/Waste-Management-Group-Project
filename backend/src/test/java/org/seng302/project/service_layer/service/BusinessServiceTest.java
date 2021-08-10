@@ -9,7 +9,7 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.Address;
 import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.User;
-import org.seng302.project.repository_layer.model.types.BusinessType;
+import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;

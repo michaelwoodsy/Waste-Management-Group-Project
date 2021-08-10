@@ -3,7 +3,7 @@ package org.seng302.project.service_layer.service;
 import org.seng302.project.repository_layer.model.Address;
 import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.User;
-import org.seng302.project.repository_layer.model.types.BusinessType;
+import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
@@ -177,16 +177,15 @@ public class BusinessService {
      *
      * @param appUser The current logged in user.
      * @param business The business to check the user can perform admin actions on.
-     * @return The current logged in user.
      */
-    public User checkUserCanDoBusinessAction(AppUserDetails appUser, Business business) {
+    public void checkUserCanDoBusinessAction(AppUserDetails appUser, Business business) throws ForbiddenException {
         User user = userRepository.findByEmail(appUser.getUsername()).get(0);
         if (!business.userCanDoAction(user)) {
-            String message = String.format("Cannot edit business as user with ID %d is not admin", user.getId());
+            String message = String.format("User with id %d can not perform this action as they are not an administrator of business with id %d.",
+                    user.getId(), business.getId());
             logger.warn(message);
             throw new ForbiddenException(message);
         }
-        return user;
     }
 
     /**
@@ -364,32 +363,31 @@ public class BusinessService {
         sortBy = (String) sortChecker.get(1);
         searchQuery = searchQuery.toLowerCase(); // Convert search query to all lowercase.
         String[] conjunctions = searchQuery.split(" or (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by OR
-        Specification<Business> hasSpec = Specification.where(null);
-        Specification<Business> containsSpec = Specification.where(null);
+        Specification<Business> spec = null;
+
         for (String conjunction : conjunctions) {
-            Specification<Business> newHasSpec = Specification.where(null);
-            Specification<Business> newContainsSpec = Specification.where(null);
-            var searchContains = false;
+            Specification<Business> newSpec = Specification.where(null);
             String[] names = conjunction.split("( and |\\s)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Split by AND
             // Iterate over the names in the search and check if they are quoted
             for (String name : names) {
                 if (Pattern.matches("^\".*\"$", name)) {
                     name = name.replace("\"", "");
-                    newHasSpec = newHasSpec.and(BusinessSpecifications.hasName(name));
+                    newSpec = newSpec.and(BusinessSpecifications.hasName(name));
                 } else {
-                    newHasSpec = newHasSpec.and(BusinessSpecifications.hasName(name));
-                    newContainsSpec = newContainsSpec.and(BusinessSpecifications.containsName(name));
-                    searchContains = true;
+                    newSpec = newSpec.and(BusinessSpecifications.hasName(name))
+                            .or(BusinessSpecifications.containsName(name));
                 }
             }
-            hasSpec = hasSpec.or(newHasSpec);
-            containsSpec = containsSpec.or(newContainsSpec);
+            if (spec == null) {
+                spec = newSpec;
+            } else {
+                spec = spec.or(newSpec);
+            }
         }
 
-        Specification<Business> spec = hasSpec.or(containsSpec);
 
         //Convert business type to string to be able to search database with it
-        if(businessType != null){
+        if(businessType != null && spec != null){
             checkedBusinessType = checkBusinessType(businessType);
             spec = spec.and(Specification.where(BusinessSpecifications.hasBusinessType(checkedBusinessType)));
         }

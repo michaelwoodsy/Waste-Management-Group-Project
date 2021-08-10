@@ -41,6 +41,7 @@ public class GetBusinessDTO {
         for (User user : business.getAdministrators()) {
             //Removes infinite loop of businesses administers causing StackOverflowError
             user.setBusinessesAdministered(Collections.emptyList());
+            user.setLikedSaleListings(Collections.emptyList());
             this.administrators.add(new GetUserDTO(user));
         }
         this.created = business.getCreated();
