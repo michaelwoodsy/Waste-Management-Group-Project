@@ -88,7 +88,7 @@
 
       <!-- Side Bar Right-->
       <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
-        <div>
+        <div class="mb-3">
           <h4 class="text-light">Notifications</h4>
 
           <!-- Toggle Notifications/Messages Buttons -->
@@ -115,7 +115,7 @@
         </div>
 
         <!-- Notifications -->
-        <div v-if="notificationsShown" class="mt-3">
+        <div v-if="notificationsShown">
           <div v-if="notifications.length === 0">
             <p class="text-light">You have no notifications</p>
           </div>
@@ -191,7 +191,6 @@ export default {
       cards: [],
       hideImages: true,
       notificationsShown: true,
-      //Test data
       notifications: [],
       messages: [],
       error: ""
@@ -206,29 +205,23 @@ export default {
     },
 
     /**
-     * Returns true if a user has expired cards
-     */
-    hasExpiredCards() {
-      for (const card of this.cards) {
-        if (this.expired(card)) {
-          return true
-        }
-      }
-      return false
-    },
-
-    /**
      * Computed property that returns all expired cards.
      */
     expiredCards() {
       const cards = []
       for (const card of this.cards) {
-        const cardExpiryDate = new Date(card.displayPeriodEnd)
-        if (cardExpiryDate < Date.now()) {
+        if (this.expired(card)) {
           cards.push(card)
         }
       }
       return cards
+    },
+
+    /**
+     * Returns true if a user has expired cards
+     */
+    hasExpiredCards() {
+      return this.expiredCards.length > 0
     },
 
     /**
