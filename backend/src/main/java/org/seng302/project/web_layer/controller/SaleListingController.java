@@ -3,6 +3,7 @@ package org.seng302.project.web_layer.controller;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.SaleListingService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -78,6 +79,26 @@ public class SaleListingController {
             return saleListingService.searchSaleListings(dto);
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while searching sales listings: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
+
+    /**
+     * Buys a sale listing acting as the logged in user.
+     *
+     * @param listingId Sales Listing to purchase
+     * @param appUser   Logged in user to purchase the Sale Listing
+     */
+    @PostMapping("/listings/{listingId}/buy")
+    public void buySaleListing(@PathVariable int listingId, @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+            saleListingService.buySaleListing(listingId, appUser);
+        } catch (NotAcceptableException handledException) {
+            logger.error(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while buying sale listing: %s",
                     unhandledException.getMessage()));
             throw unhandledException;
         }

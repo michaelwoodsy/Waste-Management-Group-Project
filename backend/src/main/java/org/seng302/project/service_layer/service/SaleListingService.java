@@ -1,9 +1,7 @@
 package org.seng302.project.service_layer.service;
 
 import org.seng302.project.repository_layer.model.*;
-import org.seng302.project.repository_layer.repository.InventoryItemRepository;
-import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
-import org.seng302.project.repository_layer.repository.SaleListingRepository;
+import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
@@ -48,19 +46,28 @@ public class SaleListingService {
 
     private final SaleListingRepository saleListingRepository;
     private final LikedSaleListingRepository likedSaleListingRepository;
+    private final SaleHistoryRepository saleHistoryRepository;
     private final InventoryItemRepository inventoryItemRepository;
+    private final UserRepository userRepository;
+    private final UserNotificationRepository userNotificationRepository;
 
     @Autowired
     public SaleListingService(UserService userService,
                               BusinessService businessService,
                               SaleListingRepository saleListingRepository,
                               LikedSaleListingRepository likedSaleListingRepository,
-                              InventoryItemRepository inventoryItemRepository) {
+                              SaleHistoryRepository saleHistoryRepository,
+                              InventoryItemRepository inventoryItemRepository,
+                              UserRepository userRepository,
+                              UserNotificationRepository userNotificationRepository) {
         this.userService = userService;
         this.businessService = businessService;
         this.saleListingRepository = saleListingRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
+        this.saleHistoryRepository = saleHistoryRepository;
         this.inventoryItemRepository = inventoryItemRepository;
+        this.userRepository = userRepository;
+        this.userNotificationRepository = userNotificationRepository;
     }
 
     /**
@@ -552,5 +559,106 @@ public class SaleListingService {
         LikedSaleListing likedSaleListing = result.get(0);
         loggedInUser.removeLikedListing(likedSaleListing);
         likedSaleListingRepository.delete(likedSaleListing);
+    }
+
+    /**
+     * Service method to purchase a sales listing. This method:
+     * updates the sellers inventory
+     * removes the sales listing
+     * records the sale in sales history
+     *
+     * @param listingId     Sales Listing ID to purchase
+     * @param appUser       User purchasing the sales listing
+     */
+    public void buySaleListing(Integer listingId, AppUserDetails appUser) {
+        var buyer = userService.getUserByEmail(appUser.getUsername());
+
+        var listingOptional = saleListingRepository.findById(listingId);
+        if (listingOptional.isEmpty()) {
+            throw new NotAcceptableException(String.format("No sale listing with ID %d exists", listingId));
+        }
+        var listing = listingOptional.get();
+
+        logger.info("User with ID: {} Request to buy Sale Listing with ID: {}", buyer.getId(), listing.getId());
+
+        //Record the sale
+        var sale = new Sale(listing);
+        saleHistoryRepository.save(sale);
+
+        //Update the inventory items quantity or remove it if its new quantity is 0
+        updateInventoryItem(listing);
+        //Send notifications to the users who liked the listing saying it was brought
+        sendPurchaseNotifications(listing, buyer);
+
+        //Remove the sales listing
+        saleListingRepository.delete(listing);
+    }
+
+    /**
+     * Helper method of the buySaleListing method that updates a sales listings inventory item after it has been purchased
+     * lowers the quantity of the inventory item, and removes the inventory item if the quantity is at or below zero
+     *
+     * @param listing listing purchased
+     */
+    private void updateInventoryItem(SaleListing listing) {
+        var inventoryItem = listing.getInventoryItem();
+        inventoryItem.setQuantity(inventoryItem.getQuantity() - listing.getQuantity());
+        inventoryItemRepository.save(inventoryItem);
+
+        //Remove the inventory item if the quantity is 0
+        if (inventoryItem.getQuantity() <= 0) {
+            //Check if sale listings exist for current inventory item wanting to be deleted (there shouldn't be..)
+            removeSaleListings(listing.getBusiness().getId(), inventoryItem);
+            inventoryItemRepository.delete(inventoryItem);
+        }
+    }
+
+    /**
+     * Helper method for the updateInventoryItem method, this is sort of a contingency method that removes
+     * sale listings for an inventory item that has a quantity of 0, which shouldn't happen.
+     *
+     * @param businessId Id of the business with the inventory item
+     * @param inventoryItem inventory item being removed
+     */
+    private void removeSaleListings(Integer businessId, InventoryItem inventoryItem) {
+        var saleListings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(
+                businessId, inventoryItem.getId());
+        for (var saleListing: saleListings) {
+            List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(saleListing);
+            for (var like: likes) {
+                var user = like.getUser();
+                user.removeLikedListing(like);
+                userRepository.save(user);
+                likedSaleListingRepository.delete(like);
+            }
+            saleListingRepository.delete(saleListing);
+        }
+    }
+
+    /**
+     * Helper method of the buySaleListing method that sends a notification to the purchaser of the sale listing
+     * and notifications to the users that liked the sale listing
+     *
+     * @param listing listing purchased
+     * @param buyer user who purchased the listing
+     */
+    private void sendPurchaseNotifications(SaleListing listing, User buyer) {
+        //Send notification to buyer
+        var purchaseNotification = new PurchaserNotification(buyer, listing, listing.getBusiness());
+        userNotificationRepository.save(purchaseNotification);
+
+        //Send notifications to interested users
+        List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(listing);
+        for (var like: likes) {
+            //Make sure not to send this notification to the buyer
+            if (!like.getUser().getId().equals(buyer.getId())) {
+                var interestedUserNotification = new InterestedUserNotification(like.getUser(), like.getListing());
+                userNotificationRepository.save(interestedUserNotification);
+            }
+            var user = like.getUser();
+            user.removeLikedListing(like);
+            userRepository.save(user);
+            likedSaleListingRepository.delete(like);
+        }
     }
 }
