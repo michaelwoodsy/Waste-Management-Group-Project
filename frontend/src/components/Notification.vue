@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div :class="{'pointer': unread}">
 
     <!-- Notification Toast -->
-    <div :class="{'pointer': unread}" aria-atomic="true"
+    <div aria-atomic="true"
          aria-live="assertive" class="toast hide mb-2" data-autohide="false"
-         role="alert"
+         role="alert" @click="readNotification"
     >
       <div :class="{'bg-danger text-light': isAdminNotification}" class="toast-header">
         <span v-if="unread" class="badge badge-pill badge-dark">NEW</span>
@@ -68,6 +68,10 @@ export default {
     data: {
       type: Object,
       required: true
+    },
+    unread: {
+      type: Boolean,
+      required: true
     }
   },
   computed: {
@@ -82,12 +86,6 @@ export default {
      */
     isAdminNotification() {
       return adminTypes.includes(this.data.type)
-    },
-    /**
-     * Returns true if a notification is unread
-     */
-    unread() {
-      return !this.data.read
     }
   },
   methods: {
@@ -95,15 +93,19 @@ export default {
      * Sends request to read notification and emits event to parent component to update notification
      */
     async readNotification() {
-      try {
-        if (this.isAdminNotification) {
-          await User.readAdminNotification(this.data.id, true)
-        } else {
-          await User.readNotification(user.actingUserId(), this.data.id)
+      if (this.unread) {
+        try {
+          if (this.isAdminNotification) {
+            await User.readAdminNotification(this.data.id, true)
+          } else {
+            await User.readNotification(user.actingUserId(), this.data.id, true)
+          }
+          this.$emit('read-notification')
+        } catch (error) {
+          console.log(error)
+          // TODO: delete this line once backend is done
+          this.$emit('read-notification')
         }
-        this.$emit('read-notification')
-      } catch (error) {
-        console.log(error)
       }
     },
     /**

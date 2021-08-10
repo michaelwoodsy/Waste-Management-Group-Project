@@ -28,8 +28,10 @@ describe('Jest tests for Notification component', () => {
                     type: 'cardExpiry',
                     message: "This card has expired and has been deleted",
                     created: "2/07/2021 4:34pm",
-                    card: "Looking for plums"
-                }
+                    card: "Looking for plums",
+                    read: false
+                },
+                unread: true
             }
         })
     })
@@ -54,12 +56,14 @@ describe('Jest tests for Notification component', () => {
                     type: 'newKeyword',
                     message: "A new keyword has been created with name: Apple",
                     created: "2/07/2021 4:34pm",
+                    read: false,
                     keyword: {
                         id: 1,
                         name: 'Apple',
                         created: "2/07/2021 4:34pm"
                     }
-                }
+                },
+                unread: true
             }
         })
 
@@ -85,12 +89,14 @@ describe('Jest tests for Notification component', () => {
                     type: 'newKeyword',
                     message: "A new keyword has been created with name: Apple",
                     created: "2/07/2021 4:34pm",
+                    read: false,
                     keyword: {
                         id: 1,
                         name: 'Apple',
                         created: "2/07/2021 4:34pm"
                     }
-                }
+                },
+                unread: true
             }
         })
 
@@ -98,6 +104,27 @@ describe('Jest tests for Notification component', () => {
         expect(User.readNotification).toHaveBeenCalledTimes(0)
         expect(User.readAdminNotification).toHaveBeenCalledTimes(1)
         expect(wrapper.emitted('read-notification')).toBeTruthy()
+    })
+
+    test("readNotification on a read notification does nothing", async () => {
+        wrapper = shallowMount(Notification, {
+            propsData: {
+                data: {
+                    id: 1,
+                    type: 'cardExpiry',
+                    message: "This card has expired and has been deleted",
+                    created: "2/07/2021 4:34pm",
+                    card: "Looking for plums",
+                    read: true
+                },
+                unread: false
+            }
+        })
+
+        await wrapper.vm.readNotification()
+        expect(User.readNotification).toHaveBeenCalledTimes(0)
+        expect(User.readAdminNotification).toHaveBeenCalledTimes(0)
+        expect(wrapper.emitted('read-notification')).toBeFalsy()
     })
 
 })

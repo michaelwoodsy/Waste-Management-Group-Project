@@ -97,8 +97,8 @@
                     :class="{'btn-primary': notificationsShown, 'btn-outline-primary': !notificationsShown}"
                     class="btn" style="width: 50%" type="button" @click="showNotifications">
               <em class="bi bi-bell"/>
-              <span v-if="notifications.length > 0" class="badge badge-pill badge-light ml-1">
-                <span v-if="notifications.length < 10">{{ notifications.length }}</span>
+              <span v-if="newNotifications.length > 0" class="badge badge-pill badge-light ml-1">
+                <span v-if="newNotifications.length < 10">{{ newNotifications.length }}</span>
                 <span v-else>9+</span>
               </span>
             </button>
@@ -113,18 +113,30 @@
             </button>
           </div>
         </div>
-        <br>
 
         <!-- Notifications -->
-        <div v-if="notificationsShown">
+        <div v-if="notificationsShown" class="mt-3">
           <div v-if="notifications.length === 0">
             <p class="text-light">You have no notifications</p>
           </div>
           <div v-else>
-            <notification v-for="notification in sortedNotifications"
+            <span v-if="newNotifications.length > 0" class="text-light mt-2">New</span>
+            <notification v-for="notification in newNotifications"
                           :key="notification.id"
                           :data="notification"
-                          @remove-notification="removeNotification(notification.id)"/>
+                          :unread="true"
+                          @remove-notification="removeNotification(notification.id)"
+                          @read-notification="readNotification(notification.id)"
+            />
+
+            <span v-if="readNotifications.length > 0" class="text-light mt-2">Older</span>
+            <notification v-for="notification in readNotifications"
+                          :key="notification.id"
+                          :data="notification"
+                          :unread="false"
+                          @remove-notification="removeNotification(notification.id)"
+                          @read-notification="readNotification(notification.id)"
+            />
 
           </div>
         </div>
@@ -137,7 +149,7 @@
             <message v-for="message in sortedMessages"
                      :key="message.id"
                      :message="message"
-                      @remove-message="removeMessage(message.id)"/>
+                     @remove-message="removeMessage(message.id)"/>
           </div>
         </div>
 
@@ -181,7 +193,6 @@ export default {
       notificationsShown: true,
       //Test data
       notifications: [],
-      adminNotifications: [],
       messages: [],
       error: ""
     }
@@ -235,12 +246,31 @@ export default {
     },
 
     /**
-     * Returns notifications sorted by most recent.
+     * Returns new notifications sorted by most recent.
      */
-    sortedNotifications() {
-      let sortedNotifications = [...this.notifications]
-      sortedNotifications.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
-      return sortedNotifications
+    newNotifications() {
+      let newNotifications = []
+      for (const notification of this.notifications) {
+        if (!notification.read) {
+          newNotifications.push(notification)
+        }
+      }
+      newNotifications.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      return newNotifications
+    },
+
+    /**
+     * Returns read notifications sorted by most recent.
+     */
+    readNotifications() {
+      let readNotifications = []
+      for (const notification of this.notifications) {
+        if (notification.read) {
+          readNotifications.push(notification)
+        }
+      }
+      readNotifications.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      return readNotifications
     },
 
     /**
@@ -264,10 +294,14 @@ export default {
         if (this.user.canDoAdminAction()) {
           await this.getAdminNotifications();
         }
+        for (const [index, notification] of this.notifications.entries()) {
+          if (!('read' in notification)) {
+            this.notifications[index].read = false
+          }
+        }
         await this.getMessages()
       } else {
         this.notifications = []
-        this.adminNotifications = []
         this.cards = []
         this.messages = []
       }
@@ -386,6 +420,19 @@ export default {
       for (const [index, notification] of this.notifications.entries()) {
         if (notification.id === notificationId) {
           this.notifications.splice(index, 1)
+        }
+      }
+    },
+
+    /**
+     * Sets the specified notification to read
+     * @param notificationId the ID of the notification to set to read
+     */
+    readNotification(notificationId) {
+      for (const [index, notification] of this.notifications.entries()) {
+        if (notification.id === notificationId) {
+          notification.read = true
+          this.$set(this.notifications, index, notification)
         }
       }
     },
