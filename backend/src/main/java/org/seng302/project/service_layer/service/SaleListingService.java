@@ -1,12 +1,12 @@
 package org.seng302.project.service_layer.service;
 
 import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.model.enums.Tag;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
-import org.seng302.project.service_layer.dto.sale_listings.TagSaleListingDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
@@ -533,6 +533,44 @@ public class SaleListingService {
         return sort;
     }
 
+
+    /**
+     * Retrieves the sale listing.
+     * Throws a NotAcceptableException if the listing is not found
+     * @param listingId the id of the listing to retrieve
+     * @return the retrieved SaleListing
+     */
+    private SaleListing retrieveListing(Integer listingId) {
+        Optional<SaleListing> listing = saleListingRepository.findById(listingId);
+
+        if (listing.isEmpty()) {
+            String message = String.format("No sale listing with ID %d exists", listingId);
+            logger.warn(message);
+            throw new NotAcceptableException(message);
+        }
+
+        return listing.get();
+    }
+
+    /**
+     * Retrieves the LikedSaleListing.
+     * Throws a BadRequestException if the user had not liked the listing
+     * @param listing the listing the user has liked
+     * @param loggedInUser the user that has liked the listing
+     * @return the retrieved LikedSaleListing
+     */
+    private LikedSaleListing retrieveLikedSaleListing(SaleListing listing, User loggedInUser) {
+        List<LikedSaleListing> result = likedSaleListingRepository.findByListingAndUser(listing, loggedInUser);
+
+        if (result.isEmpty()) {
+            String message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listing.getId());
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
+
+        return result.get(0);
+    }
+
     /**
      * Unlikes a sale listing if it is liked by a user
      *
@@ -542,24 +580,9 @@ public class SaleListingService {
     public void unlikeSaleListing(Integer listingId, AppUserDetails user) {
         User loggedInUser = userService.getUserByEmail(user.getUsername());
 
-        //TODO: refactor the listing existence check into its own method that can be called by tagSaleListing
-        Optional<SaleListing> listing = saleListingRepository.findById(listingId);
+        SaleListing listing = retrieveListing(listingId);
 
-        if (listing.isEmpty()) {
-            String message = String.format("No sale listing with ID %d exists", listingId);
-            logger.warn(message);
-            throw new NotAcceptableException(message);
-        }
-
-        List<LikedSaleListing> result = likedSaleListingRepository.findByListingAndUser(listing.get(), loggedInUser);
-
-        if (result.isEmpty()) {
-            String message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listingId);
-            logger.warn(message);
-            throw new BadRequestException(message);
-        }
-
-        LikedSaleListing likedSaleListing = result.get(0);
+        LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
         loggedInUser.removeLikedListing(likedSaleListing);
         likedSaleListingRepository.delete(likedSaleListing);
     }
@@ -576,11 +599,7 @@ public class SaleListingService {
     public void buySaleListing(Integer listingId, AppUserDetails appUser) {
         var buyer = userService.getUserByEmail(appUser.getUsername());
 
-        var listingOptional = saleListingRepository.findById(listingId);
-        if (listingOptional.isEmpty()) {
-            throw new NotAcceptableException(String.format("No sale listing with ID %d exists", listingId));
-        }
-        var listing = listingOptional.get();
+        SaleListing listing = retrieveListing(listingId);
 
         logger.info("User with ID: {} Request to buy Sale Listing with ID: {}", buyer.getId(), listing.getId());
 
@@ -668,14 +687,24 @@ public class SaleListingService {
     /**
      * Tags a user's liked sale listing
      * @param listingId the id of the listing to tag
-     * @param requestDTO request body containing the tag for the listing
+     * @param tagName the name of the tag for the listing
      * @param user the AppUserDetails of the user tagging the listing
      */
     public void tagSaleListing(Integer listingId,
-                               TagSaleListingDTO requestDTO,
+                               String tagName,
                                AppUserDetails user) {
+
+        if (!Tag.checkTag(tagName)) {
+            BadRequestException badRequestException = new BadRequestException(String.format("%s is not a valid tag.", tagName));
+            logger.warn(badRequestException.getMessage());
+            throw badRequestException;
+        }
+
         User loggedInUser = userService.getUserByEmail(user.getUsername());
-
-
+        SaleListing listing = retrieveListing(listingId);
+        LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
+        Tag tag = Tag.getTag(tagName);
+        likedSaleListing.setTag(tag);
+        likedSaleListingRepository.save(likedSaleListing);
     }
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.model.enums.Tag;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
@@ -1130,8 +1131,62 @@ class SaleListingServiceTest extends AbstractInitializer {
         Assertions.assertTrue(listingOptional.isEmpty());
     }
 
-    //TODO: tests for patch /listings/{listingId}/tag endpoint:
-    //success
-    //400 listing not liked by user
-    //406 listing doesn't exist
+    /**
+     * Tests the successful case for tagging a sale listing
+     */
+    @Test
+    void tagSaleListing_success() { //TODO: this test causes StackOverflowError with User-LikedSaleListing relationship
+        LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
+        likedSaleListingRepository.save(listing);
+        testUser.addLikedListing(listing);
+
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Integer listingId = saleListing1.getId();
+
+        saleListingService.tagSaleListing(listingId, "red", user);
+
+        LikedSaleListing updatedLikedListing = likedSaleListingRepository
+                .findByListingAndUser(saleListing1, testUser).get(0);
+
+        Assertions.assertTrue(updatedLikedListing.getTag().matchesTag("red"));
+    }
+
+    /**
+     * Tests that a BadRequestException is thrown when an invalid
+     * tag is provided
+     */
+    @Test
+    void tagSaleListing_invalidTag_badRequestException() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Integer listingId = saleListing1.getId();
+
+        Assertions.assertThrows(BadRequestException.class,
+                () -> saleListingService.tagSaleListing(listingId, "maroon", user));
+    }
+
+    /**
+     * Tests that a BadRequestException is thrown when the user tries
+     * tagging a listing that doesn't exist
+     */
+    @Test
+    void tagSaleListing_nonExistentListing_notAcceptableException() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.tagSaleListing(45434, "red", user));
+    }
+
+    /**
+     * Tests that a BadRequestException is thrown when the user tries
+     * tagging a listing they haven't liked.
+     */
+    @Test
+    void tagSaleListing_notLikedListing_badRequestException() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Integer listingId = saleListing1.getId();
+
+        Assertions.assertThrows(BadRequestException.class,
+                () -> saleListingService.tagSaleListing(listingId, "red", user));
+    }
+
 }

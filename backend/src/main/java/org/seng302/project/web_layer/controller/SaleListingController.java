@@ -1,9 +1,9 @@
 package org.seng302.project.web_layer.controller;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
-import org.seng302.project.service_layer.dto.sale_listings.TagSaleListingDTO;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.SaleListingService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -148,14 +148,15 @@ public class SaleListingController {
     /**
      * Handles request for a user to tag a sale listing
      * @param listingId the id of the listing to tag
-     * @param requestDTO request body containing the tag for the listing
+     * @param requestBody request body containing the tag for the listing
      * @param user the AppUserDetails of the user tagging the listing
      */
     @PatchMapping("/listings/{listingId}/tag")
     @ResponseStatus(HttpStatus.OK)
     public void tagSaleListing(@PathVariable Integer listingId,
-                               @Valid @RequestBody TagSaleListingDTO requestDTO,
+                               @RequestBody JSONObject requestBody,
                                @AuthenticationPrincipal AppUserDetails user) {
-        saleListingService.tagSaleListing(listingId, requestDTO, user);
+        String tag = requestBody.getAsString("tag");
+        saleListingService.tagSaleListing(listingId, tag, user);
     }
 }
