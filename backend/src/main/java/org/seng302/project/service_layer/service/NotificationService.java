@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,7 +61,11 @@ public class NotificationService {
                 throw new NotAcceptableException(String.format("No User exists with ID %d", userId));
             }
 
-            return userNotificationRepository.findAllByUser(user.get());
+            var notifications = userNotificationRepository.findAllByUser(user.get());
+            for (var notification: notifications) {
+                notification.getUser().setLikedSaleListings(Collections.emptyList());
+            }
+            return notifications;
         } catch (ForbiddenNotificationActionException | NotAcceptableException handledException) {
             logger.error(handledException.getMessage());
             throw handledException;

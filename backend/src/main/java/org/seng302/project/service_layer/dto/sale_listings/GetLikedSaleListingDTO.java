@@ -2,7 +2,10 @@ package org.seng302.project.service_layer.dto.sale_listings;
 
 import lombok.Data;
 import org.seng302.project.repository_layer.model.LikedSaleListing;
+import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.service_layer.dto.user.GetUserDTO;
+
+import java.util.Collections;
 
 /**
  * Response DTO for LikedSaleListing entities.
@@ -18,7 +21,9 @@ public class GetLikedSaleListingDTO {
 
     public GetLikedSaleListingDTO(LikedSaleListing listing) {
         this.id = listing.getId();
-        this.user = new GetUserDTO(listing.getUser());
+        User listingUser = listing.getUser();
+        listingUser.setLikedSaleListings(Collections.emptyList());//Make it so you dont get a stackoverflow
+        this.user = new GetUserDTO(listingUser);
         this.listing = new GetSaleListingDTO(listing.getListing());
         this.starred = listing.isStarred();
         this.tag = listing.getTag().name();
