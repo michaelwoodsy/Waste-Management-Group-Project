@@ -264,7 +264,6 @@ export default {
      */
     async buy() {
       this.buyClicked = true
-
       await Business.purchaseListing(this.listing.id).then(() => {
         this.purchaseMsg = "Successfully purchased Listing!"
         this.$emit('updateListings')
