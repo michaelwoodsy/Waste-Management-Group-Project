@@ -20,23 +20,55 @@ import java.util.List;
 @Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
 public class User {
 
+    @Id // this field (attribute) is the primary key of the table
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
+    @Column(name = "user_id")
     private Integer id; // automatically generated and assigned by the server
+
     private String firstName;
+
     private String lastName;
+
     private String middleName;
+
     private String nickname;
+
     private String bio;
+
     private String email;
+
     private String dateOfBirth;
+
     private String phoneNumber;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "address_id")
     private Address homeAddress;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
     // One of [ user, globalApplicationAdmin, defaultGlobalApplicationAdmin ]
-    private String role; // This property should only be shown to Global org.seng302.project.controller.Application Admins
+    // This property should only be shown to Global org.seng302.project.controller.Application Admins
+    private String role;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_administers_business",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "business_id")
+    )
+    @JsonIgnoreProperties("administrators")
     private List<Business> businessesAdministered = new ArrayList<>();
+
     private LocalDateTime created = LocalDateTime.now();
+
     private Integer primaryImageId;
+
+    @OneToMany(targetEntity = Image.class)
     private List<Image> images = new ArrayList<>();
+
+    @OneToMany(targetEntity = LikedSaleListing.class)
     private List<LikedSaleListing> likedSaleListings = new ArrayList<>();
 
     public User(String firstName, String lastName, String middleName,
@@ -69,45 +101,6 @@ public class User {
         this.role = "user";
     }
 
-    @Id // this field (attribute) is the primary key of the table
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
-    @Column(name = "user_id")
-    public Integer getId() {
-        return this.id;
-    }
-
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    public String getPassword() {
-        return this.password;
-    }
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "address_id")
-    public Address getHomeAddress() {
-        return this.homeAddress;
-    }
-
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "user_administers_business",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "business_id")
-    )
-    @JsonIgnoreProperties("administrators")
-    public List<Business> getBusinessesAdministered() {
-        return this.businessesAdministered;
-    }
-
-    @OneToMany(targetEntity = Image.class)
-    public List<Image> getImages() {
-        return this.images;
-    }
-
-    @OneToMany(targetEntity = LikedSaleListing.class)
-    public List<LikedSaleListing> getLikedSaleListings() {
-        return this.likedSaleListings;
-    }
-
     public boolean businessIsAdministered(Integer businessId) {
         for (Business business : this.businessesAdministered) {
             if (businessId.equals(business.getId())) {
@@ -125,7 +118,7 @@ public class User {
     /**
      * Function used to add an image to the list of images associated with a user
      */
-    public void addImage(Image newImage){
+    public void addImage(Image newImage) {
         this.images.add(newImage);
         //Checks if the new image is the first in the list, and makes it the primary image
         if (images.size() == 1) {
@@ -136,7 +129,26 @@ public class User {
     /**
      * Function used to remove an image from the list of images associated with a user
      */
-    public void removeImage(Image image){ this.images.remove(image); }
+    public void removeImage(Image image) {
+        this.images.remove(image);
+    }
 
+    /**
+     * Adds a liked sale listing to the user's list of liked sale listings
+     *
+     * @param listing liked listing to add
+     */
+    public void addLikedListing(LikedSaleListing listing) {
+        this.likedSaleListings.add(listing);
+    }
+
+    /**
+     * Removes a liked sale listing from the user's list of liked sale listings
+     *
+     * @param listing liked listing to remove
+     */
+    public void removeLikedListing(LikedSaleListing listing) {
+        this.likedSaleListings.remove(listing);
+    }
 
 }

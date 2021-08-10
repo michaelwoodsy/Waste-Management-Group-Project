@@ -176,8 +176,8 @@ public abstract class AbstractInitializer {
                 "TEST-PROD",
                 "Test Product",
                 "A test product",
-                null,
-                null,
+                "Some Manufacturer",
+                5.00,
                 1);
     }
 
@@ -262,8 +262,8 @@ public abstract class AbstractInitializer {
 
 
         Product product1 = new Product("TEST-1", "First Product", null, null, 5.00, business1.getId());
-        InventoryItem inventoryItem1 = new InventoryItem(product1, 5, null, null, "2021-01-01", null, null, "2021-12-01");
-        SaleListing saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
+        InventoryItem inventoryItem1 = new InventoryItem(product1, 10, null, null, "2021-01-01", null, null, "2021-12-01");
+        SaleListing saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 4);
         saleListings.add(saleListing1);
 
 

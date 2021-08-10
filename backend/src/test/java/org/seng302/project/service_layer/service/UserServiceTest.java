@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.model.Address;
+import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
@@ -17,13 +18,10 @@ import org.seng302.project.service_layer.exceptions.NoUserExistsException;
 import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenDGAAActionException;
 import org.seng302.project.service_layer.exceptions.register.ExistingRegisteredEmailException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,27 +34,28 @@ import static org.mockito.Mockito.*;
  * UserService unit tests
  * Checking for validity in user details is done through the DTO so its testing is in UserControllerTest
  */
-@SpringBootTest
 class UserServiceTest extends AbstractInitializer {
 
+    private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
+    private final UserService userService;
     private User testUser;
     private User otherUser;
     private User testAdmin;
-
     private PostUserDTO testPostUserDTO;
     private PutUserDTO testPutUserDTO;
 
-    @Autowired
-    private UserService userService;
-
-    @MockBean
-    private UserRepository userRepository;
-
-    @MockBean
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    UserServiceTest() {
+        userRepository = Mockito.mock(UserRepository.class);
+        addressRepository = Mockito.mock(AddressRepository.class);
+        AuthenticationManager authenticationManager = Mockito.mock(AuthenticationManager.class);
+        userService = new UserService(
+                userRepository,
+                addressRepository,
+                authenticationManager,
+                passwordEncoder
+        );
+    }
 
     @BeforeEach
     void setup() {
@@ -100,7 +99,6 @@ class UserServiceTest extends AbstractInitializer {
     void mocks() {
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
     }
-
 
 
     /**
@@ -292,5 +290,29 @@ class UserServiceTest extends AbstractInitializer {
         AppUserDetails appUser = new AppUserDetails(testAdmin);
         when(userRepository.findByEmail(appUser.getUsername())).thenReturn(List.of(testAdmin));
         Assertions.assertDoesNotThrow(() -> userService.checkRequesterIsDGAA(appUser));
+    }
+
+    /**
+     * Test that getting a user by email address returns the correct user
+     */
+    @Test
+    void getUserByEmail_validEmail_returnsUser() {
+        Mockito.when(userRepository.findByEmail(testUser.getEmail()))
+                .thenReturn(List.of(testUser));
+
+        User user = userService.getUserByEmail(testUser.getEmail());
+        Assertions.assertEquals(testUser, user);
+    }
+
+    /**
+     * Test that getting a user by email address with invalid email returns null
+     */
+    @Test
+    void getUserByEmail_invalidEmail_returnsNull() {
+        Mockito.when(userRepository.findByEmail(testUser.getEmail()))
+                .thenReturn(Collections.emptyList());
+
+        User user = userService.getUserByEmail(testUser.getEmail());
+        Assertions.assertNull(user);
     }
 }

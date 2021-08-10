@@ -1,9 +1,8 @@
 package org.seng302.project.web_layer.controller;
 
-import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
+import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
-import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.SaleListingService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -12,12 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-
 
 
 /**
@@ -40,16 +37,16 @@ public class SaleListingController {
     /**
      * Searches all sale listings by supplied parameters
      *
-     * @param searchQuery               query to search by
-     * @param matchingProductName       whether you want to search by product name
-     * @param matchingBusinessName      whether you want to search by business name
-     * @param matchingBusinessLocation  whether you want to search by business location
-     * @param priceRangeLower           the lower price range (can be null)
-     * @param priceRangeUpper           the upper price range (can be null)
-     * @param closingDateLower          the lower closing date range (can be null)
-     * @param closingDateUpper          the upper closing date range (can be null)
-     * @param pageNumber                the page number to get
-     * @param sortBy                    the sorting parameter
+     * @param searchQuery              query to search by
+     * @param matchingProductName      whether you want to search by product name
+     * @param matchingBusinessName     whether you want to search by business name
+     * @param matchingBusinessLocation whether you want to search by business location
+     * @param priceRangeLower          the lower price range (can be null)
+     * @param priceRangeUpper          the upper price range (can be null)
+     * @param closingDateLower         the lower closing date range (can be null)
+     * @param closingDateUpper         the upper closing date range (can be null)
+     * @param pageNumber               the page number to get
+     * @param sortBy                   the sorting parameter
      * @return A list of sale listings, with the specified sorting and page applied
      */
     @GetMapping("/listings")
@@ -64,9 +61,7 @@ public class SaleListingController {
             @RequestParam(name = "closingDateLower", required = false) String closingDateLower,
             @RequestParam(name = "closingDateUpper", required = false) String closingDateUpper,
             @RequestParam("pageNumber") Integer pageNumber,
-            @RequestParam("sortBy") String sortBy)
-
-    {
+            @RequestParam("sortBy") String sortBy) {
         try {
             SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
                     searchQuery,
@@ -90,9 +85,30 @@ public class SaleListingController {
     }
 
     /**
+     * Buys a sale listing acting as the logged in user.
+     *
+     * @param listingId Sales Listing to purchase
+     * @param appUser   Logged in user to purchase the Sale Listing
+     */
+    @PostMapping("/listings/{listingId}/buy")
+    public void buySaleListing(@PathVariable int listingId, @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+            saleListingService.buySaleListing(listingId, appUser);
+        } catch (NotAcceptableException handledException) {
+            logger.error(handledException.getMessage());
+            throw handledException;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while buying sale listing: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
+
+    /**
      * Gets a list of sale listings for a business.
+     *
      * @param businessId Business to get the sale listings from.
-     * @param appUser The user that made the request.
+     * @param appUser    The user that made the request.
      * @return List of sale listings.
      */
     @GetMapping("/businesses/{businessId}/listings")
@@ -104,8 +120,9 @@ public class SaleListingController {
 
     /**
      * Adds a new sale listing to a business.
+     *
      * @param businessId Business to get the sale listings from.
-     * @param appUser The user that made the request.
+     * @param appUser    The user that made the request.
      */
     @PostMapping("/businesses/{businessId}/listings")
     @ResponseStatus(HttpStatus.CREATED)
@@ -115,24 +132,10 @@ public class SaleListingController {
         saleListingService.newBusinessListing(requestDTO, businessId, appUser);
     }
 
-    /**
-     * Likes a sale listing,
-     * @param listingId The sale listing ID the user is trying to like
-     * @param appUser The user that is trying to like a sale listing
-     */
-    @PutMapping("/listings/{listingId}/like")
+    @PatchMapping("/listings/{listingId}/unlike")
     @ResponseStatus(HttpStatus.OK)
-    public void likeSaleListing(@PathVariable Integer listingId,
-                                @AuthenticationPrincipal AppUserDetails appUser) {
-        try {
-            logger.info("Request to like a sale listing with ID: {}", listingId);
-            saleListingService.likeSaleListing(listingId, appUser);
-        } catch (NotAcceptableException | BadRequestException expectedException) {
-            logger.info(expectedException.getMessage());
-            throw expectedException;
-        } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while liking sale listings : %s", exception.getMessage()));
-            throw exception;
-        }
+    public void unlikeSaleListing(@PathVariable Integer listingId,
+                                  @AuthenticationPrincipal AppUserDetails user) {
+        saleListingService.unlikeSaleListing(listingId, user);
     }
 }
