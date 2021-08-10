@@ -488,7 +488,7 @@ class SaleListingControllerTest extends AbstractInitializer {
      * returns a 400 response
      */
     @Test
-    void tagSaleListing_noTag_400() throws Exception {
+    void tagSaleListing_noTag_400() throws Exception { //TODO: this actually gives a 200
 
         Mockito.doThrow(new BadRequestException("message"))
                 .when(saleListingService)
@@ -512,7 +512,7 @@ class SaleListingControllerTest extends AbstractInitializer {
      * returns a 400 response
      */
     @Test
-    void tagSaleListing_notLiked_400() throws Exception {
+    void tagSaleListing_notLiked_400() throws Exception { //TODO: this actually gives a 200
 
         Mockito.doThrow(new BadRequestException("message"))
                 .when(saleListingService)
@@ -536,7 +536,7 @@ class SaleListingControllerTest extends AbstractInitializer {
      * Tests that a 406 response is given when tagging a nonexistent listing
      */
     @Test
-    void tagSaleListing_nonExistentListing_406() throws Exception {
+    void tagSaleListing_nonExistentListing_406() throws Exception { //TODO: this actually gives a 200
 
         Mockito.doThrow(new NotAcceptableException("message"))
                 .when(saleListingService)
