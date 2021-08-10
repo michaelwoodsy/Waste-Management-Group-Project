@@ -211,13 +211,6 @@ export default {
   },
   computed: {
     /**
-     * The currently acting as user or business
-     */
-    actingAs() {
-      return this.$root.$data.user.state.actingAs
-    },
-
-    /**
      * Computed property that returns all expired cards.
      */
     expiredCards() {
@@ -313,7 +306,7 @@ export default {
      * Gets the user or businesses notifications, cards and messages
      */
     async getData() {
-      if (this.actingAs.type === "user") {
+      if (this.user.actor().type === "user") {
         await this.getCardData()
         await this.getNotificationData()
         if (this.user.canDoAdminAction()) {
