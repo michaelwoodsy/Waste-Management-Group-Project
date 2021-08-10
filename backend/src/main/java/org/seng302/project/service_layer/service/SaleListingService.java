@@ -20,12 +20,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -675,9 +671,9 @@ public class SaleListingService {
      * @param requestDTO request body containing the tag for the listing
      * @param user the AppUserDetails of the user tagging the listing
      */
-    public void tagSaleListing(@PathVariable Integer listingId,
-                               @Valid @RequestBody TagSaleListingDTO requestDTO,
-                               @AuthenticationPrincipal AppUserDetails user) {
+    public void tagSaleListing(Integer listingId,
+                               TagSaleListingDTO requestDTO,
+                               AppUserDetails user) {
         User loggedInUser = userService.getUserByEmail(user.getUsername());
 
 

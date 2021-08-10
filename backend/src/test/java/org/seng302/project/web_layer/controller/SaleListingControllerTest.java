@@ -1,5 +1,6 @@
 package org.seng302.project.web_layer.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +9,7 @@ import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
+import org.seng302.project.service_layer.dto.sale_listings.TagSaleListingDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
@@ -44,6 +46,10 @@ class SaleListingControllerTest extends AbstractInitializer {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private SaleListingService saleListingService;
 
@@ -423,12 +429,11 @@ class SaleListingControllerTest extends AbstractInitializer {
     @Test
     void tagSaleListing_notLoggedIn_401() throws Exception {
 
-        JSONObject body = new JSONObject();
-        body.put("tag", "red");
+        TagSaleListingDTO requestDTO = new TagSaleListingDTO("red");
 
         RequestBuilder request = MockMvcRequestBuilders
                 .patch("/listings/{listingId}/tag", 1)
-                .content(body.toString())
+                .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -444,12 +449,11 @@ class SaleListingControllerTest extends AbstractInitializer {
     @Test
     void tagSaleListing_valid_200() throws Exception {
 
-        JSONObject body = new JSONObject();
-        body.put("tag", "red");
+        TagSaleListingDTO requestDTO = new TagSaleListingDTO("red");
 
         RequestBuilder request = MockMvcRequestBuilders
                 .patch("/listings/{listingId}/tag", 1)
-                .content(body.toString())
+                .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
@@ -466,12 +470,11 @@ class SaleListingControllerTest extends AbstractInitializer {
     @Test
     void tagSaleListing_invalidTag_400() throws Exception {
 
-        JSONObject body = new JSONObject();
-        body.put("tag", "maroon");
+        TagSaleListingDTO requestDTO = new TagSaleListingDTO("maroon");
 
         RequestBuilder request = MockMvcRequestBuilders
                 .patch("/listings/{listingId}/tag", 1)
-                .content(body.toString())
+                .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
@@ -493,11 +496,11 @@ class SaleListingControllerTest extends AbstractInitializer {
     @Test
     void tagSaleListing_noTag_400() throws Exception {
 
-        JSONObject body = new JSONObject();
+        TagSaleListingDTO requestDTO = new TagSaleListingDTO("");
 
         RequestBuilder request = MockMvcRequestBuilders
                 .patch("/listings/{listingId}/tag", 1)
-                .content(body.toString())
+                .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));

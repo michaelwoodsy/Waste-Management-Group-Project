@@ -17,21 +17,15 @@ import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
+
 
 
 @DataJpaTest
@@ -52,12 +46,7 @@ class SaleListingServiceTest extends AbstractInitializer {
 
     private final SaleListingService saleListingService;
 
-    @MockBean
-    private AuthenticationManager authenticationManager;
-    @MockBean
-    private BCryptPasswordEncoder passwordEncoder;
 
-    Integer business1Id;
     Business business1;
     Integer business2Id;
     User testUser;
