@@ -1138,6 +1138,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
         likedSaleListingRepository.save(listing);
         testUser.addLikedListing(listing);
+        userRepository.save(testUser);
 
         AppUserDetails user = new AppUserDetails(this.testUser);
         Integer listingId = saleListing1.getId();

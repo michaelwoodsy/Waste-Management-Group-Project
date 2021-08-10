@@ -3,8 +3,112 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.seng302.project.AbstractInitializer;
+import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.model.enums.Tag;
+import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.web_layer.authentication.AppUserDetails;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-public class ManagingMyFeedSteps {
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+
+
+/**
+ * Steps for the Cucumber tests relating to U32 Managing my feed
+ */
+@AutoConfigureTestDatabase
+public class ManagingMyFeedSteps extends AbstractInitializer {
+
+    private MockMvc mockMvc;
+
+    private final UserRepository userRepository;
+    private final CardRepository cardRepository;
+    private final BusinessRepository businessRepository;
+    private final AddressRepository addressRepository;
+    private final ProductRepository productRepository;
+    private final InventoryItemRepository inventoryItemRepository;
+    private final SaleListingRepository saleListingRepository;
+    private final LikedSaleListingRepository likedSaleListingRepository;
+
+    private SaleListing listing;
+    private User testUser;
+
+    @Autowired
+    public ManagingMyFeedSteps(UserRepository userRepository,
+                                     CardRepository cardRepository,
+                                     BusinessRepository businessRepository,
+                                     AddressRepository addressRepository,
+                                     ProductRepository productRepository,
+                                     InventoryItemRepository inventoryItemRepository,
+                                     SaleListingRepository saleListingRepository,
+                                     LikedSaleListingRepository likedSaleListingRepository) {
+        this.userRepository = userRepository;
+        this.cardRepository = cardRepository;
+        this.businessRepository = businessRepository;
+        this.addressRepository = addressRepository;
+        this.productRepository = productRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
+        this.saleListingRepository = saleListingRepository;
+        this.likedSaleListingRepository = likedSaleListingRepository;
+    }
+
+    /**
+     * Before each test, setup four sale listings with different parameters
+     */
+    @BeforeEach
+    @Autowired
+    void setup(WebApplicationContext context) {
+        likedSaleListingRepository.deleteAll();
+        cardRepository.deleteAll();
+        userRepository.deleteAll();
+
+        this.initialise();
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+
+        testUser = this.getTestUser();
+        addressRepository.save(testUser.getHomeAddress());
+        testUser.setId(null);
+        userRepository.save(testUser);
+
+        listing = this.getSaleListings().get(0);
+
+        addressRepository.save(listing.getBusiness().getAddress());
+        Business business = listing.getBusiness();
+        business.setId(null);
+        business = businessRepository.save(business);
+        Product product = listing.getInventoryItem().getProduct();
+        product.setBusinessId(business.getId());
+        productRepository.save(product);
+        inventoryItemRepository.save(listing.getInventoryItem());
+        listing = saleListingRepository.save(listing);
+    }
+
+    @AfterEach
+    void teardown() {
+        likedSaleListingRepository.deleteAll();
+        saleListingRepository.deleteAll();
+        inventoryItemRepository.deleteAll();
+        productRepository.deleteAll();
+        businessRepository.deleteAll();
+        addressRepository.deleteAll();
+        cardRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     //AC1
 
@@ -119,8 +223,10 @@ public class ManagingMyFeedSteps {
 
     @Given("I have a liked sale listing")
     public void i_have_a_liked_sale_listing() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        LikedSaleListing likedListing = new LikedSaleListing(testUser, listing);
+        likedSaleListingRepository.save(likedListing);
+        testUser.addLikedListing(likedListing);
+        userRepository.save(testUser);
     }
 //
 //    @When("I star the liked sale listing")
@@ -144,23 +250,37 @@ public class ManagingMyFeedSteps {
     //AC6
 
     @When("I tag the listing with the colour {string}")
-    public void i_tag_the_listing_with_the_colour(String string) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void i_tag_the_listing_with_the_colour(String colour) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("tag", colour);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .patch("/listings/{listingId}/tag", listing.getId())
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Then("The liked sale listing is marked with a {string} tag")
-    public void the_liked_sale_listing_is_marked_with_a_tag(String string) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void the_liked_sale_listing_is_marked_with_a_tag(String colour) {
+        LikedSaleListing updatedLikedListing = likedSaleListingRepository
+                .findByListingAndUser(listing, testUser).get(0);
+
+        Assertions.assertTrue(updatedLikedListing.getTag().matchesTag(colour));
     }
 
     //AC7
 
     @Given("I have a liked sale listing tagged as {string}")
-    public void i_have_a_liked_sale_listing_tagged_as(String string) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void i_have_a_liked_sale_listing_tagged_as(String colour) {
+        LikedSaleListing likedListing = new LikedSaleListing(testUser, listing);
+        likedListing.setTag(Tag.getTag(colour));
+        likedSaleListingRepository.save(likedListing);
+        testUser.addLikedListing(likedListing);
+        userRepository.save(testUser);
+
     }
 
 //    @When("I filter my feed by {string}")
