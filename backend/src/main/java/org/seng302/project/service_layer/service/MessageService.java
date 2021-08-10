@@ -6,8 +6,8 @@ import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.CardRepository;
 import org.seng302.project.repository_layer.repository.MessageRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
-import org.seng302.project.service_layer.dto.message.CreateMessageDTO;
-import org.seng302.project.service_layer.dto.message.CreateMessageResponseDTO;
+import org.seng302.project.service_layer.dto.message.GetMessageDTO;
+import org.seng302.project.service_layer.dto.message.PostMessageDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +49,7 @@ public class MessageService {
      *                   and the id of the card the message is about
      * @return CreateMessageResponseDTO containing the new message's id
      */
-    public CreateMessageResponseDTO createMessage(CreateMessageDTO requestDTO, AppUserDetails appUser) {
+    public Integer createMessage(PostMessageDTO requestDTO, AppUserDetails appUser) {
         logger.info("Request to create message about card with id {}", requestDTO.getCardId());
 
         // Get the logged in user from the users email
@@ -76,7 +77,7 @@ public class MessageService {
         var newMessage = new Message(requestDTO.getText(), receivingUser, card, loggedInUser);
         Integer messageId = messageRepository.save(newMessage).getId();
 
-        return new CreateMessageResponseDTO(messageId);
+        return messageId;
     }
 
     /**
@@ -136,7 +137,7 @@ public class MessageService {
      * @param appUser The user currently logged in
      * @return List of the given user's messages (if they have any)
      */
-    public List<Message> getMessages(Integer userId, AppUserDetails appUser) {
+    public List<GetMessageDTO> getMessages(Integer userId, AppUserDetails appUser) {
         try {
             logger.info("Request to get messages for user with id {}", userId);
 
@@ -160,7 +161,12 @@ public class MessageService {
             }
 
             // Get the user's messages
-            return messageRepository.findAllByReceiver(user);
+            List<Message> messages = messageRepository.findAllByReceiver(user);
+            List<GetMessageDTO> messageDTOs = new ArrayList<>();
+            for (Message message : messages) {
+                messageDTOs.add(new GetMessageDTO(message));
+            }
+            return messageDTOs;
         } catch (ForbiddenUserException | NotAcceptableException handledException) {
             logger.error(handledException.getMessage());
             throw handledException;
