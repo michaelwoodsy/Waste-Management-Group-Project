@@ -315,7 +315,7 @@ export default {
       this.images = response.data.images
       this.primaryImageId = response.data.primaryImageId
 
-      this.address = this.$root.$data.address.formatAddress(response.data.address)
+      this.address = this.$root.$data.address.formatAddressWithStreet(response.data.address)
 
       this.dateJoined = response.data.created
       this.timeCalculator(Date.parse(this.dateJoined))
