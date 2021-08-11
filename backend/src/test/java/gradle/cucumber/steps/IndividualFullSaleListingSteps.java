@@ -148,7 +148,6 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
         testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
         var saleListing = saleListingRepository.findAll().get(1);
         LikedSaleListing likedSaleListing = new LikedSaleListing(testUser, saleListing);
-        likedSaleListingRepository.save(likedSaleListing);
 
         var usersLikedListings = testUser.getLikedSaleListings();
         usersLikedListings.add(likedSaleListing);
@@ -172,7 +171,32 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
 
     @Then("An error is thrown")
     public void anErrorIsThrown() {
-        String ErrorMessage = Objects.requireNonNull(result.andReturn().getResolvedException()).getMessage().toString();
-        Assertions.assertEquals("BadRequestException: This user has already liked this sale listing", ErrorMessage);
+        var listingId = saleListingRepository.findAll().get(1).getId();
+        var expectedMessage = String.format("BadRequestException: User with ID %d has not liked sale listing with ID %d",
+                testUser.getId(), listingId);
+
+        String ErrorMessage = Objects.requireNonNull(result.andReturn().getResolvedException()).getMessage();
+        Assertions.assertEquals(expectedMessage, ErrorMessage);
+    }
+
+    //AC6: I can “unlike” this listing
+
+    @When("I try to unlike the sale listing")
+    public void iTryToUnlikeTheSaleListing() throws Exception {
+        var listingId = saleListingRepository.findAll().get(1).getId();
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .patch("/listings/{listingId}/unlike", listingId)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Then("The sale listing is removed from my list of liked sale listings")
+    public void theSaleListingIsRemovedFromMyListOfLikedSaleListings() {
+        var saleListing = saleListingRepository.findAll().get(1);
+        var user = userRepository.findByEmail(testUser.getEmail()).get(0);
+
+        Assertions.assertEquals(0, likedSaleListingRepository.findByListingAndUser(saleListing, user).size());
+        Assertions.assertEquals(0, user.getLikedSaleListings().size());
     }
 }

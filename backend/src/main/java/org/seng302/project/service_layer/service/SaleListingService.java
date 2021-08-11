@@ -563,7 +563,9 @@ public class SaleListingService {
             //Add liked sale listing to the list of liked sale listings of user
             userRepository.save(loggedInUser);
         } else {
-            throw new BadRequestException("This user has already liked this sale listing");
+            String message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listingId);
+            logger.warn(message);
+            throw new BadRequestException(message);
         }
     }
 

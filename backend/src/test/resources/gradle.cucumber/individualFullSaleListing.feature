@@ -12,3 +12,6 @@ Feature: U30 - Individual Full Sale Listing
 
   Scenario: AC6: I can “unlike” this listing. This will decrement the number of “likes”
   the listing has (AC5) and add an appropriate message to my home feed.
+    Given I am logged in and I have already liked a sale listing
+    When I try to unlike the sale listing
+    Then The sale listing is removed from my list of liked sale listings

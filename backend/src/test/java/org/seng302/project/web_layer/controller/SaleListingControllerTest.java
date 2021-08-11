@@ -38,6 +38,7 @@ class SaleListingControllerTest extends AbstractInitializer {
 
     private User testUser;
     private User owner;
+    private SaleListing listing;
     private User systemAdmin;
     private Business business;
     private InventoryItem inventoryItem;
@@ -354,6 +355,81 @@ class SaleListingControllerTest extends AbstractInitializer {
                         .param("pageNumber", String.valueOf(1))
                         .param("sortBy", "").with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests successful liking of a sale listing (by getting a OK response)
+     */
+    @Test
+    void likeSaleListing_OK_200() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId())
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests that liking of a sale listing that has already been liked by the same user throws
+     * an error (by getting a isBadRequest response)
+     */
+    @Test
+    void likeSaleListing_alreadyLikedSaleListing_400() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        //Create new liked sale listing
+        var likedListing = new LikedSaleListing(testUser, listing);
+        likedListing.setId(1);
+
+        Mockito.doThrow(BadRequestException.class)
+                .when(saleListingService).likeSaleListing(any(Integer.class), any(AppUserDetails.class));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId())
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tests that liking of a sale listing without a user throws and error (by getting a isUnauthorized response)
+     */
+    @Test
+    void likeSaleListing_notAuthorizedUser_401() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId()))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Tests that liking of a sale listing with a sale listing ID that does not exist throws
+     * an error (by getting a isNotAcceptable response)
+     */
+    @Test
+    void likeSaleListing_nonexistentSaleListingID_406() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        Mockito.doThrow(NotAcceptableException.class)
+                .when(saleListingService).likeSaleListing(any(Integer.class), any(AppUserDetails.class));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId() + 9999)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
 
     /**

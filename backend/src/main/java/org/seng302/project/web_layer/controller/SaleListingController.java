@@ -149,7 +149,7 @@ public class SaleListingController {
             logger.info(expectedException.getMessage());
             throw expectedException;
         } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while liking sale listings : %s", exception.getMessage()));
+            logger.error(String.format("Unexpected error while liking sale listing : %s", exception.getMessage()));
             throw exception;
         }
     }
@@ -163,6 +163,15 @@ public class SaleListingController {
     @ResponseStatus(HttpStatus.OK)
     public void unlikeSaleListing(@PathVariable Integer listingId,
                                   @AuthenticationPrincipal AppUserDetails user) {
-        saleListingService.unlikeSaleListing(listingId, user);
+        try{
+            logger.info("Request to unlike a sale listing with ID: {}", listingId);
+            saleListingService.unlikeSaleListing(listingId, user);
+        } catch (NotAcceptableException | BadRequestException expectedException) {
+            logger.info(expectedException.getMessage());
+            throw expectedException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while unliking sale listing : %s", exception.getMessage()));
+            throw exception;
+        }
     }
 }
