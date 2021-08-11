@@ -402,7 +402,14 @@ export const Business = {
                     'closingDateUpper': closingDateUpper,
                     'pageNumber': pageNumber,
                     'sortBy': sortBy
-                }})
+                }}),
+
+    /**
+     * Sends a request to purchase a specific listing
+     * @param listingId The ID of the listing to purchase
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    purchaseListing: (listingId) => instance.post(`/listings/${listingId}/buy`),
 };
 
 export const Card = {
