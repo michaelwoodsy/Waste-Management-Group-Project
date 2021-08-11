@@ -7,7 +7,7 @@ import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.Message;
 import org.seng302.project.repository_layer.model.User;
-import org.seng302.project.service_layer.dto.message.CreateMessageDTO;
+import org.seng302.project.service_layer.dto.message.PostMessageDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
@@ -106,7 +106,7 @@ class MessageControllerTest extends AbstractInitializer {
      */
     @Test
     void createMessage_missingField_400() throws Exception {
-        when(messageService.createMessage(any(CreateMessageDTO.class), any(AppUserDetails.class)))
+        when(messageService.createMessage(any(PostMessageDTO.class), any(AppUserDetails.class)))
                 .thenThrow(new BadRequestException("Message is missing 'text' field"));
 
         JSONObject requestBody = new JSONObject();
@@ -128,7 +128,7 @@ class MessageControllerTest extends AbstractInitializer {
      */
     @Test
     void createMessage_nonexistentUserOrCard_406() throws Exception {
-        when(messageService.createMessage(any(CreateMessageDTO.class), any(AppUserDetails.class)))
+        when(messageService.createMessage(any(PostMessageDTO.class), any(AppUserDetails.class)))
                 .thenThrow(new NotAcceptableException("There is no card that exists with the id '250'"));
 
         JSONObject requestBody = new JSONObject();

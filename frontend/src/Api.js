@@ -67,8 +67,12 @@ export const User = {
 
     getUserData: (id) => instance.get(`users/${id}`, {}),
 
-    getUsers: (searchTerm, pageNumber, sortBy) => instance.get('users/search', {params: {'searchQuery': searchTerm,
-            'pageNumber': pageNumber, 'sortBy': sortBy}}),
+    getUsers: (searchTerm, pageNumber, sortBy) => instance.get('users/search', {
+        params: {
+            'searchQuery': searchTerm,
+            'pageNumber': pageNumber, 'sortBy': sortBy
+        }
+    }),
 
     makeAdmin: (id) => instance.put(`users/${id}/makeadmin`),
 
@@ -120,6 +124,20 @@ export const User = {
     deleteMessage: (userId, messageId) => instance.delete(`users/${userId}/messages/${messageId}`),
 
     /**
+     * Sets a message to read/unread
+     *
+     * @param userId user ID of whom which the message is for
+     * @param messageId ID of the message
+     * @param read boolean of whether the message is read or not
+     * @returns {Promise<AxiosResponse<any>>} response with status code
+     */
+    readMessage: (userId, messageId, read) =>
+        instance.patch(
+            `users/${userId}/messages/${messageId}`,
+            {read: read}
+        ),
+
+    /**
      * Gets a user's notifications from the backend
      * @param userId User ID to get notifications from
      * @returns {Promise<AxiosResponse<any>>} response containing user's notifications
@@ -136,6 +154,20 @@ export const User = {
         instance.delete(`users/${userId}/notifications/${notificationId}`),
 
     /**
+     * Sets a notification ot read/unread
+     *
+     * @param userId user ID of whom the notification is for
+     * @param notificationId ID of the notification
+     * @param read boolean of whether or not the notification is read
+     * @returns {Promise<AxiosResponse<any>>} response with status code
+     */
+    readNotification: (userId, notificationId, read) =>
+        instance.patch(
+            `users/${userId}/notifications/${notificationId}`,
+            {read: read}
+        ),
+
+    /**
      * Gets all admin notifications from the backend
      *
      * @returns {Promise<AxiosResponse<any>>} response containing admin notifications
@@ -150,6 +182,18 @@ export const User = {
      */
     deleteAdminNotification: (notificationId) =>
         instance.delete(`notifications/${notificationId}`),
+
+    /**
+     * Sets an admin notification to read/unread
+     * @param notificationId ID of the notification
+     * @param read boolean of whether or not the notification is read
+     * @returns {Promise<AxiosResponse<any>>} response with status code
+     */
+    readAdminNotification: (notificationId, read) =>
+        instance.patch(
+            `notifications/${notificationId}`,
+            {read: read}
+        ),
 
     /**
      * Adds an image to a user
@@ -226,8 +270,10 @@ export const Business = {
      * @returns {Promise<AxiosResponse<any>>} response from request
      */
     editBusiness: (businessId, newData, updateProductCurrency) =>
-        instance.put(`businesses/${businessId}`, newData, {params:
-                {updateProductCurrency: updateProductCurrency === true}}),
+        instance.put(`businesses/${businessId}`, newData, {
+            params:
+                {updateProductCurrency: updateProductCurrency === true}
+        }),
 
 
     /*
@@ -327,14 +373,16 @@ export const Business = {
     searchProducts: (businessId, searchQuery, matchingId, matchingName, matchingDescription,
                      matchingManufacturer) => instance.get(
         `businesses/${businessId}/products/search`,
-        {params:
+        {
+            params:
                 {
                     'searchQuery': searchQuery,
                     'matchingId': matchingId,
                     'matchingName': matchingName,
                     'matchingDescription': matchingDescription,
                     'matchingManufacturer': matchingManufacturer
-                }}),
+                }
+        }),
 
     /**
      * Adds an image to a business
@@ -389,7 +437,8 @@ export const Business = {
                          closingDateUpper,
                          pageNumber,
                          sortBy) => instance.get(`listings`,
-        {params:
+        {
+            params:
                 {
                     'searchQuery': searchQuery,
                     'matchingProductName': matchingProductName,
@@ -402,7 +451,8 @@ export const Business = {
                     'closingDateUpper': closingDateUpper,
                     'pageNumber': pageNumber,
                     'sortBy': sortBy
-                }})
+                }
+        })
 };
 
 export const Card = {

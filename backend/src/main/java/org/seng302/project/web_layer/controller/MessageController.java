@@ -2,8 +2,8 @@ package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.repository_layer.model.Message;
-import org.seng302.project.service_layer.dto.message.CreateMessageDTO;
-import org.seng302.project.service_layer.dto.message.CreateMessageResponseDTO;
+import org.seng302.project.service_layer.dto.message.GetMessageDTO;
+import org.seng302.project.service_layer.dto.message.PostMessageDTO;
 import org.seng302.project.service_layer.service.MessageService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +32,16 @@ public class MessageController {
      */
     @PostMapping("/users/{userId}/cards/{cardId}/messages")
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateMessageResponseDTO createMessage(@PathVariable Integer userId,
-                                                  @PathVariable Integer cardId,
-                                                  @RequestBody JSONObject requestBody,
-                                                  @AuthenticationPrincipal AppUserDetails appUser) {
+    public JSONObject createMessage(@PathVariable Integer userId,
+                                    @PathVariable Integer cardId,
+                                    @RequestBody JSONObject requestBody,
+                                    @AuthenticationPrincipal AppUserDetails appUser) {
         var text = requestBody.getAsString("text");
-        var requestDTO = new CreateMessageDTO(userId, cardId, text);
-        return messageService.createMessage(requestDTO, appUser);
+        var requestDTO = new PostMessageDTO(userId, cardId, text);
+        Integer messageId = messageService.createMessage(requestDTO, appUser);
+        JSONObject response = new JSONObject();
+        response = response.appendField("messageId", messageId);
+        return response;
     }
 
     /**
@@ -50,8 +53,8 @@ public class MessageController {
      */
     @GetMapping("/users/{userId}/messages")
     @ResponseStatus(HttpStatus.OK)
-    public List<Message> getUserMessages(@PathVariable Integer userId,
-                                         @AuthenticationPrincipal AppUserDetails appUser) {
+    public List<GetMessageDTO> getUserMessages(@PathVariable Integer userId,
+                                               @AuthenticationPrincipal AppUserDetails appUser) {
         return messageService.getMessages(userId, appUser);
     }
 

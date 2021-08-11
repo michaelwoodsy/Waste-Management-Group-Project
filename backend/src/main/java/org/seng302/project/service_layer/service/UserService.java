@@ -28,8 +28,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -110,8 +112,14 @@ public class UserService {
 
         logger.info("Retrieved {} users, showing {}", totalCount, users.size());
 
-        // Map user objects to GetUserDTO objects and return
-        return Arrays.asList(users.stream().map(GetUserDTO::new).collect(Collectors.toList()), totalCount);
+        List<GetUserDTO> userDTOs = new ArrayList<>();
+        for (User user : users) {
+            GetUserDTO dto = new GetUserDTO(user);
+            dto.attachBusinessesAdministered(user);
+            dto.attachLikedSaleListings(user);
+            userDTOs.add(dto);
+        }
+        return Arrays.asList(userDTOs, totalCount);
     }
 
     /**
@@ -220,7 +228,16 @@ public class UserService {
      * @return the user data inside of a GetUserDTO
      */
     public GetUserDTO getUser(Integer id) {
-        return new GetUserDTO(userRepository.findById(id).orElseThrow(() -> new NoUserExistsException(id)));
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            User retrievedUser = user.get();
+            GetUserDTO getUserDTO = new GetUserDTO(retrievedUser);
+            getUserDTO.attachBusinessesAdministered(retrievedUser);
+            getUserDTO.attachLikedSaleListings(retrievedUser);
+            return getUserDTO;
+        } else {
+            throw new NoUserExistsException(id);
+        }
     }
 
     /**
