@@ -29,14 +29,10 @@ import java.util.Optional;
 
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
 
 
 @DataJpaTest
 class SaleListingServiceTest extends AbstractInitializer {
-
 
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
@@ -996,6 +992,73 @@ class SaleListingServiceTest extends AbstractInitializer {
         Assertions.assertEquals("Third Product", listings.get(1).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("First Product", listings.get(3).getInventoryItem().getProduct().getName());
+    }
+    /**
+     * Test that trying to like a sale listing that hasn't been liked by this user adds it to the sale listing repository
+     */
+    @Test
+    void likedSaleListing_listingNotLiked_success(){
+        //Check that there are no liked listings and the user has no liked listings
+        Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
+        Assertions.assertEquals(0, userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().size());
+
+        //Like the listing (this changes the user in the repository)
+        saleListingService.likeSaleListing(this.saleListing1.getId(), new AppUserDetails(this.testUser));
+//
+//        //Get user from repository
+//        this.testUser = userRepository.findByEmail(this.testUser.getEmail()).get(0);
+//
+//        //Check that the liked sale listing has been added to the repository
+//        Assertions.assertEquals(1, likedSaleListingRepository.findAll().size());
+//        //Check that the user's liked listing list contains the same liked listing as in the repository
+//        Assertions.assertEquals(likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).get(0),
+//                userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().get(0));
+
+    }
+
+    /**
+     * Test that trying to like a sale listing that has already been liked by this user throws and exception
+     */
+    @Test
+    void likedSaleListing_listingAlreadyLiked_throwsException(){
+        //Check that there are no liked listings
+        Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
+
+        //Like the listing (this changes the user in the repository)
+        saleListingService.likeSaleListing(this.saleListing1.getId(), new AppUserDetails(this.testUser));
+
+        //Get user from repository
+        this.testUser = userRepository.findByEmail(this.testUser.getEmail()).get(0);
+
+        //Check that the liked sale listing has been added to the repository
+        Assertions.assertEquals(1, likedSaleListingRepository.findAll().size());
+        //Check that the user's liked listing list contains the same liked listing as in the repository
+        Assertions.assertEquals(likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).get(0),
+                userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().get(0));
+
+        Integer saleListingId = this.saleListing1.getId();
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+        //Try to like the listing again
+        Assertions.assertThrows(BadRequestException.class,
+                () -> saleListingService.likeSaleListing(saleListingId, appUser));
+    }
+
+    /**
+     * Test that trying to like a sale listing that does not exist throws an exception
+     */
+    @Test
+    void likedSaleListing_listingDoesNotExist_throwsException(){
+        Integer saleListingId = 100;
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+
+        //Check that there are no liked listings
+        Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
+        //Check that the listing doesn't exist
+        Assertions.assertEquals(Optional.empty(), saleListingRepository.findById(saleListingId));
+        //Try to like the listing that doesn't exist
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.likeSaleListing(saleListingId, appUser));
     }
 
     /**

@@ -3,6 +3,7 @@ package org.seng302.project.web_layer.controller;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.SaleListingService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -132,6 +133,32 @@ public class SaleListingController {
         saleListingService.newBusinessListing(requestDTO, businessId, appUser);
     }
 
+    /**
+     * Likes a sale listing,
+     * @param listingId The sale listing ID the user is trying to like
+     * @param appUser The user that is trying to like a sale listing
+     */
+    @PutMapping("/listings/{listingId}/like")
+    @ResponseStatus(HttpStatus.OK)
+    public void likeSaleListing(@PathVariable Integer listingId,
+                                @AuthenticationPrincipal AppUserDetails appUser) {
+        try {
+            logger.info("Request to like a sale listing with ID: {}", listingId);
+            saleListingService.likeSaleListing(listingId, appUser);
+        } catch (NotAcceptableException | BadRequestException expectedException) {
+            logger.info(expectedException.getMessage());
+            throw expectedException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while liking sale listings : %s", exception.getMessage()));
+            throw exception;
+        }
+    }
+
+    /**
+     * Unlikes a sale listing,
+     * @param listingId The sale listing ID the user is trying to unlike
+     * @param user The user that is trying to like a sale listing
+     */
     @PatchMapping("/listings/{listingId}/unlike")
     @ResponseStatus(HttpStatus.OK)
     public void unlikeSaleListing(@PathVariable Integer listingId,
