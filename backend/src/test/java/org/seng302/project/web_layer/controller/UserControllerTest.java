@@ -10,14 +10,15 @@ import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.AddressRepository;
-import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
-import org.seng302.project.repository_layer.repository.SaleListingRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
 import org.seng302.project.service_layer.dto.user.LoginCredentialsDTO;
 import org.seng302.project.service_layer.dto.user.PostUserDTO;
 import org.seng302.project.service_layer.dto.user.PutUserDTO;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
+import org.seng302.project.service_layer.service.SaleListingService;
 import org.seng302.project.service_layer.service.UserService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +32,14 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,10 +69,7 @@ class UserControllerTest extends AbstractInitializer {
     private AddressRepository addressRepository;
 
     @MockBean
-    private SaleListingRepository saleListingRepository;
-
-    @MockBean
-    LikedSaleListingRepository likedSaleListingRepository;
+    private SaleListingService saleListingService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -95,7 +93,6 @@ class UserControllerTest extends AbstractInitializer {
         inventoryItem = new InventoryItem(product, 20,
                 10.99, 219.8, "2021-04-25",
                 "2021-04-25", "2021-04-25", "2021-04-25");
-
 
 
         testPutUserDTO = new PutUserDTO(
@@ -156,10 +153,10 @@ class UserControllerTest extends AbstractInitializer {
                 new LoginCredentialsDTO("johnsmith99@gmail.com", testUserJson.getString("password")));
 
         this.mvc.perform(MockMvcRequestBuilders
-                .post("/users")
-                .content(testUserJson.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                        .post("/users")
+                        .content(testUserJson.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
     }
 
@@ -333,9 +330,9 @@ class UserControllerTest extends AbstractInitializer {
     @Test
     void userSearch_notLoggedIn_401() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-                .get("/users/search")
-                .param("searchQuery", "")
-                .param("pageNumber", String.valueOf(1)))
+                        .get("/users/search")
+                        .param("searchQuery", "")
+                        .param("pageNumber", String.valueOf(1)))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
@@ -349,11 +346,11 @@ class UserControllerTest extends AbstractInitializer {
 
         // Make the request, and check it is 200
         mvc.perform(MockMvcRequestBuilders
-                .get("/users/search")
-                .param("searchQuery", "testquery string")
-                .param("pageNumber", String.valueOf(1))
-                .param("sortBy", "")
-                .with(user(new AppUserDetails(getTestUser()))))
+                        .get("/users/search")
+                        .param("searchQuery", "testquery string")
+                        .param("pageNumber", String.valueOf(1))
+                        .param("sortBy", "")
+                        .with(user(new AppUserDetails(getTestUser()))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -364,10 +361,10 @@ class UserControllerTest extends AbstractInitializer {
     @Test
     void editUser_success200() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-                .put("/users/{id}", testUser.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(testPutUserDTO))
-                .with(user(new AppUserDetails(testUser))))
+                        .put("/users/{id}", testUser.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testPutUserDTO))
+                        .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -379,10 +376,10 @@ class UserControllerTest extends AbstractInitializer {
         doThrow(ForbiddenException.class).when(userService).checkForbidden(any(Integer.class), any(AppUserDetails.class));
 
         mvc.perform(MockMvcRequestBuilders
-                .put("/users/{id}", testUser.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(testPutUserDTO))
-                .with(user(new AppUserDetails(otherUser))))
+                        .put("/users/{id}", testUser.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testPutUserDTO))
+                        .with(user(new AppUserDetails(otherUser))))
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
@@ -511,14 +508,9 @@ class UserControllerTest extends AbstractInitializer {
                 LocalDateTime.now(), 1);
         listing.setId(1);
 
-        Mockito.when(saleListingRepository.findById(any(Integer.class))).thenReturn(Optional.of(listing));
-
-        Mockito.when(likedSaleListingRepository.findByListingAndUser(any(SaleListing.class),
-                any(User.class))).thenReturn(Collections.emptyList());
-
         mvc.perform(MockMvcRequestBuilders
-                .put("/listings/{listingId}/like", listing.getId())
-                .with(user(new AppUserDetails(testUser))))
+                        .put("/listings/{listingId}/like", listing.getId())
+                        .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -537,14 +529,12 @@ class UserControllerTest extends AbstractInitializer {
         var likedListing = new LikedSaleListing(testUser, listing);
         likedListing.setId(1);
 
-        Mockito.when(saleListingRepository.findById(any(Integer.class))).thenReturn(Optional.of(listing));
-
-        Mockito.when(likedSaleListingRepository.findByListingAndUser(any(SaleListing.class),
-                any(User.class))).thenReturn(List.of(likedListing));
+        Mockito.doThrow(BadRequestException.class)
+                .when(saleListingService).likeSaleListing(any(Integer.class), any(AppUserDetails.class));
 
         mvc.perform(MockMvcRequestBuilders
-                .put("/listings/{listingId}/like", listing.getId())
-                .with(user(new AppUserDetails(testUser))))
+                        .put("/listings/{listingId}/like", listing.getId())
+                        .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -558,13 +548,8 @@ class UserControllerTest extends AbstractInitializer {
                 LocalDateTime.now(), 1);
         listing.setId(1);
 
-        Mockito.when(saleListingRepository.findById(any(Integer.class))).thenReturn(Optional.of(listing));
-
-        Mockito.when(likedSaleListingRepository.findByListingAndUser(any(SaleListing.class),
-                any(User.class))).thenReturn(Collections.emptyList());
-
         mvc.perform(MockMvcRequestBuilders
-                .put("/listings/{listingId}/like", listing.getId()))
+                        .put("/listings/{listingId}/like", listing.getId()))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
@@ -579,14 +564,12 @@ class UserControllerTest extends AbstractInitializer {
                 LocalDateTime.now(), 1);
         listing.setId(1);
 
-        Mockito.when(saleListingRepository.findById(any(Integer.class))).thenReturn(Optional.empty());
-
-        Mockito.when(likedSaleListingRepository.findByListingAndUser(any(SaleListing.class),
-                any(User.class))).thenReturn(Collections.emptyList());
+        Mockito.doThrow(NotAcceptableException.class)
+                .when(saleListingService).likeSaleListing(any(Integer.class), any(AppUserDetails.class));
 
         mvc.perform(MockMvcRequestBuilders
-                .put("/listings/{listingId}/like", listing.getId() + 9999)
-                .with(user(new AppUserDetails(testUser))))
+                        .put("/listings/{listingId}/like", listing.getId() + 9999)
+                        .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
 }

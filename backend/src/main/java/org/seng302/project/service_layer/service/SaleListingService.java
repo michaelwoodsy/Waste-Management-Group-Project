@@ -542,29 +542,25 @@ public class SaleListingService {
     @Transactional
     public void likeSaleListing(Integer listingId, AppUserDetails user) {
         // Get the logged in user from the users email
-        String userEmail = user.getUsername();
-        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+        var loggedInUser = userService.getUserByEmail(user.getUsername());
 
         //Get Sale Listing from repository
-        Optional<SaleListing> foundSaleListingOptional = saleListingRepository.findById(listingId);
+        Optional<SaleListing> saleListingOptional = saleListingRepository.findById(listingId);
         // Check if the listing exists
-        if (foundSaleListingOptional.isEmpty()) {
-            throw new NotAcceptableException(String.format("There is no sale listing that exists with the id %d",
-                    listingId));
+        if (saleListingOptional.isEmpty()) {
+            var message = String.format("There is no sale listing that exists with the id %d", listingId);
+            logger.warn(message);
+            throw new NotAcceptableException(message);
         }
-        SaleListing listing = foundSaleListingOptional.get();
+        SaleListing listing = saleListingOptional.get();
 
         //Check that the user hasn't already liked the sale listing
         if (likedSaleListingRepository.findByListingAndUser(listing, loggedInUser).isEmpty()) {
             //Make the new liked sale listing
             LikedSaleListing likedSaleListing = new LikedSaleListing(loggedInUser, listing);
             //Save the liked sale listing
-            likedSaleListingRepository.save(likedSaleListing);
+            loggedInUser.addLikedListing(likedSaleListing);
             //Add liked sale listing to the list of liked sale listings of user
-            var currentlyLikedSaleListings = loggedInUser.getLikedSaleListings();
-            currentlyLikedSaleListings.add(likedSaleListing);
-            //Save the list to the user
-            loggedInUser.setLikedSaleListings(currentlyLikedSaleListings);
             userRepository.save(loggedInUser);
         } else {
             throw new BadRequestException("This user has already liked this sale listing");
@@ -577,6 +573,7 @@ public class SaleListingService {
      * @param listingId ID of the sale listing to unlike
      * @param user      User who is unliking the sale listing
      */
+    @Transactional
     public void unlikeSaleListing(Integer listingId, AppUserDetails user) {
         User loggedInUser = userService.getUserByEmail(user.getUsername());
         Optional<SaleListing> listing = saleListingRepository.findById(listingId);
@@ -597,7 +594,7 @@ public class SaleListingService {
 
         LikedSaleListing likedSaleListing = result.get(0);
         loggedInUser.removeLikedListing(likedSaleListing);
-        likedSaleListingRepository.delete(likedSaleListing);
+        userRepository.save(loggedInUser);
     }
 
     /**
@@ -606,8 +603,8 @@ public class SaleListingService {
      * removes the sales listing
      * records the sale in sales history
      *
-     * @param listingId     Sales Listing ID to purchase
-     * @param appUser       User purchasing the sales listing
+     * @param listingId Sales Listing ID to purchase
+     * @param appUser   User purchasing the sales listing
      */
     public void buySaleListing(Integer listingId, AppUserDetails appUser) {
         var buyer = userService.getUserByEmail(appUser.getUsername());
@@ -656,15 +653,15 @@ public class SaleListingService {
      * Helper method for the updateInventoryItem method, this is sort of a contingency method that removes
      * sale listings for an inventory item that has a quantity of 0, which shouldn't happen.
      *
-     * @param businessId Id of the business with the inventory item
+     * @param businessId    Id of the business with the inventory item
      * @param inventoryItem inventory item being removed
      */
     private void removeSaleListings(Integer businessId, InventoryItem inventoryItem) {
         var saleListings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(
                 businessId, inventoryItem.getId());
-        for (var saleListing: saleListings) {
+        for (var saleListing : saleListings) {
             List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(saleListing);
-            for (var like: likes) {
+            for (var like : likes) {
                 var user = like.getUser();
                 user.removeLikedListing(like);
                 userRepository.save(user);
@@ -679,7 +676,7 @@ public class SaleListingService {
      * and notifications to the users that liked the sale listing
      *
      * @param listing listing purchased
-     * @param buyer user who purchased the listing
+     * @param buyer   user who purchased the listing
      */
     private void sendPurchaseNotifications(SaleListing listing, User buyer) {
         //Send notification to buyer
@@ -688,7 +685,7 @@ public class SaleListingService {
 
         //Send notifications to interested users
         List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(listing);
-        for (var like: likes) {
+        for (var like : likes) {
             //Make sure not to send this notification to the buyer
             if (!like.getUser().getId().equals(buyer.getId())) {
                 var interestedUserNotification = new InterestedUserNotification(like.getUser(), like.getListing());

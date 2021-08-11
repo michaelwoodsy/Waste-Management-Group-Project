@@ -23,10 +23,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -47,12 +45,6 @@ class SaleListingServiceTest extends AbstractInitializer {
     private final UserNotificationRepository userNotificationRepository;
 
     private final SaleListingService saleListingService;
-
-    @MockBean
-    private AuthenticationManager authenticationManager;
-    @MockBean
-    private BCryptPasswordEncoder passwordEncoder;
-
     Integer business1Id;
     Business business1;
     Integer business2Id;
@@ -64,6 +56,10 @@ class SaleListingServiceTest extends AbstractInitializer {
     SaleListing saleListing2;
     SaleListing saleListing3;
     SaleListing saleListing4;
+    @MockBean
+    private AuthenticationManager authenticationManager;
+    @MockBean
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     SaleListingServiceTest(UserRepository userRepository,
@@ -159,9 +155,9 @@ class SaleListingServiceTest extends AbstractInitializer {
         saleListingRepository.save(saleListing4);
 
         Mockito.when(userService.getUserByEmail(testUser.getEmail()))
-                .thenReturn(testUser);
+                .thenReturn(userRepository.findByEmail(testUser.getEmail()).get(0));
         Mockito.when(userService.getUserByEmail(testAdmin.getEmail()))
-                .thenReturn(testAdmin);
+                .thenReturn(userRepository.findByEmail(testAdmin.getEmail()).get(0));
     }
 
     /**
@@ -993,26 +989,27 @@ class SaleListingServiceTest extends AbstractInitializer {
         Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("First Product", listings.get(3).getInventoryItem().getProduct().getName());
     }
+
     /**
      * Test that trying to like a sale listing that hasn't been liked by this user adds it to the sale listing repository
      */
     @Test
-    void likedSaleListing_listingNotLiked_success(){
+    void likedSaleListing_listingNotLiked_success() {
         //Check that there are no liked listings and the user has no liked listings
         Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
         Assertions.assertEquals(0, userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().size());
 
         //Like the listing (this changes the user in the repository)
         saleListingService.likeSaleListing(this.saleListing1.getId(), new AppUserDetails(this.testUser));
-//
-//        //Get user from repository
-//        this.testUser = userRepository.findByEmail(this.testUser.getEmail()).get(0);
-//
-//        //Check that the liked sale listing has been added to the repository
-//        Assertions.assertEquals(1, likedSaleListingRepository.findAll().size());
-//        //Check that the user's liked listing list contains the same liked listing as in the repository
-//        Assertions.assertEquals(likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).get(0),
-//                userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().get(0));
+
+        //Get user from repository
+        this.testUser = userRepository.findByEmail(this.testUser.getEmail()).get(0);
+
+        //Check that the liked sale listing has been added to the repository
+        Assertions.assertEquals(1, likedSaleListingRepository.findAll().size());
+        //Check that the user's liked listing list contains the same liked listing as in the repository
+        Assertions.assertEquals(likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser).get(0),
+                userRepository.findByEmail(this.testUser.getEmail()).get(0).getLikedSaleListings().get(0));
 
     }
 
@@ -1020,7 +1017,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * Test that trying to like a sale listing that has already been liked by this user throws and exception
      */
     @Test
-    void likedSaleListing_listingAlreadyLiked_throwsException(){
+    void likedSaleListing_listingAlreadyLiked_throwsException() {
         //Check that there are no liked listings
         Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
 
@@ -1047,7 +1044,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * Test that trying to like a sale listing that does not exist throws an exception
      */
     @Test
-    void likedSaleListing_listingDoesNotExist_throwsException(){
+    void likedSaleListing_listingDoesNotExist_throwsException() {
         Integer saleListingId = 100;
         AppUserDetails appUser = new AppUserDetails(this.testUser);
 
@@ -1066,8 +1063,6 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @Test
     void unlikeSaleListing_invalidListingId_throwsException() {
-        Mockito.when(userService.getUserByEmail(testUser.getEmail()))
-                .thenReturn(testUser);
         AppUserDetails user = new AppUserDetails(this.testUser);
 
         Assertions.assertThrows(NotAcceptableException.class,
@@ -1079,9 +1074,6 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @Test
     void unlikeSaleListing_listingNotLiked_throwsException() {
-        Mockito.when(userService.getUserByEmail(testUser.getEmail()))
-                .thenReturn(testUser);
-
         LikedSaleListing listing = new LikedSaleListing(this.testUser, this.saleListing1);
         likedSaleListingRepository.save(listing);
 
@@ -1096,17 +1088,19 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @Test
     void unlikeSaleListing_validRequest_success() {
-        Mockito.when(userService.getUserByEmail(testUser.getEmail()))
-                .thenReturn(testUser);
         LikedSaleListing listing = new LikedSaleListing(this.testUser, this.saleListing1);
-        likedSaleListingRepository.save(listing);
         testUser.addLikedListing(listing);
+        testUser = userRepository.save(testUser);
 
         Integer id = this.saleListing1.getId();
         AppUserDetails user = new AppUserDetails(this.testUser);
         saleListingService.unlikeSaleListing(id, user);
+
+        Optional<User> userOptional = userRepository.findById(testUser.getId());
+        userOptional.ifPresent(value -> testUser = value);
         List<LikedSaleListing> likedSaleListings = likedSaleListingRepository.findByListingAndUser(this.saleListing1, this.testUser);
         Assertions.assertEquals(0, likedSaleListings.size());
+        Assertions.assertEquals(0, testUser.getLikedSaleListings().size());
     }
 
     /**
