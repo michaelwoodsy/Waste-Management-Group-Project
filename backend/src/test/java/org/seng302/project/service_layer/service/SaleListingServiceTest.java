@@ -1133,7 +1133,9 @@ class SaleListingServiceTest extends AbstractInitializer {
      * Tests the successful case for tagging a sale listing
      */
     @Test
-    void tagSaleListing_success() { //TODO: this test causes StackOverflowError with User-LikedSaleListing relationship
+    void tagSaleListing_success() {
+
+        testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
         LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
         likedSaleListingRepository.save(listing);
         testUser.addLikedListing(listing);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.seng302.project.service_layer.dto.user.PostUserDTO;
 
 import javax.persistence.*;
@@ -68,6 +69,7 @@ public class User {
     @OneToMany(targetEntity = Image.class)
     private List<Image> images = new ArrayList<>();
 
+    @ToString.Exclude
     @OneToMany(targetEntity = LikedSaleListing.class)
     private List<LikedSaleListing> likedSaleListings = new ArrayList<>();
 
