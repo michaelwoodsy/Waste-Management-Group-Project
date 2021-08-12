@@ -368,7 +368,7 @@ class SaleListingControllerTest extends AbstractInitializer {
         listing.setId(1);
 
         mockMvc.perform(MockMvcRequestBuilders
-                .put("/listings/{listingId}/like", listing.getId())
+                .patch("/listings/{listingId}/like", listing.getId())
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -392,7 +392,7 @@ class SaleListingControllerTest extends AbstractInitializer {
                 .when(saleListingService).likeSaleListing(any(Integer.class), any(AppUserDetails.class));
 
         mockMvc.perform(MockMvcRequestBuilders
-                .put("/listings/{listingId}/like", listing.getId())
+                .patch("/listings/{listingId}/like", listing.getId())
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -408,7 +408,7 @@ class SaleListingControllerTest extends AbstractInitializer {
         listing.setId(1);
 
         mockMvc.perform(MockMvcRequestBuilders
-                .put("/listings/{listingId}/like", listing.getId()))
+                .patch("/listings/{listingId}/like", listing.getId()))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
@@ -427,7 +427,7 @@ class SaleListingControllerTest extends AbstractInitializer {
                 .when(saleListingService).likeSaleListing(any(Integer.class), any(AppUserDetails.class));
 
         mockMvc.perform(MockMvcRequestBuilders
-                .put("/listings/{listingId}/like", listing.getId() + 9999)
+                .patch("/listings/{listingId}/like", listing.getId() + 9999)
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }

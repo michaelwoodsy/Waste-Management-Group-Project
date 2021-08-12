@@ -126,7 +126,7 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
         var listingId = saleListingRepository.findAll().get(0).getId();
 
         mockMvc.perform(MockMvcRequestBuilders
-                .put("/listings/{listingId}/like", listingId)
+                .patch("/listings/{listingId}/like", listingId)
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -164,7 +164,7 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
         var listingId = saleListingRepository.findAll().get(1).getId();
 
         result = mockMvc.perform(MockMvcRequestBuilders
-                .put("/listings/{listingId}/like", listingId)
+                .patch("/listings/{listingId}/like", listingId)
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
