@@ -20,6 +20,7 @@ import org.seng302.project.service_layer.service.BusinessImageService;
 import org.seng302.project.service_layer.util.SpringEnvironment;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,21 +31,21 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@AutoConfigureTestDatabase
 @Transactional
 public class ModifyingBusinessesSteps extends AbstractInitializer {
 
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
     private final AddressRepository addressRepository;
+    private final SaleListingRepository saleListingRepository;
+    private final LikedSaleListingRepository likedSaleListingRepository;
     private final ImageRepository imageRepository;
     private final ObjectMapper objectMapper;
 
@@ -63,6 +64,8 @@ public class ModifyingBusinessesSteps extends AbstractInitializer {
     @Autowired
     public ModifyingBusinessesSteps(UserRepository userRepository,
                                     AddressRepository addressRepository,
+                                    LikedSaleListingRepository likedSaleListingRepository,
+                                    SaleListingRepository saleListingRepository,
                                     BusinessRepository businessRepository,
                                     ImageRepository imageRepository,
                                     ObjectMapper objectMapper,
@@ -70,6 +73,8 @@ public class ModifyingBusinessesSteps extends AbstractInitializer {
                                     BusinessImageService businessImageService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
+        this.likedSaleListingRepository = likedSaleListingRepository;
+        this.saleListingRepository = saleListingRepository;
         this.businessRepository = businessRepository;
         this.imageRepository = imageRepository;
         this.objectMapper = objectMapper;
@@ -84,6 +89,12 @@ public class ModifyingBusinessesSteps extends AbstractInitializer {
                       SaleListingRepository saleListingRepository) {
         this.initialise();
         cardRepository.deleteAll();
+        var users = userRepository.findAll();
+        for (var user: users) {
+            user.setLikedSaleListings(Collections.emptyList());
+            userRepository.save(user);
+        }
+        likedSaleListingRepository.deleteAll();
         saleListingRepository.deleteAll();
         businessRepository.deleteAll();
         userRepository.deleteAll();

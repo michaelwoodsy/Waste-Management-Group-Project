@@ -44,4 +44,14 @@ public enum Tag {
         return getTag(name) != null;
     }
 
+    /**
+     * Returns true if a Tag enum object matches a string name
+     *
+     * @param name string value of the tag to check e.g., "red"
+     * @return true if the enum object matches the string tag.
+     */
+    public boolean matchesTag(String name) {
+        return this.name.equals(name);
+    }
+
 }
