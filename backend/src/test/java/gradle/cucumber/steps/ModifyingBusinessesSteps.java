@@ -79,9 +79,12 @@ public class ModifyingBusinessesSteps extends AbstractInitializer {
 
     @BeforeEach
     @Autowired
-    public void setup(WebApplicationContext context, CardRepository cardRepository) {
+    public void setup(WebApplicationContext context,
+                      CardRepository cardRepository,
+                      SaleListingRepository saleListingRepository) {
         this.initialise();
         cardRepository.deleteAll();
+        saleListingRepository.deleteAll();
         businessRepository.deleteAll();
         userRepository.deleteAll();
         imageRepository.deleteAll();
