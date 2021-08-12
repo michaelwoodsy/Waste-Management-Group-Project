@@ -88,7 +88,7 @@
 
       <!-- Side Bar Right-->
       <div class="col-md-3 col-lg-2 p-3 bg-dark shadow">
-        <div>
+        <div class="mb-3">
           <h4 class="text-light">Notifications</h4>
 
           <!-- Toggle Notifications/Messages Buttons -->
@@ -97,8 +97,8 @@
                     :class="{'btn-primary': notificationsShown, 'btn-outline-primary': !notificationsShown}"
                     class="btn" style="width: 50%" type="button" @click="showNotifications">
               <em class="bi bi-bell"/>
-              <span v-if="notifications.length > 0" class="badge badge-pill badge-light ml-1">
-                <span v-if="notifications.length < 10">{{ notifications.length }}</span>
+              <span v-if="newNotifications.length > 0" class="badge badge-pill badge-light ml-1">
+                <span v-if="newNotifications.length < 10">{{ newNotifications.length }}</span>
                 <span v-else>9+</span>
               </span>
             </button>
@@ -106,14 +106,13 @@
                     :class="{'btn-primary': !notificationsShown, 'btn-outline-primary': notificationsShown}"
                     class="btn" style="width: 50%" type="button" @click="showMessages">
               <em class="bi bi-envelope"/>
-              <span v-if="messages.length > 0" class="badge badge-pill badge-light ml-1">
-                <span v-if="messages.length < 10">{{ messages.length }}</span>
+              <span v-if="newMessages.length > 0" class="badge badge-pill badge-light ml-1">
+                <span v-if="newMessages.length < 10">{{ newMessages.length }}</span>
                 <span v-else>9+</span>
               </span>
             </button>
           </div>
         </div>
-        <br>
 
         <!-- Notifications -->
         <div v-if="notificationsShown">
@@ -121,10 +120,23 @@
             <p class="text-light">You have no notifications</p>
           </div>
           <div v-else>
-            <notification v-for="notification in sortedNotifications"
+            <span v-if="newNotifications.length > 0" class="text-light mt-2">New</span>
+            <notification v-for="notification in newNotifications"
                           :key="notification.id"
                           :data="notification"
-                          @remove-notification="removeNotification(notification.id)"/>
+                          :unread="true"
+                          @remove-notification="removeNotification(notification.id)"
+                          @read-notification="readNotification(notification.id)"
+            />
+
+            <span v-if="readNotifications.length > 0" class="text-light mt-2">Older</span>
+            <notification v-for="notification in readNotifications"
+                          :key="notification.id"
+                          :data="notification"
+                          :unread="false"
+                          @remove-notification="removeNotification(notification.id)"
+                          @read-notification="readNotification(notification.id)"
+            />
 
           </div>
         </div>
@@ -134,10 +146,23 @@
             <p class="text-light">You have no messages</p>
           </div>
           <div v-else>
-            <message v-for="message in sortedMessages"
+            <span v-if="newMessages.length > 0" class="text-light mt-2">New</span>
+            <message v-for="message in newMessages"
                      :key="message.id"
                      :message="message"
-                      @remove-message="removeMessage(message.id)"/>
+                     :unread="true"
+                     @remove-message="removeMessage(message.id)"
+                     @read-message="readMessage(message.id)"
+            />
+
+            <span v-if="readMessages.length > 0" class="text-light mt-2">Older</span>
+            <message v-for="message in readMessages"
+                     :key="message.id"
+                     :message="message"
+                     :unread="false"
+                     @remove-message="removeMessage(message.id)"
+                     @read-message="readMessage(message.id)"
+            />
           </div>
         </div>
 
@@ -179,45 +204,30 @@ export default {
       cards: [],
       hideImages: true,
       notificationsShown: true,
-      //Test data
       notifications: [],
-      adminNotifications: [],
       messages: [],
       error: ""
     }
   },
   computed: {
     /**
-     * The currently acting as user or business
+     * Computed property that returns all expired cards.
      */
-    actingAs() {
-      return this.$root.$data.user.state.actingAs
+    expiredCards() {
+      const cards = []
+      for (const card of this.cards) {
+        if (this.expired(card)) {
+          cards.push(card)
+        }
+      }
+      return cards
     },
 
     /**
      * Returns true if a user has expired cards
      */
     hasExpiredCards() {
-      for (const card of this.cards) {
-        if (this.expired(card)) {
-          return true
-        }
-      }
-      return false
-    },
-
-    /**
-     * Computed property that returns all expired cards.
-     */
-    expiredCards() {
-      const cards = []
-      for (const card of this.cards) {
-        const cardExpiryDate = new Date(card.displayPeriodEnd)
-        if (cardExpiryDate < Date.now()) {
-          cards.push(card)
-        }
-      }
-      return cards
+      return this.expiredCards.length > 0
     },
 
     /**
@@ -235,21 +245,59 @@ export default {
     },
 
     /**
-     * Returns notifications sorted by most recent.
+     * Returns new notifications sorted by most recent.
      */
-    sortedNotifications() {
-      let sortedNotifications = [...this.notifications]
-      sortedNotifications.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
-      return sortedNotifications
+    newNotifications() {
+      const newNotifications = []
+      for (const notification of this.notifications) {
+        if (!notification.read) {
+          newNotifications.push(notification)
+        }
+      }
+      newNotifications.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      return newNotifications
     },
 
     /**
-     * Returns messages sorted by most recent.
+     * Returns read notifications sorted by most recent.
      */
-    sortedMessages() {
-      let sortedMessages = [...this.messages]
-      sortedMessages.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
-      return sortedMessages
+    readNotifications() {
+      const readNotifications = []
+      for (const notification of this.notifications) {
+        if (notification.read) {
+          readNotifications.push(notification)
+        }
+      }
+      readNotifications.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      return readNotifications
+    },
+
+    /**
+     * Returns new messages sorted by most recent.
+     */
+    newMessages() {
+      const newMessages = []
+      for (const message of this.messages) {
+        if (!message.read) {
+          newMessages.push(message)
+        }
+      }
+      newMessages.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      return newMessages
+    },
+
+    /**
+     * Returns read messages sorted by most recent.
+     */
+    readMessages() {
+      const readMessages = []
+      for (const message of this.messages) {
+        if (message.read) {
+          readMessages.push(message)
+        }
+      }
+      readMessages.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      return readMessages
     }
 
   },
@@ -258,16 +306,26 @@ export default {
      * Gets the user or businesses notifications, cards and messages
      */
     async getData() {
-      if (this.actingAs.type === "user") {
+      if (this.user.actor().type === "user") {
         await this.getCardData()
         await this.getNotificationData()
         if (this.user.canDoAdminAction()) {
           await this.getAdminNotifications();
         }
+        for (const [index, notification] of this.notifications.entries()) {
+          if (!('read' in notification)) {
+            this.notifications[index].read = false
+          }
+        }
+
         await this.getMessages()
+        for (const [index, message] of this.messages.entries()) {
+          if (!('read' in message)) {
+            this.message[index].read = false
+          }
+        }
       } else {
         this.notifications = []
-        this.adminNotifications = []
         this.cards = []
         this.messages = []
       }
@@ -377,6 +435,20 @@ export default {
         }
       }
     },
+
+    /**
+     * Sets the specified notification to read
+     * @param notificationId the ID of the notification to set to read
+     */
+    readNotification(notificationId) {
+      for (const [index, notification] of this.notifications.entries()) {
+        if (notification.id === notificationId) {
+          notification.read = true
+          this.$set(this.notifications, index, notification)
+        }
+      }
+    },
+
     /**
      * Remove a notification from the list of visible notifications
      * @param notificationId the id of the notification that is to be removed
@@ -386,6 +458,19 @@ export default {
       for (const [index, notification] of this.notifications.entries()) {
         if (notification.id === notificationId) {
           this.notifications.splice(index, 1)
+        }
+      }
+    },
+
+    /**
+     * Sets the specified message to read
+     * @param messageId the ID of the message to set to read
+     */
+    readMessage(messageId) {
+      for (const [index, message] of this.messages.entries()) {
+        if (message.id === messageId) {
+          message.read = true
+          this.$set(this.messages, index, message)
         }
       }
     },
