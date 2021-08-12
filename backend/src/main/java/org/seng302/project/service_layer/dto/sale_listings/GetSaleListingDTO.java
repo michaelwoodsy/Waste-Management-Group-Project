@@ -24,6 +24,7 @@ public class GetSaleListingDTO {
     public GetSaleListingDTO(SaleListing listing) {
         this.id = listing.getId();
         this.business = new GetBusinessDTO(listing.getBusiness());
+        this.business.attachAdministrators(listing.getBusiness());
         this.inventoryItem = listing.getInventoryItem();
         this.price = listing.getPrice();
         this.moreInfo = listing.getMoreInfo();

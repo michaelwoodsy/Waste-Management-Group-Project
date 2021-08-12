@@ -97,10 +97,12 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <!-- Button to expand area to send a message to the creator -->
         <button v-if="!isCardCreator && actingAsUser"
                 :data-target="'#cardMessage' + cardData.id"
-                class="btn btn-sm btn-outline-primary ml-3"
+                class="btn btn-sm ml-3"
+                :class="{'btn-outline-primary': !sendingMessage, 'btn-danger': sendingMessage}"
                 data-toggle="collapse"
                 @click="clearMessage">
-          Message Creator
+          <span v-if="sendingMessage">Cancel</span>
+          <span v-else>Message Creator</span>
         </button>
 
         <!-- Edit button -->
@@ -207,6 +209,7 @@ export default {
       keywords: [],
       editCurrentCard: false,
       message: null,
+      sendingMessage: false,
       messageError: false,
       messageSent: false
     }
@@ -328,6 +331,7 @@ export default {
      * Clears the message box and associated errors.
      */
     clearMessage() {
+      this.sendingMessage = !this.sendingMessage
       this.message = null
       this.messageSent = false
       this.messageError = false

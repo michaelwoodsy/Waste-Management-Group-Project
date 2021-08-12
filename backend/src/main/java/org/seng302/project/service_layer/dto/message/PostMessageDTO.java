@@ -12,7 +12,7 @@ import javax.validation.constraints.NotEmpty;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateMessageDTO {
+public class PostMessageDTO {
 
     private Integer userId;
     private Integer cardId;

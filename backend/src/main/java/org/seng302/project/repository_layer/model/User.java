@@ -1,7 +1,6 @@
 package org.seng302.project.repository_layer.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -46,7 +45,6 @@ public class User {
     @JoinColumn(name = "address_id")
     private Address homeAddress;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     // One of [ user, globalApplicationAdmin, defaultGlobalApplicationAdmin ]
@@ -66,11 +64,11 @@ public class User {
 
     private Integer primaryImageId;
 
-    @OneToMany(targetEntity = Image.class)
+    @OneToMany
     private List<Image> images = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    @OneToMany(targetEntity = LikedSaleListing.class)
     private List<LikedSaleListing> likedSaleListings = new ArrayList<>();
 
     public User(String firstName, String lastName, String middleName,

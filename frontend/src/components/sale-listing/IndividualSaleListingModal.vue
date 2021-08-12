@@ -37,6 +37,15 @@
           </div>
         </div>
 
+        <!-- Show error if something wrong -->
+        <alert v-if="errorMsg" class="text-center">
+          {{ errorMsg }}
+        </alert>
+
+        <alert v-if="purchaseMsg" alert-type="alert-success" class="text-center">
+          {{ purchaseMsg }}
+        </alert>
+
         <!-- Buy button -->
         <div class="row">
           <div class="col-12 d-flex justify-content-center">
@@ -181,11 +190,13 @@
 
 <script>
 import PageWrapper from "@/components/PageWrapper";
-import {Images} from "@/Api";
+import {Images, Business} from "@/Api";
+import Alert from "@/components/Alert"
 export default {
   name: "IndividualSaleListingModal",
   components: {
-    PageWrapper
+    PageWrapper,
+    Alert
   },
   props: {
     listing: Object
@@ -196,7 +207,9 @@ export default {
       liked: false,
       //TODO: Set number of likes based on product
       likes: 0,
-      buyClicked: false
+      buyClicked: false,
+      purchaseMsg: null,
+      errorMsg: null
     }
   },
   methods: {
@@ -249,9 +262,17 @@ export default {
     /**
      * Buy the listing
      */
-    buy() {
+    async buy() {
       this.buyClicked = true
-
+      await Business.purchaseListing(this.listing.id).then(() => {
+        this.purchaseMsg = "Successfully purchased Listing!"
+        this.$emit('updateListings')
+      }).catch((err) => {
+        this.buyClicked = false
+        this.errorMsg = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+            : err
+      });
     },
 
     /**

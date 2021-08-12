@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,14 +62,14 @@ public class SaleListingService {
                               InventoryItemRepository inventoryItemRepository,
                               UserRepository userRepository,
                               UserNotificationRepository userNotificationRepository) {
-        this.userService = userService;
-        this.businessService = businessService;
         this.saleListingRepository = saleListingRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.userRepository = userRepository;
         this.userNotificationRepository = userNotificationRepository;
+        this.userService = userService;
+        this.businessService = businessService;
     }
 
     /**
@@ -533,7 +534,6 @@ public class SaleListingService {
         return sort;
     }
 
-
     /**
      * Retrieves the sale listing.
      * Throws a NotAcceptableException if the listing is not found
@@ -572,11 +572,48 @@ public class SaleListingService {
     }
 
     /**
+     * Likes a sale listing if it is liked by a user
+     *
+     * @param listingId ID of the sale listing to like
+     * @param user      User who is liking the sale listing
+     */
+    @Transactional
+    public void likeSaleListing(Integer listingId, AppUserDetails user) {
+        // Get the logged in user from the users email
+        var loggedInUser = userService.getUserByEmail(user.getUsername());
+
+        //Get Sale Listing from repository
+        Optional<SaleListing> saleListingOptional = saleListingRepository.findById(listingId);
+        // Check if the listing exists
+        if (saleListingOptional.isEmpty()) {
+            var message = String.format("There is no sale listing that exists with the id %d", listingId);
+            logger.warn(message);
+            throw new NotAcceptableException(message);
+        }
+        SaleListing listing = saleListingOptional.get();
+
+        //Check that the user hasn't already liked the sale listing
+        if (likedSaleListingRepository.findByListingAndUser(listing, loggedInUser).isEmpty()) {
+            //Make the new liked sale listing
+            LikedSaleListing likedSaleListing = new LikedSaleListing(loggedInUser, listing);
+            //Save the liked sale listing
+            loggedInUser.addLikedListing(likedSaleListing);
+            //Add liked sale listing to the list of liked sale listings of user
+            userRepository.save(loggedInUser);
+        } else {
+            String message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listingId);
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
+    }
+
+    /**
      * Unlikes a sale listing if it is liked by a user
      *
      * @param listingId ID of the sale listing to unlike
      * @param user      User who is unliking the sale listing
      */
+    @Transactional
     public void unlikeSaleListing(Integer listingId, AppUserDetails user) {
         User loggedInUser = userService.getUserByEmail(user.getUsername());
 
@@ -584,7 +621,7 @@ public class SaleListingService {
 
         LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
         loggedInUser.removeLikedListing(likedSaleListing);
-        likedSaleListingRepository.delete(likedSaleListing);
+        userRepository.save(loggedInUser);
     }
 
     /**
@@ -593,8 +630,8 @@ public class SaleListingService {
      * removes the sales listing
      * records the sale in sales history
      *
-     * @param listingId     Sales Listing ID to purchase
-     * @param appUser       User purchasing the sales listing
+     * @param listingId Sales Listing ID to purchase
+     * @param appUser   User purchasing the sales listing
      */
     public void buySaleListing(Integer listingId, AppUserDetails appUser) {
         var buyer = userService.getUserByEmail(appUser.getUsername());
@@ -639,15 +676,15 @@ public class SaleListingService {
      * Helper method for the updateInventoryItem method, this is sort of a contingency method that removes
      * sale listings for an inventory item that has a quantity of 0, which shouldn't happen.
      *
-     * @param businessId Id of the business with the inventory item
+     * @param businessId    Id of the business with the inventory item
      * @param inventoryItem inventory item being removed
      */
     private void removeSaleListings(Integer businessId, InventoryItem inventoryItem) {
         var saleListings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(
                 businessId, inventoryItem.getId());
-        for (var saleListing: saleListings) {
+        for (var saleListing : saleListings) {
             List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(saleListing);
-            for (var like: likes) {
+            for (var like : likes) {
                 var user = like.getUser();
                 user.removeLikedListing(like);
                 userRepository.save(user);
@@ -662,7 +699,7 @@ public class SaleListingService {
      * and notifications to the users that liked the sale listing
      *
      * @param listing listing purchased
-     * @param buyer user who purchased the listing
+     * @param buyer   user who purchased the listing
      */
     private void sendPurchaseNotifications(SaleListing listing, User buyer) {
         //Send notification to buyer
@@ -671,7 +708,7 @@ public class SaleListingService {
 
         //Send notifications to interested users
         List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(listing);
-        for (var like: likes) {
+        for (var like : likes) {
             //Make sure not to send this notification to the buyer
             if (!like.getUser().getId().equals(buyer.getId())) {
                 var interestedUserNotification = new InterestedUserNotification(like.getUser(), like.getListing());

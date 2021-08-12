@@ -133,6 +133,7 @@ public class Business {
         this.address.setStreetNumber(dto.getAddress().getStreetNumber());
         this.address.setStreetName(dto.getAddress().getStreetName());
         this.address.setCity(dto.getAddress().getCity());
+        this.address.setRegion(dto.getAddress().getRegion());
         this.address.setCountry(dto.getAddress().getCountry());
         this.address.setPostcode(dto.getAddress().getPostcode());
         this.setBusinessType(dto.getBusinessType());

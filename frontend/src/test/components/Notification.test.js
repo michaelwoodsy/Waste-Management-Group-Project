@@ -7,12 +7,11 @@ import user from '@/store/modules/user'
 jest.mock('@/Api')
 jest.mock('@/store/modules/user')
 
-User.deleteNotification.mockImplementation(jest.fn(() => {
-}))
-User.deleteAdminNotification.mockImplementation(jest.fn(() => {
-}))
-Keyword.deleteKeyword.mockImplementation(jest.fn(() => {
-}))
+User.deleteNotification.mockImplementation(jest.fn())
+User.deleteAdminNotification.mockImplementation(jest.fn())
+User.readNotification.mockImplementation(jest.fn())
+User.readAdminNotification.mockImplementation(jest.fn())
+Keyword.deleteKeyword.mockImplementation(jest.fn())
 user.actingUserId.mockImplementation(jest.fn(() => {
     return 1
 }))
@@ -29,8 +28,10 @@ describe('Jest tests for Notification component', () => {
                     type: 'cardExpiry',
                     message: "This card has expired and has been deleted",
                     created: "2/07/2021 4:34pm",
-                    card: "Looking for plums"
-                }
+                    card: "Looking for plums",
+                    read: false
+                },
+                unread: true
             }
         })
     })
@@ -55,12 +56,14 @@ describe('Jest tests for Notification component', () => {
                     type: 'newKeyword',
                     message: "A new keyword has been created with name: Apple",
                     created: "2/07/2021 4:34pm",
+                    read: false,
                     keyword: {
                         id: 1,
                         name: 'Apple',
                         created: "2/07/2021 4:34pm"
                     }
-                }
+                },
+                unread: true
             }
         })
 
@@ -69,6 +72,59 @@ describe('Jest tests for Notification component', () => {
         expect(User.deleteNotification).toHaveBeenCalledTimes(0)
         expect(Keyword.deleteKeyword).toHaveBeenCalledTimes(1)
         expect(wrapper.emitted('remove-notification')).toBeTruthy()
+    })
+
+    test('readNotification method for regular notification calls correct api method and emits event', async () => {
+        await wrapper.vm.readNotification()
+        expect(User.readNotification).toHaveBeenCalledTimes(1)
+        expect(User.readAdminNotification).toHaveBeenCalledTimes(0)
+        expect(wrapper.emitted('read-notification')).toBeTruthy()
+    })
+
+    test('readNotification method for admin notification calls correct endpoint and emits event', async () => {
+        wrapper = shallowMount(Notification, {
+            propsData: {
+                data: {
+                    id: 1,
+                    type: 'newKeyword',
+                    message: "A new keyword has been created with name: Apple",
+                    created: "2/07/2021 4:34pm",
+                    read: false,
+                    keyword: {
+                        id: 1,
+                        name: 'Apple',
+                        created: "2/07/2021 4:34pm"
+                    }
+                },
+                unread: true
+            }
+        })
+
+        await wrapper.vm.readNotification()
+        expect(User.readNotification).toHaveBeenCalledTimes(0)
+        expect(User.readAdminNotification).toHaveBeenCalledTimes(1)
+        expect(wrapper.emitted('read-notification')).toBeTruthy()
+    })
+
+    test("readNotification on a read notification does nothing", async () => {
+        wrapper = shallowMount(Notification, {
+            propsData: {
+                data: {
+                    id: 1,
+                    type: 'cardExpiry',
+                    message: "This card has expired and has been deleted",
+                    created: "2/07/2021 4:34pm",
+                    card: "Looking for plums",
+                    read: true
+                },
+                unread: false
+            }
+        })
+
+        await wrapper.vm.readNotification()
+        expect(User.readNotification).toHaveBeenCalledTimes(0)
+        expect(User.readAdminNotification).toHaveBeenCalledTimes(0)
+        expect(wrapper.emitted('read-notification')).toBeFalsy()
     })
 
 })
