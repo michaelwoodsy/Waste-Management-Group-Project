@@ -195,7 +195,6 @@ import userState from "@/store/modules/user"
 import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
-import product from "@/store/modules/product"
 
 export default {
   name: "Home",
@@ -386,12 +385,10 @@ export default {
      * Gets the user's liked listings
      */
     async getLikedListings() {
-      //TODO: Update this to proper API call once backend sorted
-      this.likedListings = this.user.state.userData.likedSaleListings
-      for (const [index, likedListing] of this.likedListings.entries()) {
-        likedListing.listing = (await product.addSaleListingCurrencies([likedListing.listing]))[0]
-        this.likedListings[index] = likedListing
+      for (let likedListing of this.user.state.userData.likedSaleListings){
+        this.likedListings.push(likedListing.listing)
       }
+      this.likedListings = await this.$root.$data.product.addSaleListingCurrencies(this.likedListings)
     },
 
     /**

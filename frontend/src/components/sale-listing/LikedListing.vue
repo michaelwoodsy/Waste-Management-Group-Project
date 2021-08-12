@@ -15,15 +15,15 @@ Displays a user's liked listings.
       <div class="card-body">
 
         <!-- Product Name -->
-        <h6 class="card-title"> {{ listingData.listing.inventoryItem.product.name }} </h6>
+        <h6 class="card-title"> {{ listingData.inventoryItem.product.name }} </h6>
 
         <!-- Quantity and Price, cause sizing issues -->
         <p class="card-text text-muted small mb-1">
-          Quantity: {{ listingData.listing.quantity }}
+          Quantity: {{ listingData.quantity }}
         </p>
 
         <p class="card-text text-muted small mb-1">
-          Price: {{ formatPrice(listingData.listing) }}
+          Price: {{ formatPrice(listingData) }}
         </p>
 
         <div class="text-right">
@@ -33,7 +33,7 @@ Displays a user's liked listings.
               class="btn btn-sm btn-outline-primary ml-5"
               data-target="#viewListingModal"
               data-toggle="modal"
-              @click="viewListing(listingData.listing)"
+              @click="viewListing(listingData)"
           >
             View Details
           </button>
@@ -85,7 +85,7 @@ export default {
   },
 
   mounted() {
-    this.getPrimaryImage(this.listingData.listing.inventoryItem.product)
+    this.getPrimaryImage(this.listingData.inventoryItem.product)
   },
 
   methods: {
