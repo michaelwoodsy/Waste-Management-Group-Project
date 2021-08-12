@@ -736,4 +736,26 @@ public class SaleListingService {
         likedSaleListing.setTag(tag);
         likedSaleListingRepository.save(likedSaleListing);
     }
+
+    /**
+     * Stars user's liked sale listing
+     * @param listingId the id of the listing to star
+     * @param user the AppUserDetails of the user starring the listing
+     */
+    public void starSaleListing(Integer listingId,
+                                Boolean star,
+                                AppUserDetails user){
+
+        if (star == null) {
+            BadRequestException badRequestException = new BadRequestException("A valid star value must be given.");
+            logger.warn(badRequestException.getMessage());
+            throw badRequestException;
+        }
+
+        User loggedInUser = userService.getUserByEmail(user.getUsername());
+        SaleListing listing = retrieveListing(listingId);
+        LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
+        likedSaleListing.setStarred(star);
+        likedSaleListingRepository.save(likedSaleListing);
+    }
 }
