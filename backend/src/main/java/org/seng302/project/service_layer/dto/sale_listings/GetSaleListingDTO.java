@@ -23,7 +23,7 @@ public class GetSaleListingDTO {
     private Integer likes;
     private boolean userLikes;
 
-    public GetSaleListingDTO(SaleListing listing, Integer likes, boolean userLikes) {
+    public GetSaleListingDTO(SaleListing listing) {
         this.id = listing.getId();
         this.business = new GetBusinessDTO(listing.getBusiness());
         this.business.attachAdministrators(listing.getBusiness());
@@ -33,6 +33,15 @@ public class GetSaleListingDTO {
         this.closes = listing.getCloses();
         this.created = listing.getCreated();
         this.quantity = listing.getQuantity();
+    }
+
+    /**
+     * Method that attaches a User's administered businesses to the DTO
+     *
+     * @param likes number of likes the sale listing has
+     * @param userLikes whether or not the logged in user likes the sale listing
+     */
+    public void attachLikeData(Integer likes, boolean userLikes) {
         this.likes = likes;
         this.userLikes = userLikes;
     }

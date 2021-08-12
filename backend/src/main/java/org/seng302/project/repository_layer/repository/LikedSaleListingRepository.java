@@ -4,6 +4,7 @@ import org.seng302.project.repository_layer.model.LikedSaleListing;
 import org.seng302.project.repository_layer.model.SaleListing;
 import org.seng302.project.repository_layer.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -12,5 +13,7 @@ public interface LikedSaleListingRepository extends JpaRepository<LikedSaleListi
     List<LikedSaleListing> findByListingAndUser(SaleListing listing, User user);
 
     List<LikedSaleListing> findAllByListing(SaleListing listing);
+
+    List<LikedSaleListing> findAllByListingId(@Param("listingId") Integer listingId);
 
 }

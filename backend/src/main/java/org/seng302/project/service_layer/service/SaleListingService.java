@@ -78,7 +78,8 @@ public class SaleListingService {
         for (SaleListing listing : listings) {
             Integer likes = likedSaleListingRepository.findAllByListing(listing).size();
             boolean userLikes = !likedSaleListingRepository.findByListingAndUser(listing, user).isEmpty();
-            GetSaleListingDTO dto = new GetSaleListingDTO(listing, likes, userLikes);
+            GetSaleListingDTO dto = new GetSaleListingDTO(listing);
+            dto.attachLikeData(likes, userLikes);
             listingDTOs.add(dto);
         }
         return listingDTOs;
