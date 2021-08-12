@@ -36,6 +36,13 @@
           </button>
         </div>
 
+        <div v-if="data.type === 'purchase'">
+          <p><strong>Pickup from:</strong>
+            <br>
+            {{formattedAddress}}</p>
+
+        </div>
+
       </div>
     </div>
 
@@ -80,6 +87,9 @@ export default {
      */
     formattedDateTime() {
       return formatDateTime(this.data.created)
+    },
+    formattedAddress() {
+      return this.$root.$data.address.formatAddressWithStreet(this.data.address)
     },
     /**
      * Returns true if the notification is an admin notification, false otherwise

@@ -575,7 +575,7 @@ public class SaleListingService {
 
         var listingOptional = saleListingRepository.findById(listingId);
         if (listingOptional.isEmpty()) {
-            throw new NotAcceptableException(String.format("No sale listing with ID %d exists", listingId));
+            throw new NotAcceptableException("This sale listing does not exist. It may have already been purchased");
         }
         var listing = listingOptional.get();
 
