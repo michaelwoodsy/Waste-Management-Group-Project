@@ -386,9 +386,11 @@ export default {
      */
     async getLikedListings() {
       for (let likedListing of this.user.state.userData.likedSaleListings){
-        this.likedListings.push(likedListing.listing)
+        const currency = await this.$root.$data.product.getCurrency(likedListing.listing.business.address.country)
+        let listing = likedListing.listing
+        listing.currency = currency
+        this.likedListings.push(listing)
       }
-      this.likedListings = await this.$root.$data.product.addSaleListingCurrencies(this.likedListings)
     },
 
     /**
