@@ -22,7 +22,7 @@ export default {
      * @returns {string}
      */
     alertStyles() {
-      return `alert ${this.alertType}`
+      return `alert-${this.alertType}`
     }
   }
 }
