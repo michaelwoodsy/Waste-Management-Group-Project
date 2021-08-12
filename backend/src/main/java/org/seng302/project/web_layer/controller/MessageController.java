@@ -1,7 +1,6 @@
 package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
-import org.seng302.project.repository_layer.model.Message;
 import org.seng302.project.service_layer.dto.message.GetMessageDTO;
 import org.seng302.project.service_layer.dto.message.PostMessageDTO;
 import org.seng302.project.service_layer.service.MessageService;
@@ -71,6 +70,24 @@ public class MessageController {
                               @PathVariable Integer messageId,
                               @AuthenticationPrincipal AppUserDetails appUser) {
         messageService.deleteMessage(userId, messageId, appUser);
+    }
+
+    /**
+     * Endpoint for setting a message to read/unread
+     *
+     * @param userId    ID of the user who the message is for
+     * @param messageId ID of the message
+     * @param request   request body containing a boolean for whether the message should be sent to read or unread
+     * @param appUser   currently logged-in user
+     */
+    @PatchMapping("/users/{userId}/messages/{messageId}/read")
+    @ResponseStatus(HttpStatus.OK)
+    public void readMessage(@PathVariable Integer userId,
+                            @PathVariable Integer messageId,
+                            @RequestBody JSONObject request,
+                            @AuthenticationPrincipal AppUserDetails appUser) {
+        boolean read = (boolean) request.get("read");
+        messageService.readMessage(userId, messageId, read, appUser);
     }
 
 }
