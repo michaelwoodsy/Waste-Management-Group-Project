@@ -46,10 +46,23 @@ Displays a user's liked listings.
       <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewListingModal=false">
+            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="closeModal">
               <span aria-hidden="true">&times;</span>
             </button>
-            <individual-sale-listing-modal :listing="listingToView"></individual-sale-listing-modal>
+            <individual-sale-listing-modal :listing="listingToView" @viewBusiness="viewBusiness"></individual-sale-listing-modal>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="viewBusinessModal" id="viewBusinessModal" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-body">
+            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewBusinessModal=false">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <business-profile-page-modal :id="businessToViewId"></business-profile-page-modal>
           </div>
         </div>
       </div>
@@ -62,11 +75,13 @@ Displays a user's liked listings.
 <script>
 import {Images} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
+import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal"
 
 export default {
   name: "LikedListing",
   components: {
-    IndividualSaleListingModal
+    IndividualSaleListingModal,
+    BusinessProfilePageModal
   },
   props: {
     // Data of the sale listing.
@@ -80,6 +95,8 @@ export default {
     return {
       listingToView: null,
       viewListingModal: false,
+      viewBusinessModal: false,
+      businessToViewId: null,
       imageUrl: null
     }
   },
@@ -89,6 +106,13 @@ export default {
   },
 
   methods: {
+    /**
+     * Method called after closing the modal
+     */
+    closeModal() {
+      this.viewListingModal=false
+      this.$emit('updateData')
+    },
     /**
      * Formats the price of a listing based on
      * the country of the business offering the listing
@@ -144,8 +168,19 @@ export default {
      * @param listing the listing object for the modal to show
      */
     viewListing(listing) {
+      this.viewBusinessModal = false
       this.listingToView = listing
       this.viewListingModal = true
+    },
+
+    /**
+     * Turns popup modal to view  business on
+     * @param listing the listing object with the business information to show
+     */
+    viewBusiness(listing) {
+      this.viewListingModal = false
+      this.businessToViewId = listing.business.id
+      this.viewBusinessModal = true
     }
   }
 }
