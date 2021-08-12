@@ -300,11 +300,11 @@ public class TestDataRunner {
                         LocalDateTime.parse(jsonSaleListing.getAsString("closes"), DateTimeFormatter.ISO_DATE_TIME),
                         jsonSaleListing.getAsNumber("quantity").intValue()
                 );
-                saleListingRepository.save(testListing);
+                var listing = saleListingRepository.save(testListing);
                 if (testListing.getId() == 1) {
                     var user = userRepository.findById(1);
                     user.ifPresent(value -> {
-                        var likedListing = new LikedSaleListing(value, testListing);
+                        var likedListing = new LikedSaleListing(value, listing);
                         likedSaleListingRepository.save(likedListing);
                         value.addLikedListing(likedListing);
                         userRepository.save(value);
@@ -312,7 +312,7 @@ public class TestDataRunner {
 
                     var user2 = userRepository.findById(2);
                     user2.ifPresent(value -> {
-                        var likedListing = new LikedSaleListing(value, testListing);
+                        var likedListing = new LikedSaleListing(value, listing);
                         likedSaleListingRepository.save(likedListing);
                         value.addLikedListing(likedListing);
                         userRepository.save(value);
@@ -320,7 +320,7 @@ public class TestDataRunner {
 
                     var user3 = userRepository.findById(3);
                     user3.ifPresent(value -> {
-                        var likedListing = new LikedSaleListing(value, testListing);
+                        var likedListing = new LikedSaleListing(value, listing);
                         likedSaleListingRepository.save(likedListing);
                         value.addLikedListing(likedListing);
                         userRepository.save(value);
@@ -331,6 +331,7 @@ public class TestDataRunner {
 
         logger.info("Finished adding sample data to sale listing repository");
         logger.info("Added {} entries to sale listing repository", saleListingRepository.count());
+        logger.info("Added {} entries to liked sale listing repository", likedSaleListingRepository.count());
     }
 
     /**
