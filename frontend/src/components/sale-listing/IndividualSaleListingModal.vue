@@ -203,14 +203,16 @@ export default {
   },
   data() {
     return {
-      //TODO: Set liked status based on user viewing
       liked: false,
-      //TODO: Set number of likes based on product
       likes: 0,
       buyClicked: false,
       purchaseMsg: null,
       errorMsg: null
     }
+  },
+  mounted() {
+    this.likes = this.$props.listing.likes
+    this.liked = this.$props.listing.userLikes
   },
   methods: {
     /**
@@ -251,12 +253,30 @@ export default {
     /**
      * Likes the displayed listing
      */
-    likeListing() {
-      this.liked = !this.liked
-      //TODO: Include code to like a listing here (Call backend)
-
-      if (this.liked) this.likes = this.likes + 1
-      else this.likes = this.likes - 1
+    async likeListing() {
+      if (this.liked) {
+        Business.unlikeListing(this.$props.listing.id).then(() => {
+          this.liked = !this.liked
+          this.likes -= 1
+          this.purchaseMsg = "Successfully unliked Listing"
+          this.$emit('updateListings')
+        }).catch((err) => {
+          this.errorMsg = err.response
+              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+              : err
+        })
+      } else {
+        Business.likeListing(this.$props.listing.id).then(() => {
+          this.liked = !this.liked
+          this.likes += 1
+          this.purchaseMsg = "Successfully liked Listing!"
+          this.$emit('updateListings')
+        }).catch((err) => {
+          this.errorMsg = err.response
+              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+              : err
+        })
+      }
     },
 
     /**

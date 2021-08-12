@@ -20,8 +20,10 @@ public class GetSaleListingDTO {
     private LocalDateTime closes;
     private LocalDateTime created;
     private Integer quantity;
+    private Integer likes;
+    private boolean userLikes;
 
-    public GetSaleListingDTO(SaleListing listing) {
+    public GetSaleListingDTO(SaleListing listing, Integer likes, boolean userLikes) {
         this.id = listing.getId();
         this.business = new GetBusinessDTO(listing.getBusiness());
         this.business.attachAdministrators(listing.getBusiness());
@@ -31,6 +33,8 @@ public class GetSaleListingDTO {
         this.closes = listing.getCloses();
         this.created = listing.getCreated();
         this.quantity = listing.getQuantity();
+        this.likes = likes;
+        this.userLikes = userLikes;
     }
 
 }

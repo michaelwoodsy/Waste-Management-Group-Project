@@ -19,7 +19,7 @@ public class GetLikedSaleListingDTO {
     public GetLikedSaleListingDTO(LikedSaleListing listing) {
         this.id = listing.getId();
         this.user = new GetUserDTO(listing.getUser());
-        this.listing = new GetSaleListingDTO(listing.getListing());
+        this.listing = new GetSaleListingDTO(listing.getListing(), null, true);//Set to null as we cant get that here
         this.starred = listing.isStarred();
         this.tag = listing.getTag().name();
     }
