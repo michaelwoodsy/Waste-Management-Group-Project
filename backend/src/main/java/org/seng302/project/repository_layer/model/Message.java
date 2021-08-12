@@ -14,44 +14,38 @@ import java.time.LocalDateTime;
 @Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
 public class Message {
 
+    @Id // this field (attribute) is the primary key of the table
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
+    @Column(name = "message_id")
     private Integer id;
+
     private String text;
 
     //Use to get receiverId when creating response DTO
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "receiver_id")
     private User receiver;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "card_id")
     private Card card;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sender_id")
     private User sender;
+
+    @Column(name = "created")
     private LocalDateTime created = LocalDateTime.now();
+
+    @Column(name = "read")
+    private boolean read;
 
     public Message(String text, User receiver, Card card, User sender) {
         this.text = text;
         this.receiver = receiver;
         this.card = card;
         this.sender = sender;
+        this.read = false;
     }
 
-    @Id // this field (attribute) is the primary key of the table
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement the ID
-    @Column(name = "message_id")
-    public Integer getId() {
-        return this.id;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "receiver_id")
-    public User getReceiver() {
-        return this.receiver;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "card_id")
-    public Card getCard() {
-        return this.card;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sender_id")
-    public User getSender() {
-        return this.sender;
-    }
 }
