@@ -17,16 +17,15 @@ import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+
 import static org.mockito.ArgumentMatchers.any;
+
 
 
 @DataJpaTest
@@ -45,7 +44,8 @@ class SaleListingServiceTest extends AbstractInitializer {
     private final UserNotificationRepository userNotificationRepository;
 
     private final SaleListingService saleListingService;
-    Integer business1Id;
+
+
     Business business1;
     Integer business2Id;
     User testUser;
@@ -56,10 +56,6 @@ class SaleListingServiceTest extends AbstractInitializer {
     SaleListing saleListing2;
     SaleListing saleListing3;
     SaleListing saleListing4;
-    @MockBean
-    private AuthenticationManager authenticationManager;
-    @MockBean
-    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     SaleListingServiceTest(UserRepository userRepository,
@@ -223,8 +219,9 @@ class SaleListingServiceTest extends AbstractInitializer {
         PostSaleListingDTO requestDTO = new PostSaleListingDTO(
                 inventoryItem.getId(), 2.20, "Hmmm", "2022-02-29T04:34:55.931Z", 5);
 
+        Integer businessId = business1.getId();
         Assertions.assertThrows(ForbiddenException.class,
-                () -> saleListingService.newBusinessListing(requestDTO, business1.getId(), appUser));
+                () -> saleListingService.newBusinessListing(requestDTO, businessId, appUser));
     }
 
     /**
@@ -1146,7 +1143,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         saleListingService.buySaleListing(saleListing1.getId(), user);
 
         List<UserNotification> notifications = userNotificationRepository.findAll();
-        System.out.println(notifications);
         Assertions.assertEquals(2, notifications.size());
 
         //First one is a purchaser notification
@@ -1196,4 +1192,66 @@ class SaleListingServiceTest extends AbstractInitializer {
         Optional<SaleListing> listingOptional = saleListingRepository.findById(saleListing3.getId());
         Assertions.assertTrue(listingOptional.isEmpty());
     }
+
+    /**
+     * Tests the successful case for tagging a sale listing
+     */
+    @Test
+    void tagSaleListing_success() {
+
+        testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
+        LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
+        likedSaleListingRepository.save(listing);
+        testUser.addLikedListing(listing);
+        userRepository.save(testUser);
+
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Integer listingId = saleListing1.getId();
+
+        saleListingService.tagSaleListing(listingId, "red", user);
+
+        LikedSaleListing updatedLikedListing = likedSaleListingRepository
+                .findByListingAndUser(saleListing1, testUser).get(0);
+
+        Assertions.assertTrue(updatedLikedListing.getTag().matchesTag("red"));
+    }
+
+    /**
+     * Tests that a BadRequestException is thrown when an invalid
+     * tag is provided
+     */
+    @Test
+    void tagSaleListing_invalidTag_badRequestException() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Integer listingId = saleListing1.getId();
+
+        Assertions.assertThrows(BadRequestException.class,
+                () -> saleListingService.tagSaleListing(listingId, "maroon", user));
+    }
+
+    /**
+     * Tests that a BadRequestException is thrown when the user tries
+     * tagging a listing that doesn't exist
+     */
+    @Test
+    void tagSaleListing_nonExistentListing_notAcceptableException() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.tagSaleListing(45434, "red", user));
+    }
+
+    /**
+     * Tests that a BadRequestException is thrown when the user tries
+     * tagging a listing they haven't liked.
+     */
+    @Test
+    void tagSaleListing_notLikedListing_badRequestException() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Integer listingId = saleListing1.getId();
+
+        Assertions.assertThrows(BadRequestException.class,
+                () -> saleListingService.tagSaleListing(listingId, "red", user));
+    }
+
 }

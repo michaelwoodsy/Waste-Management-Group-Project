@@ -1,5 +1,6 @@
 package org.seng302.project.web_layer.controller;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
@@ -175,5 +176,20 @@ public class SaleListingController {
             logger.error(String.format("Unexpected error while unliking sale listing : %s", exception.getMessage()));
             throw exception;
         }
+    }
+
+    /**
+     * Handles request for a user to tag a sale listing
+     * @param listingId the id of the listing to tag
+     * @param requestBody request body containing the tag for the listing
+     * @param user the AppUserDetails of the user tagging the listing
+     */
+    @PatchMapping("/listings/{listingId}/tag")
+    @ResponseStatus(HttpStatus.OK)
+    public void tagSaleListing(@PathVariable Integer listingId,
+                               @RequestBody JSONObject requestBody,
+                               @AuthenticationPrincipal AppUserDetails user) {
+        String tag = requestBody.getAsString("tag");
+        saleListingService.tagSaleListing(listingId, tag, user);
     }
 }
