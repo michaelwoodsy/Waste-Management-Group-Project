@@ -4,9 +4,11 @@ import Home from "@/components/Home";
 import {shallowMount} from "@vue/test-utils";
 import {User} from "@/Api";
 import userState from "@/store/modules/user"
+import product from "@/store/modules/product"
 
 jest.mock('@/Api')
 jest.mock('@/store/modules/user')
+jest.mock("@/store/modules/product")
 
 let wrapper;
 
@@ -139,6 +141,9 @@ describe('Jest tests for the home component', () => {
 
         User.getCards.mockResolvedValue(getCardsResponse)
         User.getNotifications.mockResolvedValue(getNotificationsResponse)
+        User.getAdminNotifications.mockResolvedValue({
+            data: []
+        })
         User.getMessages.mockResolvedValue(getMessagesResponse)
 
         userState.isLoggedIn.mockImplementation(jest.fn(() => {
@@ -160,6 +165,7 @@ describe('Jest tests for the home component', () => {
         userState.canDoAdminAction.mockImplementation(jest.fn(() => {
             return false
         }))
+        product.addSaleListingCurrencies.mockResolvedValue([])
 
         wrapper = shallowMount(Home, {computed})
         await wrapper.vm.$nextTick()
