@@ -2257,33 +2257,6 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
-    delete:
-      tags:
-        - 'U32: Managing my feed'
-        - 'Listings / sales'
-      summary: Deletes a tag from a sale listing
-      security:
-        - CookieAuth:
-            - user
-            - globalApplicationAdmin
-            - defaultGlobalApplicationAdmin
-      parameters:
-        - name: listingId
-          in: path
-          description: ID of the listing to remove a tag from
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Request successful
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '406':
-          $ref: '#/components/responses/NotAcceptableError'
-
   '/notifications/{notificationId}/read':
     patch:
       tags:

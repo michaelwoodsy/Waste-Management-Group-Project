@@ -16,7 +16,7 @@ import javax.persistence.*;
 @PrimaryKeyJoinColumn(name = "purchase_notification_id")
 public class PurchaserNotification extends UserNotification {
 
-    static final String MESSAGE_TEMPLATE = "You have bought %d %s from %s";
+    static final String MESSAGE_TEMPLATE = "You have bought %d %s from %s, Please pay during pickup.";
     // The price and currency country needed so the frontend can work out the currency
     private Double price;
     private String currencyCountry;

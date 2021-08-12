@@ -38,12 +38,14 @@ class SaleListingControllerTest extends AbstractInitializer {
 
     private User testUser;
     private User owner;
+    private SaleListing listing;
     private User systemAdmin;
     private Business business;
     private InventoryItem inventoryItem;
 
     @Autowired
     private MockMvc mockMvc;
+
     @MockBean
     private SaleListingService saleListingService;
 
@@ -357,6 +359,81 @@ class SaleListingControllerTest extends AbstractInitializer {
     }
 
     /**
+     * Tests successful liking of a sale listing (by getting a OK response)
+     */
+    @Test
+    void likeSaleListing_OK_200() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId())
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests that liking of a sale listing that has already been liked by the same user throws
+     * an error (by getting a isBadRequest response)
+     */
+    @Test
+    void likeSaleListing_alreadyLikedSaleListing_400() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        //Create new liked sale listing
+        var likedListing = new LikedSaleListing(testUser, listing);
+        likedListing.setId(1);
+
+        Mockito.doThrow(BadRequestException.class)
+                .when(saleListingService).likeSaleListing(any(Integer.class), any(AppUserDetails.class));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId())
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tests that liking of a sale listing without a user throws and error (by getting a isUnauthorized response)
+     */
+    @Test
+    void likeSaleListing_notAuthorizedUser_401() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId()))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Tests that liking of a sale listing with a sale listing ID that does not exist throws
+     * an error (by getting a isNotAcceptable response)
+     */
+    @Test
+    void likeSaleListing_nonexistentSaleListingID_406() throws Exception {
+        // Create new sale listing
+        listing = new SaleListing(business, inventoryItem, 15.00, null,
+                LocalDateTime.now(), 1);
+        listing.setId(1);
+
+        Mockito.doThrow(NotAcceptableException.class)
+                .when(saleListingService).likeSaleListing(any(Integer.class), any(AppUserDetails.class));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/listings/{listingId}/like", listing.getId() + 9999)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
+    }
+
+    /**
      * Tests that unliking a sale listing works with a valid request
      */
     @Test
@@ -411,5 +488,149 @@ class SaleListingControllerTest extends AbstractInitializer {
                 .post("/listings/{listingId}/buy", listing.getId())
                 .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+
+    /**
+     * Tests that trying to tag a sale listing when not logged in gives a 401
+     */
+    @Test
+    void tagSaleListing_notLoggedIn_401() throws Exception {
+
+        JSONObject body = new JSONObject();
+        body.put("tag", "red");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/tag", 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+
+    /**
+     * Tests that tagging a sale listing
+     * returns a 200 response
+     */
+    @Test
+    void tagSaleListing_valid_200() throws Exception {
+
+        JSONObject body = new JSONObject();
+        body.put("tag", "red");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/tag", 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+    }
+
+    /**
+     * Tests that tagging a sale listing with an invalid tag
+     * returns a 400 response
+     */
+    @Test
+    void tagSaleListing_invalidTag_400() throws Exception {
+
+        Mockito.doThrow(new BadRequestException("message"))
+                .when(saleListingService)
+                .tagSaleListing(any(Integer.class), any(String.class), any(AppUserDetails.class));
+
+        JSONObject body = new JSONObject();
+        body.put("tag", "maroon");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/tag", 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+       mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    }
+
+    /**
+     * Tests that tagging a sale listing with no tag
+     * returns a 400 response
+     */
+    @Test
+    void tagSaleListing_noTag_400() throws Exception {
+
+        Mockito.doThrow(new BadRequestException("message"))
+                .when(saleListingService)
+                .tagSaleListing(any(Integer.class), any(String.class), any(AppUserDetails.class));
+
+        JSONObject body = new JSONObject();
+        body.put("tag", "tag");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/tag", 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tests that tagging a sale listing when not liked
+     * returns a 400 response
+     */
+    @Test
+    void tagSaleListing_notLiked_400() throws Exception {
+
+        Mockito.doThrow(new BadRequestException("message"))
+                .when(saleListingService)
+                .tagSaleListing(any(Integer.class), any(String.class), any(AppUserDetails.class));
+
+        JSONObject body = new JSONObject();
+        body.put("tag", "tag");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/tag", 5)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+
+    /**
+     * Tests that a 406 response is given when tagging a nonexistent listing
+     */
+    @Test
+    void tagSaleListing_nonExistentListing_406() throws Exception {
+
+        Mockito.doThrow(new NotAcceptableException("message"))
+                .when(saleListingService)
+                .tagSaleListing(any(Integer.class), any(String.class), any(AppUserDetails.class));
+
+        JSONObject body = new JSONObject();
+        body.put("tag", "tag");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/tag", 89892)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
 }

@@ -38,20 +38,20 @@ public class GetBusinessDTO {
         this.businessType = business.getBusinessType();
         this.primaryAdministratorId = business.getPrimaryAdministratorId();
         this.administrators = new ArrayList<>();
-        for (User user : business.getAdministrators()) {
-            //Removes infinite loop of businesses administers causing StackOverflowError
-            user.setBusinessesAdministered(Collections.emptyList());
-            user.setLikedSaleListings(Collections.emptyList());
-            this.administrators.add(new GetUserDTO(user));
-        }
         this.created = business.getCreated();
         this.primaryImageId = business.getPrimaryImageId();
         this.images = business.getImages();
     }
 
-    @JsonIgnoreProperties("businessesAdministered") // Stops infinite nesting when used in GetUserDTO
-    public List<GetUserDTO> getAdministrators() {
-        return this.administrators;
+    /**
+     * Method which attaches a business' administrators to the DTO
+     *
+     * @param business Business to get admins from
+     */
+    public void attachAdministrators(Business business) {
+        for (User user : business.getAdministrators()) {
+            this.administrators.add(new GetUserDTO(user));
+        }
     }
 
 }
