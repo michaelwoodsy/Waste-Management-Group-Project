@@ -44,7 +44,6 @@ class SaleListingServiceTest extends AbstractInitializer {
     private final UserNotificationRepository userNotificationRepository;
 
     private final SaleListingService saleListingService;
-    Integer business1Id;
 
 
     Business business1;

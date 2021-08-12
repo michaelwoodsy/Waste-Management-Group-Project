@@ -582,15 +582,7 @@ public class SaleListingService {
         // Get the logged in user from the users email
         var loggedInUser = userService.getUserByEmail(user.getUsername());
 
-        //Get Sale Listing from repository
-        Optional<SaleListing> saleListingOptional = saleListingRepository.findById(listingId);
-        // Check if the listing exists
-        if (saleListingOptional.isEmpty()) {
-            var message = String.format("There is no sale listing that exists with the id %d", listingId);
-            logger.warn(message);
-            throw new NotAcceptableException(message);
-        }
-        SaleListing listing = saleListingOptional.get();
+        SaleListing listing = retrieveListing(listingId);
 
         //Check that the user hasn't already liked the sale listing
         if (likedSaleListingRepository.findByListingAndUser(listing, loggedInUser).isEmpty()) {
