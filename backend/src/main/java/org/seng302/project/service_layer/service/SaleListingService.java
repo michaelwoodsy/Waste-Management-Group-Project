@@ -743,8 +743,16 @@ public class SaleListingService {
      * @param user the AppUserDetails of the user starring the listing
      */
     public void starSaleListing(Integer listingId,
-                                Boolean star,
+                                String starString,
                                 AppUserDetails user){
+        Boolean star;
+        if(starString.equals("true")){
+            star = true;
+        } else if(starString.equals("false")){
+            star = false;
+        } else {
+            star = null;
+        }
 
         if (star == null) {
             BadRequestException badRequestException = new BadRequestException("A valid star value must be given.");

@@ -1271,7 +1271,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         AppUserDetails user = new AppUserDetails(this.testUser);
         Integer listingId = saleListing1.getId();
 
-        saleListingService.starSaleListing(listingId, true, user);
+        saleListingService.starSaleListing(listingId, "true", user);
 
         LikedSaleListing updatedLikedListing = likedSaleListingRepository
                 .findByListingAndUser(saleListing1, testUser).get(0);
@@ -1295,7 +1295,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         AppUserDetails user = new AppUserDetails(this.testUser);
         Integer listingId = saleListing1.getId();
 
-        saleListingService.starSaleListing(listingId, false, user);
+        saleListingService.starSaleListing(listingId, "false", user);
 
         LikedSaleListing updatedLikedListing = likedSaleListingRepository
                 .findByListingAndUser(saleListing1, testUser).get(0);
@@ -1313,7 +1313,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         Integer listingId = saleListing1.getId();
 
         Assertions.assertThrows(BadRequestException.class,
-                () -> saleListingService.starSaleListing(listingId, null, user));
+                () -> saleListingService.starSaleListing(listingId, "blah", user));
     }
 
     /**
@@ -1326,7 +1326,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         Integer listingId = saleListing1.getId();
 
         Assertions.assertThrows(BadRequestException.class,
-                () -> saleListingService.starSaleListing(listingId, true, user));
+                () -> saleListingService.starSaleListing(listingId, "true", user));
     }
 
     /**
@@ -1338,6 +1338,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         AppUserDetails user = new AppUserDetails(this.testUser);
 
         Assertions.assertThrows(NotAcceptableException.class,
-                () -> saleListingService.starSaleListing(45434, true, user));
+                () -> saleListingService.starSaleListing(45434, "true", user));
     }
 }

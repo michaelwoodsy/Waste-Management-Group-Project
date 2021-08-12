@@ -633,4 +633,100 @@ class SaleListingControllerTest extends AbstractInitializer {
         mockMvc.perform(request)
                 .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
+
+    /**
+     * Tests that starring a sale listing
+     * returns a 200 response
+     */
+    @Test
+    void starSaleListing_valid_200() throws Exception {
+
+        JSONObject body = new JSONObject();
+        body.put("star", "true");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/star", 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+    }
+
+    /**
+     * Tests that starring a sale listing with an invalid star
+     * returns a 400 response
+     */
+    @Test
+    void starSaleListing_invalidTag_400() throws Exception {
+
+        Mockito.doThrow(new BadRequestException("message"))
+                .when(saleListingService)
+                .starSaleListing(any(Integer.class), any(String.class), any(AppUserDetails.class));
+
+        JSONObject body = new JSONObject();
+        body.put("star", "maroon");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/star", 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tests that starring a sale listing when not liked
+     * returns a 400 response
+     */
+    @Test
+    void starSaleListing_notLiked_400() throws Exception {
+
+        Mockito.doThrow(new BadRequestException("message"))
+                .when(saleListingService)
+                .starSaleListing(any(Integer.class), any(String.class), any(AppUserDetails.class));
+
+        JSONObject body = new JSONObject();
+        body.put("star", "true");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/star", 5)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tests that a 406 response is given when starring a nonexistent listing
+     */
+    @Test
+    void starSaleListing_nonExistentListing_406() throws Exception {
+
+        Mockito.doThrow(new NotAcceptableException("message"))
+                .when(saleListingService)
+                .starSaleListing(any(Integer.class), any(String.class), any(AppUserDetails.class));
+
+        JSONObject body = new JSONObject();
+        body.put("star", "true");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/listings/{listingId}/star", 89892)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
+    }
 }

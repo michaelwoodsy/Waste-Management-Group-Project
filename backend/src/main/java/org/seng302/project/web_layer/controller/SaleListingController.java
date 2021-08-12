@@ -190,4 +190,13 @@ public class SaleListingController {
         String tag = requestBody.getAsString("tag");
         saleListingService.tagSaleListing(listingId, tag, user);
     }
+
+    @PatchMapping("/listings/{listingId}/star")
+    @ResponseStatus(HttpStatus.OK)
+    public void starSaleListing(@PathVariable Integer listingId,
+                                @RequestBody JSONObject requestBody,
+                                @AuthenticationPrincipal AppUserDetails user) {
+        String star = requestBody.getAsString("star");
+        saleListingService.starSaleListing(listingId, star, user);
+    }
 }
