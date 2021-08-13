@@ -9,6 +9,7 @@ import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.message.GetMessageDTO;
 import org.seng302.project.service_layer.dto.message.PostMessageDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
+import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -31,14 +32,17 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final CardRepository cardRepository;
+    private final UserService userService;
 
     @Autowired
     public MessageService(MessageRepository messageRepository,
                           UserRepository userRepository,
-                          CardRepository cardRepository) {
+                          CardRepository cardRepository,
+                          UserService userService) {
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
         this.cardRepository = cardRepository;
+        this.userService = userService;
     }
 
     /**
@@ -53,8 +57,7 @@ public class MessageService {
         logger.info("Request to create message about card with id {}", requestDTO.getCardId());
 
         // Get the logged in user from the users email
-        String userEmail = appUser.getUsername();
-        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+        var loggedInUser = userService.getUserByEmail(appUser.getUsername());
 
         Optional<User> receivingUserOptional = userRepository.findById(requestDTO.getUserId());
         if (receivingUserOptional.isEmpty()) {
@@ -98,13 +101,10 @@ public class MessageService {
                 throw new NotAcceptableException(message);
             }
 
-            var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
+            var loggedInUser = userService.getUserByEmail(appUser.getUsername());
 
             // Check if the logged in user is the same user whose messages we are retrieving
-
-            if (!loggedInUser.getId().equals(userId)) {
-                throw new ForbiddenUserException(userId);
-            }
+            userService.checkForbidden(userId, appUser);
 
             // Get message from the repository
             Optional<Message> foundMessage = messageRepository.findById(messageId);
@@ -142,8 +142,7 @@ public class MessageService {
             logger.info("Request to get messages for user with id {}", userId);
 
             // Get the logged in user from the users email
-            String userEmail = appUser.getUsername();
-            var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+            var loggedInUser = userService.getUserByEmail(appUser.getUsername());
 
             // Get the user whose messages we want
             Optional<User> userResult = userRepository.findById(userId);
@@ -156,9 +155,7 @@ public class MessageService {
             var user = userResult.get();
 
             // Check if the logged in user is the same user whose messages we are retrieving
-            if (!loggedInUser.getId().equals(user.getId())) {
-                throw new ForbiddenUserException(userId);
-            }
+            userService.checkForbidden(userId, appUser);
 
             // Get the user's messages
             List<Message> messages = messageRepository.findAllByReceiver(user);
@@ -174,6 +171,42 @@ public class MessageService {
             logger.error(String.format("Unexpected error while retrieving user's messages: %s", unhandledException.getMessage()));
             throw unhandledException;
         }
+    }
+
+    /**
+     * Sets a message as read/unread
+     *
+     * @param userId    ID of user who message is for
+     * @param messageId ID of message to mark as read/unread
+     * @param read      boolean for whether to set message as read or unread
+     * @param appUser   currently logged-in user
+     */
+    public void readMessage(Integer userId, Integer messageId, boolean read, AppUserDetails appUser) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<Message> messageOptional = messageRepository.findById(messageId);
+        Message message;
+
+        if (userOptional.isEmpty()) {
+            String error = String.format("No user exists with ID: %d", userId);
+            logger.warn(error);
+            throw new NotAcceptableException(error);
+        } else if (messageOptional.isEmpty()) {
+            String error = String.format("No message exists with ID: %d", messageId);
+            logger.warn(error);
+            throw new NotAcceptableException(error);
+        } else {
+            message = messageOptional.get();
+        }
+
+        userService.checkForbidden(userId, appUser);
+        if (!message.getReceiver().getId().equals(userId)) {
+            String error = "You must be the receiver of a message to mark as read";
+            logger.warn(error);
+            throw new ForbiddenException(error);
+        }
+
+        message.setRead(read);
+        messageRepository.save(message);
     }
 }
 

@@ -1,12 +1,12 @@
 package gradle.cucumber.steps;
 
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.model.enums.Tag;
@@ -16,16 +16,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 /**
@@ -44,19 +46,26 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
     private final LikedSaleListingRepository likedSaleListingRepository;
+    private final MessageRepository messageRepository;
+    private final UserNotificationRepository userNotificationRepository;
 
     private SaleListing listing;
     private User testUser;
+    private User testOtherUser;
+    private Message message;
+    private UserNotification userNotification;
 
     @Autowired
     public ManagingMyFeedSteps(UserRepository userRepository,
-                                     CardRepository cardRepository,
-                                     BusinessRepository businessRepository,
-                                     AddressRepository addressRepository,
-                                     ProductRepository productRepository,
-                                     InventoryItemRepository inventoryItemRepository,
-                                     SaleListingRepository saleListingRepository,
-                                     LikedSaleListingRepository likedSaleListingRepository) {
+                               CardRepository cardRepository,
+                               BusinessRepository businessRepository,
+                               AddressRepository addressRepository,
+                               ProductRepository productRepository,
+                               InventoryItemRepository inventoryItemRepository,
+                               SaleListingRepository saleListingRepository,
+                               LikedSaleListingRepository likedSaleListingRepository,
+                               MessageRepository messageRepository,
+                               UserNotificationRepository userNotificationRepository) {
         this.userRepository = userRepository;
         this.cardRepository = cardRepository;
         this.businessRepository = businessRepository;
@@ -65,21 +74,24 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
+        this.messageRepository = messageRepository;
+        this.userNotificationRepository = userNotificationRepository;
     }
 
     /**
      * Before each test, setup four sale listings with different parameters
      */
-    @BeforeEach
+    @Before
     @Autowired
     void setup(WebApplicationContext context) {
         var users = userRepository.findAll();
-        for (var user: users) {
+        for (var user : users) {
             user.setLikedSaleListings(Collections.emptyList());
             userRepository.save(user);
         }
         likedSaleListingRepository.deleteAll();
         cardRepository.deleteAll();
+        messageRepository.deleteAll();
         userRepository.deleteAll();
 
         this.initialise();
@@ -90,8 +102,11 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
 
         testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
-        testUser.setId(null);
-        userRepository.save(testUser);
+        testUser = userRepository.save(testUser);
+
+        testOtherUser = this.getTestOtherUser();
+        addressRepository.save(testOtherUser.getHomeAddress());
+        testOtherUser = userRepository.save(testOtherUser);
 
         listing = this.getSaleListings().get(0);
 
@@ -106,7 +121,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
         listing = saleListingRepository.save(listing);
     }
 
-    @AfterEach
+    @After
     void teardown() {
         likedSaleListingRepository.deleteAll();
         saleListingRepository.deleteAll();
@@ -114,6 +129,8 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
         productRepository.deleteAll();
         businessRepository.deleteAll();
         addressRepository.deleteAll();
+        messageRepository.deleteAll();
+        userNotificationRepository.deleteAll();
         cardRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -155,26 +172,39 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
 //        throw new io.cucumber.java.PendingException();
 //    }
 
-    //AC2
+    // AC2
 
-//    @Given("I have an unread message")
-//    public void i_have_an_unread_message() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @When("I click on \\(read) the message")
-//    public void i_click_on_read_the_message() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The message is marked as read")
-//    public void the_message_is_marked_as_read() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
+    @Given("I have an unread message")
+    public void i_have_an_unread_message() {
+        message = new Message("Test message", testUser, null, testOtherUser);
+        message = messageRepository.save(message);
+        Assertions.assertFalse(message.isRead());
+        Assertions.assertEquals(1, messageRepository.findAllByReceiver(testUser).size());
+    }
+
+    @When("I click on \\(read) the message")
+    public void i_click_on_read_the_message() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/users/{userId}/messages/{messageId}/read", testUser.getId(), message.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    @Then("The message is marked as read")
+    public void the_message_is_marked_as_read() {
+        Optional<Message> message = messageRepository.findById(this.message.getId());
+        message.ifPresent(value -> {
+            Assertions.assertTrue(value.isRead());
+        });
+    }
+
 //    @Given("I have an unread notification")
 //    public void i_have_an_unread_notification() {
 //        // Write code here that turns the phrase above into concrete actions
@@ -191,24 +221,26 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
 //        // Write code here that turns the phrase above into concrete actions
 //        throw new io.cucumber.java.PendingException();
 //    }
-//
-//    @Given("I have a new message")
-//    public void i_have_a_new_message() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @When("I see the message on my home page")
-//    public void i_see_the_message_on_my_home_page() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//    @Then("The message is marked as unread")
-//    public void the_message_is_marked_as_unread() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
+
+    @Given("I have a new message")
+    public void i_have_a_new_message() {
+        message = new Message("Test message", testUser, null, testOtherUser);
+        message = messageRepository.save(message);
+    }
+
+    @When("I see the message on my home page")
+    public void i_see_the_message_on_my_home_page() {
+        Optional<Message> message = messageRepository.findById(this.message.getId());
+        message.ifPresent(value -> {
+            this.message = value;
+        });
+    }
+
+    @Then("The message is marked as unread")
+    public void the_message_is_marked_as_unread() {
+        Assertions.assertFalse(message.isRead());
+    }
+
 //    @Given("I have a new notification")
 //    public void i_have_a_new_notification() {
 //        // Write code here that turns the phrase above into concrete actions
@@ -249,7 +281,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser))))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(status().isOk());
     }
 
     @Then("The liked sale listing is marked as starred")
@@ -268,12 +300,12 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
         body.put("tag", colour);
 
         mockMvc.perform(MockMvcRequestBuilders
-                .patch("/listings/{listingId}/tag", listing.getId())
-                .content(body.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(user(new AppUserDetails(testUser))))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                        .patch("/listings/{listingId}/tag", listing.getId())
+                        .content(body.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(user(new AppUserDetails(testUser))))
+                .andExpect(status().isOk());
     }
 
     @Then("The liked sale listing is marked with a {string} tag")

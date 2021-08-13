@@ -1,11 +1,13 @@
 package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
-import org.seng302.project.repository_layer.model.Message;
 import org.seng302.project.service_layer.dto.message.GetMessageDTO;
 import org.seng302.project.service_layer.dto.message.PostMessageDTO;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.service.MessageService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +21,7 @@ import java.util.List;
 @RestController
 public class MessageController {
 
+    private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
     public final MessageService messageService;
 
     @Autowired
@@ -71,6 +74,31 @@ public class MessageController {
                               @PathVariable Integer messageId,
                               @AuthenticationPrincipal AppUserDetails appUser) {
         messageService.deleteMessage(userId, messageId, appUser);
+    }
+
+    /**
+     * Endpoint for setting a message to read/unread
+     *
+     * @param userId    ID of the user who the message is for
+     * @param messageId ID of the message
+     * @param request   request body containing a boolean for whether the message should be sent to read or unread
+     * @param appUser   currently logged-in user
+     */
+    @PatchMapping("/users/{userId}/messages/{messageId}/read")
+    @ResponseStatus(HttpStatus.OK)
+    public void readMessage(@PathVariable Integer userId,
+                            @PathVariable Integer messageId,
+                            @RequestBody JSONObject request,
+                            @AuthenticationPrincipal AppUserDetails appUser) {
+        boolean read;
+        try {
+            read = (boolean) request.get("read");
+        } catch (ClassCastException | NullPointerException exception) {
+            String message = "Value of \"read\" must be a boolean";
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
+        messageService.readMessage(userId, messageId, read, appUser);
     }
 
 }

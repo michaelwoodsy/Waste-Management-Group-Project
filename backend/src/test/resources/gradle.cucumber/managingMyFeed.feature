@@ -9,21 +9,21 @@ Feature: U32 Managing my feed
 #    Given I have a notification on my home page
 #    When I attempt to delete the notification from my home page
 #    Then The notification is successfully removed from my home page
-#
-#  Scenario: AC2: I can easily distinguish between messages and notifications I have clicked on (“read”) and those I haven’t (“unread”).
-#    Given I have an unread message
-#    When I click on (read) the message
-#    Then The message is marked as read
-#
+
+  Scenario: AC2: I can easily distinguish between messages and notifications I have clicked on (“read”) and those I haven’t (“unread”).
+    Given I have an unread message
+    When I click on (read) the message
+    Then The message is marked as read
+
 #  Scenario: AC2: I can easily distinguish between messages and notifications I have clicked on (“read”) and those I haven’t (“unread”).
 #    Given I have an unread notification
 #    When I click on (read) the notification
 #    Then The notification is marked as read
 #
-#  Scenario: AC2: New messages and notifications are initially unread.
-#    Given I have a new message
-#    When I see the message on my home page
-#    Then The message is marked as unread
+  Scenario: AC2: New messages and notifications are initially unread.
+    Given I have a new message
+    When I see the message on my home page
+    Then The message is marked as unread
 #
 #  Scenario: AC2: New messages and notifications are initially unread.
 #    Given I have a new notification

@@ -293,20 +293,19 @@ public class UserService {
     }
 
     /**
-     * Checks if the logged in user is able to perform actions on the user with id userId's account
-     * If the user logged in has the ID userId, or the logged in user is a GAA.
+     * Checks if the logged-in user is able to perform actions on the user with id userId's account
+     * If the user logged in has the ID userId, or the logged-in user is a GAA.
      *
      * @param userId  ID of the user account wanting to preform actions on.
-     * @param appUser Details of the logged in user
+     * @param appUser Details of the logged-in user
      */
     public void checkForbidden(Integer userId, AppUserDetails appUser) {
         var loggedInUser = userRepository.findByEmail(appUser.getUsername()).get(0);
 
         if (!loggedInUser.getId().equals(userId) && !loggedInUser.isGAA()) {
-            var exception = new ForbiddenException(
-                    String.format("You are not Authorised to make changes/view information for user with ID %d's account", userId));
-            logger.error(exception.getMessage());
-            throw exception;
+            String message = String.format("You are not authorised to make changes/view information for user with ID %d's account", userId);
+            logger.error(message);
+            throw new ForbiddenException(message);
         }
     }
 
