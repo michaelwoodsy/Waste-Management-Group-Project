@@ -59,33 +59,11 @@
           <h1><span v-if="user.isActingAsUser()">Hello </span>{{ user.actor().name }}</h1>
           <hr>
         </div>
+
         <div>
           <p>UNDO BuTTON: {{canUndo}}</p>
           <button v-if="canUndo" @click="undoDelete()" class="btn btn-primary">Undo</button>
         </div>
-
-        <!-- Cards Section -->
-        <div v-if="user.isActingAsUser()">
-          <h2>My Cards</h2>
-          <alert v-if="hasExpiredCards" class="text-center">
-            You have cards that have recently expired and will be deleted within 24 hours if not extended!
-          </alert>
-          <div v-if="hasExpiredCards">
-            <h5>Recently Expired Cards</h5>
-            <div class="row row-cols-1 row-cols-lg-2">
-              <div v-for="card in expiredCards" v-bind:key="card.id" class="col">
-                <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
-                             @card-deleted="deleteCard" @card-extended="extendCard"
-                             @refresh-cards="getCardData"></market-card>
-              </div>
-            </div>
-          </div>
-          <h5 v-if="hasExpiredCards">Active Cards</h5>
-          <div class="row row-cols-1 row-cols-lg-2">
-            <div v-for="card in activeCards" v-bind:key="card.id" class="col">
-              <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
-                           @card-deleted="deleteCard" @card-extended="extendCard"
-                           @refresh-cards="getCardData"></market-card>
 
         <div class="row row-cols-1 row-cols-lg-2">
           <!-- Cards Section -->
