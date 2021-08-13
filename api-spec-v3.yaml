@@ -2344,6 +2344,15 @@ paths:
       responses:
         200:
           description: Token is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    description: Email of the user the token is for
+                    example: "john.smith@email.com"
         '400':
           $ref: '#/components/responses/BadRequestError'
         406:
