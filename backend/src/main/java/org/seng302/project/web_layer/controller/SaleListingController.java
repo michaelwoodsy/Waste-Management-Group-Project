@@ -190,4 +190,26 @@ public class SaleListingController {
         String tag = requestBody.getAsString("tag");
         saleListingService.tagSaleListing(listingId, tag, user);
     }
+
+    /**
+     * Handles request for a user to star or unstar a sale listing
+     * @param listingId the id of the listing to star
+     * @param requestBody containing a boolean of whether to star or unstar the listing
+     * @param user the AppUserDetails of the user starring the listing
+     */
+    @PatchMapping("/listings/{listingId}/star")
+    @ResponseStatus(HttpStatus.OK)
+    public void starSaleListing(@PathVariable Integer listingId,
+                                @RequestBody JSONObject requestBody,
+                                @AuthenticationPrincipal AppUserDetails user) {
+        boolean star;
+        try{
+            star = (boolean) requestBody.get("star");
+        } catch (ClassCastException | NullPointerException exception) {
+            String message = "Value of \"star\" must be a boolean";
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
+        saleListingService.starSaleListing(listingId, star, user);
+    }
 }

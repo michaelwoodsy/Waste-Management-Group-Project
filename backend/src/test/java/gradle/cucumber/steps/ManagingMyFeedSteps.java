@@ -232,28 +232,33 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     @Given("I have a liked sale listing")
     public void i_have_a_liked_sale_listing() {
         LikedSaleListing likedListing = new LikedSaleListing(testUser, listing);
+        likedListing.setStarred(false);
         likedSaleListingRepository.save(likedListing);
         testUser.addLikedListing(likedListing);
         userRepository.save(testUser);
     }
-//
-//    @When("I star the liked sale listing")
-//    public void i_star_the_liked_sale_listing() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The liked sale listing is marked as starred")
-//    public void the_liked_sale_listing_is_marked_as_starred() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The listing appears at the top of my feed")
-//    public void the_listing_appears_at_the_top_of_my_feed() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
+
+    @When("I star the liked sale listing")
+    public void iStarTheLikedSaleListing() throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("star", true);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .patch("/listings/{listingId}/star", listing.getId())
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser))))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Then("The liked sale listing is marked as starred")
+    public void theLikedSaleListingIsMarkedAsStarred() {
+        LikedSaleListing updatedLikedListing = likedSaleListingRepository
+                .findByListingAndUser(listing, testUser).get(0);
+
+        Assertions.assertTrue(updatedLikedListing.isStarred());
+    }
 
     //AC6
 

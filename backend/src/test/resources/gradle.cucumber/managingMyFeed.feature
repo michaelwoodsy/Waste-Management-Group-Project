@@ -30,12 +30,10 @@ Feature: U32 Managing my feed
 #    When I see the notification on my home page
 #    Then The notification is marked as unread
 #
-#  Scenario: AC3: I can “star” sale listings to mark them as high importance.
-#  Starred items remain at the top of my feed even when new items arrive.
-#    Given I have a liked sale listing
-#    When I star the liked sale listing
-#    Then The liked sale listing is marked as starred
-#    And The listing appears at the top of my feed
+  Scenario: AC3: I can “star” sale listings to mark them as high importance.
+    Given I have a liked sale listing
+    When I star the liked sale listing
+    Then The liked sale listing is marked as starred
 
   Scenario: AC6: I can “tag” a liked sale listing.
     Given I have a liked sale listing
