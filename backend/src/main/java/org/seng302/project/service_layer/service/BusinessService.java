@@ -141,7 +141,10 @@ public class BusinessService {
             if (business.isEmpty()) {
                 throw new BusinessNotFoundException(businessId);
             } else {
-                return new GetBusinessDTO(business.get());
+                Business retrievedBusiness = business.get();
+                GetBusinessDTO getBusinessDTO = new GetBusinessDTO(retrievedBusiness);
+                getBusinessDTO.attachAdministrators(retrievedBusiness);
+                return getBusinessDTO;
             }
         } catch (BusinessNotFoundException businessNotFoundException) {
             logger.warn(businessNotFoundException.getMessage());
@@ -177,16 +180,15 @@ public class BusinessService {
      *
      * @param appUser The current logged in user.
      * @param business The business to check the user can perform admin actions on.
-     * @return The current logged in user.
      */
-    public User checkUserCanDoBusinessAction(AppUserDetails appUser, Business business) {
+    public void checkUserCanDoBusinessAction(AppUserDetails appUser, Business business) throws ForbiddenException {
         User user = userRepository.findByEmail(appUser.getUsername()).get(0);
         if (!business.userCanDoAction(user)) {
-            String message = String.format("Cannot edit business as user with ID %d is not admin", user.getId());
+            String message = String.format("User with id %d can not perform this action as they are not an administrator of business with id %d.",
+                    user.getId(), business.getId());
             logger.warn(message);
             throw new ForbiddenException(message);
         }
-        return user;
     }
 
     /**
@@ -405,7 +407,13 @@ public class BusinessService {
         }
 
         logger.info("Retrieved {} businesses, showing {}", totalCount, businesses.size());
-        return Arrays.asList(businesses.stream().map(GetBusinessDTO::new).collect(Collectors.toList()), totalCount);
+        List<GetBusinessDTO> getBusinessDTOs = new ArrayList<>();
+        for (Business business : businesses) {
+            GetBusinessDTO dto = new GetBusinessDTO(business);
+            dto.attachAdministrators(business);
+            getBusinessDTOs.add(dto);
+        }
+        return Arrays.asList(getBusinessDTOs, totalCount);
     }
 
     /**

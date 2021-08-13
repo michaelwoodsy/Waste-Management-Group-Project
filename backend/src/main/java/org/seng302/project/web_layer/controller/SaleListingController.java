@@ -1,16 +1,11 @@
 package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
-import org.seng302.project.repository_layer.model.*;
-import org.seng302.project.repository_layer.repository.BusinessRepository;
-import org.seng302.project.repository_layer.repository.InventoryItemRepository;
-import org.seng302.project.repository_layer.repository.SaleListingRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
+import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
-import org.seng302.project.service_layer.exceptions.*;
-import org.seng302.project.service_layer.exceptions.business.BusinessNotFoundException;
-import org.seng302.project.service_layer.exceptions.businessAdministrator.ForbiddenAdministratorActionException;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.SaleListingService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
@@ -20,16 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Date;
+import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 /**
  * Rest controller for sale listings.
@@ -38,87 +26,29 @@ import java.util.stream.Collectors;
 public class SaleListingController {
 
     private static final Logger logger = LoggerFactory.getLogger(SaleListingController.class.getName());
-    private final BusinessRepository businessRepository;
-    private final SaleListingRepository saleListingRepository;
-    private final UserRepository userRepository;
-    private final InventoryItemRepository inventoryItemRepository;
+
 
     private final SaleListingService saleListingService;
 
     @Autowired
     public SaleListingController(
-            BusinessRepository businessRepository,
-            SaleListingRepository saleListingRepository,
-            UserRepository userRepository,
-            InventoryItemRepository inventoryItemRepository,
             SaleListingService saleListingService) {
-        this.businessRepository = businessRepository;
-        this.saleListingRepository = saleListingRepository;
-        this.userRepository = userRepository;
-        this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingService = saleListingService;
-    }
-
-    /**
-     * Returns the current logged in user that made the request.
-     * @param appUser The AppUserDetails object passed in from the authentication principle.
-     * @return User: the user that made the request.
-     */
-    private User getLoggedInUser(AppUserDetails appUser) {
-        String userEmail = appUser.getUsername();
-        return userRepository.findByEmail(userEmail).get(0);
-    }
-
-    /**
-     * Gets a business with the provided id.
-     * @param businessId The id of the business to look for.
-     * @return The business with the corresponding id.
-     * @throws BusinessNotFoundException Thrown if the business doesn't exist.
-     */
-    private Business getBusiness(Integer businessId) throws BusinessNotFoundException {
-        // Get business from repository
-        Optional<Business> foundBusiness = businessRepository.findById(businessId);
-
-        // Check if the business exists
-        if (foundBusiness.isEmpty()) {
-            BusinessNotFoundException exception = new BusinessNotFoundException(businessId);
-            logger.warn(exception.getMessage());
-            throw exception;
-        }
-
-        // Return the found business
-        return foundBusiness.get();
-    }
-
-    /**
-     * Checks if the user is the owner or administrator of the business. Throws an exception if they aren't
-     * @param user The user to check.
-     * @param business The business to check.
-     * @throws ForbiddenAdministratorActionException Thrown if the user isn't and owner or admin of the business.
-     */
-    private void checkUserIsAdminOfBusiness(User user, Business business) throws ForbiddenAdministratorActionException {
-        // Check if the logged in user is the business owner / administrator or a GAA
-        if (!(business.userIsAdmin(user.getId()) ||
-                business.getPrimaryAdministratorId().equals(user.getId())) && !user.isGAA()) {
-            ForbiddenAdministratorActionException exception = new ForbiddenAdministratorActionException(business.getId());
-            logger.warn(exception.getMessage());
-            throw exception;
-        }
     }
 
     /**
      * Searches all sale listings by supplied parameters
      *
-     * @param searchQuery               query to search by
-     * @param matchingProductName       whether you want to search by product name
-     * @param matchingBusinessName      whether you want to search by business name
-     * @param matchingBusinessLocation  whether you want to search by business location
-     * @param priceRangeLower           the lower price range (can be null)
-     * @param priceRangeUpper           the upper price range (can be null)
-     * @param closingDateLower          the lower closing date range (can be null)
-     * @param closingDateUpper          the upper closing date range (can be null)
-     * @param pageNumber                the page number to get
-     * @param sortBy                    the sorting parameter
+     * @param searchQuery              query to search by
+     * @param matchingProductName      whether you want to search by product name
+     * @param matchingBusinessName     whether you want to search by business name
+     * @param matchingBusinessLocation whether you want to search by business location
+     * @param priceRangeLower          the lower price range (can be null)
+     * @param priceRangeUpper          the upper price range (can be null)
+     * @param closingDateLower         the lower closing date range (can be null)
+     * @param closingDateUpper         the upper closing date range (can be null)
+     * @param pageNumber               the page number to get
+     * @param sortBy                   the sorting parameter
      * @return A list of sale listings, with the specified sorting and page applied
      */
     @GetMapping("/listings")
@@ -133,9 +63,7 @@ public class SaleListingController {
             @RequestParam(name = "closingDateLower", required = false) String closingDateLower,
             @RequestParam(name = "closingDateUpper", required = false) String closingDateUpper,
             @RequestParam("pageNumber") Integer pageNumber,
-            @RequestParam("sortBy") String sortBy)
-
-    {
+            @RequestParam("sortBy") String sortBy) {
         try {
             SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
                     searchQuery,
@@ -159,184 +87,107 @@ public class SaleListingController {
     }
 
     /**
-     * Gets a list of sale listings for a business.
-     * @param businessId Business to get the sale listings from.
-     * @param appUser The user that made the request.
-     * @return List of sale listings.
+     * Buys a sale listing acting as the logged in user.
+     *
+     * @param listingId Sales Listing to purchase
+     * @param appUser   Logged in user to purchase the Sale Listing
      */
-    @GetMapping("/businesses/{businessId}/listings")
-    public List<GetSaleListingDTO> getBusinessesListings(
-            @PathVariable int businessId,
-            @AuthenticationPrincipal AppUserDetails appUser) {
+    @PostMapping("/listings/{listingId}/buy")
+    public void buySaleListing(@PathVariable int listingId, @AuthenticationPrincipal AppUserDetails appUser) {
         try {
-            // Get the user that made the request
-            User user = getLoggedInUser(appUser);
-
-            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId );
-
-            // To check the business exists
-            getBusiness(businessId);
-
-            // Get the sale listings of the business
-            List<SaleListing> listings = saleListingRepository.findAllByBusinessId(businessId);
-            return listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList());
-
-        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException exception) {
-            throw exception;
+            saleListingService.buySaleListing(listingId, appUser);
+        } catch (NotAcceptableException handledException) {
+            logger.error(handledException.getMessage());
+            throw handledException;
         } catch (Exception unhandledException) {
-            logger.error(String.format("Unexpected error while getting business sale listings: %s",
+            logger.error(String.format("Unexpected error while buying sale listing: %s",
                     unhandledException.getMessage()));
             throw unhandledException;
         }
     }
 
     /**
-     * Adds a new sale listing to a business.
+     * Gets a list of sale listings for a business.
+     *
      * @param businessId Business to get the sale listings from.
-     * @param appUser The user that made the request.
+     * @param appUser    The user that made the request.
+     * @return List of sale listings.
+     */
+    @GetMapping("/businesses/{businessId}/listings")
+    public List<GetSaleListingDTO> getBusinessListings(
+            @PathVariable int businessId,
+            @AuthenticationPrincipal AppUserDetails appUser) {
+        return saleListingService.getBusinessListings(businessId, appUser);
+    }
+
+    /**
+     * Adds a new sale listing to a business.
+     *
+     * @param businessId Business to get the sale listings from.
+     * @param appUser    The user that made the request.
      */
     @PostMapping("/businesses/{businessId}/listings")
     @ResponseStatus(HttpStatus.CREATED)
-    public void newBusinessesListing(
-            @PathVariable int businessId, @RequestBody JSONObject json,
+    public void newBusinessListing(
+            @PathVariable int businessId, @Valid @RequestBody PostSaleListingDTO requestDTO,
             @AuthenticationPrincipal AppUserDetails appUser) {
+        saleListingService.newBusinessListing(requestDTO, businessId, appUser);
+    }
+
+    /**
+     * Likes a sale listing,
+     * @param listingId The sale listing ID the user is trying to like
+     * @param appUser The user that is trying to like a sale listing
+     */
+    @PutMapping("/listings/{listingId}/like")
+    @ResponseStatus(HttpStatus.OK)
+    public void likeSaleListing(@PathVariable Integer listingId,
+                                @AuthenticationPrincipal AppUserDetails appUser) {
         try {
-
-            // Get the user that made the request
-            User user = getLoggedInUser(appUser);
-
-            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
-
-            // Get the business of the request
-            Business business = getBusiness(businessId);
-
-            // Check the user is an admin of the business
-            checkUserIsAdminOfBusiness(user, business);
-
-            //Inventory item
-            if (json.getAsNumber("inventoryItemId") == null) { //Not supplied
-                MissingInventoryItemIdException exception = new MissingInventoryItemIdException();
-                logger.warn(exception.getMessage());
-                throw exception;
-            }
-            Integer inventoryItemId = json.getAsNumber("inventoryItemId").intValue();
-            //Check if inventory item exists in businesses inventory items
-            Optional<InventoryItem> retrievedItemOptions = inventoryItemRepository.findById(inventoryItemId);
-            if (retrievedItemOptions.isEmpty()) {
-                NoInventoryItemExistsException exception = new NoInventoryItemExistsException(inventoryItemId, businessId);
-                logger.warn(exception.getMessage());
-                throw exception;
-            }
-            InventoryItem item = retrievedItemOptions.get();
-
-            //Quantity
-            int quantity;
-            try {
-                if (json.getAsNumber("quantity") != null) {
-                    quantity = json.getAsNumber("quantity").intValue();
-                    //If quantity is at or below 0
-                    if (quantity <= 0) {
-                        InvalidQuantityException exception = new InvalidQuantityException();
-                        logger.warn(exception.getMessage());
-                        throw exception;
-                    }
-                } else {
-                    InvalidQuantityException exception = new InvalidQuantityException();
-                    logger.warn(exception.getMessage());
-                    throw exception;
-                }
-                List<SaleListing> listings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(businessId, inventoryItemId);
-
-                //Calculates the quantity used of this Inventory item in other sales listings, if any
-                Integer quantityUsed = 0;
-                for(SaleListing listing: listings) {
-                    quantityUsed += listing.getQuantity();
-                }
-                //Check if there is enough of the inventory item
-                if (quantity > (item.getQuantity() - quantityUsed)) {
-                    NotEnoughOfInventoryItemException exception = new NotEnoughOfInventoryItemException(inventoryItemId, item.getQuantity() - quantityUsed, quantityUsed);
-                    logger.warn(exception.getMessage());
-                    throw exception;
-                }
-
-            } catch (NullPointerException nullPointerException) { //Field not in json
-                InvalidQuantityException exception = new InvalidQuantityException();
-                logger.warn(exception.getMessage());
-                throw exception;
-            } catch (NumberFormatException numberFormatException) { //Field is not a number
-                InvalidNumberFormatException exception = new InvalidNumberFormatException("quantity");
-                logger.warn(exception.getMessage());
-                throw exception;
-            }
-
-            //Price
-            double price;
-            try {
-                if (json.getAsNumber("price") != null) {
-                    price = json.getAsNumber("price").doubleValue();
-                    //If price per item is below 0
-                    if (price < 0) {
-                        InvalidPriceException exception = new InvalidPriceException("price");
-                        logger.warn(exception.getMessage());
-                        throw exception;
-                    }
-                } else {
-                    MissingPriceException exception = new MissingPriceException();
-                    logger.warn(exception.getMessage());
-                    throw exception;
-                }
-            } catch (NumberFormatException numberFormatException) { //Field is not a number
-                InvalidNumberFormatException exception = new InvalidNumberFormatException("price");
-                logger.warn(exception.getMessage());
-                throw exception;
-            }
-
-            //More Info
-            String moreInfo = json.getAsString("moreInfo");
-
-            //Closes
-            //Closes string should be in the format: "yyyy-mm-ddThh:mm:ss.sssZ", e.g: "2021-05-29T04:34:55.931Z"
-            String closesDateString = json.getAsString("closes");
-            LocalDateTime closesDateTime;
-            try {
-                if (closesDateString != null && !closesDateString.equals("")) {
-                    closesDateTime = LocalDateTime.parse(closesDateString, DateTimeFormatter.ISO_DATE_TIME);
-
-                    //Check if closes date is in the past
-                    if ((LocalDateTime.now()).isAfter(closesDateTime)) {
-                        InvalidClosesDateException exception = new InvalidClosesDateException();
-                        logger.warn(exception.getMessage());
-                        throw exception;
-                    }
-                } else {
-                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                    Date expiryDate = formatter.parse(item.getExpires());
-                    closesDateTime = expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                }
-            } catch (DateTimeParseException | ParseException parseException) {
-                InvalidDateException invalidDateException = new InvalidDateException();
-                logger.warn(invalidDateException.getMessage());
-                throw invalidDateException;
-            } catch (InvalidClosesDateException handledException) {
-                throw handledException;
-            } catch (Exception exception) {
-                logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
-                throw exception;
-            }
-
-            SaleListing saleListing = new SaleListing(business, item, price, moreInfo, closesDateTime, quantity);
-            saleListingRepository.save(saleListing);
-
-        } catch (BusinessNotFoundException | ForbiddenAdministratorActionException | NotEnoughOfInventoryItemException |
-                MissingInventoryItemIdException | NoInventoryItemExistsException |
-                InvalidQuantityException | InvalidNumberFormatException | InvalidPriceException |
-                MissingPriceException | InvalidClosesDateException | InvalidDateException exception) {
+            logger.info("Request to like a sale listing with ID: {}", listingId);
+            saleListingService.likeSaleListing(listingId, appUser);
+        } catch (NotAcceptableException | BadRequestException expectedException) {
+            logger.info(expectedException.getMessage());
+            throw expectedException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while liking sale listing : %s", exception.getMessage()));
             throw exception;
-        } catch (Exception unhandledException) {
-            logger.error(String.format("Unexpected error while adding sales listing: %s",
-                    unhandledException.getMessage()));
-            throw unhandledException;
         }
     }
 
+    /**
+     * Unlikes a sale listing,
+     * @param listingId The sale listing ID the user is trying to unlike
+     * @param user The user that is trying to like a sale listing
+     */
+    @PatchMapping("/listings/{listingId}/unlike")
+    @ResponseStatus(HttpStatus.OK)
+    public void unlikeSaleListing(@PathVariable Integer listingId,
+                                  @AuthenticationPrincipal AppUserDetails user) {
+        try{
+            logger.info("Request to unlike a sale listing with ID: {}", listingId);
+            saleListingService.unlikeSaleListing(listingId, user);
+        } catch (NotAcceptableException | BadRequestException expectedException) {
+            logger.info(expectedException.getMessage());
+            throw expectedException;
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while unliking sale listing : %s", exception.getMessage()));
+            throw exception;
+        }
+    }
+
+    /**
+     * Handles request for a user to tag a sale listing
+     * @param listingId the id of the listing to tag
+     * @param requestBody request body containing the tag for the listing
+     * @param user the AppUserDetails of the user tagging the listing
+     */
+    @PatchMapping("/listings/{listingId}/tag")
+    @ResponseStatus(HttpStatus.OK)
+    public void tagSaleListing(@PathVariable Integer listingId,
+                               @RequestBody JSONObject requestBody,
+                               @AuthenticationPrincipal AppUserDetails user) {
+        String tag = requestBody.getAsString("tag");
+        saleListingService.tagSaleListing(listingId, tag, user);
+    }
 }

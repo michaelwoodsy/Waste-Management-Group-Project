@@ -2,9 +2,10 @@ import '@jest/globals'
 import {shallowMount} from "@vue/test-utils";
 import {User} from "@/Api";
 import Message from "@/components/marketplace/Message";
+import user from "@/store/modules/user"
 
 jest.mock('@/Api')
-User.sendCardMessage.mockImplementation(jest.fn(() => {}))
+jest.mock('@/store/modules/user')
 
 let wrapper
 
@@ -28,11 +29,22 @@ const message = {
 describe('Tests for the Message component', () => {
 
     beforeEach(() => {
+        User.sendCardMessage.mockImplementation(jest.fn())
+        User.readMessage.mockImplementation(jest.fn())
+        user.actingUserId.mockImplementation(jest.fn(() => {
+            return 1
+        }))
         wrapper = shallowMount(Message, {
             propsData: {
-                message: message
+                message: message,
+                unread: true
             }
         })
+    })
+
+    afterEach(() => {
+        jest.resetAllMocks()
+        wrapper.destroy()
     })
 
     test('Trying to reply to a message with no text result in error', async () => {
@@ -57,6 +69,18 @@ describe('Tests for the Message component', () => {
         expect(wrapper.vm.$data.reply).toBeNull()
         expect(wrapper.vm.$data.replyError).toStrictEqual(false)
         expect(wrapper.vm.$data.replySent).toStrictEqual(false)
+    })
+
+    test('Read message emits correct event', async () => {
+        const id = wrapper.vm.message.id
+        await wrapper.vm.readMessage(id)
+        expect(wrapper.emitted('read-message')).toBeTruthy()
+    })
+
+    test('Remove message emits correct event', async () => {
+        const id = wrapper.vm.message.id
+        await wrapper.vm.removeMessage(id)
+        expect(wrapper.emitted('remove-message')).toBeTruthy()
     })
 
 })

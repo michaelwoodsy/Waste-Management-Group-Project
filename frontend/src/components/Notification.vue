@@ -1,9 +1,13 @@
 <template>
-  <div>
+  <div :class="{'pointer': unread}">
 
     <!-- Notification Toast -->
-    <div aria-atomic="true" aria-live="assertive" class="toast hide mb-2" data-autohide="false" role="alert">
+    <div aria-atomic="true"
+         aria-live="assertive" class="toast hide mb-2" data-autohide="false"
+         role="alert" @click="readNotification"
+    >
       <div :class="{'bg-danger text-light': isAdminNotification}" class="toast-header">
+        <span v-if="unread" class="badge badge-pill badge-dark">NEW</span>
         <small class="ml-auto">{{ formattedDateTime }}</small>
         <button id="closeNotification"
                 aria-label="Close"
@@ -30,6 +34,13 @@
           >
             Delete Keyword
           </button>
+        </div>
+
+        <div v-if="data.type === 'purchase'">
+          <p><strong>Pickup from:</strong>
+            <br>
+            {{formattedAddress}}</p>
+
         </div>
 
       </div>
@@ -65,6 +76,10 @@ export default {
     data: {
       type: Object,
       required: true
+    },
+    unread: {
+      type: Boolean,
+      required: true
     }
   },
   computed: {
@@ -73,6 +88,9 @@ export default {
      */
     formattedDateTime() {
       return formatDateTime(this.data.created)
+    },
+    formattedAddress() {
+      return this.$root.$data.address.formatAddressWithStreet(this.data.address)
     },
     /**
      * Returns true if the notification is an admin notification, false otherwise
@@ -83,7 +101,26 @@ export default {
   },
   methods: {
     /**
-     * Emits an event to delete the notification
+     * Sends request to read notification and emits event to parent component to update notification
+     */
+    async readNotification() {
+      if (this.unread) {
+        try {
+          if (this.isAdminNotification) {
+            await User.readAdminNotification(this.data.id, true)
+          } else {
+            await User.readNotification(user.actingUserId(), this.data.id, true)
+          }
+          this.$emit('read-notification')
+        } catch (error) {
+          console.log(error)
+          // TODO: delete this line once backend is done
+          this.$emit('read-notification')
+        }
+      }
+    },
+    /**
+     * Sends request to delete a notification and emits an event to delete the notification
      */
     async removeNotification() {
       try {

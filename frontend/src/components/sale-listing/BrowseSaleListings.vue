@@ -224,7 +224,7 @@
             <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewListingModal=false">
               <span aria-hidden="true">&times;</span>
             </button>
-            <individual-sale-listing-modal :listing="listingToView" @viewBusiness="viewBusiness"></individual-sale-listing-modal>
+            <individual-sale-listing-modal :listing="listingToView" @viewBusiness="viewBusiness" @updateListings="checkInputs"></individual-sale-listing-modal>
           </div>
         </div>
       </div>

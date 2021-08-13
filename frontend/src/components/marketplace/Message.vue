@@ -4,13 +4,16 @@
     <!-- Message Card -->
     <div class="card mb-2">
       <div class="card-body px-3 py-2">
+        <span v-if="unread" class="badge badge-pill badge-dark">NEW</span><br v-if="unread">
         <strong>{{ message.sender.firstName }} {{ message.sender.lastName }}</strong><br/>
         <span class="small">Re: {{ message.card.title }}</span><br/>
         <span class="small">Sent: {{ formattedDateTime }}</span>
       </div>
       <div class="card-footer p-2 text-right">
         <button id="openMessage" :data-target="`#fullMessage${message.id}`"
-                class="btn btn-sm btn-primary" data-toggle="modal">
+                class="btn btn-sm btn-primary" data-toggle="modal"
+                @click="readMessage(message.id)"
+        >
           View
         </button>
         <button id="deleteMessageButton" class="btn btn-sm btn-danger ml-2" data-toggle="modal" :data-target="'#deleteMessage' + message.id">
@@ -83,7 +86,8 @@ export default {
   name: "Message",
   components: {ConfirmationModal},
   props: {
-    message: Object
+    message: Object,
+    unread: Boolean
   },
   computed: {
     /**
@@ -134,13 +138,28 @@ export default {
     },
 
     /**
-     * Emits an event to delete the message
+     * Sends request to mark message as read and emits event
+     */
+    async readMessage(messageId) {
+      if (this.unread) {
+        try {
+          await User.readMessage(user.actingUserId(), messageId)
+          this.$emit('read-message')
+        } catch (error) {
+          console.log(error)
+          // TODO: delete this line once backend is implemented
+          this.$emit('read-message')
+        }
+      }
+    },
+
+    /**
+     * Sends request to delete message and emits event
      */
     async removeMessage(messageId) {
       try {
         await User.deleteMessage(user.actingUserId(), messageId)
         this.$emit('remove-message');
-
       } catch (error) {
         console.log(error)
       }

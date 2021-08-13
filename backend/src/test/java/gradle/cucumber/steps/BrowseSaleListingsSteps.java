@@ -5,6 +5,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
@@ -73,6 +74,17 @@ public class BrowseSaleListingsSteps extends AbstractInitializer {
         this.cardRepository = cardRepository;
     }
 
+    @AfterEach
+    void teardown() {
+        saleListingRepository.deleteAll();
+        inventoryItemRepository.deleteAll();
+        productRepository.deleteAll();
+        businessRepository.deleteAll();
+        addressRepository.deleteAll();
+        cardRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
     /**
      * Before each test, setup four sale listings with different parameters
      */
@@ -107,6 +119,7 @@ public class BrowseSaleListingsSteps extends AbstractInitializer {
             Product product = listing.getInventoryItem().getProduct();
             product.setBusinessId(business.getId());
             productRepository.save(product);
+            inventoryItemRepository.save(listing.getInventoryItem());
             saleListingRepository.save(listing);
         }
     }
