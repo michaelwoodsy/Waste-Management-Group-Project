@@ -3,8 +3,11 @@ package org.seng302.project.web_layer.controller;
 import net.minidev.json.JSONObject;
 import org.seng302.project.service_layer.dto.message.GetMessageDTO;
 import org.seng302.project.service_layer.dto.message.PostMessageDTO;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.service.MessageService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +21,7 @@ import java.util.List;
 @RestController
 public class MessageController {
 
+    private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
     public final MessageService messageService;
 
     @Autowired
@@ -86,7 +90,14 @@ public class MessageController {
                             @PathVariable Integer messageId,
                             @RequestBody JSONObject request,
                             @AuthenticationPrincipal AppUserDetails appUser) {
-        boolean read = (boolean) request.get("read");
+        boolean read;
+        try {
+            read = (boolean) request.get("read");
+        } catch (ClassCastException | NullPointerException exception) {
+            String message = "Value of \"read\" must be a boolean";
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
         messageService.readMessage(userId, messageId, read, appUser);
     }
 

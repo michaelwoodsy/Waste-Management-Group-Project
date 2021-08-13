@@ -413,4 +413,42 @@ class MessageControllerTest extends AbstractInitializer {
 
         mockMvc.perform(request).andExpect(status().isForbidden());
     }
+
+    @Test
+    void readMessage_bodyNull_status400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", null);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch(
+                        "/users/{userId}/messages/{messageId}/read",
+                        testUser.getId(),
+                        testMessages.get(0).getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(otherTestUser)));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void readMessage_bodyNotBoolean_status400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", "not a boolean");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch(
+                        "/users/{userId}/messages/{messageId}/read",
+                        testUser.getId(),
+                        testMessages.get(0).getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(otherTestUser)));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
 }
