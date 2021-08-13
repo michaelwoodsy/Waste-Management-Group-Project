@@ -337,4 +337,124 @@ class MessageControllerTest extends AbstractInitializer {
 
         mockMvc.perform(deleteMessageRequest).andExpect(status().isNotAcceptable());
     }
+
+    /**
+     * Test that a valid request to read a message results in status code 200
+     */
+    @Test
+    void readMessage_validRequest_status200() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/users/{userId}/messages/{messageId}/read", testUser.getId(), testMessages.get(0).getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Test that a request with non-existent user or message results in status 406
+     */
+    @Test
+    void readMessage_nonExistentUserOrMessage_status406() throws Exception {
+        Mockito.doThrow(NotAcceptableException.class)
+                .when(messageService)
+                .readMessage(
+                        any(Integer.class),
+                        any(Integer.class),
+                        any(boolean.class),
+                        any(AppUserDetails.class)
+                );
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/users/{userId}/messages/{messageId}/read", 1000, 1000)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Test that a request from user who is not the receiver results in status 403
+     */
+    @Test
+    void readMessage_userNotReceiver_status403() throws Exception {
+        Mockito.doThrow(ForbiddenUserException.class)
+                .when(messageService)
+                .readMessage(
+                        any(Integer.class),
+                        any(Integer.class),
+                        any(boolean.class),
+                        any(AppUserDetails.class)
+                );
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch(
+                        "/users/{userId}/messages/{messageId}/read",
+                        testUser.getId(),
+                        testMessages.get(0).getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(otherTestUser)));
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    /**
+     * Test that a request with an empty body results in a 400 status
+     */
+    @Test
+    void readMessage_bodyNull_status400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", null);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch(
+                        "/users/{userId}/messages/{messageId}/read",
+                        testUser.getId(),
+                        testMessages.get(0).getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(otherTestUser)));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Test that a request body with a "read" field that is not a boolean results in a 400 status
+     */
+    @Test
+    void readMessage_bodyNotBoolean_status400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", "not a boolean");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch(
+                        "/users/{userId}/messages/{messageId}/read",
+                        testUser.getId(),
+                        testMessages.get(0).getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(otherTestUser)));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
 }
