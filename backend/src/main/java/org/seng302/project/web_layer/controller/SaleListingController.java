@@ -192,9 +192,9 @@ public class SaleListingController {
     }
 
     /**
-     * Handles request for a user to star a sale listing
+     * Handles request for a user to star or unstar a sale listing
      * @param listingId the id of the listing to star
-     * @param requestBody request body containing the star for the listing
+     * @param requestBody containing a boolean of whether to star or unstar the listing
      * @param user the AppUserDetails of the user starring the listing
      */
     @PatchMapping("/listings/{listingId}/star")
