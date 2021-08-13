@@ -212,6 +212,7 @@ describe('Jest tests for the home component', () => {
     })
 
     test('Can remove notifications from the notifications list',  async () => {
+        wrapper.vm.$data.notifications = notifications
         expect(wrapper.vm.$data.notifications.length).toStrictEqual(2)
         wrapper.vm.removeNotification(1)
         expect(wrapper.vm.$data.notifications.length).toStrictEqual(1)

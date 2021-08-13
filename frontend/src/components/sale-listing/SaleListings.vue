@@ -83,28 +83,28 @@
                     <p class="d-inline">Closes</p>
                     <p v-if="orderCol === 'closes'" class="d-inline">{{ orderDirArrow }}</p>
                   </th>
-                  <!--    view images button column    -->
-                  <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody v-if="!loading">
-                <tr v-for="item in paginatedListings" v-bind:key="item.id">
+                <tr v-for="listing in paginatedListings"
+                    v-bind:key="listing.id"
+                    class="pointer"
+                    data-target="#viewListingModal"
+                    data-toggle="modal"
+                    @click="viewListing(listing)"
+                >
                   <td>
                     <img alt="productImage" class="ui-icon-image"
-                         :src="getPrimaryImageThumbnail(item.inventoryItem.product)">
+                         :src="getPrimaryImageThumbnail(listing.inventoryItem.product)">
                   </td>
                   <td style="word-break: break-word; width: 50%">
-                    {{ item.inventoryItem.product.name }}
-                    <span v-if="item.moreInfo" style="font-size: small"><br/>{{ item.moreInfo }}</span>
+                    {{ listing.inventoryItem.product.name }}
+                    <span v-if="listing.moreInfo" style="font-size: small"><br/>{{ listing.moreInfo }}</span>
                   </td>
-                  <td>{{ item.quantity }}</td>
-                  <td>{{ formatPrice(item) }}</td>
-                  <td>{{ formatDate(item.created) }}</td>
-                  <td>{{ formatDate(item.closes) }}</td>
-                  <td>
-                    <button class="btn btn-primary" data-target="#viewImages" data-toggle="modal"
-                            @click="changeViewedProduct(item.inventoryItem.product)">View Images</button>
-                  </td>
+                  <td>{{ listing.quantity }}</td>
+                  <td>{{ formatPrice(listing) }}</td>
+                  <td>{{ formatDate(listing.created) }}</td>
+                  <td>{{ formatDate(listing.closes) }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -144,41 +144,27 @@
       </div>
     </div>
 
-
-    <!--   Product images modal   -->
-    <div v-if="isViewingImages" id="viewImages" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-lg">
+    <div v-if="viewListingModal" id="viewListingModal" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog modal-xl">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">{{productViewing.name}}'s Images</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="isViewingImages=false">
+          <div class="modal-body">
+            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewListingModal=false">
               <span aria-hidden="true">&times;</span>
             </button>
+            <individual-sale-listing-modal :listing="listingToView" @viewBusiness="viewBusiness" @updateListings="fillTable()"></individual-sale-listing-modal>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="viewBusinessModal" id="viewBusinessModal" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
           <div class="modal-body">
-            <div v-if="productViewing.images.length === 0">
-              <p class="text-center"><strong>This Product has no Images</strong></p>
-            </div>
-            <div v-else class="row" style="height: 500px">
-              <div class="col col-12 justify-content-center">
-                <div id="imageCarousel" class="carousel slide" data-ride="carousel">
-                  <div class="carousel-inner">
-                    <div v-for="(image, index) in productViewing.images" v-bind:key="image.id"
-                         :class="{'carousel-item': true, 'active': index === 0}">
-                      <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL(image.filename)" alt="ProductImage">
-                    </div>
-                  </div>
-                  <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Previous</span>
-                  </a>
-                  <a class="carousel-control-next" href="#imageCarousel" role="button" data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Next</span>
-                  </a>
-                </div>
-              </div>
-            </div>
+            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewBusinessModal=false">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <business-profile-page-modal :id="businessToViewId"></business-profile-page-modal>
           </div>
         </div>
       </div>
@@ -193,6 +179,8 @@ import Alert from "@/components/Alert";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import Pagination from "@/components/Pagination";
 import {Business, Images} from "@/Api";
+import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
+import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 import CreateListing from "@/components/sale-listing/CreateListing";
 import PageWrapper from "@/components/PageWrapper";
 
@@ -200,6 +188,8 @@ export default {
   name: "SaleListings",
   components: {
     PageWrapper,
+    IndividualSaleListingModal,
+    BusinessProfilePageModal,
     CreateListing,
     ShowingResultsText,
     LoginRequired,
@@ -222,8 +212,11 @@ export default {
       loading: false,
       createNewListing: false,
       selectingInventoryItem: false,
-      isViewingImages: false,
-      productViewing: null
+
+      listingToView: null,
+      viewListingModal: false,
+      viewBusinessModal: false,
+      businessToViewId: null,
     }
   },
 
@@ -322,6 +315,27 @@ export default {
     changePage(page) {
       this.page = page
     },
+
+    /**
+     * Turns popup modal to view  listing on
+     * @param listing the listing object for the modal to show
+     */
+    viewListing(listing) {
+      this.viewBusinessModal = false
+      this.listingToView = listing
+      this.viewListingModal = true
+    },
+
+    /**
+     * Turns popup modal to view  business on
+     * @param listing the listing object with the business information to show
+     */
+    viewBusiness(listing) {
+      this.viewListingModal = false
+      this.businessToViewId = listing.business.id
+      this.viewBusinessModal = true
+    },
+
     /**
      * Uses the primaryImageId of the product to find the primary image and return its imageURL,
      * else it returns the default product image url
@@ -398,14 +412,6 @@ export default {
         return -1;
       }
       return 0;
-    },
-
-    /**
-     * Sets the viewing product in order to view the products images
-     */
-    changeViewedProduct(product) {
-      this.productViewing = product
-      this.isViewingImages = true
     },
 
     /**

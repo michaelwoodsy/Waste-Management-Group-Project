@@ -4,6 +4,7 @@ import net.minidev.json.JSONObject;
 import org.seng302.project.repository_layer.model.Address;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.AddressRepository;
+import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.repository_layer.specification.UserSpecifications;
 import org.seng302.project.service_layer.dto.user.*;
@@ -33,7 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Provides logic for User objects
@@ -44,14 +44,17 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class.getName());
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+    private final LikedSaleListingRepository likedSaleListingRepository;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(UserRepository userRepository, AddressRepository addressRepository,
+                       LikedSaleListingRepository likedSaleListingRepository,
                        AuthenticationManager authenticationManager, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
+        this.likedSaleListingRepository = likedSaleListingRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
     }
@@ -234,6 +237,10 @@ public class UserService {
             GetUserDTO getUserDTO = new GetUserDTO(retrievedUser);
             getUserDTO.attachBusinessesAdministered(retrievedUser);
             getUserDTO.attachLikedSaleListings(retrievedUser);
+            for (var like: getUserDTO.getLikedSaleListings()) {
+                Integer likes = likedSaleListingRepository.findAllByListingId(like.getListing().getId()).size();
+                like.getListing().attachLikeData(likes, true);
+            }
             return getUserDTO;
         } else {
             throw new NoUserExistsException(id);

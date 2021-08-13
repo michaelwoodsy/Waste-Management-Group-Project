@@ -92,7 +92,7 @@
             <h2>My Liked Listings</h2>
             <div class="row row-cols-1">
               <div v-for="listing in likedListings" v-bind:key="listing.id" class="col">
-                <liked-listing :listing-data="listing"></liked-listing>
+                <liked-listing :listing-data="listing" @updateData="updateData"></liked-listing>
               </div>
             </div>
           </div>
@@ -320,10 +320,18 @@ export default {
   },
   methods: {
     /**
+     * Updates the users data in the store
+     */
+    async updateData() {
+      await this.user.updateData()
+      await this.getData()
+    },
+    /**
      * Gets the user or businesses notifications, cards and messages
      */
     async getData() {
       if (this.user.actor().type === "user") {
+        await this.user.updateData()
         await this.getCardData()
         await this.getNotificationData()
         if (this.user.canDoAdminAction()) {
@@ -385,6 +393,7 @@ export default {
      * Gets the user's liked listings
      */
     async getLikedListings() {
+      this.likedListings = []
       for (let likedListing of this.user.state.userData.likedSaleListings){
         const currency = await this.$root.$data.product.getCurrency(likedListing.listing.business.address.country)
         let listing = likedListing.listing

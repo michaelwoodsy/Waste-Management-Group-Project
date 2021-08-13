@@ -49,6 +49,7 @@ public class SaleListingController {
      * @param closingDateUpper         the upper closing date range (can be null)
      * @param pageNumber               the page number to get
      * @param sortBy                   the sorting parameter
+     * @param appUser                  the currently lodged in user (used to check if the logged in user likes a listing)
      * @return A list of sale listings, with the specified sorting and page applied
      */
     @GetMapping("/listings")
@@ -63,7 +64,8 @@ public class SaleListingController {
             @RequestParam(name = "closingDateLower", required = false) String closingDateLower,
             @RequestParam(name = "closingDateUpper", required = false) String closingDateUpper,
             @RequestParam("pageNumber") Integer pageNumber,
-            @RequestParam("sortBy") String sortBy) {
+            @RequestParam("sortBy") String sortBy,
+            @AuthenticationPrincipal AppUserDetails appUser) {
         try {
             SearchSaleListingsDTO dto = new SearchSaleListingsDTO(
                     searchQuery,
@@ -78,7 +80,7 @@ public class SaleListingController {
                     sortBy,
                     pageNumber);
 
-            return saleListingService.searchSaleListings(dto);
+            return saleListingService.searchSaleListings(dto, appUser);
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while searching sales listings: %s",
                     unhandledException.getMessage()));
@@ -139,7 +141,7 @@ public class SaleListingController {
      * @param listingId The sale listing ID the user is trying to like
      * @param appUser The user that is trying to like a sale listing
      */
-    @PutMapping("/listings/{listingId}/like")
+    @PatchMapping("/listings/{listingId}/like")
     @ResponseStatus(HttpStatus.OK)
     public void likeSaleListing(@PathVariable Integer listingId,
                                 @AuthenticationPrincipal AppUserDetails appUser) {

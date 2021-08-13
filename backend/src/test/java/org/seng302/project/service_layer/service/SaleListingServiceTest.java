@@ -430,7 +430,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -456,7 +456,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -486,7 +486,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -516,7 +516,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -546,7 +546,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -572,7 +572,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -601,7 +601,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -630,7 +630,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -659,7 +659,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -694,7 +694,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -729,7 +729,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -758,7 +758,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -789,7 +789,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -820,7 +820,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -851,7 +851,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -882,7 +882,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -913,7 +913,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -944,7 +944,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -975,7 +975,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
