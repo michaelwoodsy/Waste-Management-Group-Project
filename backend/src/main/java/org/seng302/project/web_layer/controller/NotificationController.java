@@ -11,6 +11,7 @@ import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -82,6 +83,7 @@ public class NotificationController {
      * @param appUser The user trying to read the user notification
      */
     @PatchMapping("/users/{userId}/notifications/{notificationId}/read")
+    @ResponseStatus(HttpStatus.OK)
     public void readUserNotification(@RequestBody JSONObject request, @PathVariable int userId,
                                  @PathVariable int notificationId, @AuthenticationPrincipal AppUserDetails appUser) {
         boolean read;
@@ -102,6 +104,7 @@ public class NotificationController {
      * @param appUser The user trying to read the admin notification
      */
     @PatchMapping("/notifications/{notificationId}/read")
+    @ResponseStatus(HttpStatus.OK)
     public void readAdminNotification(@RequestBody JSONObject request, @PathVariable int notificationId,
                                       @AuthenticationPrincipal AppUserDetails appUser) {
         boolean read;

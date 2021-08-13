@@ -370,7 +370,7 @@ class CardServiceTest extends AbstractInitializer {
     @Test
     void testCardExpirySendsNotification() {
         //Mocking that the card is returned from the delete function, making it look like it was deleted
-        Mockito.when(cardRepository.deleteByDisplayPeriodEndBefore(any(LocalDateTime.class))).thenReturn(List.of(testUsersCard1));
+        Mockito.when(cardRepository.findAllByDisplayPeriodEndBefore(any(LocalDateTime.class))).thenReturn(List.of(testUsersCard1));
 
         //Simulating an automatic call for removal of expired cards
         cardService.removeCardsAfter24Hrs();
