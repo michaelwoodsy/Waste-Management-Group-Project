@@ -722,7 +722,7 @@ public class SaleListingService {
     public void tagSaleListing(Integer listingId,
                                String tagName,
                                AppUserDetails user) {
-
+        logger.info("Request to tag a sale listing with ID: {}", listingId);
         if (!Tag.checkTag(tagName)) {
             BadRequestException badRequestException = new BadRequestException(String.format("%s is not a valid tag.", tagName));
             logger.warn(badRequestException.getMessage());
@@ -743,27 +743,18 @@ public class SaleListingService {
      * @param user the AppUserDetails of the user starring the listing
      */
     public void starSaleListing(Integer listingId,
-                                String starString,
+                                boolean star,
                                 AppUserDetails user){
-        Boolean star;
-        if(starString.equals("true")){
-            star = true;
-        } else if(starString.equals("false")){
-            star = false;
-        } else {
-            star = null;
+        logger.info("Request to star a sale listing with ID: {}", listingId);
+        try{
+            User loggedInUser = userService.getUserByEmail(user.getUsername());
+            SaleListing listing = retrieveListing(listingId);
+            LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
+            likedSaleListing.setStarred(star);
+            likedSaleListingRepository.save(likedSaleListing);
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while unliking sale listing : %s", exception.getMessage()));
+            throw exception;
         }
-
-        if (star == null) {
-            BadRequestException badRequestException = new BadRequestException("A valid star value must be given.");
-            logger.warn(badRequestException.getMessage());
-            throw badRequestException;
-        }
-
-        User loggedInUser = userService.getUserByEmail(user.getUsername());
-        SaleListing listing = retrieveListing(listingId);
-        LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
-        likedSaleListing.setStarred(star);
-        likedSaleListingRepository.save(likedSaleListing);
     }
 }

@@ -196,7 +196,14 @@ public class SaleListingController {
     public void starSaleListing(@PathVariable Integer listingId,
                                 @RequestBody JSONObject requestBody,
                                 @AuthenticationPrincipal AppUserDetails user) {
-        String star = requestBody.getAsString("star");
+        boolean star;
+        try{
+            star = (boolean) requestBody.get("star");
+        } catch (ClassCastException | NullPointerException exception) {
+            String message = "Value of \"star\" must be a boolean";
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
         saleListingService.starSaleListing(listingId, star, user);
     }
 }
