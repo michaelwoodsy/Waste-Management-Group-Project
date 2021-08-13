@@ -1,6 +1,5 @@
 package org.seng302.project.service_layer.dto.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.Image;
@@ -31,11 +30,11 @@ public class GetUserDTO {
     private String phoneNumber;
     private AddressDTO homeAddress;
     private String role;
-    private List<GetBusinessDTO> businessesAdministered = new ArrayList<>();
+    private List<GetBusinessDTO> businessesAdministered;
     private LocalDateTime created;
     private Integer primaryImageId;
     private List<Image> images;
-    private List<GetLikedSaleListingDTO> likedSaleListings = new ArrayList<>();
+    private List<GetLikedSaleListingDTO> likedSaleListings;
 
     public GetUserDTO(User user) {
         this.id = user.getId();
@@ -49,20 +48,33 @@ public class GetUserDTO {
         this.phoneNumber = user.getPhoneNumber();
         this.homeAddress = new AddressDTO(user.getHomeAddress());
         this.role = user.getRole();
+        this.businessesAdministered = new ArrayList<>();
         this.created = user.getCreated();
+        this.primaryImageId = user.getPrimaryImageId();
+        this.images = new ArrayList<>(user.getImages());
+        this.likedSaleListings = new ArrayList<>();
+    }
+
+    /**
+     * Method that attaches a User's administered businesses to the DTO
+     *
+     * @param user User to get administered businesses from
+     */
+    public void attachBusinessesAdministered(User user) {
         for (Business business : user.getBusinessesAdministered()) {
             this.businessesAdministered.add(new GetBusinessDTO(business));
         }
-        this.primaryImageId = user.getPrimaryImageId();
-        this.images = new ArrayList<>(user.getImages());
+    }
+
+    /**
+     * Method that attaches a User's liked sale listings to the DTO
+     *
+     * @param user User to get liked sale listings from
+     */
+    public void attachLikedSaleListings(User user) {
         for (LikedSaleListing listing : user.getLikedSaleListings()) {
             this.likedSaleListings.add(new GetLikedSaleListingDTO(listing));
         }
-    }
-
-    @JsonIgnoreProperties("administrators") // Stops infinite nesting when used in BusinessResponseDTO
-    public List<GetBusinessDTO> getBusinessesAdministered() {
-        return this.businessesAdministered;
     }
 
 }

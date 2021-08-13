@@ -12,7 +12,8 @@ import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.CardRepository;
 import org.seng302.project.repository_layer.repository.MessageRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
-import org.seng302.project.service_layer.dto.message.CreateMessageDTO;
+import org.seng302.project.service_layer.dto.message.GetMessageDTO;
+import org.seng302.project.service_layer.dto.message.PostMessageDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
@@ -87,7 +88,7 @@ class MessageServiceTest extends AbstractInitializer {
     void createMessage_success() {
         AppUserDetails appUser = new AppUserDetails(testSender);
 
-        CreateMessageDTO requestDTO = new CreateMessageDTO(
+        PostMessageDTO requestDTO = new PostMessageDTO(
                 testReceiver.getId(), testCard.getId(), testMessage.getText());
 
         Mockito.when(messageRepository.save(Mockito.any(Message.class)))
@@ -116,7 +117,7 @@ class MessageServiceTest extends AbstractInitializer {
     void createMessage_emptyTextField_badRequestException() {
         AppUserDetails appUser = new AppUserDetails(testSender);
 
-        CreateMessageDTO requestDTO = new CreateMessageDTO(
+        PostMessageDTO requestDTO = new PostMessageDTO(
                 testReceiver.getId(), testCard.getId(), "");
 
         Assertions.assertThrows(BadRequestException.class,
@@ -132,7 +133,7 @@ class MessageServiceTest extends AbstractInitializer {
     void createMessage_nullTextField_badRequestException() {
         AppUserDetails appUser = new AppUserDetails(testSender);
 
-        CreateMessageDTO requestDTO = new CreateMessageDTO();
+        PostMessageDTO requestDTO = new PostMessageDTO();
         requestDTO.setUserId(testReceiver.getId());
         requestDTO.setCardId(testCard.getId());
 
@@ -152,7 +153,7 @@ class MessageServiceTest extends AbstractInitializer {
 
         AppUserDetails appUser = new AppUserDetails(testSender);
 
-        CreateMessageDTO requestDTO = new CreateMessageDTO(
+        PostMessageDTO requestDTO = new PostMessageDTO(
                 testReceiver.getId(), testCard.getId(), testMessage.getText());
 
         Assertions.assertThrows(NotAcceptableException.class,
@@ -169,7 +170,7 @@ class MessageServiceTest extends AbstractInitializer {
     void createMessage_nonExistentCard_notAcceptableException() {
         AppUserDetails appUser = new AppUserDetails(testSender);
 
-        CreateMessageDTO requestDTO = new CreateMessageDTO(
+        PostMessageDTO requestDTO = new PostMessageDTO(
                 testReceiver.getId(), testCard.getId(), testMessage.getText());
 
         Mockito.when(cardRepository.findById(requestDTO.getCardId()))
@@ -188,14 +189,14 @@ class MessageServiceTest extends AbstractInitializer {
     void getMessages_success() {
         AppUserDetails appUser = new AppUserDetails(testSender);
 
-        List<Message> receivedMessages = messageService.getMessages(testSender.getId(), appUser);
+        List<GetMessageDTO> receivedMessages = messageService.getMessages(testSender.getId(), appUser);
 
         Assertions.assertEquals(1, receivedMessages.size());
 
         Assertions.assertEquals("Yes it is still available", receivedMessages.get(0).getText());
-        Assertions.assertEquals(testReceiver, receivedMessages.get(0).getSender());
-        Assertions.assertEquals(testCard, receivedMessages.get(0).getCard());
-        Assertions.assertEquals(testSender, receivedMessages.get(0).getReceiver());
+        Assertions.assertEquals(testReceiver.getId(), receivedMessages.get(0).getSender().getId());
+        Assertions.assertEquals(testCard.getId(), receivedMessages.get(0).getCard().getId());
+        Assertions.assertEquals(testSender.getId(), receivedMessages.get(0).getReceiver().getId());
     }
 
     /**

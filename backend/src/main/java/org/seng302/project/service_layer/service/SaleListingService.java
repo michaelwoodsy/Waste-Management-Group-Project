@@ -1,6 +1,7 @@
 package org.seng302.project.service_layer.service;
 
 import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.model.enums.Tag;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -60,14 +62,14 @@ public class SaleListingService {
                               InventoryItemRepository inventoryItemRepository,
                               UserRepository userRepository,
                               UserNotificationRepository userNotificationRepository) {
-        this.userService = userService;
-        this.businessService = businessService;
         this.saleListingRepository = saleListingRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.userRepository = userRepository;
         this.userNotificationRepository = userNotificationRepository;
+        this.userService = userService;
+        this.businessService = businessService;
     }
 
     /**
@@ -533,13 +535,12 @@ public class SaleListingService {
     }
 
     /**
-     * Unlikes a sale listing if it is liked by a user
-     *
-     * @param listingId ID of the sale listing to unlike
-     * @param user      User who is unliking the sale listing
+     * Retrieves the sale listing.
+     * Throws a NotAcceptableException if the listing is not found
+     * @param listingId the id of the listing to retrieve
+     * @return the retrieved SaleListing
      */
-    public void unlikeSaleListing(Integer listingId, AppUserDetails user) {
-        User loggedInUser = userService.getUserByEmail(user.getUsername());
+    private SaleListing retrieveListing(Integer listingId) {
         Optional<SaleListing> listing = saleListingRepository.findById(listingId);
 
         if (listing.isEmpty()) {
@@ -548,17 +549,71 @@ public class SaleListingService {
             throw new NotAcceptableException(message);
         }
 
-        List<LikedSaleListing> result = likedSaleListingRepository.findByListingAndUser(listing.get(), loggedInUser);
+        return listing.get();
+    }
+
+    /**
+     * Retrieves the LikedSaleListing.
+     * Throws a BadRequestException if the user had not liked the listing
+     * @param listing the listing the user has liked
+     * @param loggedInUser the user that has liked the listing
+     * @return the retrieved LikedSaleListing
+     */
+    private LikedSaleListing retrieveLikedSaleListing(SaleListing listing, User loggedInUser) {
+        List<LikedSaleListing> result = likedSaleListingRepository.findByListingAndUser(listing, loggedInUser);
 
         if (result.isEmpty()) {
-            String message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listingId);
+            String message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listing.getId());
             logger.warn(message);
             throw new BadRequestException(message);
         }
 
-        LikedSaleListing likedSaleListing = result.get(0);
+        return result.get(0);
+    }
+
+    /**
+     * Likes a sale listing if it is liked by a user
+     *
+     * @param listingId ID of the sale listing to like
+     * @param user      User who is liking the sale listing
+     */
+    @Transactional
+    public void likeSaleListing(Integer listingId, AppUserDetails user) {
+        // Get the logged in user from the users email
+        var loggedInUser = userService.getUserByEmail(user.getUsername());
+
+        SaleListing listing = retrieveListing(listingId);
+
+        //Check that the user hasn't already liked the sale listing
+        if (likedSaleListingRepository.findByListingAndUser(listing, loggedInUser).isEmpty()) {
+            //Make the new liked sale listing
+            LikedSaleListing likedSaleListing = new LikedSaleListing(loggedInUser, listing);
+            //Save the liked sale listing
+            loggedInUser.addLikedListing(likedSaleListing);
+            //Add liked sale listing to the list of liked sale listings of user
+            userRepository.save(loggedInUser);
+        } else {
+            String message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listingId);
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
+    }
+
+    /**
+     * Unlikes a sale listing if it is liked by a user
+     *
+     * @param listingId ID of the sale listing to unlike
+     * @param user      User who is unliking the sale listing
+     */
+    @Transactional
+    public void unlikeSaleListing(Integer listingId, AppUserDetails user) {
+        User loggedInUser = userService.getUserByEmail(user.getUsername());
+
+        SaleListing listing = retrieveListing(listingId);
+
+        LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
         loggedInUser.removeLikedListing(likedSaleListing);
-        likedSaleListingRepository.delete(likedSaleListing);
+        userRepository.save(loggedInUser);
     }
 
     /**
@@ -567,17 +622,13 @@ public class SaleListingService {
      * removes the sales listing
      * records the sale in sales history
      *
-     * @param listingId     Sales Listing ID to purchase
-     * @param appUser       User purchasing the sales listing
+     * @param listingId Sales Listing ID to purchase
+     * @param appUser   User purchasing the sales listing
      */
     public void buySaleListing(Integer listingId, AppUserDetails appUser) {
         var buyer = userService.getUserByEmail(appUser.getUsername());
 
-        var listingOptional = saleListingRepository.findById(listingId);
-        if (listingOptional.isEmpty()) {
-            throw new NotAcceptableException(String.format("No sale listing with ID %d exists", listingId));
-        }
-        var listing = listingOptional.get();
+        SaleListing listing = retrieveListing(listingId);
 
         logger.info("User with ID: {} Request to buy Sale Listing with ID: {}", buyer.getId(), listing.getId());
 
@@ -617,15 +668,15 @@ public class SaleListingService {
      * Helper method for the updateInventoryItem method, this is sort of a contingency method that removes
      * sale listings for an inventory item that has a quantity of 0, which shouldn't happen.
      *
-     * @param businessId Id of the business with the inventory item
+     * @param businessId    Id of the business with the inventory item
      * @param inventoryItem inventory item being removed
      */
     private void removeSaleListings(Integer businessId, InventoryItem inventoryItem) {
         var saleListings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(
                 businessId, inventoryItem.getId());
-        for (var saleListing: saleListings) {
+        for (var saleListing : saleListings) {
             List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(saleListing);
-            for (var like: likes) {
+            for (var like : likes) {
                 var user = like.getUser();
                 user.removeLikedListing(like);
                 userRepository.save(user);
@@ -640,7 +691,7 @@ public class SaleListingService {
      * and notifications to the users that liked the sale listing
      *
      * @param listing listing purchased
-     * @param buyer user who purchased the listing
+     * @param buyer   user who purchased the listing
      */
     private void sendPurchaseNotifications(SaleListing listing, User buyer) {
         //Send notification to buyer
@@ -649,7 +700,7 @@ public class SaleListingService {
 
         //Send notifications to interested users
         List<LikedSaleListing> likes = likedSaleListingRepository.findAllByListing(listing);
-        for (var like: likes) {
+        for (var like : likes) {
             //Make sure not to send this notification to the buyer
             if (!like.getUser().getId().equals(buyer.getId())) {
                 var interestedUserNotification = new InterestedUserNotification(like.getUser(), like.getListing());
@@ -660,5 +711,29 @@ public class SaleListingService {
             userRepository.save(user);
             likedSaleListingRepository.delete(like);
         }
+    }
+
+    /**
+     * Tags a user's liked sale listing
+     * @param listingId the id of the listing to tag
+     * @param tagName the name of the tag for the listing
+     * @param user the AppUserDetails of the user tagging the listing
+     */
+    public void tagSaleListing(Integer listingId,
+                               String tagName,
+                               AppUserDetails user) {
+
+        if (!Tag.checkTag(tagName)) {
+            BadRequestException badRequestException = new BadRequestException(String.format("%s is not a valid tag.", tagName));
+            logger.warn(badRequestException.getMessage());
+            throw badRequestException;
+        }
+
+        User loggedInUser = userService.getUserByEmail(user.getUsername());
+        SaleListing listing = retrieveListing(listingId);
+        LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
+        Tag tag = Tag.getTag(tagName);
+        likedSaleListing.setTag(tag);
+        likedSaleListingRepository.save(likedSaleListing);
     }
 }
