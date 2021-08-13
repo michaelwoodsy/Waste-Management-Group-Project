@@ -1,5 +1,6 @@
 package org.seng302.project.web_layer.controller;
 
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,12 +13,14 @@ import org.seng302.project.service_layer.exceptions.NoNotificationExistsExceptio
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.service_layer.exceptions.notification.ForbiddenNotificationActionException;
+import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.service_layer.service.NotificationService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -41,6 +44,7 @@ class NotificationControllerTest extends AbstractInitializer {
 
     private User testUser;
     private User testSystemAdmin;
+    private User otherTestUser;
     private UserNotification testUserNotification;
     private AdminNotification testAdminNotification;
 
@@ -62,6 +66,7 @@ class NotificationControllerTest extends AbstractInitializer {
 
         testUser = this.getTestUser();
         testSystemAdmin = this.getTestSystemAdmin();
+        otherTestUser = this.getTestOtherUser();
         testUserNotification = this.getTestUserNotification();
         testAdminNotification = new AdminNotification("Test notification");
         testAdminNotification.setId(1);
@@ -295,71 +300,278 @@ class NotificationControllerTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that a 200 status is returned when a notification is read successfully.
+     * Tests that a 200 status is returned when a user notification is read successfully.
      */
     @Test
-    void readNotification_validRequest200() throws Exception {
-        doNothing().when(notificationService).readNotification(Mockito.any(Boolean.class), Mockito.any(Integer.class),
-                        Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
+    void readUserNotification_validRequest200() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/users/{userId}/notifications/{notificationId}/read",
-                        true,
+        RequestBuilder readUserNotificationRequest = MockMvcRequestBuilders
+                .patch("/users/{userId}/notifications/{notificationId}/read",
                         testUser.getId(),
                         testUserNotification.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
-        mockMvc.perform(request).andExpect(status().isOk());
+        mockMvc.perform(readUserNotificationRequest).andExpect(status().isOk());
     }
 
     /**
      * Tests that a 401 status is returned when a user is not logged in
      */
     @Test
-    void readNotification_notLoggedIn401() throws Exception {
-        RequestBuilder readNotificationRequest = MockMvcRequestBuilders
-                .multipart("/users/{userId}/notifications/{notificationId}/read",
-                        true,
-                        testUser.getId(),
-                        testUserNotification.getId());
+    void readUserNotification_notLoggedIn401() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
 
-        mockMvc.perform(readNotificationRequest).andExpect(status().isUnauthorized());
+        RequestBuilder readUserNotificationRequest = MockMvcRequestBuilders
+                .patch("/users/{userId}/notifications/{notificationId}/read",
+                        testUser.getId(),
+                        testUserNotification.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(readUserNotificationRequest).andExpect(status().isUnauthorized());
     }
 
     /**
      * Tests that a 403 status is returned when a user is trying to read
-     * a notification for someone else
+     * a user notification for someone else
      */
     @Test
-    void readNotification_notAuthorized403() throws Exception {
-        doThrow(ForbiddenNotificationActionException.class)
+    void readUserNotification_notAuthorized403() throws Exception {
+        Mockito.doThrow(ForbiddenUserException.class)
                 .when(notificationService)
-                .readNotification(Mockito.any(boolean.class), Mockito.any(Integer.class),
-                        Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
+                .readUserNotification(
+                        any(boolean.class),
+                        any(Integer.class),
+                        any(Integer.class),
+                        any(AppUserDetails.class)
+                );
 
-        mockMvc.perform(patch("/users/{userId}/notifications/{notificationId}/read",
-                        true,
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder readUserNotificationRequest = MockMvcRequestBuilders
+                .patch("/users/{userId}/notifications/{notificationId}/read",
                         testUser.getId(),
                         testUserNotification.getId())
-                        .with(user(new AppUserDetails(testSystemAdmin))))
-                .andExpect(status().isForbidden());
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(otherTestUser)));
+
+        mockMvc.perform(readUserNotificationRequest).andExpect(status().isForbidden());
     }
 
     /**
      * Tests that a 406 status is returned when a user or notification does not exist
      */
     @Test
-    void readNotification_notAcceptable406() throws Exception {
-        doThrow(NotAcceptableException.class)
+    void readUserNotification_notAcceptable406() throws Exception {
+        Mockito.doThrow(NotAcceptableException.class)
                 .when(notificationService)
-                .readNotification(Mockito.any(boolean.class), Mockito.any(Integer.class),
-                        Mockito.any(Integer.class), Mockito.any(AppUserDetails.class));
+                .readUserNotification(
+                        any(boolean.class),
+                        any(Integer.class),
+                        any(Integer.class),
+                        any(AppUserDetails.class)
+                );
 
-        mockMvc.perform(patch("/users/{userId}/notifications/{notificationId}/read",
-                        true,
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder readUserNotificationRequest = MockMvcRequestBuilders
+                .patch("/users/{userId}/notifications/{notificationId}/read",
                         testUser.getId(),
                         testUserNotification.getId())
-                        .with(user(new AppUserDetails(testSystemAdmin))))
-                .andExpect(status().isNotAcceptable());
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(readUserNotificationRequest).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Test that a request with an empty body results in a 400 status
+     */
+    @Test
+    void readUserNotification_bodyNull_badRequest400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", null);
+
+        RequestBuilder readUserNotificationRequest = MockMvcRequestBuilders
+                .patch(
+                        "/users/{userId}/notifications/{notificationId}/read",
+                        testUser.getId(),
+                        testUserNotification.getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(readUserNotificationRequest).andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Test that a request body with a "read" field that is not a boolean results in a 400 status
+     */
+    @Test
+    void readUserNotification_bodyNotBoolean_badRequest400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", "true");
+
+        RequestBuilder readUserNotificationRequest = MockMvcRequestBuilders
+                .patch(
+                        "/users/{userId}/notifications/{notificationId}/read",
+                        testUser.getId(),
+                        testUserNotification.getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(readUserNotificationRequest).andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests that a 200 status is returned when an admin notification is read successfully.
+     */
+    @Test
+    void readAdminNotification_validRequest200() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder readAdminNotificationRequest = MockMvcRequestBuilders
+                .patch("/notifications/{notificationId}/read",
+                        testUserNotification.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(readAdminNotificationRequest).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that a 401 status is returned when a user is not logged in
+     */
+    @Test
+    void readAdminNotification_notLoggedIn401() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder readAdminNotificationRequest = MockMvcRequestBuilders
+                .patch("/notifications/{notificationId}/read",
+                        testUserNotification.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(readAdminNotificationRequest).andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * Tests that a 403 status is returned when a user is trying to read
+     * a admin notification but is not an admin
+     */
+    @Test
+    void readAdminNotification_notAuthorized403() throws Exception {
+        Mockito.doThrow(ForbiddenSystemAdminActionException.class)
+                .when(notificationService)
+                .readAdminNotification(
+                        any(boolean.class),
+                        any(Integer.class),
+                        any(AppUserDetails.class)
+                );
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder readAdminNotificationRequest = MockMvcRequestBuilders
+                .patch("/notifications/{notificationId}/read",
+                        testUserNotification.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(readAdminNotificationRequest).andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that a 406 status is returned when a notification does not exist
+     */
+    @Test
+    void readAdminNotification_notAcceptable406() throws Exception {
+        Mockito.doThrow(NotAcceptableException.class)
+                .when(notificationService)
+                .readAdminNotification(
+                        any(boolean.class),
+                        any(Integer.class),
+                        any(AppUserDetails.class)
+                );
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder readAdminNotificationRequest = MockMvcRequestBuilders
+                .patch("/notifications/{notificationId}/read",
+                        testUserNotification.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(readAdminNotificationRequest).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Test that a request with an empty body results in a 400 status
+     */
+    @Test
+    void readAdminNotification_bodyNull_badRequest400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", null);
+
+        RequestBuilder readAdminNotificationRequest = MockMvcRequestBuilders
+                .patch(
+                        "/notifications/{notificationId}/read",
+                        testUserNotification.getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(readAdminNotificationRequest).andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Test that a request body with a "read" field that is not a boolean results in a 400 status
+     */
+    @Test
+    void readAdminNotification_bodyNotBoolean_badRequest400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", "true");
+
+        RequestBuilder readAdminNotificationRequest = MockMvcRequestBuilders
+                .patch(
+                        "/notifications/{notificationId}/read",
+                        testUserNotification.getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testSystemAdmin)));
+
+        mockMvc.perform(readAdminNotificationRequest).andExpect(status().isBadRequest());
     }
 }

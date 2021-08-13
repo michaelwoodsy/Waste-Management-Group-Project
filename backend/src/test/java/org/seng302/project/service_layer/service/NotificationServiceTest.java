@@ -3,6 +3,7 @@ package org.seng302.project.service_layer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.AdminNotificationRepository;
@@ -13,6 +14,7 @@ import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NoNotificationExistsException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenSystemAdminActionException;
+import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -246,50 +248,101 @@ class NotificationServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that a user can successfully read one of their notifications
+     * Tests that a user can successfully read one of their user notifications
      */
     @Test
-    void readNotification_success() {
-        int test = 1;
-        Assertions.assertEquals(1, test);
+    void readUserNotification_success() {
+        Mockito.when(userNotificationRepository.save(any(UserNotification.class)))
+                .thenAnswer(invocation -> {
+                    testNotification = invocation.getArgument(0);
+                    return testNotification;
+                });
+
+        testNotification.setRead(false);
+
+        AppUserDetails appUser = new AppUserDetails(testUser);
+
+        notificationService.readUserNotification(true, testNotification.getId(), testUser.getId(), appUser);
+
+        Assertions.assertTrue(testNotification.isRead());
     }
 
     /**
-     * Tests that an exception is thrown when a user tries to read a notification when they
-     * are not logged in
+     * Tests that an exception is thrown when a user tries to read a user notification for
+     * a user that is not them.
      */
     @Test
-    void readNotification_notLoggedIn_throwsException() {
-        int test = 1;
-        Assertions.assertEquals(1, test);
+    void readUserNotification_notAuthorized_throwsException() {
+        AppUserDetails appUser = new AppUserDetails(otherUser);
+
+        Assertions.assertThrows(ForbiddenUserException.class, () ->
+                notificationService.readUserNotification(true, testUser.getId(), testNotification.getId(), appUser));
     }
 
     /**
-     * Tests that an exception is thrown when a user tries to read a notification for
-     * a user that is not thenm.
-     */
-    @Test
-    void readNotification_notAuthorized_throwsException() {
-        int test = 1;
-        Assertions.assertEquals(1, test);
-    }
-
-    /**
-     * Tests that an exception is thrown when a notification is trying to be read for
+     * Tests that an exception is thrown when a user notification is trying to be read for
      * a user that does not exist
      */
     @Test
-    void readNotification_userNotFound_throwsException() {
-        int test = 1;
-        Assertions.assertEquals(1, test);
+    void readUserNotification_userNotFound_throwsException() {
+        AppUserDetails appUser = new AppUserDetails(testUser);
+
+        Assertions.assertThrows(NotAcceptableException.class, () ->
+                notificationService.readUserNotification(true, 1000, testNotification.getId(), appUser));
     }
 
     /**
-     * Tests that an exception is thrown when a user tries to read a notification that doesn't exist
+     * Tests that an exception is thrown when a user tries to read a user notification that doesn't exist
      */
     @Test
-    void readNotification_notificationNotFound_throwsException() {
-        int test = 1;
-        Assertions.assertEquals(1, test);
+    void readUserNotification_notificationNotFound_throwsException() {
+        AppUserDetails appUser = new AppUserDetails(testUser);
+
+        Assertions.assertThrows(NotAcceptableException.class, () ->
+                notificationService.readUserNotification(true, testUser.getId(), 1000, appUser));
+    }
+
+    /**
+     * Tests that a user can successfully read one of their admin notifications
+     */
+    @Test
+    void readAdminNotification_success() {
+        Mockito.when(adminNotificationRepository.save(any(AdminNotification.class)))
+                .thenAnswer(invocation -> {
+                    testAdminNotification = invocation.getArgument(0);
+                    return testAdminNotification;
+                });
+
+        testAdminNotification.setRead(false);
+
+        AppUserDetails appUser = new AppUserDetails(testSystemAdmin);
+
+        notificationService.readAdminNotification(true, testAdminNotification.getId(), appUser);
+
+        Assertions.assertTrue(testAdminNotification.isRead());
+    }
+
+
+    /**
+     * Tests that an exception is thrown when a user tries to read an admin notification when
+     * they are not an admin
+     */
+    @Test
+    void readAdminNotification_notAuthorized_throwsException() {
+        AppUserDetails appUser = new AppUserDetails(testUser);
+
+        Assertions.assertThrows(ForbiddenSystemAdminActionException.class, () ->
+                notificationService.readAdminNotification(true, testAdminNotification.getId(), appUser));
+    }
+
+    /**
+     * Tests that an exception is thrown when a user tries to read an admin notification that doesn't exist
+     */
+    @Test
+    void readAdminNotification_notificationNotFound_throwsException() {
+        AppUserDetails appUser = new AppUserDetails(testSystemAdmin);
+
+        Assertions.assertThrows(NotAcceptableException.class, () ->
+                notificationService.readAdminNotification(true, 1000, appUser));
     }
 }
