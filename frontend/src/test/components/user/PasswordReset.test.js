@@ -19,6 +19,9 @@ beforeEach(() => {
             },
             userEmail() {
                 return "myrtle.t@gmail.com"
+            },
+            isLoggedIn() {
+                return false
             }
         },
         methods: {
