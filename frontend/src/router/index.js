@@ -107,7 +107,7 @@ const routes = [
         component: BrowseSaleListings
     },
     {
-        path: '/reset-password/:code',
+        path: '/reset-password/:token',
         name: 'resetPassword',
         component: PasswordReset
     }
