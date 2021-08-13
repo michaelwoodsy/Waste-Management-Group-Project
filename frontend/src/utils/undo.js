@@ -6,7 +6,7 @@ import Vue from "vue";
 
 export default {
 
-    /** Data needed to run / undo operations **/
+    /** Data needed to undo operations **/
     state: Vue.observable({
         toDelete: null,
         timedMethod: null
@@ -69,7 +69,8 @@ export default {
         })
 
         clearTimeout(this.state.timedMethod)
-        if (this.state.toDelete.undoHandle) {this.state.toDelete.undoHandle()}
+        // run the undoHandle if there is one
+        if (this.state.toDelete && this.state.toDelete.undoHandle) {this.state.toDelete.undoHandle()}
         this.state.toDelete = null
     },
 
