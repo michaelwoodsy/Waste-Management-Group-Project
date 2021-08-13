@@ -36,7 +36,7 @@ export default {
     },
 
     /**
-     * formats price with a symbol infront and the conutry code after, e.g '$30 NZD'
+     * formats price with a symbol infront and the country code after, e.g '$30 NZD'
      * @param currency JSON containing a code, e.g 'NZD' and a symbol, e.g '$'
      * @param price price of the product
      * @returns formatted string of price, e.g '$30 NZD' or null if price does not exist.

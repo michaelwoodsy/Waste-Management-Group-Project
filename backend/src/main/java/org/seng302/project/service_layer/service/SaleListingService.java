@@ -722,7 +722,7 @@ public class SaleListingService {
     public void tagSaleListing(Integer listingId,
                                String tagName,
                                AppUserDetails user) {
-
+        logger.info("Request to tag a sale listing with ID: {}", listingId);
         if (!Tag.checkTag(tagName)) {
             BadRequestException badRequestException = new BadRequestException(String.format("%s is not a valid tag.", tagName));
             logger.warn(badRequestException.getMessage());
@@ -735,5 +735,26 @@ public class SaleListingService {
         Tag tag = Tag.getTag(tagName);
         likedSaleListing.setTag(tag);
         likedSaleListingRepository.save(likedSaleListing);
+    }
+
+    /**
+     * Stars user's liked sale listing
+     * @param listingId the id of the listing to star
+     * @param user the AppUserDetails of the user starring the listing
+     */
+    public void starSaleListing(Integer listingId,
+                                boolean star,
+                                AppUserDetails user){
+        logger.info("Request to star a sale listing with ID: {}", listingId);
+        try{
+            User loggedInUser = userService.getUserByEmail(user.getUsername());
+            SaleListing listing = retrieveListing(listingId);
+            LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
+            likedSaleListing.setStarred(star);
+            likedSaleListingRepository.save(likedSaleListing);
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while starring sale listing : %s", exception.getMessage()));
+            throw exception;
+        }
     }
 }
