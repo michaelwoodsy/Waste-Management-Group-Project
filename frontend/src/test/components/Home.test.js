@@ -5,10 +5,12 @@ import {shallowMount} from "@vue/test-utils";
 import {User} from "@/Api";
 import userState from "@/store/modules/user"
 import product from "@/store/modules/product"
+import undo from "@/utils/undo"
 
 jest.mock('@/Api')
 jest.mock('@/store/modules/user')
 jest.mock("@/store/modules/product")
+jest.mock("@/utils/undo")
 
 let wrapper;
 
@@ -167,7 +169,7 @@ describe('Jest tests for the home component', () => {
         }))
         product.addSaleListingCurrencies.mockResolvedValue([])
 
-        wrapper = shallowMount(Home, {computed})
+        wrapper = shallowMount(Home, {computed, stubs: ['router-link', 'router-view']})
         await wrapper.vm.$nextTick()
 
     })
@@ -247,4 +249,16 @@ describe('Jest tests for the home component', () => {
         expect(wrapper.vm.$data.messages.length).toStrictEqual(0)
     })
 
+    test('undoDelete method calls the cancelDelete method in undo module',  async () => {
+        undo.state.toDelete = {data: {}}
+        wrapper.vm.undoDelete()
+        expect(undo.cancelDelete).toBeCalled()
+    })
+
+    test('countDownTimer method calls the setTimeout method',  async () => {
+        jest.useFakeTimers()
+        wrapper.vm.countDownTimer()
+        expect(setTimeout).toBeCalled()
+        jest.useRealTimers()
+    })
 })
