@@ -753,7 +753,7 @@ public class SaleListingService {
             likedSaleListing.setStarred(star);
             likedSaleListingRepository.save(likedSaleListing);
         } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while unliking sale listing : %s", exception.getMessage()));
+            logger.error(String.format("Unexpected error while starring sale listing : %s", exception.getMessage()));
             throw exception;
         }
     }

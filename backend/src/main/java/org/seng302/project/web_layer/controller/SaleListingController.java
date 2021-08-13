@@ -191,6 +191,12 @@ public class SaleListingController {
         saleListingService.tagSaleListing(listingId, tag, user);
     }
 
+    /**
+     * Handles request for a user to star a sale listing
+     * @param listingId the id of the listing to star
+     * @param requestBody request body containing the star for the listing
+     * @param user the AppUserDetails of the user starring the listing
+     */
     @PatchMapping("/listings/{listingId}/star")
     @ResponseStatus(HttpStatus.OK)
     public void starSaleListing(@PathVariable Integer listingId,
