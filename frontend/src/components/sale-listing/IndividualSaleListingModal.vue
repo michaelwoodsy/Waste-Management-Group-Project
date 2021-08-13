@@ -124,12 +124,17 @@
               <div class="col-6">
                 <p style="word-wrap: break-word; max-width: 70%">{{ formatSeller(listing) }}</p>
               </div>
-              <div class="col-1 text-left">
-                <button class="btn btn-primary" @click="viewBusiness(listing)">View Business</button>
-              </div>
             </div>
           </div>
         </div>
+
+        <!-- View Business button -->
+        <div class="row">
+          <div class="col-12 d-flex justify-content-center">
+            <button class="btn btn-primary" @click="viewBusiness(listing)">View Business</button>
+          </div>
+        </div>
+        <br>
 
         <!-- Manufacturer -->
         <div class="row">
