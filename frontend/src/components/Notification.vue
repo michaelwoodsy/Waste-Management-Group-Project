@@ -134,10 +134,7 @@ export default {
         }
 
         // register the request in the undo queue
-        let undoHandle = () => {
-          // Nothing for now
-        }
-        undo.queueNotificationDelete(request, this.data, undoHandle)
+        undo.queueNotificationDelete(request, this.data)
         this.$emit('remove-notification');
 
       } catch (error) {

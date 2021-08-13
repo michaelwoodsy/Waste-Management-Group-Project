@@ -81,6 +81,7 @@ import $ from 'jquery'
 import user from "@/store/modules/user";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import {formatDateTime} from "@/utils/dateTime";
+import undo from "@/utils/undo";
 
 export default {
   name: "Message",
@@ -158,7 +159,11 @@ export default {
      */
     async removeMessage(messageId) {
       try {
-        await User.deleteMessage(user.actingUserId(), messageId)
+        // create request function to be queued so the delete action can be undone
+        let request = async () => {await User.deleteMessage(user.actingUserId(), messageId)}
+        console.log("HEREEREREERE\n\n\n")
+        // register the request in the undo queue
+        undo.queueMessageDelete(request, this.message)
         this.$emit('remove-message');
       } catch (error) {
         console.log(error)

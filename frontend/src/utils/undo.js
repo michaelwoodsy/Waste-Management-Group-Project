@@ -13,12 +13,13 @@ export default {
     }),
 
     /**
-     * Queues a notification request to be run in the future so it can be undone.
+     * Queues a delete request to be run in the future so it can be undone.
      * @param request Handler / function to run when the undo period has passed.
-     * @param notification The notification being deleted in the request.
+     * @param data The data of the thing being deleted in the request.
      * @param undoHandle Method to run when undo is called
+     * @param type String type of thing being deleted (eg. 'Message')
      */
-    queueNotificationDelete(request, notification, undoHandle) {
+    queueDelete(request, data, type, undoHandle) {
         // check if there is an existing operation not completed yet
         if (this.canUndo()) {
             this.state.toDelete.request()
@@ -32,12 +33,31 @@ export default {
         })
 
         // set the new undo request
-        this.state.toDelete = {request, notification, undoHandle}
+        this.state.toDelete = {request, data, undoHandle, type}
         this.state.timedMethod = setTimeout(async () => {
             await this.state.toDelete.request()
-            // TODO: Error handling
             this.state.toDelete = null
         }, 10000);
+    },
+
+    /**
+     * Queues a notification request to be run in the future so it can be undone.
+     * @param request Handler / function to run when the undo period has passed.
+     * @param notification The notification being deleted in the request.
+     * @param undoHandle Method to run when undo is called
+     */
+    queueNotificationDelete(request, notification, undoHandle=null) {
+        this.queueDelete(request, notification, 'Notification', undoHandle)
+    },
+
+    /**
+     * Queues a message request to be run in the future so it can be undone.
+     * @param request Handler / function to run when the undo period has passed.
+     * @param message The message being deleted in the request.
+     * @param undoHandle Method to run when undo is called
+     */
+    queueMessageDelete(request, message, undoHandle=null) {
+        this.queueDelete(request, message, 'Message', undoHandle)
     },
 
     /**
@@ -49,7 +69,7 @@ export default {
         })
 
         clearTimeout(this.state.timedMethod)
-        this.state.toDelete.undoHandle()
+        if (this.state.toDelete.undoHandle) {this.state.toDelete.undoHandle()}
         this.state.toDelete = null
     },
 
@@ -59,6 +79,14 @@ export default {
      */
     canUndo() {
         return this.state.toDelete !== null
+    },
+
+    /**
+     * Returns true if the queued deletion is for a message.
+     * @returns {boolean} True if the queued delete is for a message.
+     */
+    isMessageRequest() {
+        return this.state.toDelete.type === 'Message'
     }
 
 }

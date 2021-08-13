@@ -361,7 +361,7 @@ export default {
         await this.getMessages()
         for (const [index, message] of this.messages.entries()) {
           if (!('read' in message)) {
-            this.message[index].read = false
+            this.messages[index].read = false
           }
         }
         await this.getLikedListings()
@@ -542,6 +542,18 @@ export default {
     },
 
     /**
+     * Adds a recently deleted message back to the list of messages.
+     * Run after an undo operation is performed.
+     */
+    async addMessage(data) {
+      this.messages.push(data);
+
+      // these lines are required to render the notification just added
+      await this.$nextTick()
+      $('.toast').toast('show')
+    },
+
+    /**
      * Remove a message from the list of visible messages
      * @param messageId the id of the message that is to be removed
      */
@@ -558,7 +570,11 @@ export default {
      * Undoes the last delete operation.
      */
     undoDelete() {
-      this.addNotification(undo.state.toDelete.notification)
+      if (undo.isMessageRequest()) {
+        this.addMessage(undo.state.toDelete.data)
+      } else {
+        this.addNotification(undo.state.toDelete.data)
+      }
       undo.cancelDelete()
     }
   }
