@@ -22,15 +22,14 @@ class ConformationTokenTest extends AbstractInitializer {
      * Then checks all of the attributes of the new ConformationToken.
      */
     @Test
-    void createTestCard() {
+    void createTestToken() {
         this.initialiseTestUsers();
         User user = this.getTestUser();
-        user.setId(null);
         String tokenString = "CoolToken";
         ConformationToken token = new ConformationToken(tokenString, user);
 
         Assertions.assertNull(token.getId());
-        Assertions.assertNull(token.getUser().getId());
+        Assertions.assertEquals(user.getId(), token.getUser().getId());
         Assertions.assertEquals(user.getEmail(), token.getUser().getEmail());
         Assertions.assertEquals(tokenString, token.getToken());
         Assertions.assertTrue(token.getCreated().isBefore(LocalDateTime.now()) || token.getCreated().isEqual(LocalDateTime.now()));
