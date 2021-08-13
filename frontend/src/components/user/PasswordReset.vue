@@ -54,7 +54,7 @@
 
               <div class="login-box text-center">
                 <!-- Show error if something wrong -->
-                <alert v-if="msg.password">
+                <alert v-if="msg.password" >
                   {{ msg.password }}
                 </alert>
               </div>
@@ -108,7 +108,7 @@ export default {
       return false
     },
     userEmail() {
-      //TODO: compute this based on code in the URL
+      //TODO: compute this based on token in the URL
       return "myrtle.t@gmail.com"
     }
   },
