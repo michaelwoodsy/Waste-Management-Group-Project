@@ -414,6 +414,9 @@ class MessageControllerTest extends AbstractInitializer {
         mockMvc.perform(request).andExpect(status().isForbidden());
     }
 
+    /**
+     * Test that a request with an empty body results in a 400 status
+     */
     @Test
     void readMessage_bodyNull_status400() throws Exception {
         JSONObject requestBody = new JSONObject();
@@ -433,6 +436,9 @@ class MessageControllerTest extends AbstractInitializer {
         mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 
+    /**
+     * Test that a request body with a "read" field that is not a boolean results in a 400 status
+     */
     @Test
     void readMessage_bodyNotBoolean_status400() throws Exception {
         JSONObject requestBody = new JSONObject();
