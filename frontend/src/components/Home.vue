@@ -60,11 +60,6 @@
           <hr>
         </div>
 
-        <div>
-          <p>UNDO BuTTON: {{canUndo}}</p>
-          <button v-if="canUndo" @click="undoDelete()" class="btn btn-primary">Undo</button>
-        </div>
-
         <div class="row row-cols-1 row-cols-lg-2">
           <!-- Cards Section -->
           <div v-if="user.isActingAsUser()" class="col">
@@ -131,6 +126,11 @@
               </span>
             </button>
           </div>
+        </div>
+
+        <!-- Undo link -->
+        <div v-if="canUndo">
+          <p class="text-white">Undo deletion ({{countDown}})? <a class="primary pointer" @click="undoDelete()">undo</a> </p>
         </div>
 
         <!-- Notifications -->
@@ -229,7 +229,8 @@ export default {
       notificationsShown: true,
       notifications: [],
       messages: [],
-      error: ""
+      error: "",
+      countDown: 10
     }
   },
   computed: {
@@ -508,6 +509,8 @@ export default {
      * @param notificationId the id of the notification that is to be removed
      */
     removeNotification(notificationId) {
+      this.countDown = 9
+      this.countDownTimer()
       // Remove the notification from the list that is shown
       for (const [index, notification] of this.notifications.entries()) {
         if (notification.id === notificationId) {
@@ -558,6 +561,8 @@ export default {
      * @param messageId the id of the message that is to be removed
      */
     removeMessage(messageId) {
+      this.countDown = 9
+      this.countDownTimer()
       // Remove the message from the list that is shown
       for (const [index, message] of this.messages.entries()) {
         if (message.id === messageId) {
@@ -576,6 +581,18 @@ export default {
         this.addNotification(undo.state.toDelete.data)
       }
       undo.cancelDelete()
+    },
+
+    /**
+     * Decrements countdown timer to zero
+     */
+    countDownTimer() {
+      if(this.countDown > 0) {
+        setTimeout(() => {
+          this.countDown -= 1
+          this.countDownTimer()
+        }, 1000)
+      }
     }
   }
 }
