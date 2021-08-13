@@ -59,31 +59,45 @@
           <h1><span v-if="user.isActingAsUser()">Hello </span>{{ user.actor().name }}</h1>
           <hr>
         </div>
-        <!-- Cards Section -->
-        <div v-if="user.isActingAsUser()">
-          <h2>My Cards</h2>
-          <alert v-if="hasExpiredCards" class="text-center">
-            You have cards that have recently expired and will be deleted within 24 hours if not extended!
-          </alert>
-          <div v-if="hasExpiredCards">
-            <h5>Recently Expired Cards</h5>
-            <div class="row row-cols-1 row-cols-lg-2">
-              <div v-for="card in expiredCards" v-bind:key="card.id" class="col">
+
+        <div class="row row-cols-1 row-cols-lg-2">
+          <!-- Cards Section -->
+          <div v-if="user.isActingAsUser()" class="col">
+            <h2>My Cards</h2>
+            <alert v-if="hasExpiredCards" class="text-center">
+              You have cards that have recently expired and will be deleted within 24 hours if not extended!
+            </alert>
+            <div v-if="hasExpiredCards">
+              <h5>Recently Expired Cards</h5>
+              <div class="row row-cols-1">
+                <div v-for="card in expiredCards" v-bind:key="card.id" class="col">
+                  <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
+                               @card-deleted="deleteCard" @card-extended="extendCard"
+                               @refresh-cards="getCardData"></market-card>
+                </div>
+              </div>
+            </div>
+            <h5 v-if="hasExpiredCards">Active Cards</h5>
+            <div class="row row-cols-1">
+              <div v-for="card in activeCards" v-bind:key="card.id" class="col">
                 <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
                              @card-deleted="deleteCard" @card-extended="extendCard"
                              @refresh-cards="getCardData"></market-card>
               </div>
             </div>
           </div>
-          <h5 v-if="hasExpiredCards">Active Cards</h5>
-          <div class="row row-cols-1 row-cols-lg-2">
-            <div v-for="card in activeCards" v-bind:key="card.id" class="col">
-              <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
-                           @card-deleted="deleteCard" @card-extended="extendCard"
-                           @refresh-cards="getCardData"></market-card>
+
+          <!-- Liked Listing Section -->
+          <div v-if="user.isActingAsUser()" class="col">
+            <h2>My Liked Listings</h2>
+            <div class="row row-cols-1">
+              <div v-for="listing in likedListings" v-bind:key="listing.id" class="col">
+                <liked-listing :listing-data="listing"></liked-listing>
+              </div>
             </div>
           </div>
         </div>
+
       </div>
 
       <!-- Side Bar Right-->
@@ -180,10 +194,12 @@ import {User} from "@/Api";
 import userState from "@/store/modules/user"
 import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
+import LikedListing from "@/components/sale-listing/LikedListing";
 
 export default {
   name: "Home",
   components: {
+    LikedListing,
     Message,
     Alert,
     LoginRequired,
@@ -202,6 +218,7 @@ export default {
     return {
       user: userState,
       cards: [],
+      likedListings: [],
       hideImages: true,
       notificationsShown: true,
       notifications: [],
@@ -324,10 +341,12 @@ export default {
             this.message[index].read = false
           }
         }
+        await this.getLikedListings()
       } else {
         this.notifications = []
         this.cards = []
         this.messages = []
+        this.likedListings = []
       }
       $('.toast').toast('show')
     },
@@ -359,6 +378,18 @@ export default {
       } catch (error) {
         console.error(error)
         this.error = error
+      }
+    },
+
+    /**
+     * Gets the user's liked listings
+     */
+    async getLikedListings() {
+      for (let likedListing of this.user.state.userData.likedSaleListings){
+        const currency = await this.$root.$data.product.getCurrency(likedListing.listing.business.address.country)
+        let listing = likedListing.listing
+        listing.currency = currency
+        this.likedListings.push(listing)
       }
     },
 
