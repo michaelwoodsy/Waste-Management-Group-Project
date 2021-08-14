@@ -5,7 +5,6 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.seng302.project.repository_layer.model.*;
-import org.seng302.project.repository_layer.model.enums.Tag;
 import org.seng302.project.repository_layer.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +42,7 @@ public class TestDataRunner {
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserNotificationRepository userNotificationRepository;
     private final AdminNotificationRepository adminNotificationRepository;
+    private final ConformationTokenRepository conformationTokenRepository;
 
     @Autowired
     public TestDataRunner(UserRepository userRepository, BusinessRepository businessRepository, AddressRepository addressRepository,
@@ -51,7 +51,7 @@ public class TestDataRunner {
                           LikedSaleListingRepository likedSaleListingRepository,
                           CardRepository cardRepository, KeywordRepository keywordRepository,
                           BCryptPasswordEncoder passwordEncoder, UserNotificationRepository userNotificationRepository,
-                          AdminNotificationRepository adminNotificationRepository) {
+                          AdminNotificationRepository adminNotificationRepository, ConformationTokenRepository conformationTokenRepository) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.productRepository = productRepository;
@@ -65,6 +65,7 @@ public class TestDataRunner {
         this.keywordRepository = keywordRepository;
         this.userNotificationRepository = userNotificationRepository;
         this.adminNotificationRepository = adminNotificationRepository;
+        this.conformationTokenRepository = conformationTokenRepository;
     }
 
     /**
@@ -143,7 +144,11 @@ public class TestDataRunner {
                     address,
                     (passwordEncoder.encode(jsonUser.getAsString("password")))
             );
-            userRepository.save(newUser);
+            newUser = userRepository.save(newUser);
+            if (newUser.getId().equals(2)) {
+                var conformationToken = new ConformationToken("123456789", newUser);
+                conformationTokenRepository.save(conformationToken);
+            }
         }
 
         logger.info("Finished adding sample data to user repository");

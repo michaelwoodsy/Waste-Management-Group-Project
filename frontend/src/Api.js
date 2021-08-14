@@ -221,7 +221,14 @@ export const User = {
      * @param imageId The ID of the image for the product in the database
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
-    makePrimaryImage: (userId, imageId) => instance.put(`users/${userId}/images/${imageId}/makeprimary`)
+    makePrimaryImage: (userId, imageId) => instance.put(`users/${userId}/images/${imageId}/makeprimary`),
+
+    /**
+     * Sends a request to validate a lost password token used when resetting your password
+     * @param token reset password token from the user
+     * @returns {Promise<AxiosResponse<any>>}
+     */
+    validateLostPasswordToken: (token) => instance.get(`lostpassword/validate?token=${token}`)
 
 };
 

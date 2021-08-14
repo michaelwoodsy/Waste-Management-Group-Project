@@ -88,7 +88,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/login", "/users").permitAll()
+                .antMatchers(HttpMethod.POST, "/login", "/users", "/lostpassword/send").permitAll()
+                .antMatchers(HttpMethod.GET, "/lostpassword/validate").permitAll()
+                .antMatchers(HttpMethod.PATCH, "/lostpassword/edit").permitAll()
                 .anyRequest().authenticated();
         http.requestCache().requestCache(new NullRequestCache());
         http.cors();

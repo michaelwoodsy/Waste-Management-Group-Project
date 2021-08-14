@@ -88,6 +88,7 @@
 import PageWrapper from "@/components/PageWrapper";
 import LogoutRequired from "@/components/LogoutRequired";
 import Alert from "../Alert";
+import {User} from "@/Api";
 
 export default {
   name: "PasswordReset.vue",
@@ -98,7 +99,9 @@ export default {
   },
   data() {
     return {
+      userEmail: '',
       password: '',
+      linkExpired: false,
       //Used to toggle visibility of password input
       passwordType: 'password',
       msg: {
@@ -108,17 +111,13 @@ export default {
       valid: true,
     }
   },
+  async mounted() {
+    await this.validateToken()
+  },
   computed: {
     /** Gets the token that is in the current path **/
     token() {
       return this.$route.params.token;
-    },
-    linkExpired() {
-      return false
-    },
-    userEmail() {
-      //TODO: compute this based on token in the URL
-      return "myrtle.t@gmail.com"
     },
     /** Checks to see if user is logged in currently **/
     isLoggedIn() {
@@ -126,6 +125,15 @@ export default {
     }
   },
   methods: {
+    async validateToken() {
+      await User.validateLostPasswordToken(this.token).then((res) => {
+        this.userEmail = res.data.email
+        this.linkExpired = false
+      }).catch(() => {
+        this.linkExpired = true
+      })
+    },
+
     /**
      * Method to toggle visibility of the password field
      */
