@@ -48,6 +48,7 @@
                   'bi-eye': passwordType !== 'password'}" aria-hidden="true"></span>
                 </button>
               </div>
+              <span class="invalid-feedback" style="text-align: left">{{ msg.password }}</span>
             </div>
             <div>
               <alert v-if="loginCount===3" class="m-2" id="noMoreAttempts">
@@ -59,7 +60,7 @@
             </div>
             <br>
 
-            <span class="invalid-feedback" style="text-align: left">{{ msg.password }}</span>
+
           </div>
           <br>
           <!-- Button for login and link to register-->
@@ -84,7 +85,7 @@ import LogoutRequired from "./LogoutRequired";
 import Alert from "./Alert"
 import PageWrapper from "@/components/PageWrapper";
 
-const LoginPage = {
+export default {
   name: "LoginPage",
   data() {
     return {
@@ -121,7 +122,7 @@ const LoginPage = {
     },
     checkUsername() {
       if (this.username === '') {
-        this.msg['username'] = "Please enter a username"
+        this.msg['username'] = "Please enter an email address"
         this.valid = false
       } else {
         this.msg['username'] = null
@@ -163,7 +164,6 @@ const LoginPage = {
   }
 };
 
-export default LoginPage;
 
 </script>
 
