@@ -269,30 +269,28 @@ export default {
      * Likes the displayed listing
      */
     async likeListing() {
-      if (this.liked) {
-        Business.unlikeListing(this.$props.listing.id).then(() => {
+      try {
+        if (this.liked) {
+          await Business.unlikeListing(this.$props.listing.id)
           this.liked = !this.liked
           this.stared = false
           this.likes -= 1
           this.purchaseMsg = "Successfully unliked Listing"
-          this.$emit('updateListings')
-        }).catch((err) => {
-          this.errorMsg = err.response
-              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-              : err
-        })
-      } else {
-        Business.likeListing(this.$props.listing.id).then(() => {
+
+        } else {
+          await Business.likeListing(this.$props.listing.id)
           this.liked = !this.liked
           this.likes += 1
           this.purchaseMsg = "Successfully liked Listing!"
-          this.$emit('updateListings')
-        }).catch((err) => {
-          this.errorMsg = err.response
-              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-              : err
-        })
+        }
+        this.$emit('updateListings')
       }
+      catch (err) {
+        this.errorMsg = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+            : err
+      }
+
     },
 
     /**

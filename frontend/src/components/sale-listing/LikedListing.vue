@@ -15,7 +15,10 @@ Displays a user's liked listings.
       <div class="card-body">
 
         <!-- Product Name -->
-        <h6 class="card-title"> {{ listingData.inventoryItem.product.name }} </h6>
+        <h6 class="card-title"> {{ listingData.inventoryItem.product.name }}
+          <em class="bi mx-2 text-warning"
+              :class="{'bi-star-fill': stared, 'bi-star': !stared}"
+        /> </h6>
 
         <!-- Quantity and Price, cause sizing issues -->
         <p class="card-text text-muted small mb-1">
@@ -88,7 +91,7 @@ export default {
     listingData: {
       type: Object,
       required: true
-    },
+    }
   },
 
   data() {
@@ -97,12 +100,14 @@ export default {
       viewListingModal: false,
       viewBusinessModal: false,
       businessToViewId: null,
-      imageUrl: null
+      imageUrl: null,
+      stared: false
     }
   },
 
   mounted() {
     this.getPrimaryImage(this.listingData.inventoryItem.product)
+    this.stared = this.listingData.userStarred
   },
 
   methods: {
