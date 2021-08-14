@@ -212,7 +212,7 @@ export default {
     Alert
   },
   props: {
-    listing: Object
+    listing: Object,
   },
   data() {
     return {
@@ -227,6 +227,7 @@ export default {
   mounted() {
     this.likes = this.$props.listing.likes
     this.liked = this.$props.listing.userLikes
+    this.stared = this.$props.listing.userStarred
   },
   methods: {
     /**
