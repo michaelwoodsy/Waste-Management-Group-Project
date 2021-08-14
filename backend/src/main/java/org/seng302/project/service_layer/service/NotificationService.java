@@ -186,12 +186,7 @@ public class NotificationService {
             userNotification = userNotificationOptional.get();
         }
 
-        String userEmail = appUser.getUsername();
-        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
-
-        if (!loggedInUser.getId().equals(userId)) {
-            throw new ForbiddenUserException(userId);
-        }
+        userService.checkForbidden(userId, appUser);
 
         userNotification.setRead(read);
         userNotificationRepository.save(userNotification);

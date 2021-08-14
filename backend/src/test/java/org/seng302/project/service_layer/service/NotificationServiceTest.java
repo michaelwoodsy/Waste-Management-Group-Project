@@ -13,6 +13,7 @@ import org.seng302.project.service_layer.dto.notifications.DeleteUserNotificatio
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NoNotificationExistsException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
+import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenDGAAActionException;
 import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -45,7 +46,7 @@ class NotificationServiceTest extends AbstractInitializer {
     private UserRepository userRepository;
 
     private User testUser;
-    private  User testSystemAdmin;
+    private User testSystemAdmin;
     private User otherUser;
     private Integer noUserId;
     private Integer noNotificationId;
@@ -275,7 +276,7 @@ class NotificationServiceTest extends AbstractInitializer {
     void readUserNotification_notAuthorized_throwsException() {
         AppUserDetails appUser = new AppUserDetails(otherUser);
 
-        Assertions.assertThrows(ForbiddenUserException.class, () ->
+        Assertions.assertThrows(ForbiddenException.class, () ->
                 notificationService.readUserNotification(true, testUser.getId(), testNotification.getId(), appUser));
     }
 
