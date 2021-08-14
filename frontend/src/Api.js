@@ -133,8 +133,8 @@ export const User = {
      */
     readMessage: (userId, messageId, read) =>
         instance.patch(
-            `users/${userId}/messages/${messageId}`,
-            {read: read}
+            `users/${userId}/messages/${messageId}/read`,
+            {"read": read}
         ),
 
     /**
@@ -459,7 +459,21 @@ export const Business = {
      * @param listingId The ID of the listing to purchase
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
-    purchaseListing: (listingId) => instance.post(`/listings/${listingId}/buy`)
+    purchaseListing: (listingId) => instance.post(`/listings/${listingId}/buy`),
+
+    /**
+     * Sends a request to like a specific listing
+     * @param listingId The ID of the listing to like
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    likeListing: (listingId) => instance.patch(`/listings/${listingId}/like`),
+
+    /**
+     * Sends a request to unlike a specific listing
+     * @param listingId The ID of the listing to unlike
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    unlikeListing: (listingId) => instance.patch(`/listings/${listingId}/unlike`)
 };
 
 export const Card = {

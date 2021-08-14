@@ -144,12 +144,10 @@ export default {
     async readMessage(messageId) {
       if (this.unread) {
         try {
-          await User.readMessage(user.actingUserId(), messageId)
+          await User.readMessage(user.actingUserId(), messageId, true)
           this.$emit('read-message')
         } catch (error) {
           console.log(error)
-          // TODO: delete this line once backend is implemented
-          this.$emit('read-message')
         }
       }
     },

@@ -9,6 +9,7 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.Address;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.AddressRepository;
+import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
 import org.seng302.project.service_layer.dto.user.PostUserDTO;
@@ -48,10 +49,12 @@ class UserServiceTest extends AbstractInitializer {
     UserServiceTest() {
         userRepository = Mockito.mock(UserRepository.class);
         addressRepository = Mockito.mock(AddressRepository.class);
+        LikedSaleListingRepository likedSaleListingRepository = Mockito.mock(LikedSaleListingRepository.class);
         AuthenticationManager authenticationManager = Mockito.mock(AuthenticationManager.class);
         userService = new UserService(
                 userRepository,
                 addressRepository,
+                likedSaleListingRepository,
                 authenticationManager,
                 passwordEncoder
         );

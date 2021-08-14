@@ -430,7 +430,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -456,7 +456,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -486,7 +486,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -516,7 +516,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -546,7 +546,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -572,7 +572,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -601,7 +601,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -630,7 +630,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -659,7 +659,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -694,7 +694,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -729,7 +729,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -758,7 +758,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -789,7 +789,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -820,7 +820,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -851,7 +851,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -882,7 +882,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -913,7 +913,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -944,7 +944,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -975,7 +975,7 @@ class SaleListingServiceTest extends AbstractInitializer {
                 0
         );
 
-        List<Object> response = saleListingService.searchSaleListings(dto);
+        List<Object> response = saleListingService.searchSaleListings(dto, new AppUserDetails(testUser));
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
@@ -1011,10 +1011,11 @@ class SaleListingServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Test that trying to like a sale listing that has already been liked by this user throws and exception
+     * Test that trying to like a sale listing that has already been liked by this user throws a
+     * BadRequestException
      */
     @Test
-    void likedSaleListing_listingAlreadyLiked_throwsException() {
+    void likedSaleListing_listingAlreadyLiked_BadRequestException() {
         //Check that there are no liked listings
         Assertions.assertEquals(0, likedSaleListingRepository.findAll().size());
 
@@ -1038,10 +1039,10 @@ class SaleListingServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Test that trying to like a sale listing that does not exist throws an exception
+     * Test that trying to like a sale listing that does not exist throws a NotAcceptableException
      */
     @Test
-    void likedSaleListing_listingDoesNotExist_throwsException() {
+    void likedSaleListing_listingDoesNotExist_NotAcceptableException() {
         Integer saleListingId = 100;
         AppUserDetails appUser = new AppUserDetails(this.testUser);
 
@@ -1230,7 +1231,7 @@ class SaleListingServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that a BadRequestException is thrown when the user tries
+     * Tests that a NotAcceptableException is thrown when the user tries
      * tagging a listing that doesn't exist
      */
     @Test
@@ -1254,4 +1255,76 @@ class SaleListingServiceTest extends AbstractInitializer {
                 () -> saleListingService.tagSaleListing(listingId, "red", user));
     }
 
+    /**
+     * Tests the successful case for starring a sale listing when you have
+     * not already starred it
+     */
+    @Test
+    void starSaleListing_successWhenNotStarred_OK(){
+        testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
+        LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
+        listing.setStarred(false);
+        likedSaleListingRepository.save(listing);
+        testUser.addLikedListing(listing);
+        userRepository.save(testUser);
+
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Integer listingId = saleListing1.getId();
+
+        saleListingService.starSaleListing(listingId, true, user);
+
+        LikedSaleListing updatedLikedListing = likedSaleListingRepository
+                .findByListingAndUser(saleListing1, testUser).get(0);
+
+        Assertions.assertTrue(updatedLikedListing.isStarred());
+    }
+
+    /**
+     * Tests the successful case for un-starring a sale listing when you have
+     * already starred it
+     */
+    @Test
+    void starSaleListing_successWhenAlreadyStarred_OK(){
+        testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
+        LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
+        listing.setStarred(true);
+        likedSaleListingRepository.save(listing);
+        testUser.addLikedListing(listing);
+        userRepository.save(testUser);
+
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Integer listingId = saleListing1.getId();
+
+        saleListingService.starSaleListing(listingId, false, user);
+
+        LikedSaleListing updatedLikedListing = likedSaleListingRepository
+                .findByListingAndUser(saleListing1, testUser).get(0);
+
+        Assertions.assertFalse(updatedLikedListing.isStarred());
+    }
+
+    /**
+     * Tests that a BadRequestException is thrown when the user tries
+     * starring a listing they haven't liked.
+     */
+    @Test
+    void starSaleListing_notLikedListing_badRequestException() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+        Integer listingId = saleListing1.getId();
+
+        Assertions.assertThrows(BadRequestException.class,
+                () -> saleListingService.starSaleListing(listingId, true, user));
+    }
+
+    /**
+     * Tests that a NotAcceptableException is thrown when the user tries
+     * starring a listing that doesn't exist
+     */
+    @Test
+    void starSaleListing_nonExistentListing_notAcceptableException() {
+        AppUserDetails user = new AppUserDetails(this.testUser);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.starSaleListing(45434, true, user));
+    }
 }

@@ -16,6 +16,7 @@ public class GetMessageDTO {
     private GetCardResponseDTO card;
     private GetUserDTO sender;
     private LocalDateTime created;
+    private boolean read;
 
     public GetMessageDTO(Message message) {
         this.id = message.getId();
@@ -24,6 +25,7 @@ public class GetMessageDTO {
         this.card = new GetCardResponseDTO(message.getCard());
         this.sender = new GetUserDTO(message.getSender());
         this.created = message.getCreated();
+        this.read = message.isRead();
     }
 
 }
