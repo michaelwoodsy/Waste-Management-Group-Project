@@ -130,7 +130,35 @@
 
         <!-- Undo link -->
         <div v-if="canUndo">
-          <p class="text-white">Undo deletion ({{countDown}})? <a class="primary pointer" @click="undoDelete()">undo</a> </p>
+          <!-- Some options below -->
+           <!-- OPTION 1 -->
+          <p class="text-white">Undo deletion ({{countDown}})?
+            <a class="text-primary pointer" @click="undoDelete()">
+              undo
+            </a>
+          </p>
+
+          <!-- OPTION 2 -->
+          <p class="text-white">Undo deletion ({{countDown}})?
+            <button class="btn btn-primary mb-3" @click="undoDelete()">
+                <em class="bi bi-arrow-counterclockwise"/>
+            </button>
+          </p>
+
+          <!-- OPTION 3 -->
+          <button class="btn btn-primary mb-3" @click="undoDelete()">
+            Undo Deletion <em class="bi bi-arrow-counterclockwise"/> ({{countDown}})
+          </button>
+
+          <!-- OPTION 4 -->
+          <button class="btn btn-primary mb-3" @click="undoDelete()">
+            Undo Deletion <em class="bi bi-arrow-counterclockwise"/>
+          </button>
+
+          <!-- OPTION 5 -->
+          <button class="btn btn-primary mb-3" @click="undoDelete()">
+            <em class="bi bi-arrow-counterclockwise"/>
+          </button>
         </div>
 
         <!-- Notifications -->
