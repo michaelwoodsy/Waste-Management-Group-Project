@@ -130,7 +130,9 @@
 
         <!-- Undo link -->
         <div v-if="canUndo">
-          <p class="text-white">Undo deletion ({{countDown}})? <a class="primary pointer" @click="undoDelete()">undo</a> </p>
+          <button class="btn btn-primary w-100" @click="undoDelete()">
+            Undo Deletion <em class="bi bi-arrow-counterclockwise"/> ({{countDown}})
+          </button>
         </div>
 
         <!-- Notifications -->
