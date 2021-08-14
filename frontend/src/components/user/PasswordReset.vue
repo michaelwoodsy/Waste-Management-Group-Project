@@ -1,0 +1,179 @@
+<!--Page for a user to reset their password. Linked to in password reset email -->
+<template>
+  <page-wrapper>
+    <!-- Check if the user is logged in -->
+    <logout-required
+        v-if="isLoggedIn"
+    />
+
+    <!--The link has expired-->
+    <div v-else-if="linkExpired">
+      <div class="row">
+        <div class="col text-center font-weight-bold">
+          <p>This link has expired</p>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="row">
+      <div class="col-12 col-sm-8 col-lg-6 col-xl-4 offset-sm-2 offset-lg-3 offset-xl-4 text-center mb-2">
+        <!--    Reset Password Header    -->
+        <div class="row">
+          <div class="col text-center">
+            <h4>Reset Password</h4>
+          </div>
+        </div>
+
+
+
+        <!--The link has not yet expired-->
+        <div>
+          <div class="row">
+            <div class="col text-center font-weight-bold">
+              <p>Reset password for {{userEmail}}</p>
+            </div>
+          </div>
+
+          <div v-if="!submitting">
+            <!-- Password Input-->
+            <div class="row">
+              <!--    Password    -->
+              <label for="password"><strong>New Password<span class="required">*</span></strong></label>
+              <div class="input-group">
+                <input id="password" v-model="password"
+                       :class="{'form-control': true, 'is-invalid': msg.password}"
+                       maxlength="200"
+                       placeholder="Enter your Password" :type="passwordType"><br>
+                <div class="input-group-append">
+                  <button class="btn btn-primary no-outline" @click="showPassword()">
+                <span :class="{bi: true,
+                  'bi-eye-slash': passwordType === 'password',
+                  'bi-eye': passwordType !== 'password'}" aria-hidden="true"></span>
+                  </button>
+                </div>
+              </div>
+              <p style="font-size: small">Password must be a combination of lowercase and uppercase letters, numbers, and
+                be at least 8 characters long</p>
+            </div>
+
+            <div class="login-box text-center">
+              <!-- Show error if something wrong -->
+              <alert v-if="msg.password" >
+                {{ msg.password }}
+              </alert>
+            </div>
+
+            <!-- Button to set new password-->
+            <div class="form-row justify-content-center">
+              <button class="btn btn-primary" @click="validatePassword">
+                Reset Password
+              </button>
+            </div>
+          </div>
+
+          <!-- Changes submitted -->
+          <div v-else>
+            <alert alert-type="alert-success" class="text-center">
+              Password changed
+            </alert>
+          </div>
+        </div>
+      </div>
+    </div>
+  </page-wrapper>
+
+</template>
+
+<script>
+import PageWrapper from "@/components/PageWrapper";
+import LogoutRequired from "@/components/LogoutRequired";
+import Alert from "../Alert";
+
+export default {
+  name: "PasswordReset.vue",
+  components: {
+    PageWrapper,
+    LogoutRequired,
+    Alert
+  },
+  data() {
+    return {
+      password: '',
+      //Used to toggle visibility of password input
+      passwordType: 'password',
+      msg: {
+        password: null
+      },
+      submitting: false,
+      valid: true,
+    }
+  },
+  computed: {
+    /** Gets the token that is in the current path **/
+    token() {
+      return this.$route.params.token;
+    },
+    linkExpired() {
+      return false
+    },
+    userEmail() {
+      //TODO: compute this based on token in the URL
+      return "myrtle.t@gmail.com"
+    },
+    /** Checks to see if user is logged in currently **/
+    isLoggedIn() {
+      return this.$root.$data.user.state.loggedIn
+    }
+  },
+  methods: {
+    /**
+     * Method to toggle visibility of the password field
+     */
+    showPassword() {
+      if (this.passwordType === 'password') {
+        this.passwordType = 'text'
+      } else {
+        this.passwordType = 'password'
+      }
+    },
+    /**
+     * Validates the password
+     * then calls endpoint if password valid
+     */
+    validatePassword() {
+      this.valid = true;//Reset the value
+      this.submitting = true
+
+      if (this.password === '') {
+        this.msg.password = 'Please enter a password';
+        this.valid = false;
+      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}/.test(this.password)) {
+        this.msg.password = 'New password does not meet the requirements';
+        this.valid = false;
+      } else {
+        this.msg.password = null;
+      }
+
+      if (!this.valid) {
+        console.log('Please fix the shown errors and try again');
+        this.submitting = false
+      } else {
+        console.log('No Errors');
+        //Send to server here
+        this.changePassword()
+      }
+    },
+
+    /**
+     * Calls the endpoint to change a user's password
+     */
+    changePassword() {
+      //TODO: call endpoint here
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>

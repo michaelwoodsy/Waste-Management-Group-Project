@@ -18,6 +18,7 @@ import Marketplace from "../components/marketplace/Marketplace";
 import Search from "@/components/Search";
 import EditBusiness from "@/components/business/EditBusiness";
 import BrowseSaleListings from "@/components/sale-listing/BrowseSaleListings";
+import PasswordReset from "@/components/user/PasswordReset";
 
 const routes = [
     {
@@ -104,6 +105,11 @@ const routes = [
         path: '/listings',
         name: 'browseListings',
         component: BrowseSaleListings
+    },
+    {
+        path: '/reset-password/:token',
+        name: 'resetPassword',
+        component: PasswordReset
     }
 ];
 

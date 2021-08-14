@@ -15,13 +15,14 @@ import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.message.GetMessageDTO;
 import org.seng302.project.service_layer.dto.message.PostMessageDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
+import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
-import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -34,6 +35,7 @@ class MessageServiceTest extends AbstractInitializer {
     private UserRepository userRepository;
     private CardRepository cardRepository;
     private MessageRepository messageRepository;
+    private UserService userService;
 
     private User testSender;
     private User testReceiver;
@@ -49,17 +51,18 @@ class MessageServiceTest extends AbstractInitializer {
         userRepository = Mockito.mock(UserRepository.class);
         cardRepository = Mockito.mock(CardRepository.class);
         messageRepository = Mockito.mock(MessageRepository.class);
-        messageService = new MessageService(messageRepository, userRepository, cardRepository);
+        userService = Mockito.mock(UserService.class);
+        messageService = new MessageService(messageRepository, userRepository, cardRepository, userService);
 
         testSender = this.getTestUser();
-        Mockito.when(userRepository.findByEmail(testSender.getEmail()))
-                .thenReturn(List.of(testSender));
+        Mockito.when(userService.getUserByEmail(testSender.getEmail()))
+                .thenReturn(testSender);
         Mockito.when(userRepository.findById(testSender.getId()))
                 .thenReturn(Optional.of(testSender));
 
         testReceiver = this.getTestUserBusinessAdmin();
-        Mockito.when(userRepository.findByEmail(testReceiver.getEmail()))
-                .thenReturn(List.of(testReceiver));
+        Mockito.when(userService.getUserByEmail(testReceiver.getEmail()))
+                .thenReturn(testReceiver);
         Mockito.when(userRepository.findById(testReceiver.getId()))
                 .thenReturn(Optional.of(testReceiver));
 
@@ -73,6 +76,8 @@ class MessageServiceTest extends AbstractInitializer {
 
         testMessage = new Message("Is this still available?", testReceiver, testCard, testSender);
         testMessage.setId(1);
+        Mockito.when(messageRepository.findById(testMessage.getId()))
+                .thenReturn(Optional.of(testMessage));
 
         Message testReceivedMessage = new Message("Yes it is still available", testSender, testCard, testReceiver);
         testReceivedMessage.setId(2);
@@ -91,7 +96,7 @@ class MessageServiceTest extends AbstractInitializer {
         PostMessageDTO requestDTO = new PostMessageDTO(
                 testReceiver.getId(), testCard.getId(), testMessage.getText());
 
-        Mockito.when(messageRepository.save(Mockito.any(Message.class)))
+        Mockito.when(messageRepository.save(any(Message.class)))
                 .thenReturn(testMessage);
 
         messageService.createMessage(requestDTO, appUser);
@@ -148,7 +153,7 @@ class MessageServiceTest extends AbstractInitializer {
      */
     @Test
     void createMessage_nonExistentUser_notAcceptableException() {
-        Mockito.when(userRepository.findById(Mockito.any(Integer.class)))
+        Mockito.when(userRepository.findById(any(Integer.class)))
                 .thenReturn(Optional.empty());
 
         AppUserDetails appUser = new AppUserDetails(testSender);
@@ -208,7 +213,9 @@ class MessageServiceTest extends AbstractInitializer {
         AppUserDetails appUser = new AppUserDetails(testSender);
         Integer userId = testOtherUser.getId();
 
-        Assertions.assertThrows(ForbiddenUserException.class,
+        Mockito.doThrow(ForbiddenException.class).when(userService).checkForbidden(userId, appUser);
+
+        Assertions.assertThrows(ForbiddenException.class,
                 () -> messageService.getMessages(userId, appUser));
     }
 
@@ -270,7 +277,7 @@ class MessageServiceTest extends AbstractInitializer {
         Message messageToDelete = receivedMessagesBefore.get(0);
 
         // Mock a message with id of the chosen message
-        given(messageRepository.findById(messageToDelete.getId())).willReturn(Optional.of(messageToDelete));
+        Mockito.when(messageRepository.findById(messageToDelete.getId())).thenReturn(Optional.of(messageToDelete));
 
         //Make request to delete message
         Integer messageId = messageToDelete.getId();
@@ -286,6 +293,7 @@ class MessageServiceTest extends AbstractInitializer {
     @Test
     void deleteMessage_notValidUser_error() {
         //Test User
+        Integer userId = testSender.getId();
         AppUserDetails appUser = new AppUserDetails(testReceiver);
 
         //Get messages belonging to the test user
@@ -293,15 +301,79 @@ class MessageServiceTest extends AbstractInitializer {
 
         //Set the message that is to be deleted
         Message messageToDelete = receivedMessagesBefore.get(0);
+        Integer messageId = messageToDelete.getId();
 
         // Mock a message with id of the chosen message
-        given(messageRepository.findById(messageToDelete.getId())).willReturn(Optional.of(messageToDelete));
+        Mockito.when(messageRepository.findById(messageToDelete.getId())).thenReturn(Optional.of(messageToDelete));
+        Mockito.doThrow(ForbiddenException.class).when(userService).checkForbidden(userId, appUser);
 
         //Make request to delete message
-        Integer userId = testSender.getId();
-        Integer messageId = messageToDelete.getId();
-        Assertions.assertThrows(ForbiddenUserException.class,
+        Assertions.assertThrows(ForbiddenException.class,
                 () -> messageService.deleteMessage(userId, messageId, appUser));
+    }
+
+    /**
+     * Test that setting an unread message to read works with valid request
+     */
+    @Test
+    void readMessage_setToRead_validRequest_success() {
+        Mockito.when(messageRepository.save(any(Message.class)))
+                .thenAnswer(invocation -> {
+                    testMessage = invocation.getArgument(0);
+                    return testMessage;
+                });
+
+        testMessage.setRead(false);
+
+        Integer userId = testReceiver.getId();
+        Integer messageId = testMessage.getId();
+        AppUserDetails appUser = new AppUserDetails(testReceiver);
+
+        messageService.readMessage(userId, messageId, true, appUser);
+
+        Assertions.assertTrue(testMessage.isRead());
+    }
+
+    /**
+     * Test that trying to read a message when user does not exist throws NotAcceptableException
+     */
+    @Test
+    void readMessage_userNonExistent_throwsException() {
+        Integer userId = 1000;
+        Integer messageId = testMessage.getId();
+        AppUserDetails appUser = new AppUserDetails(testReceiver);
+
+        Assertions.assertThrows(NotAcceptableException.class, () ->
+                messageService.readMessage(userId, messageId, false, appUser));
+    }
+
+    /**
+     * Test that trying to read a message when message does not exist throws NotAcceptableException
+     */
+    @Test
+    void readMessage_messageNonExistent_throwsException() {
+        Integer userId = testReceiver.getId();
+        Integer messageId = 1000;
+        AppUserDetails appUser = new AppUserDetails(testReceiver);
+
+        Assertions.assertThrows(NotAcceptableException.class, () ->
+                messageService.readMessage(userId, messageId, false, appUser));
+    }
+
+    /**
+     * Test that when another user tries to read a different user's message, a ForbiddenException is thrown
+     */
+    @Test
+    void readMessage_invalidUser_throwsException() {
+        Integer userId = testReceiver.getId();
+        Integer messageId = testMessage.getId();
+        AppUserDetails appUser = new AppUserDetails(testSender);
+
+        Mockito.doThrow(ForbiddenException.class)
+                .when(userService).checkForbidden(userId, appUser);
+
+        Assertions.assertThrows(ForbiddenException.class, () ->
+                messageService.readMessage(userId, messageId, false, appUser));
     }
 
 }

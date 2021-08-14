@@ -29,12 +29,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class SaleListingService {
@@ -73,6 +69,24 @@ public class SaleListingService {
     }
 
     /**
+     * Helper method to convert a list of listings to a list of GetSaleListingDTOs, with the liked count attached
+     * @param listings  listings to convert
+     * @param user      currently logged in user (used to check if they like a listing)
+     * @return a list of GetSaleListingDTO Objects
+     */
+    List<GetSaleListingDTO> getListingDTOs(List<SaleListing> listings, User user) {
+        List<GetSaleListingDTO> listingDTOs = new ArrayList<>();
+        for (SaleListing listing : listings) {
+            Integer likes = likedSaleListingRepository.findAllByListing(listing).size();
+            boolean userLikes = !likedSaleListingRepository.findByListingAndUser(listing, user).isEmpty();
+            GetSaleListingDTO dto = new GetSaleListingDTO(listing);
+            dto.attachLikeData(likes, userLikes);
+            listingDTOs.add(dto);
+        }
+        return listingDTOs;
+    }
+
+    /**
      * Gets a list of sale listings for a business.
      *
      * @param businessId Business to get the sale listings from.
@@ -91,7 +105,8 @@ public class SaleListingService {
 
             // Get the sale listings of the business
             List<SaleListing> listings = saleListingRepository.findAllByBusinessId(businessId);
-            return listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList());
+
+            return getListingDTOs(listings, user);
 
         } catch (NotAcceptableException exception) {
             throw exception;
@@ -221,7 +236,10 @@ public class SaleListingService {
      *            the lower and upper closing date range
      * @return List of the paginated list of sales listings, and the total number of sales listings
      */
-    public List<Object> searchSaleListings(SearchSaleListingsDTO dto) {
+    public List<Object> searchSaleListings(SearchSaleListingsDTO dto, AppUserDetails appUser) {
+        // Get the user that made the request
+        User user = userService.getUserByEmail(appUser.getUsername());
+
         List<SaleListing> listings;
         long totalCount;
         String searchQuery = dto.getSearchQuery().toLowerCase(); // Convert search query to all lowercase.
@@ -244,7 +262,9 @@ public class SaleListingService {
 
         logger.info("Retrieved {} Sales Listings, showing {}", totalCount, listings.size());
 
-        return Arrays.asList(listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList()), totalCount);
+        var listingDTOs = getListingDTOs(listings, user);
+
+        return Arrays.asList(listingDTOs, totalCount);
     }
 
     /**
@@ -722,7 +742,7 @@ public class SaleListingService {
     public void tagSaleListing(Integer listingId,
                                String tagName,
                                AppUserDetails user) {
-
+        logger.info("Request to tag a sale listing with ID: {}", listingId);
         if (!Tag.checkTag(tagName)) {
             BadRequestException badRequestException = new BadRequestException(String.format("%s is not a valid tag.", tagName));
             logger.warn(badRequestException.getMessage());
@@ -735,5 +755,26 @@ public class SaleListingService {
         Tag tag = Tag.getTag(tagName);
         likedSaleListing.setTag(tag);
         likedSaleListingRepository.save(likedSaleListing);
+    }
+
+    /**
+     * Stars user's liked sale listing
+     * @param listingId the id of the listing to star
+     * @param user the AppUserDetails of the user starring the listing
+     */
+    public void starSaleListing(Integer listingId,
+                                boolean star,
+                                AppUserDetails user){
+        logger.info("Request to star a sale listing with ID: {}", listingId);
+        try{
+            User loggedInUser = userService.getUserByEmail(user.getUsername());
+            SaleListing listing = retrieveListing(listingId);
+            LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
+            likedSaleListing.setStarred(star);
+            likedSaleListingRepository.save(likedSaleListing);
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while starring sale listing : %s", exception.getMessage()));
+            throw exception;
+        }
     }
 }
