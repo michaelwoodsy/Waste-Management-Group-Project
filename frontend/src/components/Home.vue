@@ -128,6 +128,13 @@
           </div>
         </div>
 
+        <!-- Undo link -->
+        <div v-if="canUndo">
+          <button class="btn btn-primary w-100" @click="undoDelete()">
+            Undo Deletion <em class="bi bi-arrow-counterclockwise"/> ({{countDown}})
+          </button>
+        </div>
+
         <!-- Notifications -->
         <div v-if="notificationsShown">
           <div v-if="notifications.length === 0">
@@ -195,6 +202,7 @@ import userState from "@/store/modules/user"
 import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
+import undo from "@/utils/undo"
 
 export default {
   name: "Home",
@@ -223,7 +231,8 @@ export default {
       notificationsShown: true,
       notifications: [],
       messages: [],
-      error: ""
+      error: "",
+      countDown: 10
     }
   },
   computed: {
@@ -306,6 +315,23 @@ export default {
     /**
      * Returns read messages sorted by most recent.
      */
+    sortedMessages() {
+      let sortedMessages = [...this.messages]
+      sortedMessages.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
+      return sortedMessages
+    },
+
+    /**
+     * True if there is an operation that can be undone
+     */
+    canUndo() {
+      return undo.state.toDelete !== null
+
+    },
+
+    /**
+     * Returns read messages sorted by most recent.
+     */
     readMessages() {
       const readMessages = []
       for (const message of this.messages) {
@@ -346,7 +372,7 @@ export default {
         await this.getMessages()
         for (const [index, message] of this.messages.entries()) {
           if (!('read' in message)) {
-            this.message[index].read = false
+            this.messages[index].read = false
           }
         }
         await this.getLikedListings()
@@ -356,7 +382,7 @@ export default {
         this.messages = []
         this.likedListings = []
       }
-      $('.toast').toast('show')
+      this.showToasts()
     },
     /**
      * Displays the notifications section
@@ -364,7 +390,7 @@ export default {
     async showNotifications() {
       this.notificationsShown = true
       await this.$nextTick()
-      $('.toast').toast('show')
+      this.showToasts()
     },
 
     /**
@@ -373,7 +399,7 @@ export default {
     async showMessages() {
       this.notificationsShown = false
       await this.$nextTick()
-      $('.toast').toast('show')
+      this.showToasts()
     },
 
     /**
@@ -494,6 +520,8 @@ export default {
      * @param notificationId the id of the notification that is to be removed
      */
     removeNotification(notificationId) {
+      this.countDown = 9
+      this.countDownTimer()
       // Remove the notification from the list that is shown
       for (const [index, notification] of this.notifications.entries()) {
         if (notification.id === notificationId) {
@@ -516,15 +544,72 @@ export default {
     },
 
     /**
+     * Adds a notification back to the list of notifications.
+     * Run after an undo operation is performed.
+     */
+    async addNotification(data) {
+      this.notifications.push(data);
+
+      // these lines are required to render the notification just added
+      await this.$nextTick()
+      this.showToasts()
+    },
+
+    /**
+     * Adds a recently deleted message back to the list of messages.
+     * Run after an undo operation is performed.
+     */
+    async addMessage(data) {
+      this.messages.push(data);
+
+      // these lines are required to render the notification just added
+      await this.$nextTick()
+      this.showToasts()
+    },
+
+    /**
+     * Shows all elements with the toast css class
+     */
+    showToasts() {
+      $('.toast').toast('show')
+    },
+
+    /**
      * Remove a message from the list of visible messages
      * @param messageId the id of the message that is to be removed
      */
     removeMessage(messageId) {
+      this.countDown = 9
+      this.countDownTimer()
       // Remove the message from the list that is shown
       for (const [index, message] of this.messages.entries()) {
         if (message.id === messageId) {
           this.messages.splice(index, 1)
         }
+      }
+    },
+
+    /**
+     * Undoes the last delete operation.
+     */
+    undoDelete() {
+      if (undo.isMessageRequest()) {
+        this.addMessage(undo.state.toDelete.data)
+      } else {
+        this.addNotification(undo.state.toDelete.data)
+      }
+      undo.cancelDelete()
+    },
+
+    /**
+     * Decrements countdown timer to zero
+     */
+    countDownTimer() {
+      if(this.countDown > 0) {
+        setTimeout(() => {
+          this.countDown -= 1
+          this.countDownTimer()
+        }, 1000)
       }
     }
   }

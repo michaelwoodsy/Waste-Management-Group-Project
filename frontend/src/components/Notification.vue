@@ -65,6 +65,7 @@ import {formatDateTime} from "@/utils/dateTime";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import {Keyword, User} from "@/Api";
 import user from "@/store/modules/user"
+import undo from "@/utils/undo"
 
 const adminTypes = ['admin', 'newKeyword']
 
@@ -123,12 +124,19 @@ export default {
      */
     async removeNotification() {
       try {
+        let request;
+
+        // create request function
         if (this.isAdminNotification) {
-          await User.deleteAdminNotification(this.data.id)
+          request = async () => {await User.deleteAdminNotification(this.data.id)}
         } else {
-          await User.deleteNotification(user.actingUserId(), this.data.id)
+          request = async () => {await User.deleteNotification(user.actingUserId(), this.data.id)}
         }
-        this.$emit('remove-notification')
+
+        // register the request in the undo queue
+        undo.queueNotificationDelete(request, this.data)
+        this.$emit('remove-notification');
+
       } catch (error) {
         console.log(error)
       }

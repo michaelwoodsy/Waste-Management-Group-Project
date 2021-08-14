@@ -3,9 +3,11 @@ import Notification from "@/components/Notification";
 import {shallowMount} from "@vue/test-utils";
 import {Keyword, User} from '@/Api'
 import user from '@/store/modules/user'
+import undo from '@/utils/undo'
 
 jest.mock('@/Api')
 jest.mock('@/store/modules/user')
+jest.mock('@/utils/undo')
 
 User.deleteNotification.mockImplementation(jest.fn())
 User.deleteAdminNotification.mockImplementation(jest.fn())
@@ -44,7 +46,7 @@ describe('Jest tests for Notification component', () => {
     test('Clicking the close button emits the remove-notification event', async () => {
         const button = wrapper.find('#closeNotification')
         await button.trigger('click')
-        expect(User.deleteNotification).toHaveBeenCalledTimes(1)
+        expect(undo.queueNotificationDelete).toHaveBeenCalledTimes(1)
         expect(wrapper.emitted('remove-notification')).toBeTruthy()
     })
 
@@ -68,7 +70,7 @@ describe('Jest tests for Notification component', () => {
         })
 
         await wrapper.vm.deleteKeyword()
-        expect(User.deleteAdminNotification).toHaveBeenCalledTimes(1)
+        expect(undo.queueNotificationDelete).toHaveBeenCalledTimes(1)
         expect(User.deleteNotification).toHaveBeenCalledTimes(0)
         expect(Keyword.deleteKeyword).toHaveBeenCalledTimes(1)
         expect(wrapper.emitted('remove-notification')).toBeTruthy()
