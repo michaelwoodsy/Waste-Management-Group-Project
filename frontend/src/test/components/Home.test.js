@@ -169,6 +169,7 @@ describe('Jest tests for the home component', () => {
         }))
         product.addSaleListingCurrencies.mockResolvedValue([])
 
+        jest.spyOn(Home.methods, 'showToasts').mockImplementation()
         wrapper = shallowMount(Home, {computed, stubs: ['router-link', 'router-view']})
         await wrapper.vm.$nextTick()
 

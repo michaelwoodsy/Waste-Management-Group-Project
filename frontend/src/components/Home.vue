@@ -382,7 +382,7 @@ export default {
         this.messages = []
         this.likedListings = []
       }
-      $('.toast').toast('show')
+      this.showToasts()
     },
     /**
      * Displays the notifications section
@@ -390,7 +390,7 @@ export default {
     async showNotifications() {
       this.notificationsShown = true
       await this.$nextTick()
-      $('.toast').toast('show')
+      this.showToasts()
     },
 
     /**
@@ -399,7 +399,7 @@ export default {
     async showMessages() {
       this.notificationsShown = false
       await this.$nextTick()
-      $('.toast').toast('show')
+      this.showToasts()
     },
 
     /**
@@ -552,7 +552,7 @@ export default {
 
       // these lines are required to render the notification just added
       await this.$nextTick()
-      $('.toast').toast('show')
+      this.showToasts()
     },
 
     /**
@@ -564,6 +564,13 @@ export default {
 
       // these lines are required to render the notification just added
       await this.$nextTick()
+      this.showToasts()
+    },
+
+    /**
+     * Shows all elements with the toast css class
+     */
+    showToasts() {
       $('.toast').toast('show')
     },
 
