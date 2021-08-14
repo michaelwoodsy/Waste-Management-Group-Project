@@ -48,10 +48,19 @@
                   'bi-eye': passwordType !== 'password'}" aria-hidden="true"></span>
                 </button>
               </div>
+              <span class="invalid-feedback" style="text-align: left">{{ msg.password }}</span>
+            </div>
+            <div>
+              <alert v-if="loginCount===3" class="m-2" id="noMoreAttempts">
+                3 incorrect login attempts. No more attempts allowed.
+                Click
+                <router-link class="link-text m-0">here</router-link>
+                to reset password.</alert>
+              <router-link class="link-text">Forgot password?</router-link>
             </div>
             <br>
 
-            <span class="invalid-feedback" style="text-align: left">{{ msg.password }}</span>
+
           </div>
           <br>
           <!-- Button for login and link to register-->
@@ -76,7 +85,7 @@ import LogoutRequired from "./LogoutRequired";
 import Alert from "./Alert"
 import PageWrapper from "@/components/PageWrapper";
 
-const LoginPage = {
+export default {
   name: "LoginPage",
   data() {
     return {
@@ -89,7 +98,8 @@ const LoginPage = {
         'username': null,
         'password': null
       },
-      valid: true
+      valid: true,
+      loginCount: 0
     }
   },
 
@@ -112,7 +122,7 @@ const LoginPage = {
     },
     checkUsername() {
       if (this.username === '') {
-        this.msg['username'] = "Please enter a username"
+        this.msg['username'] = "Please enter an email address"
         this.valid = false
       } else {
         this.msg['username'] = null
@@ -135,12 +145,13 @@ const LoginPage = {
       this.checkUsername()
       this.checkPassword()
 
-      if (this.valid) {
+      if (this.valid && this.loginCount < 3) {
         this.$root.$data.user.login(this.username, this.password)
             .then(() => {
               this.$router.push({name: 'home'})
             })
             .catch((err) => {
+              this.loginCount += 1
               this.error = err.response
                   ? err.response.data.slice(err.response.data.indexOf(":") + 2)
                   : err
@@ -153,7 +164,6 @@ const LoginPage = {
   }
 };
 
-export default LoginPage;
 
 </script>
 
