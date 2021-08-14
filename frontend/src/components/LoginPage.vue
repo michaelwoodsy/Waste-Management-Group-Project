@@ -49,6 +49,14 @@
                 </button>
               </div>
             </div>
+            <div>
+              <alert v-if="loginCount===3" class="m-2" id="noMoreAttempts">
+                3 incorrect login attempts. No more attempts allowed.
+                Click
+                <router-link class="link-text m-0">here</router-link>
+                to reset password.</alert>
+              <router-link class="link-text">Forgot password?</router-link>
+            </div>
             <br>
 
             <span class="invalid-feedback" style="text-align: left">{{ msg.password }}</span>
@@ -89,7 +97,8 @@ const LoginPage = {
         'username': null,
         'password': null
       },
-      valid: true
+      valid: true,
+      loginCount: 0
     }
   },
 
@@ -135,12 +144,13 @@ const LoginPage = {
       this.checkUsername()
       this.checkPassword()
 
-      if (this.valid) {
+      if (this.valid && this.loginCount < 3) {
         this.$root.$data.user.login(this.username, this.password)
             .then(() => {
               this.$router.push({name: 'home'})
             })
             .catch((err) => {
+              this.loginCount += 1
               this.error = err.response
                   ? err.response.data.slice(err.response.data.indexOf(":") + 2)
                   : err
