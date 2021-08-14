@@ -3,6 +3,10 @@ import undo from '@/utils/undo'
 
 describe('Testing the undo module', () => {
 
+    beforeEach(() => {
+        undo.state.toDelete = null
+    })
+
     test('Test the queueDelete method sets onUnload event listener', () => {
         jest.spyOn(window, 'addEventListener')
         undo.queueDelete()
