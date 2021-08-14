@@ -4,9 +4,17 @@
       <div class="col">
         <div class="row">
           <div class="col-12 d-flex justify-content-center">
-            <h2><strong>{{ listing.inventoryItem.product.name }}</strong></h2>
-            <em :class="{bi:true, 'bi-heart-fill':liked, 'bi-heart':!liked, heart:true}" @click="likeListing"/>
-            <h2 style="margin-left: 10px">{{ likes }}</h2>
+            <h2>
+              <strong>{{ listing.inventoryItem.product.name }}</strong>
+              <em class="bi mx-2 pointer text-warning"
+                  :class="{'bi-star-fill': stared, 'bi-star': !stared}"
+                  @click="starListing"
+              />
+              <em class="bi heart ml-2 pointer"
+                  :class="{'bi-heart-fill':liked, 'bi-heart':!liked}"
+                  @click="likeListing"/>
+              {{ likes }}
+            </h2>
           </div>
         </div>
 
@@ -209,6 +217,7 @@ export default {
   data() {
     return {
       liked: false,
+      stared: false,
       likes: 0,
       buyClicked: false,
       purchaseMsg: null,
@@ -308,16 +317,22 @@ export default {
       this.$emit('viewBusiness', listing)
     },
 
+    /**
+     * Stars and un-stars the sale listing.
+     */
+    starListing() {
+      console.log(this.stared)
+      this.stared = !this.stared
+      Business.starListing(this.listing.id, this.stared)
+    }
+
   }
 }
 </script>
 
 <style scoped>
-
 .heart {
-  color: red;
-  font-size: 30px;
-  margin-left: 20px;
+  color: red
 }
 
 .buy-button {
