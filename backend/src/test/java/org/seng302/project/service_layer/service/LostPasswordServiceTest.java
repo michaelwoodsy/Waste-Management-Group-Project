@@ -4,27 +4,12 @@ import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
-import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
-import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
-import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
-import org.seng302.project.service_layer.exceptions.BadRequestException;
-import org.seng302.project.service_layer.exceptions.ForbiddenException;
-import org.seng302.project.service_layer.exceptions.InvalidDateException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
-import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.jpa.domain.Specification;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
 
 
 @DataJpaTest
@@ -51,7 +36,7 @@ class LostPasswordServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Before each test, setup four sale listings with different parameters
+     * Before each test, setup user and conformation token
      */
     @BeforeEach
     void setup() {

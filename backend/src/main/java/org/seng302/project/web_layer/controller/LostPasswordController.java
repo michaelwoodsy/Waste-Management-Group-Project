@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 /**
- * Rest controller for sale listings.
+ * Rest controller for lost passwords.
  */
 @RestController
 public class LostPasswordController {
