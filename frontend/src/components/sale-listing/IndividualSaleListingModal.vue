@@ -272,6 +272,7 @@ export default {
       if (this.liked) {
         Business.unlikeListing(this.$props.listing.id).then(() => {
           this.liked = !this.liked
+          this.stared = false
           this.likes -= 1
           this.purchaseMsg = "Successfully unliked Listing"
           this.$emit('updateListings')
@@ -321,10 +322,26 @@ export default {
     /**
      * Stars and un-stars the sale listing.
      */
-    starListing() {
-      console.log(this.stared)
-      this.stared = !this.stared
-      Business.starListing(this.listing.id, this.stared)
+    async starListing() {
+      this.purchaseMsg = null
+      this.errorMsg = null
+      try {
+        // a listing must first be liked to star it
+        if (!this.stared && !this.liked) {
+          await this.likeListing()
+        }
+
+        // star the listing
+        await Business.starListing(this.listing.id, !this.stared)
+        this.stared = !this.stared
+        this.$emit('updateListings')
+      }
+      catch (err) {
+        console.log(err)
+        this.errorMsg = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+            : err
+      }
     }
 
   }
