@@ -4,22 +4,30 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+/**
+ * Service class for sending emails.
+ */
+@Service
 @Data
-public class EmailServiceImpl {
+public class EmailService {
 
     private JavaMailSender mailSender;
 
     @Autowired
-    public EmailServiceImpl(JavaMailSender mailSender) {
+    public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
-    public void sendSimpleMessage(String to, String subject, String text) {
+    /**
+     * Sends an email.
+     * @param to Email address to send the email to.
+     * @param subject Subject line of the email.
+     * @param text Text content of the email.
+     */
+    public void sendMessage(String to, String subject, String text) {
         var message = new SimpleMailMessage();
-        message.setFrom("noreply@baeldung.com");
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
