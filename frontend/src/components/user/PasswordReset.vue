@@ -34,7 +34,7 @@
             </div>
           </div>
 
-          <div v-if="!submitting">
+          <div v-if="!success">
             <!-- Password Input-->
             <div class="row">
               <!--    Password    -->
@@ -72,7 +72,7 @@
           </div>
 
           <!-- Changes submitted -->
-          <div v-else>
+          <div v-if="success">
             <alert alert-type="alert-success" class="text-center">
               Password changed
             </alert>
@@ -107,7 +107,7 @@ export default {
       msg: {
         password: null
       },
-      submitting: false,
+      success: false,
       valid: true,
     }
   },
@@ -148,9 +148,8 @@ export default {
      * Validates the password
      * then calls endpoint if password valid
      */
-    validatePassword() {
+    async validatePassword() {
       this.valid = true;//Reset the value
-      this.submitting = true
 
       if (this.password === '') {
         this.msg.password = 'Please enter a password';
@@ -164,19 +163,23 @@ export default {
 
       if (!this.valid) {
         console.log('Please fix the shown errors and try again');
-        this.submitting = false
+        this.success = false
       } else {
         console.log('No Errors');
         //Send to server here
-        this.changePassword()
+        await this.changePassword()
       }
     },
 
     /**
      * Calls the endpoint to change a user's password
      */
-    changePassword() {
-      //TODO: call endpoint here
+    async changePassword() {
+      await User.editLostPassword(this.token, this.password).then(() => {
+        this.success = true
+      }).catch(() => {
+        this.msg.password = "Password is not valid, or the forgotten password token has expired"
+      })
     }
   }
 }

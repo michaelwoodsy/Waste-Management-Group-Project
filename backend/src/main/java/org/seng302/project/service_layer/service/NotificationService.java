@@ -11,7 +11,6 @@ import org.seng302.project.service_layer.exceptions.NoNotificationExistsExceptio
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.service_layer.exceptions.notification.ForbiddenNotificationActionException;
-import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -188,7 +187,7 @@ public class NotificationService {
 
         userService.checkForbidden(userId, appUser);
 
-        userNotification.setRead(read);
+        userNotification.setHasRead(read);
         userNotificationRepository.save(userNotification);
     }
 
@@ -220,7 +219,7 @@ public class NotificationService {
             throw new ForbiddenSystemAdminActionException();
         }
 
-        adminNotification.setRead(read);
+        adminNotification.setHasRead(read);
         adminNotificationRepository.save(adminNotification);
     }
 }

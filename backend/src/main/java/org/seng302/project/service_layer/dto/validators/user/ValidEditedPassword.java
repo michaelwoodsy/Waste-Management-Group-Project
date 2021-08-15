@@ -18,7 +18,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = ValidEditedPasswordValidator.class)
 @Documented
 public @interface ValidEditedPassword {
-    String message() default "PasswordInvalid: This Password is not valid.";
+    String message() default "This Password is not valid.";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

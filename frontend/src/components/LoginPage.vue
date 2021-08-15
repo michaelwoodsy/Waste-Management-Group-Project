@@ -54,9 +54,17 @@
               <alert v-if="loginCount===3" class="m-2" id="noMoreAttempts">
                 3 incorrect login attempts. No more attempts allowed.
                 Click
-                <router-link class="link-text m-0">here</router-link>
+                <a class="link-text m-0"
+                             data-target="#viewPasswordResetModal"
+                             data-toggle="modal"
+                             @click="viewPasswordReset = true"
+                >here</a>
                 to reset password.</alert>
-              <router-link class="link-text">Forgot password?</router-link>
+              <a class="link-text"
+                 data-target="#viewPasswordResetModal"
+                 data-toggle="modal"
+                 @click="viewPasswordReset = true"
+              >Forgot password?</a>
             </div>
             <br>
 
@@ -71,8 +79,64 @@
               <router-link class="link-text" to="/register">Register here</router-link>
             </p>
           </div>
-
-
+          <!-- Password Reset Modal -->
+          <div v-if="viewPasswordReset" id="viewPasswordResetModal" class="modal fade" data-backdrop="static">
+            <div class="modal-dialog modal-md">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <button aria-label="Close"
+                          class="close"
+                          data-dismiss="modal"
+                          type="button"
+                          @click="resetPasswordResetModal">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <!-- Show error if something wrong -->
+                  <div class="form-row mb-3">
+                    <alert v-if="error">
+                      {{ error }}
+                    </alert>
+                  </div>
+                  <!-- Email -->
+                  <div class="form-row mb-3">
+                    <label for="email"><strong>Password Reset Via Email<span class="required">*</span></strong></label>
+                    <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}" maxlength="100"
+                           placeholder="Enter your Email"
+                           required style="width: 100%" type="email">
+                    <!--    Error message for the email input    -->
+                    <span class="invalid-feedback">{{ msg.email }}</span>
+                  </div>
+                  <!-- Send Password Reset Button -->
+                  <div class="form-row mb-3">
+                    <button v-if="!submitting" id="sendPasswordResetButton" class="btn btn-block btn-primary text-center" style="width: 100%; margin:0 20px"
+                            v-on:click="sendEmail">Send Password Reset Email
+                    </button>
+                    <button v-else id="sendingPasswordResetButton" class="btn btn-block btn-primary text-center disabled" style="width: 100%; margin:0 20px"
+                            v-on:click="sendEmail">Sending Password Reset Email
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Password Reset Modal -->
+          <div v-if="emailSent" id="viewEmailSentModal" class="modal fade" data-backdrop="static">
+            <div class="modal-dialog modal-md">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <button aria-label="Close"
+                          class="close"
+                          data-dismiss="modal"
+                          type="button">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <p>
+                    Password Reset email has been sent
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </logout-required>
@@ -84,6 +148,9 @@
 import LogoutRequired from "./LogoutRequired";
 import Alert from "./Alert"
 import PageWrapper from "@/components/PageWrapper";
+import {User} from "@/Api";
+import $ from 'jquery';
+
 
 export default {
   name: "LoginPage",
@@ -93,10 +160,15 @@ export default {
       password: '',
       //Used to toggle visibility of password input
       passwordType: 'password',
+      email: null,
+      emailSent: true,
+      viewPasswordReset: false,
+      submitting: false,
       error: null,
       msg: {
         'username': null,
-        'password': null
+        'password': null,
+        'email': null,
       },
       valid: true,
       loginCount: 0
@@ -120,6 +192,10 @@ export default {
         this.passwordType = 'password'
       }
     },
+
+    /**
+     * Validates the user has entered an email
+     */
     checkUsername() {
       if (this.username === '') {
         this.msg['username'] = "Please enter an email address"
@@ -129,13 +205,44 @@ export default {
       }
     },
 
+    /**
+     * Validates the user has entered a password
+     */
     checkPassword() {
       if (this.password === '') {
         this.msg['password'] = "Please enter a password"
         this.valid = false
       } else {
         this.msg['password'] = null
+        this.submitting = true;
       }
+    },
+
+    /**
+     * Validates the email variable
+     * Checks if the string is of an email format using regex, if not, displays a warning message
+     */
+    checkEmail() {
+      if (this.email === '') {
+        this.msg['email'] = 'Please enter an email address'
+        this.valid = false
+      } else if (!/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(this.email)) {
+        this.msg['email'] = 'Invalid email address'
+        this.valid = false
+      } else {
+        this.msg['email'] = null
+      }
+    },
+
+    /**
+     * Resets the variables associated with sending the Password Reset when the user closes the modal
+     */
+    resetPasswordResetModal(){
+      this.email = null
+      this.submitting = false
+      this.viewPasswordReset = false
+      this.msg['email'] = null
+      this.error = null
     },
 
     /**
@@ -161,6 +268,32 @@ export default {
         this.valid = true
       }
     },
+
+    /**
+     * Password Reset send email logic
+     */
+    sendEmail(){
+      this.checkEmail()
+      if (this.valid) {
+        this.submitting = true
+        User.sendPasswordResetEmail(this.email)
+          .then(() => {
+            this.emailSent = true
+            this.resetPasswordResetModal()
+            $('#viewPasswordResetModal').modal('hide');
+            $('#viewEmailSentModal').modal('show');
+          })
+            .catch((err) => {
+              this.error = err.response
+              //TODO: fix this when backend is implemented
+                  // ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+                  // : err
+            })
+      } else {
+        //Change valid back to true for when the Password Reset button is clicked again
+        this.valid = true
+      }
+    }
   }
 };
 

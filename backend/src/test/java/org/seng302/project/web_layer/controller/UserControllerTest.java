@@ -425,7 +425,7 @@ class UserControllerTest extends AbstractInitializer {
 
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         //Exception string from the validation class
-        Assertions.assertEquals("MethodArgumentNotValidException: PasswordInvalid: This Password is not valid.", returnedExceptionString);
+        Assertions.assertEquals("MethodArgumentNotValidException: This Password is not valid.", returnedExceptionString);
     }
 
     /**

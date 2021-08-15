@@ -5,7 +5,6 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.seng302.project.AbstractInitializer;
@@ -179,7 +178,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     public void i_have_an_unread_message() {
         message = new Message("Test message", testUser, null, testOtherUser);
         message = messageRepository.save(message);
-        Assertions.assertFalse(message.isRead());
+        Assertions.assertFalse(message.isHasRead());
         Assertions.assertEquals(1, messageRepository.findAllByReceiver(testUser).size());
     }
 
@@ -202,7 +201,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     public void the_message_is_marked_as_read() {
         Optional<Message> message = messageRepository.findById(this.message.getId());
         message.ifPresent(value -> {
-            Assertions.assertTrue(value.isRead());
+            Assertions.assertTrue(value.isHasRead());
         });
     }
 
@@ -210,7 +209,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     public void i_have_an_unread_notification() {
         userNotification = new UserNotification("Test Notification", testUser);
         userNotification = userNotificationRepository.save(userNotification);
-        Assertions.assertFalse(message.isRead());
+        Assertions.assertFalse(message.isHasRead());
         Assertions.assertEquals(1, userNotificationRepository.findAllByUser(testUser).size());
     }
     @When("I click on \\(read) the notification")
@@ -234,7 +233,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     public void the_notification_is_marked_as_read() {
         Optional<UserNotification> userNotification = userNotificationRepository.findById(this.userNotification.getId());
         userNotification.ifPresent(value -> {
-            Assertions.assertTrue(value.isRead());
+            Assertions.assertTrue(value.isHasRead());
         });
     }
 
@@ -254,7 +253,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
 
     @Then("The message is marked as unread")
     public void the_message_is_marked_as_unread() {
-        Assertions.assertFalse(message.isRead());
+        Assertions.assertFalse(message.isHasRead());
     }
 
     @Given("I have a new notification")
@@ -273,7 +272,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
 
     @Then("The notification is marked as unread")
     public void the_notification_is_marked_as_unread() {
-        Assertions.assertFalse(userNotification.isRead());
+        Assertions.assertFalse(userNotification.isHasRead());
     }
 
     //AC3
