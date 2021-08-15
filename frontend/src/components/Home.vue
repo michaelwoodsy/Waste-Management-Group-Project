@@ -348,10 +348,10 @@ export default {
      */
     sortedLikedListings() {
       let sortFunc = (x, y) => {
-        if (x === y) {
+        if (x.userStarred === y.userStarred) {
           return 0
         }
-        else if (x) {
+        else if (x.userStarred) {
           return -1
         }
         return 1
@@ -444,15 +444,6 @@ export default {
         likedListings.push(listing)
       }
       this.likedListings = likedListings
-
-      // Iterate over liked listings and push the not starred ones first
-      // for (let listing of likedListings.filter((x) => x.starred)) {
-      //   this.likedListings.push(listing)
-      // }
-      // for (let listing of likedListings.filter((x) => !x.starred)) {
-      //   this.likedListings.push(listing)
-      // }
-
     },
 
     /**
