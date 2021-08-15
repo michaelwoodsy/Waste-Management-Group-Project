@@ -157,7 +157,7 @@ Component on Search page for searching businesses
                     @click="viewBusinessModal=false">
               <span aria-hidden="true">&times;</span>
             </button>
-            <business-profile-page-modal :id="viewBusinessModalId"></business-profile-page-modal>
+            <business-profile-page-modal business="viewBusinessModalId"></business-profile-page-modal>
           </div>
         </div>
       </div>

@@ -219,30 +219,11 @@
       </div>
     </div>
 
-    <div v-if="viewListingModal" id="viewListingModal" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewListingModal=false">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <individual-sale-listing-modal :listing="listingToView" @viewBusiness="viewBusiness" @updateListings="checkInputs"></individual-sale-listing-modal>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="viewBusinessModal" id="viewBusinessModal" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewBusinessModal=false">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <business-profile-page-modal :id="businessToViewId"></business-profile-page-modal>
-          </div>
-        </div>
-      </div>
+    <div v-if="viewListingModal">
+      <individual-sale-listing-modal :listing="listingToView"
+                                     @update-listings="checkInputs"
+                                     @close-modal="viewListingModal = false"
+      />
     </div>
 
   </page-wrapper>
@@ -255,7 +236,6 @@ import Pagination from "@/components/Pagination";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import {Business, Images} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
-import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 import Alert from "@/components/Alert";
 import LoginRequired from "@/components/LoginRequired";
 
@@ -264,7 +244,6 @@ export default {
   components: {
     LoginRequired,
     IndividualSaleListingModal,
-    BusinessProfilePageModal,
     PageWrapper,
     Pagination,
     ShowingResultsText,
@@ -325,8 +304,6 @@ export default {
       listings: [],
       listingToView: null,
       viewListingModal: false,
-      viewBusinessModal: false,
-      businessToViewId: null,
       error: null,
 
       totalCount: 0
@@ -516,19 +493,8 @@ export default {
      * @param listing the listing object for the modal to show
      */
     viewListing(listing) {
-      this.viewBusinessModal = false
       this.listingToView = listing
       this.viewListingModal = true
-    },
-
-    /**
-     * Turns popup modal to view  business on
-     * @param listing the listing object with the business information to show
-     */
-    viewBusiness(listing) {
-      this.viewListingModal = false
-      this.businessToViewId = listing.business.id
-      this.viewBusinessModal = true
     },
 
     /**

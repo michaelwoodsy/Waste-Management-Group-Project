@@ -164,7 +164,7 @@
             <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewBusinessModal=false">
               <span aria-hidden="true">&times;</span>
             </button>
-            <business-profile-page-modal :id="businessToViewId"></business-profile-page-modal>
+            <business-profile-page-modal business="businessToViewId"></business-profile-page-modal>
           </div>
         </div>
       </div>

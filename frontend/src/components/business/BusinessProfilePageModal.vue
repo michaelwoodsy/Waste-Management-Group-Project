@@ -1,218 +1,241 @@
 <template>
-  <page-wrapper>
-    <div class="row mb-3">
-      <div class="col">
-        <div class="row">
-          <div class="col-12 text-center mb-2">
-            <h2>{{ name }}</h2>
-          </div>
-        </div>
+  <div class="modal-content">
 
-        <!-- Profile image -->
-        <div class="row">
-          <div class="col-12 text-center mb-2">
-            <img
-                alt="profile image"
-                class="profile-image rounded-left rounded-right"
-                style="max-width: 400px"
-                :src="getPrimaryImage()"
-            />
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col text-center m-3">
-            <!-- Edit button -->
-            <router-link v-if="isGAA || isDGAA"
-                         :to="`businesses/${businessId}/edit`" class="btn btn-danger" data-dismiss="modal">Edit Business</router-link>
-            <router-link v-else-if="isPrimaryAdmin || canDoAdminAction"
-                         :to="`businesses/${businessId}/edit`" class="btn btn-primary" data-dismiss="modal">Edit Business</router-link>
-          </div>
-        </div>
-
-        <!-- Name of Business -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Name of Business: </p>
-          </div>
-          <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ name }}</p>
-          </div>
-        </div>
-
-        <!-- Description -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Description: </p>
-          </div>
-          <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ description }}</p>
-          </div>
-        </div>
-
-        <!-- Address-->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Address: </p>
-          </div>
-          <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ address }}</p>
-          </div>
-        </div>
-
-        <!-- Type -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Type: </p>
-          </div>
-          <div class="col-6">
-            <p>{{ businessType }}</p>
-          </div>
-        </div>
-
-        <!-- Date of Registration -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Date of Registration: </p>
-          </div>
-          <div class="col-6">
-            <p>Registered since: {{ dateJoined }} ({{ dateSinceJoin }})</p>
-          </div>
-        </div>
-
-        <!-- Administrators -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Administrators: </p>
-          </div>
-          <div class="col-6">
-            <table aria-label="Administrators of this business">
-              <tr v-for="(admin, index) in administrators" :key="index">
-                <th id="administrator-name" class="font-weight-normal">
-                  <router-link data-dismiss="modal" :to="`/users/${admin.id}`" class="nav-link p-0">
-                    {{ admin.firstName }} {{ admin.lastName }}
-                  </router-link>
-                </th>
-                <td v-if="isPrimaryAdmin && (primaryAdminId !== admin.id)">
-                  <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;"
-                     v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-        <div class="row">
-          <div v-if="removedAdmin" class="col text-center">
-            <p style="color: green">{{ removedAdmin }}</p>
-          </div>
-          <div v-if="error" class="col text-center">
-            <p style="color: red">{{ error }}</p>
-          </div>
-        </div>
+    <div class="modal-header">
+      <div class="col-2 text-left">
+        <button class="btn btn-secondary" @click="$emit('back')">Back</button>
+      </div>
+      <div class="col text-center">
+        <h2>{{ name }}</h2>
+      </div>
+      <div class="col-2 text-right">
+        <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="$emit('close-modal')">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
     </div>
 
-    <div class="row justify-content-center" style="margin-bottom: 10px">
-      <router-link data-dismiss="modal" :to="`businesses/${this.businessId}/listings`" class="btn btn-outline-primary mx-2">
-        View Business's Listings
-      </router-link>
-    </div>
+    <div class="modal-body">
+      <div class="row mb-3">
+        <div class="col">
+          <div class="row">
+            <div class="col-12 text-center mb-2">
 
-    <div v-if="$root.$data.user.canDoAdminAction()" class="row justify-content-center">
-      <router-link data-dismiss="modal" :to="`businesses/${this.businessId}/products`" class="btn btn-outline-danger mr-2">
-        View Product Catalogue
-      </router-link>
-      <router-link data-dismiss="modal" :to="`businesses/${this.businessId}/inventory`" class="btn btn-outline-danger mr-2">
-        View Inventory
-      </router-link>
-      <button class="btn btn-outline-danger" data-target="#addAdministrator" data-toggle="modal">Add Administrator
-      </button>
-
-
-      <div id="addAdministrator" aria-hidden="true" aria-labelledby="addAdministratorLabel" class="modal fade"
-           role="dialog" tabindex="-1">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 id="addAdministratorLabel" class="modal-title">Add Administrator</h5>
-              <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-                <span aria-hidden="true">&times;</span>
-              </button>
             </div>
-            <div class="modal-body">
-              <div class="form-row">
-                <!--    User ID    -->
-                <label for="userId">
-                  <strong>User ID</strong>
-                </label>
-                <br/>
-                <input id="userId" v-model="addAdministratorUserId"
-                       :class="{'form-control': true, 'is-invalid': addAdministratorError}"
-                       placeholder="ID of the user you want to make administrator"
-                       required style="width:100%" type="number">
-                <!--   Error message for userId input   -->
-                <span class="invalid-feedback text-left">{{ addAdministratorError }}</span>
+          </div>
 
-                <div v-if="addAdministratorSuccess" class="col text-center mb-2">
-                  <p style="color: green">{{ addAdministratorSuccess }}</p>
+          <!-- Profile image -->
+          <div class="row">
+            <div class="col-12 text-center mb-2">
+              <img
+                  :src="getPrimaryImage()"
+                  alt="profile image"
+                  class="profile-image rounded-left rounded-right"
+                  style="max-width: 300px"
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col text-center m-3">
+              <!-- Edit button -->
+              <router-link v-if="isGAA || isDGAA"
+                           :to="`businesses/${businessId}/edit`" class="btn btn-danger" data-dismiss="modal">Edit
+                Business
+              </router-link>
+              <router-link v-else-if="isPrimaryAdmin || canDoAdminAction"
+                           :to="`businesses/${businessId}/edit`" class="btn btn-primary" data-dismiss="modal">Edit
+                Business
+              </router-link>
+            </div>
+          </div>
+
+          <!-- Name of Business -->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Name of Business: </p>
+            </div>
+            <div class="col-6">
+              <p style="word-wrap: break-word; max-width: 70%">{{ name }}</p>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Description: </p>
+            </div>
+            <div class="col-6">
+              <p style="word-wrap: break-word; max-width: 70%">{{ description }}</p>
+            </div>
+          </div>
+
+          <!-- Address-->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Address: </p>
+            </div>
+            <div class="col-6">
+              <p style="word-wrap: break-word; max-width: 70%">{{ address }}</p>
+            </div>
+          </div>
+
+          <!-- Type -->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Type: </p>
+            </div>
+            <div class="col-6">
+              <p>{{ businessType }}</p>
+            </div>
+          </div>
+
+          <!-- Date of Registration -->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Date of Registration: </p>
+            </div>
+            <div class="col-6">
+              <p>Registered since: {{ dateJoined }} ({{ dateSinceJoin }})</p>
+            </div>
+          </div>
+
+          <!-- Administrators -->
+          <div class="row">
+            <div class="col-6 text-right font-weight-bold">
+              <p>Administrators: </p>
+            </div>
+            <div class="col-6">
+              <table aria-label="Administrators of this business">
+                <tr v-for="(admin, index) in administrators" :key="index">
+                  <th id="administrator-name" class="font-weight-normal">
+                    <router-link :to="`/users/${admin.id}`" class="nav-link p-0" data-dismiss="modal">
+                      {{ admin.firstName }} {{ admin.lastName }}
+                    </router-link>
+                  </th>
+                  <td v-if="isPrimaryAdmin && (primaryAdminId !== admin.id)">
+                    <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;"
+                       v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="row">
+            <div v-if="removedAdmin" class="col text-center">
+              <p style="color: green">{{ removedAdmin }}</p>
+            </div>
+            <div v-if="error" class="col text-center">
+              <p style="color: red">{{ error }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row justify-content-center" style="margin-bottom: 10px">
+        <router-link :to="`businesses/${this.businessId}/listings`" class="btn btn-outline-primary mx-2"
+                     data-dismiss="modal">
+          View Business's Listings
+        </router-link>
+      </div>
+
+      <div v-if="$root.$data.user.canDoAdminAction()" class="row justify-content-center">
+        <router-link :to="`businesses/${this.businessId}/products`" class="btn btn-outline-danger mr-2"
+                     data-dismiss="modal">
+          View Product Catalogue
+        </router-link>
+        <router-link :to="`businesses/${this.businessId}/inventory`" class="btn btn-outline-danger mr-2"
+                     data-dismiss="modal">
+          View Inventory
+        </router-link>
+        <button class="btn btn-outline-danger" data-target="#addAdministrator" data-toggle="modal">Add Administrator
+        </button>
+
+
+        <div id="addAdministrator" aria-hidden="true" aria-labelledby="addAdministratorLabel" class="modal fade"
+             role="dialog" tabindex="-1">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 id="addAdministratorLabel" class="modal-title">Add Administrator</h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-row">
+                  <!--    User ID    -->
+                  <label for="userId">
+                    <strong>User ID</strong>
+                  </label>
+                  <br/>
+                  <input id="userId" v-model="addAdministratorUserId"
+                         :class="{'form-control': true, 'is-invalid': addAdministratorError}"
+                         placeholder="ID of the user you want to make administrator"
+                         required style="width:100%" type="number">
+                  <!--   Error message for userId input   -->
+                  <span class="invalid-feedback text-left">{{ addAdministratorError }}</span>
+
+                  <div v-if="addAdministratorSuccess" class="col text-center mb-2">
+                    <p style="color: green">{{ addAdministratorSuccess }}</p>
+                  </div>
+
                 </div>
-
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-block btn-danger" style="width: 40%; margin:0 10px"
+                        v-on:click="addAdministrator">
+                  Add Administrator
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
               </div>
             </div>
-            <div class="modal-footer">
-              <button class="btn btn-block btn-danger" style="width: 40%; margin:0 10px"
-                      v-on:click="addAdministrator">
-                Add Administrator
-              </button>
-              <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col text-left mb-2">
+          <h2>Business's Images</h2>
+        </div>
+      </div>
+
+      <div v-if="images.length === 0">
+        <p class="text-center"><strong>This Business has no Images</strong></p>
+      </div>
+      <div v-else class="row" style="height: 500px">
+        <div class="col col-12 justify-content-center">
+          <div id="imageCarousel" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+              <div v-for="(image, index) in images" v-bind:key="image.id"
+                   :class="{'carousel-item': true, 'active': index === 0}">
+                <img :src="getImageURL(image.filename)" alt="User Image"
+                     class="d-block img-fluid rounded mx-auto d-block" style="height: 500px">
+              </div>
             </div>
+            <a class="carousel-control-prev" data-slide="prev" href="#imageCarousel" role="button">
+              <span aria-hidden="true" class="carousel-control-prev-icon"></span>
+              <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" data-slide="next" href="#imageCarousel" role="button">
+              <span aria-hidden="true" class="carousel-control-next-icon"></span>
+              <span class="sr-only">Next</span>
+            </a>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="row">
-      <div class="col text-left mb-2">
-        <h2>Business's Images</h2>
-      </div>
-    </div>
-
-    <div v-if="images.length === 0">
-      <p class="text-center"><strong>This Business has no Images</strong></p>
-    </div>
-    <div v-else class="row" style="height: 500px">
-      <div class="col col-12 justify-content-center">
-        <div id="imageCarousel" class="carousel slide" data-ride="carousel">
-          <div class="carousel-inner">
-            <div v-for="(image, index) in images" v-bind:key="image.id"
-                 :class="{'carousel-item': true, 'active': index === 0}">
-              <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL(image.filename)" alt="User Image">
-            </div>
-          </div>
-          <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-          </a>
-          <a class="carousel-control-next" href="#imageCarousel" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </page-wrapper>
+  </div>
 </template>
 
 <script>
-import PageWrapper from "@/components/PageWrapper";
 import {Business, Images} from "@/Api";
+
 export default {
   name: "BusinessProfilePageModal",
-  components: {
-    PageWrapper
-  },
   props: {
-    id: Number
+    business: Number
   },
   data() {
     return {
@@ -236,11 +259,11 @@ export default {
   },
   watch: {
     async id() {
-      Business.getBusinessData(this.id).then((response) => this.profile(response))
+      Business.getBusinessData(this.business).then((response) => this.profile(response))
     }
   },
   mounted() {
-    Business.getBusinessData(this.id).then((response) => this.profile(response))
+    Business.getBusinessData(this.business).then((response) => this.profile(response))
   },
   computed: {
     /**
@@ -382,7 +405,7 @@ export default {
     getPrimaryImage() {
       if (this.primaryImageId !== null) {
         const primaryImageId = this.primaryImageId
-        const filteredImages = this.images.filter(function(specificImage) {
+        const filteredImages = this.images.filter(function (specificImage) {
           return specificImage.id === primaryImageId;
         })
         if (filteredImages.length === 1) {
