@@ -10,10 +10,13 @@ const VueTestUtils = require('@vue/test-utils')
 const listing = {
     inventoryItem: {
         product: {
-            images: {
-
-            }
+            images: [],
+            name: "Name"
         }
+    },
+    business: {
+        id: 1,
+        name: "Some Business"
     }
 }
 
@@ -29,7 +32,7 @@ beforeEach(() => {
             formatPrice() {
                 return null
             },
-            formatSeller() {
+            formatAddress() {
                 return null
             }
         }

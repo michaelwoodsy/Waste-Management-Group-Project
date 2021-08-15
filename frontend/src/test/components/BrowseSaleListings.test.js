@@ -177,6 +177,7 @@ describe("Tests for the BrowseSaleListings closing date range", () => {
 })
 
 describe("tests the browse sale listing methods", () => {
+
     beforeEach(() => {
         wrapper.vm.$data.listings = [
             {
@@ -259,6 +260,7 @@ describe("tests the browse sale listing methods", () => {
             }
         ]
     })
+
     test("tests that the sale listing to be viewed is saved", async () => {
         const listing = wrapper.vm.$data.listings[0]
         wrapper.vm.viewListing(listing)
@@ -273,18 +275,5 @@ describe("tests the browse sale listing methods", () => {
         expect(wrapper.find("#viewListingModal")).toBeTruthy()
     })
 
-    test("tests that the business to be viewed is saved", async () => {
-        const listing = wrapper.vm.$data.listings[0]
-        wrapper.vm.viewBusiness(listing)
-        expect(wrapper.vm.$data.viewListingModal).toBeFalsy()
-        expect(wrapper.vm.$data.viewBusinessModal).toBeTruthy()
-        expect(wrapper.vm.$data.businessToViewId).toStrictEqual(listing.business.id)
-    })
-
-    test("tests that the view business modal appears", async () => {
-        const listing = wrapper.vm.$data.listings[0]
-        wrapper.vm.viewBusiness(listing)
-        expect(wrapper.find("#viewBusinessModal")).toBeTruthy()
-    })
 })
 
