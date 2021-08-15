@@ -280,6 +280,14 @@ export const User = {
     validateLostPasswordToken: (token) => instance.get(`lostpassword/validate?token=${token}`),
 
     /**
+     * Sends a request to edit a lost password for the user that the token links to
+     * @param token         reset password token from the user
+     * @param password   new password for the user
+     * @returns {Promise<AxiosResponse<any>>}
+     */
+    editLostPassword: (token, password) => instance.patch(`lostpassword/edit`, {token, password}),
+
+    /**
      * Sends a request to send an email to the given email to reset the users password
      * @param email the user's email used to send a password reset email to
      * @returns {Promise<AxiosResponse<any>>}

@@ -82,6 +82,11 @@ export default {
       required: true
     }
   },
+  data() {
+    return {
+      deletingKeyword: false
+    }
+  },
   computed: {
     /**
      * Returns the formatted date-time of when the notification was created
@@ -114,8 +119,6 @@ export default {
           this.$emit('read-notification')
         } catch (error) {
           console.log(error)
-          // TODO: delete this line once backend is done
-          this.$emit('read-notification')
         }
       }
     },
@@ -128,7 +131,13 @@ export default {
 
         // create request function
         if (this.isAdminNotification) {
-          request = async () => {await User.deleteAdminNotification(this.data.id)}
+          if (this.deletingKeyword) {
+            request = async () => {await User.deleteAdminNotification(this.data.id).then(async () => {
+              await Keyword.deleteKeyword(this.data.keyword.id)
+            })}
+          }else {
+            request = async () => {await User.deleteAdminNotification(this.data.id)}
+          }
         } else {
           request = async () => {await User.deleteNotification(user.actingUserId(), this.data.id)}
         }
@@ -145,9 +154,9 @@ export default {
      * Deletes the keyword and notification
      */
     async deleteKeyword() {
+      this.deletingKeyword = true
       try {
         await this.removeNotification()
-        await Keyword.deleteKeyword(this.data.keyword.id)
       } catch (error) {
         console.log(error)
       }
