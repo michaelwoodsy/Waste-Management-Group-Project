@@ -92,7 +92,7 @@
             <h2>My Liked Listings</h2>
             <div class="row row-cols-1">
               <div v-for="listing in likedListings" v-bind:key="listing.id" class="col">
-                <liked-listing :listing-data="listing" @updateData="updateData"></liked-listing>
+                <liked-listing :data="listing" @updateData="updateData"></liked-listing>
               </div>
             </div>
           </div>
@@ -131,7 +131,7 @@
         <!-- Undo link -->
         <div v-if="canUndo">
           <button class="btn btn-primary w-100" @click="undoDelete()">
-            Undo Deletion <em class="bi bi-arrow-counterclockwise"/> ({{countDown}})
+            Undo Deletion <em class="bi bi-arrow-counterclockwise"/> ({{ countDown }})
           </button>
         </div>
 
@@ -420,11 +420,9 @@ export default {
      */
     async getLikedListings() {
       this.likedListings = []
-      for (let likedListing of this.user.state.userData.likedSaleListings){
-        const currency = await this.$root.$data.product.getCurrency(likedListing.listing.business.address.country)
-        let listing = likedListing.listing
-        listing.currency = currency
-        this.likedListings.push(listing)
+      for (let likedListing of this.user.state.userData.likedSaleListings) {
+        likedListing.listing.currency = await this.$root.$data.product.getCurrency(likedListing.listing.business.address.country)
+        this.likedListings.push(likedListing)
       }
     },
 
@@ -605,7 +603,7 @@ export default {
      * Decrements countdown timer to zero
      */
     countDownTimer() {
-      if(this.countDown > 0) {
+      if (this.countDown > 0) {
         setTimeout(() => {
           this.countDown -= 1
           this.countDownTimer()

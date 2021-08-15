@@ -1,17 +1,18 @@
 <template>
-  <page-wrapper>
-    <div class="row mb-3">
-      <div class="col">
-        <div class="row">
-          <div class="col-12 d-flex justify-content-center">
-            <h2><strong>{{ listing.inventoryItem.product.name }}</strong></h2>
-            <em :class="{bi:true, 'bi-heart-fill':liked, 'bi-heart':!liked, heart:true}" @click="likeListing"/>
-            <h2 style="margin-left: 10px">{{ likes }}</h2>
-          </div>
+  <div class="row mb-3">
+    <div class="col">
+      <div class="row">
+        <div class="col-12 d-flex justify-content-center">
+          <h2><strong>{{ listing.inventoryItem.product.name }}</strong></h2>
+          <em :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart pointer" @click="likeListing"/>
+          <h2 style="margin-left: 10px">{{ likes }}</h2>
         </div>
+      </div>
+
+      <div class="modal-body">
 
         <!-- Listing images -->
-        <div class="modal-body">
+        <div>
           <div v-if="listing.inventoryItem.product.images.length === 0">
             <p class="text-center"><strong>This Product has no Images</strong></p>
           </div>
@@ -21,15 +22,16 @@
                 <div class="carousel-inner">
                   <div v-for="(image, index) in listing.inventoryItem.product.images" v-bind:key="image.id"
                        :class="{'carousel-item': true, 'active': index === 0}">
-                    <img class="d-block img-fluid rounded mx-auto w-auto" style="max-height: 500px" :src="getImageURL(image.filename)" alt="ProductImage">
+                    <img :src="getImageURL(image.filename)" alt="ProductImage"
+                         class="d-block img-fluid rounded mx-auto w-auto" style="max-height: 300px">
                   </div>
                 </div>
-                <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
-                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <a class="carousel-control-prev" data-slide="prev" href="#imageCarousel" role="button">
+                  <span aria-hidden="true" class="carousel-control-prev-icon"></span>
                   <span class="sr-only">Previous</span>
                 </a>
-                <a class="carousel-control-next" href="#imageCarousel" role="button" data-slide="next">
-                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <a class="carousel-control-next" data-slide="next" href="#imageCarousel" role="button">
+                  <span aria-hidden="true" class="carousel-control-next-icon"></span>
                   <span class="sr-only">Next</span>
                 </a>
               </div>
@@ -49,9 +51,9 @@
         <!-- Buy button -->
         <div class="row">
           <div class="col-12 d-flex justify-content-center">
-            <button id="buyButton"
+            <button v-if="!buyClicked"
+                    id="buyButton"
                     class="btn btn-primary m-3 buy-button"
-                    v-if="!buyClicked"
                     @click="buy"
             >
               Buy
@@ -186,21 +188,19 @@
           </div>
         </div>
 
-
       </div>
-    </div>
 
-  </page-wrapper>
+    </div>
+  </div>
 </template>
 
 <script>
-import PageWrapper from "@/components/PageWrapper";
-import {Images, Business} from "@/Api";
+import {Business, Images} from "@/Api";
 import Alert from "@/components/Alert"
+
 export default {
   name: "IndividualSaleListingModal",
   components: {
-    PageWrapper,
     Alert
   },
   props: {
@@ -318,6 +318,11 @@ export default {
   color: red;
   font-size: 30px;
   margin-left: 20px;
+  transition: 0.3s;
+}
+
+.heart:hover {
+  text-shadow: red 0 0 5px;
 }
 
 .buy-button {

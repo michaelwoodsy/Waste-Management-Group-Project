@@ -14,6 +14,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor // generate a no-args constructor needed by JPA (lombok pre-processor)
 @Entity // declare this class as a JPA entity (that can be mapped to a SQL table)
+@Table(name = "new_keyword_notification")
 @PrimaryKeyJoinColumn(name = "new_keyword_notification_id")
 public class NewKeywordNotification extends AdminNotification {
 

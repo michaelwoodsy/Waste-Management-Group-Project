@@ -61,6 +61,7 @@
       </div>
       <div v-else>
         <router-link to="/businesses" class="dropdown-item">Create Business</router-link>
+        <router-link :to="userProfileRoute" class="dropdown-item">My Profile</router-link>
         <router-link :to="editUserRoute" class="dropdown-item">Edit Profile</router-link>
       </div>
       <div class="dropdown-divider"/>

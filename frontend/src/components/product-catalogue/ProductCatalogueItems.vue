@@ -78,14 +78,14 @@
             <td>{{ formatPrice(product) }}</td>
             <td>{{ new Date(product.created).toDateString() }}</td>
             <td v-if="!selectingItem">
-              <button class="btn btn-primary" @click="editProduct(product.id)">Edit</button>
+              <button class="btn btn-sm btn-primary" @click="editProduct(product.id)">Edit</button>
             </td>
             <td v-if="!selectingItem">
-              <button class="btn btn-primary" data-target="#viewImages" data-toggle="modal"
-                      @click="changeViewedProduct(product)">View Images</button>
+              <button class="btn btn-sm btn-primary" data-target="#viewImages" data-toggle="modal"
+                      @click="changeViewedProduct(product)">Images</button>
             </td>
             <td v-if="selectingItem">
-              <button class="btn btn-primary" @click="selectProduct(product)">Select</button>
+              <button class="btn btn-sm btn-primary" @click="selectProduct(product)">Select</button>
             </td>
           </tr>
           </tbody>

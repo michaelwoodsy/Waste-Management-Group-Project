@@ -15,25 +15,28 @@ Displays a user's liked listings.
       <div class="card-body">
 
         <!-- Product Name -->
-        <h6 class="card-title"> {{ listingData.inventoryItem.product.name }} </h6>
+        <em v-if="tagColour" id="tag" class="bi bi-tag-fill float-right" :style="cssVars"/>
+        <h6 class="card-title">{{ data.listing.inventoryItem.product.name }}</h6>
 
         <!-- Quantity and Price, cause sizing issues -->
         <p class="card-text text-muted small mb-1">
-          Quantity: {{ listingData.quantity }}
+          Quantity: {{ data.listing.quantity }}
         </p>
 
         <p class="card-text text-muted small mb-1">
-          Price: {{ formatPrice(listingData) }}
+          Price: {{ formatPrice(data.listing) }}
         </p>
 
         <div class="text-right">
 
+          <button class="btn btn-sm btn-outline-primary"><em class="bi bi-tag"/> Tag</button>
+
           <!-- Open Listing Modal -->
           <button
-              class="btn btn-sm btn-outline-primary ml-5"
+              class="btn btn-sm btn-outline-primary ml-3"
               data-target="#viewListingModal"
               data-toggle="modal"
-              @click="viewListing(listingData)"
+              @click="viewListing(data.listing)"
           >
             View Details
           </button>
@@ -49,7 +52,8 @@ Displays a user's liked listings.
             <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="closeModal">
               <span aria-hidden="true">&times;</span>
             </button>
-            <individual-sale-listing-modal :listing="listingToView" @viewBusiness="viewBusiness"></individual-sale-listing-modal>
+            <individual-sale-listing-modal :listing="listingToView"
+                                           @viewBusiness="viewBusiness"></individual-sale-listing-modal>
           </div>
         </div>
       </div>
@@ -59,7 +63,8 @@ Displays a user's liked listings.
       <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewBusinessModal=false">
+            <button aria-label="Close" class="close" data-dismiss="modal" type="button"
+                    @click="viewBusinessModal=false">
               <span aria-hidden="true">&times;</span>
             </button>
             <business-profile-page-modal :id="businessToViewId"></business-profile-page-modal>
@@ -77,6 +82,16 @@ import {Images} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
 import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal"
 
+// const tagColours = {
+//   RED: "red",
+//   ORANGE: "orange",
+//   YELLOW: "yellow",
+//   GREEN: "green",
+//   BLUE: "blue",
+//   PURPLE: "purple",
+//   NONE: null
+// }
+
 export default {
   name: "LikedListing",
   components: {
@@ -85,7 +100,7 @@ export default {
   },
   props: {
     // Data of the sale listing.
-    listingData: {
+    data: {
       type: Object,
       required: true
     },
@@ -102,7 +117,23 @@ export default {
   },
 
   mounted() {
-    this.getPrimaryImage(this.listingData.inventoryItem.product)
+    this.getPrimaryImage(this.data.listing.inventoryItem.product)
+  },
+
+  computed: {
+    /**
+     * Returns the colour associated with a tag
+     */
+    tagColour() {
+      return "purple"
+      //return tagColours[this.data.tag]
+    },
+
+    cssVars() {
+      return {
+        '--colour': this.tagColour
+      }
+    }
   },
 
   methods: {
@@ -110,7 +141,7 @@ export default {
      * Method called after closing the modal
      */
     closeModal() {
-      this.viewListingModal=false
+      this.viewListingModal = false
       this.$emit('updateData')
     },
     /**
@@ -187,6 +218,17 @@ export default {
 </script>
 
 <style scoped>
+
+#tag {
+  color: var(--colour);
+  font-size: 30px;
+  transition: 0.3s;
+}
+
+#tag:hover {
+  text-shadow: var(--colour) 0 0 3px;
+}
+
 .card-size {
   margin-bottom: 40px;
 }

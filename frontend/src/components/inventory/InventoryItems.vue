@@ -83,7 +83,7 @@
           >
             <td>{{ item.product.id }}</td>
             <td>
-              <img alt="productImage" class="ui-icon-image"
+              <img alt="productImage" class="ui-icon-image" style="max-height: 150px"
                    :src="getPrimaryImageThumbnail(item.product)">
             </td>
             <td>
@@ -97,11 +97,11 @@
             <td>{{ formatDate(item.bestBefore) }}</td>
             <td>{{ formatDate(item.expires) }}</td>
             <td v-if="!selectingItem">
-              <button class="btn btn-primary" @click="editItem(item.id)">Edit</button>
+              <button class="btn btn-sm btn-primary" @click="editItem(item.id)">Edit</button>
             </td>
             <td v-if="!selectingItem">
-              <button class="btn btn-primary" data-target="#viewImages" data-toggle="modal"
-                      @click="changeViewedProduct(item.product)">View Images</button>
+              <button class="btn btn-sm btn-primary" data-target="#viewImages" data-toggle="modal"
+                      @click="changeViewedProduct(item.product)">Images</button>
             </td>
             <td v-if="selectingItem">
               <button class="btn btn-primary" @click="selectProduct(item)">Select</button>
