@@ -13,9 +13,7 @@ import org.seng302.project.service_layer.dto.notifications.DeleteUserNotificatio
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NoNotificationExistsException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
-import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenDGAAActionException;
 import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenSystemAdminActionException;
-import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -259,13 +257,13 @@ class NotificationServiceTest extends AbstractInitializer {
                     return testNotification;
                 });
 
-        testNotification.setRead(false);
+        testNotification.setHasRead(false);
 
         AppUserDetails appUser = new AppUserDetails(testUser);
 
         notificationService.readUserNotification(true, testNotification.getId(), testUser.getId(), appUser);
 
-        Assertions.assertTrue(testNotification.isRead());
+        Assertions.assertTrue(testNotification.isHasRead());
     }
 
     /**
@@ -314,13 +312,13 @@ class NotificationServiceTest extends AbstractInitializer {
                     return testAdminNotification;
                 });
 
-        testAdminNotification.setRead(false);
+        testAdminNotification.setHasRead(false);
 
         AppUserDetails appUser = new AppUserDetails(testSystemAdmin);
 
         notificationService.readAdminNotification(true, testAdminNotification.getId(), appUser);
 
-        Assertions.assertTrue(testAdminNotification.isRead());
+        Assertions.assertTrue(testAdminNotification.isHasRead());
     }
 
 
