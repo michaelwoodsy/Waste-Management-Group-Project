@@ -232,7 +232,8 @@ export default {
       notifications: [],
       messages: [],
       error: "",
-      countDown: 10
+      countDown: 10,
+      alreadyCountingDown: false
     }
   },
   computed: {
@@ -521,7 +522,10 @@ export default {
      */
     removeNotification(notificationId) {
       this.countDown = 9
-      this.countDownTimer()
+      if (!this.alreadyCountingDown) {
+        this.alreadyCountingDown = true
+        this.countDownTimer()
+      }
       // Remove the notification from the list that is shown
       for (const [index, notification] of this.notifications.entries()) {
         if (notification.id === notificationId) {
@@ -580,7 +584,10 @@ export default {
      */
     removeMessage(messageId) {
       this.countDown = 9
-      this.countDownTimer()
+      if (!this.alreadyCountingDown) {
+        this.alreadyCountingDown = true
+        this.countDownTimer()
+      }
       // Remove the message from the list that is shown
       for (const [index, message] of this.messages.entries()) {
         if (message.id === messageId) {
@@ -610,6 +617,8 @@ export default {
           this.countDown -= 1
           this.countDownTimer()
         }, 1000)
+      } else {
+        this.alreadyCountingDown = false
       }
     }
   }

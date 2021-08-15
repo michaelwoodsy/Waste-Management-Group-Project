@@ -72,7 +72,6 @@ describe('Jest tests for Notification component', () => {
         await wrapper.vm.deleteKeyword()
         expect(undo.queueNotificationDelete).toHaveBeenCalledTimes(1)
         expect(User.deleteNotification).toHaveBeenCalledTimes(0)
-        expect(Keyword.deleteKeyword).toHaveBeenCalledTimes(1)
         expect(wrapper.emitted('remove-notification')).toBeTruthy()
     })
 
