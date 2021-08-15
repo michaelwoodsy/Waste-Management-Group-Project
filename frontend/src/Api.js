@@ -134,7 +134,7 @@ export const User = {
     readMessage: (userId, messageId, read) =>
         instance.patch(
             `users/${userId}/messages/${messageId}/read`,
-            {"read": read}
+            {read: read}
         ),
 
     /**
@@ -163,7 +163,7 @@ export const User = {
      */
     readNotification: (userId, notificationId, read) =>
         instance.patch(
-            `users/${userId}/notifications/${notificationId}`,
+            `users/${userId}/notifications/${notificationId}/read`,
             {read: read}
         ),
 
@@ -191,7 +191,7 @@ export const User = {
      */
     readAdminNotification: (notificationId, read) =>
         instance.patch(
-            `notifications/${notificationId}`,
+            `notifications/${notificationId}/read`,
             {read: read}
         ),
 
