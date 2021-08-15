@@ -4,9 +4,17 @@
       <div class="col">
         <div class="row">
           <div class="col-12 d-flex justify-content-center">
-            <h2><strong>{{ listing.inventoryItem.product.name }}</strong></h2>
-            <em :class="{bi:true, 'bi-heart-fill':liked, 'bi-heart':!liked, heart:true}" @click="likeListing"/>
-            <h2 style="margin-left: 10px">{{ likes }}</h2>
+            <h2>
+              <strong>{{ listing.inventoryItem.product.name }}</strong>
+              <em class="bi mx-2 pointer text-warning"
+                  :class="{'bi-star-fill': stared, 'bi-star': !stared}"
+                  @click="starListing"
+              />
+              <em class="bi heart ml-2 pointer"
+                  :class="{'bi-heart-fill':liked, 'bi-heart':!liked}"
+                  @click="likeListing"/>
+              {{ likes }}
+            </h2>
           </div>
         </div>
 
@@ -204,11 +212,12 @@ export default {
     Alert
   },
   props: {
-    listing: Object
+    listing: Object,
   },
   data() {
     return {
       liked: false,
+      stared: false,
       likes: 0,
       buyClicked: false,
       purchaseMsg: null,
@@ -218,6 +227,7 @@ export default {
   mounted() {
     this.likes = this.$props.listing.likes
     this.liked = this.$props.listing.userLikes
+    this.stared = this.$props.listing.userStarred
   },
   methods: {
     /**
@@ -259,29 +269,28 @@ export default {
      * Likes the displayed listing
      */
     async likeListing() {
-      if (this.liked) {
-        Business.unlikeListing(this.$props.listing.id).then(() => {
+      try {
+        if (this.liked) {
+          await Business.unlikeListing(this.$props.listing.id)
           this.liked = !this.liked
+          this.stared = false
           this.likes -= 1
           this.purchaseMsg = "Successfully unliked Listing"
-          this.$emit('updateListings')
-        }).catch((err) => {
-          this.errorMsg = err.response
-              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-              : err
-        })
-      } else {
-        Business.likeListing(this.$props.listing.id).then(() => {
+
+        } else {
+          await Business.likeListing(this.$props.listing.id)
           this.liked = !this.liked
           this.likes += 1
           this.purchaseMsg = "Successfully liked Listing!"
-          this.$emit('updateListings')
-        }).catch((err) => {
-          this.errorMsg = err.response
-              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-              : err
-        })
+        }
+        this.$emit('updateListings')
       }
+      catch (err) {
+        this.errorMsg = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+            : err
+      }
+
     },
 
     /**
@@ -308,16 +317,38 @@ export default {
       this.$emit('viewBusiness', listing)
     },
 
+    /**
+     * Stars and un-stars the sale listing.
+     */
+    async starListing() {
+      this.purchaseMsg = null
+      this.errorMsg = null
+      try {
+        // a listing must first be liked to star it
+        if (!this.stared && !this.liked) {
+          await this.likeListing()
+        }
+
+        // star the listing
+        await Business.starListing(this.listing.id, !this.stared)
+        this.stared = !this.stared
+        this.$emit('updateListings')
+      }
+      catch (err) {
+        console.log(err)
+        this.errorMsg = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+            : err
+      }
+    }
+
   }
 }
 </script>
 
 <style scoped>
-
 .heart {
-  color: red;
-  font-size: 30px;
-  margin-left: 20px;
+  color: red
 }
 
 .buy-button {

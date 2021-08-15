@@ -480,7 +480,15 @@ export const Business = {
      * @param listingId The ID of the listing to unlike
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
-    unlikeListing: (listingId) => instance.patch(`/listings/${listingId}/unlike`)
+    unlikeListing: (listingId) => instance.patch(`/listings/${listingId}/unlike`),
+
+    /**
+     * Sends a request to star or un-star a sale listing.
+     * @param listingId Id of the sale listing to star.
+     * @param value Boolean, sets the listing to starred if true, and un-starred if false.
+     * @returns {Promise<AxiosResponse<any>>} Response from  the request
+     */
+    starListing: (listingId, value) => instance.patch(`/listings/${listingId}/star`, {star: value}),
 };
 
 export const Card = {

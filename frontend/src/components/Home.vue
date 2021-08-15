@@ -91,7 +91,7 @@
           <div v-if="user.isActingAsUser()" class="col">
             <h2>My Liked Listings</h2>
             <div class="row row-cols-1">
-              <div v-for="listing in likedListings" v-bind:key="listing.id" class="col">
+              <div v-for="listing in sortedLikedListings" v-bind:key="listing.id" class="col">
                 <liked-listing :listing-data="listing" @updateData="updateData"></liked-listing>
               </div>
             </div>
@@ -341,6 +341,22 @@ export default {
       }
       readMessages.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
       return readMessages
+    },
+
+    /**
+     * Returns the likedListings sorted by starred first.
+     */
+    sortedLikedListings() {
+      let sortFunc = (x, y) => {
+        if (x.userStarred === y.userStarred) {
+          return 0
+        }
+        else if (x.userStarred) {
+          return -1
+        }
+        return 1
+      }
+      return [...this.likedListings].sort(sortFunc)
     }
 
   },
@@ -420,12 +436,14 @@ export default {
      */
     async getLikedListings() {
       this.likedListings = []
+      let likedListings = []
       for (let likedListing of this.user.state.userData.likedSaleListings){
         const currency = await this.$root.$data.product.getCurrency(likedListing.listing.business.address.country)
         let listing = likedListing.listing
         listing.currency = currency
-        this.likedListings.push(listing)
+        likedListings.push(listing)
       }
+      this.likedListings = likedListings
     },
 
     /**
