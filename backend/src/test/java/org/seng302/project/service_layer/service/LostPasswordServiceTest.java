@@ -4,12 +4,16 @@ import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 
 @DataJpaTest
@@ -69,5 +73,24 @@ class LostPasswordServiceTest extends AbstractInitializer {
         Assertions.assertNotNull(responseJSON);
         String email = responseJSON.get("email").toString();
         Assertions.assertEquals(testUser.getEmail(), email);
+    }
+
+    /**
+     * Tests that a confirmation token is successfully deleted after an hour
+     */
+    @Test
+    void deleteTokenAfter1Hour_success() {
+        Assertions.assertEquals(1, conformationTokenRepository.findAll().size());
+
+        lostPasswordService.removeConfirmationTokenAfter1Hr();
+
+        // To confirm it doesn't remove tokens if they have not been active for over an hour
+        Assertions.assertEquals(1, conformationTokenRepository.findAll().size());
+
+        conformationToken.setCreated(LocalDateTime.now().minusHours(2));
+        lostPasswordService.removeConfirmationTokenAfter1Hr();
+
+        // Now token should be removed
+        Assertions.assertEquals(0, conformationTokenRepository.findAll().size());
     }
 }
