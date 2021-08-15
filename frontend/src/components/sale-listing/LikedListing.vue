@@ -17,14 +17,14 @@ Displays a user's liked listings.
         <!-- Product Name -->
         <div class="dropdown">
           <em id="tag" :class="{'bi-tag-fill': tagged, 'bi-tag': !tagged}"
-              :style="cssVars" class="bi float-right pointer" data-toggle="dropdown"/>
+              :style="`color: ${tagColour}`" class="bi float-right pointer" data-toggle="dropdown"/>
           <div id="tagDropdown" class="dropdown-menu dropdown-menu-left">
-            <div v-for="colour of tagColours" :key="colour.name"
-                 class="dropdown-item pointer" @click="tagListing(colour)">
-              <em :style="`color: ${colour.colour}; font-size: 20px`" class="bi"
-                  :class="{'bi-tag-fill': colour.name !== 'None', 'bi-tag': colour.name === 'None'}"
+            <div v-for="tags of tags" :key="tags.name"
+                 class="dropdown-item pointer" @click="tagListing(tags)">
+              <em :style="`color: ${tags.colour}; font-size: 20px`" class="bi"
+                  :class="{'bi-tag-fill': tags.name !== 'None', 'bi-tag': tags.name === 'None'}"
               />
-              {{ colour.name }}
+              {{ tags.name }}
             </div>
           </div>
         </div>
@@ -91,37 +91,6 @@ import {Images, User} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
 import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal"
 
-const tagColours = {
-  RED: {
-    name: "Red",
-    colour: "Red"
-  },
-  ORANGE: {
-    name: "Orange",
-    colour: "DarkOrange"
-  },
-  YELLOW: {
-    name: "Yellow",
-    colour: "Gold"
-  },
-  GREEN: {
-    name: "Green",
-    colour: "ForestGreen"
-  },
-  BLUE: {
-    name: "Blue",
-    colour: "DodgerBlue"
-  },
-  PURPLE: {
-    name: "Purple",
-    colour: "DarkViolet"
-  },
-  NONE: {
-    name: "None",
-    colour: "DarkSlateGrey"
-  }
-}
-
 export default {
   name: "LikedListing",
   components: {
@@ -134,6 +103,10 @@ export default {
       type: Object,
       required: true
     },
+    tags: {
+      type: Object,
+      required: true
+    }
   },
 
   data() {
@@ -142,8 +115,7 @@ export default {
       viewListingModal: false,
       viewBusinessModal: false,
       businessToViewId: null,
-      imageUrl: null,
-      tagColours: tagColours
+      imageUrl: null
     }
   },
 
@@ -159,13 +131,7 @@ export default {
      * Returns the colour associated with a tag
      */
     tagColour() {
-      return tagColours[this.data.tag].colour
-    },
-
-    cssVars() {
-      return {
-        '--colour': this.tagColour
-      }
+      return this.tags[this.data.tag].colour
     }
   },
 
@@ -257,7 +223,7 @@ export default {
       const tagName = tag.name.toLowerCase()
       try {
         await User.tagListing(this.data.listing.id, tagName)
-        this.$emit('update-data')
+        this.$emit('update-tag', this.data.id, tagName.toUpperCase())
       } catch (error) {
         console.error(error)
       }
@@ -268,18 +234,13 @@ export default {
 
 <style scoped>
 
-:root {
-  --colour: black;
-}
-
 #tag {
-  color: var(--colour);
   font-size: 30px;
   transition: 0.3s;
 }
 
 #tag:hover {
-  text-shadow: var(--colour) 0 0 5px;
+  text-shadow: currentColor 0 0 5px;
 }
 
 .card-size {

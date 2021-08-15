@@ -55,6 +55,7 @@
 
       <!-- Page Content -->
       <div class="col-12 col-md-8 p-3">
+
         <div class="text-center">
           <h1><span v-if="user.isActingAsUser()">Hello </span>{{ user.actor().name }}</h1>
           <hr>
@@ -90,9 +91,35 @@
           <!-- Liked Listing Section -->
           <div v-if="user.isActingAsUser()" class="col">
             <h2>My Liked Listings</h2>
+            <div class="input-group mb-4">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Filter by tag</span>
+              </div>
+              <div class="form-control">
+                <div v-for="tag in tags" :key="tag.name" class="d-inline">
+                  <em v-if="tag.name !== 'None'"
+                      :class="{'bi-tag-fill': tagged(tag.name), 'bi-tag': !tagged(tag.name)}"
+                      :style="`color: ${tag.colour};`"
+                      class="tag-filter bi bi-tag-fill pointer mx-1"
+                      @click="toggleTagFilter(tag.name)"
+                  />
+                </div>
+              </div>
+              <div v-if="tagFilters.length > 0" class="input-group-append">
+                <button class="btn btn-danger"
+                        @click="tagFilters = []"
+                >
+                  <em class="bi bi-x-circle-fill"/>
+                </button>
+              </div>
+            </div>
             <div class="row row-cols-1">
-              <div v-for="listing in likedListings" v-bind:key="listing.id" class="col">
-                <liked-listing :data="listing" @update-data="updateData"/>
+              <div v-for="listing in taggedListings" v-bind:key="listing.id" class="col">
+                <liked-listing :data="listing"
+                               :tags="tags"
+                               @update-data="updateData"
+                               @update-tag="updateTag"
+                />
               </div>
             </div>
           </div>
@@ -190,8 +217,10 @@
       </div>
 
     </div>
+
   </div>
 </template>
+
 <script>
 import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/marketplace/MarketCard";
@@ -203,6 +232,37 @@ import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
 import undo from "@/utils/undo"
+
+const tags = {
+  RED: {
+    name: "Red",
+    colour: "Red"
+  },
+  ORANGE: {
+    name: "Orange",
+    colour: "DarkOrange"
+  },
+  YELLOW: {
+    name: "Yellow",
+    colour: "Gold"
+  },
+  GREEN: {
+    name: "Green",
+    colour: "ForestGreen"
+  },
+  BLUE: {
+    name: "Blue",
+    colour: "DodgerBlue"
+  },
+  PURPLE: {
+    name: "Purple",
+    colour: "DarkViolet"
+  },
+  NONE: {
+    name: "None",
+    colour: "DarkSlateGrey"
+  }
+}
 
 export default {
   name: "Home",
@@ -232,7 +292,9 @@ export default {
       notifications: [],
       messages: [],
       error: "",
-      countDown: 10
+      countDown: 10,
+      tags: tags,
+      tagFilters: []
     }
   },
   computed: {
@@ -341,10 +403,28 @@ export default {
       }
       readMessages.sort((a, b) => (new Date(a.created) > new Date(b.created)) ? -1 : 1)
       return readMessages
+    },
+
+    /**
+     * Returns listings that are tagged by one of the filter tags
+     */
+    taggedListings() {
+      if (this.tagFilters.length === 0) {
+        return this.likedListings
+      } else {
+        const listings = []
+        for (const listing of this.likedListings) {
+          if (this.tagFilters.includes(listing.tag)) {
+            listings.push(listing)
+          }
+        }
+        return listings
+      }
     }
 
   },
   methods: {
+
     /**
      * Updates the users data in the store
      */
@@ -352,6 +432,7 @@ export default {
       await this.user.updateData()
       await this.getData()
     },
+
     /**
      * Gets the user or businesses notifications, cards and messages
      */
@@ -384,6 +465,7 @@ export default {
       }
       this.showToasts()
     },
+
     /**
      * Displays the notifications section
      */
@@ -474,6 +556,7 @@ export default {
         return true;
       }
     },
+
     /**
      * Deletes a card from the list of cards once it has been deleted from the server
      * @param id
@@ -487,6 +570,7 @@ export default {
       //Refreshes messages as when deleting a card messages about that card would have been deleted.
       this.getMessages()
     },
+
     /**
      * Updates an extended cards information.
      * @param id ID of card to update
@@ -588,6 +672,45 @@ export default {
     },
 
     /**
+     * Updates a liked listing's tag after sending API request
+     *
+     * @param listingId ID of the liked listing to update
+     * @param name tag name to set
+     */
+    updateTag(listingId, name) {
+      for (const [index, listing] of this.user.state.userData.likedSaleListings.entries()) {
+        if (listing.id === listingId) {
+          listing.tag = name
+          this.$set(this.user.state.userData.likedSaleListings, index, listing)
+        }
+      }
+    },
+
+    /**
+     * Adds or removes a tag from the filter list
+     */
+    toggleTagFilter(name) {
+      name = name.toUpperCase()
+      if (this.tagged(name)) {
+        for (const [index, tag] of this.tagFilters.entries()) {
+          if (tag === name) {
+            this.tagFilters.splice(index, 1)
+            return
+          }
+        }
+      } else {
+        this.tagFilters.push(name)
+      }
+    },
+
+    /**
+     * Returns true if sale listings are currently being filtered by a particular tag
+     */
+    tagged(name) {
+      return this.tagFilters.includes(name.toUpperCase())
+    },
+
+    /**
      * Undoes the last delete operation.
      */
     undoDelete() {
@@ -616,5 +739,14 @@ export default {
 </script>
 
 <style scoped>
+
+.tag-filter {
+  font-size: 20px;
+  transition: 0.3s;
+}
+
+.tag-filter:hover {
+  text-shadow: currentColor 0 0 5px;
+}
 
 </style>
