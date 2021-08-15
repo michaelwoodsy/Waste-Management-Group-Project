@@ -25,7 +25,7 @@ public class GetMessageDTO {
         this.card = new GetCardResponseDTO(message.getCard());
         this.sender = new GetUserDTO(message.getSender());
         this.created = message.getCreated();
-        this.read = message.isHasRead();
+        this.read = message.isRead();
     }
 
 }

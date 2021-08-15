@@ -205,7 +205,7 @@ public class MessageService {
             throw new ForbiddenException(error);
         }
 
-        message.setHasRead(read);
+        message.setRead(read);
         messageRepository.save(message);
     }
 }

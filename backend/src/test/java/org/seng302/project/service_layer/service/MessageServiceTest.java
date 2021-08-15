@@ -323,7 +323,7 @@ class MessageServiceTest extends AbstractInitializer {
                     return testMessage;
                 });
 
-        testMessage.setHasRead(false);
+        testMessage.setRead(false);
 
         Integer userId = testReceiver.getId();
         Integer messageId = testMessage.getId();
@@ -331,7 +331,7 @@ class MessageServiceTest extends AbstractInitializer {
 
         messageService.readMessage(userId, messageId, true, appUser);
 
-        Assertions.assertTrue(testMessage.isHasRead());
+        Assertions.assertTrue(testMessage.isRead());
     }
 
     /**

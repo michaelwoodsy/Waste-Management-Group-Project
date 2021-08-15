@@ -257,13 +257,13 @@ class NotificationServiceTest extends AbstractInitializer {
                     return testNotification;
                 });
 
-        testNotification.setHasRead(false);
+        testNotification.setRead(false);
 
         AppUserDetails appUser = new AppUserDetails(testUser);
 
         notificationService.readUserNotification(true, testNotification.getId(), testUser.getId(), appUser);
 
-        Assertions.assertTrue(testNotification.isHasRead());
+        Assertions.assertTrue(testNotification.isRead());
     }
 
     /**
@@ -312,13 +312,13 @@ class NotificationServiceTest extends AbstractInitializer {
                     return testAdminNotification;
                 });
 
-        testAdminNotification.setHasRead(false);
+        testAdminNotification.setRead(false);
 
         AppUserDetails appUser = new AppUserDetails(testSystemAdmin);
 
         notificationService.readAdminNotification(true, testAdminNotification.getId(), appUser);
 
-        Assertions.assertTrue(testAdminNotification.isHasRead());
+        Assertions.assertTrue(testAdminNotification.isRead());
     }
 
 
