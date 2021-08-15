@@ -92,7 +92,7 @@
             <h2>My Liked Listings</h2>
             <div class="row row-cols-1">
               <div v-for="listing in likedListings" v-bind:key="listing.id" class="col">
-                <liked-listing :data="listing" @updateData="updateData"></liked-listing>
+                <liked-listing :data="listing" @update-data="updateData"/>
               </div>
             </div>
           </div>

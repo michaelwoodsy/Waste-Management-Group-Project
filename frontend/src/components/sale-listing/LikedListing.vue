@@ -15,7 +15,19 @@ Displays a user's liked listings.
       <div class="card-body">
 
         <!-- Product Name -->
-        <em v-if="tagColour" id="tag" class="bi bi-tag-fill float-right" :style="cssVars"/>
+        <div class="dropdown">
+          <em id="tag" :class="{'bi-tag-fill': tagged, 'bi-tag': !tagged}"
+              :style="cssVars" class="bi float-right pointer" data-toggle="dropdown"/>
+          <div id="tagDropdown" class="dropdown-menu dropdown-menu-left">
+            <div v-for="colour of tagColours" :key="colour.name"
+                 class="dropdown-item pointer" @click="tagListing(colour)">
+              <em :style="`color: ${colour.colour}; font-size: 20px`" class="bi"
+                  :class="{'bi-tag-fill': colour.name !== 'None', 'bi-tag': colour.name === 'None'}"
+              />
+              {{ colour.name }}
+            </div>
+          </div>
+        </div>
         <h6 class="card-title">{{ data.listing.inventoryItem.product.name }}</h6>
 
         <!-- Quantity and Price, cause sizing issues -->
@@ -28,9 +40,6 @@ Displays a user's liked listings.
         </p>
 
         <div class="text-right">
-
-          <button class="btn btn-sm btn-outline-primary"><em class="bi bi-tag"/> Tag</button>
-
           <!-- Open Listing Modal -->
           <button
               class="btn btn-sm btn-outline-primary ml-3"
@@ -78,19 +87,40 @@ Displays a user's liked listings.
 </template>
 
 <script>
-import {Images} from "@/Api";
+import {Images, User} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
 import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal"
 
-// const tagColours = {
-//   RED: "red",
-//   ORANGE: "orange",
-//   YELLOW: "yellow",
-//   GREEN: "green",
-//   BLUE: "blue",
-//   PURPLE: "purple",
-//   NONE: null
-// }
+const tagColours = {
+  RED: {
+    name: "Red",
+    colour: "Red"
+  },
+  ORANGE: {
+    name: "Orange",
+    colour: "DarkOrange"
+  },
+  YELLOW: {
+    name: "Yellow",
+    colour: "Gold"
+  },
+  GREEN: {
+    name: "Green",
+    colour: "ForestGreen"
+  },
+  BLUE: {
+    name: "Blue",
+    colour: "DodgerBlue"
+  },
+  PURPLE: {
+    name: "Purple",
+    colour: "DarkViolet"
+  },
+  NONE: {
+    name: "None",
+    colour: "DarkSlateGrey"
+  }
+}
 
 export default {
   name: "LikedListing",
@@ -112,7 +142,8 @@ export default {
       viewListingModal: false,
       viewBusinessModal: false,
       businessToViewId: null,
-      imageUrl: null
+      imageUrl: null,
+      tagColours: tagColours
     }
   },
 
@@ -121,12 +152,14 @@ export default {
   },
 
   computed: {
+    tagged() {
+      return this.data.tag !== "NONE"
+    },
     /**
      * Returns the colour associated with a tag
      */
     tagColour() {
-      return "purple"
-      //return tagColours[this.data.tag]
+      return tagColours[this.data.tag].colour
     },
 
     cssVars() {
@@ -142,7 +175,7 @@ export default {
      */
     closeModal() {
       this.viewListingModal = false
-      this.$emit('updateData')
+      this.$emit('update-data')
     },
     /**
      * Formats the price of a listing based on
@@ -212,12 +245,32 @@ export default {
       this.viewListingModal = false
       this.businessToViewId = listing.business.id
       this.viewBusinessModal = true
+    },
+
+    /**
+     * Sends request to tag a listing
+     *
+     * @param tag name of the tag
+     * @returns {Promise<void>}
+     */
+    async tagListing(tag) {
+      const tagName = tag.name.toLowerCase()
+      try {
+        await User.tagListing(this.data.listing.id, tagName)
+        this.$emit('update-data')
+      } catch (error) {
+        console.error(error)
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+
+:root {
+  --colour: black;
+}
 
 #tag {
   color: var(--colour);
@@ -226,7 +279,7 @@ export default {
 }
 
 #tag:hover {
-  text-shadow: var(--colour) 0 0 3px;
+  text-shadow: var(--colour) 0 0 5px;
 }
 
 .card-size {

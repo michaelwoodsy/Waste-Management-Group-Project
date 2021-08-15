@@ -228,7 +228,20 @@ export const User = {
      * @param token reset password token from the user
      * @returns {Promise<AxiosResponse<any>>}
      */
-    validateLostPasswordToken: (token) => instance.get(`lostpassword/validate?token=${token}`)
+    validateLostPasswordToken: (token) => instance.get(`lostpassword/validate?token=${token}`),
+
+    /**
+     * Sends a request to tag a liked sale listing
+     *
+     * @param listingId ID of listing to tag
+     * @param name Name of the tag
+     * @returns {Promise<AxiosResponse<any>>} response from request
+     */
+    tagListing: (listingId, name) => instance.patch(`listings/${listingId}/tag`,
+        {
+            tag: name
+        }
+    )
 
 };
 
