@@ -18,13 +18,13 @@ Displays a user's liked listings.
         <div class="dropdown">
           <em id="tag" :class="{'bi-tag-fill': tagged, 'bi-tag': !tagged}"
               :style="`color: ${tagColour}`" class="bi float-right pointer" data-toggle="dropdown"/>
-          <div id="tagDropdown" class="dropdown-menu dropdown-menu-left">
+          <div id="tagDropdown" class="dropdown-menu">
             <div v-for="tags of tags" :key="tags.name"
-                 class="dropdown-item pointer" @click="tagListing(tags)">
+                 class="dropdown-item pointer d-flex align-items-center" @click="tagListing(tags)">
               <em :style="`color: ${tags.colour}; font-size: 20px`" class="bi"
                   :class="{'bi-tag-fill': tags.name !== 'None', 'bi-tag': tags.name === 'None'}"
               />
-              {{ tags.name }}
+              <span class="ml-2">{{ tags.name }}</span>
             </div>
           </div>
         </div>

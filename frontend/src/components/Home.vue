@@ -93,20 +93,22 @@
             <h2>My Liked Listings</h2>
             <div class="input-group mb-4">
               <div class="input-group-prepend">
-                <span class="input-group-text">Filter by tag</span>
+                <span class="input-group-text">Filter By Tag</span>
               </div>
-              <div class="form-control">
+              <div class="form-control text-center tag-filters">
                 <div v-for="tag in tags" :key="tag.name" class="d-inline">
                   <em v-if="tag.name !== 'None'"
                       :class="{'bi-tag-fill': tagged(tag.name), 'bi-tag': !tagged(tag.name)}"
                       :style="`color: ${tag.colour};`"
-                      class="tag-filter bi bi-tag-fill pointer mx-1"
+                      class="tag bi bi-tag-fill pointer mx-2"
                       @click="toggleTagFilter(tag.name)"
                   />
                 </div>
               </div>
-              <div v-if="tagFilters.length > 0" class="input-group-append">
-                <button class="btn btn-danger"
+              <div class="input-group-append">
+                <button class="btn"
+                        :class="{'btn-secondary': tagFilters.length === 0, 'btn-danger': tagFilters.length > 0}"
+                        :disabled="tagFilters.length === 0"
                         @click="tagFilters = []"
                 >
                   <em class="bi bi-x-circle-fill"/>
@@ -260,7 +262,7 @@ const tags = {
   },
   NONE: {
     name: "None",
-    colour: "DarkSlateGrey"
+    colour: "DimGrey"
   }
 }
 
@@ -740,13 +742,25 @@ export default {
 
 <style scoped>
 
-.tag-filter {
+.tag-filters {
   font-size: 20px;
+}
+
+.tag {
   transition: 0.3s;
 }
 
-.tag-filter:hover {
+.tag:hover {
   text-shadow: currentColor 0 0 5px;
+}
+
+.remove-tag {
+  color: dimgrey;
+  transition: 0.3s;
+}
+
+.remove-tag:hover {
+  color: red;
 }
 
 </style>

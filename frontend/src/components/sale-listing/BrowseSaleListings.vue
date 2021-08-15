@@ -15,6 +15,7 @@
       </div>
       <br>
 
+      <!-- Search Option -->
       <div class="row mb-2">
         <div class="col-sm-7">
           <!--    Search Input    -->
@@ -121,21 +122,9 @@
         </div>
       </div>
 
-      <hr>
-
       <!-- Sale Listing Information -->
       <div>
         <alert v-if="error">{{ error }}</alert>
-
-        <!-- Number of results information -->
-        <div class="text-center">
-          <showing-results-text
-              :items-per-page="resultsPerPage"
-              :page="page"
-              :total-count="totalCount"
-          />
-        </div>
-
         <!-- Table of results -->
         <div class="overflow-auto">
           <table aria-label="Table of Sale Listings"
@@ -183,20 +172,24 @@
                 <img :src="getPrimaryImageThumbnail(listing.inventoryItem.product)" alt="productImage"
                      class="ui-icon-image">
               </td>
-              <td style="word-break: break-word; width: 50%">
-                {{ listing.inventoryItem.product.name }}
+              <td style="word-break: break-word; width: 35%">
+                {{ listing.inventoryItem.product.name }}<br>
+                <em class="bi bi-heart-fill" style="color: red"/> {{ listing.likes }}
                 <span v-if="listing.moreInfo" style="font-size: small"><br/>{{ listing.moreInfo }}</span>
               </td>
               <td>{{ listing.quantity }}</td>
               <td>{{ formatPrice(listing) }}</td>
               <td>{{ formatDate(listing.created) }}</td>
               <td>{{ formatDate(listing.closes) }}</td>
-              <td>{{ formatSeller(listing) }}</td>
+              <td style="word-break: break-word; width: 20%">
+                {{ listing.business.name }}<br>
+                <span class="text-muted small">{{ listing.business.businessType }}</span><br>
+                <span class="text-muted small">{{ formatAddress(listing.business.address) }}</span>
+              </td>
             </tr>
             </tbody>
           </table>
         </div>
-
       </div>
 
       <!-- Show loading text until results are obtained -->
@@ -206,19 +199,28 @@
 
       <!--    Result Information    -->
       <div class="row">
-        <div class="col">
-          <pagination
-              :current-page.sync="page"
-              :items-per-page="resultsPerPage"
-              :total-items="totalCount"
-              @change-page="changePage"
-          />
+        <div class="col text-center">
+          <div class="mb-2">
+            <showing-results-text
+                :items-per-page="resultsPerPage"
+                :page="page"
+                :total-count="totalCount"
+            />
+          </div>
+          <div>
+            <pagination
+                :current-page.sync="page"
+                :items-per-page="resultsPerPage"
+                :total-items="totalCount"
+                @change-page="changePage"
+            />
+          </div>
         </div>
       </div>
     </div>
 
     <div v-if="viewListingModal" id="viewListingModal" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-xl">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-body">
             <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewListingModal=false">
@@ -373,10 +375,10 @@ export default {
       }
     },
     /**
-     * Formats the name and address of the business offering the listing
+     * Formats the address of the business offering the listing
      */
-    formatSeller(listing) {
-      return `${listing.business.name} (${listing.business.businessType}) from ${this.$root.$data.address.formatAddress(listing.business.address)}`
+    formatAddress(address) {
+      return `${this.$root.$data.address.formatAddress(address)}`
     },
     /**
      * Toggles whether a field is selected to be searched by

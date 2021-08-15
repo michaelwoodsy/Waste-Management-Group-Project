@@ -1,7 +1,8 @@
 <template>
   <div class="row mb-3">
     <div class="col">
-      <div class="row">
+
+      <div class="modal-header">
         <div class="col-12 d-flex justify-content-center">
           <h2><strong>{{ listing.inventoryItem.product.name }}</strong></h2>
           <em :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart pointer" @click="likeListing"/>
@@ -12,7 +13,7 @@
       <div class="modal-body">
 
         <!-- Listing images -->
-        <div>
+        <div class="mb-3">
           <div v-if="listing.inventoryItem.product.images.length === 0">
             <p class="text-center"><strong>This Product has no Images</strong></p>
           </div>
@@ -49,20 +50,36 @@
         </alert>
 
         <!-- Buy button -->
-        <div class="row">
-          <div class="col-12 d-flex justify-content-center">
+        <div class="row text-center mb-3">
+          <div class="col">
             <button v-if="!buyClicked"
                     id="buyButton"
-                    class="btn btn-primary m-3 buy-button"
+                    class="btn btn-primary mx-2 button"
                     @click="buy"
             >
               Buy
             </button>
             <button v-else
-                    class="btn btn-secondary m-3 buy-button"
+                    class="btn btn-outline-secondary mx-2 button"
+                    disabled
             >
               Bought
             </button>
+            <button class="btn btn-primary mx-2 button" @click="viewBusiness(listing)">View Business</button>
+          </div>
+        </div>
+
+        <!-- Seller -->
+        <div class="row">
+          <div class="col-6 text-right font-weight-bold">
+            <p>Seller: </p>
+          </div>
+          <div class="col-6">
+            <p style="word-wrap: break-word; max-width: 90%">
+              {{ listing.business.name }}<br>
+              <span class="text-muted small">{{ listing.business.businessType }}</span><br>
+              <span class="text-muted small">{{ formatAddress(listing.business.address) }}</span>
+            </p>
           </div>
         </div>
 
@@ -72,7 +89,7 @@
             <p>Details: </p>
           </div>
           <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ listing.moreInfo }}</p>
+            <p style="word-wrap: break-word; max-width: 90%">{{ listing.moreInfo }}</p>
           </div>
         </div>
 
@@ -82,7 +99,7 @@
             <p>Quantity: </p>
           </div>
           <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ listing.quantity }}</p>
+            <p style="word-wrap: break-word; max-width: 90%">{{ listing.quantity }}</p>
           </div>
         </div>
 
@@ -102,7 +119,7 @@
             <p>Listing created: </p>
           </div>
           <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ formatDate(listing.created) }}</p>
+            <p style="word-wrap: break-word; max-width: 90%">{{ formatDate(listing.created) }}</p>
           </div>
         </div>
 
@@ -112,31 +129,9 @@
             <p>Listing closes: </p>
           </div>
           <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ formatDate(listing.closes) }}</p>
+            <p style="word-wrap: break-word; max-width: 90%">{{ formatDate(listing.closes) }}</p>
           </div>
         </div>
-
-        <!-- Seller -->
-        <div class="row">
-          <div class="col-6 text-right font-weight-bold">
-            <p>Seller: </p>
-          </div>
-          <div class="col-6">
-            <div class="row">
-              <div class="col-6">
-                <p style="word-wrap: break-word; max-width: 70%">{{ formatSeller(listing) }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- View Business button -->
-        <div class="row">
-          <div class="col-12 d-flex justify-content-center">
-            <button class="btn btn-primary" @click="viewBusiness(listing)">View Business</button>
-          </div>
-        </div>
-        <br>
 
         <!-- Manufacturer -->
         <div class="row">
@@ -154,7 +149,7 @@
             <p>Manufactured Date: </p>
           </div>
           <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ listing.inventoryItem.manufactured }}</p>
+            <p style="word-wrap: break-word; max-width: 90%">{{ formatDate(listing.inventoryItem.manufactured) }}</p>
           </div>
         </div>
 
@@ -164,7 +159,7 @@
             <p>Sell By Date: </p>
           </div>
           <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ listing.inventoryItem.sellBy }}</p>
+            <p style="word-wrap: break-word; max-width: 90%">{{ formatDate(listing.inventoryItem.sellBy) }}</p>
           </div>
         </div>
 
@@ -174,7 +169,7 @@
             <p>Best Before Date: </p>
           </div>
           <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ listing.inventoryItem.bestBefore }}</p>
+            <p style="word-wrap: break-word; max-width: 90%">{{ formatDate(listing.inventoryItem.bestBefore) }}</p>
           </div>
         </div>
 
@@ -184,7 +179,7 @@
             <p>Expiry Date: </p>
           </div>
           <div class="col-6">
-            <p style="word-wrap: break-word; max-width: 70%">{{ listing.inventoryItem.expires }}</p>
+            <p style="word-wrap: break-word; max-width: 90%">{{ formatDate(listing.inventoryItem.expires) }}</p>
           </div>
         </div>
 
@@ -249,10 +244,10 @@ export default {
     },
 
     /**
-     * Formats the name and address of the business offering the listing
+     * Formats the address of the business offering the listing
      */
-    formatSeller(listing) {
-      return `${listing.business.name} (${listing.business.businessType}) from ${this.$root.$data.address.formatAddress(listing.business.address)}`
+    formatAddress(address) {
+      return `${this.$root.$data.address.formatAddress(address)}`
     },
 
     /**
@@ -325,7 +320,7 @@ export default {
   text-shadow: red 0 0 5px;
 }
 
-.buy-button {
+.button {
   width: 150px;
 }
 
