@@ -65,65 +65,71 @@
           <!-- Cards Section -->
           <div v-if="user.isActingAsUser()" class="col">
             <h2>My Cards</h2>
-            <alert v-if="hasExpiredCards" class="text-center">
-              You have cards that have recently expired and will be deleted within 24 hours if not extended!
-            </alert>
-            <div v-if="hasExpiredCards">
-              <h5>Recently Expired Cards</h5>
+            <div v-if="cards.length > 0">
+              <alert v-if="hasExpiredCards" class="text-center">
+                You have cards that have recently expired and will be deleted within 24 hours if not extended!
+              </alert>
+              <div v-if="hasExpiredCards">
+                <h5>Recently Expired Cards</h5>
+                <div class="row row-cols-1">
+                  <div v-for="card in expiredCards" v-bind:key="card.id" class="col">
+                    <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
+                                 @card-deleted="deleteCard" @card-extended="extendCard"
+                                 @refresh-cards="getCardData"></market-card>
+                  </div>
+                </div>
+              </div>
+              <h5 v-if="hasExpiredCards">Active Cards</h5>
               <div class="row row-cols-1">
-                <div v-for="card in expiredCards" v-bind:key="card.id" class="col">
+                <div v-for="card in activeCards" v-bind:key="card.id" class="col">
                   <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
                                @card-deleted="deleteCard" @card-extended="extendCard"
                                @refresh-cards="getCardData"></market-card>
                 </div>
               </div>
             </div>
-            <h5 v-if="hasExpiredCards">Active Cards</h5>
-            <div class="row row-cols-1">
-              <div v-for="card in activeCards" v-bind:key="card.id" class="col">
-                <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
-                             @card-deleted="deleteCard" @card-extended="extendCard"
-                             @refresh-cards="getCardData"></market-card>
-              </div>
-            </div>
+            <div v-else>You have no cards.</div>
           </div>
 
           <!-- Liked Listing Section -->
           <div v-if="user.isActingAsUser()" class="col">
             <h2>My Liked Listings</h2>
-            <div class="input-group mb-4">
-              <div class="input-group-prepend">
-                <span class="input-group-text">Filter By Tag</span>
+            <div v-if="likedListings.length > 0">
+              <div class="input-group mb-4">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Filter By Tag</span>
+                </div>
+                <div class="form-control text-center tag-filters">
+                  <div v-for="tag in tags" :key="tag.name" class="d-inline">
+                    <em v-if="tag.name !== 'None'"
+                        :class="{'bi-tag-fill': tagged(tag.name), 'bi-tag': !tagged(tag.name)}"
+                        :style="`color: ${tag.colour};`"
+                        class="tag bi bi-tag-fill pointer mx-2"
+                        @click="toggleTagFilter(tag.name)"
+                    />
+                  </div>
+                </div>
+                <div class="input-group-append">
+                  <button class="btn"
+                          :class="{'btn-secondary': tagFilters.length === 0, 'btn-danger': tagFilters.length > 0}"
+                          :disabled="tagFilters.length === 0"
+                          @click="tagFilters = []"
+                  >
+                    <em class="bi bi-x-circle-fill"/>
+                  </button>
+                </div>
               </div>
-              <div class="form-control text-center tag-filters">
-                <div v-for="tag in tags" :key="tag.name" class="d-inline">
-                  <em v-if="tag.name !== 'None'"
-                      :class="{'bi-tag-fill': tagged(tag.name), 'bi-tag': !tagged(tag.name)}"
-                      :style="`color: ${tag.colour};`"
-                      class="tag bi bi-tag-fill pointer mx-2"
-                      @click="toggleTagFilter(tag.name)"
+              <div class="row row-cols-1">
+                <div v-for="listing in taggedListings" v-bind:key="listing.id" class="col">
+                  <liked-listing :data="listing"
+                                 :tags="tags"
+                                 @update-data="updateData"
+                                 @update-tag="updateTag"
                   />
                 </div>
               </div>
-              <div class="input-group-append">
-                <button class="btn"
-                        :class="{'btn-secondary': tagFilters.length === 0, 'btn-danger': tagFilters.length > 0}"
-                        :disabled="tagFilters.length === 0"
-                        @click="tagFilters = []"
-                >
-                  <em class="bi bi-x-circle-fill"/>
-                </button>
-              </div>
             </div>
-            <div class="row row-cols-1">
-              <div v-for="listing in taggedListings" v-bind:key="listing.id" class="col">
-                <liked-listing :data="listing"
-                               :tags="tags"
-                               @update-data="updateData"
-                               @update-tag="updateTag"
-                />
-              </div>
-            </div>
+            <div v-else>You have no liked sale listings.</div>
           </div>
         </div>
 

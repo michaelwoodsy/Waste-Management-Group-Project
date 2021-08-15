@@ -144,17 +144,11 @@
       </div>
     </div>
 
-    <div v-if="viewListingModal" id="viewListingModal" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewListingModal=false">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <individual-sale-listing-modal :listing="listingToView" @viewBusiness="viewBusiness" @updateListings="fillTable()"></individual-sale-listing-modal>
-          </div>
-        </div>
-      </div>
+    <div v-if="viewListingModal">
+      <individual-sale-listing-modal
+          :listing="listingToView"
+          @update-listings="fillTable()"
+      />
     </div>
 
     <div v-if="viewBusinessModal" id="viewBusinessModal" class="modal fade" data-backdrop="static">

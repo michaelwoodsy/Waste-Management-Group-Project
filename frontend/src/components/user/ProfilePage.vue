@@ -1,5 +1,5 @@
 <template>
-  <page-wrapper>
+  <page-wrapper col-size="10">
 
     <login-required
         v-if="!isLoggedIn"
@@ -9,36 +9,38 @@
     <div v-else>
 
       <div class="row">
-        <div class="col-12 text-center mb-2">
+        <div class="col-2"/>
+        <div class="col text-center mb-2">
           <h2>{{ firstName }} {{ lastName }}
             <span v-if="isGAA && canDoAdminAction" class="badge badge-danger admin-badge">ADMIN</span>
             <span v-else-if="isDGAA && canDoAdminAction" class="badge badge-danger admin-badge">DGAA</span>
           </h2>
         </div>
+        <div class="col-2 text-right">
+          <!-- Edit button -->
+          <router-link v-if="isViewingSelf || canDoAdminAction"
+                       :to="`users/${userId}/edit`"
+                       class="btn btn-primary"
+                       :class="{'btn-primary': isViewingSelf, 'btn-danger': !isViewingSelf && canDoAdminAction}"
+          >
+            Edit Profile
+          </router-link>
+        </div>
       </div>
+      <hr>
 
 
       <!-- Profile image -->
-      <div class="row">
-        <div class="col-12 text-center mb-2">
+      <div class="row mb-3">
+        <div class="col text-center">
           <img
               alt="profile image"
               class="profile-image rounded-left rounded-right"
-              style="max-height: 400px"
+              style="max-height: 300px"
               :src="getPrimaryImageThumbnail()"
           />
         </div>
       </div>
-      <div class="row">
-        <div class="col text-center m-3">
-          <!-- Edit button -->
-          <router-link v-if="isViewingSelf"
-                       :to="`users/${userId}/edit`" class="btn btn-primary">Edit Profile</router-link>
-          <router-link v-else-if="canDoAdminAction"
-                       :to="`users/${userId}/edit`" class="btn btn-danger">Edit User</router-link>
-        </div>
-      </div>
-
 
       <!-- First Name -->
       <div class="row">

@@ -70,7 +70,7 @@
               <img alt="productImage"
                    :src="getPrimaryImageThumbnail(product)">
             </td>
-            <td style="word-break: break-word; width: 40%">
+            <td style="word-break: break-word; width: 35%">
               {{ product.name }}
               <span v-if="product.description" style="font-size: small"><br/>{{ product.description }}</span>
             </td>

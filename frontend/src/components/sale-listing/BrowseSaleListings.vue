@@ -16,11 +16,11 @@
       <br>
 
       <!-- Search Option -->
-      <div class="row mb-2">
-        <div class="col-sm-7">
-          <!--    Search Input    -->
-          <div class="row form justify-content-center">
-            <div class="col-sm-5">
+      <div class="mb-4">
+        <div class="row justify-content-center">
+          <div class="col-6 text-center">
+            <!--    Search Input    -->
+            <div class="form-group row">
               <div class="input-group">
                 <input id="search"
                        v-model="searchQuery"
@@ -29,96 +29,98 @@
                        type="search"
                        @keyup.enter="checkInputs">
                 <div class="input-group-append">
+                  <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#searchOptions">
+                    Options
+                  </button>
                   <button class="btn btn-primary no-outline" type="button" @click="checkInputs">Search</button>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Checkboxes for selecting which fields to match -->
-          <div class="row form justify-content-center">
-            <div class="col form-group text-center">
-              <label class="d-inline-block option-title mt-2">Matching Fields</label>
-              <br>
-              <label v-for="field in fieldOptions"
-                     v-bind:key="field.id">
-                <input v-bind:id="field.id" v-model="field.checked"
-                       class="ml-2" type="checkbox"
-                       @click="toggleFieldChecked(field)"
-                />
-                {{ field.name }}
-              </label>
-              <br>
-              <span v-if="msg.fieldOptions" style="text-align: center; color: red">{{ msg.fieldOptions }}</span>
-            </div>
-          </div>
-
-          <!-- Order by combobox -->
-          <div class="row form justify-content-center">
-            <div class="col form-group text-center">
-              <label class="d-inline-block option-title mx-2">Order By: </label>
-              <select v-model="orderBy"
-                      class="form-control d-inline-block w-auto"
-                      @change="checkInputs">
-                <option
-                    v-for="orderBy in orderByOptions"
-                    v-bind:key="orderBy.id"
-                    :value="orderBy.id"
-                >
-                  {{ orderBy.name }}
-                </option>
-              </select>
-            </div>
-          </div>
         </div>
-
-        <div class="col-sm-5">
-          <div class="row form justify-content-center">
-            <div class="col form-group text-center">
-
-              <!-- Price range -->
-              <label class="d-inline-block option-title mt-2">Price Range:</label>
-              <input v-model="priceLowerBound"
-                     :class="{'form-control': true, 'is-invalid': msg.priceLowerBound}"
-                     class="d-inline-block ml-2 w-25"
-              >
-              to
-              <input v-model="priceUpperBound"
-                     :class="{'form-control': true, 'is-invalid': msg.priceUpperBound}"
-                     class="d-inline-block w-25"
-              >
+        <div class="row justify-content-center collapse" id="searchOptions">
+          <div class="col-6 text-center">
+            <!-- Checkboxes for selecting which fields to match -->
+            <div class="form-group row">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Search By</span>
+                </div>
+                <div class="form-control">
+                  <div class="row">
+                    <div class="col" v-for="field in fieldOptions" :key="field.id">
+                      <input :id="field.id" v-model="field.checked"
+                             class="mx-1" type="checkbox"
+                             @click="toggleFieldChecked(field)"
+                      />
+                      <label :for="field.id">{{ field.name }}</label>
+                    </div>
+                  </div>
+                </div>
+                <span v-if="msg.fieldOptions" style="text-align: center; color: red">{{ msg.fieldOptions }}</span>
+              </div>
+            </div>
+            <!-- Order by combobox -->
+            <div class="form-group row">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Order By</span>
+                </div>
+                <select v-model="orderBy" class="form-control" @change="checkInputs">
+                  <option v-for="orderBy in orderByOptions" :key="orderBy.id" :value="orderBy.id">
+                    {{ orderBy.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <!-- Price Range -->
+            <div class="form-group row">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Price Range</span>
+                </div>
+                <input v-model="priceLowerBound"
+                       :class="{'is-invalid': msg.priceLowerBound}"
+                       class="form-control" placeholder="minimum price"
+                >
+                <input v-model="priceUpperBound"
+                       :class="{'is-invalid': msg.priceUpperBound}"
+                       class="form-control" placeholder="maximum price"
+                >
+              </div>
               <span class="invalid-feedback" style="text-align: center">{{ msg.priceLowerBound }}</span>
               <span class="invalid-feedback" style="text-align: center">{{ msg.priceUpperBound }}</span>
-              <br>
-
-              <!-- Closing date range -->
-              <label class="d-inline-block option-title mt-2">Closing Date:</label>
-              <input id="closingDateLowerBound" v-model="closingDateLowerBound"
-                     :class="{'form-control': true, 'is-invalid': msg.closingDateLowerBound}"
-                     class="d-inline-block w-25 ml-2"
-                     type="date"
-              >
-              to
-              <input id="closingDateUpperBound" v-model="closingDateUpperBound"
-                     :class="{'form-control': true, 'is-invalid': msg.closingDateUpperBound}"
-                     class="d-inline-block w-25"
-                     maxlength="100"
-                     type="date"
-              >
+            </div>
+            <!-- Date Range -->
+            <div class="form-group row">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Closing Date Range</span>
+                </div>
+                <input id="closingDateLowerBound" v-model="closingDateLowerBound"
+                       :class="{'form-control': true, 'is-invalid': msg.closingDateLowerBound}"
+                       class="form-control" type="date"
+                >
+                <input id="closingDateUpperBound" v-model="closingDateUpperBound"
+                       :class="{'form-control': true, 'is-invalid': msg.closingDateUpperBound}"
+                       class="form-control" type="date"
+                >
+              </div>
               <span class="invalid-feedback" style="text-align: center">{{ msg.closingDateLowerBound }}</span>
               <span class="invalid-feedback" style="text-align: center">{{ msg.closingDateUpperBound }}</span>
-              <br>
-              <button class="btn btn-primary m-2"
-                      v-on:click="checkInputs">
+            </div>
+            <!-- Filter Buttons -->
+            <div class="btn-group d-block">
+              <button class="btn btn-primary"
+                      @click="checkInputs">
                 Apply Filters
               </button>
-              <button class="btn btn-danger m-2"
-                      v-on:click="clearFilters">
+              <button class="btn btn-danger"
+                      @click="clearFilters">
                 Clear Filters
               </button>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -199,8 +201,8 @@
 
       <!--    Result Information    -->
       <div class="row">
-        <div class="col text-center">
-          <div class="mb-2">
+        <div class="col">
+          <div class="mb-2 text-center">
             <showing-results-text
                 :items-per-page="resultsPerPage"
                 :page="page"
@@ -256,7 +258,7 @@ export default {
         {
           id: "productName",
           name: "Product name",
-          checked: false
+          checked: true
         },
         {
           id: "sellerName",

@@ -1,5 +1,5 @@
 <template>
-  <page-wrapper>
+  <page-wrapper col-size="10">
 
     <h1>Landing Page</h1>
     <p>To be implemented :)</p>

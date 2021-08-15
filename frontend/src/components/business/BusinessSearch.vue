@@ -22,9 +22,8 @@ Component on Search page for searching businesses
     </div>
 
     <!--    Search Input    -->
-    <div class="row justify-content-center mb-2">
-      <div class="col"/>
-      <div class="col-sm-5">
+    <div class="row justify-content-center mb-3">
+      <div class="col col-sm-8 col-lg-5">
         <div class="form-group">
           <div class="input-group">
             <input id="search"
@@ -40,9 +39,7 @@ Component on Search page for searching businesses
           </div>
           <span class="invalid-feedback d-block text-center">{{ searchError }}</span>
         </div>
-      </div>
-      <!--    Select business type    -->
-      <div class="col">
+        <!--    Select business type    -->
         <div class="form-group">
           <select id="businessType" v-model="businessType" class="form-control"
                   required style="width:100%" type="text">
@@ -60,15 +57,7 @@ Component on Search page for searching businesses
 
     <!--    Result Information    -->
     <div class="row justify-content-center">
-      <div class="col-12">
-        <div class="text-center">
-          <showing-results-text
-              :items-per-page="resultsPerPage"
-              :page="page"
-              :total-count="totalCount"
-          />
-        </div>
-
+      <div class="col">
         <!--    Order By   -->
         <div class="overflow-auto">
           <table aria-label="Table showing business search results"
@@ -111,7 +100,7 @@ Component on Search page for searching businesses
                 class="pointer"
                 data-target="#viewBusinessModal"
                 data-toggle="modal"
-                @click="viewBusiness(business.id)"
+                @click="viewBusiness(business)"
             >
               <th scope="row">
                 {{ business.id }}
@@ -131,14 +120,21 @@ Component on Search page for searching businesses
     </div>
 
     <div v-if="loading" class="row">
-      <div class="col-12 text-center">
+      <div class="col text-center">
         <p class="text-muted">Loading...</p>
       </div>
     </div>
 
     <!--    Result Information    -->
     <div class="row">
-      <div class="col-12">
+      <div class="col">
+        <div class="mb-2 text-center">
+          <showing-results-text
+              :items-per-page="resultsPerPage"
+              :page="page"
+              :total-count="totalCount"
+          />
+        </div>
         <pagination
             :current-page.sync="page"
             :items-per-page="resultsPerPage"
@@ -151,15 +147,10 @@ Component on Search page for searching businesses
 
     <div v-if="viewBusinessModal" id="viewBusinessModal" class="modal fade" data-backdrop="static">
       <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button"
-                    @click="viewBusinessModal=false">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <business-profile-page-modal business="viewBusinessModalId"></business-profile-page-modal>
-          </div>
-        </div>
+        <business-profile-page-modal
+            :business="viewedBusiness"
+            @close-modal="viewBusinessModal = false"
+        />
       </div>
     </div>
 
@@ -191,7 +182,7 @@ export default {
       businessType: "",
       businesses: [],
       viewBusinessModal: false,
-      viewBusinessModalId: null,
+      viewedBusiness: null,
       error: null,
       orderCol: null,
       orderDirection: false, // False -> Ascending
@@ -324,10 +315,10 @@ export default {
 
     /**
      * Turns popup modal to view  business on
-     * @param id
+     * @param business the data of the business to view
      */
-    viewBusiness(id) {
-      this.viewBusinessModalId = id
+    viewBusiness(business) {
+      this.viewedBusiness = business
       this.viewBusinessModal = true
     },
 

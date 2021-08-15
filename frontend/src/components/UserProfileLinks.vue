@@ -54,6 +54,7 @@
 
       <!-- Profile and logout section -->
       <div v-if="this.actor.type === 'business'">
+        <router-link :to="`/businesses/${this.actor.id}`" class="dropdown-item">Business Profile</router-link>
         <router-link :to="productCatalogueRoute" class="dropdown-item">Product Catalogue</router-link>
         <router-link :to="inventoryRoute" class="dropdown-item">Inventory</router-link>
         <router-link :to="listingsRoute" class="dropdown-item">Listings</router-link>
