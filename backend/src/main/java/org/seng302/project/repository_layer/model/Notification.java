@@ -37,4 +37,8 @@ public class Notification {
         return this.id;
     }
 
+    @Column(name = "has_read")
+    public boolean isHasRead() {
+        return this.hasRead;
+    }
 }

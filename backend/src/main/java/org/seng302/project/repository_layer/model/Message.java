@@ -37,7 +37,7 @@ public class Message {
     @Column(name = "created")
     private LocalDateTime created = LocalDateTime.now();
 
-    @Column(name = "read")
+    @Column(name = "has_read")
     private boolean hasRead;
 
     public Message(String text, User receiver, Card card, User sender) {
