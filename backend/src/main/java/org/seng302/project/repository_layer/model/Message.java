@@ -38,14 +38,14 @@ public class Message {
     private LocalDateTime created = LocalDateTime.now();
 
     @Column(name = "read")
-    private boolean read;
+    private boolean hasRead;
 
     public Message(String text, User receiver, Card card, User sender) {
         this.text = text;
         this.receiver = receiver;
         this.card = card;
         this.sender = sender;
-        this.read = false;
+        this.hasRead = false;
     }
 
 }
