@@ -17,6 +17,7 @@ public class Notification {
     private Integer id;
     private String type;
     private String message;
+    private boolean read;
     private LocalDateTime created = LocalDateTime.now();
 
     /**
@@ -26,6 +27,7 @@ public class Notification {
     public Notification(String type, String message) {
         this.type = type;
         this.message = message;
+        this.read = false;
     }
 
     @Id // this field (attribute) is the primary key of the table

@@ -5,6 +5,7 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.seng302.project.AbstractInitializer;
@@ -205,22 +206,37 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
         });
     }
 
-//    @Given("I have an unread notification")
-//    public void i_have_an_unread_notification() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//    @When("I click on \\(read) the notification")
-//    public void i_click_on_read_the_notification() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The notification is marked as read")
-//    public void the_notification_is_marked_as_read() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
+    @Given("I have an unread notification")
+    public void i_have_an_unread_notification() {
+        userNotification = new UserNotification("Test Notification", testUser);
+        userNotification = userNotificationRepository.save(userNotification);
+        Assertions.assertFalse(message.isRead());
+        Assertions.assertEquals(1, userNotificationRepository.findAllByUser(testUser).size());
+    }
+    @When("I click on \\(read) the notification")
+    public void i_click_on_read_the_notification() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder readUserNotificationRequest = MockMvcRequestBuilders
+                .patch("/users/{userId}/notifications/{notificationId}/read",
+                        testUser.getId(),
+                        userNotification.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(readUserNotificationRequest).andExpect(status().isOk());
+    }
+
+    @Then("The notification is marked as read")
+    public void the_notification_is_marked_as_read() {
+        Optional<UserNotification> userNotification = userNotificationRepository.findById(this.userNotification.getId());
+        userNotification.ifPresent(value -> {
+            Assertions.assertTrue(value.isRead());
+        });
+    }
 
     @Given("I have a new message")
     public void i_have_a_new_message() {
@@ -241,23 +257,24 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
         Assertions.assertFalse(message.isRead());
     }
 
-//    @Given("I have a new notification")
-//    public void i_have_a_new_notification() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @When("I see the notification on my home page")
-//    public void i_see_the_notification_on_my_home_page() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
-//
-//    @Then("The notification is marked as unread")
-//    public void the_notification_is_marked_as_unread() {
-//        // Write code here that turns the phrase above into concrete actions
-//        throw new io.cucumber.java.PendingException();
-//    }
+    @Given("I have a new notification")
+    public void i_have_a_new_notification() {
+        userNotification = new UserNotification("Test Notification", testUser);
+        userNotification = userNotificationRepository.save(userNotification);
+    }
+
+    @When("I see the notification on my home page")
+    public void i_see_the_notification_on_my_home_page() {
+        Optional<UserNotification> userNotification = userNotificationRepository.findById(this.userNotification.getId());
+        userNotification.ifPresent(value -> {
+            this.userNotification = value;
+        });
+    }
+
+    @Then("The notification is marked as unread")
+    public void the_notification_is_marked_as_unread() {
+        Assertions.assertFalse(userNotification.isRead());
+    }
 
     //AC3
 

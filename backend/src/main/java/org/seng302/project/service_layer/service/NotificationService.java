@@ -11,6 +11,7 @@ import org.seng302.project.service_layer.exceptions.NoNotificationExistsExceptio
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.service_layer.exceptions.notification.ForbiddenNotificationActionException;
+import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,5 +157,70 @@ public class NotificationService {
             logger.error(String.format("Unexpected error while deleting user's notification: %s", unhandledException.getMessage()));
             throw unhandledException;
         }
+    }
+
+    /**
+     * Marks a user notification as read
+     *
+     * @param read boolean stating whether the notification is to be changed to read or unread (should be true)
+     * @param userId ID of the user to unread the user notification for
+     * @param notificationId ID of the user notification to unread
+     * @param appUser The user trying to unread the user notification
+     */
+    public void readUserNotification(boolean read, Integer userId, Integer notificationId, AppUserDetails appUser) {
+        logger.info("Request to read user notification with ID: {} for user with ID: {}", notificationId, userId);
+
+        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<UserNotification> userNotificationOptional = userNotificationRepository.findById(notificationId);
+        UserNotification userNotification;
+
+        if (userOptional.isEmpty()) {
+            String error = String.format("No user exists with ID: %d", userId);
+            logger.warn(error);
+            throw new NotAcceptableException(error);
+        } else if (userNotificationOptional.isEmpty()) {
+            String error = String.format("No user notification exists with ID: %d", notificationId);
+            logger.warn(error);
+            throw new NotAcceptableException(error);
+        } else {
+            userNotification = userNotificationOptional.get();
+        }
+
+        userService.checkForbidden(userId, appUser);
+
+        userNotification.setRead(read);
+        userNotificationRepository.save(userNotification);
+    }
+
+    /**
+     * Marks an admin notification as read
+     *
+     * @param read boolean stating whether the admin notification is to be changed to read or unread (should be true)
+     * @param notificationId ID of the admin notification to read
+     * @param appUser The user trying to read the admin notification
+     */
+    public void readAdminNotification(boolean read, Integer notificationId, AppUserDetails appUser) {
+        logger.info("Request to read admin notification with ID: {}", notificationId);
+
+        Optional<AdminNotification> adminNotificationOptional = adminNotificationRepository.findById(notificationId);
+        AdminNotification adminNotification;
+
+        if (adminNotificationOptional.isEmpty()) {
+            String error = String.format("No admin notification exists with ID: %d", notificationId);
+            logger.warn(error);
+            throw new NotAcceptableException(error);
+        } else {
+            adminNotification = adminNotificationOptional.get();
+        }
+
+        String userEmail = appUser.getUsername();
+        var loggedInUser = userRepository.findByEmail(userEmail).get(0);
+
+        if (!loggedInUser.isGAA()) {
+            throw new ForbiddenSystemAdminActionException();
+        }
+
+        adminNotification.setRead(read);
+        adminNotificationRepository.save(adminNotification);
     }
 }

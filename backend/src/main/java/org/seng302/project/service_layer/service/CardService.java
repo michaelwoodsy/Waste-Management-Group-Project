@@ -406,15 +406,20 @@ public class CardService {
     public void removeCardsAfter24Hrs() {
         logger.info("Removing cards that have been expired for 24 hours or more");
         LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
-        List<Card> cardsDeleted = cardRepository.deleteByDisplayPeriodEndBefore(oneDayAgo);
+        List<Card> cardsDeleted = cardRepository.findAllByDisplayPeriodEndBefore(oneDayAgo);
 
         //Create a CardExpiryNotification for each expired card
         for (Card card : cardsDeleted) {
+            List<Message> messages = messageRepository.findAllByCard(card);
+            for (Message message: messages) {
+                messageRepository.delete(message);
+            }
             var newNotification = new CardExpiryNotification(
                     card.getCreator(),
                     "This card has expired and was deleted.",
                     card.getTitle());
             userNotificationRepository.save(newNotification);
+            cardRepository.delete(card);
         }
     }
 }
