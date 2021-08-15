@@ -29,8 +29,12 @@
                        type="search"
                        @keyup.enter="checkInputs">
                 <div class="input-group-append">
-                  <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#searchOptions">
-                    Options
+                  <button :class="{'btn-outline-secondary': !optionsShow, 'btn-secondary': optionsShow}" class="btn"
+                          data-target="#searchOptions" data-toggle="collapse" type="button"
+                          @click="optionsShow = !optionsShow"
+                  >
+                    <span v-if="optionsShow">Close</span>
+                    <span v-else>Options</span>
                   </button>
                   <button class="btn btn-primary no-outline" type="button" @click="checkInputs">Search</button>
                 </div>
@@ -38,27 +42,26 @@
             </div>
           </div>
         </div>
-        <div class="row justify-content-center collapse" id="searchOptions">
+        <div id="searchOptions" class="row justify-content-center collapse">
           <div class="col-6 text-center">
             <!-- Checkboxes for selecting which fields to match -->
             <div class="form-group row">
-              <div class="input-group">
+              <div :class="{'is-invalid': msg.fieldOptions}" class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text">Search By</span>
                 </div>
-                <div class="form-control">
-                  <div class="row">
-                    <div class="col" v-for="field in fieldOptions" :key="field.id">
-                      <input :id="field.id" v-model="field.checked"
-                             class="mx-1" type="checkbox"
-                             @click="toggleFieldChecked(field)"
-                      />
-                      <label :for="field.id">{{ field.name }}</label>
-                    </div>
+                <div :class="{'is-invalid': msg.fieldOptions}" class="form-control d-flex justify-content-around">
+                  <div v-for="field in fieldOptions" :key="field.id" class="custom-control custom-checkbox"
+                       @click="toggleFieldChecked(field)"
+                  >
+                    <input :id="field.id" v-model="field.checked"
+                           class="custom-control-input" type="checkbox"
+                    />
+                    <label :for="field.id" class="custom-control-label">{{ field.name }}</label>
                   </div>
                 </div>
-                <span v-if="msg.fieldOptions" style="text-align: center; color: red">{{ msg.fieldOptions }}</span>
               </div>
+              <span class="invalid-feedback">{{ msg.fieldOptions }}</span>
             </div>
             <!-- Order by combobox -->
             <div class="form-group row">
@@ -75,7 +78,7 @@
             </div>
             <!-- Price Range -->
             <div class="form-group row">
-              <div class="input-group">
+              <div :class="{'is-invalid': msg.priceLowerBound || msg.priceUpperBound}" class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text">Price Range</span>
                 </div>
@@ -93,7 +96,7 @@
             </div>
             <!-- Date Range -->
             <div class="form-group row">
-              <div class="input-group">
+              <div :class="{'is-invalid': msg.closingDateLowerBound || msg.closingDateUpperBound}" class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text">Closing Date Range</span>
                 </div>
@@ -110,12 +113,13 @@
               <span class="invalid-feedback" style="text-align: center">{{ msg.closingDateUpperBound }}</span>
             </div>
             <!-- Filter Buttons -->
-            <div class="btn-group d-block">
-              <button class="btn btn-primary"
-                      @click="checkInputs">
+            <div class="btn-group btn-block w-50">
+              <button class="btn btn-primary w-50"
+                      @click="filter">
                 Apply Filters
               </button>
-              <button class="btn btn-danger"
+              <button v-if="filtered"
+                      class="btn btn-danger w-50"
                       @click="clearFilters">
                 Clear Filters
               </button>
@@ -257,17 +261,17 @@ export default {
       fieldOptions: [
         {
           id: "productName",
-          name: "Product name",
+          name: "Product Name",
           checked: true
         },
         {
           id: "sellerName",
-          name: "Seller name",
+          name: "Seller Name",
           checked: false
         },
         {
           id: "sellerLocation",
-          name: "Seller location",
+          name: "Seller Location",
           checked: false
         },
         {
@@ -307,8 +311,9 @@ export default {
       listingToView: null,
       viewListingModal: false,
       error: null,
-
-      totalCount: 0
+      totalCount: 0,
+      filtered: false,
+      optionsShow: false
     }
   },
   mounted() {
@@ -321,7 +326,7 @@ export default {
      */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
-    },
+    }
   },
   methods: {
     /**
@@ -359,6 +364,7 @@ export default {
     formatAddress(address) {
       return `${this.$root.$data.address.formatAddress(address)}`
     },
+
     /**
      * Toggles whether a field is selected to be searched by
      */
@@ -383,6 +389,19 @@ export default {
     },
 
     /**
+     * Sets filtered to true and then searches
+     */
+    filter() {
+      if (this.priceLowerBound !== null ||
+          this.priceUpperBound !== null ||
+          this.closingDateLowerBound !== null ||
+          this.closingDateUpperBound !== null) {
+        this.filtered = true
+        this.checkInputs()
+      }
+    },
+
+    /**
      * Clears the price and date filters and searches again
      */
     clearFilters() {
@@ -390,7 +409,8 @@ export default {
       this.priceUpperBound = null
       this.closingDateLowerBound = null
       this.closingDateUpperBound = null
-      this.search()
+      this.filtered = false
+      this.checkInputs()
     },
 
     /**

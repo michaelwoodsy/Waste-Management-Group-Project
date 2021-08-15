@@ -651,7 +651,6 @@ export default {
      */
     async addMessage(data) {
       this.messages.push(data);
-
       // these lines are required to render the notification just added
       await this.$nextTick()
       this.showToasts()

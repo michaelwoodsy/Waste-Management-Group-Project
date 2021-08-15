@@ -34,8 +34,6 @@ describe("Tests for the BrowseSaleListings checkboxes", () => {
     test("Clicking 'Seller name' twice sets Seller name's checked to be false", async () => {
         await wrapper.find('#sellerName').trigger('click')
         await wrapper.vm.$nextTick()
-        await wrapper.find('#sellerName').trigger('click')
-        await wrapper.vm.$nextTick()
         expect(wrapper.vm.$data.fieldOptions[2].checked).toBeFalsy()
     })
 
