@@ -85,6 +85,9 @@ public class SpringEnvironment {
         else if (activeProfile.contains("production")) {
             return "https://csse-s302g2.canterbury.ac.nz/prod/reset-password/" + token;
         }
-        return "";
+        else {
+            return "http://localhost:9600/reset-password/" + token;
+        }
+
     }
 }
