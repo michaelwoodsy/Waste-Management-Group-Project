@@ -1,12 +1,15 @@
 package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
+import org.seng302.project.service_layer.dto.user.ChangePasswordDTO;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.LostPasswordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 
 /**
@@ -43,6 +46,27 @@ public class LostPasswordController {
             throw exception;
         } catch (Exception unhandledException) {
             logger.error(String.format("Unexpected error while validating Lost Password Token: %s",
+                    unhandledException.getMessage()));
+            throw unhandledException;
+        }
+    }
+
+    /**
+     * Changes a users password that corresponds to the token in the dto
+     *
+     * @param dto DTO containing the lost password token and the users new password (validated)
+     */
+    @PatchMapping("/lostpassword/edit")
+    public void changeLostPassword(@RequestBody @Valid ChangePasswordDTO dto) {
+        logger.info("Changing users password with token: {}", dto.getToken());
+        try {
+            lostPasswordService.changePassword(dto);
+            logger.info("Successfully changed users password!");
+        } catch (NotAcceptableException exception) {
+            logger.info(exception.getMessage());
+            throw exception;
+        } catch (Exception unhandledException) {
+            logger.error(String.format("Unexpected error while changing users password: %s",
                     unhandledException.getMessage()));
             throw unhandledException;
         }

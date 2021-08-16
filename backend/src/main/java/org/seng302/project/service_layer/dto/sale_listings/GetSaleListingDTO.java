@@ -22,6 +22,7 @@ public class GetSaleListingDTO {
     private Integer quantity;
     private Integer likes;
     private boolean userLikes;
+    private boolean userStarred;
 
     public GetSaleListingDTO(SaleListing listing) {
         this.id = listing.getId();
@@ -36,7 +37,7 @@ public class GetSaleListingDTO {
     }
 
     /**
-     * Method that attaches a User's administered businesses to the DTO
+     * Method that attaches a listings' like data to the DTO
      *
      * @param likes number of likes the sale listing has
      * @param userLikes whether or not the logged in user likes the sale listing

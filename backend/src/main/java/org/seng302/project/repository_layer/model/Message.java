@@ -37,15 +37,15 @@ public class Message {
     @Column(name = "created")
     private LocalDateTime created = LocalDateTime.now();
 
-    @Column(name = "read")
-    private boolean read;
+    @Column(name = "has_read")
+    private boolean hasRead;
 
     public Message(String text, User receiver, Card card, User sender) {
         this.text = text;
         this.receiver = receiver;
         this.card = card;
         this.sender = sender;
-        this.read = false;
+        this.hasRead = false;
     }
 
 }

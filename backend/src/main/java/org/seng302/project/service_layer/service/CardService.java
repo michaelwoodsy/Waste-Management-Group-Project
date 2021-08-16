@@ -414,12 +414,12 @@ public class CardService {
             for (Message message: messages) {
                 messageRepository.delete(message);
             }
-            cardRepository.delete(card);
             var newNotification = new CardExpiryNotification(
                     card.getCreator(),
                     "This card has expired and was deleted.",
                     card.getTitle());
             userNotificationRepository.save(newNotification);
+            cardRepository.delete(card);
         }
     }
 }
