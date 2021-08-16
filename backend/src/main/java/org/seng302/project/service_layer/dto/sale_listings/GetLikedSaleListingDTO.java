@@ -22,7 +22,6 @@ public class GetLikedSaleListingDTO {
         this.listing = new GetSaleListingDTO(listing.getListing());//Set to null as we cant get that here
         this.starred = listing.isStarred();
         this.tag = listing.getTag().name();
-        this.listing.setUserStarred(this.starred);
     }
 
 }

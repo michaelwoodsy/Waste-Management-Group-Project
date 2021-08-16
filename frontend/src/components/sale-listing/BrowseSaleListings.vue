@@ -51,11 +51,10 @@
                   <span class="input-group-text">Search By</span>
                 </div>
                 <div :class="{'is-invalid': msg.fieldOptions}" class="form-control d-flex justify-content-around">
-                  <div v-for="field in fieldOptions" :key="field.id" class="custom-control custom-checkbox"
-                       @click="toggleFieldChecked(field)"
-                  >
+                  <div v-for="field in fieldOptions" :key="field.id" class="custom-control custom-checkbox">
                     <input :id="field.id" v-model="field.checked"
                            class="custom-control-input" type="checkbox"
+                           @click="toggleFieldChecked(field)"
                     />
                     <label :for="field.id" class="custom-control-label">{{ field.name }}</label>
                   </div>
@@ -69,7 +68,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text">Order By</span>
                 </div>
-                <select v-model="orderBy" class="form-control" @change="checkInputs">
+                <select v-model="orderBy" class="form-control custom-select" @change="checkInputs">
                   <option v-for="orderBy in orderByOptions" :key="orderBy.id" :value="orderBy.id">
                     {{ orderBy.name }}
                   </option>
@@ -180,7 +179,9 @@
               </td>
               <td style="word-break: break-word; width: 35%">
                 {{ listing.inventoryItem.product.name }}<br>
-                <em class="bi bi-heart-fill" style="color: red"/> {{ listing.likes }}
+                <em class="bi" style="color: red"
+                    :class="{'bi-heart-fill': listing.userLikes, 'bi-heart': !listing.userLikes}"
+                /> {{ listing.likes }}
                 <span v-if="listing.moreInfo" style="font-size: small"><br/>{{ listing.moreInfo }}</span>
               </td>
               <td>{{ listing.quantity }}</td>

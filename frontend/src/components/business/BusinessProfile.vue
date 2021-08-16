@@ -10,7 +10,7 @@
                 :src="getPrimaryImage()"
                 alt="profile"
                 class="profile-image rounded-left rounded-right"
-                style="max-height: 300px"
+                style="max-height: 200px"
             />
           </div>
         </div>

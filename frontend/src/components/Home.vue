@@ -125,6 +125,7 @@
                                  :tags="tags"
                                  @update-data="updateData"
                                  @update-tag="updateTag"
+                                 @update-star="updateStar"
                   />
                 </div>
               </div>
@@ -419,10 +420,10 @@ export default {
      */
     taggedListings() {
       if (this.tagFilters.length === 0) {
-        return this.likedListings
+        return this.sortedLikedListings
       } else {
         const listings = []
-        for (const listing of this.likedListings) {
+        for (const listing of this.sortedLikedListings) {
           if (this.tagFilters.includes(listing.tag)) {
             listings.push(listing)
           }
@@ -436,10 +437,10 @@ export default {
      */
     sortedLikedListings() {
       let sortFunc = (x, y) => {
-        if (x.userStarred === y.userStarred) {
+        if (x.starred === y.starred) {
           return 0
         }
-        else if (x.userStarred) {
+        else if (x.starred) {
           return -1
         }
         return 1
@@ -711,6 +712,21 @@ export default {
       for (const [index, listing] of this.user.state.userData.likedSaleListings.entries()) {
         if (listing.id === listingId) {
           listing.tag = name
+          this.$set(this.user.state.userData.likedSaleListings, index, listing)
+        }
+      }
+    },
+
+    /**
+     * Updates a liked listing's starred value
+     *
+     * @param listingId ID of the liked listing to update
+     * @param star Boolean for whether it should be starred
+     */
+    updateStar(listingId, star) {
+      for (const [index, listing] of this.user.state.userData.likedSaleListings.entries()) {
+        if (listing.id === listingId) {
+          listing.starred = star
           this.$set(this.user.state.userData.likedSaleListings, index, listing)
         }
       }

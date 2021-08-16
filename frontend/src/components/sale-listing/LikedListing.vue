@@ -14,20 +14,28 @@ Displays a user's liked listings.
 
       <div class="card-body">
 
-        <!-- Product Name -->
         <div class="dropdown">
           <em id="tag" :class="{'bi-tag-fill': tagged, 'bi-tag': !tagged}"
-              :style="`color: ${tagColour}`" class="bi float-right pointer" data-toggle="dropdown"/>
+              :style="`color: ${tagColour}`" class="icon bi float-right pointer ml-2" data-toggle="dropdown"/>
           <div id="tagDropdown" class="dropdown-menu">
             <div v-for="tags of tags" :key="tags.name"
                  class="dropdown-item pointer d-flex align-items-center" @click="tagListing(tags)">
-              <em :style="`color: ${tags.colour}; font-size: 20px`" class="bi"
-                  :class="{'bi-tag-fill': tags.name !== 'None', 'bi-tag': tags.name === 'None'}"
+              <em :class="{'bi-tag-fill': tags.name !== 'None', 'bi-tag': tags.name === 'None'}"
+                  :style="`color: ${tags.colour}; font-size: 20px`"
+                  class="bi"
               />
               <span class="ml-2">{{ tags.name }}</span>
             </div>
           </div>
         </div>
+
+        <em :class="{'bi-star-fill': data.starred, 'bi-star': !data.starred}"
+            class="icon bi float-right pointer"
+            style="color: gold"
+            @click="starListing"
+        />
+
+        <!-- Product Name -->
         <h6 class="card-title">{{ data.listing.inventoryItem.product.name }}</h6>
 
         <!-- Quantity and Price, cause sizing issues -->
@@ -54,48 +62,22 @@ Displays a user's liked listings.
       </div>
     </div>
 
-    <div v-if="viewListingModal" id="viewListingModal" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="closeModal">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <individual-sale-listing-modal :listing="listingToView"
-                                           @viewBusiness="viewBusiness"></individual-sale-listing-modal>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="viewBusinessModal" id="viewBusinessModal" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button"
-                    @click="viewBusinessModal=false">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <business-profile-page-modal business="businessToViewId"></business-profile-page-modal>
-          </div>
-        </div>
-      </div>
-    </div>
+    <individual-sale-listing-modal :listing="data.listing"
+                                   @close-modal="closeModal"
+    />
 
   </div>
 
 </template>
 
 <script>
-import {Images, User} from "@/Api";
+import {Business, Images, User} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
-import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal"
 
 export default {
   name: "LikedListing",
   components: {
     IndividualSaleListingModal,
-    BusinessProfilePageModal
   },
   props: {
     // Data of the sale listing.
@@ -140,7 +122,6 @@ export default {
      * Method called after closing the modal
      */
     closeModal() {
-      this.viewListingModal = false
       this.$emit('update-data')
     },
     /**
@@ -194,26 +175,6 @@ export default {
     },
 
     /**
-     * Turns popup modal to view  business on
-     * @param listing the listing object for the modal to show
-     */
-    viewListing(listing) {
-      this.viewBusinessModal = false
-      this.listingToView = listing
-      this.viewListingModal = true
-    },
-
-    /**
-     * Turns popup modal to view  business on
-     * @param listing the listing object with the business information to show
-     */
-    viewBusiness(listing) {
-      this.viewListingModal = false
-      this.businessToViewId = listing.business.id
-      this.viewBusinessModal = true
-    },
-
-    /**
      * Sends request to tag a listing
      *
      * @param tag name of the tag
@@ -227,6 +188,24 @@ export default {
       } catch (error) {
         console.error(error)
       }
+    },
+
+    /**
+     * Stars and un-stars the sale listing.
+     */
+    async starListing() {
+      this.purchaseMsg = null
+      this.errorMsg = null
+      try {
+        // star the listing
+        await Business.starListing(this.data.listing.id, !this.data.starred)
+        this.$emit('update-star', this.data.id, !this.data.starred)
+      } catch (err) {
+        console.log(err)
+        this.errorMsg = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+            : err
+      }
     }
   }
 }
@@ -234,12 +213,12 @@ export default {
 
 <style scoped>
 
-#tag {
+.icon {
   font-size: 30px;
   transition: 0.3s;
 }
 
-#tag:hover {
+.icon:hover {
   text-shadow: currentColor 0 0 5px;
 }
 

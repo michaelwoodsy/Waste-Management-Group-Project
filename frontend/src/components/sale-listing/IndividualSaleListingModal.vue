@@ -320,31 +320,6 @@ export default {
       this.viewingBusiness = true
     },
 
-    /**
-     * Stars and un-stars the sale listing.
-     */
-    async starListing() {
-      this.purchaseMsg = null
-      this.errorMsg = null
-      try {
-        // a listing must first be liked to star it
-        if (!this.stared && !this.liked) {
-          await this.likeListing()
-        }
-
-        // star the listing
-        await Business.starListing(this.listing.id, !this.stared)
-        this.stared = !this.stared
-        this.$emit('updateListings')
-      }
-      catch (err) {
-        console.log(err)
-        this.errorMsg = err.response
-            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-            : err
-      }
-    }
-
   }
 }
 </script>
