@@ -204,7 +204,7 @@
           </div>
 
           <p style="width: 100%; margin:0 20px; text-align: center">Already have an account?
-            <router-link class="link-text" to="/login">Login here</router-link>
+            <router-link class="text-primary pointer" to="/login">Login here</router-link>
           </p>
           <br><br>
         </div>
@@ -530,12 +530,6 @@ export default {
 </script>
 
 <style scoped>
-
-.link-text {
-  color: blue;
-  cursor: pointer;
-  margin-right: 10px;
-}
 
 .error-msg {
   color: red;

@@ -12,7 +12,10 @@ import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "Landing",
-  components: {PageWrapper}
+  components: {PageWrapper},
+  mounted() {
+    this.$router.push({name: 'login'})
+  }
 }
 </script>
 
