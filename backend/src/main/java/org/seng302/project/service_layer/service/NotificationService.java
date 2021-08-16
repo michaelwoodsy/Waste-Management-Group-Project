@@ -11,7 +11,6 @@ import org.seng302.project.service_layer.exceptions.NoNotificationExistsExceptio
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenSystemAdminActionException;
 import org.seng302.project.service_layer.exceptions.notification.ForbiddenNotificationActionException;
-import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

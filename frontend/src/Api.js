@@ -39,6 +39,20 @@ const instance = axios.create({
 });
 
 export const User = {
+    /**
+     * Creates a new user
+     * @param firstName
+     * @param lastName
+     * @param middleName
+     * @param nickname
+     * @param bio
+     * @param email
+     * @param dateOfBirth
+     * @param phoneNumber
+     * @param homeAddress
+     * @param password
+     * @returns {Promise<AxiosResponse<any>>} response containing users ID
+     */
     createNew: (firstName,
                 lastName,
                 middleName,
@@ -61,12 +75,37 @@ export const User = {
         password
     }),
 
+    /**
+     * Edits a user
+     * @param id The ID of the user that is going to be edited
+     * @param editUserJSON The edited user data
+     * @returns {Promise<AxiosResponse<any>>}
+     */
     editUser: (id, editUserJSON) => instance.put(`users/${id}`, editUserJSON),
 
+    /**
+     * Log a user in
+     * @param username the username (email) of the account the user is trying to log in with
+     * @param password the password of the account the user is trying to log in with
+     * @returns {Promise<AxiosResponse<any>>} response containing the user ID of the user that is now logged in
+     */
     login: (username, password) => instance.post('login', {username, password}),
 
+    /**
+     * Retrieves a user's data
+     * @param id The ID of the user you are trying to get information about
+     * @returns {Promise<AxiosResponse<any>>} response containing the user with its information
+     */
     getUserData: (id) => instance.get(`users/${id}`, {}),
 
+    /**
+     * Searches for users according to a search term and sort term
+     * @param searchTerm The query that is used to find particular users
+     * @param pageNumber The page number used by the backend pagination
+     * @param sortBy The sort criteria used by the backend pagination
+     * @returns {Promise<AxiosResponse<any>>} response containing all the users that match the search criteria
+     * in order given by the sortBy term, along with the total number of users found
+     */
     getUsers: (searchTerm, pageNumber, sortBy) => instance.get('users/search', {
         params: {
             'searchQuery': searchTerm,
@@ -74,8 +113,18 @@ export const User = {
         }
     }),
 
+    /**
+     * Promotes a user account to the Global Application Admin role
+     * @param id The ID of the user that will become a GAA
+     * @returns {Promise<AxiosResponse<any>>}
+     */
     makeAdmin: (id) => instance.put(`users/${id}/makeadmin`),
 
+    /**
+     * Revokes the Global Application Admin role from a user account
+     * @param id The ID of the user that will no longer be a GAA
+     * @returns {Promise<AxiosResponse<any>>}
+     */
     revokeAdmin: (id) => instance.put(`users/${id}/revokeadmin`),
 
     /**
@@ -229,6 +278,21 @@ export const User = {
      * @returns {Promise<AxiosResponse<any>>}
      */
     validateLostPasswordToken: (token) => instance.get(`lostpassword/validate?token=${token}`),
+
+    /**
+     * Sends a request to edit a lost password for the user that the token links to
+     * @param token         reset password token from the user
+     * @param password   new password for the user
+     * @returns {Promise<AxiosResponse<any>>}
+     */
+    editLostPassword: (token, password) => instance.patch(`lostpassword/edit`, {token, password}),
+
+    /**
+     * Sends a request to send an email to the given email to reset the users password
+     * @param email the user's email used to send a password reset email to
+     * @returns {Promise<AxiosResponse<any>>}
+     */
+    sendPasswordResetEmail:(email) => instance.post('lostpassword/send', {email}),
 
     /**
      * Sends a request to tag a liked sale listing
@@ -493,7 +557,15 @@ export const Business = {
      * @param listingId The ID of the listing to unlike
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
-    unlikeListing: (listingId) => instance.patch(`/listings/${listingId}/unlike`)
+    unlikeListing: (listingId) => instance.patch(`/listings/${listingId}/unlike`),
+
+    /**
+     * Sends a request to star or un-star a sale listing.
+     * @param listingId Id of the sale listing to star.
+     * @param value Boolean, sets the listing to starred if true, and un-starred if false.
+     * @returns {Promise<AxiosResponse<any>>} Response from  the request
+     */
+    starListing: (listingId, value) => instance.patch(`/listings/${listingId}/star`, {star: value}),
 };
 
 export const Card = {

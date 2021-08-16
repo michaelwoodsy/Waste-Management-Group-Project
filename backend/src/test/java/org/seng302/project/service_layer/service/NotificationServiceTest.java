@@ -13,9 +13,7 @@ import org.seng302.project.service_layer.dto.notifications.DeleteUserNotificatio
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NoNotificationExistsException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
-import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenDGAAActionException;
 import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenSystemAdminActionException;
-import org.seng302.project.service_layer.exceptions.user.ForbiddenUserException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
