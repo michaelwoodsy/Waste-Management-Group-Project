@@ -53,7 +53,7 @@ Displays a user's liked listings.
               class="btn btn-sm btn-outline-primary ml-3"
               data-target="#viewListingModal"
               data-toggle="modal"
-              @click="viewListing(data.listing)"
+              @click="viewListingModal = true"
           >
             View Details
           </button>
@@ -62,7 +62,7 @@ Displays a user's liked listings.
       </div>
     </div>
 
-    <individual-sale-listing-modal :listing="data.listing"
+    <individual-sale-listing-modal v-if="viewListingModal" :listing="data.listing"
                                    @close-modal="closeModal"
     />
 
@@ -93,9 +93,7 @@ export default {
 
   data() {
     return {
-      listingToView: null,
       viewListingModal: false,
-      viewBusinessModal: false,
       businessToViewId: null,
       imageUrl: null
     }
