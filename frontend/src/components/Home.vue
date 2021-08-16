@@ -446,8 +446,14 @@ export default {
         return 1
       }
       return [...this.likedListings].sort(sortFunc)
-    }
+    },
 
+    /**
+     * the currently acting as user or business
+     */
+    actingAs() {
+      return this.$root.$data.user.state.actingAs
+    }
   },
   methods: {
 
@@ -798,15 +804,6 @@ export default {
 
 .tag:hover {
   text-shadow: currentColor 0 0 5px;
-}
-
-.remove-tag {
-  color: dimgrey;
-  transition: 0.3s;
-}
-
-.remove-tag:hover {
-  color: red;
 }
 
 </style>
