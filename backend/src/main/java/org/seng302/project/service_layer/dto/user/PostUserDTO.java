@@ -13,7 +13,7 @@ import org.seng302.project.service_layer.dto.validators.user.ValidPhone;
 import javax.validation.constraints.NotEmpty;
 
 /**
- * Response DTO for User entities.
+ * Request DTO for posting a new user.
  */
 @Data
 @NoArgsConstructor

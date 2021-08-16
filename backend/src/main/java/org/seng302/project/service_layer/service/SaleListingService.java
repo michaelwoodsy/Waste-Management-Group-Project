@@ -77,10 +77,20 @@ public class SaleListingService {
     List<GetSaleListingDTO> getListingDTOs(List<SaleListing> listings, User user) {
         List<GetSaleListingDTO> listingDTOs = new ArrayList<>();
         for (SaleListing listing : listings) {
+            // Get like and star data for the listings
             Integer likes = likedSaleListingRepository.findAllByListing(listing).size();
-            boolean userLikes = !likedSaleListingRepository.findByListingAndUser(listing, user).isEmpty();
-            GetSaleListingDTO dto = new GetSaleListingDTO(listing);
+            List<LikedSaleListing> likedSaleListings = likedSaleListingRepository.findByListingAndUser(listing, user);
+            var userLikes = false;
+            var userStarred = false;
+            if (!likedSaleListings.isEmpty()) {
+                userLikes = true;
+                userStarred = likedSaleListings.get(0).isStarred();
+            }
+
+            // Create DTO and annotate with like and star data
+            var dto = new GetSaleListingDTO(listing);
             dto.attachLikeData(likes, userLikes);
+            dto.setUserStarred(userStarred);
             listingDTOs.add(dto);
         }
         return listingDTOs;
