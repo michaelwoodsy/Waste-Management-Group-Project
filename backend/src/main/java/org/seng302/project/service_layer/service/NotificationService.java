@@ -187,7 +187,7 @@ public class NotificationService {
 
         userService.checkForbidden(userId, appUser);
 
-        userNotification.setHasRead(read);
+        userNotification.setRead(read);
         userNotificationRepository.save(userNotification);
     }
 
@@ -219,7 +219,7 @@ public class NotificationService {
             throw new ForbiddenSystemAdminActionException();
         }
 
-        adminNotification.setHasRead(read);
+        adminNotification.setRead(read);
         adminNotificationRepository.save(adminNotification);
     }
 }
