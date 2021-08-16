@@ -4,12 +4,14 @@ import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.user.ChangePasswordDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
+import org.seng302.project.service_layer.util.SpringEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
@@ -27,6 +29,8 @@ class LostPasswordServiceTest extends AbstractInitializer {
 
     private final LostPasswordService lostPasswordService;
 
+    private final EmailService emailService;
+
     User testUser;
     ConformationToken conformationToken;
 
@@ -37,13 +41,14 @@ class LostPasswordServiceTest extends AbstractInitializer {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.conformationTokenRepository = conformationTokenRepository;
-        EmailService emailService = Mockito.mock(EmailService.class);
+        this.emailService = Mockito.mock(EmailService.class);
+        SpringEnvironment springEnvironment = Mockito.mock(SpringEnvironment.class);
 
         this.lostPasswordService = new LostPasswordService(
                 this.conformationTokenRepository,
                 this.userRepository,
                 passwordEncoder,
-                emailService);
+                this.emailService, springEnvironment);
     }
 
     /**
@@ -57,7 +62,7 @@ class LostPasswordServiceTest extends AbstractInitializer {
         testUser.setId(null);
         testUser = userRepository.save(testUser);
 
-        conformationToken = new ConformationToken("123456789", testUser);
+        conformationToken = new ConformationToken(testUser);
         conformationTokenRepository.save(conformationToken);
     }
 
@@ -124,7 +129,41 @@ class LostPasswordServiceTest extends AbstractInitializer {
         Assertions.assertEquals(0, conformationTokenRepository.findAll().size());
     }
 
-    //TODO: tests for sendPasswordResetEmail method
-    //success
-    //invalid email
+    /**
+     * Tests that the sendPasswordResetEmail creates a new Confirmation Token for the right user
+     */
+    @Test
+    void sendPasswordResetEmail_createsToken() {
+        lostPasswordService.sendPasswordResetEmail(testUser.getEmail());
+
+        Optional<ConformationToken> newToken = conformationTokenRepository.findByUser(testUser);
+        Assertions.assertTrue(newToken.isPresent());
+        Assertions.assertEquals(testUser.getEmail(), newToken.get().getUser().getEmail());
+    }
+
+    /**
+     * Tests that the sendPasswordResetEmail sends the user an email
+     */
+    @Test
+    void sendPasswordResetEmail_sendsEmail() {
+        lostPasswordService.sendPasswordResetEmail(testUser.getEmail());
+
+        ArgumentCaptor<String> emailAddress = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> subject = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> text = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(emailService).sendEmail(emailAddress.capture(), subject.capture(),
+                text.capture());
+
+        Assertions.assertEquals(testUser.getEmail(), emailAddress.getValue());
+        Assertions.assertEquals("Resale: Reset your password", subject.getValue());
+    }
+
+    /**
+     * Tests the sendPasswordResetEmail method throws a BadRequestException when an invalid email is provided
+     */
+    @Test
+    void sendPasswordResetEmail_invalidEmail() {
+        Assertions.assertThrows(BadRequestException.class,
+                () -> lostPasswordService.sendPasswordResetEmail(""));
+    }
 }

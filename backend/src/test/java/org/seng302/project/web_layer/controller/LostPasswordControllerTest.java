@@ -138,11 +138,10 @@ class LostPasswordControllerTest extends AbstractInitializer {
         body.put("email", "john.smith@gmail.com");
 
         RequestBuilder request = MockMvcRequestBuilders
-                .patch("/lostpassword/send")
+                .post("/lostpassword/send")
                 .content(body.toString())
                 .contentType(MediaType.APPLICATION_JSON);
 
-        //TODO: this actually gives 401
         mockMvc.perform(request).andExpect(status().isCreated());
     }
 
@@ -158,14 +157,11 @@ class LostPasswordControllerTest extends AbstractInitializer {
         body.put("email", "notanemail");
 
         RequestBuilder request = MockMvcRequestBuilders
-                .patch("/lostpassword/send")
+                .post("/lostpassword/send")
                 .content(body.toString())
                 .contentType(MediaType.APPLICATION_JSON);
 
-        //TODO: this actually gives 401
         mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 
-
-    //TODO: test sendPasswordResetEmail with no email in request body
 }

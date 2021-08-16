@@ -83,7 +83,6 @@ public class LostPasswordController {
     @ResponseStatus(HttpStatus.CREATED)
     public void sendLostPasswordEmail(@RequestBody JSONObject requestBody) {
         try {
-            //TODO: catch exception when not present in body and throw 400
             String email = requestBody.getAsString("email");
             logger.info("Sending password reset email to user with email: {}", email);
             lostPasswordService.sendPasswordResetEmail(email);
