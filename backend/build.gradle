@@ -63,6 +63,8 @@ dependencies {
     implementation 'org.springframework.security:spring-security-test'
     // connector to mariadb (mysql) database
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.2'
+    // email
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
     // ability to use in-memory database (for testing only)
     runtimeOnly 'com.h2database:h2'
 
