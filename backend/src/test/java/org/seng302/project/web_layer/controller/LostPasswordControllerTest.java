@@ -1,6 +1,7 @@
 package org.seng302.project.web_layer.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +9,7 @@ import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.service_layer.dto.user.ChangePasswordDTO;
-import org.seng302.project.service_layer.exceptions.NotAcceptableException;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.service.LostPasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -46,18 +47,18 @@ class LostPasswordControllerTest extends AbstractInitializer {
     }
 
     /**
-     * Test that when validating a conformation token that does not exist thrown a NotAcceptableException
+     * Test that when validating a conformation token that does not exist thrown a BadRequestException
      */
     @Test
-    void validateToken_doesNotExist_returns406() throws Exception {
-        Mockito.doThrow(NotAcceptableException.class)
+    void validateToken_doesNotExist_returns400() throws Exception {
+        Mockito.doThrow(BadRequestException.class)
                 .when(lostPasswordService).validateToken(any(String.class));
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/lostpassword/validate")
                 .param("token", "SomeToken");
 
-        mockMvc.perform(request).andExpect(status().isNotAcceptable());
+        mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 
     /**
@@ -73,11 +74,11 @@ class LostPasswordControllerTest extends AbstractInitializer {
     }
 
     /**
-     * Test that when editing a users password with a token that does not exist thrown a NotAcceptableException
+     * Test that when editing a users password with a token that does not exist thrown a BadRequestException
      */
     @Test
-    void editPassword_tokenDoesNotExist_returns406() throws Exception {
-        Mockito.doThrow(NotAcceptableException.class)
+    void editPassword_tokenDoesNotExist_returns400() throws Exception {
+        Mockito.doThrow(BadRequestException.class)
                 .when(lostPasswordService).changePassword(any(ChangePasswordDTO.class));
 
         ChangePasswordDTO requestDTO = new ChangePasswordDTO("NotAToken", "NewPassword123");
@@ -87,7 +88,7 @@ class LostPasswordControllerTest extends AbstractInitializer {
                 .content(objectMapper.writeValueAsString(requestDTO))
                 .contentType(MediaType.APPLICATION_JSON);
 
-        mockMvc.perform(request).andExpect(status().isNotAcceptable());
+        mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 
     /**
@@ -127,4 +128,44 @@ class LostPasswordControllerTest extends AbstractInitializer {
 
         mockMvc.perform(request).andExpect(status().isOk());
     }
+
+    /**
+     * Tests that successfully sending a password reset email gives 201 response
+     */
+    @Test
+    void sendPasswordResetEmail_success_returns201() throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("email", "john.smith@gmail.com");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/lostpassword/send")
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        //TODO: this actually gives 401
+        mockMvc.perform(request).andExpect(status().isCreated());
+    }
+
+    /**
+     * Tests that sending a password reset email to an invalid email gives 400 response
+     */
+    @Test
+    void sendPasswordResetEmail_invalidEmail_returns400() throws Exception {
+        Mockito.doThrow(BadRequestException.class)
+                .when(lostPasswordService).sendPasswordResetEmail(any(String.class));
+
+        JSONObject body = new JSONObject();
+        body.put("email", "notanemail");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/lostpassword/send")
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        //TODO: this actually gives 401
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+
+    //TODO: test sendPasswordResetEmail with no email in request body
 }

@@ -23,13 +23,16 @@ public class LostPasswordService {
     private final ConformationTokenRepository conformationTokenRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Autowired
     public LostPasswordService(ConformationTokenRepository conformationTokenRepository,
-                               UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+                               UserRepository userRepository, BCryptPasswordEncoder passwordEncoder,
+                               EmailService emailService) {
         this.conformationTokenRepository = conformationTokenRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     /**
@@ -40,7 +43,7 @@ public class LostPasswordService {
      */
     public JSONObject validateToken(String token) {
         var conformationToken = conformationTokenRepository.findByToken(token).orElseThrow(() ->
-                new NotAcceptableException("Lost Password Token is not valid"));
+                new BadRequestException("Lost Password Token is not valid"));
         var returnJSON = new JSONObject();
         returnJSON.put("email", conformationToken.getUser().getEmail());
         return returnJSON;
@@ -72,12 +75,22 @@ public class LostPasswordService {
     public void changePassword(ChangePasswordDTO dto) {
         //Get ConformationToken from repository
         var conformationToken = conformationTokenRepository.findByToken(dto.getToken()).orElseThrow(() ->
-                new NotAcceptableException("Lost Password Token is not valid"));
+                new BadRequestException("Lost Password Token is not valid"));
         var user = conformationToken.getUser();
         //Change users password
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         userRepository.save(user);
         //Remove the token after it has been used
         conformationTokenRepository.delete(conformationToken);
+    }
+
+    /**
+     * Sends a password reset email to the given email address
+     * @param emailAddress email address to send the password reset email to
+     */
+    public void sendPasswordResetEmail(String emailAddress) {
+        //TODO: 400 if invalid email
+        String emailBody = "";
+        emailService.sendEmail(emailAddress, "Resale: Reset your password", emailBody);
     }
 }

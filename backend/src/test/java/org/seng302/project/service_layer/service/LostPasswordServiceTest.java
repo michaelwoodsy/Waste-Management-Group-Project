@@ -9,15 +9,13 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.user.ChangePasswordDTO;
-import org.seng302.project.service_layer.exceptions.NotAcceptableException;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 
 @DataJpaTest
@@ -39,11 +37,13 @@ class LostPasswordServiceTest extends AbstractInitializer {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.conformationTokenRepository = conformationTokenRepository;
+        EmailService emailService = Mockito.mock(EmailService.class);
 
         this.lostPasswordService = new LostPasswordService(
                 this.conformationTokenRepository,
                 this.userRepository,
-                passwordEncoder);
+                passwordEncoder,
+                emailService);
     }
 
     /**
@@ -62,11 +62,11 @@ class LostPasswordServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that a NotAcceptableException is thrown when someone tries validating a token that does not exist.
+     * Tests that a BadRequestException is thrown when someone tries validating a token that does not exist.
      */
     @Test
-    void validateToken_doesNotExist_NotAcceptableException() {
-        Assertions.assertThrows(NotAcceptableException.class,
+    void validateToken_doesNotExist_BadRequestException() {
+        Assertions.assertThrows(BadRequestException.class,
                 () -> lostPasswordService.validateToken("NotAToken"));
 
     }
@@ -83,11 +83,11 @@ class LostPasswordServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that a NotAcceptableException is thrown when someone tries editing a password with a token that does not exist.
+     * Tests that a BadRequestException is thrown when someone tries editing a password with a token that does not exist.
      */
     @Test
-    void editPassword_tokenDoesNotExist_NotAcceptableException() {
-        Assertions.assertThrows(NotAcceptableException.class,
+    void editPassword_tokenDoesNotExist_BadRequestException() {
+        Assertions.assertThrows(BadRequestException.class,
                 () -> lostPasswordService.validateToken("NotAToken"));
     }
 
@@ -123,4 +123,8 @@ class LostPasswordServiceTest extends AbstractInitializer {
         // Now token should be removed
         Assertions.assertEquals(0, conformationTokenRepository.findAll().size());
     }
+
+    //TODO: tests for sendPasswordResetEmail method
+    //success
+    //invalid email
 }
