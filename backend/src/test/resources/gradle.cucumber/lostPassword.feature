@@ -1,19 +1,5 @@
 Feature: U25 Lost password
 
-  Scenario: AC3: An email message is sent to the user’s email address.
-  It contains a URL to password reset screen together with instructions (whose content is based on these ACs) for using it.
-    Given I have requested to reset my password
-    When I receive the password reset email message
-    Then The message includes a URL to the password reset screen
-
-
-  Scenario: AC3: An email message is sent to the user’s email address.
-  It contains a URL to password reset screen together with instructions (whose content is based on these ACs) for using it.
-    Given I have requested to reset my password
-    When I receive the password reset email message
-    Then The message includes instructions for using the password reset URL
-
-
   Scenario: AC4:  The link can be used at most once (in case the user has remembered their password in the meantime)
   and expires after a fixed period (e.g. an hour).
     Given I have requested to reset my password
@@ -40,5 +26,4 @@ Feature: U25 Lost password
   The old password is deleted and the new one can then be used to log in.
     Given I have requested to reset my password
     When I try to reset my password to "ValidPa55word"
-    Then My old password is deleted
-    And I can log in with my new password "ValidPa55word"
+    Then I can log in with my new password "ValidPa55word"
