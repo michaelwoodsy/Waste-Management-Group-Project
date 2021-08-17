@@ -4,15 +4,6 @@
     <!--    Result Information    -->
     <div v-if="!this.selectingItem || (!loading && this.products.length > 0)">
 
-      <!-- Displays number of results -->
-      <div class="text-center">
-        <showing-results-text
-            :items-per-page="resultsPerPage"
-            :page="page"
-            :total-count="totalCount"
-        />
-      </div>
-
       <!--    Order By   -->
       <div class="overflow-auto">
         <table class="table table-hover"
@@ -20,9 +11,9 @@
         >
           <thead>
           <tr>
-            <!--    Product Code    -->
+            <!--    Product ID    -->
             <th class="pointer" scope="col" @click="orderResults('id')">
-              <p class="d-inline">Code</p>
+              <p class="d-inline">ID</p>
               <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
             </th>
 
@@ -107,6 +98,14 @@
     <!--    Result Information    -->
     <div class="row">
       <div class="col">
+        <!-- Displays number of results -->
+        <div class="text-center mb-2">
+          <showing-results-text
+              :items-per-page="resultsPerPage"
+              :page="page"
+              :total-count="totalCount"
+          />
+        </div>
         <pagination
             :current-page.sync="page"
             :items-per-page="resultsPerPage"
@@ -347,10 +346,7 @@ export default {
     },
 
     selectProduct(product) {
-      this.$parent.productCode = product.id;
-      this.$parent.currencySymbol = product.currency.symbol
-      this.$parent.currencyCode = product.currency.code
-      this.$parent.finishSelectItem();
+      this.$emit('selected-product', product)
     },
 
     /**

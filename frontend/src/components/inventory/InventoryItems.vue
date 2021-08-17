@@ -4,14 +4,6 @@
     <!--    Result Information    -->
     <div v-if="!this.selectingItem || (!loading && this.inventoryItems.length > 0)">
 
-      <div class="text-center">
-        <showing-results-text
-            :items-per-page="resultsPerPage"
-            :page="page"
-            :total-count="totalCount"
-        />
-      </div>
-
       <!--    Order By   -->
       <div class="overflow-auto">
         <table class="table table-hover">
@@ -124,7 +116,14 @@
 
     <!--    Result Information    -->
     <div class="row">
-      <div class="col-12">
+      <div class="col">
+        <div class="text-center mb-2">
+          <showing-results-text
+              :items-per-page="resultsPerPage"
+              :page="page"
+              :total-count="totalCount"
+          />
+        </div>
         <pagination
             :current-page.sync="page"
             :items-per-page="resultsPerPage"
