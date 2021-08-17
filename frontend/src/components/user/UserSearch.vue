@@ -45,12 +45,6 @@
           >
             <thead>
             <tr>
-              <!--    ID    -->
-              <th class="pointer" scope="col" @click="orderSearch('id')">
-                <p class="d-inline">Id</p>
-                <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
-              </th>
-
               <!--    User Image    -->
               <th id="userImage"></th>
 
@@ -94,18 +88,17 @@
                 data-toggle="modal"
                 @click="viewUser(user.id)"
             >
-              <th scope="row">
-                {{ user.id }}
-                <span v-if="isActingAsAdmin && user.role === 'globalApplicationAdmin'"
-                      class="badge badge-danger admin-badge">ADMIN</span>
-                <span v-else-if="isActingAsAdmin && user.role === 'defaultGlobalApplicationAdmin'"
-                      class="badge badge-danger admin-badge">DGAA</span>
-              </th>
               <td>
                 <img :src="getPrimaryImageThumbnail(user)"
                      alt="userImage">
               </td>
-              <td>{{ nameAndNickname(user) }}</td>
+              <td>
+                {{ nameAndNickname(user) }}<br>
+                <span v-if="isActingAsAdmin && user.role === 'globalApplicationAdmin'"
+                      class="badge badge-danger admin-badge">ADMIN</span>
+                <span v-else-if="isActingAsAdmin && user.role === 'defaultGlobalApplicationAdmin'"
+                      class="badge badge-danger admin-badge">DGAA</span>
+              </td>
               <td>{{ user.middleName }}</td>
               <td>{{ user.lastName }}</td>
               <td>{{ user.email }}</td>

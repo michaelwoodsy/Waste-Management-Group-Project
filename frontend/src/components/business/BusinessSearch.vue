@@ -64,12 +64,6 @@ Component on Search page for searching businesses
                  class="table table-hover">
             <thead>
             <tr>
-              <!--    ID    -->
-              <th class="pointer" scope="col" @click="orderSearch('id')">
-                <p class="d-inline">Id</p>
-                <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
-              </th>
-
               <!--    Business Image    -->
               <th id="businessImage"></th>
 
@@ -102,9 +96,6 @@ Component on Search page for searching businesses
                 data-toggle="modal"
                 @click="viewBusiness(business)"
             >
-              <th scope="row">
-                {{ business.id }}
-              </th>
               <td>
                 <img :src="getPrimaryImageThumbnail(business)"
                      alt="businessImage">
