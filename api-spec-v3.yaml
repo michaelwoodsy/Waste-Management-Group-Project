@@ -2435,7 +2435,7 @@ paths:
         - 'UD1: Landing Page'
         - 'Landing Page'
       summary: 'Gets the statistics for re:sale'
-      description: 'Retrieves statisctical data about re:sale such as number of users and number of sale listings'
+      description: 'Retrieves statisctical data about re:sale, such as number of users and number of sale listings'
       security: [ ]
       responses:
         '200':
@@ -2451,8 +2451,6 @@ paths:
                     type: integer
                   toalNumSales:
                     type: integer
-        '400':
-          $ref: '#/components/responses/BadRequestError'
 
   '/popularlistings':
     get:
@@ -2572,7 +2570,7 @@ paths:
         - 'UD4: New Card Notifications'
         - 'Users'
       summary: "Gets a user's keyword watchlist"
-      description: 'Retrieves the watched keywords (if a card is listed with that keyword the user receives a notification for a given user'
+      description: "Retrieves the watched keywords (if a card is listed with a keyword in a user's watchlist they receives a notification)"
       security:
         - CookieAuth:
             - user
@@ -2610,7 +2608,6 @@ paths:
         - 'UD4: New Card Notifications'
         - 'Keywords'
       summary: "Adds a keyword to the user's keyword watchlist"
-      description: "Adds a keyword to the given user's keyword watchlist"
       security:
         - CookieAuth:
             - user
@@ -2643,7 +2640,6 @@ paths:
         - 'UD4: New Card Notifications'
         - 'Keywords'
       summary: "Removes a keyword to the user's keyword watchlist"
-      description: "Removes a keyword from the given user's keyword watchlist"
       security:
         - CookieAuth:
             - user
@@ -2749,7 +2745,7 @@ paths:
           $ref: '#/components/responses/NotAcceptableError'
 
 
-  'businesses/{businessId}/reviews':
+  '/businesses/{businessId}/reviews':
     get:
       tags:
         - 'UD6: Sale Reviews'
@@ -2787,7 +2783,7 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
-  'businesses/{businessId}/reviews/{reviewId}':
+  '/businesses/{businessId}/reviews/{reviewId}':
     get:
       tags:
         - 'UD6: Sale Reviews'
@@ -2830,7 +2826,7 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
-  'users/{userId}/reviews':
+  '/users/{userId}/reviews':
     get:
       tags:
         - 'UD6: Sale Reviews'
@@ -2914,7 +2910,7 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
-  'businesses/{businessId}/reviews/{reviewId}/repsond':
+  '/businesses/{businessId}/reviews/{reviewId}/repsond':
     patch:
       tags:
         - 'UD6: Sale Reviews'
@@ -3705,7 +3701,7 @@ components:
           description: Extra detail from user on why they gave the rating they did.
         reviewResponse:
           type: string
-          example: "These bananas are really good!"
+          example: "Thanks for the feedback!"
           description: Respones by business to review left by user.
         created:
           type: string
