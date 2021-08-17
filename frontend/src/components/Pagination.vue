@@ -30,29 +30,20 @@ the "update:currentPage" event is emitted)
 -->
 <template>
   <nav class="navigation ">
-    <!-- Pages if it is possible to show all page numbers -->
-    <ul class="pagination justify-content-center" v-if="allPagesFit">
-      <li v-for="page in pages"
-          v-bind:key="page"
-          :class="styles(page)"
-          @click.prevent="changePage(page)"
-      >
-        <a class="page-link no-outline" href>{{ page }}</a>
-      </li>
-    </ul>
+    <ul class="pagination justify-content-center">
 
-    <ul class="pagination justify-content-center" v-else-if="true">
-      <!-- first page -->
-      <li :class="styles(1)" @click.prevent="changePage(1)">
-        <a class="page-link no-outline mb-0 disabled" href>{{ 1 }}</a>
+      <li :class="{'disabled': currentPage === 1}" class="page-item">
+        <a class="page-link no-outline" href @click.prevent="changePage(1)"><em class="bi bi-chevron-double-left"/></a>
+      </li>
+
+      <li :class="{'disabled': currentPage === 1}" class="page-item">
+        <a class="page-link no-outline" href @click.prevent="changePage(currentPage - 1)"><em
+            class="bi bi-chevron-left"/></a>
       </li>
 
       <!-- Three dots -->
-      <li
-          @click.prevent
-          v-if="!inLeftRange"
-      >
-        <a class="page-link no-outline mb-0 disabled disabled-page-link" href>...</a>
+      <li v-if="!inLeftRange" @click.prevent>
+        <a class="page-link no-outline disabled disabled-page-link" href><em class="bi bi-three-dots"/></a>
       </li>
 
       <!-- Pages in range of current page -->
@@ -65,16 +56,20 @@ the "update:currentPage" event is emitted)
       </li>
 
       <!-- Three dots -->
-      <li @click.prevent
-          v-if="!inRightRange"
-      >
-        <a class="page-link no-outline mb-0 disabled disabled-page-link" href>...</a>
+      <li v-if="!inRightRange" @click.prevent>
+        <a class="page-link no-outline disabled disabled-page-link" href><em class="bi bi-three-dots"/></a>
       </li>
 
-      <!-- Final page -->
-      <li :class="styles(finalPage)" @click.prevent="changePage(finalPage)">
-        <a class="page-link no-outline mb-0 disabled" href>{{ finalPage }}</a>
+      <li :class="{'disabled': currentPage === finalPage}" class="page-item">
+        <a class="page-link no-outline" href @click.prevent="changePage(currentPage + 1)"><em
+            class="bi bi-chevron-right"/></a>
       </li>
+
+      <li :class="{'disabled': currentPage === finalPage}" class="page-item">
+        <a class="page-link no-outline" href @click.prevent="changePage(finalPage)"><em
+            class="bi bi-chevron-double-right"/></a>
+      </li>
+
     </ul>
   </nav>
 </template>
@@ -117,13 +112,11 @@ export default {
      */
     shownPages() {
       if (this.inLeftRange) {
-        return this.pages.slice(1, (this.range * 2) + 1)
-      }
-      else if (this.inRightRange) {
-        return this.pages.slice(-((this.range * 2) + 1), -1)
-      }
-      else {
-        return this.pages.slice(this.currentPage - this.range - 1, this.currentPage + this.range)
+        return this.pages.slice(0, (this.range * 2) + 1)
+      } else if (this.inRightRange) {
+        return this.pages.slice(-((this.range * 2) + 1))
+      } else {
+        return this.pages.slice((this.currentPage - this.range) - 1, this.currentPage + this.range)
       }
 
     },
@@ -132,7 +125,11 @@ export default {
      * The final page number
      */
     finalPage() {
-      return this.pages[this.pages.length - 1]
+      if (this.pages.length === 0) {
+        return 1
+      } else {
+        return this.pages[this.pages.length - 1]
+      }
     },
 
     /**

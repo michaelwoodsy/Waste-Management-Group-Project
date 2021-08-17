@@ -11,7 +11,7 @@
           <tr>
             <!--    Product Code    -->
             <th class="pointer" scope="col" @click="orderResults('productId')">
-              <p class="d-inline">Product Code</p>
+              <p class="d-inline">Product ID</p>
               <p v-if="orderCol === 'productId'" class="d-inline">{{ orderDirArrow }}</p>
             </th>
 

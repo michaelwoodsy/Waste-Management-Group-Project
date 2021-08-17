@@ -369,7 +369,6 @@ export default {
      * calls the formatPrice method in the product module to format the products recommended retail price
      */
     formatPrice(product) {
-      console.log(product)
       return this.$root.$data.product.formatPrice(product.currency, product.recommendedRetailPrice)
     },
 
