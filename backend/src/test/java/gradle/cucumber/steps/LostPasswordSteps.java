@@ -11,9 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.ConformationToken;
 import org.seng302.project.repository_layer.model.User;
-import org.seng302.project.repository_layer.repository.AddressRepository;
-import org.seng302.project.repository_layer.repository.ConformationTokenRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.user.ChangePasswordDTO;
 import org.seng302.project.service_layer.dto.user.LoginCredentialsDTO;
 import org.seng302.project.service_layer.service.LostPasswordService;
@@ -42,6 +40,9 @@ public class LostPasswordSteps extends AbstractInitializer {
     private final UserRepository userRepository;
     private final ConformationTokenRepository conformationTokenRepository;
     private final AddressRepository addressRepository;
+    private final CardRepository cardRepository;
+    private final BusinessRepository businessRepository;
+    private final SaleListingRepository saleListingRepository;
 
     @Autowired
     private LostPasswordService lostPasswordService;
@@ -57,10 +58,16 @@ public class LostPasswordSteps extends AbstractInitializer {
     @Autowired
     public LostPasswordSteps(UserRepository userRepository,
                              ConformationTokenRepository conformationTokenRepository,
-                             AddressRepository addressRepository){
+                             AddressRepository addressRepository,
+                             CardRepository cardRepository,
+                             BusinessRepository businessRepository,
+                             SaleListingRepository saleListingRepository){
         this.userRepository = userRepository;
         this.conformationTokenRepository = conformationTokenRepository;
         this.addressRepository = addressRepository;
+        this.cardRepository = cardRepository;
+        this.businessRepository = businessRepository;
+        this.saleListingRepository = saleListingRepository;
     }
 
     /**
@@ -69,7 +76,10 @@ public class LostPasswordSteps extends AbstractInitializer {
     @BeforeEach
     @Autowired
     void setup(WebApplicationContext context) {
+        cardRepository.deleteAll();
         conformationTokenRepository.deleteAll();
+        saleListingRepository.deleteAll();
+        businessRepository.deleteAll();
         userRepository.deleteAll();
         addressRepository.deleteAll();
 
