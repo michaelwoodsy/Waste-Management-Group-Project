@@ -57,13 +57,13 @@
                 <a class="link-text m-0"
                              data-target="#viewPasswordResetModal"
                              data-toggle="modal"
-                             @click="viewPasswordReset = true"
+                             @click="viewPasswordReset = true; error = null"
                 >here</a>
                 to reset password.</alert>
               <a class="link-text"
                  data-target="#viewPasswordResetModal"
                  data-toggle="modal"
-                 @click="viewPasswordReset = true"
+                 @click="viewPasswordReset = true; error = null"
               >Forgot password?</a>
             </div>
             <br>
@@ -275,6 +275,7 @@ export default {
     sendEmail(){
       this.checkEmail()
       if (this.valid) {
+        this.error = null
         this.submitting = true
         User.sendPasswordResetEmail(this.email)
           .then(() => {
@@ -285,9 +286,9 @@ export default {
           })
             .catch((err) => {
               this.error = err.response
-              //TODO: fix this when backend is implemented
-                  // ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-                  // : err
+                  ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+                  : err
+              this.submitting = false
             })
       } else {
         //Change valid back to true for when the Password Reset button is clicked again

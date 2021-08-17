@@ -2322,8 +2322,6 @@ paths:
           description: Successfully sent email
         '400':
           $ref: '#/components/responses/BadRequestError'
-        406:
-          $ref: '#/components/responses/NotAcceptableError'
 
   '/lostpassword/validate':
     get:
@@ -2355,8 +2353,7 @@ paths:
                     example: "john.smith@email.com"
         '400':
           $ref: '#/components/responses/BadRequestError'
-        406:
-          $ref: '#/components/responses/NotAcceptableError'
+
 
   '/lostpassword/edit':
     patch:
@@ -2389,8 +2386,6 @@ paths:
           description: Successfully updated password
         '400':
           $ref: '#/components/responses/BadRequestError'
-        406:
-          $ref: '#/components/responses/NotAcceptableError'
 
 
 

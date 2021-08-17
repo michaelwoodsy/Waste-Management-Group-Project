@@ -146,7 +146,7 @@ public class TestDataRunner {
             );
             newUser = userRepository.save(newUser);
             if (newUser.getId().equals(2)) {
-                var conformationToken = new ConformationToken("123456789", newUser);
+                var conformationToken = new ConformationToken(newUser);
                 conformationTokenRepository.save(conformationToken);
             }
         }
@@ -248,7 +248,7 @@ public class TestDataRunner {
 
         }
         logger.info("Finished adding sample data to product image repository");
-        logger.info(String.format("Added %d entries to product image repository", imageRepository.count()));
+        logger.info("Added {} entries to product image repository", imageRepository.count());
     }
 
 

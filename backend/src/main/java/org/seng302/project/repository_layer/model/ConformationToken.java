@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Conformation Token class used when validating a users forgotten password request.
@@ -26,8 +27,17 @@ public class ConformationToken {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public ConformationToken(String token, User user) {
-        this.token = token;
+
+    public ConformationToken(User user) {
+        this.token = generateToken();
         this.user = user;
+    }
+
+    /**
+     * Generates a unique token
+     */
+    @Transient
+    private String generateToken() {
+        return UUID.randomUUID().toString();
     }
 }

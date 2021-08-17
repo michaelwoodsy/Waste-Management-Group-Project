@@ -74,7 +74,7 @@ public class PurchaseSaleListingsSteps extends AbstractInitializer {
     }
 
     /**
-     * Before each test, setup four sale listings with different parameters
+     * Before each test
      */
     @BeforeEach
     @Autowired
