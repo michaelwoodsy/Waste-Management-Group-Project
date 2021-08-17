@@ -15,6 +15,8 @@ jest.mock('axios');
 
 // Setup before each test
 beforeEach(() => {
+    // Mock needed for the GeoIP request when the component is mounted.
+    axios.get.mockImplementation(() => Promise.resolve({data: {ip: "", latitude: 0, longitude: 0}}));
     wrapper = VueTestUtils.shallowMount(AddressInputFields)
 });
 
