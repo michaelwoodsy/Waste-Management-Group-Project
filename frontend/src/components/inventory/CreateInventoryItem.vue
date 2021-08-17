@@ -4,7 +4,7 @@
     <!-- Page title -->
     <div class="row mb-4">
       <div v-if="selectingItem" class="col-2 text-left">
-        <button class="btn btn-secondary" @click="finishSelectItem">Back</button>
+        <button class="btn btn-secondary" @click="cancelSelectItem">Back</button>
       </div>
       <div class="col text-center">
         <h2>{{ title }}</h2>
@@ -19,15 +19,17 @@
     <div v-if="!selectingItem">
       <!-- Product Code -->
       <div class="form-group row">
-        <label for="productCode"><strong>Product Code<span class="required">*</span></strong></label>
-        <div :class="{'input-group': true, 'is-invalid': msg.productCode}">
-          <input id="productCode" v-model="productCode" :class="{'form-control': true, 'is-invalid': msg.productCode}"
-                 placeholder="Select a product from your catalogue..." readonly>
+        <label for="productCode"><strong>Product ID<span class="required">*</span></strong></label>
+        <div :class="{'input-group': true, 'is-invalid': msg.productId}">
+          <div id="productCode" :class="{'form-control': true, 'is-invalid': msg.productId}">
+            <span v-if="!productId">Select a product from your catalogue...</span>
+            <span v-else>{{ productId }}</span>
+          </div>
           <div class="input-group-append">
             <button class="btn btn-primary" @click="selectItem">Select</button>
           </div>
         </div>
-        <span class="invalid-feedback">{{ msg.productCode }}</span>
+        <span class="invalid-feedback">{{ msg.productId }}</span>
       </div>
 
       <!-- Quantity -->
@@ -128,7 +130,9 @@
       </div>
     </div>
     <product-search v-if="selectingItem" :business-id="businessId"></product-search>
-    <catalogue-items ref="catalogueItems" v-if="selectingItem" :business-id="businessId" :selecting-item="true"></catalogue-items>
+    <catalogue-items ref="catalogueItems" v-if="selectingItem" :business-id="businessId" :selecting-item="true"
+                     @selected-product="finishSelectItem"
+    />
 
   </div>
 </template>
@@ -145,7 +149,7 @@ export default {
   data() {
     return {
       title: 'Create a new inventory item',
-      productCode: '', // Required
+      productId: '', // Required
       quantity: '', // Required
       pricePerItem: '',
       totalPrice: '',
@@ -156,7 +160,7 @@ export default {
       currencySymbol: '',
       currencyCode: '',
       msg: {
-        productCode: null,
+        productId: null,
         quantity: null,
         pricePerItem: null,
         totalPrice: null,
@@ -180,11 +184,11 @@ export default {
   },
   methods: {
     validateProductCode() {
-      if (!/^[a-zA-Z0-9-]+$/.test(this.productCode)) {
-        this.msg.productCode = 'Please enter a valid product ID';
+      if (!/^[a-zA-Z0-9-]+$/.test(this.productId)) {
+        this.msg.productId = 'Please enter a valid product ID';
         this.valid = false;
       } else {
-        this.msg.productCode = null;
+        this.msg.productId = null;
       }
     },
     /**
@@ -337,7 +341,7 @@ export default {
     addItem() {
       this.$root.$data.business.createItem(
           this.businessId, {
-            "productId": this.productCode,
+            "productId": this.productId,
             "quantity": Number(this.quantity),
             "pricePerItem": this.pricePerItem !== null && this.pricePerItem !== ''
                 ? Number(this.pricePerItem) : null,
@@ -374,7 +378,15 @@ export default {
       this.title = 'Select a product from your catalogue'
       this.$emit('select-product-toggle');
     },
-    finishSelectItem() {
+    finishSelectItem(product) {
+      this.productId = product.id;
+      this.currencySymbol = product.currency.symbol
+      this.currencyCode = product.currency.code
+      this.selectingItem = false;
+      this.title = 'Create a new inventory item'
+      this.$emit('select-product-toggle');
+    },
+    cancelSelectItem() {
       this.selectingItem = false;
       this.title = 'Create a new inventory item'
       this.$emit('select-product-toggle');

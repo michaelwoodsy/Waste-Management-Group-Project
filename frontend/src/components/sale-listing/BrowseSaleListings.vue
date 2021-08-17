@@ -18,7 +18,7 @@
       <!-- Search Option -->
       <div class="mb-4">
         <div class="row justify-content-center">
-          <div class="col-6 text-center">
+          <div class="col-xl-6 col-lg-8 col-md-10 text-center">
             <!--    Search Input    -->
             <div class="form-group row">
               <div class="input-group">
@@ -43,7 +43,7 @@
           </div>
         </div>
         <div id="searchOptions" class="row justify-content-center collapse">
-          <div class="col-6 text-center">
+          <div class="col-xl-6 col-lg-8 col-md-10 text-center">
             <!-- Checkboxes for selecting which fields to match -->
             <div class="form-group row">
               <div :class="{'is-invalid': msg.fieldOptions}" class="input-group">
