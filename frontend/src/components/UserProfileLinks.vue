@@ -54,6 +54,7 @@
 
       <!-- Profile and logout section -->
       <div v-if="this.actor.type === 'business'">
+        <router-link :to="`/businesses/${this.actor.id}`" class="dropdown-item">Business Profile</router-link>
         <router-link :to="productCatalogueRoute" class="dropdown-item">Product Catalogue</router-link>
         <router-link :to="inventoryRoute" class="dropdown-item">Inventory</router-link>
         <router-link :to="listingsRoute" class="dropdown-item">Listings</router-link>
@@ -61,6 +62,7 @@
       </div>
       <div v-else>
         <router-link to="/businesses" class="dropdown-item">Create Business</router-link>
+        <router-link :to="userProfileRoute" class="dropdown-item">My Profile</router-link>
         <router-link :to="editUserRoute" class="dropdown-item">Edit Profile</router-link>
       </div>
       <div class="dropdown-divider"/>
@@ -224,14 +226,12 @@ export default {
 
     /** Sets the current logged in user to act as a business account **/
     actAsBusiness(business) {
-      console.log(business)
       this.$root.$data.user.setActingAs(business.id, business.name, 'business')
       this.$router.push({name: 'home'})
     },
 
     /** Sets the current logged in user to act as a user account **/
     actAsUser(userData) {
-      console.log(userData)
       this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
       this.$router.push({name: 'home'})
     }

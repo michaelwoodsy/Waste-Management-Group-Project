@@ -1,4 +1,5 @@
 <template>
+
   <div v-if="isLoggedIn" class="container-fluid">
 
     <!--    Search Users Header    -->
@@ -16,8 +17,8 @@
     </div>
 
     <!--    Search Input    -->
-    <div class="row justify-content-center mb-2">
-      <div class="col-12 col-sm-8 col-lg-6">
+    <div class="row justify-content-center mb-3">
+      <div class="col col-sm-8 col-lg-5">
         <div class="input-group">
           <input id="search"
                  v-model="searchTerm"
@@ -36,15 +37,7 @@
 
     <!--    Result Information    -->
     <div class="row justify-content-center">
-      <div class="col-12">
-        <div class="text-center">
-          <showing-results-text
-              :items-per-page="resultsPerPage"
-              :page="page"
-              :total-count="totalCount"
-          />
-        </div>
-
+      <div class="col">
         <!--    Order By   -->
         <div class="overflow-auto">
           <table aria-label="Table showing user search results"
@@ -52,30 +45,24 @@
           >
             <thead>
             <tr>
-              <!--    ID    -->
-              <th class="pointer" scope="col" @click="orderSearch('id')">
-                <p class="d-inline">Id</p>
-                <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
-              </th>
-
               <!--    User Image    -->
               <th id="userImage"></th>
 
               <!--    First Name    -->
               <th class="pointer" scope="col" @click="orderSearch('firstName')">
-                <p class="d-inline">Firstname</p>
+                <p class="d-inline">First Name</p>
                 <p v-if="orderCol === 'firstName'" class="d-inline">{{ orderDirArrow }}</p>
               </th>
 
               <!--    Middle Name    -->
               <th class="pointer" scope="col" @click="orderSearch('middleName')">
-                <p class="d-inline">Middlename</p>
+                <p class="d-inline">Middle Name</p>
                 <p v-if="orderCol === 'middleName'" class="d-inline">{{ orderDirArrow }}</p>
               </th>
 
               <!--    Last Name    -->
               <th class="pointer" scope="col" @click="orderSearch('lastName')">
-                <p class="d-inline">Lastname</p>
+                <p class="d-inline">Last Name</p>
                 <p v-if="orderCol === 'lastName'" class="d-inline">{{ orderDirArrow }}</p>
               </th>
 
@@ -101,18 +88,17 @@
                 data-toggle="modal"
                 @click="viewUser(user.id)"
             >
-              <th scope="row">
-                {{ user.id }}
-                <span v-if="isActingAsAdmin && user.role === 'globalApplicationAdmin'"
-                      class="badge badge-danger admin-badge">ADMIN</span>
-                <span v-else-if="isActingAsAdmin && user.role === 'defaultGlobalApplicationAdmin'"
-                      class="badge badge-danger admin-badge">DGAA</span>
-              </th>
               <td>
                 <img :src="getPrimaryImageThumbnail(user)"
                      alt="userImage">
               </td>
-              <td>{{ nameAndNickname(user) }}</td>
+              <td>
+                {{ nameAndNickname(user) }}<br>
+                <span v-if="isActingAsAdmin && user.role === 'globalApplicationAdmin'"
+                      class="badge badge-danger admin-badge">ADMIN</span>
+                <span v-else-if="isActingAsAdmin && user.role === 'defaultGlobalApplicationAdmin'"
+                      class="badge badge-danger admin-badge">DGAA</span>
+              </td>
               <td>{{ user.middleName }}</td>
               <td>{{ user.lastName }}</td>
               <td>{{ user.email }}</td>
@@ -132,7 +118,14 @@
 
     <!--    Result Information    -->
     <div class="row">
-      <div class="col-12">
+      <div class="col">
+        <div class="mb-2 text-center">
+          <showing-results-text
+              :items-per-page="resultsPerPage"
+              :page="page"
+              :total-count="totalCount"
+          />
+        </div>
         <pagination
             :current-page.sync="page"
             :items-per-page="resultsPerPage"
@@ -155,8 +148,11 @@
         </div>
       </div>
     </div>
+
   </div>
+
   <login-required v-else page="search users"/>
+
 </template>
 
 <script>

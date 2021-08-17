@@ -4,14 +4,6 @@
     <!--    Result Information    -->
     <div v-if="!this.selectingItem || (!loading && this.inventoryItems.length > 0)">
 
-      <div class="text-center">
-        <showing-results-text
-            :items-per-page="resultsPerPage"
-            :page="page"
-            :total-count="totalCount"
-        />
-      </div>
-
       <!--    Order By   -->
       <div class="overflow-auto">
         <table class="table table-hover">
@@ -19,7 +11,7 @@
           <tr>
             <!--    Product Code    -->
             <th class="pointer" scope="col" @click="orderResults('productId')">
-              <p class="d-inline">Product Code</p>
+              <p class="d-inline">Product ID</p>
               <p v-if="orderCol === 'productId'" class="d-inline">{{ orderDirArrow }}</p>
             </th>
 
@@ -83,7 +75,7 @@
           >
             <td>{{ item.product.id }}</td>
             <td>
-              <img alt="productImage" class="ui-icon-image"
+              <img alt="productImage" class="ui-icon-image" style="max-height: 150px"
                    :src="getPrimaryImageThumbnail(item.product)">
             </td>
             <td>
@@ -97,11 +89,11 @@
             <td>{{ formatDate(item.bestBefore) }}</td>
             <td>{{ formatDate(item.expires) }}</td>
             <td v-if="!selectingItem">
-              <button class="btn btn-primary" @click="editItem(item.id)">Edit</button>
+              <button class="btn btn-sm btn-primary" @click="editItem(item.id)">Edit</button>
             </td>
             <td v-if="!selectingItem">
-              <button class="btn btn-primary" data-target="#viewImages" data-toggle="modal"
-                      @click="changeViewedProduct(item.product)">View Images</button>
+              <button class="btn btn-sm btn-primary" data-target="#viewImages" data-toggle="modal"
+                      @click="changeViewedProduct(item.product)">Images</button>
             </td>
             <td v-if="selectingItem">
               <button class="btn btn-primary" @click="selectProduct(item)">Select</button>
@@ -124,7 +116,14 @@
 
     <!--    Result Information    -->
     <div class="row">
-      <div class="col-12">
+      <div class="col">
+        <div class="text-center mb-2">
+          <showing-results-text
+              :items-per-page="resultsPerPage"
+              :page="page"
+              :total-count="totalCount"
+          />
+        </div>
         <pagination
             :current-page.sync="page"
             :items-per-page="resultsPerPage"

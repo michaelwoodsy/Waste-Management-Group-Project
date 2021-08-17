@@ -17,7 +17,7 @@
         <div class="col">
 
           <!--    Product Catalogue Header    -->
-          <div class="row">
+          <div class="row mb-3">
             <div class="col"/>
             <div class="col text-center">
               <h4>Product Catalogue</h4>
@@ -35,7 +35,7 @@
             </div>
           </div>
 
-          <product-search />
+          <product-search/>
 
           <!--    Error Alert    -->
           <div v-if="error" class="row">

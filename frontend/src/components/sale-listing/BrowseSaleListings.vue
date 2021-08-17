@@ -15,11 +15,12 @@
       </div>
       <br>
 
-      <div class="row mb-2">
-        <div class="col-sm-7">
-          <!--    Search Input    -->
-          <div class="row form justify-content-center">
-            <div class="col-sm-5">
+      <!-- Search Option -->
+      <div class="mb-4">
+        <div class="row justify-content-center">
+          <div class="col-xl-6 col-lg-8 col-md-10 text-center">
+            <!--    Search Input    -->
+            <div class="form-group row">
               <div class="input-group">
                 <input id="search"
                        v-model="searchQuery"
@@ -28,114 +29,107 @@
                        type="search"
                        @keyup.enter="checkInputs">
                 <div class="input-group-append">
+                  <button :class="{'btn-outline-secondary': !optionsShow, 'btn-secondary': optionsShow}" class="btn"
+                          data-target="#searchOptions" data-toggle="collapse" type="button"
+                          @click="optionsShow = !optionsShow"
+                  >
+                    <span v-if="optionsShow">Close</span>
+                    <span v-else>Options</span>
+                  </button>
                   <button class="btn btn-primary no-outline" type="button" @click="checkInputs">Search</button>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Checkboxes for selecting which fields to match -->
-          <div class="row form justify-content-center">
-            <div class="col form-group text-center">
-              <label class="d-inline-block option-title mt-2">Matching Fields</label>
-              <br>
-              <label v-for="field in fieldOptions"
-                     v-bind:key="field.id">
-                <input v-bind:id="field.id" v-model="field.checked"
-                       class="ml-2" type="checkbox"
-                       @click="toggleFieldChecked(field)"
-                />
-                {{ field.name }}
-              </label>
-              <br>
-              <span v-if="msg.fieldOptions" style="text-align: center; color: red">{{ msg.fieldOptions }}</span>
-            </div>
-          </div>
-
-          <!-- Order by combobox -->
-          <div class="row form justify-content-center">
-            <div class="col form-group text-center">
-              <label class="d-inline-block option-title mx-2">Order By: </label>
-              <select v-model="orderBy"
-                      class="form-control d-inline-block w-auto"
-                      @change="checkInputs">
-                <option
-                    v-for="orderBy in orderByOptions"
-                    v-bind:key="orderBy.id"
-                    :value="orderBy.id"
-                >
-                  {{ orderBy.name }}
-                </option>
-              </select>
-            </div>
-          </div>
         </div>
-
-        <div class="col-sm-5">
-          <div class="row form justify-content-center">
-            <div class="col form-group text-center">
-
-              <!-- Price range -->
-              <label class="d-inline-block option-title mt-2">Price Range:</label>
-              <input v-model="priceLowerBound"
-                     :class="{'form-control': true, 'is-invalid': msg.priceLowerBound}"
-                     class="d-inline-block ml-2 w-25"
-              >
-              to
-              <input v-model="priceUpperBound"
-                     :class="{'form-control': true, 'is-invalid': msg.priceUpperBound}"
-                     class="d-inline-block w-25"
-              >
+        <div id="searchOptions" class="row justify-content-center collapse">
+          <div class="col-xl-6 col-lg-8 col-md-10 text-center">
+            <!-- Checkboxes for selecting which fields to match -->
+            <div class="form-group row">
+              <div :class="{'is-invalid': msg.fieldOptions}" class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Search By</span>
+                </div>
+                <div :class="{'is-invalid': msg.fieldOptions}" class="form-control d-flex justify-content-around">
+                  <div v-for="field in fieldOptions" :key="field.id" class="custom-control custom-checkbox">
+                    <input :id="field.id" v-model="field.checked"
+                           class="custom-control-input" type="checkbox"
+                           @click="toggleFieldChecked(field)"
+                    />
+                    <label :for="field.id" class="custom-control-label">{{ field.name }}</label>
+                  </div>
+                </div>
+              </div>
+              <span class="invalid-feedback">{{ msg.fieldOptions }}</span>
+            </div>
+            <!-- Order by combobox -->
+            <div class="form-group row">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Order By</span>
+                </div>
+                <select v-model="orderBy" class="form-control custom-select" @change="checkInputs">
+                  <option v-for="orderBy in orderByOptions" :key="orderBy.id" :value="orderBy.id">
+                    {{ orderBy.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <!-- Price Range -->
+            <div class="form-group row">
+              <div :class="{'is-invalid': msg.priceLowerBound || msg.priceUpperBound}" class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Price Range</span>
+                </div>
+                <input v-model="priceLowerBound"
+                       :class="{'is-invalid': msg.priceLowerBound}"
+                       class="form-control" placeholder="minimum price"
+                >
+                <input v-model="priceUpperBound"
+                       :class="{'is-invalid': msg.priceUpperBound}"
+                       class="form-control" placeholder="maximum price"
+                >
+              </div>
               <span class="invalid-feedback" style="text-align: center">{{ msg.priceLowerBound }}</span>
               <span class="invalid-feedback" style="text-align: center">{{ msg.priceUpperBound }}</span>
-              <br>
-
-              <!-- Closing date range -->
-              <label class="d-inline-block option-title mt-2">Closing Date:</label>
-              <input id="closingDateLowerBound" v-model="closingDateLowerBound"
-                     :class="{'form-control': true, 'is-invalid': msg.closingDateLowerBound}"
-                     class="d-inline-block w-25 ml-2"
-                     type="date"
-              >
-              to
-              <input id="closingDateUpperBound" v-model="closingDateUpperBound"
-                     :class="{'form-control': true, 'is-invalid': msg.closingDateUpperBound}"
-                     class="d-inline-block w-25"
-                     maxlength="100"
-                     type="date"
-              >
+            </div>
+            <!-- Date Range -->
+            <div class="form-group row">
+              <div :class="{'is-invalid': msg.closingDateLowerBound || msg.closingDateUpperBound}" class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Closing Date Range</span>
+                </div>
+                <input id="closingDateLowerBound" v-model="closingDateLowerBound"
+                       :class="{'form-control': true, 'is-invalid': msg.closingDateLowerBound}"
+                       class="form-control" type="date"
+                >
+                <input id="closingDateUpperBound" v-model="closingDateUpperBound"
+                       :class="{'form-control': true, 'is-invalid': msg.closingDateUpperBound}"
+                       class="form-control" type="date"
+                >
+              </div>
               <span class="invalid-feedback" style="text-align: center">{{ msg.closingDateLowerBound }}</span>
               <span class="invalid-feedback" style="text-align: center">{{ msg.closingDateUpperBound }}</span>
-              <br>
-              <button class="btn btn-primary m-2"
-                      v-on:click="checkInputs">
+            </div>
+            <!-- Filter Buttons -->
+            <div class="btn-group btn-block w-50">
+              <button class="btn btn-primary w-50"
+                      @click="filter">
                 Apply Filters
               </button>
-              <button class="btn btn-danger m-2"
-                      v-on:click="clearFilters">
+              <button v-if="filtered"
+                      class="btn btn-danger w-50"
+                      @click="clearFilters">
                 Clear Filters
               </button>
             </div>
           </div>
-
         </div>
       </div>
-
-      <hr>
 
       <!-- Sale Listing Information -->
       <div>
         <alert v-if="error">{{ error }}</alert>
-
-        <!-- Number of results information -->
-        <div class="text-center">
-          <showing-results-text
-              :items-per-page="resultsPerPage"
-              :page="page"
-              :total-count="totalCount"
-          />
-        </div>
-
         <!-- Table of results -->
         <div class="overflow-auto">
           <table aria-label="Table of Sale Listings"
@@ -183,20 +177,26 @@
                 <img :src="getPrimaryImageThumbnail(listing.inventoryItem.product)" alt="productImage"
                      class="ui-icon-image">
               </td>
-              <td style="word-break: break-word; width: 50%">
-                {{ listing.inventoryItem.product.name }}
+              <td style="word-break: break-word; width: 35%">
+                {{ listing.inventoryItem.product.name }}<br>
+                <em class="bi" style="color: red"
+                    :class="{'bi-heart-fill': listing.userLikes, 'bi-heart': !listing.userLikes}"
+                /> {{ listing.likes }}
                 <span v-if="listing.moreInfo" style="font-size: small"><br/>{{ listing.moreInfo }}</span>
               </td>
               <td>{{ listing.quantity }}</td>
               <td>{{ formatPrice(listing) }}</td>
               <td>{{ formatDate(listing.created) }}</td>
               <td>{{ formatDate(listing.closes) }}</td>
-              <td>{{ formatSeller(listing) }}</td>
+              <td style="word-break: break-word; width: 20%">
+                {{ listing.business.name }}<br>
+                <span class="text-muted small">{{ listing.business.businessType }}</span><br>
+                <span class="text-muted small">{{ formatAddress(listing.business.address) }}</span>
+              </td>
             </tr>
             </tbody>
           </table>
         </div>
-
       </div>
 
       <!-- Show loading text until results are obtained -->
@@ -207,40 +207,30 @@
       <!--    Result Information    -->
       <div class="row">
         <div class="col">
-          <pagination
-              :current-page.sync="page"
-              :items-per-page="resultsPerPage"
-              :total-items="totalCount"
-              @change-page="changePage"
-          />
-        </div>
-      </div>
-    </div>
-
-    <div v-if="viewListingModal" id="viewListingModal" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewListingModal=false">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <individual-sale-listing-modal :listing="listingToView" @viewBusiness="viewBusiness" @updateListings="checkInputs"></individual-sale-listing-modal>
+          <div class="mb-2 text-center">
+            <showing-results-text
+                :items-per-page="resultsPerPage"
+                :page="page"
+                :total-count="totalCount"
+            />
+          </div>
+          <div>
+            <pagination
+                :current-page.sync="page"
+                :items-per-page="resultsPerPage"
+                :total-items="totalCount"
+                @change-page="changePage"
+            />
           </div>
         </div>
       </div>
     </div>
 
-    <div v-if="viewBusinessModal" id="viewBusinessModal" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewBusinessModal=false">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <business-profile-page-modal :id="businessToViewId"></business-profile-page-modal>
-          </div>
-        </div>
-      </div>
+    <div v-if="viewListingModal">
+      <individual-sale-listing-modal :listing="listingToView"
+                                     @update-listings="checkInputs"
+                                     @close-modal="viewListingModal = false"
+      />
     </div>
 
   </page-wrapper>
@@ -253,7 +243,6 @@ import Pagination from "@/components/Pagination";
 import ShowingResultsText from "@/components/ShowingResultsText";
 import {Business, Images} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
-import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 import Alert from "@/components/Alert";
 import LoginRequired from "@/components/LoginRequired";
 
@@ -262,7 +251,6 @@ export default {
   components: {
     LoginRequired,
     IndividualSaleListingModal,
-    BusinessProfilePageModal,
     PageWrapper,
     Pagination,
     ShowingResultsText,
@@ -274,17 +262,17 @@ export default {
       fieldOptions: [
         {
           id: "productName",
-          name: "Product name",
-          checked: false
+          name: "Product Name",
+          checked: true
         },
         {
           id: "sellerName",
-          name: "Seller name",
+          name: "Seller Name",
           checked: false
         },
         {
           id: "sellerLocation",
-          name: "Seller location",
+          name: "Seller Location",
           checked: false
         },
         {
@@ -323,11 +311,10 @@ export default {
       listings: [],
       listingToView: null,
       viewListingModal: false,
-      viewBusinessModal: false,
-      businessToViewId: null,
       error: null,
-
-      totalCount: 0
+      totalCount: 0,
+      filtered: false,
+      optionsShow: false
     }
   },
   mounted() {
@@ -340,7 +327,7 @@ export default {
      */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
-    },
+    }
   },
   methods: {
     /**
@@ -373,11 +360,12 @@ export default {
       }
     },
     /**
-     * Formats the name and address of the business offering the listing
+     * Formats the address of the business offering the listing
      */
-    formatSeller(listing) {
-      return `${listing.business.name} (${listing.business.businessType}) from ${this.$root.$data.address.formatAddress(listing.business.address)}`
+    formatAddress(address) {
+      return `${this.$root.$data.address.formatAddress(address)}`
     },
+
     /**
      * Toggles whether a field is selected to be searched by
      */
@@ -402,6 +390,19 @@ export default {
     },
 
     /**
+     * Sets filtered to true and then searches
+     */
+    filter() {
+      if (this.priceLowerBound !== null ||
+          this.priceUpperBound !== null ||
+          this.closingDateLowerBound !== null ||
+          this.closingDateUpperBound !== null) {
+        this.filtered = true
+        this.checkInputs()
+      }
+    },
+
+    /**
      * Clears the price and date filters and searches again
      */
     clearFilters() {
@@ -409,7 +410,8 @@ export default {
       this.priceUpperBound = null
       this.closingDateLowerBound = null
       this.closingDateUpperBound = null
-      this.search()
+      this.filtered = false
+      this.checkInputs()
     },
 
     /**
@@ -514,19 +516,8 @@ export default {
      * @param listing the listing object for the modal to show
      */
     viewListing(listing) {
-      this.viewBusinessModal = false
       this.listingToView = listing
       this.viewListingModal = true
-    },
-
-    /**
-     * Turns popup modal to view  business on
-     * @param listing the listing object with the business information to show
-     */
-    viewBusiness(listing) {
-      this.viewListingModal = false
-      this.businessToViewId = listing.business.id
-      this.viewBusinessModal = true
     },
 
     /**
