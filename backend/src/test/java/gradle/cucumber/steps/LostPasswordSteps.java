@@ -87,7 +87,7 @@ public class LostPasswordSteps {
     }
 
     @Then("I can log in with my new password {string}")
-    public void i_can_log_in_with_my_new_password(String string) {
+    public void i_can_log_in_with_my_new_password(String newPassword) {
         // Write code here that turns the phrase above into concrete actions
         throw new io.cucumber.java.PendingException();
     }

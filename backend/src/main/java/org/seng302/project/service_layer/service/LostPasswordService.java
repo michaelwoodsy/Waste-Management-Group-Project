@@ -103,6 +103,7 @@ public class LostPasswordService {
                 "Please click on the link below to do so. The link will expire after 1 hour.\n ";
 
         ConformationToken token = new ConformationToken(usersWithEmail.get(0));
+        conformationTokenRepository.save(token);
         emailBody += springEnvironment.getPasswordResetURL(token.getToken());
         emailService.sendEmail(emailAddress, "Resale: Reset your password", emailBody);
     }

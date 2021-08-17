@@ -134,6 +134,8 @@ class LostPasswordServiceTest extends AbstractInitializer {
      */
     @Test
     void sendPasswordResetEmail_createsToken() {
+        //Remove the token saved in the setup() method
+        conformationTokenRepository.deleteAll();
         lostPasswordService.sendPasswordResetEmail(testUser.getEmail());
 
         Optional<ConformationToken> newToken = conformationTokenRepository.findByUser(testUser);
