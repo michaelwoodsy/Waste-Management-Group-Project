@@ -31,6 +31,7 @@
              maxlength="250"
              data-toggle="dropdown"
              placeholder="Search for your address"
+             autocomplete="off"
              type="text"
       >
 
@@ -199,6 +200,7 @@ export default {
       },
       deep: true
     },
+    /** Validate address when show errors is set **/
     /** Validate address when show errors is set **/
     showErrors: {
       async handler() {
@@ -419,14 +421,18 @@ export default {
       this.msg = await this.getAddressFixes(this.address)
     },
 
-    /** Makes sure the suggestions dropdown is down **/
-    dropdown() {
+    /**
+     * Makes sure the suggestions dropdown is down.
+     *
+     * @param event Mouse or KeyboardEvent
+     */
+    dropdown(event) {
       // check if the drop down is already shown
       let dropDownEl = document.getElementById('dropdown')
       let dropDownShown = dropDownEl.classList.contains('show')
 
       // open the drop down if it's not shown already
-      if (dropDownShown) {
+      if (dropDownShown || (event instanceof KeyboardEvent && !dropDownShown)) {
         let toggleBtn = document.getElementById('fullAddress')
         toggleBtn.click();
       }
