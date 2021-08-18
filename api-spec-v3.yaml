@@ -2705,6 +2705,49 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
+  '/users/{userId}/purchases/{purchaseId}':
+    get:
+      tags:
+        - 'UD5: Sale History'
+        - 'Users'
+        - 'Sales'
+      summary: "Gets a specific user purchase"
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: userId
+          in: path
+          description: The id of the user
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: purchaseId
+          in: path
+          description: The id of the purchase
+          required: true
+          schema:
+            type: integer
+            example: 100
+      responses:
+        '200':
+          description: Request successful, a sale is returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
   '/businesses/{businessId}/sales':
     get:
       tags:
@@ -2735,6 +2778,49 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Sale'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/businesses/{businessId}/sales/{saleId}':
+    get:
+      tags:
+        - 'UD5: Sale History'
+        - 'Business Accounts'
+        - 'Sales'
+      summary: "Gets a business' specific sale"
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: The id of the business
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: saleId
+          in: path
+          description: The id of the sale
+          required: true
+          schema:
+            type: integer
+            example: 100
+      responses:
+        '200':
+          description: Request successful, returns a sale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -2864,7 +2950,50 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
-  '/sales/{saleId}/review':
+  '/users/{userId}/reviews/{reviewId}':
+    get:
+      tags:
+        - 'UD6: Sale Reviews'
+        - 'Reviews'
+      summary: "Gets a specific user review"
+      description: 'Retrieves a specific review a user has left on a business'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: userId
+          in: path
+          description: The id of the user
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: reviewId
+          in: path
+          description: The id of the review
+          required: true
+          schema:
+            type: integer
+            example: 100
+      responses:
+        '200':
+          description: Request successful, a review is returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/users/{userId}/purchases/{purchaseId}/review':
     post:
       tags:
         - 'UD6: Sale Reviews'
@@ -2877,9 +3006,16 @@ paths:
             - globalApplicationAdmin
             - defaultGlobalApplicationAdmin
       parameters:
-        - name: saleId
+        - name: userId
           in: path
-          description: The id of the sale
+          description: The id of the user
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: purchaseId
+          in: path
+          description: The id of the user purchase (business sale)
           required: true
           schema:
             type: integer
