@@ -97,7 +97,8 @@ Page for displaying the marketplace.
                  aria-expanded="false"
                  aria-haspopup="true" autocomplete="off"
                  class="form-control ml-2 d-inline-block w-auto dropdown-toggle"
-                 data-toggle="dropdown" maxlength="25" placeholder="Enter Keywords"
+                 data-toggle="dropdown"
+                 maxlength="25" placeholder="Enter Keywords"
                  required
                  style="margin-bottom: 2px"
                  type="text"
@@ -112,7 +113,7 @@ Page for displaying the marketplace.
           </span>
 
           <!-- Autocomplete dropdown -->
-          <div id="dropdown" class="dropdown-menu overflow-auto">
+          <div id="autocompleteDropdown" class="overflow-auto dropdown-menu">
             <!-- If no user input -->
             <p v-if="keywordValue.length === 0"
                class="text-muted dropdown-item left-padding mb-0 disabled"
@@ -177,6 +178,13 @@ Page for displaying the marketplace.
 </template>
 
 <script>
+// $('#autocompleteDropdown').on('hide.bs.dropdown', function (e) {
+//   var target = $(e.target);
+//   console.log("blah")
+//   return !(target.hasClass("keepopen") || target.parents(".keepopen").length);
+// });
+
+// $('#dropdown.dropdown-menu').dropdown('show')
 
 import LoginRequired from "../LoginRequired";
 import MarketCard from "./MarketCard";
@@ -185,6 +193,7 @@ import Pagination from "@/components/Pagination";
 import CreateCardPage from "@/components/marketplace/CreateCardPage";
 import PageWrapper from "@/components/PageWrapper";
 import {Card, Keyword} from "@/Api";
+import $ from "jquery"
 
 export default {
   name: "Marketplace",
@@ -203,7 +212,7 @@ export default {
       keywordValue: '',
       keywordUnion: false,
       keywords: [],
-      filteredKeywords: []
+      filteredKeywords: [],
     }
   },
 
@@ -439,7 +448,21 @@ export default {
     async clearFilter() {
       this.keywords = []
       this.getCards(this.tabSelected)
-    }
+    },
+
+    showAutocomplete(){
+      // $('#autocompleteDropdown.dropdown-menu').dropdown('show')
+      $('#autocompleteDropdown').on('hidden.bs.dropdown', function (){
+        $('#autocompleteDropdown.dropdown-menu').dropdown('show')
+        console.log("boo")
+
+      })
+    },
+
+    hideAutocomplete(){
+      console.log("boo")
+      $('#autocompleteDropdown.dropdown-menu').dropdown('hide')
+    },
 
   }
 }
