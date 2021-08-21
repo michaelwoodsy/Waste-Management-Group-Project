@@ -1,0 +1,90 @@
+{
+	"info": {
+		"_postman_id": "d0dfee18-0853-431f-85fe-481b7073371f",
+		"name": "UD4 New Card Notifications",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Gets a user's keyboard watchlist",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/users/:userId/keywords",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"users",
+						":userId",
+						"keywords"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Adds a keyword to the user's keyword watchlist",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/keywords/:keywordId/watch",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"keywords",
+						":keywordId",
+						"watch"
+					],
+					"variable": [
+						{
+							"key": "keywordId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Removes a keyword from the user's keyword watchlist",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/keywords/:keywordId/unwatch",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"keywords",
+						":keywordId",
+						"unwatch"
+					],
+					"variable": [
+						{
+							"key": "keywordId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
