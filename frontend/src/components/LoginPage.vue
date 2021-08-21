@@ -131,7 +131,8 @@
                     <span aria-hidden="true">&times;</span>
                   </button>
                   <p>
-                    Password Reset email has been sent
+                    Password Reset email has been sent. <br>
+                    Please check your spam folder. This email will expire in 1 hour.
                   </p>
                 </div>
               </div>
