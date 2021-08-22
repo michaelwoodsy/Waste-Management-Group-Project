@@ -64,7 +64,7 @@
                @keyup.space="addKeyword"
                @keyup.enter="setKeyword()"/>
         <!-- Autocomplete dropdown -->
-        <div class="dropdown-menu overflow-auto" id="autocompleteDropdown">
+        <div class="dropdown-menu overflow-auto" id="selectKeywordDropdown">
           <!-- If no user input -->
           <p class="text-muted dropdown-item left-padding mb-0 disabled"
              v-if="keywordValue.length === 0"
@@ -319,7 +319,7 @@ export default {
      * Helper function to make sure autocomplete dropdown is not hidden when clicked on
      */
     showAutocomplete(){
-      const dropdown = document.getElementById('autocompleteDropdown')
+      const dropdown = document.getElementById('selectKeywordDropdown')
       if(dropdown.classList.contains('show')){
         document.getElementById('keywordValue').click()
       }
