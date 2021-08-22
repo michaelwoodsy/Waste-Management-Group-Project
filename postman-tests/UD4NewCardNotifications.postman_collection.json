@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "Gets a user's keyboard watchlist",
+			"name": "Gets a user's keyword watchlist",
 			"request": {
 				"method": "GET",
 				"header": [],

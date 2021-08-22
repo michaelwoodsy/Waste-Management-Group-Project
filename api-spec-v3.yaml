@@ -2430,7 +2430,7 @@ paths:
         - 'UD1: Landing Page'
         - 'Landing Page'
       summary: 'Gets the statistics for re:sale'
-      description: 'Retrieves statisctical data about re:sale, such as number of users and number of sale listings'
+      description: 'Retrieves statistical data about re:sale, such as number of users and number of sale listings'
       security: [ ]
       responses:
         '200':
@@ -2444,7 +2444,7 @@ paths:
                     type: integer
                   numAvailableListings:
                     type: integer
-                  toalNumSales:
+                  totalNumSales:
                     type: integer
 
   '/popularlistings':
