@@ -2602,7 +2602,7 @@ paths:
       tags:
         - 'UD4: New Card Notifications'
         - 'Keywords'
-      summary: "Adds/removes a keyword to the user's keyword watchlist"
+      summary: "Adds/removes a keyword to/from the user's keyword watchlist"
       security:
         - CookieAuth:
             - user

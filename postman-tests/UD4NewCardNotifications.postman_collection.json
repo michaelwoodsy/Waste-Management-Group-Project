@@ -33,7 +33,7 @@
 			"response": []
 		},
 		{
-			"name": "Adds a keyword to the user's keyword watchlist",
+			"name": "Adds/removes a keyword to/from the user's keyword watchlist",
 			"request": {
 				"method": "PATCH",
 				"header": [],
@@ -48,33 +48,6 @@
 						"keywords",
 						":keywordId",
 						"watch"
-					],
-					"variable": [
-						{
-							"key": "keywordId",
-							"value": "1"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Removes a keyword from the user's keyword watchlist",
-			"request": {
-				"method": "PATCH",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:9599/keywords/:keywordId/unwatch",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "9599",
-					"path": [
-						"keywords",
-						":keywordId",
-						"unwatch"
 					],
 					"variable": [
 						{
