@@ -1,0 +1,67 @@
+{
+	"info": {
+		"_postman_id": "db6652e5-e711-48c1-b29d-0907dd61168d",
+		"name": "UD1 Landing Page",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Send an email to re:sale",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"john.smith@gmail.com\",\r\n  \"message\": \"Hi re:sale, I have a question. What do you do?\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9599/contact",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"contact"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get re:sale statistics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/statistics",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"statistics"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
