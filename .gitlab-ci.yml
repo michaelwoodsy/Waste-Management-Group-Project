@@ -110,6 +110,7 @@ deploy-staging-backend:
     - echo "export DB_PASSWORD=${DB_PASSWORD}" >> /home/gitlab-runner/staging-backend/vars.txt
     - echo "export DGAA_EMAIL=${DGAA_EMAIL}" >> /home/gitlab-runner/staging-backend/vars.txt
     - echo "export DGAA_PASSWORD=${DGAA_PASSWORD}" >> /home/gitlab-runner/staging-backend/vars.txt
+    - echo "export SPRING_EMAIL_PASSWORD=${SPRING_EMAIL_PASSWORD}" >> /home/gitlab-runner/staging-backend/vars.txt
     - chmod u+x /home/gitlab-runner/staging-backend.sh
     - sudo systemctl restart seng302-staging-backend
   artifacts:
@@ -156,6 +157,7 @@ deploy-production-backend:
     - echo "export DB_PASSWORD=${DB_PASSWORD}" >> /home/gitlab-runner/production-backend/vars.txt
     - echo "export DGAA_EMAIL=${DGAA_EMAIL}" >> /home/gitlab-runner/production-backend/vars.txt
     - echo "export DGAA_PASSWORD=${DGAA_PASSWORD}" >> /home/gitlab-runner/production-backend/vars.txt
+    - echo "export SPRING_EMAIL_PASSWORD=${SPRING_EMAIL_PASSWORD}" >> /home/gitlab-runner/production-backend/vars.txt
     - chmod u+x /home/gitlab-runner/production-backend.sh
     - sudo systemctl restart seng302-production-backend
   artifacts:

@@ -1,7 +1,7 @@
 <template>
   <page-wrapper>
     <div class="row">
-      <div class="col-12 text-center mb-2">
+      <div class="col text-center mb-2">
         <h2>{{ firstName }} {{ lastName }}
           <span v-if="isGAA && canDoAdminAction" class="badge badge-danger admin-badge">ADMIN</span>
           <span v-else-if="isDGAA && canDoAdminAction" class="badge badge-danger admin-badge">DGAA</span>
@@ -12,11 +12,11 @@
 
     <!-- Profile image -->
     <div class="row">
-      <div class="col-12 text-center mb-2">
+      <div class="col text-center mb-2">
         <img
             alt="profile image"
             class="profile-image rounded-left rounded-right"
-            style="max-width: 400px"
+            style="max-width: 200px"
             :src="getPrimaryImage()"
         />
       </div>

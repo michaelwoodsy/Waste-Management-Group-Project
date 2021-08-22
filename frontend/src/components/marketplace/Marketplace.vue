@@ -4,7 +4,7 @@ Page for displaying the marketplace.
 -->
 
 <template>
-  <page-wrapper>
+  <page-wrapper col-size="10">
 
     <!-- Check the user is logged in -->
     <login-required

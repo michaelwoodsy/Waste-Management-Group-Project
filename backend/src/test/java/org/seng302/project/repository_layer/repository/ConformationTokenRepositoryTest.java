@@ -32,7 +32,7 @@ class ConformationTokenRepositoryTest extends AbstractInitializer {
         User user = this.getTestUser();
         addressRepository.save(user.getHomeAddress());
         user = userRepository.save(user);
-        token = new ConformationToken("TOKEN", user);
+        token = new ConformationToken(user);
     }
 
     /**

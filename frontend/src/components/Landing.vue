@@ -1,5 +1,5 @@
 <template>
-  <page-wrapper>
+  <page-wrapper col-size="10">
 
     <h1>Landing Page</h1>
     <p>To be implemented :)</p>
@@ -12,7 +12,10 @@ import PageWrapper from "@/components/PageWrapper";
 
 export default {
   name: "Landing",
-  components: {PageWrapper}
+  components: {PageWrapper},
+  mounted() {
+    this.$router.push({name: 'login'})
+  }
 }
 </script>
 

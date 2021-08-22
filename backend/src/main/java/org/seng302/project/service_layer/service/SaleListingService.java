@@ -71,7 +71,7 @@ public class SaleListingService {
     /**
      * Helper method to convert a list of listings to a list of GetSaleListingDTOs, with the liked count attached
      * @param listings  listings to convert
-     * @param user      currently logged in user (used to check if they like a listing)
+     * @param user      currently logged-in user (used to check if they like a listing)
      * @return a list of GetSaleListingDTO Objects
      */
     List<GetSaleListingDTO> getListingDTOs(List<SaleListing> listings, User user) {
@@ -80,17 +80,11 @@ public class SaleListingService {
             // Get like and star data for the listings
             Integer likes = likedSaleListingRepository.findAllByListing(listing).size();
             List<LikedSaleListing> likedSaleListings = likedSaleListingRepository.findByListingAndUser(listing, user);
-            var userLikes = false;
-            var userStarred = false;
-            if (!likedSaleListings.isEmpty()) {
-                userLikes = true;
-                userStarred = likedSaleListings.get(0).isStarred();
-            }
+            var userLikes = !likedSaleListings.isEmpty();
 
             // Create DTO and annotate with like and star data
             var dto = new GetSaleListingDTO(listing);
             dto.attachLikeData(likes, userLikes);
-            dto.setUserStarred(userStarred);
             listingDTOs.add(dto);
         }
         return listingDTOs;

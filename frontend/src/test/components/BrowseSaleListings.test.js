@@ -22,22 +22,21 @@ beforeEach(() => {
 
 describe("Tests for the BrowseSaleListings checkboxes", () => {
 
-    //Test that clicking on 'Product name' once sets checked to be true for 'Product name'
+    //Test that clicking on 'Product name' once sets checked to be false for 'Product name'
+    //This is because this is the default search option
     test("Clicking 'Product name' sets Product name's checked to be true", async () => {
         await wrapper.find('#productName').trigger('click')
         await wrapper.vm.$nextTick()
-        expect(wrapper.vm.$data.fieldOptions[0].checked).toBeTruthy()
+        expect(wrapper.vm.$data.fieldOptions[0].checked).toBeFalsy()
     })
-
 
     //Test that clicking on 'Seller name' twice results in checked being false for 'Seller name'
     test("Clicking 'Seller name' twice sets Seller name's checked to be false", async () => {
         await wrapper.find('#sellerName').trigger('click')
         await wrapper.vm.$nextTick()
-        await wrapper.find('#sellerName').trigger('click')
-        await wrapper.vm.$nextTick()
         expect(wrapper.vm.$data.fieldOptions[2].checked).toBeFalsy()
     })
+
 })
 
 
@@ -177,6 +176,7 @@ describe("Tests for the BrowseSaleListings closing date range", () => {
 })
 
 describe("tests the browse sale listing methods", () => {
+
     beforeEach(() => {
         wrapper.vm.$data.listings = [
             {
@@ -259,6 +259,7 @@ describe("tests the browse sale listing methods", () => {
             }
         ]
     })
+
     test("tests that the sale listing to be viewed is saved", async () => {
         const listing = wrapper.vm.$data.listings[0]
         wrapper.vm.viewListing(listing)
@@ -273,18 +274,5 @@ describe("tests the browse sale listing methods", () => {
         expect(wrapper.find("#viewListingModal")).toBeTruthy()
     })
 
-    test("tests that the business to be viewed is saved", async () => {
-        const listing = wrapper.vm.$data.listings[0]
-        wrapper.vm.viewBusiness(listing)
-        expect(wrapper.vm.$data.viewListingModal).toBeFalsy()
-        expect(wrapper.vm.$data.viewBusinessModal).toBeTruthy()
-        expect(wrapper.vm.$data.businessToViewId).toStrictEqual(listing.business.id)
-    })
-
-    test("tests that the view business modal appears", async () => {
-        const listing = wrapper.vm.$data.listings[0]
-        wrapper.vm.viewBusiness(listing)
-        expect(wrapper.find("#viewBusinessModal")).toBeTruthy()
-    })
 })
 

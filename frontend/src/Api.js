@@ -292,7 +292,20 @@ export const User = {
      * @param email the user's email used to send a password reset email to
      * @returns {Promise<AxiosResponse<any>>}
      */
-    sendPasswordResetEmail:(email) => instance.post('lostpassword/send', {email})
+    sendPasswordResetEmail:(email) => instance.post('lostpassword/send', {email}),
+
+    /**
+     * Sends a request to tag a liked sale listing
+     *
+     * @param listingId ID of listing to tag
+     * @param name Name of the tag
+     * @returns {Promise<AxiosResponse<any>>} response from request
+     */
+    tagListing: (listingId, name) => instance.patch(`listings/${listingId}/tag`,
+        {
+            tag: name
+        }
+    )
 
 };
 

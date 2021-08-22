@@ -4,15 +4,6 @@
     <!--    Result Information    -->
     <div v-if="!this.selectingItem || (!loading && this.products.length > 0)">
 
-      <!-- Displays number of results -->
-      <div class="text-center">
-        <showing-results-text
-            :items-per-page="resultsPerPage"
-            :page="page"
-            :total-count="totalCount"
-        />
-      </div>
-
       <!--    Order By   -->
       <div class="overflow-auto">
         <table class="table table-hover"
@@ -20,9 +11,9 @@
         >
           <thead>
           <tr>
-            <!--    Product Code    -->
+            <!--    Product ID    -->
             <th class="pointer" scope="col" @click="orderResults('id')">
-              <p class="d-inline">Code</p>
+              <p class="d-inline">ID</p>
               <p v-if="orderCol === 'id'" class="d-inline">{{ orderDirArrow }}</p>
             </th>
 
@@ -70,7 +61,7 @@
               <img alt="productImage"
                    :src="getPrimaryImageThumbnail(product)">
             </td>
-            <td style="word-break: break-word; width: 40%">
+            <td style="word-break: break-word; width: 35%">
               {{ product.name }}
               <span v-if="product.description" style="font-size: small"><br/>{{ product.description }}</span>
             </td>
@@ -78,14 +69,14 @@
             <td>{{ formatPrice(product) }}</td>
             <td>{{ new Date(product.created).toDateString() }}</td>
             <td v-if="!selectingItem">
-              <button class="btn btn-primary" @click="editProduct(product.id)">Edit</button>
+              <button class="btn btn-sm btn-primary" @click="editProduct(product.id)">Edit</button>
             </td>
             <td v-if="!selectingItem">
-              <button class="btn btn-primary" data-target="#viewImages" data-toggle="modal"
-                      @click="changeViewedProduct(product)">View Images</button>
+              <button class="btn btn-sm btn-primary" data-target="#viewImages" data-toggle="modal"
+                      @click="changeViewedProduct(product)">Images</button>
             </td>
             <td v-if="selectingItem">
-              <button class="btn btn-primary" @click="selectProduct(product)">Select</button>
+              <button class="btn btn-sm btn-primary" @click="selectProduct(product)">Select</button>
             </td>
           </tr>
           </tbody>
@@ -107,6 +98,14 @@
     <!--    Result Information    -->
     <div class="row">
       <div class="col">
+        <!-- Displays number of results -->
+        <div class="text-center mb-2">
+          <showing-results-text
+              :items-per-page="resultsPerPage"
+              :page="page"
+              :total-count="totalCount"
+          />
+        </div>
         <pagination
             :current-page.sync="page"
             :items-per-page="resultsPerPage"
@@ -347,10 +346,7 @@ export default {
     },
 
     selectProduct(product) {
-      this.$parent.productCode = product.id;
-      this.$parent.currencySymbol = product.currency.symbol
-      this.$parent.currencyCode = product.currency.code
-      this.$parent.finishSelectItem();
+      this.$emit('selected-product', product)
     },
 
     /**
@@ -373,7 +369,6 @@ export default {
      * calls the formatPrice method in the product module to format the products recommended retail price
      */
     formatPrice(product) {
-      console.log(product)
       return this.$root.$data.product.formatPrice(product.currency, product.recommendedRetailPrice)
     },
 
