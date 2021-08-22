@@ -16,7 +16,7 @@
         <div class="col">
 
           <!--    Inventory Header    -->
-          <div class="row">
+          <div class="row mb-3">
             <div class="col"/>
             <div class="col text-center">
               <h4>Inventory</h4>

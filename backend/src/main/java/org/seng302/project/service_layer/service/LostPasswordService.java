@@ -2,9 +2,11 @@ package org.seng302.project.service_layer.service;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.repository_layer.model.ConformationToken;
+import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.user.ChangePasswordDTO;
 import org.seng302.project.service_layer.exceptions.*;
+import org.seng302.project.service_layer.util.SpringEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +25,19 @@ public class LostPasswordService {
     private final ConformationTokenRepository conformationTokenRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+    private final SpringEnvironment springEnvironment;
 
     @Autowired
     public LostPasswordService(ConformationTokenRepository conformationTokenRepository,
-                               UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+                               UserRepository userRepository, BCryptPasswordEncoder passwordEncoder,
+                               EmailService emailService,
+                               SpringEnvironment springEnvironment) {
         this.conformationTokenRepository = conformationTokenRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
+        this.springEnvironment = springEnvironment;
     }
 
     /**
@@ -40,7 +48,7 @@ public class LostPasswordService {
      */
     public JSONObject validateToken(String token) {
         var conformationToken = conformationTokenRepository.findByToken(token).orElseThrow(() ->
-                new NotAcceptableException("Lost Password Token is not valid"));
+                new BadRequestException("Lost Password Token is not valid"));
         var returnJSON = new JSONObject();
         returnJSON.put("email", conformationToken.getUser().getEmail());
         return returnJSON;
@@ -72,12 +80,31 @@ public class LostPasswordService {
     public void changePassword(ChangePasswordDTO dto) {
         //Get ConformationToken from repository
         var conformationToken = conformationTokenRepository.findByToken(dto.getToken()).orElseThrow(() ->
-                new NotAcceptableException("Lost Password Token is not valid"));
+                new BadRequestException("Lost Password Token is not valid"));
         var user = conformationToken.getUser();
         //Change users password
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         userRepository.save(user);
         //Remove the token after it has been used
         conformationTokenRepository.delete(conformationToken);
+    }
+
+
+    /**
+     * Sends a password reset email to the given email address
+     * @param emailAddress email address to send the password reset email to
+     */
+    public void sendPasswordResetEmail(String emailAddress) {
+        List<User> usersWithEmail = userRepository.findByEmail(emailAddress);
+        if (usersWithEmail.isEmpty()) {
+            throw new BadRequestException(String.format("No user exists with the email: %s",emailAddress));
+        }
+        String emailBody = "You have requested to reset your password. " +
+                "Please click on the link below to do so. The link will expire after 1 hour.\n ";
+
+        ConformationToken token = new ConformationToken(usersWithEmail.get(0));
+        conformationTokenRepository.save(token);
+        emailBody += springEnvironment.getPasswordResetURL(token.getToken());
+        emailService.sendEmail(emailAddress, "Resale: Reset your password", emailBody);
     }
 }

@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar navbar-expand-md navbar-light bg-primary p-0">
-    <div class="col-12 col-md-10">
+    <div class="col">
 
       <!-- Nav Bar -->
       <button aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
@@ -44,9 +44,6 @@
         <!-- Logged in user links -->
         <ul v-if="isLoggedIn" class="navbar-nav">
           <li class="nav-item">
-            <router-link v-if="isLoggedIn" :to="profileRoute" class="nav-link text-white">Profile</router-link>
-          </li>
-          <li class="nav-item">
             <user-profile-links/>
           </li>
           <li class="nav-item">
@@ -88,16 +85,6 @@ export default {
      */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
-    },
-
-    /** Returns the user's profile url if acting as user,
-     * or the business profile if acting as a business **/
-    profileRoute() {
-      if (this.$root.$data.user.state.actingAs.type === "business") {
-        return `businesses/${this.$root.$data.user.state.actingAs.id}`;
-      } else {
-        return `users/${this.$root.$data.user.state.userId}`;
-      }
     },
 
     /** Returns the landing page url if the user is not logged in and the users home page if they are logged in **/

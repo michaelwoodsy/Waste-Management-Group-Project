@@ -17,7 +17,7 @@ describe("Tests for the ProductSearch component", () => {
 
     //Test that clicking on Id once sets checked to be true for Id
     test("Clicking Id sets Id's checked to be true", async () => {
-        await wrapper.find('#Id').trigger('click')
+        await wrapper.find('#ID').trigger('click')
         await wrapper.vm.$nextTick()
         expect(wrapper.vm.$data.fieldOptions[0].checked).toBeTruthy()
     })

@@ -55,6 +55,7 @@
 
       <!-- Page Content -->
       <div class="col-12 col-md-8 p-3">
+
         <div class="text-center">
           <h1><span v-if="user.isActingAsUser()">Hello </span>{{ user.actor().name }}</h1>
           <hr>
@@ -64,37 +65,72 @@
           <!-- Cards Section -->
           <div v-if="user.isActingAsUser()" class="col">
             <h2>My Cards</h2>
-            <alert v-if="hasExpiredCards" class="text-center">
-              You have cards that have recently expired and will be deleted within 24 hours if not extended!
-            </alert>
-            <div v-if="hasExpiredCards">
-              <h5>Recently Expired Cards</h5>
+            <div v-if="cards.length > 0">
+              <alert v-if="hasExpiredCards" class="text-center">
+                You have cards that have recently expired and will be deleted within 24 hours if not extended!
+              </alert>
+              <div v-if="hasExpiredCards">
+                <h5>Recently Expired Cards</h5>
+                <div class="row row-cols-1">
+                  <div v-for="card in expiredCards" v-bind:key="card.id" class="col">
+                    <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
+                                 @card-deleted="deleteCard" @card-extended="extendCard"
+                                 @refresh-cards="getCardData"></market-card>
+                  </div>
+                </div>
+              </div>
+              <h5 v-if="hasExpiredCards">Active Cards</h5>
               <div class="row row-cols-1">
-                <div v-for="card in expiredCards" v-bind:key="card.id" class="col">
+                <div v-for="card in activeCards" v-bind:key="card.id" class="col">
                   <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
                                @card-deleted="deleteCard" @card-extended="extendCard"
                                @refresh-cards="getCardData"></market-card>
                 </div>
               </div>
             </div>
-            <h5 v-if="hasExpiredCards">Active Cards</h5>
-            <div class="row row-cols-1">
-              <div v-for="card in activeCards" v-bind:key="card.id" class="col">
-                <market-card :card-data="card" :hide-image="hideImages" :show-expired="true"
-                             @card-deleted="deleteCard" @card-extended="extendCard"
-                             @refresh-cards="getCardData"></market-card>
-              </div>
-            </div>
+            <div v-else>You have no cards.</div>
           </div>
 
           <!-- Liked Listing Section -->
           <div v-if="user.isActingAsUser()" class="col">
             <h2>My Liked Listings</h2>
-            <div class="row row-cols-1">
-              <div v-for="listing in sortedLikedListings" v-bind:key="listing.id" class="col">
-                <liked-listing :listing-data="listing" @updateData="updateData"></liked-listing>
+            <div v-if="likedListings.length > 0">
+              <div class="input-group mb-4">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Filter By Tag</span>
+                </div>
+                <div class="form-control text-center tag-filters">
+                  <div v-for="tag in tags" :key="tag.name" class="d-inline">
+                    <em v-if="tag.name !== 'None'"
+                        :class="{'bi-tag-fill': tagged(tag.name), 'bi-tag': !tagged(tag.name)}"
+                        :style="`color: ${tag.colour};`"
+                        class="tag bi bi-tag-fill pointer mx-2"
+                        @click="toggleTagFilter(tag.name)"
+                    />
+                  </div>
+                </div>
+                <div class="input-group-append">
+                  <button class="btn"
+                          :class="{'btn-secondary': tagFilters.length === 0, 'btn-danger': tagFilters.length > 0}"
+                          :disabled="tagFilters.length === 0"
+                          @click="tagFilters = []"
+                  >
+                    <em class="bi bi-x-circle-fill"/>
+                  </button>
+                </div>
+              </div>
+              <div class="row row-cols-1">
+                <div v-for="listing in taggedListings" v-bind:key="listing.id" class="col">
+                  <liked-listing :data="listing"
+                                 :tags="tags"
+                                 @update-data="updateData"
+                                 @update-tag="updateTag"
+                                 @update-star="updateStar"
+                  />
+                </div>
               </div>
             </div>
+            <div v-else>You have no liked sale listings.</div>
           </div>
         </div>
 
@@ -131,7 +167,7 @@
         <!-- Undo link -->
         <div v-if="canUndo">
           <button class="btn btn-primary w-100" @click="undoDelete()">
-            Undo Deletion <em class="bi bi-arrow-counterclockwise"/> ({{countDown}})
+            Undo Deletion <em class="bi bi-arrow-counterclockwise"/> ({{ countDown }})
           </button>
         </div>
 
@@ -190,8 +226,10 @@
       </div>
 
     </div>
+
   </div>
 </template>
+
 <script>
 import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/marketplace/MarketCard";
@@ -203,6 +241,37 @@ import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
 import undo from "@/utils/undo"
+
+const tags = {
+  RED: {
+    name: "Red",
+    colour: "Red"
+  },
+  ORANGE: {
+    name: "Orange",
+    colour: "DarkOrange"
+  },
+  YELLOW: {
+    name: "Yellow",
+    colour: "Gold"
+  },
+  GREEN: {
+    name: "Green",
+    colour: "ForestGreen"
+  },
+  BLUE: {
+    name: "Blue",
+    colour: "DodgerBlue"
+  },
+  PURPLE: {
+    name: "Purple",
+    colour: "DarkViolet"
+  },
+  NONE: {
+    name: "None",
+    colour: "DimGrey"
+  }
+}
 
 export default {
   name: "Home",
@@ -232,6 +301,8 @@ export default {
       notifications: [],
       messages: [],
       error: "",
+      tags: tags,
+      tagFilters: [],
       countDown: 10,
       alreadyCountingDown: false
     }
@@ -345,23 +416,47 @@ export default {
     },
 
     /**
+     * Returns listings that are tagged by one of the filter tags
+     */
+    taggedListings() {
+      if (this.tagFilters.length === 0) {
+        return this.sortedLikedListings
+      } else {
+        const listings = []
+        for (const listing of this.sortedLikedListings) {
+          if (this.tagFilters.includes(listing.tag)) {
+            listings.push(listing)
+          }
+        }
+        return listings
+      }
+    },
+
+    /**
      * Returns the likedListings sorted by starred first.
      */
     sortedLikedListings() {
       let sortFunc = (x, y) => {
-        if (x.userStarred === y.userStarred) {
+        if (x.starred === y.starred) {
           return 0
         }
-        else if (x.userStarred) {
+        else if (x.starred) {
           return -1
         }
         return 1
       }
       return [...this.likedListings].sort(sortFunc)
-    }
+    },
 
+    /**
+     * the currently acting as user or business
+     */
+    actingAs() {
+      return this.$root.$data.user.state.actingAs
+    }
   },
   methods: {
+
     /**
      * Updates the users data in the store
      */
@@ -369,6 +464,7 @@ export default {
       await this.user.updateData()
       await this.getData()
     },
+
     /**
      * Gets the user or businesses notifications, cards and messages
      */
@@ -401,6 +497,7 @@ export default {
       }
       this.showToasts()
     },
+
     /**
      * Displays the notifications section
      */
@@ -437,14 +534,10 @@ export default {
      */
     async getLikedListings() {
       this.likedListings = []
-      let likedListings = []
-      for (let likedListing of this.user.state.userData.likedSaleListings){
-        const currency = await this.$root.$data.product.getCurrency(likedListing.listing.business.address.country)
-        let listing = likedListing.listing
-        listing.currency = currency
-        likedListings.push(listing)
+      for (let likedListing of this.user.state.userData.likedSaleListings) {
+        likedListing.listing.currency = await this.$root.$data.product.getCurrency(likedListing.listing.business.address.country)
+        this.likedListings.push(likedListing)
       }
-      this.likedListings = likedListings
     },
 
     /**
@@ -495,6 +588,7 @@ export default {
         return true;
       }
     },
+
     /**
      * Deletes a card from the list of cards once it has been deleted from the server
      * @param id
@@ -508,6 +602,7 @@ export default {
       //Refreshes messages as when deleting a card messages about that card would have been deleted.
       this.getMessages()
     },
+
     /**
      * Updates an extended cards information.
      * @param id ID of card to update
@@ -583,7 +678,6 @@ export default {
      */
     async addMessage(data) {
       this.messages.push(data);
-
       // these lines are required to render the notification just added
       await this.$nextTick()
       this.showToasts()
@@ -615,6 +709,60 @@ export default {
     },
 
     /**
+     * Updates a liked listing's tag after sending API request
+     *
+     * @param listingId ID of the liked listing to update
+     * @param name tag name to set
+     */
+    updateTag(listingId, name) {
+      for (const [index, listing] of this.user.state.userData.likedSaleListings.entries()) {
+        if (listing.id === listingId) {
+          listing.tag = name
+          this.$set(this.user.state.userData.likedSaleListings, index, listing)
+        }
+      }
+    },
+
+    /**
+     * Updates a liked listing's starred value
+     *
+     * @param listingId ID of the liked listing to update
+     * @param star Boolean for whether it should be starred
+     */
+    updateStar(listingId, star) {
+      for (const [index, listing] of this.user.state.userData.likedSaleListings.entries()) {
+        if (listing.id === listingId) {
+          listing.starred = star
+          this.$set(this.user.state.userData.likedSaleListings, index, listing)
+        }
+      }
+    },
+
+    /**
+     * Adds or removes a tag from the filter list
+     */
+    toggleTagFilter(name) {
+      name = name.toUpperCase()
+      if (this.tagged(name)) {
+        for (const [index, tag] of this.tagFilters.entries()) {
+          if (tag === name) {
+            this.tagFilters.splice(index, 1)
+            return
+          }
+        }
+      } else {
+        this.tagFilters.push(name)
+      }
+    },
+
+    /**
+     * Returns true if sale listings are currently being filtered by a particular tag
+     */
+    tagged(name) {
+      return this.tagFilters.includes(name.toUpperCase())
+    },
+
+    /**
      * Undoes the last delete operation.
      */
     undoDelete() {
@@ -630,7 +778,7 @@ export default {
      * Decrements countdown timer to zero
      */
     countDownTimer() {
-      if(this.countDown > 0) {
+      if (this.countDown > 0) {
         setTimeout(() => {
           this.countDown -= 1
           this.countDownTimer()
@@ -645,5 +793,17 @@ export default {
 </script>
 
 <style scoped>
+
+.tag-filters {
+  font-size: 20px;
+}
+
+.tag {
+  transition: 0.3s;
+}
+
+.tag:hover {
+  text-shadow: currentColor 0 0 5px;
+}
 
 </style>

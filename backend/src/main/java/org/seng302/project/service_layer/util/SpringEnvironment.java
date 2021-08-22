@@ -71,9 +71,23 @@ public class SpringEnvironment {
             return mediaFolderPathList.get(0).substring(mediaFolderPathList.get(0).indexOf(":") + 1);
         }
 
-
-        //return mediaFolderPathList.get(0).substring(mediaFolderPathList.get(0).indexOf(":") + 1);
-        //return "build/resources/main/public";
     }
 
+
+    /**
+     * Get the password reset URL for the current environment (prod or staging)
+     * @param token the unique token for a user to reset their password
+     */
+    public String getPasswordResetURL(String token) {
+        if (activeProfile.contains("staging")) {
+            return "https://csse-s302g2.canterbury.ac.nz/test/reset-password/" + token;
+        }
+        else if (activeProfile.contains("production")) {
+            return "https://csse-s302g2.canterbury.ac.nz/prod/reset-password/" + token;
+        }
+        else {
+            return "http://localhost:9600/reset-password/" + token;
+        }
+
+    }
 }

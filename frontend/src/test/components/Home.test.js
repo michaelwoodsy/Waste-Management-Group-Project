@@ -263,4 +263,16 @@ describe('Jest tests for the home component', () => {
         expect(setTimeout).toBeCalled()
         jest.useRealTimers()
     })
+
+    test('toggleTagFilter adds a tag to list when not already in it', () => {
+        wrapper.vm.$data.tagFilters = []
+        wrapper.vm.toggleTagFilter("red")
+        expect(wrapper.vm.tagged("red")).toBeTruthy()
+    })
+
+    test('toggleTagFilter removes a tag from list when already in it', () => {
+        wrapper.vm.$data.tagFilters = ["RED"]
+        wrapper.vm.toggleTagFilter("red")
+        expect(wrapper.vm.tagged("red")).toBeFalsy()
+    })
 })

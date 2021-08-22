@@ -11,7 +11,7 @@
         <div class="col">
 
           <!-- Sale Listings Header -->
-          <div class="row">
+          <div class="row mb-3">
             <div class="col"/>
             <div class="col text-center">
               <h4>Sale Listings</h4>
@@ -39,15 +39,6 @@
 
           <!-- Sale Listing Information -->
           <div>
-
-            <!-- Number of results information -->
-            <div class="text-center">
-              <showing-results-text
-                  :items-per-page="resultsPerPage"
-                  :page="page"
-                  :total-count="totalCount"
-              />
-            </div>
 
             <!-- Table of results -->
             <div class="overflow-auto">
@@ -120,6 +111,14 @@
           <!--    Result Information    -->
           <div class="row">
             <div class="col">
+              <!-- Number of results information -->
+              <div class="text-center mb-2">
+                <showing-results-text
+                    :items-per-page="resultsPerPage"
+                    :page="page"
+                    :total-count="totalCount"
+                />
+              </div>
               <pagination
                   :current-page.sync="page"
                   :items-per-page="resultsPerPage"
@@ -144,17 +143,11 @@
       </div>
     </div>
 
-    <div v-if="viewListingModal" id="viewListingModal" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewListingModal=false">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <individual-sale-listing-modal :listing="listingToView" @viewBusiness="viewBusiness" @updateListings="fillTable()"></individual-sale-listing-modal>
-          </div>
-        </div>
-      </div>
+    <div v-if="viewListingModal">
+      <individual-sale-listing-modal
+          :listing="listingToView"
+          @update-listings="fillTable()"
+      />
     </div>
 
     <div v-if="viewBusinessModal" id="viewBusinessModal" class="modal fade" data-backdrop="static">
@@ -164,7 +157,7 @@
             <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewBusinessModal=false">
               <span aria-hidden="true">&times;</span>
             </button>
-            <business-profile-page-modal :id="businessToViewId"></business-profile-page-modal>
+            <business-profile-page-modal business="businessToViewId"></business-profile-page-modal>
           </div>
         </div>
       </div>

@@ -27,9 +27,11 @@
              }"
              @keyup="addressEntered"
              @keyup.tab="dropdown"
+             @click="dropdown"
              maxlength="250"
              data-toggle="dropdown"
              placeholder="Search for your address"
+             autocomplete="off"
              type="text"
       >
 
@@ -166,7 +168,11 @@ export default {
         streetName: null
       },
       error: null,
-      loading: false
+      loading: false,
+      latitude: null,
+      longitude: null,
+      timedAddressRequest: null,
+      typeWaitTime: 200  // time to wait in ms after the user has typed before making api request
     }
   },
   props: ['showErrors'],
@@ -174,6 +180,9 @@ export default {
     valid() {
       return !(this.msg.country || this.msg.streetName)
     }
+  },
+  mounted() {
+    this.estimateLocation()
   },
   watch: {
     /** Watcher for the manual address **/
@@ -192,6 +201,7 @@ export default {
       deep: true
     },
     /** Validate address when show errors is set **/
+    /** Validate address when show errors is set **/
     showErrors: {
       async handler() {
         await this.validateAddress()
@@ -202,7 +212,7 @@ export default {
   },
   methods: {
     /**
-     * Function to run when the full address has been entered
+     * Method to run when the full address has been entered
      */
     async addressEntered() {
       // Clear previously selected address
@@ -214,43 +224,26 @@ export default {
         return
       }
 
-      // Get possible addresses from photon api
-      this.loading = true
-      await this.getPhotonAddress(this.fullAddress)
-          .then(async (res) => {
-            // Reset relevant variables
-            this.suggestions = []
-            this.loading = false
-            this.error = null
+      if (this.timedAddressRequest || this.cancelToken) {
+        // A request was scheduled to run within 200ms, but hasn't yet so the user must still be typing.
+        // Cancel the request.
+        clearTimeout(this.timedAddressRequest)
 
-            // Iterate through locations and create address objects
-            for (const location of res.data.features) {
-              const address = {
-                id: location.properties.osm_id,
-                streetNumber: location.properties.housenumber,
-                streetName: location.properties.street,
-                city: location.properties.city || location.properties.district || location.properties.county,
-                region: location.properties.state,
-                country: location.properties.country,
-                postcode: location.properties.postcode
-              }
-              if (await this.addressIsValid(address)) {
-                this.suggestions.push(address)
-              }
-            }
-          })
-        .catch((err) => {
-          // Check if the error is from the request canceling
-          if (err.message !== "A new request was made") {
-            this.error = err
-            this.loading = false
-          }
-        })
+        // Schedule another request to run later
+        this.timedAddressRequest = setTimeout(async () => {
+          this.timedAddressRequest = null
+          await this.updateSuggestions(this.fullAddress)
+        }, this.typeWaitTime)
+
+      } else {
+        await this.updateSuggestions(this.fullAddress)
+      }
     },
 
     /**
      * Makes a request to the photon address api.
-     * @param text The text entered into the autofillable text field
+     *
+     * @param text The text entered into the autofill-able text field
      * @param limit Limit for the number of results to get from the request. Default 10.
      * @return Axios Promise
      */
@@ -260,8 +253,14 @@ export default {
         this.cancelToken("A new request was made")
       }
 
+      // Set the url for the location api
+      let url = `https://photon.komoot.io/api?q=${text}&limit=${limit}&osm_tag=place`
+      if (this.longitude) {
+        url += `&lat=${this.latitude}&lon=${this.longitude}`
+      }
+
       // Make and return request promise
-      return axios.get(`https://photon.komoot.io/api?q=${text}&limit=${limit}&osm_tag=place`, {
+      return axios.get(url, {
             cancelToken: new axios.CancelToken((c) => {
               this.cancelToken = c;
             })
@@ -270,6 +269,7 @@ export default {
 
     /**
      * Generates a string representation of a location.
+     *
      * @param location Location object to be sent to backend.
      * @returns {string} Representation of the location.
      */
@@ -304,6 +304,7 @@ export default {
 
     /**
      * Selects a location from the suggestions list.
+     *
      * @param location Location object to be sent to api
      */
     selectLocation(location) {
@@ -314,6 +315,7 @@ export default {
 
     /**
      * Checks if a location object is valid
+     *
      * @param location Object to be sent to backend
      * @returns Object Messages object with any messages for things needing fixed
      */
@@ -344,6 +346,7 @@ export default {
 
     /**
      * Checks if a location object is valid
+     *
      * @param location Object to be sent to backend
      * @returns {boolean} True if the location is valid
      */
@@ -382,7 +385,8 @@ export default {
       this.$emit('setAddressValid', this.valid)
     },
 
-    /** Checks if the country of the address is real using the rest api
+    /**
+     * Checks if the country of the address is real using the rest api
      * Only runs if the user is in manual address mode.
      * Returns a bool.
      */
@@ -417,11 +421,92 @@ export default {
       this.msg = await this.getAddressFixes(this.address)
     },
 
-    /** Makes sure the suggestions dropdown is down **/
-    dropdown() {
-      let toggleBtn = document.getElementById('fullAddress');
-      toggleBtn.click();
-    }
+    /**
+     * Makes sure the suggestions dropdown is down.
+     *
+     * @param event Mouse or KeyboardEvent
+     */
+    dropdown(event) {
+      // check if the drop down is already shown
+      let dropDownEl = document.getElementById('dropdown')
+      let dropDownShown = dropDownEl.classList.contains('show')
+
+      // open the drop down if it's not shown already
+      if (dropDownShown || (event instanceof KeyboardEvent && !dropDownShown)) {
+        let toggleBtn = document.getElementById('fullAddress')
+        toggleBtn.click();
+      }
+    },
+
+    /**
+     * Estimate the users latitude and longitude coordinates using there IP.
+     * Sets this.latitude and this.longitude
+     */
+    async estimateLocation() {
+      // get the users IP
+      let ipRes = await axios.get('https://api.ipify.org/?format=json')
+      let ip = ipRes.data.ip
+
+      // get estimated location based on ip
+      let locationRes = await axios.get(`https://freegeoip.app/json/${ip}`)
+      this.latitude = locationRes.data.latitude
+      this.longitude = locationRes.data.longitude
+
+      // updated address suggestions
+      await this.addressEntered();
+    },
+
+    /**
+     * Maps a location json object from photon api, to the json address format required by the backend api
+     *
+     * @param location Location json object from photon api.
+     * @returns {{country, streetName: string, streetNumber: string, city: (string), postcode, id: number, region}}
+     */
+    mapToAddress(location) {
+      return {
+        id: location.properties.osm_id,
+        streetNumber: location.properties.housenumber,
+        streetName: location.properties.street,
+        city: location.properties.city || location.properties.district || location.properties.county,
+        region: location.properties.state,
+        country: location.properties.country,
+        postcode: location.properties.postcode
+      }
+    },
+
+    /**
+     * Creates a request to photon api, parses results and updates the suggestion list accordingly
+     *
+     * @param inputAddress String, current address to search for.
+     * @returns {Promise<void>} Promise for this request.
+     */
+    async updateSuggestions(inputAddress) {
+      try {
+        this.loading = true
+        let res = await this.getPhotonAddress(inputAddress)
+        this.cancelToken = null
+
+        // Reset relevant variables
+        this.suggestions = []
+        this.loading = false
+        this.error = null
+
+        // Iterate through locations and create address objects
+        for (const location of res.data.features) {
+          const address = this.mapToAddress(location)
+          if (await this.addressIsValid(address)) {
+            this.suggestions.push(address)
+          }
+        }
+      }
+      catch(err) {
+        // Check if the error is from the request canceling
+        if (err.message !== "A new request was made") {
+          this.error = err
+          this.loading = false
+        }
+      }
+    },
   }
 }
 </script>

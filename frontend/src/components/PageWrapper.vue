@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid mt-3">
     <div class="row justify-content-center">
-      <div class="col-12 col-sm-10">
+      <div :class="`col-12 col-sm-${colSize}`">
 
         <slot></slot>
 
@@ -13,6 +13,13 @@
 <script>
 export default {
   name: "PageWrapper",
+  props: {
+    colSize: {
+      type: String,
+      required: false,
+      default: "12"
+    }
+  }
 }
 </script>
 
