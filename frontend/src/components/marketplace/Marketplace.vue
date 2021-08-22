@@ -92,19 +92,44 @@ Page for displaying the marketplace.
       <div class="row form justify-content-center">
         <div class="col form-group text-center">
           <label class="d-inline-block" for="order-select">Filter By Keywords</label>
-          <!-- Keyword Input -->
-          <input id="keywordSearchValue" v-model="keywordValue"
-                 aria-expanded="false"
-                 aria-haspopup="true" autocomplete="off"
-                 class="form-control ml-2 d-inline-block w-auto dropdown-toggle"
-                 data-toggle="dropdown"
-                 maxlength="25" placeholder="Enter Keywords"
-                 required
-                 style="margin-bottom: 2px"
-                 type="text"
-                 @input="searchKeywords"
-                 @keyup.enter="setKeyword()"/>
+          <div class="dropdown">
+            <!-- Keyword Input -->
+            <input id="keywordSearchValue" v-model="keywordValue"
+                   autocomplete="off"
+                   class="form-control ml-2 d-inline-block w-auto"
+                   maxlength="25" placeholder="Enter Keywords"
+                   required
+                   data-toggle="dropdown"
+                   style="margin-bottom: 2px"
+                   type="text"
+                   @click="showAutocomplete"
+                   @input="searchKeywords"
+                   @keyup.enter="setKeyword"/>
 
+            <!-- Autocomplete dropdown -->
+            <div id="autocompleteDropdown" class="dropdown-menu overflow-auto">
+              <!-- If no user input -->
+              <p v-if="keywordValue.length === 0"
+                 class="text-muted dropdown-item left-padding mb-0 disabled"
+              >
+                Start typing...
+              </p>
+              <!-- If no matches -->
+              <p v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
+                 class="text-muted dropdown-item left-padding mb-0 disabled"
+              >
+                No results found.
+              </p>
+              <!-- If there are matches -->
+              <a v-for="keyword in filteredKeywords" v-else
+                 :key="keyword.id"
+                 class="dropdown-item pointer left-padding"
+                 href="#"
+                 @click="setKeyword(keyword)">
+                <span>{{ keyword.name }}</span>
+              </a>
+            </div>
+          </div>
           <!-- Checkbox to select whether all a cards must match all keywords -->
           <span
               class="custom-control custom-switch m-2">
@@ -112,29 +137,7 @@ Page for displaying the marketplace.
             <label class="custom-control-label" for="any-all-keyword-switch">Match all</label>
           </span>
 
-          <!-- Autocomplete dropdown -->
-          <div id="autocompleteDropdown" class="overflow-auto dropdown-menu">
-            <!-- If no user input -->
-            <p v-if="keywordValue.length === 0"
-               class="text-muted dropdown-item left-padding mb-0 disabled"
-            >
-              Start typing...
-            </p>
-            <!-- If no matches -->
-            <p v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
-               class="text-muted dropdown-item left-padding mb-0 disabled"
-            >
-              No results found.
-            </p>
-            <!-- If there are matches -->
-            <a v-for="keyword in filteredKeywords" v-else
-               :key="keyword.id"
-               class="dropdown-item pointer left-padding"
-               href="#"
-               @click="setKeyword(keyword)">
-              <span>{{ keyword.name }}</span>
-            </a>
-          </div>
+
           <!-- Keyword Bubbles -->
           <div class="keyword">
             <button
@@ -178,13 +181,6 @@ Page for displaying the marketplace.
 </template>
 
 <script>
-// $('#autocompleteDropdown').on('hide.bs.dropdown', function (e) {
-//   var target = $(e.target);
-//   console.log("blah")
-//   return !(target.hasClass("keepopen") || target.parents(".keepopen").length);
-// });
-
-// $('#dropdown.dropdown-menu').dropdown('show')
 
 import LoginRequired from "../LoginRequired";
 import MarketCard from "./MarketCard";
@@ -193,7 +189,6 @@ import Pagination from "@/components/Pagination";
 import CreateCardPage from "@/components/marketplace/CreateCardPage";
 import PageWrapper from "@/components/PageWrapper";
 import {Card, Keyword} from "@/Api";
-import $ from "jquery"
 
 export default {
   name: "Marketplace",
@@ -450,20 +445,15 @@ export default {
       this.getCards(this.tabSelected)
     },
 
+    /**
+     * Helper function to make sure autocomplete dropdown is not hidden when clicked on
+     */
     showAutocomplete(){
-      // $('#autocompleteDropdown.dropdown-menu').dropdown('show')
-      $('#autocompleteDropdown').on('hidden.bs.dropdown', function (){
-        $('#autocompleteDropdown.dropdown-menu').dropdown('show')
-        console.log("boo")
-
-      })
+      const dropdown = document.getElementById('autocompleteDropdown')
+      if(dropdown.classList.contains('show')){
+        document.getElementById('keywordSearchValue').click()
+      }
     },
-
-    hideAutocomplete(){
-      console.log("boo")
-      $('#autocompleteDropdown.dropdown-menu').dropdown('hide')
-    },
-
   }
 }
 

@@ -77,7 +77,6 @@
 <script>
 import PageWrapper from "@/components/PageWrapper";
 import {Business} from "@/Api";
-//import $ from "jquery";
 
 export default {
   name: "ProductSearch",
@@ -190,6 +189,9 @@ export default {
       }
     },
 
+    /**
+     * Helper function to make sure autocomplete dropdown is not hidden when clicked on
+     */
     showDropdown() {
       const dropdown = document.getElementById('dropdown')
       if (dropdown.classList.contains('show')) {
@@ -201,9 +203,5 @@ export default {
 </script>
 
 <style scoped>
-
-.fields-title {
-  font-size: 18px;
-}
 
 </style>
