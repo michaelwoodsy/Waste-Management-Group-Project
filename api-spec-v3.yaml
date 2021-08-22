@@ -6,7 +6,7 @@ servers:
 
 info:
   description: API specification for the SENG302 2021 project
-  version: 3.3.2
+  version: 3.5.0
   title: Wasteless
   contact:
     email: seng302@canterbury.ac.nz
@@ -2602,7 +2602,7 @@ paths:
       tags:
         - 'UD4: New Card Notifications'
         - 'Keywords'
-      summary: "Adds a keyword to the user's keyword watchlist"
+      summary: "Adds/removes a keyword to the user's keyword watchlist"
       security:
         - CookieAuth:
             - user
@@ -2623,40 +2623,6 @@ paths:
           $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '406':
-          $ref: '#/components/responses/NotAcceptableError'
-
-
-  '/keywords/{keywordId}/unwatch':
-    patch:
-      tags:
-        - 'UD4: New Card Notifications'
-        - 'Keywords'
-      summary: "Removes a keyword to the user's keyword watchlist"
-      security:
-        - CookieAuth:
-            - user
-            - globalApplicationAdmin
-            - defaultGlobalApplicationAdmin
-      parameters:
-        - name: keywordId
-          in: path
-          description: The id of the keyword
-          required: true
-          schema:
-            type: integer
-            example: 100
-      responses:
-        '200':
-          description: Request successful
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
