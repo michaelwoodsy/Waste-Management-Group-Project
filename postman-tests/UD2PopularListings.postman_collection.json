@@ -1,0 +1,34 @@
+{
+	"info": {
+		"_postman_id": "92cb9c36-c69a-4710-aea7-50d91dabbf5d",
+		"name": "UD2 Popular Listings",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get country's popular listings",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/popularlistings?country=New Zealand",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"popularlistings"
+					],
+					"query": [
+						{
+							"key": "country",
+							"value": "New Zealand"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
