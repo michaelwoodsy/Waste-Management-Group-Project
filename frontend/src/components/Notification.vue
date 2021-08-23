@@ -37,6 +37,11 @@
         </div>
 
         <div v-if="data.type === 'purchase'">
+
+          <p><strong>Price:</strong>
+            <br>
+            {{formattedPrice}}</p>
+
           <p><strong>Pickup from:</strong>
             <br>
             {{formattedAddress}}</p>
@@ -84,7 +89,17 @@ export default {
   },
   data() {
     return {
-      deletingKeyword: false
+      deletingKeyword: false,
+      currency: { //Prefilled so that not null when the page loads,
+        // updates when actual currency received
+        symbol: "$",
+        code: "USD"
+      },
+    }
+  },
+  mounted() {
+    if (this.data.type === 'purchase') {
+      this.getCurrency()
     }
   },
   computed: {
@@ -94,8 +109,17 @@ export default {
     formattedDateTime() {
       return formatDateTime(this.data.created)
     },
+    /**
+     * Formats the address of a business for picking up a listing
+     */
     formattedAddress() {
       return this.$root.$data.address.formatAddressWithStreet(this.data.address)
+    },
+    /**
+     * Returns formatted price of a listing, in the correct currency
+     */
+    formattedPrice() {
+      return this.$root.$data.product.formatPrice(this.currency, this.data.price);
     },
     /**
      * Returns true if the notification is an admin notification, false otherwise
@@ -105,6 +129,12 @@ export default {
     }
   },
   methods: {
+    /**
+     * Gets the currency for a notification about a bought listing
+     */
+    async getCurrency() {
+      this.currency = await this.$root.$data.product.getCurrency(this.data.currencyCountry)
+    },
     /**
      * Sends request to read notification and emits event to parent component to update notification
      */
