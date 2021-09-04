@@ -38,6 +38,7 @@ public abstract class AbstractInitializer {
     private UserNotification testUserNotification;
 
     private List<SaleListing> saleListings;
+    private List<Sale> saleHistory;
 
     public AbstractInitializer() {
         WebSecurityConfig webSecurityConfig = new WebSecurityConfig();
@@ -61,6 +62,7 @@ public abstract class AbstractInitializer {
         this.initialiseTestUserNotification();
         this.initialiseTestMessages();
         this.initialiseTestSaleListings();
+        this.initialiseTestSaleHistory();
     }
 
     public void initialiseTestUsers() {
@@ -288,6 +290,27 @@ public abstract class AbstractInitializer {
         SaleListing saleListing4 = new SaleListing(business2, inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
         saleListings.add(saleListing4);
 
+    }
+
+    public void initialiseTestSaleHistory(){
+        Address address1 = new Address(null, null, "Rangiora", null, "Netherlands", null);
+        Business business1 = new Business("First Business", null, address1, "Retail Trade", 1);
+
+
+        Product product1 = new Product("TEST-1", "First Product", null, null, 5.00, business1.getId());
+        InventoryItem inventoryItem1 = new InventoryItem(product1, 10, null, null, "2021-01-01", null, null, "2021-12-01");
+        SaleListing saleListing1 = new SaleListing(business1, inventoryItem1, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 4);
+
+
+        Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
+        InventoryItem inventoryItem2 = new InventoryItem(product2, 10, null, null, "2021-01-01", null, null, "2021-12-02");
+        SaleListing saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
+
+        Sale sale1 = new Sale(saleListing1);
+        saleHistory.add(sale1);
+        System.out.println("blah");
+        Sale sale2 = new Sale(saleListing2);
+        saleHistory.add(sale2);
     }
 
 }
