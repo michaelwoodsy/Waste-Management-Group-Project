@@ -1,10 +1,10 @@
 <!--Component for displaying an individual sale within a sales report-->
 <template>
   <div>
-    <table class="table table-hover"
+    <table class="table"
            aria-label="Table to show a single sale"
     >
-      <tr class="btn-secondary">
+      <tr class="bg-secondary text-light">
         <td>
           {{formattedDate()}}
         </td>
