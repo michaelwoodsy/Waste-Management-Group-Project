@@ -61,9 +61,9 @@
           <hr>
         </div>
 
-        <div class="row row-cols-1 row-cols-lg-2">
+        <div v-if="user.isActingAsUser()" class="row row-cols-1 row-cols-lg-2">
           <!-- Cards Section -->
-          <div v-if="user.isActingAsUser()" class="col">
+          <div class="col">
             <h2>My Cards</h2>
             <div v-if="cards.length > 0">
               <alert v-if="hasExpiredCards" class="text-center">
@@ -92,7 +92,7 @@
           </div>
 
           <!-- Liked Listing Section -->
-          <div v-if="user.isActingAsUser()" class="col">
+          <div class="col">
             <h2>My Liked Listings</h2>
             <div v-if="likedListings.length > 0">
               <div class="input-group mb-4">
@@ -131,6 +131,14 @@
               </div>
             </div>
             <div v-else>You have no liked sale listings.</div>
+          </div>
+        </div>
+
+        <div v-if="user.isActingAsBusiness()" class="row">
+          <!-- Sales Report Section -->
+          <div class="col">
+            <h2>Sales Report</h2>
+            <sales-report/>
           </div>
         </div>
 
@@ -241,6 +249,7 @@ import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
 import undo from "@/utils/undo"
+import SalesReport from "@/components/SalesReport";
 
 const tags = {
   RED: {
@@ -276,6 +285,7 @@ const tags = {
 export default {
   name: "Home",
   components: {
+    SalesReport,
     LikedListing,
     Message,
     Alert,
