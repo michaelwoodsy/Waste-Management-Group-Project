@@ -137,8 +137,7 @@
         <div v-if="user.isActingAsBusiness()" class="row">
           <!-- Sales Report Section -->
           <div class="col">
-            <h2>Sales Report</h2>
-            <sales-report/>
+            <sales-report-page :business="user.actor().id"/>
           </div>
         </div>
 
@@ -249,7 +248,7 @@ import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
 import undo from "@/utils/undo"
-import SalesReport from "@/components/SalesReport";
+import SalesReportPage from "@/components/sales-report/SalesReportPage";
 
 const tags = {
   RED: {
@@ -285,7 +284,7 @@ const tags = {
 export default {
   name: "Home",
   components: {
-    SalesReport,
+    SalesReportPage,
     LikedListing,
     Message,
     Alert,

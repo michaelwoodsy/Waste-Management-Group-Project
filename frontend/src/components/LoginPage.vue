@@ -141,8 +141,6 @@
           </div>
         </div>
       </div>
-      <!-- TODO: Remove me once sales report component exists -->
-      <sales-in-section/>
     </logout-required>
 
   </page-wrapper>
@@ -154,8 +152,6 @@ import Alert from "./Alert"
 import PageWrapper from "@/components/PageWrapper";
 import {User} from "@/Api";
 import $ from 'jquery';
-import SalesInSection from "@/components/sales-report/SalesInSection";
-
 
 export default {
   name: "LoginPage",
@@ -181,7 +177,6 @@ export default {
   },
 
   components: {
-    SalesInSection, //TODO: Remove me once sales report component exists
     PageWrapper,
     LogoutRequired,
     Alert,

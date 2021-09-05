@@ -1,4 +1,4 @@
-import {User} from '@/Api'
+import {Business, User} from '@/Api'
 import {deleteCookie, getCookie, setCookie} from "@/utils/cookieJar";
 import {createRed as createAlertRed} from "@/utils/globalAlerts"
 
@@ -162,6 +162,12 @@ export default {
             name, id, type
         }
         setCookie('actor', JSON.stringify(this.state.actingAs), null)
+        if (type === 'business') {
+            Business.getBusinessData(id)
+                .then((response) => {
+                    this.state.actingAs.businessData = response.data
+                })
+        }
     },
 
     /**
