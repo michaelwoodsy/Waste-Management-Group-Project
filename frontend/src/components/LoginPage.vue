@@ -142,7 +142,7 @@
         </div>
       </div>
       <!-- TODO: Remove me once sales report component exists -->
-      <individual-sale/>
+      <sales-in-section/>
     </logout-required>
 
   </page-wrapper>
@@ -154,7 +154,7 @@ import Alert from "./Alert"
 import PageWrapper from "@/components/PageWrapper";
 import {User} from "@/Api";
 import $ from 'jquery';
-import IndividualSale from "@/components/sales-report/IndividualSale";
+import SalesInSection from "@/components/sales-report/SalesInSection";
 
 
 export default {
@@ -181,7 +181,7 @@ export default {
   },
 
   components: {
-    IndividualSale, //TODO: Remove me once sales report component exists
+    SalesInSection, //TODO: Remove me once sales report component exists
     PageWrapper,
     LogoutRequired,
     Alert,
