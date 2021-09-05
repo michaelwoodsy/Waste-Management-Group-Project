@@ -25,6 +25,7 @@ public class GetSalesReportDTO {
         this.periodStart = periodStart;
         this.periodEnd = periodEnd;
         this.totalPurchaseValue = sales.stream().mapToDouble(GetSaleDTO::getPrice).sum();
+        this.purchaseCount = sales.size();
     }
 
 }
