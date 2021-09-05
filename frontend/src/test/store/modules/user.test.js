@@ -43,6 +43,17 @@ jest.mock('@/Api', () => ({
             })
         }
     },
+    'Business': {
+        getBusinessData(id) {
+            return new Promise((resolve => {
+                resolve({
+                    data: {
+                        businessId: id
+                    }
+                })
+            }))
+        }
+    }
 }));
 
 
