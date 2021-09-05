@@ -17,9 +17,8 @@
         <td>
           {{sale.quantity}} sold
         </td>
-        <!--TODO: format price based on country-->
         <td>
-          {{sale.price}}
+          {{formattedPrice()}}
         </td>
         <td>
           No reviews
@@ -41,22 +40,33 @@ export default {
   // },
 
 
-  //TODO: remove me once sales report component gives me sale prop
+
   data() {
     return {
-    sale: {
-      dateSold: "2021-09-05",
-      productId: "WATT-BEANS",
-      productName: "Watties Baked Beans",
-      quantity: 6,
-      price: 5.50,
-      currencyCountry: "New Zealand"
+      sale: { //TODO: remove me once sales report component gives me sale prop
+        dateSold: "2021-09-05",
+        productId: "WATT-BEANS",
+        productName: "Watties Baked Beans",
+        quantity: 6,
+        price: 5.50,
+        currencyCountry: "New Zealand"
       },
+      currency: {}
     }
+  },
+  mounted() {
+    this.getCurrency()
   },
   methods: {
     /**
+     * Gets the currency of the sale so that the price can be formatted.
+     */
+    async getCurrency() {
+      this.currency = await this.$root.$data.product.getCurrency(this.sale.currencyCountry)
+    },
+    /**
      * Formats the date of the sale
+     * @return string date formatted like "DD/MM/YYYY hh:mm"
      */
     formattedDate() {
       return formatDateTime(this.sale.dateSold)
@@ -64,14 +74,12 @@ export default {
     },
     /**
      * Formats the price of the sale
+     * @return string price formatted like `{symbol}{number} {code}`
      */
     formattedPrice() {
-
+      return this.$root.$data.product.formatPrice(this.currency, this.sale.price);
     }
-
   }
-
-
 }
 </script>
 
