@@ -1,23 +1,23 @@
 <template>
   <div id="salesReport" :key="currency" class="accordion">
 
-    <div v-for="[index, section] of data.entries()" :key="index" class="card">
-      <div :id="`salesReportHeading${index}`" class="card-header">
+    <div v-for="(section, index) in data" :key="index" class="card">
+      <div :id="`reportHeading${index}`" class="card-header">
         <div class="row align-items-center">
           <div class="col-6">
               <span class="text-muted">
-                {{ formattedDate(section.dateStart) }} - {{ formattedDate(section.dateEnd) }}
+                {{ formattedDate(section.periodStart) }} - {{ formattedDate(section.periodEnd) }}
               </span>
           </div>
           <div class="col">
-            {{ section.totalSales }} sales
+            {{ section.purchaseCount }} sales
           </div>
           <div class="col">
-            {{ formattedValue(section.total) }}
+            {{ formattedValue(section.totalPurchaseValue) }}
           </div>
           <div class="col text-right">
             <button :id="`section${index}Button`"
-                    :data-target="`#salesReportSection${index}`"
+                    :data-target="`#reportSection${index}`"
                     class="btn btn-secondary btn-sm" data-toggle="collapse"
             >
               View Sales
@@ -25,7 +25,7 @@
           </div>
         </div>
       </div>
-      <div :id="`salesReportSection${index}`" class="collapse" data-parent="#salesReport">
+      <div :id="`reportSection${index}`" class="collapse" data-parent="#salesReport">
         <sales-report-section :sales="section.sales"/>
       </div>
     </div>
@@ -36,18 +36,13 @@
 <script>
 import SalesReportSection from "@/components/sales-report/SalesReportSection";
 import product from '@/store/modules/product'
-import user from "@/store/modules/user"
 
 export default {
   name: "SalesReport",
   components: {SalesReportSection},
   props: {
-    data: Array
-  },
-  computed: {
-    currency() {
-      return user.actor().businessCurrency
-    }
+    data: Array,
+    currency: Object
   },
   methods: {
     /**

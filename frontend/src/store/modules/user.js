@@ -1,7 +1,6 @@
-import {Business, User} from '@/Api'
+import {User} from '@/Api'
 import {deleteCookie, getCookie, setCookie} from "@/utils/cookieJar";
 import {createRed as createAlertRed} from "@/utils/globalAlerts"
-import product from "@/store/modules/product";
 
 export default {
     debug: true,
@@ -137,12 +136,6 @@ export default {
             name, id, type
         }
         setCookie('actor', JSON.stringify(this.state.actingAs), null)
-        if (type === 'business') {
-            const res = await Business.getBusinessData(id)
-            this.state.actingAs.businessData = res.data
-            const country = this.state.actingAs.businessData.address.country
-            this.state.actingAs.businessCurrency = await product.getCurrency(country)
-        }
     },
 
     /**

@@ -137,7 +137,7 @@
         <div v-if="user.isActingAsBusiness()" class="row">
           <!-- Sales Report Section -->
           <div class="col">
-            <sales-report-page :business="user.actor().id"/>
+            <sales-report-page :business-id="user.actor().id"/>
           </div>
         </div>
 
