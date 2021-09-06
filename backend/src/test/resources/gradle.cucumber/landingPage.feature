@@ -6,7 +6,12 @@ Feature: UD1 Landing Page
     When I navigate to the landing page
     Then I am able to see the specified statistics about resale
 
-  Scenario: AC5 - When contacting Resale, I am required to provide my email address and a message (which may be multi-line).
+  Scenario: AC4 - From the landing page, I am able to access a means of contacting Resale with any questions I may have.
     Given I not logged in
-    When I try to contact resale
-    Then I must enter an email and a message
+    When I try to contact resale with email "myrtle.t@gmail.com" and message "Hello!"
+    Then The request is successful
+
+  Scenario: AC5 - When contacting Resale, I am required to provide my email address and a message.
+    Given I not logged in
+    When I try to contact resale without an email or message
+    Then The request is not successful

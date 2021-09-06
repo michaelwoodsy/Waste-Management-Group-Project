@@ -3,14 +3,42 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.BeforeEach;
+import org.seng302.project.repository_layer.model.Address;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@ContextConfiguration
 public class LandingPageSteps {
-    @Given("I not logged in")
-    public void iNotLoggedIn() {
-//        Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
 
+    private MockMvc mockMvc;
+    private RequestBuilder request;
+
+
+    @BeforeEach
+    @Autowired
+    public void setup(WebApplicationContext context) {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
     }
+
+    @Given("I not logged in")
+    public void iNotLoggedIn() {}
 
     @When("I navigate to the landing page")
     public void iNavigateToTheLandingPage() {
@@ -24,15 +52,31 @@ public class LandingPageSteps {
         throw new io.cucumber.java.PendingException();
     }
 
-    @When("I try to contact resale")
-    public void iTryToContactResale() {
-        //        Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    @When("I try to contact resale with email {string} and message {string}")
+    public void iTryToContactResaleWithEmailAndMessage(String email, String message) {
+        String body = String.format("{\"email\": \"%s\", \"message\": \"%s\"}", email, message);
+        request = MockMvcRequestBuilders
+                .post("/contact")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body);
     }
 
-    @Then("I must enter an email and a message")
-    public void iMustEnterAnEmailAndAMessage() {
-        //        Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    @Then("The request is successful")
+    public void theRequestIsSuccessful() throws Exception {
+        mockMvc.perform(request).andExpect(status().isCreated());
+    }
+
+    @When("I try to contact resale without an email or message")
+    public void iTryToContactResaleWithoutAnEmailOrMessage() {
+        String body = "{\"email\": \"\", \"message\": \"\"}";
+        request = MockMvcRequestBuilders
+                .post("/contact")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body);
+    }
+
+    @Then("The request is not successful")
+    public void theRequestIsNotSuccessful() throws Exception {
+        mockMvc.perform(request).andExpect(status().isBadRequest());
     }
 }
