@@ -1,8 +1,12 @@
-package org.seng302.project.repository_layer.model;
+package org.seng302.project.repository_layer.specification;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.seng302.project.repository_layer.model.Business;
+import org.seng302.project.repository_layer.model.InventoryItem;
+import org.seng302.project.repository_layer.model.Product;
+import org.seng302.project.repository_layer.model.SaleListing;
 import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.InventoryItemRepository;
 import org.seng302.project.repository_layer.repository.ProductRepository;
