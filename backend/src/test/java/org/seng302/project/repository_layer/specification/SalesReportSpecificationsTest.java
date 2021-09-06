@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @DataJpaTest
-public class SalesReportSpecificationsTest {
+class SalesReportSpecificationsTest {
 
     @Autowired
     private BusinessRepository businessRepository;
@@ -26,6 +26,9 @@ public class SalesReportSpecificationsTest {
     @Autowired
     private SaleHistoryRepository saleHistoryRepository;
 
+    /**
+     * Before each test, setup two sales with different parameters
+     */
     @BeforeEach
     void setup() {
         Business business = new Business("First Business", null, null, "Retail Trade", 1);
@@ -46,6 +49,9 @@ public class SalesReportSpecificationsTest {
         saleHistoryRepository.save(sale2);
     }
 
+    /**
+     * Test that using the soldBefore spec with date in October returns both sale listings
+     */
     @Test
     void soldBefore_october_returnsBothSales() {
         Specification<Sale> specification = SalesReportSpecifications.soldBefore(LocalDateTime.parse("2021-10-30T00:00:00"));
@@ -53,6 +59,9 @@ public class SalesReportSpecificationsTest {
         Assertions.assertEquals(2, result.size());
     }
 
+    /**
+     * Test that using the soldBefore spec with date in August returns one sale listing
+     */
     @Test
     void soldBefore_august_returnsOneSale() {
         Specification<Sale> specification = SalesReportSpecifications.soldBefore(LocalDateTime.parse("2021-08-30T00:00:00"));
@@ -61,6 +70,9 @@ public class SalesReportSpecificationsTest {
         Assertions.assertEquals("Sold before August", result.get(0).getMoreInfo());
     }
 
+    /**
+     * Test that using the soldBefore spec with date in June returns nothing
+     */
     @Test
     void soldBefore_june_returnsNoSales() {
         Specification<Sale> specification = SalesReportSpecifications.soldBefore(LocalDateTime.parse("2021-06-30T00:00:00"));
@@ -68,6 +80,9 @@ public class SalesReportSpecificationsTest {
         Assertions.assertEquals(0, result.size());
     }
 
+    /**
+     * Test that using the soldAfter spec with date in June returns both sale listings
+     */
     @Test
     void soldAfter_june_returnsBothSales() {
         Specification<Sale> specification = SalesReportSpecifications.soldAfter(LocalDateTime.parse("2021-06-30T00:00:00"));
@@ -75,6 +90,9 @@ public class SalesReportSpecificationsTest {
         Assertions.assertEquals(2, result.size());
     }
 
+    /**
+     * Test that using the soldAfter spec with date in August returns one sale listing
+     */
     @Test
     void soldAfter_august_returnsOneSale() {
         Specification<Sale> specification = SalesReportSpecifications.soldAfter(LocalDateTime.parse("2021-08-30T00:00:00"));
@@ -83,6 +101,9 @@ public class SalesReportSpecificationsTest {
         Assertions.assertEquals("Sold after August", result.get(0).getMoreInfo());
     }
 
+    /**
+     * Test that using the soldAfter spec with date in October returns nothing
+     */
     @Test
     void soldAfter_october_returnsNoSales() {
         Specification<Sale> specification = SalesReportSpecifications.soldAfter(LocalDateTime.parse("2021-10-30T00:00:00"));
