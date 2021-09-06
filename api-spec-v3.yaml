@@ -57,6 +57,7 @@ tags:
   - name: 'UD4: New Card Notifications'
   - name: 'UD5: Sale History'
   - name: 'UD6: Sale Reviews'
+  - name: 'U41: Sales Report'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -3049,6 +3050,69 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+
+  '/businesses/{businessId}/salesReport':
+    get:
+      tags:
+        - 'U41: Sales Report'
+        - 'Business Accounts'
+        - 'Sales'
+      summary: "Gets a business' sales report"
+      description: 'Retrieves the number of sales and the total price of those sales during a given period.'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: The id of the business
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: periodStart
+          in: query
+          description: Start date of the sales report
+          required: true
+          schema:
+            type: string
+            format: date-time
+          example: '2021-07-15T05:10:00Z'
+        - name: periodEnd
+          in: query
+          description: End date of the sales report
+          required: true
+          schema:
+            type: string
+            format: date-time
+          example: '2021-08-15T05:10:00Z'
+      responses:
+        '200':
+          description: Request successful, and the purchase count along with total purchase value is returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchaseCount:
+                    type: integer
+                    description: Number of sales
+                    example: 100
+                  totalPurchaseValue:
+                    type: integer
+                    description: Total price of all sales
+                    example: 10000
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':

@@ -1,0 +1,46 @@
+{
+	"info": {
+		"_postman_id": "dc71addf-6df7-4781-b658-8cc05c34f9b3",
+		"name": "U41 Sales Report",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Gets a business' sale report for a given time period",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9599/businesses/:businessId/salesReport?periodStart=2021-07-20&periodEnd=2021-09-06",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"businesses",
+						":businessId",
+						"salesReport"
+					],
+					"query": [
+						{
+							"key": "periodStart",
+							"value": "2021-07-20"
+						},
+						{
+							"key": "periodEnd",
+							"value": "2021-09-06"
+						}
+					],
+					"variable": [
+						{
+							"key": "businessId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
