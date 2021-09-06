@@ -5,7 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 
-public class SalesReportSpecifications {
+public final class SalesReportSpecifications {
 
     private SalesReportSpecifications() {
         throw new IllegalStateException("Utility class, SalesReportSpecifications, shouldn't be instantiated");
