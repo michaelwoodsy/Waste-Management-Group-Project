@@ -89,7 +89,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/login", "/users", "/lostpassword/send").permitAll()
-                .antMatchers(HttpMethod.GET, "/lostpassword/validate").permitAll()
+                .antMatchers(HttpMethod.GET, "/lostpassword/validate", "/statistics").permitAll()
                 .antMatchers(HttpMethod.PATCH, "/lostpassword/edit").permitAll()
                 .antMatchers(HttpMethod.POST, "/contact").permitAll()
                 .anyRequest().authenticated();
