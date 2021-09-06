@@ -1,5 +1,5 @@
 <template>
-  <div id="salesReport" class="accordion">
+  <div id="salesReport" :key="currency" class="accordion">
 
     <div v-for="[index, section] of data.entries()" :key="index" class="card">
       <div :id="`salesReportHeading${index}`" class="card-header">
@@ -13,7 +13,7 @@
             {{ section.totalSales }} sales
           </div>
           <div class="col">
-            {{ formattedSaleAmount(section.total) }}
+            {{ formattedValue(section.total) }}
           </div>
           <div class="col text-right">
             <button :id="`section${index}Button`"
@@ -44,16 +44,9 @@ export default {
   props: {
     data: Array
   },
-  data() {
-    return {
-      currency: null
-    }
-  },
-  async mounted() {
-    try {
-      this.currency = await product.getCurrency(user.actor().businessData.address.country)
-    } catch (error) {
-      console.error(error)
+  computed: {
+    currency() {
+      return user.actor().businessCurrency
     }
   },
   methods: {
@@ -66,8 +59,15 @@ export default {
     formattedDate(date) {
       return new Date(date).toDateString()
     },
-    formattedSaleAmount(saleAmount) {
-      return product.formatPrice(this.currency, saleAmount)
+
+    /**
+     * Formats a monetary value to be displayed in a specific currency
+     *
+     * @param value the monetary value to format
+     * @returns {string} the formatted value
+     */
+    formattedValue(value) {
+      return product.formatPrice(this.currency, value)
     }
   }
 }

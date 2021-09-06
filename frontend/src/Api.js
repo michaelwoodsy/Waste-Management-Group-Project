@@ -41,39 +41,10 @@ const instance = axios.create({
 export const User = {
     /**
      * Creates a new user
-     * @param firstName
-     * @param lastName
-     * @param middleName
-     * @param nickname
-     * @param bio
-     * @param email
-     * @param dateOfBirth
-     * @param phoneNumber
-     * @param homeAddress
-     * @param password
+     * @param data information for new user account
      * @returns {Promise<AxiosResponse<any>>} response containing users ID
      */
-    createNew: (firstName,
-                lastName,
-                middleName,
-                nickname,
-                bio,
-                email,
-                dateOfBirth,
-                phoneNumber,
-                homeAddress,
-                password) => instance.post('users', {
-        firstName,
-        lastName,
-        middleName,
-        nickname,
-        bio,
-        email,
-        dateOfBirth,
-        phoneNumber,
-        homeAddress,
-        password
-    }),
+    createNew: (data) => instance.post('users', data),
 
     /**
      * Edits a user
@@ -292,7 +263,7 @@ export const User = {
      * @param email the user's email used to send a password reset email to
      * @returns {Promise<AxiosResponse<any>>}
      */
-    sendPasswordResetEmail:(email) => instance.post('lostpassword/send', {email}),
+    sendPasswordResetEmail: (email) => instance.post('lostpassword/send', {email}),
 
     /**
      * Sends a request to tag a liked sale listing

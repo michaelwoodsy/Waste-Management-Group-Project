@@ -6,9 +6,9 @@
     <div class="nav-link text-white pointer" data-toggle="dropdown">
       <!-- Profile photo -->
       <img
+          :src="getPrimaryImageThumbnail()"
           alt="profile"
           class="profile-image rounded-circle"
-          :src="getPrimaryImageThumbnail()"
       />
       <!-- Users name -->
       <span>{{ actorName }}</span>
@@ -26,8 +26,8 @@
             class="dropdown-item pointer"
             @click="actAsBusiness(business)"
         >
-          <img alt="profile" class="profile-image-sm rounded-circle"
-               :src="getPrimaryImageThumbnail(business.images, business.primaryImageId)">
+          <img :src="getPrimaryImageThumbnail(business.images, business.primaryImageId)" alt="profile"
+               class="profile-image-sm rounded-circle">
           {{ business.name }}
         </a>
         <div class="dropdown-divider"/>
@@ -42,11 +42,11 @@
             class="dropdown-item pointer"
             @click="actAsUser(user)"
         >
-          <img alt="profile" class="profile-image-sm rounded-circle"
-               :src="getPrimaryImageThumbnail(user.images, user.primaryImageId)">
+          <img :src="getPrimaryImageThumbnail(user.images, user.primaryImageId)" alt="profile"
+               class="profile-image-sm rounded-circle">
           {{ user.firstName }} {{ user.lastName }}
-          <span class="badge badge-danger admin-badge" v-if="isGAA">ADMIN</span>
-          <span class="badge badge-danger admin-badge" v-else-if="isDGAA">DGAA</span>
+          <span v-if="isGAA" class="badge badge-danger admin-badge">ADMIN</span>
+          <span v-else-if="isDGAA" class="badge badge-danger admin-badge">DGAA</span>
 
         </a>
         <div class="dropdown-divider"/>
@@ -61,7 +61,7 @@
         <router-link :to="editBusinessRoute" class="dropdown-item">Edit Business</router-link>
       </div>
       <div v-else>
-        <router-link to="/businesses" class="dropdown-item">Create Business</router-link>
+        <router-link class="dropdown-item" to="/businesses">Create Business</router-link>
         <router-link :to="userProfileRoute" class="dropdown-item">My Profile</router-link>
         <router-link :to="editUserRoute" class="dropdown-item">Edit Profile</router-link>
       </div>
@@ -171,7 +171,7 @@ export default {
         }
       }
       if (primaryImageId != null && images != null) {
-        const filteredImages = images.filter(function(specificImage) {
+        const filteredImages = images.filter(function (specificImage) {
           return specificImage.id === primaryImageId;
         })
         if (filteredImages.length === 1) {
@@ -187,7 +187,7 @@ export default {
     getUserPrimaryImageDetails(currImages, currPrimaryImageId) {
       let images = currImages
       let primaryImageId = currPrimaryImageId
-      for(const user of this.userAccounts) {
+      for (const user of this.userAccounts) {
         if (this.actor.id === user.id) {
           images = user.images
           primaryImageId = user.primaryImageId
@@ -203,7 +203,7 @@ export default {
     getBusinessPrimaryImageDetails(currImages, currPrimaryImageId) {
       let images = currImages
       let primaryImageId = currPrimaryImageId
-      for(const business of this.businessAccounts) {
+      for (const business of this.businessAccounts) {
         if (this.actor.id === business.id) {
           images = business.images
           primaryImageId = business.primaryImageId
@@ -225,14 +225,14 @@ export default {
     },
 
     /** Sets the current logged in user to act as a business account **/
-    actAsBusiness(business) {
-      this.$root.$data.user.setActingAs(business.id, business.name, 'business')
+    async actAsBusiness(business) {
+      await this.$root.$data.user.setActingAs(business.id, business.name, 'business')
       this.$router.push({name: 'home'})
     },
 
     /** Sets the current logged in user to act as a user account **/
-    actAsUser(userData) {
-      this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
+    async actAsUser(userData) {
+      await this.$root.$data.user.setActingAs(userData.id, userData.firstName + ' ' + userData.lastName, 'user')
       this.$router.push({name: 'home'})
     }
   }
@@ -255,6 +255,7 @@ export default {
   display: flex;
   align-items: center;
 }
+
 .admin-badge {
   margin-left: 10px;
 }

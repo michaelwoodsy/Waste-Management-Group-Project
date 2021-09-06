@@ -110,9 +110,9 @@
                   </div>
                 </div>
                 <div class="input-group-append">
-                  <button class="btn"
-                          :class="{'btn-secondary': tagFilters.length === 0, 'btn-danger': tagFilters.length > 0}"
+                  <button :class="{'btn-secondary': tagFilters.length === 0, 'btn-danger': tagFilters.length > 0}"
                           :disabled="tagFilters.length === 0"
+                          class="btn"
                           @click="tagFilters = []"
                   >
                     <em class="bi bi-x-circle-fill"/>
@@ -448,8 +448,7 @@ export default {
       let sortFunc = (x, y) => {
         if (x.starred === y.starred) {
           return 0
-        }
-        else if (x.starred) {
+        } else if (x.starred) {
           return -1
         }
         return 1

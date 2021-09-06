@@ -48,7 +48,10 @@ jest.mock('@/Api', () => ({
             return new Promise((resolve => {
                 resolve({
                     data: {
-                        businessId: id
+                        businessId: id,
+                        address: {
+                            country: 'New Zealand'
+                        }
                     }
                 })
             }))
@@ -110,7 +113,7 @@ describe('store.user', () => {
 
         // Try act as the business
         await user.login("username", "pword")
-        user.setActingAs(business.id, business.name, business.type)
+        await user.setActingAs(business.id, business.name, business.type)
 
         // Checks the actor cookie is correctly set
         expect(user.state.actingAs.name).toBe(business.name)
@@ -129,7 +132,7 @@ describe('store.user', () => {
 
         // Try act as the business
         await user.login("username", "pword")
-        user.setActingAs(business.id, business.name, business.type)
+        await user.setActingAs(business.id, business.name, business.type)
 
         // Checks the actor cookie is correctly set
         const actor = JSON.parse(getCookie('actor'));
@@ -170,7 +173,7 @@ describe('store.user', () => {
 
     //check that when we change acting as to business,
     // isPrimaryAdminOfBusiness returns true
-    test("testing isPrimaryAdminOfBusiness method", async() => {
+    test("testing isPrimaryAdminOfBusiness method", async () => {
         // Test business
         const business = {
             name: "Store",
@@ -181,7 +184,7 @@ describe('store.user', () => {
 
         // Try act as the business
         await user.login("username", "pword")
-        user.setActingAs(business.id, business.name, business.type)
+        await user.setActingAs(business.id, business.name, business.type)
 
         const isPrimaryAdmin = user.isPrimaryAdminOfBusiness()
         expect(isPrimaryAdmin).toBeTruthy();
