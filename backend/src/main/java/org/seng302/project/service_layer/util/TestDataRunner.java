@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -322,6 +323,24 @@ public class TestDataRunner {
                         value.addLikedListing(likedListing);
                         userRepository.save(value);
                     });
+                }
+
+                if (testListing.getId() == 2) {
+                    var user = userRepository.findById(1);
+                    user.ifPresent(value -> {
+                        var likedListing = new LikedSaleListing(value, listing);
+                        likedSaleListingRepository.save(likedListing);
+                        value.addLikedListing(likedListing);
+                        userRepository.save(value);
+                    });
+
+                    var user2 = userRepository.findById(2);
+                    user2.ifPresent(value -> {
+                        var likedListing = new LikedSaleListing(value, listing);
+                        likedSaleListingRepository.save(likedListing);
+                        value.addLikedListing(likedListing);
+                        userRepository.save(value);
+                    });
 
                     var user3 = userRepository.findById(3);
                     user3.ifPresent(value -> {
@@ -331,7 +350,21 @@ public class TestDataRunner {
                         userRepository.save(value);
                     });
                 }
+
+                if (testListing.getId() == 3) {
+                    var user = userRepository.findById(1);
+                    user.ifPresent(value -> {
+                        var likedListing = new LikedSaleListing(value, listing);
+                        likedSaleListingRepository.save(likedListing);
+                        value.addLikedListing(likedListing);
+                        userRepository.save(value);
+                    });
+                }
             }
+        }
+        List<List<Object>> list = likedSaleListingRepository.findPopularByCountry("New Zealand");
+        for (List<Object> obj: list) {
+            System.out.println(obj.get(1));
         }
 
         logger.info("Finished adding sample data to sale listing repository");
