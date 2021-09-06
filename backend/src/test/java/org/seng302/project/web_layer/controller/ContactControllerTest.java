@@ -16,17 +16,20 @@ import org.seng302.project.service_layer.dto.contact.PostContactDTO;
 import org.seng302.project.service_layer.service.EmailService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers={ContactController.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class ContactControllerTest extends AbstractInitializer {
 
     @Autowired
@@ -65,7 +68,8 @@ class ContactControllerTest extends AbstractInitializer {
      */
     @Test
     void contactResale_unauthorisedUser_201() throws Exception {
-        mockMvc.perform(get("/contact")
+        mockMvc.perform(post("/contact")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(validPostContactBody))
                 .andExpect(status().isCreated());
     }
@@ -75,7 +79,8 @@ class ContactControllerTest extends AbstractInitializer {
      */
     @Test
     void contactResale_authorisedUser_201() throws Exception {
-        mockMvc.perform(get("/contact")
+        mockMvc.perform(post("/contact")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(validPostContactBody)
                 .with(user(new AppUserDetails(getTestUser()))))
                 .andExpect(status().isCreated());
@@ -95,7 +100,8 @@ class ContactControllerTest extends AbstractInitializer {
     })
     void contactResale_validEmail_201(String email) throws Exception {
         String body = getJsonString(new PostContactDTO(email, "message"));
-        mockMvc.perform(get("/contact")
+        mockMvc.perform(post("/contact")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isCreated());
     }
@@ -114,7 +120,8 @@ class ContactControllerTest extends AbstractInitializer {
     })
     void contactResale_invalidEmail_400(String email) throws Exception {
         String body = getJsonString(new PostContactDTO(email, "message"));
-        mockMvc.perform(get("/contact")
+        mockMvc.perform(post("/contact")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isBadRequest());
     }
@@ -132,7 +139,8 @@ class ContactControllerTest extends AbstractInitializer {
     })
     void contactResale_validMessage_201(String message) throws Exception {
         String body = getJsonString(new PostContactDTO("email@gmail.com", message));
-        mockMvc.perform(get("/contact")
+        mockMvc.perform(post("/contact")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isCreated());
     }
@@ -146,7 +154,8 @@ class ContactControllerTest extends AbstractInitializer {
     @NullAndEmptySource
     void contactResale_invalidMessage_400(String message) throws Exception {
         String body = getJsonString(new PostContactDTO("email@gmail.com", message));
-        mockMvc.perform(get("/contact")
+        mockMvc.perform(post("/contact")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isBadRequest());
     }
@@ -156,7 +165,8 @@ class ContactControllerTest extends AbstractInitializer {
      */
     @Test
     void contactResale_validRequest_callsEmailServiceWithCorrectEmail() throws Exception {
-        mockMvc.perform(get("/contact")
+        mockMvc.perform(post("/contact")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(validPostContactBody))
                 .andExpect(status().isCreated());
 
@@ -174,7 +184,8 @@ class ContactControllerTest extends AbstractInitializer {
      */
     @Test
     void contactResale_validRequest_callsEmailServiceWithCorrectMessage() throws Exception {
-        mockMvc.perform(get("/contact")
+        mockMvc.perform(post("/contact")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(validPostContactBody))
                 .andExpect(status().isCreated());
 
@@ -195,9 +206,10 @@ class ContactControllerTest extends AbstractInitializer {
     @Test
     void contactResale_invalidRequest_doesntCallEmailService() throws Exception {
         String body = getJsonString(new PostContactDTO("", null));
-        mockMvc.perform(get("/contact")
+        mockMvc.perform(post("/contact")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
-                .andExpect(status().isCreated());
+                .andExpect(status().isBadRequest());
 
         // verify the method wasn't called
         verify(emailService, times(0)).sendEmail(anyString(), anyString(), anyString());

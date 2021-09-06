@@ -1,7 +1,6 @@
 package org.seng302.project.web_layer.controller;
 
 import org.seng302.project.service_layer.dto.contact.PostContactDTO;
-import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,16 +17,24 @@ import javax.validation.Valid;
 @RestController
 public class ContactController {
 
-    private EmailService emailService;
+    private final EmailService emailService;
+    private static final String RESALE_EMAIL = "s302resale@gmail.com";
 
     @Autowired
     public ContactController(EmailService emailService) {
         this.emailService = emailService;
     }
 
+    /**
+     * Method for contacting the resale team.
+     * Sends an email to the resale team with the users message and email.
+     *
+     * @param reqBody Request body containing the users email and message.
+     */
     @PostMapping("/contact")
     @ResponseStatus(HttpStatus.CREATED)
-    public void contactResale(@RequestBody @Valid PostContactDTO body) {
-        throw new NotAcceptableException("");
+    public void contactResale(@RequestBody @Valid PostContactDTO reqBody) {
+        var emailMessage = String.format("Contact from %s: %n%n%s", reqBody.getEmail(), reqBody.getMessage());
+        emailService.sendEmail(RESALE_EMAIL, "New \"Contact Us\"", emailMessage);
     }
 }
