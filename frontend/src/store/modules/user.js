@@ -33,13 +33,13 @@ export default {
             // Set acting as if it's null
             if (this.state.actingAs == null) {
                 let name = `${res.data.firstName} ${res.data.lastName}`
-                await this.setActingAs(res.data.id, name, 'user')
+                this.setActingAs(res.data.id, name, 'user')
             }
 
             setCookie('userId', this.state.userId, null);
         } catch (err) {
             // Failed to get data, alert the user
-            if (err.status.code === 401) {
+            if (err.response.status === 401) {
                 createAlertRed("Your session has expired! Try logging in again.")
             } else {
                 createAlertRed("Error: " + err.response.data.message)
@@ -68,29 +68,25 @@ export default {
         deleteCookie('actor');
     },
 
+    /**
+     * Sends request to register a new account
+     *
+     * @param data User information to register account with
+     */
     async register(data) {
-        try {
-            const res = await User.createNew(data)
-            await this.setLoggedIn(res.data.userId)
-        } catch (err) {
-            this.setLoggedOut()
-            throw err
-        }
+        const res = await User.createNew(data)
+        await this.setLoggedIn(res.data.userId)
     },
 
     /**
      * Logs the user in, and sets the corresponding loggedIn value if successful
+     *
      * @param username Username to send to api
      * @param password Password to send to api
-     * @returns {Promise<unknown>} Axios response
      */
     async login(username, password) {
-        try {
-            const res = await User.login(username, password)
-            await this.setLoggedIn(res.data.userId)
-        } catch (err) {
-            this.setLoggedOut()
-        }
+        const res = await User.login(username, password)
+        await this.setLoggedIn(res.data.userId)
     },
 
     /**
@@ -112,11 +108,10 @@ export default {
             // Try set actor
             try {
                 const actor = JSON.parse(getCookie('actor'));
-                await this.setActingAs(actor.id, actor.name, actor.type)
+                this.setActingAs(actor.id, actor.name, actor.type)
             } catch (err) {
                 deleteCookie('actor')
             }
-
             // Set logged in
             await this.setLoggedIn(userId)
         }
@@ -128,7 +123,7 @@ export default {
      * @param name The name of the person or business
      * @param type The type, either "business" or "user"
      */
-    async setActingAs(id, name, type) {
+    setActingAs(id, name, type) {
         if (type !== "business" && type !== "user") {
             throw new Error('Type must be business or user')
         }
