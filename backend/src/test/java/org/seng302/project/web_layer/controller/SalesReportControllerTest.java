@@ -61,6 +61,7 @@ class SalesReportControllerTest extends AbstractInitializer {
     void getSalesReport_missingDateRange_400() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/businesses/{id}/salesReport", business.getId())
+                .param("granularity", "week")
                 .with(user(new AppUserDetails(owner)));
 
         mockMvc.perform(request).andExpect(status().isBadRequest());
@@ -77,6 +78,7 @@ class SalesReportControllerTest extends AbstractInitializer {
                 .param("periodStart", LocalDate.now().minusDays(30).toString()) //TODO: this doesn't work
                 //Can't convert string back to LocalDate :(
                 .param("periodEnd", LocalDate.now().toString())
+                .param("granularity", "day")
                 .with(user(new AppUserDetails(owner)));
 
         mockMvc.perform(request).andExpect(status().isOk());

@@ -25,13 +25,18 @@ public class SalesReportService {
      * @param businessId Business to get the sale report for
      * @param periodStart The date to start the report
      * @param periodEnd The date to end the report
+     * @param granularity The granularity for the report e.g. "month", "week"
      * @param appUser    The user that made the request.
-     * @return  a GetSalesReportDTO containing stats and sales from the requested time period
+     * @return  a list of GetSalesReportDTOs containing stats and sales from the requested time period
      */
-    public GetSalesReportDTO getSalesReport(Integer businessId, LocalDate periodStart, LocalDate periodEnd,
-                                            AppUserDetails appUser) {
+    public List<GetSalesReportDTO> getSalesReport(Integer businessId, LocalDate periodStart, LocalDate periodEnd,
+                                            String granularity, AppUserDetails appUser) {
+
+        logger.info("Request to get a sales report for business with id {}", businessId);
 
         //TODO: implement functionality
-        return new GetSalesReportDTO(LocalDate.now(), LocalDate.now(), List.of());
+        //If granularity = "month" add a GetSalesReportDTO to the list for each month in the date range
+
+        return List.of(new GetSalesReportDTO(LocalDate.now(), LocalDate.now(), List.of()));
     }
 }

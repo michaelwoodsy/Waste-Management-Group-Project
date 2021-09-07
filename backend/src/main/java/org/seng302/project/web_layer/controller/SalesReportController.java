@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 /**
@@ -34,16 +35,18 @@ public class SalesReportController {
      * @param businessId Business to get the sale report for
      * @param periodStart The date to start the report
      * @param periodEnd The date to end the report
+     * @param granularity The granularity for the report e.g. "month", "week"
      * @param appUser    The user that made the request.
-     * @return  a GetSalesReportDTO containing stats and sales from the requested time period
+     * @return  a list of GetSalesReportDTOs containing stats and sales from the requested time period
      */
     @GetMapping("/businesses/{businessId}/salesReport")
-    public GetSalesReportDTO getSalesReport(
+    public List<GetSalesReportDTO> getSalesReport(
             @PathVariable int businessId,
             @RequestParam("periodStart") LocalDate periodStart,
             @RequestParam("periodEnd") LocalDate periodEnd,
+            @RequestParam("granularity") String granularity,
             @AuthenticationPrincipal AppUserDetails appUser) {
 
-        return salesReportService.getSalesReport(businessId, periodStart, periodEnd, appUser);
+        return salesReportService.getSalesReport(businessId, periodStart, periodEnd, granularity, appUser);
     }
 }
