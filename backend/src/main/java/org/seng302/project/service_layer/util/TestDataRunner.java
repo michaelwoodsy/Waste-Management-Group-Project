@@ -362,10 +362,6 @@ public class TestDataRunner {
                 }
             }
         }
-        List<List<Object>> list = likedSaleListingRepository.findPopularByCountry("New Zealand");
-        for (List<Object> obj: list) {
-            System.out.println(obj.get(1));
-        }
 
         logger.info("Finished adding sample data to sale listing repository");
         logger.info("Added {} entries to sale listing repository", saleListingRepository.count());
