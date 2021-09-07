@@ -118,4 +118,13 @@ class LikedSaleListingRepositoryTest extends AbstractInitializer {
         SaleListing listing2 = (SaleListing) response.get(1).get(0);
         Assertions.assertEquals("Netherlands", listing2.getBusiness().getAddress().getCountry());
     }
+
+    /**
+     * Tests that finding by a country that has no sales listings returns no listings
+     */
+    @Test
+    void likedSaleListing_findPopularByCountry_NoListings() {
+        List<List<Object>> response = likedSaleListingRepository.findPopularByCountry("Not A Country");
+        Assertions.assertEquals(0, response.size());
+    }
 }
