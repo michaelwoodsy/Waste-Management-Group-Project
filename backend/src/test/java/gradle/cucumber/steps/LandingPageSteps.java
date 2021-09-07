@@ -37,19 +37,18 @@ public class LandingPageSteps {
                 .build();
     }
 
-    @Given("I not logged in")
-    public void iNotLoggedIn() {}
+    @Given("I am not logged in")
+    public void iAmNotLoggedIn() {}
 
     @When("I navigate to the landing page")
     public void iNavigateToTheLandingPage() {
-        //        Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        request = MockMvcRequestBuilders
+                .get("/statistics");
     }
 
     @Then("I am able to see the specified statistics about resale")
-    public void iAmAbleToSeeTheSpecifiedStatisticsAboutResale() {
-        //        Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void iAmAbleToSeeTheSpecifiedStatisticsAboutResale() throws Exception {
+        mockMvc.perform(request).andExpect(status().isOk());
     }
 
     @When("I try to contact resale with email {string} and message {string}")
