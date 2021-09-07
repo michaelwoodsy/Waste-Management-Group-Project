@@ -79,6 +79,7 @@
               <router-link class="link-text" to="/register">Register here</router-link>
             </p>
           </div>
+
           <!-- Password Reset Modal -->
           <div v-if="viewPasswordReset" id="viewPasswordResetModal" class="modal fade" data-backdrop="static">
             <div class="modal-dialog modal-md">
@@ -140,6 +141,8 @@
           </div>
         </div>
       </div>
+      <!-- TODO: Remove me once sales report component exists -->
+      <sales-in-section/>
     </logout-required>
 
   </page-wrapper>
@@ -151,6 +154,7 @@ import Alert from "./Alert"
 import PageWrapper from "@/components/PageWrapper";
 import {User} from "@/Api";
 import $ from 'jquery';
+import SalesInSection from "@/components/sales-report/SalesInSection";
 
 
 export default {
@@ -177,9 +181,11 @@ export default {
   },
 
   components: {
+    SalesInSection, //TODO: Remove me once sales report component exists
     PageWrapper,
     LogoutRequired,
-    Alert
+    Alert,
+
   },
 
   methods: {
