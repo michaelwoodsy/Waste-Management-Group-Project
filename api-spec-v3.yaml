@@ -51,13 +51,13 @@ tags:
   - name: 'U31: Purchases'
   - name: 'U32: Managing my feed'
   - name: 'U25: Lost Password'
+  - name: 'U41: Sales Report'
   - name: 'UD1: Landing Page'
   - name: 'UD2: Popular Listings'
   - name: 'UD3: Featured Business Listings'
   - name: 'UD4: New Card Notifications'
   - name: 'UD5: Sale History'
   - name: 'UD6: Sale Reviews'
-  - name: 'U41: Sales Report'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -2710,45 +2710,6 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
-  '/businesses/{businessId}/sales':
-    get:
-      tags:
-        - 'UD5: Sale History'
-        - 'Business Accounts'
-        - 'Sales'
-      summary: "Gets a business' sold sale listings"
-      description: 'Retrieves all the sale listings a given business has sold.'
-      security:
-        - CookieAuth:
-            - user
-            - globalApplicationAdmin
-            - defaultGlobalApplicationAdmin
-      parameters:
-        - name: businessId
-          in: path
-          description: The id of the business
-          required: true
-          schema:
-            type: integer
-            example: 100
-      responses:
-        '200':
-          description: Request successful, a list (potentially empty) of sales is returned
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Sale'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '406':
-          $ref: '#/components/responses/NotAcceptableError'
-
   '/businesses/{businessId}/sales/{saleId}':
     get:
       tags:
@@ -3060,7 +3021,7 @@ paths:
           $ref: '#/components/responses/NotAcceptableError'
 
 
-  '/businesses/{businessId}/salesReport':
+  '/businesses/{businessId}/sales':
     get:
       tags:
         - 'U41: Sales Report'
@@ -3097,22 +3058,24 @@ paths:
             type: string
             format: date-time
           example: '2021-08-15T05:10:00Z'
+        - name: granularity
+          in: query
+          description: Granularity of sales
+          required: true
+          schema:
+            type: string
+          example: 'monthly'
       responses:
         '200':
-          description: Request successful, and the purchase count along with total purchase value is returned
+          description: Request successful, returns a list of lists of listings (the number of lists will depend on the granulairty)
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  purchaseCount:
-                    type: integer
-                    description: Number of sales
-                    example: 100
-                  totalPurchaseValue:
-                    type: integer
-                    description: Total price of all sales
-                    example: 10000
+                type: array
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Sale'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':

@@ -11,7 +11,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:9599/businesses/:businessId/salesReport?periodStart=2021-07-20&periodEnd=2021-09-06",
+					"raw": "http://localhost:9599/businesses/:businessId/salesReport?periodStart=2021-07-20&periodEnd=2021-09-06&granularity=monthly",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -30,6 +30,10 @@
 						{
 							"key": "periodEnd",
 							"value": "2021-09-06"
+						},
+						{
+							"key": "granularity",
+							"value": "monthly"
 						}
 					],
 					"variable": [
