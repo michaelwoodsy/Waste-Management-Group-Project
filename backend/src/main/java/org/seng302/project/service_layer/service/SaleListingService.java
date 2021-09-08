@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -780,5 +781,14 @@ public class SaleListingService {
             logger.error(String.format("Unexpected error while starring sale listing : %s", exception.getMessage()));
             throw exception;
         }
+    }
+
+    /**
+     * Deletes sale listings that have expired.
+     * Scheduled to run at midnight every day.
+     */
+    @Scheduled(cron = "@midnight")
+    public void deleteExpiredSaleListings() {
+
     }
 }
