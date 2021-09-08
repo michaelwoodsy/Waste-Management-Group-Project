@@ -18,7 +18,8 @@
           </div>
           <!-- Username -->
           <div class="form-row">
-            <label for="username" style="margin-top:20px"><strong>Email<span class="required">*</span></strong></label><br/>
+            <label for="username" style="margin-top:20px"><strong>Email<span
+                class="required">*</span></strong></label><br/>
             <input id="username"
                    v-model="username"
                    :class="{'form-control': true, 'is-invalid': msg.username}"
@@ -37,9 +38,9 @@
               <input id="password"
                      v-model="password"
                      :class="{'form-control': true, 'is-invalid': msg.password}"
+                     :type="passwordType"
                      placeholder="Enter Password"
                      required
-                     :type="passwordType"
                      @keyup.enter="login">
               <div class="input-group-append">
                 <button class="btn btn-primary no-outline" @click="showPassword()">
@@ -51,15 +52,16 @@
               <span class="invalid-feedback" style="text-align: left">{{ msg.password }}</span>
             </div>
             <div>
-              <alert v-if="loginCount===3" class="m-2" id="noMoreAttempts">
+              <alert v-if="loginCount===3" id="noMoreAttempts" class="m-2">
                 3 incorrect login attempts. No more attempts allowed.
                 Click
                 <a class="link-text m-0"
-                             data-target="#viewPasswordResetModal"
-                             data-toggle="modal"
-                             @click="viewPasswordReset = true; error = null"
+                   data-target="#viewPasswordResetModal"
+                   data-toggle="modal"
+                   @click="viewPasswordReset = true; error = null"
                 >here</a>
-                to reset password.</alert>
+                to reset password.
+              </alert>
               <a class="link-text"
                  data-target="#viewPasswordResetModal"
                  data-toggle="modal"
@@ -101,7 +103,8 @@
                   <!-- Email -->
                   <div class="form-row mb-3">
                     <label for="email"><strong>Password Reset Via Email<span class="required">*</span></strong></label>
-                    <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}" maxlength="100"
+                    <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}"
+                           maxlength="100"
                            placeholder="Enter your Email"
                            required style="width: 100%" type="email">
                     <!--    Error message for the email input    -->
@@ -109,10 +112,12 @@
                   </div>
                   <!-- Send Password Reset Button -->
                   <div class="form-row mb-3">
-                    <button v-if="!submitting" id="sendPasswordResetButton" class="btn btn-block btn-primary text-center" style="width: 100%; margin:0 20px"
+                    <button v-if="!submitting" id="sendPasswordResetButton"
+                            class="btn btn-block btn-primary text-center" style="width: 100%; margin:0 20px"
                             v-on:click="sendEmail">Send Password Reset Email
                     </button>
-                    <button v-else id="sendingPasswordResetButton" class="btn btn-block btn-primary text-center disabled" style="width: 100%; margin:0 20px"
+                    <button v-else id="sendingPasswordResetButton"
+                            class="btn btn-block btn-primary text-center disabled" style="width: 100%; margin:0 20px"
                             v-on:click="sendEmail">Sending Password Reset Email
                     </button>
                   </div>
@@ -141,8 +146,6 @@
           </div>
         </div>
       </div>
-      <!-- TODO: Remove me once sales report component exists -->
-      <sales-in-section/>
     </logout-required>
 
   </page-wrapper>
@@ -154,8 +157,6 @@ import Alert from "./Alert"
 import PageWrapper from "@/components/PageWrapper";
 import {User} from "@/Api";
 import $ from 'jquery';
-import SalesInSection from "@/components/sales-report/SalesInSection";
-
 
 export default {
   name: "LoginPage",
@@ -181,7 +182,6 @@ export default {
   },
 
   components: {
-    SalesInSection, //TODO: Remove me once sales report component exists
     PageWrapper,
     LogoutRequired,
     Alert,
@@ -193,7 +193,7 @@ export default {
      * Method to toggle visibility of the password field
      */
     showPassword() {
-      if(this.passwordType === 'password') {
+      if (this.passwordType === 'password') {
         this.passwordType = 'text'
       } else {
         this.passwordType = 'password'
@@ -244,7 +244,7 @@ export default {
     /**
      * Resets the variables associated with sending the Password Reset when the user closes the modal
      */
-    resetPasswordResetModal(){
+    resetPasswordResetModal() {
       this.email = null
       this.submitting = false
       this.viewPasswordReset = false
@@ -255,21 +255,20 @@ export default {
     /**
      * Login logic, checks that there are no missing fields, attempts to use login endpoint otherwise
      */
-    login() {
+    async login() {
       this.checkUsername()
       this.checkPassword()
 
       if (this.valid && this.loginCount < 3) {
-        this.$root.$data.user.login(this.username, this.password)
-            .then(() => {
-              this.$router.push({name: 'home'})
-            })
-            .catch((err) => {
-              this.loginCount += 1
-              this.error = err.response
-                  ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-                  : err
-            })
+        try {
+          await this.$root.$data.user.login(this.username, this.password)
+          this.$router.push({name: 'home'})
+        } catch (err) {
+          this.loginCount += 1
+          this.error = err.response
+              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+              : err
+        }
       } else {
         //Change valid back to true for when the login button is clicked again
         this.valid = true
@@ -279,18 +278,18 @@ export default {
     /**
      * Password Reset send email logic
      */
-    sendEmail(){
+    sendEmail() {
       this.checkEmail()
       if (this.valid) {
         this.error = null
         this.submitting = true
         User.sendPasswordResetEmail(this.email)
-          .then(() => {
-            this.emailSent = true
-            this.resetPasswordResetModal()
-            $('#viewPasswordResetModal').modal('hide');
-            $('#viewEmailSentModal').modal('show');
-          })
+            .then(() => {
+              this.emailSent = true
+              this.resetPasswordResetModal()
+              $('#viewPasswordResetModal').modal('hide');
+              $('#viewEmailSentModal').modal('show');
+            })
             .catch((err) => {
               this.error = err.response
                   ? err.response.data.slice(err.response.data.indexOf(":") + 2)

@@ -1,31 +1,40 @@
 <!--Component for displaying an individual sale within a sales report-->
 <template>
   <div>
-    <table class="table"
-           aria-label="Table to show a single sale"
+    <table aria-label="Table to show a single sale"
+           class="table mb-0"
     >
+      <thead>
+      <tr>
+        <th scope="col">Date Sold</th>
+        <th scope="col">Product ID</th>
+        <th scope="col">Product Name</th>
+        <th scope="col">Quantity Sold</th>
+        <th scope="col">Sale Price</th>
+        <th scope="col">Review</th>
+      </tr>
+      </thead>
       <tr
-          class="bg-secondary text-light"
-          v-for="sale in sales"
-          :key="sale.productId"
+          v-for="[index, sale] of sales.entries()"
+          :key="index"
       >
         <td>
-          {{formattedDate(sale.dateSold)}}
+          {{ formattedDate(sale.dateSold) }}
         </td>
         <td>
-          {{sale.productId}}
+          {{ sale.productId }}
         </td>
         <td>
-          {{sale.productName}}
+          {{ sale.productName }}
         </td>
         <td>
-          {{sale.quantity}} sold
+          {{ sale.quantity }} sold
         </td>
         <td>
-          {{formattedPrice(sale)}}
+          {{ formattedPrice(sale) }}
         </td>
         <td>
-          No reviews
+          No review
         </td>
       </tr>
     </table>
@@ -36,38 +45,9 @@
 import {formatDateTime} from "@/utils/dateTime";
 
 export default {
-  name: "SalesInSection",
-
-  //TODO: add me back in once sales report component gives me sales prop
-  // props: {
-  //   sales: Object
-  // },
-
-
-
-  data() {
-    return {
-      sales: [ //TODO: remove me once sales report component gives me sales prop
-        {
-          dateSold: "2021-09-04",
-          productId: "WATT-BEANS",
-          productName: "Watties Baked Beans",
-          quantity: 6,
-          price: 5.50,
-          currencyCountry: "New Zealand",
-          currency: {}
-        },
-        {
-          dateSold: "2021-09-05",
-          productId: "KID-BEANS",
-          productName: "Value Kidney Beans",
-          quantity: 4,
-          price: 3.50,
-          currencyCountry: "Australia",
-          currency: {}
-        },
-      ]
-    }
+  name: "SalesReportSection",
+  props: {
+    sales: Array
   },
   mounted() {
     this.getCurrencies()
