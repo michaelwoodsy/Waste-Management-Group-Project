@@ -214,4 +214,16 @@ public class SaleListingController {
         }
         saleListingService.starSaleListing(listingId, star, user);
     }
+
+    /**
+     * Gets a list of popular sale listings for a given country.
+     *
+     * @param country Country to get popular listings for, null for worldwide popular sale listings.
+     * @return List of GetSaleListingDTOs'.
+     */
+    @GetMapping("/popularlistings")
+    public List<GetSaleListingDTO> getPopularListings(
+            @RequestParam(name = "country", required = false) String country) {
+        return saleListingService.getPopularListings(country);
+    }
 }

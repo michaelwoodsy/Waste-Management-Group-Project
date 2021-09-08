@@ -781,4 +781,14 @@ public class SaleListingService {
             throw exception;
         }
     }
+
+    /**
+     * Retrieves the popular sale listings from the specified country,
+     * if no country is specified then it retrieves the popular sale listings worldwide
+     * @param country country to get popular listings for
+     * @return List of GetSaleListingDTOs'
+     */
+    public List<GetSaleListingDTO> getPopularListings(String country) {
+        return new ArrayList<>();
+    }
 }
