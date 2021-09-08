@@ -781,4 +781,35 @@ public class SaleListingService {
             throw exception;
         }
     }
+
+    /**
+     * Features a business' sale listing
+     * @param listingId The ID of the Sale Listing you are trying to feature
+     * @param businessId The Business ID who has the Sale Listing
+     * @param featured The new value of the featured field. True or False
+     * @param user The User who is trying to feature the Sale Listing
+     */
+    public void featureSaleListing(Integer listingId,
+                                   Integer businessId,
+                                   boolean featured,
+                                   AppUserDetails user){
+        logger.info("Request to feature a sale listing with ID: {}", listingId);
+        try{
+            // Get the user that made the request
+            userService.getUserByEmail(user.getUsername());
+
+            // Get the business of the request
+            Business business = businessService.checkBusiness(businessId);
+
+            // Check the user is an admin of the business
+            businessService.checkUserCanDoBusinessAction(user, business);
+
+            SaleListing listing = retrieveListing(listingId);
+            listing.setFeatured(featured);
+            saleListingRepository.save(listing);
+        } catch (Exception exception) {
+            logger.error(String.format("Unexpected error while featuring sale listing : %s", exception.getMessage()));
+            throw exception;
+        }
+    }
 }

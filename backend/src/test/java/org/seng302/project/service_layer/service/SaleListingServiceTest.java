@@ -47,6 +47,7 @@ class SaleListingServiceTest extends AbstractInitializer {
 
 
     Business business1;
+    Business business2;
     Integer business2Id;
     User testUser;
     User testOtherUser;
@@ -133,7 +134,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         Address address2 = new Address(null, null, "Christchurch", null, "New Zealand", null);
         Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
         addressRepository.save(address2);
-        businessRepository.save(business2);
+        business2 = businessRepository.save(business2);
         business2Id = business2.getId();
 
         Product product3 = new Product("TEST-3", "Third Product", null, null, 5.00, business2.getId());
@@ -1326,5 +1327,83 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> saleListingService.starSaleListing(45434, true, user));
+    }
+
+    /**
+     * Tests the successful case for featuring a sale listing when you have
+     * not already featured it (makes the sale listing featured)
+     */
+    @Test
+    void featureSaleListing_successWhenNotFeatured_OK(){
+        Assertions.assertFalse(saleListing1.isFeatured());
+
+        AppUserDetails user = new AppUserDetails(testAdmin);
+        saleListingService.featureSaleListing(saleListing1.getId(), business1.getId(), true, user);
+
+        saleListing1 = saleListingRepository.getOne(saleListing1.getId());
+        Assertions.assertTrue(saleListing1.isFeatured());
+    }
+
+    /**
+     * Tests the successful case for featuring a sale listing when you have
+     * already featured it (makes the sale listing no longer featured)
+     */
+    @Test
+    void featureSaleListing_successWhenAlreadyFeatured_OK(){
+        saleListing1.setFeatured(true);
+        saleListingRepository.save(saleListing1);
+        Assertions.assertTrue(saleListing1.isFeatured());
+
+        AppUserDetails user = new AppUserDetails(testAdmin);
+        saleListingService.featureSaleListing(saleListing1.getId(), business1.getId(),false, user);
+
+        saleListing1 = saleListingRepository.getOne(saleListing1.getId());
+        Assertions.assertFalse(saleListing1.isFeatured());
+    }
+
+    /**
+     * Tests that a NotAcceptableException is thrown when
+     * a someone tries featuring a sale listing to a nonexistent business.
+     */
+    @Test
+    void featureSaleListing_nonExistentBusiness_NotAcceptableException(){
+        Mockito.doThrow(new NotAcceptableException(""))
+                .when(businessService).checkBusiness(any(Integer.class));
+
+        AppUserDetails user = new AppUserDetails(testAdmin);
+        Integer saleListingID = saleListing1.getId();
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.featureSaleListing(saleListingID, 99, true, user));
+    }
+
+    /**
+     * Tests that a Forbidden Exception is thrown when someone tries featuring a sale listing
+     * for a business they are not an admin of
+     */
+    @Test
+    void featureSaleListing_notAdmin_ForbiddenException() {
+        Mockito.when(businessService.checkBusiness(business1.getId()))
+                .thenReturn(business1);
+
+        Mockito.doThrow(new ForbiddenException(""))
+                .when(businessService).checkUserCanDoBusinessAction(any(AppUserDetails.class), any(Business.class));
+        AppUserDetails user = new AppUserDetails(testUser);
+        Integer saleListingID = saleListing1.getId();
+        Integer businessID = business1.getId();
+        Assertions.assertThrows(ForbiddenException.class,
+                () -> saleListingService.featureSaleListing(saleListingID, businessID, true, user));
+    }
+
+    /**
+     * Tests that a Not Acceptable Exception is thrown when a user tries to feature a sale listing that
+     * does not exist
+     */
+    @Test
+    void featureSaleListing_invalidSaleListingID_NotAcceptableException(){
+        AppUserDetails user = new AppUserDetails(testAdmin);
+        Integer businessID = business1.getId();
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.featureSaleListing(99, businessID, true, user));
     }
 }

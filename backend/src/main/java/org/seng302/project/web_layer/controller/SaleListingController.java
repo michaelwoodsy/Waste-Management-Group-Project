@@ -214,4 +214,21 @@ public class SaleListingController {
         }
         saleListingService.starSaleListing(listingId, star, user);
     }
+
+    @PatchMapping("/businesses/{businessId}/listings/{listingId}/feature")
+    @ResponseStatus(HttpStatus.OK)
+    public void featureSaleListing(@PathVariable Integer listingId,
+                                   @PathVariable Integer businessId,
+                                   @RequestBody JSONObject requestBody,
+                                   @AuthenticationPrincipal AppUserDetails user) {
+        boolean featured;
+        try{
+            featured = (boolean) requestBody.get("featured");
+        } catch (ClassCastException | NullPointerException exception) {
+            String message = "Value of \"featured\" must be a boolean";
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
+        saleListingService.featureSaleListing(listingId, businessId, featured, user);
+    }
 }
