@@ -7,14 +7,15 @@
       </div>
     </div>
     <div v-if="!submitting && isLoggedIn">
-      <logout-required> </logout-required>
+      <logout-required></logout-required>
     </div>
     <div v-else class="row justify-content-center">
       <div class="col-12 col-sm-8 col-lg-6 col-xl-5 mb-2">
 
         <div class="form-row mb-3">
           <!--    First Name    -->
-          <label for="firstName" style="margin-top:20px"><strong>First Name<span class="required">*</span></strong></label>
+          <label for="firstName" style="margin-top:20px"><strong>First Name<span
+              class="required">*</span></strong></label>
           <input id="firstName" v-model="firstName" :class="{'form-control': true, 'is-invalid': msg.firstName}"
                  maxlength="100"
                  placeholder="Enter your First Name" required style="width:100%" type="text">
@@ -98,8 +99,8 @@
           <label for="password"><strong>Password<span class="required">*</span></strong></label>
           <div class="input-group">
             <input id="password" v-model="password" :class="{'form-control': true, 'is-invalid': msg.password}"
-                   maxlength="200"
-                   placeholder="Enter your Password" :type="passwordType"><br>
+                   :type="passwordType"
+                   maxlength="200" placeholder="Enter your Password"><br>
             <div class="input-group-append">
               <button class="btn btn-primary no-outline" @click="showPassword()">
                 <span :class="{bi: true,
@@ -131,14 +132,13 @@
               Add image
             </button>
             <input
-                type="file"
-                style="display: none"
                 ref="fileInput"
                 accept="image/png, image/jpeg"
+                style="display: none"
+                type="file"
                 @change="imageUpload"/>
           </div>
         </div>
-
 
 
         <!-- Images -->
@@ -146,19 +146,18 @@
           <div class="col">
 
 
-
             <div v-for="image in images"
                  :key="image.url" class="pad1"
-                 @mouseover="image.hover = true"
                  @mouseleave="image.hover = false"
+                 @mouseover="image.hover = true"
             >
-              <img v-if="image.id === undefined" width="250"
-                   :src="image.url"
+              <img v-if="image.id === undefined" :src="image.url"
                    alt="Uploaded product image"
+                   width="250"
               />
-              <img v-else width="250"
-                   :src="getImageURL(image.filename)"
+              <img v-else :src="getImageURL(image.filename)"
                    alt="Current product image"
+                   width="250"
               />
               <button class="btn btn-danger ml-1 my-1 pad1"
                       @click="removeImage(image.url)">
@@ -173,20 +172,16 @@
             <!--    Image upload progress counter    -->
             <p v-if="submitting && images.length > 0"
                class="ml-1 my-2 ">
-              {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+              {{ numImagesUploaded }}/{{ numImagesToUpload }} images uploaded
             </p>
           </div>
 
         </div>
 
 
-
-
-
-
-
         <div class="form-row mb-3">
-          <button v-if="!submitting" id="createButton" class="btn btn-block btn-primary" style="width: 100%; margin:0 20px"
+          <button v-if="!submitting" id="createButton" class="btn btn-block btn-primary"
+                  style="width: 100%; margin:0 20px"
                   v-on:click="checkInputs">Create
             Account
           </button>
@@ -292,7 +287,7 @@ export default {
      * Method to toggle visibility of the password field
      */
     showPassword() {
-      if(this.passwordType === 'password') {
+      if (this.passwordType === 'password') {
         this.passwordType = 'text'
       } else {
         this.passwordType = 'password'
@@ -441,29 +436,29 @@ export default {
      * If this fails the program should set the error text to the error received from the backend server
      */
     async addUser() {
-      await this.$root.$data.user.register(
-          this.firstName,
-          this.lastName,
-          this.middleName,
-          this.nickname,
-          this.bio,
-          this.email,
-          this.dateOfBirth,
-          this.phone,
-          this.homeAddress,
-          this.password
-      ).then(() => {
-        this.addImages().then(() => {
-          this.submitting = false
-          this.$root.$data.user.setLoggedIn(this.$root.$data.user.state.userId)
-          this.$router.push({name: 'home'})
+      try {
+        await this.$root.$data.user.register({
+          firstName: this.firstName,
+          lastName: this.lastName,
+          middleName: this.middleName,
+          nickname: this.nickname,
+          bio: this.bio,
+          email: this.email,
+          dateOfBirth: this.dateOfBirth,
+          phone: this.phone,
+          homeAddress: this.homeAddress,
+          password: this.password
         })
-
-      }).catch((err) => {
+        await this.addImages()
+        this.submitting = false
+        await this.$root.$data.user.setLoggedIn(this.$root.$data.user.state.userId)
+        this.$router.push({name: 'home'})
+      } catch (err) {
         this.msg.errorChecks = err.response
             ? err.response.data.slice(err.response.data.indexOf(":") + 2)
             : err
-      })
+        this.submitting = false
+      }
     },
 
     //IMAGES
@@ -472,7 +467,7 @@ export default {
      * Programmatically triggers the file input field when the
      * 'Add image' button is clicked.
      */
-    addImageClicked () {
+    addImageClicked() {
       this.imagesEdited = true
       this.$refs.fileInput.click()
     },
@@ -481,7 +476,7 @@ export default {
      * Handles the file being uploaded
      * @param event the button click event that triggers this function
      */
-    imageUpload (event) {
+    imageUpload(event) {
       const files = event.target.files
 
       const formData = new FormData()
@@ -505,7 +500,7 @@ export default {
      * @param imageUrl the url of the image to be removed
      */
     removeImage(imageUrl) {
-      this.images = this.images.filter(function(image) {
+      this.images = this.images.filter(function (image) {
         return image.url !== imageUrl;
       })
     },
@@ -514,7 +509,7 @@ export default {
      * Makes requests to add the product's images
      */
     async addImages() {
-      const imagesToUpload = this.images.filter(function(image) {
+      const imagesToUpload = this.images.filter(function (image) {
         return image.id === undefined;
       })
       this.numImagesToUpload = imagesToUpload.length

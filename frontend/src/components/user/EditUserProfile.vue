@@ -38,20 +38,20 @@
 
                   <!-- Body section of modal -->
                   <div class="modal-body">
-                    Your currency has changed from {{currentCurrency.code}} to {{newCurrency.code}}.
+                    Your currency has changed from {{ currentCurrency.code }} to {{ newCurrency.code }}.
                     <br>
-                    Would you like all your active products to have their currency changed to {{newCurrency.code}}?
+                    Would you like all your active products to have their currency changed to {{ newCurrency.code }}?
                     <br>
-                    If you say 'No', only future products will be in {{newCurrency.code}}.
+                    If you say 'No', only future products will be in {{ newCurrency.code }}.
                   </div>
 
                   <!-- Footer / button section of modal -->
                   <div class="modal-footer">
-                    <button class="btn btn-primary" id="changeCurrencyYes"
+                    <button id="changeCurrencyYes" class="btn btn-primary"
                             data-dismiss="modal" type="button" @click="showCurrencyChange=false">
                       Yes
                     </button>
-                    <button class="btn btn-secondary"  id="changeCurrencyNo" data-dismiss="modal" type="button"
+                    <button id="changeCurrencyNo" class="btn btn-secondary" data-dismiss="modal" type="button"
                             @click="showCurrencyChange=false">
                       No
                     </button>
@@ -91,8 +91,8 @@
           <div class="form-group row">
             <label for="firstName"><strong>First Name<span class="required">*</span></strong></label>
             <input id="firstName" v-model="firstName" :class="{'form-control': true, 'is-invalid': msg.firstName}"
-                   placeholder="Enter your First Name"
-                   required maxlength="255" type="text">
+                   maxlength="255"
+                   placeholder="Enter your First Name" required type="text">
             <span class="invalid-feedback">{{ msg.firstName }}</span>
           </div>
 
@@ -100,8 +100,8 @@
           <div class="form-group row">
             <label for="lastName"><strong>Last Name<span class="required">*</span></strong></label>
             <input id="lastName" v-model="lastName" :class="{'form-control': true, 'is-invalid': msg.lastName}"
-                   placeholder="Enter your Last Name"
-                   required maxlength="255" type="text">
+                   maxlength="255"
+                   placeholder="Enter your Last Name" required type="text">
             <span class="invalid-feedback">{{ msg.lastName }}</span>
           </div>
 
@@ -109,32 +109,32 @@
           <div class="form-group row">
             <label for="middleName"><strong>Middle Name</strong></label>
             <input id="middleName" v-model="middleName" class="form-control"
-                   placeholder="Enter your Middle Name"
-                   required maxlength="255" type="text">
+                   maxlength="255"
+                   placeholder="Enter your Middle Name" required type="text">
           </div>
 
           <!-- Nickname -->
           <div class="form-group row">
             <label for="nickname"><strong>Nickname</strong></label>
             <input id="nickname" v-model="nickname" class="form-control"
-                   placeholder="Enter your Nickname"
-                   required maxlength="255" type="text">
+                   maxlength="255"
+                   placeholder="Enter your Nickname" required type="text">
           </div>
 
           <!-- Bio -->
           <div class="form-group row">
             <label for="bio"><strong>Bio</strong></label>
             <textarea id="bio" v-model="bio" class="form-control"
-                      placeholder="Write a Bio (Max length 255 characters)"
-                      required maxlength="255" type="text"></textarea>
+                      maxlength="255"
+                      placeholder="Write a Bio (Max length 255 characters)" required type="text"></textarea>
           </div>
 
           <!-- Email -->
           <div class="form-group row">
             <label for="email"><strong>Email<span class="required">*</span></strong></label>
             <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}"
-                   placeholder="Enter your Email"
-                   required maxlength="255" type="text">
+                   maxlength="255"
+                   placeholder="Enter your Email" required type="text">
             <small>Editing this requires you to enter your current password</small>
             <span class="invalid-feedback">{{ msg.email }}</span>
           </div>
@@ -143,8 +143,8 @@
           <div class="form-group row">
             <label for="dateOfBirth"><strong>Date of Birth<span class="required">*</span></strong></label>
             <input id="dateOfBirth" v-model="dateOfBirth" :class="{'form-control': true, 'is-invalid': msg.dateOfBirth}"
-                   placeholder="Enter your Email"
-                   required maxlength="255" type="date">
+                   maxlength="255"
+                   placeholder="Enter your Email" required type="date">
             <span class="invalid-feedback">{{ msg.dateOfBirth }}</span>
           </div>
 
@@ -152,17 +152,17 @@
           <div class="form-group row">
             <label for="phoneNumber"><strong>Phone Number</strong></label>
             <input id="phoneNumber" v-model="phoneNumber" :class="{'form-control': true, 'is-invalid': msg.phoneNumber}"
-                   placeholder="Enter your Phone Number"
-                   required maxlength="255" type="text">
+                   maxlength="255"
+                   placeholder="Enter your Phone Number" required type="text">
             <span class="invalid-feedback">{{ msg.phoneNumber }}</span>
           </div>
 
           <hr/>
           <div class="form-group row">
-            <address-input-fields ref="addressInput" style="width: 100%"
-                :showErrors="true"
-                @setAddress="(newAddress) => {this.homeAddress = newAddress}"
-                @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
+            <address-input-fields ref="addressInput" :showErrors="true"
+                                  style="width: 100%"
+                                  @setAddress="(newAddress) => {this.homeAddress = newAddress}"
+                                  @setAddressValid="(isValid) => {this.addressIsValid = isValid}"
             />
           </div>
           <hr/>
@@ -170,12 +170,14 @@
 
           <!-- Current Password -->
           <div class="form-group row">
-            <label v-if="needCurrentPassword" for="currentPassword"><strong>Current Password<span class="required">*</span></strong></label>
+            <label v-if="needCurrentPassword" for="currentPassword"><strong>Current Password<span
+                class="required">*</span></strong></label>
             <label v-else for="currentPassword"><strong>Current Password</strong></label>
             <div class="input-group">
-              <input id="currentPassword" v-model="currentPassword" :class="{'form-control': true, 'is-invalid': msg.currentPassword}"
-                     placeholder="Enter your Current Password"
-                     required maxlength="255" :type="currentPasswordType">
+              <input id="currentPassword" v-model="currentPassword"
+                     :class="{'form-control': true, 'is-invalid': msg.currentPassword}"
+                     :type="currentPasswordType"
+                     maxlength="255" placeholder="Enter your Current Password" required>
               <div class="input-group-append">
                 <button class="btn btn-primary no-outline" @click="showCurrentPassword()">
               <span :class="{bi: true,
@@ -185,7 +187,7 @@
               </div>
             </div>
             <span class="invalid-feedback d-block">{{ msg.currentPassword }}</span>
-            <p style="font-size: small" class="text-left">Current password required when changing email or password</p>
+            <p class="text-left" style="font-size: small">Current password required when changing email or password</p>
           </div>
 
 
@@ -193,9 +195,10 @@
           <div class="form-group row">
             <label for="newPassword"><strong>New Password</strong></label>
             <div class="input-group">
-              <input id="newPassword" v-model="newPassword" :class="{'form-control': true, 'is-invalid': msg.newPassword}"
-                     placeholder="Enter your New Password"
-                     required maxlength="255" :type="newPasswordType">
+              <input id="newPassword" v-model="newPassword"
+                     :class="{'form-control': true, 'is-invalid': msg.newPassword}"
+                     :type="newPasswordType"
+                     maxlength="255" placeholder="Enter your New Password" required>
               <div class="input-group-append">
                 <button class="btn btn-primary no-outline" @click="showNewPassword()">
               <span :class="{bi: true,
@@ -205,7 +208,8 @@
               </div>
             </div>
             <span class="invalid-feedback d-block">{{ msg.newPassword }}</span>
-            <p style="font-size: small" class="text-left">Password must be a combination of lowercase and uppercase letters, numbers, and
+            <p class="text-left" style="font-size: small">Password must be a combination of lowercase and uppercase
+              letters, numbers, and
               be at least 8 characters long</p>
           </div>
 
@@ -226,10 +230,10 @@
                 Add image
               </button>
               <input
-                  type="file"
-                  style="display: none"
                   ref="fileInput"
                   accept="image/png, image/jpeg"
+                  style="display: none"
+                  type="file"
                   @change="imageUpload"/>
             </div>
           </div>
@@ -239,29 +243,27 @@
             <div class="col">
 
 
-
               <div v-for="image in images"
                    :key="image.url" class="pad1"
-                   @mouseover="image.hover = true"
                    @mouseleave="image.hover = false"
+                   @mouseover="image.hover = true"
               >
-                <img v-if="image.id === undefined" width="250"
-                     :src="image.url"
+                <img v-if="image.id === undefined" :src="image.url"
                      alt="Uploaded product image"
+                     width="250"
                 />
-                <img v-else width="250"
-                     :src="getImageURL(image.filename)"
+                <img v-else :src="getImageURL(image.filename)"
                      alt="Current product image"
+                     width="250"
                 />
-                <button class="btn btn-danger ml-1 my-1 pad1"
-                        type="button"
-                        :data-target="'#removeImageModal'"
+                <button :data-target="'#removeImageModal'"
+                        class="btn btn-danger ml-1 my-1 pad1"
                         data-toggle="modal"
+                        type="button"
                         @click="changeDeletingImage(image)">
 
                   Remove
                 </button>
-
 
 
                 <!-- Remove Image modal -->
@@ -279,12 +281,15 @@
 
                       <!-- Body section of modal -->
                       <div class="modal-body">
-                        <p>Do you really want to remove this image?</p><br><p>This will be permanent.</p>
+                        <p>Do you really want to remove this image?</p><br>
+                        <p>This will be permanent.</p>
                       </div>
 
                       <!-- Footer / button section of modal -->
                       <div class="modal-footer">
-                        <button class="btn btn-danger" data-dismiss="modal" type="button" @click="removeImage(imageWantingToDelete)">Remove</button>
+                        <button class="btn btn-danger" data-dismiss="modal" type="button"
+                                @click="removeImage(imageWantingToDelete)">Remove
+                        </button>
                         <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
                       </div>
 
@@ -293,21 +298,19 @@
                 </div>
 
 
-
-
                 <!--                    If the image cant be made primary because it is not uploaded yet-->
-                <button class="btn btn-secondary disabled ml-1 my-1 pad1"
-                        v-if="image.id === undefined"
-                        type="button" :data-target="'#cantMakePrimaryImageModal'" data-toggle="modal">
+                <button v-if="image.id === undefined"
+                        :data-target="'#cantMakePrimaryImageModal'"
+                        class="btn btn-secondary disabled ml-1 my-1 pad1" data-toggle="modal" type="button">
                   Make Primary
                 </button>
-                <button class="btn btn-primary ml-1 my-1 pad1 disabled"
-                        v-else-if="image.id === currentPrimaryImageId"
+                <button v-else-if="image.id === currentPrimaryImageId"
+                        class="btn btn-primary ml-1 my-1 pad1 disabled"
                         type="button">
                   Already Primary
                 </button>
-                <button class="btn btn-primary ml-1 my-1 pad1"
-                        v-else-if="image.id !== currentPrimaryImageId"
+                <button v-else-if="image.id !== currentPrimaryImageId"
+                        class="btn btn-primary ml-1 my-1 pad1"
                         type="button" @click="makeImagePrimary(image.id)">
                   Make Primary
                 </button>
@@ -327,7 +330,8 @@
 
                       <!-- Body section of modal -->
                       <div class="modal-body">
-                        <p>This image is not on our servers yet. Please save changes before making this image Primary</p>
+                        <p>This image is not on our servers yet. Please save changes before making this image
+                          Primary</p>
                       </div>
 
                       <!-- Footer / button section of modal -->
@@ -347,7 +351,7 @@
               <!--    Image upload progress counter    -->
               <p v-if="submitting && imagesEdited"
                  class="ml-1 my-2 ">
-                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+                {{ numImagesUploaded }}/{{ numImagesToUpload }} images uploaded
               </p>
             </div>
 
@@ -358,16 +362,16 @@
             <div class="btn-group" style="width: 100%">
               <!-- Cancel button when changes are made -->
               <button id="cancelButton"
-                  class="btn btn-danger"
-                  type="button"
-                  @click="cancel"
+                      class="btn btn-danger"
+                      type="button"
+                      @click="cancel"
               >
                 Cancel
               </button>
               <button v-if="submitting"
-                  disabled
-                  class="btn btn-primary"
-                  type="button"
+                      class="btn btn-primary"
+                      disabled
+                      type="button"
               >
                 Saving changes
               </button>
@@ -761,23 +765,22 @@ export default {
         requestJSON.currentPassword = this.currentPassword
       }
 
-      await User.editUser(this.userId, requestJSON).then(async() => {
+      await User.editUser(this.userId, requestJSON).then(async () => {
         //If email has changed (need to log in again)
         this.successfulEdit = true
         if (this.isEditingSelf && this.successfulEdit && this.oldEmail !== this.email) {
           await this.reLogIn()
         }
-        await this.addImages().then(() => {
-          this.submitError = null
-          this.submitting = false
-          this.success = true
-          //Sets the correct user data (So the name changes in the nav bar)
-          let name = `${this.firstName} ${this.lastName}`
-          if (this.isEditingSelf && this.$root.$data.user.state.actingAs.name !== name) {
-            this.$root.$data.user.state.actingAs.name = name
-          }
-          this.$root.$data.user.updateData()
-        })
+        await this.addImages()
+        this.submitError = null
+        this.submitting = false
+        this.success = true
+        //Sets the correct user data (So the name changes in the nav bar)
+        let name = `${this.firstName} ${this.lastName}`
+        if (this.isEditingSelf && this.$root.$data.user.state.actingAs.name !== name) {
+          this.$root.$data.user.state.actingAs.name = name
+        }
+        await this.$root.$data.user.updateData()
       }).catch((err) => {
         this.showError(err)
         console.log(err)
@@ -840,7 +843,7 @@ export default {
      * Programmatically triggers the file input field when the
      * 'Add image' button is clicked.
      */
-    addImageClicked () {
+    addImageClicked() {
       this.imagesEdited = true
       this.$refs.fileInput.click()
     },
@@ -849,7 +852,7 @@ export default {
      * Handles the file being uploaded
      * @param event the button click event that triggers this function
      */
-    imageUpload (event) {
+    imageUpload(event) {
       const files = event.target.files
 
       const formData = new FormData()
@@ -876,7 +879,7 @@ export default {
     removeImage(imageRemoving) {
       this.imagesEdited = true
       //If image has already been uploaded
-      if(imageRemoving.id){
+      if (imageRemoving.id) {
         User.removeImage(this.userId, imageRemoving.id)
             .then(() => {
               this.removeImageFromList(imageRemoving)
@@ -906,9 +909,9 @@ export default {
      * Used to remove the image from the list that is visible to the user
      *@param removedImage the image to be removed
      */
-    removeImageFromList(removedImage){
+    removeImageFromList(removedImage) {
       //Remove the deleted image from the list of images on screen
-      this.images = this.images.filter(function(image) {
+      this.images = this.images.filter(function (image) {
         return image !== removedImage;
       })
     },
@@ -928,7 +931,7 @@ export default {
      * Makes requests to add the user's images
      */
     async addImages() {
-      const imagesToUpload = this.images.filter(function(image) {
+      const imagesToUpload = this.images.filter(function (image) {
         return image.id === undefined;
       })
       this.numImagesToUpload = imagesToUpload.length
