@@ -764,7 +764,9 @@ public class SaleListingService {
         Specification<LikedSaleListing> spec = LikedSaleListingSpecification.saleListingClosesBefore(now);
         List<SaleListing> expiredListings = saleListingRepository.findAllByClosesBefore(now);
         List<LikedSaleListing> expiredLikedListings = likedSaleListingRepository.findAll(spec);
-        likedSaleListingRepository.deleteAll(expiredLikedListings);
+        if (!expiredLikedListings.isEmpty()) {
+            likedSaleListingRepository.deleteAll(expiredLikedListings);
+        }
         saleListingRepository.deleteAll(expiredListings);
     }
 }
