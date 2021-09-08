@@ -7,7 +7,9 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -88,7 +90,8 @@ class LikedSaleListingRepositoryTest extends AbstractInitializer {
      */
     @Test
     void likedSaleListing_findPopularByCountry_NewZealand() {
-        List<List<Object>> response = likedSaleListingRepository.findPopularByCountry("New Zealand");
+        Pageable pageable = PageRequest.of(0, 10);
+        List<List<Object>> response = likedSaleListingRepository.findPopularByCountry("New Zealand", pageable);
         Assertions.assertEquals(2, response.size());
         //Checking that the first listing has more likes than the second listing
         Long likes1 = (Long) response.get(0).get(1);
@@ -106,7 +109,8 @@ class LikedSaleListingRepositoryTest extends AbstractInitializer {
      */
     @Test
     void likedSaleListing_findPopularByCountry_Netherlands() {
-        List<List<Object>> response = likedSaleListingRepository.findPopularByCountry("Netherlands");
+        Pageable pageable = PageRequest.of(0, 10);
+        List<List<Object>> response = likedSaleListingRepository.findPopularByCountry("Netherlands", pageable);
         Assertions.assertEquals(2, response.size());
         //Checking that the first listing has more likes than the second listing
         Long likes1 = (Long) response.get(0).get(1);
@@ -124,7 +128,26 @@ class LikedSaleListingRepositoryTest extends AbstractInitializer {
      */
     @Test
     void likedSaleListing_findPopularByCountry_NoListings() {
-        List<List<Object>> response = likedSaleListingRepository.findPopularByCountry("Not A Country");
+        Pageable pageable = PageRequest.of(0, 10);
+        List<List<Object>> response = likedSaleListingRepository.findPopularByCountry("Not A Country", pageable);
         Assertions.assertEquals(0, response.size());
+    }
+
+    /**
+     * Test the findPopularByCountry method with no country (finds for all countries).
+     */
+    @Test
+    void likedSaleListing_findPopular_NoCountry() {
+        Pageable pageable = PageRequest.of(0, 10);
+        List<List<Object>> response = likedSaleListingRepository.findPopular(pageable);
+        Assertions.assertEquals(4, response.size());
+        //Checking that the first listing has more likes than the second listing
+        Long likes1 = (Long) response.get(0).get(1);
+        Long likes2 = (Long) response.get(1).get(1);
+        Long likes3 = (Long) response.get(2).get(1);
+        Long likes4 = (Long) response.get(3).get(1);
+        Assertions.assertTrue(likes1 >= likes2);
+        Assertions.assertTrue(likes2 >= likes3);
+        Assertions.assertTrue(likes3 >= likes4);
     }
 }
