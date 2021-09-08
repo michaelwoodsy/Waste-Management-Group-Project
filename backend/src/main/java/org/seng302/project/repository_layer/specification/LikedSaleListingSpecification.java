@@ -5,7 +5,14 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 
-public final class LikedSaleListingSpecification {
+public class LikedSaleListingSpecification {
+
+    /**
+     * Private constructor as sonarlint was complaining about an implicit public constructor
+     */
+    private LikedSaleListingSpecification() {
+        throw new IllegalStateException("This is a utility class");
+    }
 
     /**
      * Creates a Specification object used to search liked listings by products closing date.
@@ -15,7 +22,7 @@ public final class LikedSaleListingSpecification {
      */
     public static Specification<LikedSaleListing> saleListingClosesBefore(LocalDateTime dateTime) {
         return ((root, query, builder) ->
-                builder.lessThanOrEqualTo(builder.lower(root.get("saleListing").get("closes")), dateTime.toString())
+            builder.lessThanOrEqualTo(root.get("listing").get("closes"), dateTime)
         );
     }
 }
