@@ -3048,16 +3048,14 @@ paths:
           required: true
           schema:
             type: string
-            format: date-time
-          example: '2021-07-15T05:10:00Z'
+          example: '2021-07-15'
         - name: periodEnd
           in: query
           description: End date of the sales report
           required: true
           schema:
             type: string
-            format: date-time
-          example: '2021-08-15T05:10:00Z'
+          example: '2021-08-15'
         - name: granularity
           in: query
           description: Granularity of sales
