@@ -133,14 +133,6 @@ export default {
 </script>
 
 <style scoped>
-.icon {
-  font-size: 30px;
-  transition: 0.3s;
-}
-
-.icon:hover {
-  text-shadow: currentColor 0 0 5px;
-}
 
 .card-size {
   margin-bottom: 40px;

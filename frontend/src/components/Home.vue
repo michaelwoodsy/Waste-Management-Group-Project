@@ -87,6 +87,12 @@
                                @refresh-cards="getCardData"></market-card>
                 </div>
               </div>
+              <!-- TODO:Remove popular listing section and component when service and controller are done and landing page is ready-->
+              <h2>Popular Listings (using liked listings as examples)</h2>
+              <div v-for="listing in likedListings" v-bind:key="listing.id" class="col">
+                <PopularListing :data="listing"
+                                @update-data="updateData"></PopularListing>
+              </div>
             </div>
             <div v-else>You have no cards.</div>
           </div>
@@ -229,11 +235,8 @@
             />
           </div>
         </div>
-
       </div>
-
     </div>
-
   </div>
 </template>
 
@@ -249,6 +252,7 @@ import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
 import undo from "@/utils/undo"
 import SalesReportPage from "@/components/sales-report/SalesReportPage";
+import PopularListing from "@/components/sale-listing/PopularListing";
 
 const tags = {
   RED: {
@@ -290,7 +294,8 @@ export default {
     Alert,
     LoginRequired,
     MarketCard,
-    Notification
+    Notification,
+    PopularListing
   },
   async mounted() {
     await this.getData()
