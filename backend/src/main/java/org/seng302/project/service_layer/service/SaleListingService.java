@@ -3,6 +3,7 @@ package org.seng302.project.service_layer.service;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.model.enums.Tag;
 import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.repository_layer.specification.LikedSaleListingSpecification;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
@@ -759,6 +760,11 @@ public class SaleListingService {
      */
     @Scheduled(cron = "@midnight")
     public void deleteExpiredSaleListings() {
-
+        var now = LocalDateTime.now();
+        Specification<LikedSaleListing> spec = LikedSaleListingSpecification.saleListingClosesBefore(now);
+        List<SaleListing> expiredListings = saleListingRepository.findAllByClosesBefore(now);
+        List<LikedSaleListing> expiredLikedListings = likedSaleListingRepository.findAll(spec);
+        likedSaleListingRepository.deleteAll(expiredLikedListings);
+        saleListingRepository.deleteAll(expiredListings);
     }
 }
