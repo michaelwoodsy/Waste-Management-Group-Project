@@ -793,6 +793,7 @@ public class SaleListingService {
                                    Integer businessId,
                                    boolean featured,
                                    AppUserDetails user){
+        Integer maxNumberFeature = 5;
         logger.info("Request to feature a sale listing with ID: {}", listingId);
         try{
             // Get the user that made the request
@@ -803,6 +804,17 @@ public class SaleListingService {
 
             // Check the user is an admin of the business
             businessService.checkUserCanDoBusinessAction(user, business);
+
+            List<SaleListing> businessListings = saleListingRepository.findAllByBusinessId(businessId);
+            Integer currentlyFeatured = 0;
+            for (SaleListing businessListing : businessListings){
+                if(currentlyFeatured.equals(maxNumberFeature) && featured){
+                    throw new NotAcceptableException("You already have the maximum number of possible featured sale listings");
+                }
+                if(businessListing.isFeatured()){
+                    currentlyFeatured++;
+                }
+            }
 
             SaleListing listing = retrieveListing(listingId);
             listing.setFeatured(featured);
