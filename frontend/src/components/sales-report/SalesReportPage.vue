@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <h2>Sales Report</h2>
+    <h3 class="text-center">Sales Report</h3>
 
     <sales-report-controls/>
 
