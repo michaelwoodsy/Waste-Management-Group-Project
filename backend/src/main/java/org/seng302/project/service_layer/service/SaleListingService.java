@@ -789,6 +789,21 @@ public class SaleListingService {
      * @return List of GetSaleListingDTOs'
      */
     public List<GetSaleListingDTO> getPopularListings(String country) {
-        return new ArrayList<>();
+        List<GetSaleListingDTO> listings = new ArrayList<>();
+        List<List<Object>> response;
+        if (country == null) {
+            response = likedSaleListingRepository.findPopular(PageRequest.of(0, 10));
+        } else {
+            response = likedSaleListingRepository.findPopularByCountry(country, PageRequest.of(0, 10));
+        }
+        for (List<Object> listing: response) {
+            if (listing.get(0).getClass() == SaleListing.class && listing.get(1).getClass() == Long.class) {
+                GetSaleListingDTO dto = new GetSaleListingDTO((SaleListing) listing.get(0));
+                Long numLikes = (Long) listing.get(1);
+                dto.attachLikeData(numLikes.intValue(), false);
+                listings.add(dto);
+            }
+        }
+        return listings;
     }
 }

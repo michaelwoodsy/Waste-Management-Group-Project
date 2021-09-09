@@ -224,6 +224,11 @@ public class SaleListingController {
     @GetMapping("/popularlistings")
     public List<GetSaleListingDTO> getPopularListings(
             @RequestParam(name = "country", required = false) String country) {
+        if (country != null) {
+            logger.info("Request to get popular sale listings from {}", country);
+        } else {
+            logger.info("Request to get popular sale listings");
+        }
         return saleListingService.getPopularListings(country);
     }
 }

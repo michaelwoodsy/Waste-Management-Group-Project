@@ -2460,7 +2460,6 @@ paths:
           name: country
           schema:
             type: string
-          required: true
           description: 'Country to retrieve popular listings for'
       responses:
         '200':
@@ -2471,8 +2470,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Listing'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
 
   '/businesses/{businessId}/featuredlistings':
     get:
