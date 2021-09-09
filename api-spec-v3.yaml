@@ -3065,15 +3065,13 @@ paths:
           example: 'monthly'
       responses:
         '200':
-          description: Request successful, returns a list of lists of listings (the number of lists will depend on the granulairty)
+          description: Request successful, returns a list of GetSalesReportDTOs
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Sale'
+                  $ref: '#/components/schemas/GetSalesReportDTO'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -3831,3 +3829,37 @@ components:
           example: '2021-07-15T05:10:00Z'
           readOnly: true
           description: Date and time when the review was created
+
+    GetSalesReportDTO:
+      type: object
+      description: "A sales report for a business over a given period."
+      required:
+        - sales
+        - periodStart
+        - periodEnd
+        - totalPurchaseValue
+        - purchaseCount
+      properties:
+        sales:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sale'
+          description: List of all says during time period.
+        periodStart:
+          type: string
+          example: '2021-07-15'
+          readOnly: true
+          description: Start date which sales are tracked after.
+        periodEnd:
+          type: string
+          example: '2021-07-15'
+          readOnly: true
+          description: End date which sales are tracked before.
+        totalPurchaseValue:
+          type: integer
+          example: 1000
+          description: Total price of all sales.
+        purchaseCount:
+          type: integer
+          example: 50
+          description: Total number of sales.
