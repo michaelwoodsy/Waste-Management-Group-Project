@@ -10,7 +10,7 @@
 
       <div class="row">
         <div class="col-2"/>
-        <div class="col text-center mb-2">
+        <div class="col text-center">
           <h2>{{ firstName }} {{ lastName }}
             <span v-if="isGAA && canDoAdminAction" class="badge badge-danger admin-badge">ADMIN</span>
             <span v-else-if="isDGAA && canDoAdminAction" class="badge badge-danger admin-badge">DGAA</span>
@@ -19,9 +19,9 @@
         <div class="col-2 text-right">
           <!-- Edit button -->
           <router-link v-if="isViewingSelf || canDoAdminAction"
+                       :class="{'btn-primary': isViewingSelf, 'btn-danger': !isViewingSelf && canDoAdminAction}"
                        :to="`users/${userId}/edit`"
                        class="btn btn-primary"
-                       :class="{'btn-primary': isViewingSelf, 'btn-danger': !isViewingSelf && canDoAdminAction}"
           >
             Edit Profile
           </router-link>
@@ -34,10 +34,10 @@
       <div class="row mb-3">
         <div class="col text-center">
           <img
+              :src="getPrimaryImageThumbnail()"
               alt="profile image"
               class="profile-image rounded-left rounded-right"
               style="max-height: 200px"
-              :src="getPrimaryImageThumbnail()"
           />
         </div>
       </div>
@@ -209,15 +209,16 @@
             <div class="carousel-inner">
               <div v-for="(image, index) in images" v-bind:key="image.id"
                    :class="{'carousel-item': true, 'active': index === 0}">
-                <img class="d-block img-fluid rounded mx-auto d-block" style="height: 500px" :src="getImageURL(image.filename)" alt="User Image">
+                <img :src="getImageURL(image.filename)" alt="User Image"
+                     class="d-block img-fluid rounded mx-auto d-block" style="height: 500px">
               </div>
             </div>
-            <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <a class="carousel-control-prev" data-slide="prev" href="#imageCarousel" role="button">
+              <span aria-hidden="true" class="carousel-control-prev-icon"></span>
               <span class="sr-only">Previous</span>
             </a>
-            <a class="carousel-control-next" href="#imageCarousel" role="button" data-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <a class="carousel-control-next" data-slide="next" href="#imageCarousel" role="button">
+              <span aria-hidden="true" class="carousel-control-next-icon"></span>
               <span class="sr-only">Next</span>
             </a>
           </div>
@@ -225,7 +226,7 @@
       </div>
 
       <div class="row">
-        <div class="col text-left mb-2" v-if="cards.length !== 0">
+        <div v-if="cards.length !== 0" class="col text-left mb-2">
           <h2>User's Cards</h2>
         </div>
       </div>
@@ -233,7 +234,8 @@
       <!-- Cards -->
       <div class="row row-cols-1 row-cols-lg-2 mb-3">
         <div v-for="card in cards" v-bind:key="card.id" class="col">
-          <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="false" v-if="!expired(card)"></MarketCard>
+          <MarketCard v-if="!expired(card)" :card-data="card" :hide-image="hideImages"
+                      :show-expired="false"></MarketCard>
         </div>
       </div>
 
@@ -403,7 +405,7 @@ export default {
     getPrimaryImageThumbnail() {
       if (this.primaryImageId !== null) {
         const primaryImageId = this.primaryImageId
-        const filteredImages = this.images.filter(function(specificImage) {
+        const filteredImages = this.images.filter(function (specificImage) {
           return specificImage.id === primaryImageId;
         })
         if (filteredImages.length === 1) {
@@ -581,8 +583,8 @@ export default {
 <style>
 
 .carousel-control-next,
-.carousel-control-prev{
-  filter: invert(100%);/* Changes the button colours to grey so you can see them */
+.carousel-control-prev {
+  filter: invert(100%); /* Changes the button colours to grey so you can see them */
 }
 
 </style>
