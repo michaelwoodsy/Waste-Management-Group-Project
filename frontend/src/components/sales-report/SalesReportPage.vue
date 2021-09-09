@@ -3,6 +3,8 @@
 
     <h2>Sales Report</h2>
 
+    <sales-report-controls/>
+
     <sales-report
         :data="report"
         :currency="currency"
@@ -15,9 +17,10 @@
 import SalesReport from "@/components/sales-report/SalesReport";
 import {Business} from "@/Api";
 import product from "@/store/modules/product";
+import SalesReportControls from "@/components/sales-report/SalesReportControls";
 export default {
   name: "SalesReportPage",
-  components: {SalesReport},
+  components: {SalesReportControls, SalesReport},
   props: {
     businessId: Number
   },
@@ -174,7 +177,12 @@ export default {
           ]
         }
       ],
-      currency: null
+      currency: null,
+      options: {
+        startDate: null,
+        endDate: null,
+        granularity: null
+      }
     }
   },
   async mounted() {
