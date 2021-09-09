@@ -66,18 +66,19 @@
             </div>
             <!--    Primary Admin    -->
             <!-- Only a DGAA/GAA or the primary admin themselves can see this-->
-            <div class="form-row" v-if="isPrimaryAdmin">
+            <div v-if="isPrimaryAdmin" class="form-row">
               <label for="businessType">
                 <strong>Primary Administrator<span class="required">*</span></strong>
               </label>
               <br/>
               <select id="primaryAdmin" v-model="primaryAdmin"
-                      :class="{'form-control': true, 'is-invalid': msg.primaryAdmin}" required style="width:100%" type="text">
+                      :class="{'form-control': true, 'is-invalid': msg.primaryAdmin}" required style="width:100%"
+                      type="text">
                 <option v-for="admin in administrators"
                         :key="admin.id"
                         :value="admin"
                 >
-                  {{admin.firstName}} {{admin.lastName}}
+                  {{ admin.firstName }} {{ admin.lastName }}
                 </option>
               </select>
               <br>
@@ -118,7 +119,8 @@
               </label>
               <br/>
               <select id="businessType" v-model="businessType"
-                      :class="{'form-control': true, 'is-invalid': msg.businessType}" required style="width:100%" type="text">
+                      :class="{'form-control': true, 'is-invalid': msg.businessType}" required style="width:100%"
+                      type="text">
                 <option disabled hidden selected value>Please select one</option>
                 <option>Accommodation and Food Services</option>
                 <option>Retail Trade</option>
@@ -138,9 +140,6 @@
             <br>
 
 
-
-
-
             <hr/>
 
             <div class="form-group row">
@@ -157,10 +156,10 @@
                   Add image
                 </button>
                 <input
-                    type="file"
-                    style="display: none"
                     ref="fileInput"
                     accept="image/png, image/jpeg"
+                    style="display: none"
+                    type="file"
                     @change="imageUpload"/>
               </div>
             </div>
@@ -170,29 +169,27 @@
               <div class="col">
 
 
-
                 <div v-for="image in images"
                      :key="image.url" class="pad1"
-                     @mouseover="image.hover = true"
                      @mouseleave="image.hover = false"
+                     @mouseover="image.hover = true"
                 >
-                  <img v-if="image.id === undefined" width="250"
-                       :src="image.url"
+                  <img v-if="image.id === undefined" :src="image.url"
                        alt="Uploaded product image"
+                       width="250"
                   />
-                  <img v-else width="250"
-                       :src="getImageURL(image.filename)"
+                  <img v-else :src="getImageURL(image.filename)"
                        alt="Current product image"
+                       width="250"
                   />
-                  <button class="btn btn-danger ml-1 my-1 pad1"
-                          type="button"
-                          :data-target="'#removeImageModal'"
+                  <button :data-target="'#removeImageModal'"
+                          class="btn btn-danger ml-1 my-1 pad1"
                           data-toggle="modal"
+                          type="button"
                           @click="changeDeletingImage(image)">
 
                     Remove
                   </button>
-
 
 
                   <!-- Remove Image modal -->
@@ -210,12 +207,15 @@
 
                         <!-- Body section of modal -->
                         <div class="modal-body">
-                          <p>Do you really want to remove this image?</p><br><p>This will be permanent.</p>
+                          <p>Do you really want to remove this image?</p><br>
+                          <p>This will be permanent.</p>
                         </div>
 
                         <!-- Footer / button section of modal -->
                         <div class="modal-footer">
-                          <button class="btn btn-danger" data-dismiss="modal" type="button" @click="removeImage(imageWantingToDelete)">Remove</button>
+                          <button class="btn btn-danger" data-dismiss="modal" type="button"
+                                  @click="removeImage(imageWantingToDelete)">Remove
+                          </button>
                           <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
                         </div>
 
@@ -224,21 +224,19 @@
                   </div>
 
 
-
-
                   <!--                    If the image cant be made primary because it is not uploaded yet-->
-                  <button class="btn btn-secondary disabled ml-1 my-1 pad1"
-                          v-if="image.id === undefined"
-                          type="button" :data-target="'#cantMakePrimaryImageModal'" data-toggle="modal">
+                  <button v-if="image.id === undefined"
+                          :data-target="'#cantMakePrimaryImageModal'"
+                          class="btn btn-secondary disabled ml-1 my-1 pad1" data-toggle="modal" type="button">
                     Make Primary
                   </button>
-                  <button class="btn btn-primary ml-1 my-1 pad1 disabled"
-                          v-else-if="image.id === currentPrimaryImageId"
+                  <button v-else-if="image.id === currentPrimaryImageId"
+                          class="btn btn-primary ml-1 my-1 pad1 disabled"
                           type="button">
                     Already Primary
                   </button>
-                  <button class="btn btn-primary ml-1 my-1 pad1"
-                          v-else-if="image.id !== currentPrimaryImageId"
+                  <button v-else-if="image.id !== currentPrimaryImageId"
+                          class="btn btn-primary ml-1 my-1 pad1"
                           type="button" @click="makeImagePrimary(image.id)">
                     Make Primary
                   </button>
@@ -258,7 +256,8 @@
 
                         <!-- Body section of modal -->
                         <div class="modal-body">
-                          <p>This image is not on our servers yet. Please save changes before making this image Primary</p>
+                          <p>This image is not on our servers yet. Please save changes before making this image
+                            Primary</p>
                         </div>
 
                         <!-- Footer / button section of modal -->
@@ -278,7 +277,7 @@
                 <!--    Image upload progress counter    -->
                 <p v-if="submitting && imagesEdited"
                    class="ml-1 my-2 ">
-                  {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+                  {{ numImagesUploaded }}/{{ numImagesToUpload }} images uploaded
                 </p>
               </div>
 
@@ -295,9 +294,9 @@
                 >
                   Cancel
                 </button>
-                <button class="btn btn-primary"
+                <button :disabled="submitting"
+                        class="btn btn-primary"
                         v-on:click="checkInputs"
-                        :disabled="submitting"
                 >
                   <span v-if="submitting">Saving Changes</span>
                   <span v-else>Save Changes</span>
@@ -307,12 +306,11 @@
               <!--    Error message for the editing process    -->
               <div class="login-box" style="width: 100%; margin:20px 20px; text-align: center">
                 <!-- Show error if something wrong -->
-                <alert id="errorAlert" v-if="msg.errorChecks">
+                <alert v-if="msg.errorChecks" id="errorAlert">
                   {{ msg.errorChecks }}
                 </alert>
               </div>
             </div>
-
 
 
           </div>
@@ -321,7 +319,7 @@
     </div>
 
     <!-- Currency Confirm Modal -->
-    <div id="currencyConfirmModal" class="modal fade" ref="modal" role="dialog" tabindex="-1">
+    <div id="currencyConfirmModal" ref="modal" class="modal fade" role="dialog" tabindex="-1">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
 
@@ -346,8 +344,8 @@
               <button class="btn btn-secondary mr-2" data-dismiss="modal" type="button" @click="editBusiness">
                 Keep Same
               </button>
-              <button class="btn-primary btn" id="confirmButton" @click="editBusiness(true)"
-                      data-dismiss="modal" type="button">
+              <button id="confirmButton" class="btn-primary btn" data-dismiss="modal"
+                      type="button" @click="editBusiness(true)">
                 Update
               </button>
             </div>
@@ -358,10 +356,10 @@
     </div>
 
     <!-- Hidden button, only used to open the modal from methods -->
-    <button class="d-none"
-            data-toggle="modal"
+    <button ref="modalBtn"
+            class="d-none"
             data-target="#currencyConfirmModal"
-            ref="modalBtn"
+            data-toggle="modal"
     ></button>
 
   </page-wrapper>
@@ -588,7 +586,7 @@ export default {
      * If this fails the program should set the error text to the error received from the backend server
      * @param updateProductCurrency Boolean, updates the existing products with the new countries currency
      */
-    async editBusiness(updateProductCurrency=false) {
+    async editBusiness(updateProductCurrency = false) {
       try {
         const requestData = {
           name: this.businessName,
@@ -605,7 +603,7 @@ export default {
         await this.addImages()
 
         this.submitting = false
-        this.updateData()
+        await this.updateData()
 
         this.successfulEdit = true
       } catch (error) {
@@ -618,8 +616,8 @@ export default {
     /**
      * Calls the user updateData method to update the user's data in the store
      */
-    updateData() {
-      this.$root.$data.user.updateData()
+    async updateData() {
+      await this.$root.$data.user.updateData()
     },
 
     /**
@@ -640,7 +638,7 @@ export default {
       this.originalCountry = response.data.address.country
 
       //Prefill the primary admin dropdown
-      for(const admin of this.administrators) {
+      for (const admin of this.administrators) {
         if (admin.id === this.primaryAdminId) {
           this.primaryAdmin = admin
 
@@ -673,7 +671,7 @@ export default {
      * Programmatically triggers the file input field when the
      * 'Add image' button is clicked.
      */
-    addImageClicked () {
+    addImageClicked() {
       this.imagesEdited = true
       this.$refs.fileInput.click()
     },
@@ -682,7 +680,7 @@ export default {
      * Handles the file being uploaded
      * @param event the button click event that triggers this function
      */
-    imageUpload (event) {
+    imageUpload(event) {
       const files = event.target.files
 
       const formData = new FormData()
@@ -709,7 +707,7 @@ export default {
     removeImage(imageRemoving) {
       this.imagesEdited = true
       //If image has already been uploaded
-      if(imageRemoving.id){
+      if (imageRemoving.id) {
         Business.removeBusinessImage(this.businessId, imageRemoving.id)
             .then(() => {
               this.removeImageFromList(imageRemoving)
@@ -739,9 +737,9 @@ export default {
      * Used to remove the image from the list that is visible to the user
      *@param removedImage the image to be removed
      */
-    removeImageFromList(removedImage){
+    removeImageFromList(removedImage) {
       //Remove the deleted image from the list of images on screen
-      this.images = this.images.filter(function(image) {
+      this.images = this.images.filter(function (image) {
         return image !== removedImage;
       })
     },
@@ -761,7 +759,7 @@ export default {
      * Makes requests to add the business's images
      */
     async addImages() {
-      const imagesToUpload = this.images.filter(function(image) {
+      const imagesToUpload = this.images.filter(function (image) {
         return image.id === undefined;
       })
       this.numImagesToUpload = imagesToUpload.length

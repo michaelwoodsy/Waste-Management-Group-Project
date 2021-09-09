@@ -17,48 +17,42 @@ export default {
 
     /**
      * Sets the user state as logged in, including the userId cookie.
+     *
      * @param userId UserId of the user that is logged in
-     * @param resolve resolve function passed from login and register methods,
      * used so the userData is set before completely logging in or registering
      */
-    setLoggedIn(userId, resolve) {
-        User.getUserData(userId)
-            .then((res) => {
-                // Successfully got user data
-                this.state.userData = res.data;
-                this.state.role = res.data.role;
-                this.state.userId = userId;
-                this.state.loggedIn = true;
+    async setLoggedIn(userId) {
+        try {
+            const res = await User.getUserData(userId)
+            // Successfully got user data
+            this.state.userData = res.data;
+            this.state.role = res.data.role;
+            this.state.userId = userId;
+            this.state.loggedIn = true;
 
-                // Set acting as if it's null
-                if (this.state.actingAs == null) {
-                    let name = `${res.data.firstName} ${res.data.lastName}`
-                    this.setActingAs(res.data.id, name, 'user')
-                }
+            // Set acting as if it's null
+            if (this.state.actingAs == null) {
+                let name = `${res.data.firstName} ${res.data.lastName}`
+                this.setActingAs(res.data.id, name, 'user')
+            }
 
-
-                setCookie('userId', this.state.userId, null);
-
-                //Only return resolve if resolve is specified as a function (in register and login methods)
-                if (typeof resolve === "function") return resolve()
-            })
-            .catch((err) => {
-                // Failed to get data, alert the user
-                if (err.status.code === 401) {
-                    createAlertRed("Your session has expired! Try logging in again.")
-                } else {
-                    createAlertRed("Error: " + err.response.data.message)
-                }
-
-                this.setLoggedOut()
-            })
+            setCookie('userId', this.state.userId, null);
+        } catch (err) {
+            // Failed to get data, alert the user
+            if (err.response.status === 401) {
+                createAlertRed("Your session has expired! Try logging in again.")
+            } else {
+                createAlertRed("Error: " + err.response.data.message)
+            }
+            this.setLoggedOut()
+        }
     },
 
     /**
      * Updates data for user, called when a new business is created, so the new business is shown in userData
      */
-    updateData() {
-        this.setLoggedIn(this.state.userId)
+    async updateData() {
+        await this.setLoggedIn(this.state.userId)
     },
 
     /**
@@ -67,49 +61,32 @@ export default {
     setLoggedOut() {
         this.state.loggedIn = false;
         this.state.userId = null;
+        this.state.role = null;
         this.state.userData = {};
         this.state.actingAs = null;
         deleteCookie('userId');
         deleteCookie('actor');
     },
 
-    register(firstName, lastName, middleName, nickname, bio, email, dateOfBirth, phoneNumber, homeAddress, password) {
-        // Return a promise for the api call
-        return new Promise((resolve, reject) => {
-            User.createNew(firstName, lastName, middleName, nickname, bio, email, dateOfBirth, phoneNumber, homeAddress, password)
-                .then((res) => {
-                    // Set logged in then resolve the promise
-                    this.setLoggedIn(res.data.userId, resolve)
-                })
-                .catch((err) => {
-                    // Set logged out then reject the promise
-                    this.setLoggedOut();
-                    reject(err)
-                })
-        })
+    /**
+     * Sends request to register a new account
+     *
+     * @param data User information to register account with
+     */
+    async register(data) {
+        const res = await User.createNew(data)
+        await this.setLoggedIn(res.data.userId)
     },
 
     /**
      * Logs the user in, and sets the corresponding loggedIn value if successful
+     *
      * @param username Username to send to api
      * @param password Password to send to api
-     * @returns {Promise<unknown>} Axios response
      */
-    login(username, password) {
-        // Return a promise for the api call
-        return new Promise((resolve, reject) => {
-            User.login(username, password)
-                .then((res) => {
-                    // Set logged in then resolve the promise
-                    this.setLoggedIn(res.data.userId, resolve)
-
-                })
-                .catch((err) => {
-                    // Set logged out then reject the promise
-                    this.setLoggedOut();
-                    reject(err)
-                })
-        })
+    async login(username, password) {
+        const res = await User.login(username, password)
+        await this.setLoggedIn(res.data.userId)
     },
 
     /**
@@ -122,14 +99,12 @@ export default {
     /**
      * Checks if the current user is logged in (based on cookies) and sets the app state accordingly
      */
-    checkLoggedIn() {
+    async checkLoggedIn() {
         // Ger userId from cookies
         const userId = getCookie('userId');
 
         // Check if the userId was null
-        if (userId == null) {
-            return
-        } else {
+        if (userId != null) {
             // Try set actor
             try {
                 const actor = JSON.parse(getCookie('actor'));
@@ -137,15 +112,9 @@ export default {
             } catch (err) {
                 deleteCookie('actor')
             }
-
             // Set logged in
-            this.setLoggedIn(userId)
+            await this.setLoggedIn(userId)
         }
-
-        // Check if the logged in users session token is valid
-        User.getUserData(userId)
-            .then(() => this.setLoggedIn(userId))
-            .catch(() => this.setLoggedOut())
     },
 
     /**
@@ -267,7 +236,7 @@ export default {
      * Allows the user to create a new card for in the marketplace
      * @param data for the marketplace card
      */
-    createCard(data){
+    createCard(data) {
         // Return a promise for the api call
         return new Promise(((resolve, reject) => {
             User.createCard(data)
@@ -279,7 +248,6 @@ export default {
                 });
         }));
     }
-
 
 
 }

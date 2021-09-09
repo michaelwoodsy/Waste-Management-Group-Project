@@ -61,9 +61,9 @@
           <hr>
         </div>
 
-        <div class="row row-cols-1 row-cols-lg-2">
+        <div v-if="user.isActingAsUser()" class="row row-cols-1 row-cols-lg-2">
           <!-- Cards Section -->
-          <div v-if="user.isActingAsUser()" class="col">
+          <div class="col">
             <h2>My Cards</h2>
             <div v-if="cards.length > 0">
               <alert v-if="hasExpiredCards" class="text-center">
@@ -92,7 +92,7 @@
           </div>
 
           <!-- Liked Listing Section -->
-          <div v-if="user.isActingAsUser()" class="col">
+          <div class="col">
             <h2>My Liked Listings</h2>
             <div v-if="likedListings.length > 0">
               <div class="input-group mb-4">
@@ -110,9 +110,9 @@
                   </div>
                 </div>
                 <div class="input-group-append">
-                  <button class="btn"
-                          :class="{'btn-secondary': tagFilters.length === 0, 'btn-danger': tagFilters.length > 0}"
+                  <button :class="{'btn-secondary': tagFilters.length === 0, 'btn-danger': tagFilters.length > 0}"
                           :disabled="tagFilters.length === 0"
+                          class="btn"
                           @click="tagFilters = []"
                   >
                     <em class="bi bi-x-circle-fill"/>
@@ -131,6 +131,13 @@
               </div>
             </div>
             <div v-else>You have no liked sale listings.</div>
+          </div>
+        </div>
+
+        <div v-if="user.isActingAsBusiness()" class="row">
+          <!-- Sales Report Section -->
+          <div class="col">
+            <sales-report-page :business-id="user.actor().id"/>
           </div>
         </div>
 
@@ -241,6 +248,7 @@ import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
 import undo from "@/utils/undo"
+import SalesReportPage from "@/components/sales-report/SalesReportPage";
 
 const tags = {
   RED: {
@@ -276,6 +284,7 @@ const tags = {
 export default {
   name: "Home",
   components: {
+    SalesReportPage,
     LikedListing,
     Message,
     Alert,
@@ -439,8 +448,7 @@ export default {
       let sortFunc = (x, y) => {
         if (x.starred === y.starred) {
           return 0
-        }
-        else if (x.starred) {
+        } else if (x.starred) {
           return -1
         }
         return 1
