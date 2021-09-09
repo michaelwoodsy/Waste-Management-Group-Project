@@ -760,13 +760,22 @@ public class SaleListingService {
      */
     @Scheduled(cron = "@midnight")
     public void deleteExpiredSaleListings() {
+        // create specification for getting LikedSaleListings of listings that are expired
         var now = LocalDateTime.now();
         Specification<LikedSaleListing> spec = LikedSaleListingSpecification.saleListingClosesBefore(now);
+
+        // find expired saleListings and likedSaleListings
         List<SaleListing> expiredListings = saleListingRepository.findAllByClosesBefore(now);
         List<LikedSaleListing> expiredLikedListings = likedSaleListingRepository.findAll(spec);
+
+        // delete all that are expired
         if (!expiredLikedListings.isEmpty()) {
             likedSaleListingRepository.deleteAll(expiredLikedListings);
         }
         saleListingRepository.deleteAll(expiredListings);
+
+        // logging
+        var logMessage = String.format("Deleted %d expired sales listings", expiredListings.size());
+        logger.info(logMessage);
     }
 }
