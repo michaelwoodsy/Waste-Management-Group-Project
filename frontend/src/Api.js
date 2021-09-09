@@ -468,46 +468,12 @@ export const Business = {
 
     /**
      * requests to get sales listings matching supplied properties
-     * @param searchQuery query searched by
-     * @param matchingProductName weather to match product name with the search query
-     * @param matchingBusinessName weather to match business name with the search query
-     * @param matchingBusinessLocation weather to match business location with the search query
-     * @param matchingBusinessType weather to match business type with the search query
-     * @param priceRangeLower lower price range
-     * @param priceRangeUpper upper price range
-     * @param closingDateLower lower closing date range
-     * @param closingDateUpper upper closing date range
-     * @param pageNumber the page number to get
-     * @param sortBy the sort parameter
+     * @param params query parameters for browsing slae listings
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
-    searchSaleListings: (searchQuery,
-                         matchingProductName,
-                         matchingBusinessName,
-                         matchingBusinessLocation,
-                         matchingBusinessType,
-                         priceRangeLower,
-                         priceRangeUpper,
-                         closingDateLower,
-                         closingDateUpper,
-                         pageNumber,
-                         sortBy) => instance.get(`listings`,
-        {
-            params:
-                {
-                    'searchQuery': searchQuery,
-                    'matchingProductName': matchingProductName,
-                    'matchingBusinessName': matchingBusinessName,
-                    'matchingBusinessLocation': matchingBusinessLocation,
-                    'matchingBusinessType': matchingBusinessType,
-                    'priceRangeLower': priceRangeLower,
-                    'priceRangeUpper': priceRangeUpper,
-                    'closingDateLower': closingDateLower,
-                    'closingDateUpper': closingDateUpper,
-                    'pageNumber': pageNumber,
-                    'sortBy': sortBy
-                }
-        }),
+    searchSaleListings: (params) => instance.get(`listings`, {
+        params
+    }),
 
     /**
      * Sends a request to purchase a specific listing
@@ -537,6 +503,18 @@ export const Business = {
      * @returns {Promise<AxiosResponse<any>>} Response from  the request
      */
     starListing: (listingId, value) => instance.patch(`/listings/${listingId}/star`, {star: value}),
+
+    /**
+     * Gets a sales report for a specififed business
+     *
+     * @param businessId ID of business to generate sales report for
+     * @param params query parameters specifying date range and granularity
+     * @returns {Promise<AxiosResponse<any>>} response containing sales report
+     */
+    getSalesReport: (businessId, params) =>
+        instance.get(`/businesses/${businessId}/sales`, {
+            params
+        })
 };
 
 export const Card = {

@@ -56,3 +56,16 @@ export function formatDateTime(dateTime) {
 
     return `${day}/${month}/${year} ${hours}:${minutes}`
 }
+
+/**
+ * Takes a Date object and formats it as YYYY-MM-DD
+ *
+ * @param date Date object to format
+ * @returns {string} string representing date as YYYY-MM-DD
+ */
+export function formatDate(date) {
+    let yyyy = String(date.getFullYear())
+    let mm = String(date.getMonth() + 1).padStart(2, '0')
+    let dd = String(date.getDate()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd}`
+}

@@ -4,28 +4,28 @@
     <div class="row mb-5 justify-content-center">
       <div class="col-8">
 
-        <div class="form-group">
+        <div class="form-group row">
           <div class="input-group" :class="{'is-invalid': msg.dateRange}">
             <div class="input-group-prepend">
               <span class="input-group-text">Date Range</span>
             </div>
-            <input id="startDateRange" v-model="options.startDate"
+            <input id="startDateRange" v-model="options.periodStart"
                    :class="{'is-invalid': msg.dateRange}"
                    class="form-control" type="date">
-            <input id="endDateRange" v-model="options.endDate"
+            <input id="endDateRange" v-model="options.periodEnd"
                    :class="{'is-invalid': msg.dateRange}"
                    class="form-control" type="date">
           </div>
           <span class="invalid-feedback text-center">{{ msg.dateRange }}</span>
         </div>
 
-        <div class="form-group">
+        <div class="form-group row">
           <div class="input-group">
             <div class="input-group-prepend">
               <span class="input-group-text">Granularity</span>
             </div>
-            <select v-model="options.granularity" class="custom-select">
-              <option v-for="option of granularityOptions" :key="option" value="option">
+            <select v-model="options.granularity" class="custom-select" ref="select">
+              <option v-for="option of granularityOptions" :key="option" :value="option.toLowerCase()">
                 {{ option }}
               </option>
             </select>
@@ -42,17 +42,20 @@
 </template>
 
 <script>
+import {formatDate} from "@/utils/dateTime";
+
 export default {
   name: "SalesReportControls",
   data() {
     return {
       options: {
-        startDate: null,
-        endDate: null,
-        granularity: 'Total'
+        periodStart: null,
+        periodEnd: null,
+        granularity: 'all'
       },
       granularityOptions: [
-        'Total',
+        'All',
+        'Yearly',
         'Monthly',
         'Weekly',
       ],
@@ -62,19 +65,28 @@ export default {
       }
     }
   },
+  mounted() {
+    const previousYear = new Date()
+    previousYear.setFullYear(previousYear.getFullYear() - 1)
+    const now = new Date()
+    this.options.periodStart = formatDate(previousYear)
+    this.options.periodEnd = formatDate(now)
+  },
   methods: {
     /**
      * Validates the date range for the sales report
      */
     validateDateRange() {
-      if (this.options.startDate == null || this.options.endDate == null) {
+      if (this.options.periodStart == null || this.options.periodEnd == null) {
         this.valid = false
         this.msg.dateRange = 'Please enter a date range'
       } else {
-        const startDate = new Date(this.options.startDate)
-        const endDate = new Date(this.options.endDate)
+        const startDate = new Date(this.options.periodStart)
+        startDate.setHours(0, 0, 0, 0)
+        const endDate = new Date(this.options.periodEnd)
+        endDate.setHours(0, 0, 0, 0)
         const currentDate = new Date()
-        if (currentDate < startDate || currentDate < endDate) {
+        if (startDate > currentDate || endDate > currentDate) {
           this.valid = false
           this.msg.dateRange = 'Date range must be in the past'
         } else {

@@ -179,8 +179,8 @@
               </td>
               <td style="word-break: break-word; width: 35%">
                 {{ listing.inventoryItem.product.name }}<br>
-                <em class="bi" style="color: red"
-                    :class="{'bi-heart-fill': listing.userLikes, 'bi-heart': !listing.userLikes}"
+                <em :class="{'bi-heart-fill': listing.userLikes, 'bi-heart': !listing.userLikes}" class="bi"
+                    style="color: red"
                 /> {{ listing.likes }}
                 <span v-if="listing.moreInfo" style="font-size: small"><br/>{{ listing.moreInfo }}</span>
               </td>
@@ -525,29 +525,28 @@ export default {
      */
     async search() {
       this.loading = true
-      await Business.searchSaleListings(
-          this.searchQuery,
-          this.fieldOptions[0].checked,
-          this.fieldOptions[1].checked,
-          this.fieldOptions[2].checked,
-          this.fieldOptions[3].checked,
-          this.priceLowerBound,
-          this.priceUpperBound,
-          this.closingDateLowerBound,
-          this.closingDateUpperBound,
-          this.page - 1,
-          this.orderBy)
-          .then(async (res) => {
-            this.listings = res.data[0]
-            this.listings = await this.$root.$data.product.addSaleListingCurrencies(this.listings)
-            this.totalCount = res.data[1]
-            this.error = null
-            this.loading = false
-          })
-          .catch((err) => {
-            this.error = err;
-            this.loading = false;
-          })
+      await Business.searchSaleListings({
+        searchQuery: this.searchQuery,
+        matchingProductName: this.fieldOptions[0].checked,
+        matchingBusinessName: this.fieldOptions[1].checked,
+        matchingBusinessLocation: this.fieldOptions[2].checked,
+        matchingBusinessType: this.fieldOptions[3].checked,
+        priceRangeLower: this.priceLowerBound,
+        priceRangeUpper: this.priceUpperBound,
+        closingDateLower: this.closingDateLowerBound,
+        closingDateUpper: this.closingDateUpperBound,
+        pageNumber: this.page - 1,
+        sortBy: this.orderBy
+      }).then(async (res) => {
+        this.listings = res.data[0]
+        this.listings = await this.$root.$data.product.addSaleListingCurrencies(this.listings)
+        this.totalCount = res.data[1]
+        this.error = null
+        this.loading = false
+      }).catch((err) => {
+        this.error = err;
+        this.loading = false;
+      })
     },
   }
 }
