@@ -57,6 +57,10 @@ class SaleListingServiceTest extends AbstractInitializer {
     SaleListing saleListing2;
     SaleListing saleListing3;
     SaleListing saleListing4;
+    SaleListing saleListing5;
+    SaleListing saleListing6;
+    SaleListing saleListing7;
+    SaleListing saleListing8;
 
     @Autowired
     SaleListingServiceTest(UserRepository userRepository,
@@ -150,6 +154,34 @@ class SaleListingServiceTest extends AbstractInitializer {
         inventoryItem4 = inventoryItemRepository.save(inventoryItem4);
         saleListing4 = new SaleListing(business2, inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
         saleListingRepository.save(saleListing4);
+
+        Product product5 = new Product("TEST-5", "Fifth Product", null, null, 5.00, business1.getId());
+        productRepository.save(product5);
+        InventoryItem inventoryItem5 = new InventoryItem(product5, 5, null, null, "2021-01-01", null, null, "2021-12-04");
+        inventoryItem5 = inventoryItemRepository.save(inventoryItem5);
+        saleListing5 = new SaleListing(business1, inventoryItem5, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
+        saleListingRepository.save(saleListing5);
+
+        Product product6 = new Product("TEST-6", "Sixth Product", null, null, 5.00, business1.getId());
+        productRepository.save(product6);
+        InventoryItem inventoryItem6 = new InventoryItem(product6, 5, null, null, "2021-01-01", null, null, "2021-12-04");
+        inventoryItem6 = inventoryItemRepository.save(inventoryItem6);
+        saleListing6 = new SaleListing(business1, inventoryItem6, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
+        saleListingRepository.save(saleListing6);
+
+        Product product7 = new Product("TEST-7", "Seventh Product", null, null, 5.00, business1.getId());
+        productRepository.save(product7);
+        InventoryItem inventoryItem7 = new InventoryItem(product7, 5, null, null, "2021-01-01", null, null, "2021-12-04");
+        inventoryItem7 = inventoryItemRepository.save(inventoryItem7);
+        saleListing7 = new SaleListing(business1, inventoryItem7, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
+        saleListingRepository.save(saleListing7);
+
+        Product product8 = new Product("TEST-8", "Eighth Product", null, null, 5.00, business1.getId());
+        productRepository.save(product8);
+        InventoryItem inventoryItem8 = new InventoryItem(product8, 5, null, null, "2021-01-01", null, null, "2021-12-04");
+        inventoryItem8 = inventoryItemRepository.save(inventoryItem8);
+        saleListing8 = new SaleListing(business1, inventoryItem8, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
+        saleListingRepository.save(saleListing8);
 
         Mockito.when(userService.getUserByEmail(testUser.getEmail()))
                 .thenReturn(userRepository.findByEmail(testUser.getEmail()).get(0));
@@ -1405,5 +1437,29 @@ class SaleListingServiceTest extends AbstractInitializer {
         Integer businessID = business1.getId();
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> saleListingService.featureSaleListing(99, businessID, true, user));
+    }
+
+    /**
+     * Tests that a Not Acceptable Exception is thrown when a user tries to feature a sale listing when they
+     * already have the max number of featured sale listings 5
+     */
+    @Test
+    void featureSaleListing_tooManyFeatured_NotAcceptableException(){
+        saleListing1.setFeatured(true);
+        saleListingRepository.save(saleListing1);
+        saleListing2.setFeatured(true);
+        saleListingRepository.save(saleListing2);
+        saleListing5.setFeatured(true);
+        saleListingRepository.save(saleListing5);
+        saleListing6.setFeatured(true);
+        saleListingRepository.save(saleListing6);
+        saleListing7.setFeatured(true);
+        saleListingRepository.save(saleListing7);
+
+        AppUserDetails user = new AppUserDetails(testAdmin);
+        Integer listingId = saleListing8.getId();
+        Integer businessID = business1.getId();
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.featureSaleListing(listingId, businessID, true, user));
     }
 }

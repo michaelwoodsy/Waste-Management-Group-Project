@@ -918,4 +918,29 @@ class SaleListingControllerTest extends AbstractInitializer {
         mockMvc.perform(request)
                 .andExpect(status().isNotAcceptable());
     }
+
+    /**
+     * Tests that when a user features a sale listing when the User already has the maximum number of featured
+     * sale listings
+     * returns a 406 response Not Acceptable Exception
+     */
+    @Test
+    void featureSaleListings_tooManyFeatured_406() throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("featured", true);
+
+        Mockito.doThrow(new NotAcceptableException(
+                "You already have the maximum number of possible featured sale listings")).when(saleListingService)
+                .featureSaleListing(any(Integer.class), any(Integer.class), any(boolean.class), any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/listings/{listingId}/feature", business.getId(), 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotAcceptable());
+    }
 }
