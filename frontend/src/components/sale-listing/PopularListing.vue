@@ -6,8 +6,7 @@ Displays a popular listing
 -->
 <template>
   <div>
-    <div class="card shadow card-size">
-
+    <div class="card shadow card-size" style="width: 22rem">
       <!-- Listing Image -->
       <img v-if="imageUrl != null" :src="imageUrl" alt="productImage" class="card-img-top">
 
