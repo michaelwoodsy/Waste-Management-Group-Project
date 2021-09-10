@@ -29,6 +29,13 @@ public class FeaturedBusinessListingsSteps {
                 .build();
     }
 
+    @After
+    public void tearDown() {
+        saleListingRepository.deleteAll();
+        businessRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
 //    AC2
     @Given("the user is acting as a business")
     public void the_user_is_acting_as_a_business() {
