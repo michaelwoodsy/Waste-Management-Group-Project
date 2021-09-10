@@ -61,9 +61,9 @@
           <hr>
         </div>
 
-        <div class="row row-cols-1 row-cols-lg-2">
+        <div v-if="user.isActingAsUser()" class="row row-cols-1 row-cols-lg-2">
           <!-- Cards Section -->
-          <div v-if="user.isActingAsUser()" class="col">
+          <div class="col">
             <h2>My Cards</h2>
             <div v-if="cards.length > 0">
               <alert v-if="hasExpiredCards" class="text-center">
@@ -92,7 +92,7 @@
           </div>
 
           <!-- Liked Listing Section -->
-          <div v-if="user.isActingAsUser()" class="col">
+          <div class="col">
             <h2>My Liked Listings</h2>
             <div v-if="likedListings.length > 0">
               <div class="input-group mb-4">
@@ -110,9 +110,9 @@
                   </div>
                 </div>
                 <div class="input-group-append">
-                  <button class="btn"
-                          :class="{'btn-secondary': tagFilters.length === 0, 'btn-danger': tagFilters.length > 0}"
+                  <button :class="{'btn-secondary': tagFilters.length === 0, 'btn-danger': tagFilters.length > 0}"
                           :disabled="tagFilters.length === 0"
+                          class="btn"
                           @click="tagFilters = []"
                   >
                     <em class="bi bi-x-circle-fill"/>
@@ -131,6 +131,35 @@
               </div>
             </div>
             <div v-else>You have no liked sale listings.</div>
+          </div>
+          <!-- TODO:Put carousel into separate component with popular listing inside-->
+          <div class="row">
+            <div>
+              <div id="popularListingCarousel" class="carousel slide w-50 col" data-ride="carousel">
+                <div class="carousel-inner" role="listbox">
+                  <div v-for="(listing, index) in likedListings" v-bind:key="listing.id"
+                       :class="{'carousel-item': true, 'active': index === 0}">
+                    <PopularListing :data="listing"
+                                    @update-data="updateData"></PopularListing>
+                  </div>
+                </div>
+                <a class="carousel-control-prev" data-slide="prev" href="#popularListingCarousel" role="button">
+                  <span aria-hidden="true" class="carousel-control-prev-icon"></span>
+                  <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" data-slide="next" href="#popularListingCarousel" role="button">
+                  <span aria-hidden="true" class="carousel-control-next-icon"></span>
+                  <span class="sr-only">Next</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="user.isActingAsBusiness()" class="row">
+          <!-- Sales Report Section -->
+          <div class="col">
+            <sales-report-page :business-id="user.actor().id"/>
           </div>
         </div>
 
@@ -222,11 +251,8 @@
             />
           </div>
         </div>
-
       </div>
-
     </div>
-
   </div>
 </template>
 
@@ -241,6 +267,8 @@ import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
 import undo from "@/utils/undo"
+import SalesReportPage from "@/components/sales-report/SalesReportPage";
+import PopularListing from "@/components/sale-listing/PopularListing";
 
 const tags = {
   RED: {
@@ -276,15 +304,39 @@ const tags = {
 export default {
   name: "Home",
   components: {
+    SalesReportPage,
     LikedListing,
     Message,
     Alert,
     LoginRequired,
     MarketCard,
-    Notification
+    Notification,
+    PopularListing
   },
   async mounted() {
     await this.getData()
+    //TODO: place the sections underneath into the carousel component for the popular listings
+    $('#popularListingCarousel').carousel({
+      interval: 10000
+    })
+
+    $('.carousel .carousel-item').each(function(){
+      var minPerSlide = 3;
+      var next = $(this).next();
+      if (!next.length) {
+        next = $(this).siblings(':first');
+      }
+      next.children(':first-child').clone().appendTo($(this));
+
+      for (var i=0;i<minPerSlide;i++) {
+        next=next.next();
+        if (!next.length) {
+          next = $(this).siblings(':first');
+        }
+
+        next.children(':first-child').clone().appendTo($(this));
+      }
+    });
   },
   watch: {
     async actingAs() {
@@ -439,8 +491,7 @@ export default {
       let sortFunc = (x, y) => {
         if (x.starred === y.starred) {
           return 0
-        }
-        else if (x.starred) {
+        } else if (x.starred) {
           return -1
         }
         return 1
@@ -806,4 +857,39 @@ export default {
   text-shadow: currentColor 0 0 5px;
 }
 
+/*TODO: place the sections underneath into the carousel component for the popular listings*/
+/* display 2 */
+@media (max-width: 768px) {
+  .carousel-inner .carousel-item > div {
+    display: none;
+  }
+  .carousel-inner .carousel-item > div:first-child {
+    display: block;
+  }
+}
+
+.carousel-inner .carousel-item.active,
+.carousel-inner .carousel-item-next,
+.carousel-inner .carousel-item-prev {
+  display: flex;
+}
+
+/* display 3 */
+@media (min-width: 768px) {
+
+  .carousel-inner .carousel-item-right.active,
+  .carousel-inner .carousel-item-next {
+    transform: translateX(33.333%);
+  }
+
+  .carousel-inner .carousel-item-left.active,
+  .carousel-inner .carousel-item-prev {
+    transform: translateX(-33.333%);
+  }
+}
+
+.carousel-inner .carousel-item-right,
+.carousel-inner .carousel-item-left{
+  transform: translateX(0);
+}
 </style>

@@ -3,12 +3,12 @@ package org.seng302.project.service_layer.service;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.model.enums.Tag;
 import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.repository_layer.specification.LikedSaleListingSpecification;
 import org.seng302.project.repository_layer.specification.SaleListingSpecifications;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
-import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.InvalidDateException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,27 +99,18 @@ public class SaleListingService {
      * @return List of sale listings.
      */
     public List<GetSaleListingDTO> getBusinessListings(Integer businessId, AppUserDetails appUser) {
-        try {
-            // Get the user that made the request
-            User user = userService.getUserByEmail(appUser.getUsername());
+        // Get the user that made the request
+        var user = userService.getUserByEmail(appUser.getUsername());
 
-            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
+        logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
 
-            // To check the business exists
-            businessService.checkBusiness(businessId);
+        // To check the business exists
+        businessService.checkBusiness(businessId);
 
-            // Get the sale listings of the business
-            List<SaleListing> listings = saleListingRepository.findAllByBusinessId(businessId);
+        // Get the sale listings of the business
+        List<SaleListing> listings = saleListingRepository.findAllByBusinessId(businessId);
 
-            return getListingDTOs(listings, user);
-
-        } catch (NotAcceptableException exception) {
-            throw exception;
-        } catch (Exception unhandledException) {
-            logger.error(String.format("Unexpected error while getting business sale listings: %s",
-                    unhandledException.getMessage()));
-            throw unhandledException;
-        }
+        return getListingDTOs(listings, user);
     }
 
     /**
@@ -137,24 +129,19 @@ public class SaleListingService {
 
                 //Check if closes date is in the past
                 if ((LocalDateTime.now()).isAfter(closesDateTime)) {
-                    BadRequestException exception = new BadRequestException("Closing date must be in the future.");
+                    var exception = new BadRequestException("Closing date must be in the future.");
                     logger.warn(exception.getMessage());
                     throw exception;
                 }
             } else {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                Date expiryDate = formatter.parse(item.getExpires());
+                var formatter = new SimpleDateFormat("yyyy-MM-dd");
+                var expiryDate = formatter.parse(item.getExpires());
                 closesDateTime = expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
             }
         } catch (DateTimeParseException | ParseException parseException) {
-            InvalidDateException invalidDateException = new InvalidDateException();
+            var invalidDateException = new InvalidDateException();
             logger.warn(invalidDateException.getMessage());
             throw invalidDateException;
-        } catch (BadRequestException handledException) {
-            throw handledException;
-        } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while parsing date: %s", exception.getMessage()));
-            throw exception;
         }
         return closesDateTime;
 
@@ -169,64 +156,54 @@ public class SaleListingService {
      * @param appUser    The user that made the request.
      */
     public void newBusinessListing(PostSaleListingDTO requestDTO, Integer businessId, AppUserDetails appUser) {
-        try {
-            // Get the user that made the request
-            User user = userService.getUserByEmail(appUser.getUsername());
+        // Get the user that made the request
+        var user = userService.getUserByEmail(appUser.getUsername());
 
-            logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
+        logger.info("User with id {} trying to get sale listings of business with id {}.", user.getId(), businessId);
 
-            // Get the business of the request
-            Business business = businessService.checkBusiness(businessId);
+        // Get the business of the request
+        var business = businessService.checkBusiness(businessId);
 
-            // Check the user is an admin of the business
-            businessService.checkUserCanDoBusinessAction(appUser, business);
+        // Check the user is an admin of the business
+        businessService.checkUserCanDoBusinessAction(appUser, business);
 
-            Integer inventoryItemId = requestDTO.getInventoryItemId();
-            //Check if inventory item exists in businesses inventory items
-            Optional<InventoryItem> retrievedItemOptions = inventoryItemRepository.findById(inventoryItemId);
-            if (retrievedItemOptions.isEmpty()) {
-                BadRequestException exception = new BadRequestException(String.format(
-                        "No inventory item with id %d exists in business with id %d.",
-                        inventoryItemId, businessId));
-                logger.warn(exception.getMessage());
-                throw exception;
-            }
-            InventoryItem item = retrievedItemOptions.get();
-
-            Integer quantity = requestDTO.getQuantity();
-            List<SaleListing> listings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(businessId, inventoryItemId);
-
-            //Calculates the quantity used of this Inventory item in other sales listings, if any
-            Integer quantityUsed = 0;
-            for (SaleListing listing : listings) {
-                quantityUsed += listing.getQuantity();
-            }
-            //Check if there is enough of the inventory item
-            if (quantity > (item.getQuantity() - quantityUsed)) {
-                BadRequestException exception = new BadRequestException(
-                        String.format(
-                                "You do not have enough of item with id %d for this listing (you have %d, with %d used in other sale listings).",
-                                inventoryItemId, item.getQuantity() - quantityUsed, quantityUsed));
-                logger.warn(exception.getMessage());
-                throw exception;
-            }
-
-            Double price = requestDTO.getPrice();
-            String moreInfo = requestDTO.getMoreInfo();
-            String closesDateString = requestDTO.getCloses();
-            LocalDateTime closesDateTime = getClosesDateTime(closesDateString, item);
-
-            SaleListing saleListing = new SaleListing(business, item, price, moreInfo, closesDateTime, quantity);
-            saleListingRepository.save(saleListing);
-
-        } catch (NotAcceptableException | ForbiddenException |
-                BadRequestException | InvalidDateException exception) {
+        Integer inventoryItemId = requestDTO.getInventoryItemId();
+        //Check if inventory item exists in businesses inventory items
+        Optional<InventoryItem> retrievedItemOptions = inventoryItemRepository.findById(inventoryItemId);
+        if (retrievedItemOptions.isEmpty()) {
+            var exception = new BadRequestException(String.format(
+                    "No inventory item with id %d exists in business with id %d.",
+                    inventoryItemId, businessId));
+            logger.warn(exception.getMessage());
             throw exception;
-        } catch (Exception unhandledException) {
-            logger.error(String.format("Unexpected error while adding sales listing: %s",
-                    unhandledException.getMessage()));
-            throw unhandledException;
         }
+        InventoryItem item = retrievedItemOptions.get();
+
+        Integer quantity = requestDTO.getQuantity();
+        List<SaleListing> listings = saleListingRepository.findAllByBusinessIdAndInventoryItemId(businessId, inventoryItemId);
+
+        //Calculates the quantity used of this Inventory item in other sales listings, if any
+        Integer quantityUsed = 0;
+        for (SaleListing listing : listings) {
+            quantityUsed += listing.getQuantity();
+        }
+        //Check if there is enough of the inventory item
+        if (quantity > (item.getQuantity() - quantityUsed)) {
+            var exception = new BadRequestException(
+                    String.format(
+                            "You do not have enough of item with id %d for this listing (you have %d, with %d used in other sale listings).",
+                            inventoryItemId, item.getQuantity() - quantityUsed, quantityUsed));
+            logger.warn(exception.getMessage());
+            throw exception;
+        }
+
+        Double price = requestDTO.getPrice();
+        String moreInfo = requestDTO.getMoreInfo();
+        var closesDateString = requestDTO.getCloses();
+        LocalDateTime closesDateTime = getClosesDateTime(closesDateString, item);
+
+        var saleListing = new SaleListing(business, item, price, moreInfo, closesDateTime, quantity);
+        saleListingRepository.save(saleListing);
     }
 
 
@@ -242,7 +219,7 @@ public class SaleListingService {
      */
     public List<Object> searchSaleListings(SearchSaleListingsDTO dto, AppUserDetails appUser) {
         // Get the user that made the request
-        User user = userService.getUserByEmail(appUser.getUsername());
+        var user = userService.getUserByEmail(appUser.getUsername());
 
         List<SaleListing> listings;
         long totalCount;
@@ -251,7 +228,7 @@ public class SaleListingService {
 
         Specification<SaleListing> spec = buildListingSpec(dto, conjunctions);
 
-        Sort sort = buildListingSort(dto.getSortBy());
+        var sort = buildListingSort(dto.getSortBy());
 
         Pageable pageable;
         if (sort != null) {
@@ -325,18 +302,18 @@ public class SaleListingService {
         try {
             LocalDateTime closingDateLower = null;
             LocalDateTime closingDateUpper = null;
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            var formatter = new SimpleDateFormat("yyyy-MM-dd");
             if (dto.getClosingDateLower() != null) {
-                Date date = formatter.parse(dto.getClosingDateLower());
+                var date = formatter.parse(dto.getClosingDateLower());
                 closingDateLower = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
             }
             if (dto.getClosingDateUpper() != null) {
-                Date date = formatter.parse(dto.getClosingDateUpper());
+                var date = formatter.parse(dto.getClosingDateUpper());
                 closingDateUpper = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
             }
             spec = spec.and(searchClosesInBetween(closingDateLower, closingDateUpper));
         } catch (ParseException parseException) {
-            InvalidDateException invalidDateException = new InvalidDateException();
+            var invalidDateException = new InvalidDateException();
             logger.warn(invalidDateException.getMessage());
             throw invalidDateException;
         }
@@ -568,7 +545,7 @@ public class SaleListingService {
         Optional<SaleListing> listing = saleListingRepository.findById(listingId);
 
         if (listing.isEmpty()) {
-            String message = String.format("No sale listing with ID %d exists", listingId);
+            var message = String.format("No sale listing with ID %d exists", listingId);
             logger.warn(message);
             throw new NotAcceptableException(message);
         }
@@ -587,7 +564,7 @@ public class SaleListingService {
         List<LikedSaleListing> result = likedSaleListingRepository.findByListingAndUser(listing, loggedInUser);
 
         if (result.isEmpty()) {
-            String message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listing.getId());
+            var message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listing.getId());
             logger.warn(message);
             throw new BadRequestException(message);
         }
@@ -611,13 +588,13 @@ public class SaleListingService {
         //Check that the user hasn't already liked the sale listing
         if (likedSaleListingRepository.findByListingAndUser(listing, loggedInUser).isEmpty()) {
             //Make the new liked sale listing
-            LikedSaleListing likedSaleListing = new LikedSaleListing(loggedInUser, listing);
+            var likedSaleListing = new LikedSaleListing(loggedInUser, listing);
             //Save the liked sale listing
             loggedInUser.addLikedListing(likedSaleListing);
             //Add liked sale listing to the list of liked sale listings of user
             userRepository.save(loggedInUser);
         } else {
-            String message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listingId);
+            var message = String.format("User with ID %d has not liked sale listing with ID %d", loggedInUser.getId(), listingId);
             logger.warn(message);
             throw new BadRequestException(message);
         }
@@ -631,11 +608,11 @@ public class SaleListingService {
      */
     @Transactional
     public void unlikeSaleListing(Integer listingId, AppUserDetails user) {
-        User loggedInUser = userService.getUserByEmail(user.getUsername());
+        var loggedInUser = userService.getUserByEmail(user.getUsername());
 
         SaleListing listing = retrieveListing(listingId);
 
-        LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
+        var likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
         loggedInUser.removeLikedListing(likedSaleListing);
         userRepository.save(loggedInUser);
     }
@@ -748,15 +725,15 @@ public class SaleListingService {
                                AppUserDetails user) {
         logger.info("Request to tag a sale listing with ID: {}", listingId);
         if (!Tag.checkTag(tagName)) {
-            BadRequestException badRequestException = new BadRequestException(String.format("%s is not a valid tag.", tagName));
+            var badRequestException = new BadRequestException(String.format("%s is not a valid tag.", tagName));
             logger.warn(badRequestException.getMessage());
             throw badRequestException;
         }
 
-        User loggedInUser = userService.getUserByEmail(user.getUsername());
+        var loggedInUser = userService.getUserByEmail(user.getUsername());
         SaleListing listing = retrieveListing(listingId);
-        LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
-        Tag tag = Tag.getTag(tagName);
+        var likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
+        var tag = Tag.getTag(tagName);
         likedSaleListing.setTag(tag);
         likedSaleListingRepository.save(likedSaleListing);
     }
@@ -770,15 +747,35 @@ public class SaleListingService {
                                 boolean star,
                                 AppUserDetails user){
         logger.info("Request to star a sale listing with ID: {}", listingId);
-        try{
-            User loggedInUser = userService.getUserByEmail(user.getUsername());
-            SaleListing listing = retrieveListing(listingId);
-            LikedSaleListing likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
-            likedSaleListing.setStarred(star);
-            likedSaleListingRepository.save(likedSaleListing);
-        } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while starring sale listing : %s", exception.getMessage()));
-            throw exception;
+        var loggedInUser = userService.getUserByEmail(user.getUsername());
+        SaleListing listing = retrieveListing(listingId);
+        var likedSaleListing = retrieveLikedSaleListing(listing, loggedInUser);
+        likedSaleListing.setStarred(star);
+        likedSaleListingRepository.save(likedSaleListing);
+    }
+
+    /**
+     * Deletes sale listings that have expired.
+     * Scheduled to run at midnight every day.
+     */
+    @Scheduled(cron = "@midnight")
+    public void deleteExpiredSaleListings() {
+        // create specification for getting LikedSaleListings of listings that are expired
+        var now = LocalDateTime.now();
+        Specification<LikedSaleListing> spec = LikedSaleListingSpecification.saleListingClosesBefore(now);
+
+        // find expired saleListings and likedSaleListings
+        List<SaleListing> expiredListings = saleListingRepository.findAllByClosesBefore(now);
+        List<LikedSaleListing> expiredLikedListings = likedSaleListingRepository.findAll(spec);
+
+        // delete all that are expired
+        if (!expiredLikedListings.isEmpty()) {
+            likedSaleListingRepository.deleteAll(expiredLikedListings);
         }
+        saleListingRepository.deleteAll(expiredListings);
+
+        // logging
+        var logMessage = String.format("Deleted %d expired sales listings", expiredListings.size());
+        logger.info(logMessage);
     }
 }

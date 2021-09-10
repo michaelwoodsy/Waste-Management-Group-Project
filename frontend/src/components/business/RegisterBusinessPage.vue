@@ -77,9 +77,6 @@
           </div>
 
 
-
-
-
           <hr/>
 
           <div class="form-group row">
@@ -96,14 +93,13 @@
                 Add image
               </button>
               <input
-                  type="file"
-                  style="display: none"
                   ref="fileInput"
                   accept="image/png, image/jpeg"
+                  style="display: none"
+                  type="file"
                   @change="imageUpload"/>
             </div>
           </div>
-
 
 
           <!-- Images -->
@@ -111,15 +107,14 @@
             <div class="col">
 
 
-
               <div v-for="image in images"
                    :key="image.url" class="pad1"
-                   @mouseover="image.hover = true"
                    @mouseleave="image.hover = false"
+                   @mouseover="image.hover = true"
               >
-                <img width="250"
-                     :src="image.url"
+                <img :src="image.url"
                      alt="Uploaded business image"
+                     width="250"
                 />
                 <button class="btn btn-danger ml-1 my-1 pad1"
                         @click="removeImage(image.url)">
@@ -134,14 +129,11 @@
               <!--    Image upload progress counter    -->
               <p v-if="submitting && images.length > 0"
                  class="ml-1 my-2 ">
-                {{numImagesUploaded}}/{{numImagesToUpload}} images uploaded
+                {{ numImagesUploaded }}/{{ numImagesToUpload }} images uploaded
               </p>
             </div>
 
           </div>
-
-
-
 
 
           <p style="width: 100%; text-align: center; margin: 0"><small>You must be at least 16 years old to register a
@@ -314,7 +306,7 @@ export default {
         this.msg['errorChecks'] = '';
         console.log('No Errors');
         //Send to server here
-        this.addBusiness();
+        await this.addBusiness();
       }
     },
 
@@ -323,28 +315,26 @@ export default {
      * Calls the api function createNew which sends a new business to the backend server
      * If this fails the program should set the error text to the error received from the backend server
      */
-    addBusiness() {
-      this.$root.$data.business.register(
-          this.$root.$data.user.state.userId,
-          this.businessName,
-          this.description,
-          this.address,
-          this.businessType
-      ).then((res) => {
-        this.addImages(res.data.businessId).then(() => {
-          this.submitting = false
-          this.$root.$data.user.updateData()
-          this.$root.$data.user.setActingAs(res.data.businessId, this.businessName, "business")
-          this.$router.push({name: 'home'})
-        })
-      })
-          .catch((err) => {
-            this.msg.errorChecks = err.response
-                ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-                : err
-          });
+    async addBusiness() {
+      try {
+        const res = await this.$root.$data.business.register(
+            this.$root.$data.user.state.userId,
+            this.businessName,
+            this.description,
+            this.address,
+            this.businessType
+        )
+        await this.addImages(res.data.businessId)
+        this.submitting = false
+        await this.$root.$data.user.updateData()
+        await this.$root.$data.user.setActingAs(res.data.businessId, this.businessName, "business")
+        this.$router.push({name: 'home'})
+      } catch (err) {
+        this.msg.errorChecks = err.response
+            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+            : err
+      }
     },
-
 
     //IMAGES
 
@@ -352,7 +342,7 @@ export default {
      * Programmatically triggers the file input field when the
      * 'Add image' button is clicked.
      */
-    addImageClicked () {
+    addImageClicked() {
       this.imagesEdited = true
       this.$refs.fileInput.click()
     },
@@ -361,7 +351,7 @@ export default {
      * Handles the file being uploaded
      * @param event the button click event that triggers this function
      */
-    imageUpload (event) {
+    imageUpload(event) {
       const files = event.target.files
 
       const formData = new FormData()
@@ -385,7 +375,7 @@ export default {
      * @param imageUrl the url of the image to be removed
      */
     removeImage(imageUrl) {
-      this.images = this.images.filter(function(image) {
+      this.images = this.images.filter(function (image) {
         return image.url !== imageUrl;
       })
     },
@@ -394,7 +384,7 @@ export default {
      * Makes requests to add the business's images
      */
     async addImages(businessId) {
-      const imagesToUpload = this.images.filter(function(image) {
+      const imagesToUpload = this.images.filter(function (image) {
         return image.id === undefined;
       })
       this.numImagesToUpload = imagesToUpload.length
