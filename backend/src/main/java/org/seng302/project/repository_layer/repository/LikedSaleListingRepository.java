@@ -4,13 +4,15 @@ import org.seng302.project.repository_layer.model.LikedSaleListing;
 import org.seng302.project.repository_layer.model.SaleListing;
 import org.seng302.project.repository_layer.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 
-public interface LikedSaleListingRepository extends JpaRepository<LikedSaleListing, Integer>, PagingAndSortingRepository<LikedSaleListing, Integer> {
+public interface LikedSaleListingRepository extends JpaRepository<LikedSaleListing, Integer>,
+        PagingAndSortingRepository<LikedSaleListing, Integer>, JpaSpecificationExecutor<LikedSaleListing> {
 
     /**
      * Finds all liked by sale listings and user
