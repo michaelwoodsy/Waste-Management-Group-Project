@@ -5,11 +5,13 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.SaleListingRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
@@ -21,7 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
@@ -31,15 +32,18 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Transactional
+/**
+ * Steps for the Cucumber tests relating to UD3 - Featured Business Listings
+ */
 @AutoConfigureTestDatabase
 public class FeaturedBusinessListingsSteps extends AbstractInitializer {
 
     private MockMvc mockMvc;
     private RequestBuilder request;
-    private SaleListingRepository saleListingRepository;
-    private BusinessRepository businessRepository;
-    private UserRepository userRepository;
+    private final SaleListingRepository saleListingRepository;
+    private final BusinessRepository businessRepository;
+    private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
 
     private User testBusinessAdmin;
     private Business testBusiness;
@@ -49,22 +53,35 @@ public class FeaturedBusinessListingsSteps extends AbstractInitializer {
     public FeaturedBusinessListingsSteps(SaleListingRepository saleListingRepository,
                                          BusinessRepository businessRepository,
                                          UserRepository userRepository,
+                                         AddressRepository addressRepository,
                                          WebApplicationContext context) {
         this.saleListingRepository = saleListingRepository;
         this.businessRepository = businessRepository;
         this.userRepository = userRepository;
+        this.addressRepository = addressRepository;
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
     }
 
-    @Before
+    @BeforeEach
+    @Autowired
     public void setup() {
+        saleListingRepository.deleteAll();
+        businessRepository.deleteAll();
+        userRepository.deleteAll();
+        addressRepository.deleteAll();
+        this.initialise();
+
         this.testBusinessAdmin = this.getTestUserBusinessAdmin();
         this.testBusinessAdmin.setId(null);
+        addressRepository.save(testBusinessAdmin.getHomeAddress());
+
         this.testBusiness = this.getTestBusiness();
         this.testBusiness.setId(null);
+        addressRepository.save(testBusiness.getAddress());
+
         businessRepository.save(testBusiness);
         List<SaleListing> listings = new ArrayList<>();
         for (int i = 1; i < 7; i++) {
@@ -75,11 +92,12 @@ public class FeaturedBusinessListingsSteps extends AbstractInitializer {
         saleListingRepository.saveAll(listings);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         saleListingRepository.deleteAll();
         businessRepository.deleteAll();
         userRepository.deleteAll();
+        addressRepository.deleteAll();
     }
 
 //    AC2
