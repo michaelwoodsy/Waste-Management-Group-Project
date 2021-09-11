@@ -10,12 +10,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repository_layer.model.Business;
-import org.seng302.project.repository_layer.model.Product;
-import org.seng302.project.repository_layer.model.SaleListing;
-import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
-import org.seng302.project.web_layer.authentication.AppUserDetails;
+import org.seng302.project.service_layer.service.SaleListingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,12 +22,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 
@@ -48,12 +42,21 @@ public class PopularListingsSteps extends AbstractInitializer {
     private final ProductRepository productRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
+    private final LikedSaleListingRepository likedSaleListingRepository;
     private final CardRepository cardRepository;
 
-    User testUser;
+    private final SaleListingService saleListingService;
+
+    User testUser1;
+    User testUser2;
+    User testUser3;
+    User testUser4;
 
     Business business1;
     Business business2;
+
+    SaleListing expiredListing;
+    List<SaleListing> listings;
 
     private ResultActions result;
 
@@ -66,14 +69,18 @@ public class PopularListingsSteps extends AbstractInitializer {
                                 ProductRepository productRepository,
                                 InventoryItemRepository inventoryItemRepository,
                                 SaleListingRepository saleListingRepository,
-                                CardRepository cardRepository) {
+                                LikedSaleListingRepository likedSaleListingRepository,
+                                CardRepository cardRepository,
+                                SaleListingService saleListingService) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.saleListingRepository = saleListingRepository;
+        this.likedSaleListingRepository = likedSaleListingRepository;
         this.cardRepository = cardRepository;
+        this.saleListingService = saleListingService;
     }
 
     @AfterEach
@@ -108,11 +115,25 @@ public class PopularListingsSteps extends AbstractInitializer {
                 .build();
 
         this.initialise();
-        testUser = this.getTestUser();
-        addressRepository.save(testUser.getHomeAddress());
-        userRepository.save(testUser);
 
-        List<SaleListing> listings = this.getSaleListings();
+        testUser1 = this.getTestUser();
+        testUser2 = this.getTestOtherUser();
+        testUser3 = this.getTestOtherUser();
+        testUser4 = this.getTestSystemAdmin();
+        addressRepository.save(testUser1.getHomeAddress());
+        addressRepository.save(testUser2.getHomeAddress());
+        addressRepository.save(testUser3.getHomeAddress());
+        addressRepository.save(testUser4.getHomeAddress());
+        testUser1 = userRepository.save(testUser1);
+        testUser2 = userRepository.save(testUser2);
+        testUser3 = userRepository.save(testUser3);
+        testUser4 = userRepository.save(testUser4);
+    }
+
+    //AC1: up to 10 of the most liked sale listings are shown
+    @Given("Sale listings exist")
+    public void saleListingsExist() {
+        listings = this.getSaleListings();
 
         for (SaleListing listing: listings) {
             addressRepository.save(listing.getBusiness().getAddress());
@@ -124,46 +145,136 @@ public class PopularListingsSteps extends AbstractInitializer {
             inventoryItemRepository.save(listing.getInventoryItem());
             saleListingRepository.save(listing);
         }
-    }
 
-    //AC1: up to 10 of the most liked sale listings are shown
-    @Given("More than {int} sale listings exist")
-    public void moreThanSaleListingsExist(int numSaleListings) {
+        Assertions.assertTrue(saleListingRepository.findAll().size() > 1);
     }
 
     @And("Other users have liked the sales listings")
     public void otherUsersHaveLikedTheSalesListings() {
+        //Listing 1 has 2 like
+        //Listing 2 has 4 like
+        //Listing 3 has 3 like
+        //Listing 4 has 1 like
+        LikedSaleListing like = new LikedSaleListing(testUser1, listings.get(0));
+        likedSaleListingRepository.save(like);
+        testUser1.addLikedListing(like);
+        like = new LikedSaleListing(testUser1, listings.get(1));
+        likedSaleListingRepository.save(like);
+        testUser1.addLikedListing(like);
+        userRepository.save(testUser1);
+        like = new LikedSaleListing(testUser1, listings.get(2));
+        likedSaleListingRepository.save(like);
+        testUser1.addLikedListing(like);
+        userRepository.save(testUser1);
+        like = new LikedSaleListing(testUser1, listings.get(3));
+        likedSaleListingRepository.save(like);
+        testUser1.addLikedListing(like);
+        userRepository.save(testUser1);
 
+        like = new LikedSaleListing(testUser2, listings.get(1));
+        likedSaleListingRepository.save(like);
+        testUser2.addLikedListing(like);
+        userRepository.save(testUser2);
+        like = new LikedSaleListing(testUser2, listings.get(2));
+        likedSaleListingRepository.save(like);
+        testUser2.addLikedListing(like);
+        userRepository.save(testUser2);
+
+        like = new LikedSaleListing(testUser3, listings.get(1));
+        likedSaleListingRepository.save(like);
+        testUser3.addLikedListing(like);
+        userRepository.save(testUser3);
+
+        like = new LikedSaleListing(testUser3, listings.get(2));
+        likedSaleListingRepository.save(like);
+        testUser3.addLikedListing(like);
+        userRepository.save(testUser3);
+
+        like = new LikedSaleListing(testUser4, listings.get(1));
+        likedSaleListingRepository.save(like);
+        testUser4.addLikedListing(like);
+        userRepository.save(testUser4);
+        like = new LikedSaleListing(testUser4, listings.get(2));
+        likedSaleListingRepository.save(like);
+        testUser4.addLikedListing(like);
+        userRepository.save(testUser4);
     }
 
     @When("I retrieve the popular sale listings with no country selected")
-    public void iRetrieveThePopularSaleListingsWithNoCountrySelected() {
-
+    public void iRetrieveThePopularSaleListingsWithNoCountrySelected() throws Exception {
+        result = mockMvc.perform(MockMvcRequestBuilders
+                .get("/popularlistings"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    @Then("the {int} most popular sale listings are retrieved")
-    public void theMostPopularSaleListingsAreRetrieved(int numSaleListings) {
+    @Then("The most popular sale listings are retrieved, in order of most liked to least liked")
+    public void theMostPopularSaleListingsAreRetrievedInOrderOfMostLikedToLeastLiked() throws Exception {
+        String contentAsString = result.andReturn().getResponse().getContentAsString();
+        JSONArray listings = new JSONArray(contentAsString);
+        Assertions.assertEquals(4, listings.length());
+
+        JSONObject prevListing = (JSONObject) listings.get(0);
+        for(int i = 1; i < listings.length(); i++) {
+            JSONObject listing = (JSONObject) listings.get(i);
+
+            Assertions.assertTrue(prevListing.getInt("likes") >= listing.getInt("likes"));
+            prevListing = listing;
+        }
     }
 
     //AC1: up to 10 of the most liked sale listings are shown when filtering by a country
     @When("I retrieve the popular sale listings with the country {string} selected")
-    public void iRetrieveThePopularSaleListingsWithTheCountrySelected(String arg0) {
+    public void iRetrieveThePopularSaleListingsWithTheCountrySelected(String country) throws Exception {
+        result = mockMvc.perform(MockMvcRequestBuilders
+                .get("/popularlistings")
+                .param("country", country))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    @Then("the most popular sale listings for New Zealand are retrieved")
-    public void theMostPopularSaleListingsForNewZealandAreRetrieved() {
+    @Then("the most popular sale listings for {string} are retrieved")
+    public void theMostPopularSaleListingsForAreRetrieved(String country) throws Exception {
+        String contentAsString = result.andReturn().getResponse().getContentAsString();
+        JSONArray listings = new JSONArray(contentAsString);
+        Assertions.assertEquals(2, listings.length());
+
+        JSONObject firstListing = (JSONObject) listings.get(0);
+        JSONObject secondListing = (JSONObject) listings.get(1);
+
+        Assertions.assertEquals(country, firstListing.getJSONObject("business").getJSONObject("address").getString("country"));
+        Assertions.assertEquals(country, secondListing.getJSONObject("business").getJSONObject("address").getString("country"));
+
+        Assertions.assertTrue(firstListing.getInt("likes") >= secondListing.getInt("likes"));
     }
 
     //AC1: Sale listings that have not been sold and have reached their closing date are removed
     @Given("A sale listing exists")
     public void aSaleListingExists() {
+        expiredListing = getSaleListings().get(0);
+
+        addressRepository.save(expiredListing.getBusiness().getAddress());
+        Business business = expiredListing.getBusiness();
+        businessRepository.save(business);
+        Product product = expiredListing.getInventoryItem().getProduct();
+        product.setBusinessId(business.getId());
+        productRepository.save(product);
+        inventoryItemRepository.save(expiredListing.getInventoryItem());
+        expiredListing = saleListingRepository.save(expiredListing);
+
+        Assertions.assertNotNull(expiredListing);
+        Assertions.assertEquals(1, saleListingRepository.findAll().size());
     }
 
     @When("The sale listing has a closing date before the current date")
     public void theSaleListingHasAClosingDateBeforeTheCurrentDate() {
+        expiredListing.setCloses(LocalDateTime.now().minusSeconds(1));
+        expiredListing = saleListingRepository.save(expiredListing);
     }
 
     @Then("The sale listing is removed")
     public void theSaleListingIsRemoved() {
+        //Simulate automatic deletion
+        saleListingService.deleteExpiredSaleListings();
+
+        Assertions.assertEquals(0, saleListingRepository.findAll().size());
     }
 }

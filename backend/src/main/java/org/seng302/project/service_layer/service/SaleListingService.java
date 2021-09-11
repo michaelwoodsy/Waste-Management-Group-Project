@@ -755,31 +755,6 @@ public class SaleListingService {
     }
 
     /**
-     * Deletes sale listings that have expired.
-     * Scheduled to run at midnight every day.
-     */
-    @Scheduled(cron = "@midnight")
-    public void deleteExpiredSaleListings() {
-        // create specification for getting LikedSaleListings of listings that are expired
-        var now = LocalDateTime.now();
-        Specification<LikedSaleListing> spec = LikedSaleListingSpecification.saleListingClosesBefore(now);
-
-        // find expired saleListings and likedSaleListings
-        List<SaleListing> expiredListings = saleListingRepository.findAllByClosesBefore(now);
-        List<LikedSaleListing> expiredLikedListings = likedSaleListingRepository.findAll(spec);
-
-        // delete all that are expired
-        if (!expiredLikedListings.isEmpty()) {
-            likedSaleListingRepository.deleteAll(expiredLikedListings);
-        }
-        saleListingRepository.deleteAll(expiredListings);
-
-        // logging
-        var logMessage = String.format("Deleted %d expired sales listings", expiredListings.size());
-        logger.info(logMessage);
-    }
-
-    /**
      * Retrieves the popular sale listings from the specified country,
      * if no country is specified then it retrieves the popular sale listings worldwide
      * @param country country to get popular listings for
@@ -802,5 +777,30 @@ public class SaleListingService {
             }
         }
         return listings;
+    }
+
+    /**
+     * Deletes sale listings that have expired.
+     * Scheduled to run at midnight every day.
+     */
+    @Scheduled(cron = "@midnight")
+    public void deleteExpiredSaleListings() {
+        // create specification for getting LikedSaleListings of listings that are expired
+        var now = LocalDateTime.now();
+        Specification<LikedSaleListing> spec = LikedSaleListingSpecification.saleListingClosesBefore(now);
+
+        // find expired saleListings and likedSaleListings
+        List<SaleListing> expiredListings = saleListingRepository.findAllByClosesBefore(now);
+        List<LikedSaleListing> expiredLikedListings = likedSaleListingRepository.findAll(spec);
+
+        // delete all that are expired
+        if (!expiredLikedListings.isEmpty()) {
+            likedSaleListingRepository.deleteAll(expiredLikedListings);
+        }
+        saleListingRepository.deleteAll(expiredListings);
+
+        // logging
+        var logMessage = String.format("Deleted %d expired sales listings", expiredListings.size());
+        logger.info(logMessage);
     }
 }
