@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SaleListingRepository extends JpaRepository<SaleListing, Integer>, JpaSpecificationExecutor<SaleListing> {
@@ -27,4 +28,12 @@ public interface SaleListingRepository extends JpaRepository<SaleListing, Intege
     List<SaleListing> findAllByBusinessIdAndInventoryItemId(
             @Param("businessId") Integer businessId,
             @Param("inventoryItemId") Integer inventoryItemId);
+
+    /**
+     * Gets all sale listings that close before a specified date.
+     *
+     * @param date Date the listings will have closed before.
+     * @return List of sale listings.
+     */
+    List<SaleListing> findAllByClosesBefore(@Param("closes") LocalDateTime date);
 }
