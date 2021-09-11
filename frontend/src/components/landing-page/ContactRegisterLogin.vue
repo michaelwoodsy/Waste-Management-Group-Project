@@ -15,7 +15,7 @@
     <div class="card col-sm text-white bg-secondary ml-2 mr-2">
       <div class="card-body">
         <h5 class="card-title d-inline">Already have an account?</h5>
-        <button button class="btn-block btn-sm btn-primary" @click="login"><h5>Login</h5></button>
+        <button class="btn-block btn-sm btn-primary" @click="login"><h5>Login</h5></button>
       </div>
     </div>
     <div id="contactUsModal" :key="this.contactUsModal" class="modal fade bd-example-modal-lg" data-backdrop="static">
@@ -49,8 +49,9 @@
               </div>
               <div class="form-group row mb-0">
                 <div class="btn-group" style="width: 100%">
-                  <button id="cancelButton" ref="close" class="btn btn-secondary col-4" data-dismiss="modal" v-on:click="cancel=true" @click="resetContactUsModal">Cancel</button>
-                  <button id="saveButton" class="btn btn-primary col-8" v-on:click="submit=true" @click="checkInputs">Send Message</button>
+                  <button id="cancelButton" ref="close" class="btn btn-secondary col-4" data-dismiss="modal" @click="resetContactUsModal">Cancel</button>
+                  <button v-if="!submitting" id="sendButton" class="btn btn-primary col-8" @click="checkInputs">Send Message</button>
+                  <button v-else id="sendingButton" class="btn btn-primary col-8" @click="checkInputs">Sending Message</button>
                 </div>
                 <div v-if="msg.errorChecks" class="error-box">
                   <alert class="mb-0">{{ msg.errorChecks }}</alert>
@@ -61,11 +62,31 @@
         </div>
       </div>
     </div>
+    <div v-if="emailSent" id="viewMessageSentModal" class="modal fade" data-backdrop="static">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-body">
+            <button aria-label="Close"
+                    class="close"
+                    data-dismiss="modal"
+                    type="button">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <p>
+              Message was successfully sent to re:sale. <br>
+              We will get back to you as soon as possible.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import Alert from "@/components/Alert";
+import {Landing} from "@/Api";
+import $ from "jquery";
 
 export default {
   name: "ContactRegisterLogin",
@@ -90,6 +111,7 @@ export default {
       name: '',
       email: '',
       message: '',
+      emailSent: true,
       msg: {
         'name': null,
         'email': null,
@@ -174,7 +196,19 @@ export default {
     },
 
     async contact() {
-      console.log("works!")
+      Landing.contact(this.email, this.message)
+          .then(() => {
+            this.emailSent = true
+            this.resetContactUsModal()
+            $('#contactUsModal').modal('hide');
+            $('#viewMessageSentModal').modal('show');
+          })
+          .catch((err) => {
+            this.error = err.response
+                ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+                : err
+            this.submitting = false
+          })
     }
   }
 }
