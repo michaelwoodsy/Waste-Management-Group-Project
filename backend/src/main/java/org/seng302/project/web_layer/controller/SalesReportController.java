@@ -34,7 +34,7 @@ public class SalesReportController {
      * @param businessId Business to get the sale report for
      * @param periodStart The date to start the report in the form "yyyy-MM-dd"
      * @param periodEnd The date to end the report in the form "yyyy-MM-dd"
-     * @param granularity The granularity for the report e.g. "month", "week"
+     * @param granularity The granularity for the report e.g. "monthly", "weekly"
      * @param appUser    The user that made the request.
      * @return  a list of GetSalesReportDTOs containing stats and sales from the requested time period
      */

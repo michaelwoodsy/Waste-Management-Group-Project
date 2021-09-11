@@ -64,7 +64,7 @@ class SalesReportControllerTest extends AbstractInitializer {
     void getSalesReport_missingDateRange_400() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/businesses/{id}/salesReport", business.getId())
-                .param("granularity", "week")
+                .param("granularity", "weekly")
                 .with(user(new AppUserDetails(owner)));
 
         mockMvc.perform(request).andExpect(status().isBadRequest());
@@ -80,7 +80,7 @@ class SalesReportControllerTest extends AbstractInitializer {
                 .get("/businesses/{id}/salesReport", business.getId())
                 .param("periodStart", LocalDate.now().minusDays(30).toString())
                 .param("periodEnd", LocalDate.now().toString())
-                .param("granularity", "day")
+                .param("granularity", "daily")
                 .with(user(new AppUserDetails(owner)));
 
         mockMvc.perform(request).andExpect(status().isOk());
@@ -99,7 +99,7 @@ class SalesReportControllerTest extends AbstractInitializer {
                 .get("/businesses/{id}/salesReport", business.getId())
                 .param("periodStart", LocalDate.now().minusDays(30).toString())
                 .param("periodEnd", LocalDate.now().toString())
-                .param("granularity", "day")
+                .param("granularity", "daily")
                 .with(user(new AppUserDetails(testUser)));
 
         mockMvc.perform(request).andExpect(status().isForbidden());
@@ -119,7 +119,7 @@ class SalesReportControllerTest extends AbstractInitializer {
                 .get("/businesses/{id}/salesReport", 7)
                 .param("periodStart", LocalDate.now().minusDays(30).toString())
                 .param("periodEnd", LocalDate.now().toString())
-                .param("granularity", "day")
+                .param("granularity", "daily")
                 .with(user(new AppUserDetails(testUser)));
 
         mockMvc.perform(request).andExpect(status().isNotAcceptable());

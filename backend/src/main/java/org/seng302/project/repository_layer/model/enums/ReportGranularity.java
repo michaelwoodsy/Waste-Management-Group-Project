@@ -1,13 +1,15 @@
 package org.seng302.project.repository_layer.model.enums;
 
+/**
+ * Enum for granularities of a sales report
+ */
 public enum ReportGranularity {
 
-    YEAR("year"),
-    MONTH("month"),
-    FORTNIGHT("fortnight"),
-    WEEK("week"),
-    DAY("day"),
-    HOUR("hour");
+    YEAR("yearly"),
+    MONTH("monthly"),
+    WEEK("weekly"),
+    DAY("daily"),
+    ALL("all");
 
     private final String range;
 
@@ -28,5 +30,15 @@ public enum ReportGranularity {
             }
         }
         return null;
+    }
+
+    /**
+     * Checks if a string matches one of the valid granularity ranges
+     *
+     * @param granularity string to check validity of
+     * @return true if the string is a valid granularity
+     */
+    public static boolean checkGranularity(String granularity) {
+        return getGranularity(granularity) != null;
     }
 }

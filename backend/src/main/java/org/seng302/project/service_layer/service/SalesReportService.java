@@ -1,5 +1,8 @@
 package org.seng302.project.service_layer.service;
 
+import org.seng302.project.repository_layer.model.Business;
+import org.seng302.project.repository_layer.model.enums.ReportGranularity;
+import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.service_layer.dto.sales_report.GetSalesReportDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -17,13 +20,28 @@ public class SalesReportService {
 
     private static final Logger logger = LoggerFactory.getLogger(SalesReportService.class.getName());
 
-    private final UserService userService;
     private final BusinessService businessService;
 
     @Autowired
-    public SalesReportService(UserService userService, BusinessService businessService) {
-        this.userService = userService;
+    public SalesReportService(BusinessService businessService) {
         this.businessService = businessService;
+    }
+
+    /**
+     * Used by the getSalesReport method to parse the report start and end dates
+     * Throws BadRequestException when the date is an incorrect format
+     * @param dateString A date that should be in the form "yyyy-MM-dd"
+     * @return a LocalDate object of the date
+     */
+    private LocalDate parseDate(String dateString) {
+        try {
+            return LocalDate.parse(dateString);
+        } catch (DateTimeParseException parseException) {
+            BadRequestException badRequestException =  new BadRequestException(
+                    "Date: " + dateString + " is not in the correct format of yyyy-MM-dd");
+            logger.warn(badRequestException.getMessage());
+            throw badRequestException;
+        }
     }
 
     /**
@@ -31,7 +49,7 @@ public class SalesReportService {
      * @param businessId Business to get the sale report for
      * @param periodStart The date to start the report in the form "yyyy-MM-dd"
      * @param periodEnd The date to end the report in the form "yyyy-MM-dd"
-     * @param granularity The granularity for the report e.g. "month", "week"
+     * @param granularity The granularity for the report e.g. "monthly", "weekly"
      * @param appUser    The user that made the request.
      * @return  a list of GetSalesReportDTOs containing stats and sales from the requested time period
      */
@@ -41,19 +59,29 @@ public class SalesReportService {
         logger.info("Request to get a sales report for business with id {}, from {} to {}",
                 businessId, periodStart, periodEnd);
 
-        //Convert periodStart and periodEnd to LocalDate
-        try {
-            LocalDate periodStartDate = LocalDate.parse(periodStart);
-            LocalDate periodEndDate = LocalDate.parse(periodEnd);
-        } catch (DateTimeParseException parseException) {
-            throw new BadRequestException("Date format should be yyyy-MM-dd");
+
+        Business business =  businessService.checkBusiness(businessId);
+        businessService.checkUserCanDoBusinessAction(appUser, business);
+
+        LocalDate periodStartDate = parseDate(periodStart);
+        LocalDate periodEndDate =  parseDate(periodEnd);
+
+        if (periodEndDate.compareTo(periodStartDate) < 0) {
+            String message = "Report end date should be after the report start date.";
+            logger.warn(message);
+            throw new BadRequestException(message);
         }
 
+        if (!ReportGranularity.checkGranularity(granularity)) {
+            String message = granularity + " is not a valid granularity";
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
 
-        businessService.checkBusiness(businessId);
+        ReportGranularity reportGranularity = ReportGranularity.getGranularity(granularity);
 
         //TODO: implement functionality
-        //If granularity = "month" add a GetSalesReportDTO to the list for each month in the date range
+        //If granularity = "monthly" add a GetSalesReportDTO to the list for each month in the date range
 
         return List.of(new GetSalesReportDTO(LocalDate.now(), LocalDate.now(), List.of()));
     }
