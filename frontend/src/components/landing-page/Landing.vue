@@ -21,9 +21,7 @@
         <about-us></about-us>
       </div>
 
-      <div class="row justify-content-center mb-3 align-content-center" style="border: 1px solid black; height: 100px">
-        <contact-register-login></contact-register-login>
-      </div>
+      <contact-register-login></contact-register-login>
     </div>
 
   </page-wrapper>

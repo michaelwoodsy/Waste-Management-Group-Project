@@ -616,3 +616,7 @@ export const Images = {
      */
     getImageURL: (path) => SERVER_URL + path.slice(1)
 }
+
+export const Landing ={
+    contact: (email, message) => instance.post('contact', {email, message})
+}
