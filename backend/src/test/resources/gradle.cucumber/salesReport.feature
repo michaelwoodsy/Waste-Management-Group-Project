@@ -11,8 +11,8 @@ Feature: U41 Sales Report
     Then The 3 sales from 2020 are shown
 
   Scenario: AC3: I can also specify a custom period by selecting when it starts and ends.
-    Given I had sales on "11/06/2021", "03/07/2021", and "05/09/2021"
-    When I select a report from "11/06/2021" to "11/07/2021"
+    Given I had sales on "2021-06-11", "2021-07-03", and "2021-09-05"
+    When I select a report from "2021-06-11" to "2021-07-11"
     Then The 2 sales from that period are shown
 
   Scenario: AC4: I can select the granularity of the report.
