@@ -19,9 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -33,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Steps for the Cucumber tests relating to U32 Managing my feed
  */
+@Transactional
 @AutoConfigureTestDatabase
 public class ManagingMyFeedSteps extends AbstractInitializer {
 
@@ -90,6 +91,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
             userRepository.save(user);
         }
         likedSaleListingRepository.deleteAll();
+        saleListingRepository.deleteAll();
         cardRepository.deleteAll();
         messageRepository.deleteAll();
         userRepository.deleteAll();

@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Steps for the Cucumber tests relating to UD3 - Featured Business Listings
  */
+@Transactional
 @AutoConfigureTestDatabase
 public class FeaturedBusinessListingsSteps extends AbstractInitializer {
 
@@ -53,26 +55,26 @@ public class FeaturedBusinessListingsSteps extends AbstractInitializer {
     public FeaturedBusinessListingsSteps(SaleListingRepository saleListingRepository,
                                          BusinessRepository businessRepository,
                                          UserRepository userRepository,
-                                         AddressRepository addressRepository,
-                                         WebApplicationContext context) {
+                                         AddressRepository addressRepository) {
         this.saleListingRepository = saleListingRepository;
         this.businessRepository = businessRepository;
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
+
     }
 
-    @BeforeEach
     @Autowired
-    public void setup() {
+    @BeforeEach
+    public void setup(WebApplicationContext context) {
         saleListingRepository.deleteAll();
         businessRepository.deleteAll();
         userRepository.deleteAll();
         addressRepository.deleteAll();
-        this.initialise();
+
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
 
         this.testBusinessAdmin = this.getTestUserBusinessAdmin();
         this.testBusinessAdmin.setId(null);
