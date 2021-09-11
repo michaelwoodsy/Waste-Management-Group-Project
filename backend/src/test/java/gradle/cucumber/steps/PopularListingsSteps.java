@@ -52,9 +52,6 @@ public class PopularListingsSteps extends AbstractInitializer {
     User testUser3;
     User testUser4;
 
-    Business business1;
-    Business business2;
-
     SaleListing expiredListing;
     List<SaleListing> listings;
 
@@ -151,9 +148,9 @@ public class PopularListingsSteps extends AbstractInitializer {
 
     @And("Other users have liked the sales listings")
     public void otherUsersHaveLikedTheSalesListings() {
-        //Listing 1 has 2 like
-        //Listing 2 has 4 like
-        //Listing 3 has 3 like
+        //Listing 1 has 2 likes
+        //Listing 2 has 4 likes
+        //Listing 3 has 3 likes
         //Listing 4 has 1 like
         LikedSaleListing like = new LikedSaleListing(testUser1, listings.get(0));
         likedSaleListingRepository.save(like);
@@ -184,7 +181,6 @@ public class PopularListingsSteps extends AbstractInitializer {
         likedSaleListingRepository.save(like);
         testUser3.addLikedListing(like);
         userRepository.save(testUser3);
-
         like = new LikedSaleListing(testUser3, listings.get(2));
         likedSaleListingRepository.save(like);
         testUser3.addLikedListing(like);
@@ -274,7 +270,6 @@ public class PopularListingsSteps extends AbstractInitializer {
     public void theSaleListingIsRemoved() {
         //Simulate automatic deletion
         saleListingService.deleteExpiredSaleListings();
-
         Assertions.assertEquals(0, saleListingRepository.findAll().size());
     }
 }
