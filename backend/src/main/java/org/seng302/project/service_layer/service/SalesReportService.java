@@ -2,7 +2,6 @@ package org.seng302.project.service_layer.service;
 
 import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.enums.ReportGranularity;
-import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.service_layer.dto.sales_report.GetSalesReportDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -58,7 +57,6 @@ public class SalesReportService {
 
         logger.info("Request to get a sales report for business with id {}, from {} to {}",
                 businessId, periodStart, periodEnd);
-
 
         Business business =  businessService.checkBusiness(businessId);
         businessService.checkUserCanDoBusinessAction(appUser, business);
