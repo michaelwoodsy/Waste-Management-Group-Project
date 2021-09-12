@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from './custom-router'
 
-import Landing from '../components/Landing'
+import Landing from '../components/landing-page/Landing'
 import RegisterPage from "../components/user/RegisterPage";
 import LoginPage from "../components/LoginPage";
 import Home from "../components/Home";
