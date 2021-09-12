@@ -5,7 +5,9 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
@@ -123,14 +125,13 @@ public class SalesReportSteps extends AbstractInitializer {
                 .param("granularity", "all")
                 .with(user(new AppUserDetails(owner)))
         );
-        //TODO: User with id 2 can not perform this action as they are not an administrator of business with id 1. :(
     }
 
     @Then("The {int} sales from July are shown")
     public void the_sales_from_july_are_shown(Integer julySalesCount) throws JSONException, UnsupportedEncodingException {
         String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
-        JSONArray results = new JSONArray(contentAsString);
-        //TODO: compare total sales in results to julySalesCount
+        JSONArray sales = new JSONArray(contentAsString);
+        Assertions.assertEquals(julySalesCount, sales.length()); //TODO: why is this 6 (includes Jun & Aug)?
     }
 
 
@@ -166,9 +167,10 @@ public class SalesReportSteps extends AbstractInitializer {
     }
 
     @Then("The {int} sales from {int} are shown") //salesCount = 3, year = 2020
-    public void the_sales_from_are_shown(Integer salesCount, Integer year) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void the_sales_from_are_shown(Integer salesCount, Integer year) throws JSONException, UnsupportedEncodingException {
+        String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
+        JSONArray sales = new JSONArray(contentAsString); //TODO: java.lang.String cannot be converted to JSONArray
+        Assertions.assertEquals(salesCount, sales.length());
     }
 
     //AC3
@@ -176,15 +178,15 @@ public class SalesReportSteps extends AbstractInitializer {
     @Given("I had sales on {string}, {string}, and {string}")
     public void i_had_sales_on_and(String date1, String date2, String date3) {
         Sale sale1 = new Sale(saleListing);
-        sale1.setDateSold(LocalDateTime.parse(date1));
+        sale1.setDateSold(LocalDate.parse(date1).atStartOfDay());
         saleHistoryRepository.save(sale1);
 
         Sale sale2 = new Sale(saleListing);
-        sale2.setDateSold(LocalDateTime.parse(date2));
+        sale2.setDateSold(LocalDate.parse(date2).atStartOfDay());
         saleHistoryRepository.save(sale2);
 
         Sale sale3 = new Sale(saleListing);
-        sale3.setDateSold(LocalDateTime.parse(date3));
+        sale3.setDateSold(LocalDate.parse(date3).atStartOfDay());
         saleHistoryRepository.save(sale3);
     }
 
@@ -200,9 +202,10 @@ public class SalesReportSteps extends AbstractInitializer {
     }
 
     @Then("The {int} sales from that period are shown")
-    public void the_sales_from_that_period_are_shown(Integer salesCount) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void the_sales_from_that_period_are_shown(Integer salesCount) throws UnsupportedEncodingException, JSONException {
+        String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
+        JSONArray sales = new JSONArray(contentAsString); //TODO: java.lang.String cannot be converted to JSONArray
+        Assertions.assertEquals(salesCount, sales.length());
     }
 
     //AC4
@@ -224,38 +227,56 @@ public class SalesReportSteps extends AbstractInitializer {
         mockMvcResult = mockMvc.perform(MockMvcRequestBuilders
                 .get("/businesses/{id}/salesReport", business.getId())
                 .param("periodStart", LocalDate.of(2021, 6, 1).toString())
-                .param("periodEnd", LocalDate.of(2021, 6, 31).toString())
+                .param("periodEnd", LocalDate.of(2021, 6, 30).toString())
                 .param("granularity", "all")
                 .with(user(new AppUserDetails(owner)))
         );
     }
 
     @Then("The report shows a total number of {int}")
-    public void the_report_shows_a_total_number_of(Integer salesCount) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void the_report_shows_a_total_number_of(Integer salesCount) throws UnsupportedEncodingException, JSONException {
+        String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
+        JSONArray sales = new JSONArray(contentAsString);
+        Assertions.assertEquals(salesCount, sales.length());
     }
 
     @Then("The report shows a total value of ${double}")
-    public void the_report_shows_a_total_value_of_$(Double totalValue) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void the_report_shows_a_total_value_of_$(Double expectedTotalValue) throws UnsupportedEncodingException, JSONException {
+        String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
+        JSONArray sales = new JSONArray(contentAsString);
+        Double totalValue = 0.00;
+        for (int i = 0; i < sales.length(); i++) {
+            JSONObject sale = sales.getJSONObject(i);
+            double price = sale.getDouble("totalPurchaseValue");
+            totalValue += price;
+        }
+
+        Assertions.assertEquals(expectedTotalValue, totalValue);
     }
 
     //AC5
 
     @When("I request a sales report from June to August with monthly granularity")
-    public void i_request_a_sales_report_from_june_to_august_with_monthly_granularity() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void i_request_a_sales_report_from_june_to_august_with_monthly_granularity() throws Exception {
+        mockMvcResult = mockMvc.perform(MockMvcRequestBuilders
+                .get("/businesses/{id}/salesReport", business.getId())
+                .param("periodStart", LocalDate.of(2021, 6, 1).toString())
+                .param("periodEnd", LocalDate.of(2021, 8, 31).toString())
+                .param("granularity", "monthly")
+                .with(user(new AppUserDetails(owner)))
+        );
     }
 
     @Then("The report shows total numbers of {int} for June, {int} for July and {int} for August")
     public void the_report_shows_total_numbers_of_for_june_for_july_and_for_august(Integer juneSalesCount,
                                                                                    Integer julySalesCount,
-                                                                                   Integer augSalesCount) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+                                                                                   Integer augSalesCount) throws UnsupportedEncodingException, JSONException {
+        String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
+        JSONArray sales = new JSONArray(contentAsString); //TODO: java.lang.String cannot be converted to JSONArray
+
+        Assertions.assertEquals(juneSalesCount, sales.getJSONObject(0).getInt("purchaseCount"));
+        Assertions.assertEquals(julySalesCount, sales.getJSONObject(1).getInt("purchaseCount"));
+        Assertions.assertEquals(augSalesCount, sales.getJSONObject(2).getInt("purchaseCount"));
     }
 
     @Given("I had ${double} worth of sales in June, ${double} worth of sales in July and ${double} worth of sales in August")
@@ -264,14 +285,21 @@ public class SalesReportSteps extends AbstractInitializer {
                                                                                                        Double augTotalValue) {
         // Write code here that turns the phrase above into concrete actions
         throw new io.cucumber.java.PendingException();
+        //TODO
+
     }
 
     @Then("The report shows total values of ${double} for June, ${double} for July and ${double} for August")
     public void the_report_shows_total_values_of_$_for_june_$_for_july_and_$_for_august(Double juneTotalValue,
                                                                                         Double julyTotalValue,
-                                                                                        Double augTotalValue) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+                                                                                        Double augTotalValue) throws UnsupportedEncodingException, JSONException {
+
+        String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
+        JSONArray sales = new JSONArray(contentAsString);
+
+        Assertions.assertEquals(juneTotalValue, sales.getJSONObject(0).getInt("totalPurchaseValue"));
+        Assertions.assertEquals(julyTotalValue, sales.getJSONObject(1).getInt("totalPurchaseValue"));
+        Assertions.assertEquals(augTotalValue, sales.getJSONObject(2).getInt("totalPurchaseValue"));
     }
 
 }
