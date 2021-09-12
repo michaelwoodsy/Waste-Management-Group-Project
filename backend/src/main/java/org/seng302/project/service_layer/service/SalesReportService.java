@@ -1,17 +1,24 @@
 package org.seng302.project.service_layer.service;
 
 import org.seng302.project.repository_layer.model.Business;
+import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.repository_layer.model.enums.ReportGranularity;
+
+import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
+import org.seng302.project.repository_layer.specification.SalesReportSpecifications;
+import org.seng302.project.service_layer.dto.sales_report.GetSaleDTO;
 import org.seng302.project.service_layer.dto.sales_report.GetSalesReportDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,11 +27,14 @@ public class SalesReportService {
     private static final Logger logger = LoggerFactory.getLogger(SalesReportService.class.getName());
 
     private final BusinessService businessService;
+    private final SaleHistoryRepository saleHistoryRepository;
 
     @Autowired
-    public SalesReportService(BusinessService businessService) {
+    public SalesReportService(BusinessService businessService, SaleHistoryRepository saleHistoryRepository) {
         this.businessService = businessService;
+        this.saleHistoryRepository = saleHistoryRepository;
     }
+
 
     /**
      * Used by the getSalesReport method to parse the report start and end dates
@@ -42,6 +52,123 @@ public class SalesReportService {
             throw badRequestException;
         }
     }
+
+
+    /**
+     * Gets all sales a business had within the given date range
+     * @param businessId Id of the business to get sales for
+     * @param periodStartDate LocalDate of the period start date
+     * @param periodEndDate LocalDate of the period end date
+     * @return A list of sales from the given period, for the given business
+     */
+    List<Sale> getSalesWithinPeriod(Integer businessId, LocalDate periodStartDate, LocalDate periodEndDate) {
+        Specification<Sale> saleSpec = Specification.where(null);
+        saleSpec.and(Specification.where(SalesReportSpecifications.fromBusiness(businessId)));
+
+        saleSpec.and(Specification.where(SalesReportSpecifications.soldAfter(periodStartDate.atStartOfDay())));
+        saleSpec.and(Specification.where(SalesReportSpecifications.soldBefore(periodEndDate.atTime(23, 59))));
+
+        return saleHistoryRepository.findAll(saleSpec);
+    }
+
+
+    /**
+     * Generates a sales report with granularity 'all'
+     * i.e. just a list of all sales in the period
+     * @param businessId Id of the business to get the sale report for
+     * @param periodStartDate LocalDate of the report start date
+     * @param periodEndDate LocalDate of the report end date
+     * @return a list of sales (with stats) for the requested period
+     */
+    private List<GetSalesReportDTO> getAllReport(Integer businessId, LocalDate periodStartDate, LocalDate periodEndDate) {
+        List<Sale> salesWithinPeriod = getSalesWithinPeriod(businessId, periodStartDate, periodEndDate);
+
+        List<GetSalesReportDTO> resultList = new ArrayList<>();
+
+        for (Sale sale : salesWithinPeriod) {
+            GetSaleDTO saleDTO = new GetSaleDTO(sale);
+            resultList.add(new GetSalesReportDTO(saleDTO.getDateSold().toLocalDate(),
+                    saleDTO.getDateSold().toLocalDate(), List.of(saleDTO)));
+        }
+
+        return resultList;
+    }
+
+
+    /**
+     * Generates a sales report with granularity 'daily'
+     * i.e. just a list of all sales in the period
+     * @param businessId Id of the business to get the sale report for
+     * @param periodStartDate LocalDate of the report start date
+     * @param periodEndDate LocalDate of the report end date
+     * @return a list of sales (with stats) for the requested period, separated by day
+     */
+    private List<GetSalesReportDTO> getDailyReport(Integer businessId, LocalDate periodStartDate, LocalDate periodEndDate) {
+        List<Sale> salesWithinPeriod = getSalesWithinPeriod(businessId, periodStartDate, periodEndDate);
+
+        List<GetSalesReportDTO> resultList = new ArrayList<>();
+
+       //TODO:
+
+        return resultList;
+    }
+
+
+    /**
+     * Generates a sales report with granularity 'weekly'
+     * i.e. just a list of all sales in the period
+     * @param businessId Id of the business to get the sale report for
+     * @param periodStartDate LocalDate of the report start date
+     * @param periodEndDate LocalDate of the report end date
+     * @return a list of sales (with stats) for the requested period, separated by week
+     */
+    private List<GetSalesReportDTO> getWeeklyReport(Integer businessId, LocalDate periodStartDate, LocalDate periodEndDate) {
+        List<Sale> salesWithinPeriod = getSalesWithinPeriod(businessId, periodStartDate, periodEndDate);
+
+        List<GetSalesReportDTO> resultList = new ArrayList<>();
+
+        //TODO:
+
+        return resultList;
+    }
+
+    /**
+     * Generates a sales report with granularity 'monthly'
+     * i.e. just a list of all sales in the period
+     * @param businessId Id of the business to get the sale report for
+     * @param periodStartDate LocalDate of the report start date
+     * @param periodEndDate LocalDate of the report end date
+     * @return a list of sales (with stats) for the requested period, separated by month
+     */
+    private List<GetSalesReportDTO> getMonthlyReport(Integer businessId, LocalDate periodStartDate, LocalDate periodEndDate) {
+        List<Sale> salesWithinPeriod = getSalesWithinPeriod(businessId, periodStartDate, periodEndDate);
+
+        List<GetSalesReportDTO> resultList = new ArrayList<>();
+
+        //TODO:
+
+        return resultList;
+    }
+
+
+    /**
+     * Generates a sales report with granularity 'yearly'
+     * i.e. just a list of all sales in the period
+     * @param businessId Id of the business to get the sale report for
+     * @param periodStartDate LocalDate of the report start date
+     * @param periodEndDate LocalDate of the report end date
+     * @return a list of sales (with stats) for the requested period, separated by year
+     */
+    private List<GetSalesReportDTO> getYearlyReport(Integer businessId, LocalDate periodStartDate, LocalDate periodEndDate) {
+        List<Sale> salesWithinPeriod = getSalesWithinPeriod(businessId, periodStartDate, periodEndDate);
+
+        List<GetSalesReportDTO> resultList = new ArrayList<>();
+
+        //TODO:
+
+        return resultList;
+    }
+
 
     /**
      * Gets a sales report
@@ -70,7 +197,7 @@ public class SalesReportService {
             throw new BadRequestException(message);
         }
 
-        if (!ReportGranularity.checkGranularity(granularity)) {
+        if (!ReportGranularity.checkGranularity(granularity)) { //if getGranularity(granularity) == null
             String message = granularity + " is not a valid granularity";
             logger.warn(message);
             throw new BadRequestException(message);
@@ -78,9 +205,26 @@ public class SalesReportService {
 
         ReportGranularity reportGranularity = ReportGranularity.getGranularity(granularity);
 
-        //TODO: implement functionality
-        //If granularity = "monthly" add a GetSalesReportDTO to the list for each month in the date range
+        List<GetSalesReportDTO> result = new ArrayList<>();
 
-        return List.of(new GetSalesReportDTO(LocalDate.now(), LocalDate.now(), List.of()));
+        switch (reportGranularity) { //Can ignore warning here because of above comment
+            case ALL:
+                result = getAllReport(businessId, periodStartDate, periodEndDate);
+                break;
+            case DAY:
+                result = getDailyReport(businessId, periodStartDate, periodEndDate);
+                break;
+            case WEEK:
+                result = getWeeklyReport(businessId, periodStartDate, periodEndDate);
+                break;
+            case MONTH:
+                result = getMonthlyReport(businessId, periodStartDate, periodEndDate);
+                break;
+            case YEAR:
+                result = getYearlyReport(businessId, periodStartDate, periodEndDate);
+                break;
+        }
+
+        return result;
     }
 }
