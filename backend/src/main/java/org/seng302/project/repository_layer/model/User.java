@@ -41,7 +41,7 @@ public class User {
 
     private String phoneNumber;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id")
     private Address homeAddress;
 

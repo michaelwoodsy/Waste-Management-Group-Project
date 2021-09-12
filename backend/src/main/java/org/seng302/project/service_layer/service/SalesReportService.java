@@ -18,8 +18,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SalesReportService {
@@ -107,8 +110,23 @@ public class SalesReportService {
         List<Sale> salesWithinPeriod = getSalesWithinPeriod(businessId, periodStartDate, periodEndDate);
 
         List<GetSalesReportDTO> resultList = new ArrayList<>();
+        Map<LocalDate, List<GetSaleDTO>> salesForDays = new HashMap<>();
 
-       //TODO:
+        for (Sale sale : salesWithinPeriod) {
+            if (salesForDays.containsKey(sale.getDateSold().toLocalDate())) {
+                salesForDays.get(sale.getDateSold().toLocalDate()).add(new GetSaleDTO(sale));
+            } else {
+                List<GetSaleDTO> sales = new ArrayList<>();
+                sales.add(new GetSaleDTO(sale));
+                salesForDays.put(sale.getDateSold().toLocalDate(), sales);
+            }
+        }
+
+        for (Map.Entry<LocalDate, List<GetSaleDTO>> entry : salesForDays.entrySet()) {
+            List<GetSaleDTO> sales = entry.getValue();
+            LocalDate day = sales.get(0).getDateSold().toLocalDate();
+            resultList.add(new GetSalesReportDTO(day, day, sales));
+        }
 
         return resultList;
     }
@@ -124,10 +142,31 @@ public class SalesReportService {
      */
     private List<GetSalesReportDTO> getWeeklyReport(Integer businessId, LocalDate periodStartDate, LocalDate periodEndDate) {
         List<Sale> salesWithinPeriod = getSalesWithinPeriod(businessId, periodStartDate, periodEndDate);
+        salesWithinPeriod.sort(Sale.compareByDateSold);
 
         List<GetSalesReportDTO> resultList = new ArrayList<>();
 
-        //TODO:
+        LocalDate currentWeekLowerBound = periodStartDate;
+        List<GetSaleDTO> salesInWeek = new ArrayList<>();
+
+        for (Sale sale : salesWithinPeriod) {
+            //Fill in previous week(s)
+            while (sale.getDateSold().toLocalDate().isAfter(currentWeekLowerBound.plusDays(6))) {
+                resultList.add(new GetSalesReportDTO(currentWeekLowerBound, currentWeekLowerBound.plusDays(6), salesInWeek));
+                currentWeekLowerBound = currentWeekLowerBound.plusDays(7);
+                salesInWeek = new ArrayList<>();
+            }
+
+            //Update current week
+            salesInWeek.add(new GetSaleDTO(sale));
+        }
+
+        //Fill in the last week(s) of the report
+        while (currentWeekLowerBound.isBefore(periodEndDate.plusDays(1))) {
+            resultList.add(new GetSalesReportDTO(currentWeekLowerBound, currentWeekLowerBound.plusDays(6), salesInWeek));
+            currentWeekLowerBound = currentWeekLowerBound.plusDays(7);
+            salesInWeek = new ArrayList<>();
+        }
 
         return resultList;
     }
@@ -142,10 +181,34 @@ public class SalesReportService {
      */
     private List<GetSalesReportDTO> getMonthlyReport(Integer businessId, LocalDate periodStartDate, LocalDate periodEndDate) {
         List<Sale> salesWithinPeriod = getSalesWithinPeriod(businessId, periodStartDate, periodEndDate);
+        salesWithinPeriod.sort(Sale.compareByDateSold);
 
         List<GetSalesReportDTO> resultList = new ArrayList<>();
 
-        //TODO:
+        LocalDate currentMonthLowerBound = periodStartDate.with(TemporalAdjusters.firstDayOfMonth());
+        List<GetSaleDTO> salesInMonth = new ArrayList<>();
+
+        for (Sale sale : salesWithinPeriod) {
+            LocalDate endOfMonth = currentMonthLowerBound.with(TemporalAdjusters.lastDayOfMonth());
+            //Fill in previous month(s)
+            while (sale.getDateSold().toLocalDate().isAfter(endOfMonth)) {
+                resultList.add(new GetSalesReportDTO(currentMonthLowerBound, endOfMonth, salesInMonth));
+                currentMonthLowerBound = currentMonthLowerBound.plusMonths(1);
+                endOfMonth = currentMonthLowerBound.with(TemporalAdjusters.lastDayOfMonth());
+                salesInMonth = new ArrayList<>();
+            }
+
+            //Update current month
+            salesInMonth.add(new GetSaleDTO(sale));
+        }
+
+        //Fill in the last month(s) of the report
+        while (currentMonthLowerBound.isBefore(periodEndDate.plusDays(1))) {
+            resultList.add(new GetSalesReportDTO(currentMonthLowerBound,
+                    currentMonthLowerBound.with(TemporalAdjusters.lastDayOfMonth()), salesInMonth));
+            currentMonthLowerBound = currentMonthLowerBound.plusMonths(1);
+            salesInMonth = new ArrayList<>();
+        }
 
         return resultList;
     }
@@ -161,10 +224,34 @@ public class SalesReportService {
      */
     private List<GetSalesReportDTO> getYearlyReport(Integer businessId, LocalDate periodStartDate, LocalDate periodEndDate) {
         List<Sale> salesWithinPeriod = getSalesWithinPeriod(businessId, periodStartDate, periodEndDate);
+        salesWithinPeriod.sort(Sale.compareByDateSold);
 
         List<GetSalesReportDTO> resultList = new ArrayList<>();
 
-        //TODO:
+        LocalDate currentYearLowerBound = periodStartDate.with(TemporalAdjusters.firstDayOfYear());
+        List<GetSaleDTO> salesInYear = new ArrayList<>();
+
+        for (Sale sale : salesWithinPeriod) {
+            LocalDate endOfYear = currentYearLowerBound.with(TemporalAdjusters.lastDayOfYear());
+            //Fill in previous year(s)
+            while (sale.getDateSold().toLocalDate().isAfter(endOfYear)) {
+                resultList.add(new GetSalesReportDTO(currentYearLowerBound, endOfYear, salesInYear));
+                currentYearLowerBound = currentYearLowerBound.plusYears(1);
+                endOfYear = currentYearLowerBound.with(TemporalAdjusters.lastDayOfYear());
+                salesInYear = new ArrayList<>();
+            }
+
+            //Update current month
+            salesInYear.add(new GetSaleDTO(sale));
+        }
+
+        //Fill in the last month(s) of the report
+        while (currentYearLowerBound.isBefore(periodEndDate.plusDays(1))) {
+            resultList.add(new GetSalesReportDTO(currentYearLowerBound,
+                    currentYearLowerBound.with(TemporalAdjusters.lastDayOfYear()), salesInYear));
+            currentYearLowerBound = currentYearLowerBound.plusYears(1);
+            salesInYear = new ArrayList<>();
+        }
 
         return resultList;
     }

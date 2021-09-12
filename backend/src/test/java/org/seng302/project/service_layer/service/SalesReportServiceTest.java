@@ -57,11 +57,14 @@ class SalesReportServiceTest extends AbstractInitializer {
     @BeforeEach
     public void setup() {
         testUser = this.getTestUser();
+        testUser.setHomeAddress(null);
         testUser = userRepository.save(testUser);
         owner = this.getTestUserBusinessAdmin();
+        owner.setHomeAddress(null);
         owner = userRepository.save(owner);
 
         business = this.getTestBusiness();
+        business.setAddress(null);
         business.setPrimaryAdministratorId(owner.getId());
         business = businessRepository.save(business);
 
@@ -71,6 +74,8 @@ class SalesReportServiceTest extends AbstractInitializer {
                 "2021-05-21", "2021-11-21", "2021-11-15", "2021-11-21");
         SaleListing saleListing = new SaleListing(business, inventoryItem, 1.00, "",
                 LocalDateTime.now().minusDays(1), 2);
+
+        saleHistoryRepository.deleteAll();
 
         soldToday = new Sale(saleListing);
         soldToday.setDateSold(LocalDateTime.now().minusHours(2));
@@ -83,6 +88,21 @@ class SalesReportServiceTest extends AbstractInitializer {
         soldYesterday = new Sale(saleListing);
         soldYesterday.setDateSold(LocalDateTime.now().minusDays(1));
         saleHistoryRepository.save(soldYesterday);
+
+        soldLastWeek = new Sale(saleListing);
+        soldLastWeek.setMoreInfo("Sold last week");
+        soldLastWeek.setDateSold(LocalDateTime.now().minusDays(8));
+        saleHistoryRepository.save(soldLastWeek);
+
+        soldLastMonth = new Sale(saleListing);
+        soldLastMonth.setMoreInfo("Sold last month");
+        soldLastMonth.setDateSold(LocalDateTime.now().minusMonths(1));
+        saleHistoryRepository.save(soldLastMonth);
+
+        soldLastYear = new Sale(saleListing);
+        soldLastYear.setMoreInfo("Sold last year");
+        soldLastYear.setDateSold(LocalDateTime.now().minusYears(1));
+        saleHistoryRepository.save(soldLastYear);
     }
 
 
@@ -185,9 +205,9 @@ class SalesReportServiceTest extends AbstractInitializer {
                 periodEnd, "all", appUser);
 
         //expect 3 items: soldToday, alsoSoldToday and soldYesterday
-        Assertions.assertEquals(3, salesReport.size());
-
+        Assertions.assertEquals(3, salesReport.size()); //TODO: why is this 6?
     }
+
 
     /**
      * Tests that getting a sales report with 'daily' granularity
@@ -203,9 +223,10 @@ class SalesReportServiceTest extends AbstractInitializer {
         List<GetSalesReportDTO> salesReport = salesReportService.getSalesReport(businessId, periodStart,
                 periodEnd, "daily", appUser);
 
-        //TODO: check response
         //expect 2 items: (soldToday, alsoSoldToday) and soldYesterday
+        Assertions.assertEquals(2, salesReport.size()); //TODO: why is this 5?
     }
+
 
     /**
      * Tests that getting a sales report with 'weekly' granularity
@@ -213,8 +234,24 @@ class SalesReportServiceTest extends AbstractInitializer {
      */
     @Test
     void getSalesReport_weeklyGranularity_success() {
+        AppUserDetails appUser = new AppUserDetails(owner);
+        String periodStart = LocalDate.now().minusDays(20).toString();
+        String periodEnd = LocalDate.now().toString();
+        Integer businessId = business.getId();
 
+        List<GetSalesReportDTO> salesReport = salesReportService.getSalesReport(businessId, periodStart,
+                periodEnd, "weekly", appUser);
+
+        //expect 3 items: (week with no sales), soldLastWeek and (soldToday, alsoSoldToday, soldYesterday)
+        Assertions.assertEquals(3, salesReport.size());
+
+        //Checking for the (soldToday, alsoSoldToday, soldYesterday) week
+        Assertions.assertEquals(3, salesReport.get(2).getSales().size());
+
+        //TODO: expected: <Sold last week> but was: <Sold last year>
+        Assertions.assertEquals(soldLastWeek.getMoreInfo(), salesReport.get(0).getSales().get(0).getMoreInfo());
     }
+
 
     /**
      * Tests that getting a sales report with 'monthly' granularity
@@ -222,8 +259,21 @@ class SalesReportServiceTest extends AbstractInitializer {
      */
     @Test
     void getSalesReport_monthlyGranularity_success() {
+        AppUserDetails appUser = new AppUserDetails(owner);
+        String periodStart = LocalDate.now().minusMonths(1).toString();
+        String periodEnd = LocalDate.now().toString();
+        Integer businessId = business.getId();
 
+        List<GetSalesReportDTO> salesReport = salesReportService.getSalesReport(businessId, periodStart,
+                periodEnd, "monthly", appUser);
+
+        //expect 2 items because spanning this month and last month
+        Assertions.assertEquals(2, salesReport.size());
+
+        //TODO: expected: <Sold last month> but was: <Sold last year>
+        Assertions.assertEquals(soldLastMonth.getMoreInfo(), salesReport.get(0).getSales().get(0).getMoreInfo());
     }
+
 
     /**
      * Tests that getting a sales report with 'yearly' granularity
@@ -231,6 +281,17 @@ class SalesReportServiceTest extends AbstractInitializer {
      */
     @Test
     void getSalesReport_yearlyGranularity_success() {
+        AppUserDetails appUser = new AppUserDetails(owner);
+        String periodStart = LocalDate.now().minusYears(1).toString();
+        String periodEnd = LocalDate.now().toString();
+        Integer businessId = business.getId();
 
+        List<GetSalesReportDTO> salesReport = salesReportService.getSalesReport(businessId, periodStart,
+                periodEnd, "yearly", appUser);
+
+        //expect 2 items because spanning this year and last year
+        Assertions.assertEquals(2, salesReport.size());
+
+        Assertions.assertEquals(soldLastYear.getMoreInfo(), salesReport.get(0).getSales().get(0).getMoreInfo());
     }
 }

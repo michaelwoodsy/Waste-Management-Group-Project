@@ -70,9 +70,11 @@ public class SalesReportSteps extends AbstractInitializer {
                 .build();
 
         owner = this.getTestUserBusinessAdmin();
+        owner.setHomeAddress(null);
         owner = userRepository.save(owner);
 
         business = this.getTestBusiness();
+        business.setAddress(null);
         business.setPrimaryAdministratorId(owner.getId());
         business = businessRepository.save(business);
 
@@ -121,6 +123,7 @@ public class SalesReportSteps extends AbstractInitializer {
                 .param("granularity", "all")
                 .with(user(new AppUserDetails(owner)))
         );
+        //TODO: User with id 2 can not perform this action as they are not an administrator of business with id 1. :(
     }
 
     @Then("The {int} sales from July are shown")
