@@ -79,14 +79,17 @@ class SalesReportServiceTest extends AbstractInitializer {
 
         soldToday = new Sale(saleListing);
         soldToday.setDateSold(LocalDateTime.now().minusHours(2));
+        soldToday.setMoreInfo("Sold today");
         saleHistoryRepository.save(soldToday);
 
         alsoSoldToday = new Sale(saleListing);
         alsoSoldToday.setDateSold(LocalDateTime.now().minusHours(3));
+        alsoSoldToday.setMoreInfo("Also sold today");
         saleHistoryRepository.save(alsoSoldToday);
 
         soldYesterday = new Sale(saleListing);
         soldYesterday.setDateSold(LocalDateTime.now().minusDays(1));
+        soldYesterday.setMoreInfo("Sold yesterday");
         saleHistoryRepository.save(soldYesterday);
 
         soldLastWeek = new Sale(saleListing);
@@ -205,7 +208,7 @@ class SalesReportServiceTest extends AbstractInitializer {
                 periodEnd, "all", appUser);
 
         //expect 3 items: soldToday, alsoSoldToday and soldYesterday
-        Assertions.assertEquals(3, salesReport.size()); //TODO: why is this 6?
+        Assertions.assertEquals(3, salesReport.size());
     }
 
 
@@ -224,7 +227,7 @@ class SalesReportServiceTest extends AbstractInitializer {
                 periodEnd, "daily", appUser);
 
         //expect 2 items: (soldToday, alsoSoldToday) and soldYesterday
-        Assertions.assertEquals(2, salesReport.size()); //TODO: why is this 5?
+        Assertions.assertEquals(2, salesReport.size());
     }
 
 
@@ -235,20 +238,19 @@ class SalesReportServiceTest extends AbstractInitializer {
     @Test
     void getSalesReport_weeklyGranularity_success() {
         AppUserDetails appUser = new AppUserDetails(owner);
-        String periodStart = LocalDate.now().minusDays(20).toString();
+        String periodStart = LocalDate.now().minusDays(13).toString();
         String periodEnd = LocalDate.now().toString();
         Integer businessId = business.getId();
 
         List<GetSalesReportDTO> salesReport = salesReportService.getSalesReport(businessId, periodStart,
                 periodEnd, "weekly", appUser);
 
-        //expect 3 items: (week with no sales), soldLastWeek and (soldToday, alsoSoldToday, soldYesterday)
-        Assertions.assertEquals(3, salesReport.size());
+        //expect 2 items:  soldLastWeek and (soldToday, alsoSoldToday, soldYesterday)
+        Assertions.assertEquals(2, salesReport.size());
 
         //Checking for the (soldToday, alsoSoldToday, soldYesterday) week
-        Assertions.assertEquals(3, salesReport.get(2).getSales().size());
+        Assertions.assertEquals(3, salesReport.get(1).getSales().size());
 
-        //TODO: expected: <Sold last week> but was: <Sold last year>
         Assertions.assertEquals(soldLastWeek.getMoreInfo(), salesReport.get(0).getSales().get(0).getMoreInfo());
     }
 
@@ -270,7 +272,6 @@ class SalesReportServiceTest extends AbstractInitializer {
         //expect 2 items because spanning this month and last month
         Assertions.assertEquals(2, salesReport.size());
 
-        //TODO: expected: <Sold last month> but was: <Sold last year>
         Assertions.assertEquals(soldLastMonth.getMoreInfo(), salesReport.get(0).getSales().get(0).getMoreInfo());
     }
 
