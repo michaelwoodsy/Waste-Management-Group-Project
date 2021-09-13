@@ -148,7 +148,7 @@ const testReport = [ // TODO: Remove once report is retrieved from backend
   },
   {
     periodStart: '2021-07-01',
-    periodEnd: '2021-07-31',
+    periodEnd: '2021-07-01',
     totalPurchaseValue: 40.00,
     purchaseCount: 5,
     sales: [
@@ -217,7 +217,7 @@ export default {
         this.report = res.data
       } catch (error) {
         console.log(error)
-        this.report = testReport
+        this.report = testReport // TODO: Remove once report is retrieved from backend
       }
     }
   }
