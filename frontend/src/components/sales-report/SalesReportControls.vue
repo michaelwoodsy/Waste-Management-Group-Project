@@ -58,6 +58,7 @@ export default {
         'Yearly',
         'Monthly',
         'Weekly',
+        'Daily'
       ],
       valid: true,
       msg: {
@@ -86,7 +87,10 @@ export default {
         const endDate = new Date(this.options.periodEnd)
         endDate.setHours(0, 0, 0, 0)
         const currentDate = new Date()
-        if (startDate > currentDate || endDate > currentDate) {
+        if (startDate > endDate) {
+          this.valid = false
+          this.msg.dateRange = 'Start date must be before end date'
+        } else if (startDate > currentDate || endDate > currentDate) {
           this.valid = false
           this.msg.dateRange = 'Date range must be in the past'
         } else {

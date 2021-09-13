@@ -17,7 +17,10 @@
           <div class="row align-items-center">
             <div class="col-6">
               <span class="text-muted">
-                {{ formattedDate(section.periodStart) }} - {{ formattedDate(section.periodEnd) }}
+                {{ formattedDate(section.periodStart) }}
+                <span v-if="formattedDate(section.periodStart) !== formattedDate(section.periodEnd)">
+                  - {{ formattedDate(section.periodEnd) }}
+                </span>
               </span>
             </div>
             <div class="col">
