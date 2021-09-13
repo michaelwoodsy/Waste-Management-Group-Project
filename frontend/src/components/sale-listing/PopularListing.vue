@@ -12,15 +12,15 @@ Displays a popular listing
 
       <div class="card-body">
         <!-- Product Name -->
-        <h6 class="card-title">{{ data.listing.inventoryItem.product.name }}</h6>
+        <h6 class="card-title">{{ data.inventoryItem.product.name }}</h6>
 
         <!-- Quantity and Price, cause sizing issues -->
         <p class="card-text text-muted small mb-1">
-          Quantity: {{ data.listing.quantity }}
+          Quantity: {{ data.quantity }}
         </p>
 
         <p class="card-text text-muted small mb-1">
-          Price: {{ formatPrice(data.listing) }}
+          Price: {{ formatPrice(data) }}
         </p>
 
         <div class="text-right">
@@ -38,7 +38,7 @@ Displays a popular listing
       </div>
     </div>
 
-    <individual-sale-listing-modal v-if="viewListingModal" :listing="data.listing"
+    <individual-sale-listing-modal v-if="viewListingModal" :listing="data"
                                    @close-modal="closeModal"
     />
   </div>
@@ -68,7 +68,7 @@ export default {
     }
   },
   mounted() {
-    this.getPrimaryImage(this.data.listing.inventoryItem.product)
+    this.getPrimaryImage(this.data.inventoryItem.product)
   },
 
   methods: {
@@ -83,7 +83,7 @@ export default {
      * the country of the business offering the listing
      */
     formatPrice(listing) {
-      return this.$root.$data.product.formatPrice(listing.currency, listing.price);
+       return this.$root.$data.product.formatPrice(listing.currency, listing.price);
     },
 
     /**

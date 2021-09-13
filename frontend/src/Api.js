@@ -616,3 +616,12 @@ export const Images = {
      */
     getImageURL: (path) => SERVER_URL + path.slice(1)
 }
+
+export const Landing ={
+    /**
+     * Retrieves the popular listings from the backend
+     * @param country The parameter for popular listings in that country
+     * @returns {Promise<AxiosResponse<any>>} response with popular sale listings
+     */
+    getPopularListings: (country) => instance.get("popularlistings", {params: {'country': country}})
+}
