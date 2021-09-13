@@ -9,19 +9,19 @@
             src="../../../public/logoInverted.png">
       </div>
 
-      <div class="row justify-content-center mb-3 align-content-center" style="border: 1px solid black; height: 100px">
+      <div class="row justify-content-center mb-3 align-content-center round-corners">
         <featured-listings></featured-listings>
       </div>
 
-      <div class="row justify-content-center mb-3 align-content-center" style="border: 1px solid black; height: 100px">
+      <div class="row justify-content-center mb-3 align-content-center round-corners">
         <statistics></statistics>
       </div>
 
-      <div class="row justify-content-center mb-3 align-content-center" style="border: 1px solid black; height: 100px">
+      <div class="row justify-content-center mb-3 align-content-center round-corners">
         <about-us></about-us>
       </div>
 
-      <div class="row justify-content-center mb-3 align-content-center" style="border: 1px solid black; height: 100px">
+      <div class="row justify-content-center mb-3 align-content-center round-corners">
         <contact-register-login></contact-register-login>
       </div>
     </div>
@@ -44,5 +44,11 @@ export default {
 </script>
 
 <style scoped>
+
+.round-corners {
+  border-radius: 15px;
+  border: 1px solid #42b983;
+  padding: 20px;
+}
 
 </style>

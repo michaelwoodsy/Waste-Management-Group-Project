@@ -616,3 +616,11 @@ export const Images = {
      */
     getImageURL: (path) => SERVER_URL + path.slice(1)
 }
+
+export const Statistics = {
+    /**
+     * Retrieves the image at the path.
+     * @param path Path to the image
+     */
+    getStatistics: () => instance.get(`statistics`)
+}
