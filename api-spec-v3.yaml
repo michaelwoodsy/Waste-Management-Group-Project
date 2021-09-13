@@ -51,6 +51,7 @@ tags:
   - name: 'U31: Purchases'
   - name: 'U32: Managing my feed'
   - name: 'U25: Lost Password'
+  - name: 'U41: Sales Report'
   - name: 'UD1: Landing Page'
   - name: 'UD2: Popular Listings'
   - name: 'UD3: Featured Business Listings'
@@ -2709,45 +2710,6 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
-  '/businesses/{businessId}/sales':
-    get:
-      tags:
-        - 'UD5: Sale History'
-        - 'Business Accounts'
-        - 'Sales'
-      summary: "Gets a business' sold sale listings"
-      description: 'Retrieves all the sale listings a given business has sold.'
-      security:
-        - CookieAuth:
-            - user
-            - globalApplicationAdmin
-            - defaultGlobalApplicationAdmin
-      parameters:
-        - name: businessId
-          in: path
-          description: The id of the business
-          required: true
-          schema:
-            type: integer
-            example: 100
-      responses:
-        '200':
-          description: Request successful, a list (potentially empty) of sales is returned
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Sale'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '406':
-          $ref: '#/components/responses/NotAcceptableError'
-
   '/businesses/{businessId}/sales/{saleId}':
     get:
       tags:
@@ -3049,6 +3011,67 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+
+
+  '/businesses/{businessId}/sales':
+    get:
+      tags:
+        - 'U41: Sales Report'
+        - 'Business Accounts'
+        - 'Sales'
+      summary: "Gets a business' sales report"
+      description: 'Retrieves the number of sales and the total price of those sales during a given period.'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: The id of the business
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: periodStart
+          in: query
+          description: Start date of the sales report
+          required: true
+          schema:
+            type: string
+          example: '2021-07-15'
+        - name: periodEnd
+          in: query
+          description: End date of the sales report
+          required: true
+          schema:
+            type: string
+          example: '2021-08-15'
+        - name: granularity
+          in: query
+          description: Granularity of sales
+          required: true
+          schema:
+            type: string
+          example: 'monthly'
+      responses:
+        '200':
+          description: Request successful, returns a list of GetSalesReportDTOs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetSalesReportDTO'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -3806,3 +3829,37 @@ components:
           example: '2021-07-15T05:10:00Z'
           readOnly: true
           description: Date and time when the review was created
+
+    GetSalesReportDTO:
+      type: object
+      description: "A sales report for a business over a given period."
+      required:
+        - sales
+        - periodStart
+        - periodEnd
+        - totalPurchaseValue
+        - purchaseCount
+      properties:
+        sales:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sale'
+          description: List of all says during time period.
+        periodStart:
+          type: string
+          example: '2021-07-15'
+          readOnly: true
+          description: Start date which sales are tracked after.
+        periodEnd:
+          type: string
+          example: '2021-07-15'
+          readOnly: true
+          description: End date which sales are tracked before.
+        totalPurchaseValue:
+          type: integer
+          example: 1000
+          description: Total price of all sales.
+        purchaseCount:
+          type: integer
+          example: 50
+          description: Total number of sales.
