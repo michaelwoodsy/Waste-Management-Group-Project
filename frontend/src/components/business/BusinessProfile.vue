@@ -1,3 +1,17 @@
+<!--
+Component for displaying a business' information.
+
+-----------------------------------------------------------
+Props
+-----------------------------------------------------------
+business:         Object, required. Business object from backend.
+isBusinessAdmin:  Boolean, default false. Displays buttons / options that are only
+                  visible to a business admin.
+isPrimaryAdmin:   Boolean, default false. Displays buttons / options only available to
+                  the businesses primary admin.
+readOnly:         Boolean, default true.
+-->
+
 <template>
   <div class="container-fluid">
 
@@ -167,6 +181,26 @@
       </div>
     </div>
 
+    <!-- Featured listings -->
+    <div>
+      <div class="row">
+        <div class="col text-left mb-2">
+          <h2>Featured Listings</h2>
+        </div>
+      </div>
+      <div v-if="featuredListings.length === 0">
+        <p class="text-center"><strong>This Business has no featured listings</strong></p>
+      </div>
+      <div v-else class="row" style="height: 500px">
+        <div class="col col-12 justify-content-center">
+          <sale-listing
+              v-bind:key="featuredListings[0].id"
+              :listing-data="featuredListings[0]"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- Images -->
     <div>
       <div class="row">
@@ -206,9 +240,11 @@
 <script>
 import userState from "@/store/modules/user";
 import {Business, Images} from '@/Api';
+import SaleListing from "@/components/sale-listing/SaleListing";
 
 export default {
   name: "BusinessProfile",
+  components: {SaleListing},
   props: {
     business: {
       type: Object,
@@ -238,8 +274,12 @@ export default {
       addAdministratorError: null,
       addAdministratorSuccess: null,
       error: null,
-      canDoAdminAction: false
+      canDoAdminAction: false,
+      featuredListings: []
     }
+  },
+  mounted () {
+    this.getFeaturedListings()
   },
   methods: {
     /**
@@ -315,6 +355,25 @@ export default {
             ? err.response.data.slice(err.response.data.indexOf(":") + 2)
             : err
       }
+    },
+
+    /**
+     * Retrieves the business' featured listings, and sets to  this.featuredListings.
+     */
+    async getFeaturedListings() {
+      let res = await Business.searchSaleListings("",
+            true,
+            false,
+            false,
+            false,
+            null,
+            null,
+            null,
+            null,
+            0,
+            "bestMatch")
+      console.log(res.data)
+      this.featuredListings = res.data[0]
     },
 
     /**
