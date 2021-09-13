@@ -156,52 +156,6 @@ class SaleListingServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Method to like sale listings
-     */
-    void likeListings() {
-        //Listing 1 has 1 like
-        //Listing 2 has 3 like
-        //Listing 3 has 3 like
-        //Listing 4 has 2 like
-        LikedSaleListing like = new LikedSaleListing(testUser, saleListing1);
-        likedSaleListingRepository.save(like);
-        like = new LikedSaleListing(testUser, saleListing2);
-        likedSaleListingRepository.save(like);
-        testUser.addLikedListing(like);
-        userRepository.save(testUser);
-        like = new LikedSaleListing(testUser, saleListing3);
-        likedSaleListingRepository.save(like);
-        testUser.addLikedListing(like);
-        userRepository.save(testUser);
-        like = new LikedSaleListing(testUser, saleListing4);
-        likedSaleListingRepository.save(like);
-        testUser.addLikedListing(like);
-        userRepository.save(testUser);
-
-        like = new LikedSaleListing(testOtherUser, saleListing2);
-        likedSaleListingRepository.save(like);
-        testOtherUser.addLikedListing(like);
-        userRepository.save(testOtherUser);
-        like = new LikedSaleListing(testOtherUser, saleListing3);
-        likedSaleListingRepository.save(like);
-        testOtherUser.addLikedListing(like);
-        userRepository.save(testOtherUser);
-
-        like = new LikedSaleListing(testAdmin, saleListing2);
-        likedSaleListingRepository.save(like);
-        testAdmin.addLikedListing(like);
-        userRepository.save(testAdmin);
-        like = new LikedSaleListing(testAdmin, saleListing3);
-        likedSaleListingRepository.save(like);
-        testAdmin.addLikedListing(like);
-        userRepository.save(testAdmin);
-        like = new LikedSaleListing(testAdmin, saleListing4);
-        likedSaleListingRepository.save(like);
-        testAdmin.addLikedListing(like);
-        userRepository.save(testAdmin);
-    }
-
-    /**
      * Tests that a NotAcceptableException is thrown when
      * a someone tries accessing the listings of a nonexistent business.
      */
@@ -1371,49 +1325,5 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> saleListingService.starSaleListing(45434, true, user));
-    }
-
-    /**
-     * Tests the successful case for getting popular sale listings from country new zealand
-     */
-    @Test
-    void popularListings_fromNewZealand_success(){
-        this.likeListings();
-        List<GetSaleListingDTO> listings = saleListingService.getPopularListings("New Zealand");
-        Assertions.assertEquals(2, listings.size());
-
-        Assertions.assertEquals("New Zealand", listings.get(0).getBusiness().getAddress().getCountry());
-        Assertions.assertEquals("New Zealand", listings.get(1).getBusiness().getAddress().getCountry());
-
-        Assertions.assertTrue(listings.get(0).getLikes() >= listings.get(1).getLikes());
-    }
-
-    /**
-     * Tests the successful case for getting popular sale listings from country new zealand
-     */
-    @Test
-    void popularListings_fromNetherlands_success(){
-        this.likeListings();
-        List<GetSaleListingDTO> listings = saleListingService.getPopularListings("Netherlands");
-        Assertions.assertEquals(2, listings.size());
-
-        Assertions.assertEquals("Netherlands", listings.get(0).getBusiness().getAddress().getCountry());
-        Assertions.assertEquals("Netherlands", listings.get(1).getBusiness().getAddress().getCountry());
-
-        Assertions.assertTrue(listings.get(0).getLikes() >= listings.get(1).getLikes());
-    }
-
-    /**
-     * Tests the successful case for getting popular sale listings from country new zealand
-     */
-    @Test
-    void popularListings_worldwide_success(){
-        this.likeListings();
-        List<GetSaleListingDTO> listings = saleListingService.getPopularListings(null);
-        Assertions.assertEquals(4, listings.size());
-
-        Assertions.assertTrue(listings.get(0).getLikes() >= listings.get(1).getLikes());
-        Assertions.assertTrue(listings.get(1).getLikes() >= listings.get(2).getLikes());
-        Assertions.assertTrue(listings.get(2).getLikes() >= listings.get(3).getLikes());
     }
 }
