@@ -47,7 +47,7 @@ class SaleListingServiceTest extends AbstractInitializer {
 
 
     Business business1;
-    Integer business2Id;
+    Business business2;
     User testUser;
     User testOtherUser;
     User testAdmin;
@@ -131,10 +131,9 @@ class SaleListingServiceTest extends AbstractInitializer {
         saleListing2 = saleListingRepository.save(saleListing2);
 
         Address address2 = new Address(null, null, "Christchurch", null, "New Zealand", null);
-        Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
+        business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
         addressRepository.save(address2);
-        businessRepository.save(business2);
-        business2Id = business2.getId();
+        business2 = businessRepository.save(business2);
 
         Product product3 = new Product("TEST-3", "Third Product", null, null, 5.00, business2.getId());
         productRepository.save(product3);
@@ -154,6 +153,52 @@ class SaleListingServiceTest extends AbstractInitializer {
                 .thenReturn(userRepository.findByEmail(testUser.getEmail()).get(0));
         Mockito.when(userService.getUserByEmail(testAdmin.getEmail()))
                 .thenReturn(userRepository.findByEmail(testAdmin.getEmail()).get(0));
+    }
+
+    /**
+     * Method to like sale listings
+     */
+    void likeListings() {
+        //Listing 1 has 1 like
+        //Listing 2 has 3 like
+        //Listing 3 has 3 like
+        //Listing 4 has 2 like
+        LikedSaleListing like = new LikedSaleListing(testUser, saleListing1);
+        likedSaleListingRepository.save(like);
+        like = new LikedSaleListing(testUser, saleListing2);
+        likedSaleListingRepository.save(like);
+        testUser.addLikedListing(like);
+        userRepository.save(testUser);
+        like = new LikedSaleListing(testUser, saleListing3);
+        likedSaleListingRepository.save(like);
+        testUser.addLikedListing(like);
+        userRepository.save(testUser);
+        like = new LikedSaleListing(testUser, saleListing4);
+        likedSaleListingRepository.save(like);
+        testUser.addLikedListing(like);
+        userRepository.save(testUser);
+
+        like = new LikedSaleListing(testOtherUser, saleListing2);
+        likedSaleListingRepository.save(like);
+        testOtherUser.addLikedListing(like);
+        userRepository.save(testOtherUser);
+        like = new LikedSaleListing(testOtherUser, saleListing3);
+        likedSaleListingRepository.save(like);
+        testOtherUser.addLikedListing(like);
+        userRepository.save(testOtherUser);
+
+        like = new LikedSaleListing(testAdmin, saleListing2);
+        likedSaleListingRepository.save(like);
+        testAdmin.addLikedListing(like);
+        userRepository.save(testAdmin);
+        like = new LikedSaleListing(testAdmin, saleListing3);
+        likedSaleListingRepository.save(like);
+        testAdmin.addLikedListing(like);
+        userRepository.save(testAdmin);
+        like = new LikedSaleListing(testAdmin, saleListing4);
+        likedSaleListingRepository.save(like);
+        testAdmin.addLikedListing(like);
+        userRepository.save(testAdmin);
     }
 
     /**
@@ -407,8 +452,8 @@ class SaleListingServiceTest extends AbstractInitializer {
         Specification<SaleListing> spec = saleListingService.searchByBusinessType(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
         Assertions.assertEquals(2, listings.size());
-        Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(1).getBusiness().getId());
     }
 
     /**
@@ -636,8 +681,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(2, total);
 
-        Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(1).getBusiness().getId());
     }
 
     /**
@@ -859,8 +904,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(2).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(3).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(2).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(3).getBusiness().getId());
     }
 
     /**
@@ -888,8 +933,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(4, total);
 
-        Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(1).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(2).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(3).getBusiness().getId());
     }
@@ -921,8 +966,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(2).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(3).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(2).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(3).getBusiness().getId());
     }
 
     /**
@@ -1326,5 +1371,49 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> saleListingService.starSaleListing(45434, true, user));
+    }
+
+    /**
+     * Tests the successful case for getting popular sale listings from country new zealand
+     */
+    @Test
+    void popularListings_fromNewZealand_success(){
+        this.likeListings();
+        List<GetSaleListingDTO> listings = saleListingService.getPopularListings("New Zealand");
+        Assertions.assertEquals(2, listings.size());
+
+        Assertions.assertEquals("New Zealand", listings.get(0).getBusiness().getAddress().getCountry());
+        Assertions.assertEquals("New Zealand", listings.get(1).getBusiness().getAddress().getCountry());
+
+        Assertions.assertTrue(listings.get(0).getLikes() >= listings.get(1).getLikes());
+    }
+
+    /**
+     * Tests the successful case for getting popular sale listings from country new zealand
+     */
+    @Test
+    void popularListings_fromNetherlands_success(){
+        this.likeListings();
+        List<GetSaleListingDTO> listings = saleListingService.getPopularListings("Netherlands");
+        Assertions.assertEquals(2, listings.size());
+
+        Assertions.assertEquals("Netherlands", listings.get(0).getBusiness().getAddress().getCountry());
+        Assertions.assertEquals("Netherlands", listings.get(1).getBusiness().getAddress().getCountry());
+
+        Assertions.assertTrue(listings.get(0).getLikes() >= listings.get(1).getLikes());
+    }
+
+    /**
+     * Tests the successful case for getting popular sale listings from country new zealand
+     */
+    @Test
+    void popularListings_worldwide_success(){
+        this.likeListings();
+        List<GetSaleListingDTO> listings = saleListingService.getPopularListings(null);
+        Assertions.assertEquals(4, listings.size());
+
+        Assertions.assertTrue(listings.get(0).getLikes() >= listings.get(1).getLikes());
+        Assertions.assertTrue(listings.get(1).getLikes() >= listings.get(2).getLikes());
+        Assertions.assertTrue(listings.get(2).getLikes() >= listings.get(3).getLikes());
     }
 }
