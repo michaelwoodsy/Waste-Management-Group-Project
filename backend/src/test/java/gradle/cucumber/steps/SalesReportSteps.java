@@ -26,6 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -64,8 +65,13 @@ public class SalesReportSteps extends AbstractInitializer {
      */
     @BeforeEach
     @Autowired
-    void setup(WebApplicationContext context) {
-        this.initialise();
+    void setup(WebApplicationContext context, UserNotificationRepository userNotificationRepository) {
+        userNotificationRepository.deleteAll();
+        saleHistoryRepository.deleteAll();
+        businessRepository.deleteAll();
+        userRepository.deleteAll();
+
+
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
@@ -78,6 +84,7 @@ public class SalesReportSteps extends AbstractInitializer {
         business = this.getTestBusiness();
         business.setAddress(null);
         business.setPrimaryAdministratorId(owner.getId());
+        business.setAdministrators(List.of(owner));
         business = businessRepository.save(business);
 
         product = new Product("PROD", "Product", "Just a product", "Me",
@@ -89,9 +96,9 @@ public class SalesReportSteps extends AbstractInitializer {
 
     @AfterEach
     void teardown() {
+        saleHistoryRepository.deleteAll();
         businessRepository.deleteAll();
         userRepository.deleteAll();
-        saleHistoryRepository.deleteAll();
     }
 
     //AC2
@@ -217,8 +224,8 @@ public class SalesReportSteps extends AbstractInitializer {
         saleHistoryRepository.save(sale1);
 
         Sale sale2 = new Sale(saleListing);
-        sale2.setDateSold(LocalDateTime.of(2021, 6, 4, 14, 30));
-        sale1.setPrice(salePrice2);
+        sale2.setDateSold(LocalDateTime.of(2021, 6, 5, 14, 30));
+        sale2.setPrice(salePrice2);
         saleHistoryRepository.save(sale2);
     }
 
@@ -283,9 +290,20 @@ public class SalesReportSteps extends AbstractInitializer {
     public void i_had_$_worth_of_sales_in_june_$_worth_of_sales_in_july_and_$_worth_of_sales_in_august(Double juneTotalValue,
                                                                                                        Double julyTotalValue,
                                                                                                        Double augTotalValue) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
-        //TODO
+        Sale sale1 = new Sale(saleListing);
+        sale1.setDateSold(LocalDateTime.of(2021, 6, 4, 14, 30));
+        sale1.setPrice(juneTotalValue);
+        saleHistoryRepository.save(sale1);
+
+        Sale sale2 = new Sale(saleListing);
+        sale2.setDateSold(LocalDateTime.of(2021, 7, 5, 14, 30));
+        sale2.setPrice(julyTotalValue);
+        saleHistoryRepository.save(sale2);
+
+        Sale sale3 = new Sale(saleListing);
+        sale3.setDateSold(LocalDateTime.of(2021, 8, 5, 14, 30));
+        sale3.setPrice(augTotalValue);
+        saleHistoryRepository.save(sale3);
 
     }
 
