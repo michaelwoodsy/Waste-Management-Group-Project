@@ -82,8 +82,8 @@ public class IndividualFullSaleListingSteps extends AbstractInitializer {
         //need to clear the local repositories (these are repositories only used in this test class as I used the @AutoConfigureTestDatabase annotation)
         cardRepository.deleteAll();
         likedSaleListingRepository.deleteAll();
-        userRepository.deleteAll();
         saleListingRepository.deleteAll();
+        userRepository.deleteAll();
         inventoryItemRepository.deleteAll();
         productRepository.deleteAll();
         businessRepository.deleteAll();

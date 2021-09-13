@@ -55,7 +55,7 @@ public class Business {
         return this.id;
     }
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id")
     public Address getAddress() {
         return this.address;
