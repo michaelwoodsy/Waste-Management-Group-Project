@@ -1,27 +1,27 @@
 <template>
   <div class="col-12 d-flex">
     <div class="col-4">
-      <div class="row justify-content-center">
-        <h5 class="font-weight-bold">User Accounts</h5>
-      </div>
-      <div class="row justify-content-center">
-        <h5>{{ stats.totalUserCount }}</h5>
-      </div>
-    </div>
-    <div class="col-4">
-      <div class="row justify-content-center">
-        <h5 class="font-weight-bold">Current Listings</h5>
-      </div>
-      <div class="row justify-content-center">
-        <h5>{{ stats.numAvailableListings }}</h5>
+      <div class="card col-sm text-white bg-secondary text-center">
+        <div class="card-body">
+          <h3 class="card-title d-inline font-weight-bold">User Accounts</h3>
+          <h3 id="userCountText" class="card-text">{{ stats.totalUserCount }}</h3>
+        </div>
       </div>
     </div>
     <div class="col-4">
-      <div class="row justify-content-center">
-        <h5 class="font-weight-bold">Listings Sold</h5>
+      <div class="card col-sm text-white bg-secondary text-center">
+        <div class="card-body">
+          <h3 class="card-title d-inline font-weight-bold">Current Listings</h3>
+          <h3 id="availableListingsText" class="card-text">{{ stats.numAvailableListings }}</h3>
+        </div>
       </div>
-      <div class="row justify-content-center">
-        <h5>{{ stats.totalNumSales }}</h5>
+    </div>
+    <div class="col-4">
+      <div class="card col-sm text-white bg-secondary text-center">
+        <div class="card-body">
+          <h3 class="card-title d-inline font-weight-bold">Listings Sold</h3>
+          <h3 id="totalSalesText" class="card-text">{{ stats.totalNumSales }}</h3>
+        </div>
       </div>
     </div>
   </div>
@@ -47,10 +47,19 @@ export default {
     await Statistics.getStatistics().then((res) => {
       this.stats = res.data
     })
+    console.log(this.stats)
   }
 }
 </script>
 
 <style scoped>
+
+.card {
+  padding: 10px;
+}
+
+h3 {
+  margin: 10px;
+}
 
 </style>
