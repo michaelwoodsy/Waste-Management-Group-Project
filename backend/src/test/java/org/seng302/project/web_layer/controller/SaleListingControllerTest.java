@@ -1,5 +1,7 @@
 package org.seng302.project.web_layer.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,11 +9,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
+import org.seng302.project.service_layer.service.BusinessService;
 import org.seng302.project.service_layer.service.SaleListingService;
+import org.seng302.project.service_layer.service.UserService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,6 +30,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -45,25 +51,30 @@ class SaleListingControllerTest extends AbstractInitializer {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private SaleListingService saleListingService;
+    @MockBean
+    private BusinessService businessService;
+    @MockBean
+    private UserService userService;
 
     @BeforeEach
     public void setup() {
         testUser = this.getTestUser();
         owner = this.getTestUserBusinessAdmin();
         systemAdmin = this.getTestSystemAdmin();
-
         business = this.getTestBusiness();
-
         Product product = this.getTestProduct();
-
         inventoryItem = new InventoryItem(product, 20,
                 10.99, 219.8, "2021-04-25",
                 "2021-04-25", "2021-04-25", "2021-04-25");
         inventoryItem.setId(1);
 
+        Mockito.when(userService.getUserByEmail(testUser.getEmail()))
+                .thenReturn(testUser);
     }
 
     /**
@@ -765,5 +776,45 @@ class SaleListingControllerTest extends AbstractInitializer {
 
         mockMvc.perform(request)
                 .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that making a request to get a business' featured listings with a valid request
+     * returns a status code 200 and a list of the business' listings
+     */
+    @Test
+    void getFeaturedSaleListings_validRequest_status200() throws Exception {
+        SaleListing saleListing = this.getSaleListings().get(0);
+        saleListing.setFeatured(true);
+        GetSaleListingDTO listing = new GetSaleListingDTO(saleListing);
+        listing.attachLikeData(0, false);
+        Mockito.when(saleListingService.getFeaturedSaleListings(any(Integer.class), any(User.class)))
+                .thenReturn(List.of(listing));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/featuredlistings", business.getId())
+                .with(user(new AppUserDetails(testUser)));
+
+        MvcResult response = mockMvc.perform(request).andExpect(status().isOk()).andReturn();
+        String responseData = response.getResponse().getContentAsString();
+        List<GetSaleListingDTO> result = objectMapper.readValue(responseData, new TypeReference<>() {});
+        Assertions.assertEquals(1, result.size());
+    }
+
+    /**
+     * Tests that making a request to get a business' featured listings with a non-existent business
+     * returns a status code 406
+     */
+    @Test
+    void getFeaturedSaleListings_nonExistentBusiness_status406() throws Exception {
+        Mockito.doThrow(NotAcceptableException.class)
+                .when(businessService)
+                .checkBusiness(any(Integer.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/featuredlistings", 10000)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request).andExpect(status().isNotAcceptable());
     }
 }

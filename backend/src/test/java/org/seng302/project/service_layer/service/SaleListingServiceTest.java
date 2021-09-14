@@ -1274,8 +1274,8 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @Test
     void getFeaturedSaleListings_returnsOnlyFeaturedListings() {
-        List<GetSaleListingDTO> business1Listings = saleListingService.getFeaturedSaleListings(business1.getId());
-        List<GetSaleListingDTO> business2Listings = saleListingService.getFeaturedSaleListings(business2Id);
+        List<GetSaleListingDTO> business1Listings = saleListingService.getFeaturedSaleListings(business1.getId(), testUser);
+        List<GetSaleListingDTO> business2Listings = saleListingService.getFeaturedSaleListings(business2Id, testUser);
         Assertions.assertEquals(1, business1Listings.size());
         Assertions.assertEquals(0, business2Listings.size());
     }

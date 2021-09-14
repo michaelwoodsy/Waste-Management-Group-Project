@@ -1,12 +1,15 @@
 package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
+import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
+import org.seng302.project.service_layer.service.BusinessService;
 import org.seng302.project.service_layer.service.SaleListingService;
+import org.seng302.project.service_layer.service.UserService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -27,12 +31,16 @@ public class SaleListingController {
 
     private static final Logger logger = LoggerFactory.getLogger(SaleListingController.class.getName());
 
-
+    private final UserService userService;
+    private final BusinessService businessService;
     private final SaleListingService saleListingService;
 
     @Autowired
-    public SaleListingController(
-            SaleListingService saleListingService) {
+    public SaleListingController(SaleListingService saleListingService,
+                                 BusinessService businessService,
+                                 UserService userService) {
+        this.userService = userService;
+        this.businessService = businessService;
         this.saleListingService = saleListingService;
     }
 
@@ -213,5 +221,28 @@ public class SaleListingController {
             throw new BadRequestException(message);
         }
         saleListingService.starSaleListing(listingId, star, user);
+    }
+
+    /**
+     * Handles request for getting a business' featured sale listings
+     *
+     * @param businessId ID of the business to get featured sale listings of
+     * @return list of the business' featured sale listings
+     */
+    @GetMapping("/businesses/{businessId}/featuredlistings")
+    @ResponseStatus(HttpStatus.OK)
+    public List<GetSaleListingDTO> getFeaturesSaleListings(
+            @PathVariable Integer businessId,
+            @AuthenticationPrincipal AppUserDetails user
+    ) {
+        try {
+            User loggedInUser = userService.getUserByEmail(user.getUsername());
+            businessService.checkBusiness(businessId);
+            return saleListingService.getFeaturedSaleListings(businessId, loggedInUser);
+        } catch (NotAcceptableException exception) {
+            String message = String.format("Business with ID %d does not exist", businessId);
+            logger.warn(message);
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, message, exception);
+        }
     }
 }

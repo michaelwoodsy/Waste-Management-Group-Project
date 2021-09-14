@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class SaleListingService {
@@ -80,7 +79,7 @@ public class SaleListingService {
      * @param user     currently logged-in user (used to check if they like a listing)
      * @return a list of GetSaleListingDTO Objects
      */
-    List<GetSaleListingDTO> getListingDTOs(List<SaleListing> listings, User user) {
+    private List<GetSaleListingDTO> getListingDTOs(List<SaleListing> listings, User user) {
         List<GetSaleListingDTO> listingDTOs = new ArrayList<>();
         for (SaleListing listing : listings) {
             // Get like and star data for the listings
@@ -769,11 +768,11 @@ public class SaleListingService {
      * @param businessId ID of the business to
      * @return list of GetSaleListingDTOs of the business' featured sale listings
      */
-    public List<GetSaleListingDTO> getFeaturedSaleListings(Integer businessId) {
+    public List<GetSaleListingDTO> getFeaturedSaleListings(Integer businessId, User user) {
         Specification<SaleListing> spec = SaleListingSpecifications.isBusinessId(businessId)
                 .and(SaleListingSpecifications.isFeatured());
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        return listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList());
+        return getListingDTOs(listings, user);
     }
 
     /**
