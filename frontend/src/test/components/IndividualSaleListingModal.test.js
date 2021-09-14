@@ -33,6 +33,11 @@ beforeEach(() => {
             formatAddress() {
                 return null
             }
+        },
+        computed: {
+            isLoggedIn() {
+                return true
+            }
         }
     })
 });
