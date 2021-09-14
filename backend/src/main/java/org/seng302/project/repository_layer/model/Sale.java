@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 /**
  * Entity for a sale listing that has been purchased.
@@ -41,4 +42,6 @@ public class Sale {
         this.quantity = saleListing.getQuantity();
     }
 
+    //Date sorter
+    public static final Comparator<Sale> compareByDateSold = Comparator.comparing(Sale::getDateSold);
 }
