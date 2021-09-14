@@ -53,6 +53,7 @@ public class ProductImagesSteps extends AbstractInitializer {
     private final AddressRepository addressRepository;
     private final ProductRepository productRepository;
     private final ImageRepository imageRepository;
+    private final SaleListingRepository saleListingRepository;
     private final CardRepository cardRepository;
     private final InventoryItemRepository inventoryItemRepository;
 
@@ -63,8 +64,8 @@ public class ProductImagesSteps extends AbstractInitializer {
                        BusinessRepository businessRepository, AddressRepository addressRepository,
                        ProductRepository productRepository, ImageRepository imageRepository, 
                        ProductImageService productImageService, CardRepository cardRepository,
-                       SpringEnvironment springEnvironment,
-                       InventoryItemRepository inventoryItemRepository) {
+                       SpringEnvironment springEnvironment, InventoryItemRepository inventoryItemRepository,
+                       SaleListingRepository saleListingRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.businessRepository = businessRepository;
@@ -75,6 +76,7 @@ public class ProductImagesSteps extends AbstractInitializer {
         this.cardRepository = cardRepository;
         this.springEnvironment = springEnvironment;
         this.inventoryItemRepository = inventoryItemRepository;
+        this.saleListingRepository = saleListingRepository;
     }
 
     /**
@@ -83,7 +85,7 @@ public class ProductImagesSteps extends AbstractInitializer {
     @BeforeEach
     @Autowired
     public void setup(WebApplicationContext context) {
-
+        saleListingRepository.deleteAll();
         inventoryItemRepository.deleteAll();
         productRepository.deleteAll();
         businessRepository.deleteAll();

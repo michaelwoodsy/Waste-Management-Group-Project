@@ -766,4 +766,35 @@ class SaleListingControllerTest extends AbstractInitializer {
         mockMvc.perform(request)
                 .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
+
+    /**
+     * Tests that getting popular sale listings
+     * returns a 200 response
+     */
+    @Test
+    void getPopularListings_valid_200() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/popularlistings")
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+    }
+
+    /**
+     * Tests that getting popular sale listings
+     * returns a 200 response
+     */
+    @Test
+    void getPopularListings_validWithCountry_200() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/popularlistings")
+                .param("country", "New Zealand")
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+    }
 }
