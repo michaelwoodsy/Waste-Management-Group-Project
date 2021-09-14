@@ -123,6 +123,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         inventoryItem = new InventoryItem(product1, 10, null, null, "2021-01-01", null, null, "2021-12-01");
         inventoryItem = inventoryItemRepository.save(inventoryItem);
         saleListing1 = new SaleListing(business1, inventoryItem, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
+        saleListing1.setFeatured(true);
         saleListing1 = saleListingRepository.save(saleListing1);
 
         Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
@@ -1266,5 +1267,16 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> saleListingService.starSaleListing(45434, true, user));
+    }
+
+    /**
+     * Tests that getFeaturedSaleListings method only returns featured listings
+     */
+    @Test
+    void getFeaturedSaleListings_returnsOnlyFeaturedListings() {
+        List<GetSaleListingDTO> business1Listings = saleListingService.getFeaturedSaleListings(business1.getId());
+        List<GetSaleListingDTO> business2Listings = saleListingService.getFeaturedSaleListings(business2Id);
+        Assertions.assertEquals(1, business1Listings.size());
+        Assertions.assertEquals(0, business2Listings.size());
     }
 }

@@ -44,12 +44,12 @@ public final class SaleListingSpecifications {
     /**
      * Creates a Specification object used to search listings by exact match for business ID
      *
-     * @param id id of the business to search sales listings by (used to find matching businesses with country)
+     * @param businessId id of the business to search sales listings by (used to find matching businesses with country)
      * @return a specification object to search repository with
      */
-    public static Specification<SaleListing> isBusinessId(Integer id) {
+    public static Specification<SaleListing> isBusinessId(Integer businessId) {
         return ((root, query, builder) ->
-                builder.equal(root.get("businessId"), id)
+                builder.equal(root.get(BUSINESS).get("id"), businessId)
         );
     }
 

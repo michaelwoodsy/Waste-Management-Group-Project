@@ -30,8 +30,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class SaleListingService {
@@ -71,8 +75,9 @@ public class SaleListingService {
 
     /**
      * Helper method to convert a list of listings to a list of GetSaleListingDTOs, with the liked count attached
-     * @param listings  listings to convert
-     * @param user      currently logged-in user (used to check if they like a listing)
+     *
+     * @param listings listings to convert
+     * @param user     currently logged-in user (used to check if they like a listing)
      * @return a list of GetSaleListingDTO Objects
      */
     List<GetSaleListingDTO> getListingDTOs(List<SaleListing> listings, User user) {
@@ -538,6 +543,7 @@ public class SaleListingService {
     /**
      * Retrieves the sale listing.
      * Throws a NotAcceptableException if the listing is not found
+     *
      * @param listingId the id of the listing to retrieve
      * @return the retrieved SaleListing
      */
@@ -556,7 +562,8 @@ public class SaleListingService {
     /**
      * Retrieves the LikedSaleListing.
      * Throws a BadRequestException if the user had not liked the listing
-     * @param listing the listing the user has liked
+     *
+     * @param listing      the listing the user has liked
      * @param loggedInUser the user that has liked the listing
      * @return the retrieved LikedSaleListing
      */
@@ -716,9 +723,10 @@ public class SaleListingService {
 
     /**
      * Tags a user's liked sale listing
+     *
      * @param listingId the id of the listing to tag
-     * @param tagName the name of the tag for the listing
-     * @param user the AppUserDetails of the user tagging the listing
+     * @param tagName   the name of the tag for the listing
+     * @param user      the AppUserDetails of the user tagging the listing
      */
     public void tagSaleListing(Integer listingId,
                                String tagName,
@@ -740,12 +748,13 @@ public class SaleListingService {
 
     /**
      * Stars user's liked sale listing
+     *
      * @param listingId the id of the listing to star
-     * @param user the AppUserDetails of the user starring the listing
+     * @param user      the AppUserDetails of the user starring the listing
      */
     public void starSaleListing(Integer listingId,
                                 boolean star,
-                                AppUserDetails user){
+                                AppUserDetails user) {
         logger.info("Request to star a sale listing with ID: {}", listingId);
         var loggedInUser = userService.getUserByEmail(user.getUsername());
         SaleListing listing = retrieveListing(listingId);
@@ -761,7 +770,10 @@ public class SaleListingService {
      * @return list of GetSaleListingDTOs of the business' featured sale listings
      */
     public List<GetSaleListingDTO> getFeaturedSaleListings(Integer businessId) {
-        return List.of();
+        Specification<SaleListing> spec = SaleListingSpecifications.isBusinessId(businessId)
+                .and(SaleListingSpecifications.isFeatured());
+        List<SaleListing> listings = saleListingRepository.findAll(spec);
+        return listings.stream().map(GetSaleListingDTO::new).collect(Collectors.toList());
     }
 
     /**
