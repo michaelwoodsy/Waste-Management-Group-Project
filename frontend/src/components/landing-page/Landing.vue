@@ -13,7 +13,7 @@
         <featured-listings></featured-listings>
       </div>
 
-      <div class="row justify-content-center mb-3 align-content-center" style="border: 1px solid black; height: 100px">
+      <div class="row justify-content-center mb-3 align-content-center">
         <statistics></statistics>
       </div>
 
