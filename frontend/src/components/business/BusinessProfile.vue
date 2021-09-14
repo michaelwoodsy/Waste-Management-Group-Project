@@ -191,14 +191,16 @@ readOnly:         Boolean, default true.
       <div v-if="featuredListings.length === 0">
         <p class="text-center"><strong>This Business has no featured listings</strong></p>
       </div>
-      <div v-else class="row" style="height: 500px">
-        <div class="col col-12 justify-content-center">
-
-
+      <div v-else class="row">
+        <div
+            v-for="listing in featuredListings"
+            v-bind:key="listing.id"
+            class="col col-6 justify-content-center">
           <sale-listing
-              v-bind:key="featuredListings[0].id"
-              :listing-data="featuredListings[0]"
+              :listing-data="listing"
           />
+
+
         </div>
       </div>
     </div>
