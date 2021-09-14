@@ -792,33 +792,25 @@ public class SaleListingService {
                                    AppUserDetails user){
         Integer maxNumberFeature = 5;
         logger.info("Request to feature a sale listing with ID: {}", listingId);
-        try{
-            // Get the user that made the request
-            userService.getUserByEmail(user.getUsername());
+        // Get the business of the request
+        Business business = businessService.checkBusiness(businessId);
 
-            // Get the business of the request
-            Business business = businessService.checkBusiness(businessId);
+        // Check the user is an admin of the business
+        businessService.checkUserCanDoBusinessAction(user, business);
 
-            // Check the user is an admin of the business
-            businessService.checkUserCanDoBusinessAction(user, business);
-
-            List<SaleListing> businessListings = saleListingRepository.findAllByBusinessId(businessId);
-            Integer currentlyFeatured = 0;
-            for (SaleListing businessListing : businessListings){
-                if(currentlyFeatured.equals(maxNumberFeature) && featured){
-                    throw new NotAcceptableException("You already have the maximum number of possible featured sale listings");
-                }
-                if(businessListing.isFeatured()){
-                    currentlyFeatured++;
-                }
+        List<SaleListing> businessListings = saleListingRepository.findAllByBusinessId(businessId);
+        Integer currentlyFeatured = 0;
+        for (SaleListing businessListing : businessListings){
+            if(currentlyFeatured.equals(maxNumberFeature) && featured){
+                throw new BadRequestException("You already have the maximum number of possible featured sale listings");
             }
-
-            SaleListing listing = retrieveListing(listingId);
-            listing.setFeatured(featured);
-            saleListingRepository.save(listing);
-        } catch (Exception exception) {
-            logger.error(String.format("Unexpected error while featuring sale listing : %s", exception.getMessage()));
-            throw exception;
+            if(businessListing.isFeatured()){
+                currentlyFeatured++;
+            }
         }
+        SaleListing listing = retrieveListing(listingId);
+        listing.setFeatured(featured);
+        saleListingRepository.save(listing);
+
     }
 }

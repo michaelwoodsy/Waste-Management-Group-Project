@@ -1440,11 +1440,11 @@ class SaleListingServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that a Not Acceptable Exception is thrown when a user tries to feature a sale listing when they
+     * Tests that a Bad Request Exception is thrown when a user tries to feature a sale listing when they
      * already have the max number of featured sale listings 5
      */
     @Test
-    void featureSaleListing_tooManyFeatured_NotAcceptableException(){
+    void featureSaleListing_tooManyFeatured_BadRequestException(){
         saleListing1.setFeatured(true);
         saleListingRepository.save(saleListing1);
         saleListing2.setFeatured(true);
@@ -1459,7 +1459,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         AppUserDetails user = new AppUserDetails(testAdmin);
         Integer listingId = saleListing8.getId();
         Integer businessID = business1.getId();
-        Assertions.assertThrows(NotAcceptableException.class,
+        Assertions.assertThrows(BadRequestException.class,
                 () -> saleListingService.featureSaleListing(listingId, businessID, true, user));
     }
 }

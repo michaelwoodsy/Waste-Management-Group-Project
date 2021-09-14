@@ -1,7 +1,5 @@
 package gradle.cucumber.steps;
 
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -86,6 +84,7 @@ public class FeaturedBusinessListingsSteps extends AbstractInitializer {
 
         businessRepository.save(testBusiness);
         List<SaleListing> listings = new ArrayList<>();
+        //Make 7 sale listings for the business
         for (int i = 1; i < 7; i++) {
             SaleListing listing = new SaleListing();
             listing.setBusiness(testBusiness);
@@ -123,12 +122,13 @@ public class FeaturedBusinessListingsSteps extends AbstractInitializer {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testBusinessAdmin)));
-        mockMvc.perform(request)
-                .andExpect(status().isOk());
     }
 
     @Then("the listing is now featured")
-    public void theListingIsNowFeatured() {
+    public void theListingIsNowFeatured() throws Exception {
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+
         List<SaleListing> businessListings = saleListingRepository.findAllByBusinessId(testBusiness.getId());
         SaleListing listing = businessListings.get(0);
         Assertions.assertTrue(listing.isFeatured());
@@ -140,41 +140,26 @@ public class FeaturedBusinessListingsSteps extends AbstractInitializer {
         Assertions.assertTrue(testBusiness.userIsAdmin(testBusinessAdmin.getId()));
         List<SaleListing> listings = saleListingRepository.findAllByBusinessId(testBusiness.getId());
         this.numListings = numListings;
-//        Set all but 1 sale listing to true
+        //There are 7 sale listings for this business
+        //Set numListings amount of sale listings to be featured (0 - numListings-1)
+        //This will leave the sale listing at index numListings not featured
         for (int i = 0; i < numListings; i++) {
             listings.get(i).setFeatured(true);
         }
-//        Check that all but 1 have been set to be featured
         saleListingRepository.saveAll(listings);
+        //Check that sale listings with index (0 - numListings-1) are now featured
         listings = saleListingRepository.findAllByBusinessId(testBusiness.getId());
         for (int i = 0; i < numListings; i++) {
+            System.out.println(i);
             Assertions.assertTrue(listings.get(i).isFeatured());
         }
-    }
 
-    @When("the user tires to feature a listing")
-    public void theUserTiresToFeatureAListing() throws Exception {
-        List<SaleListing> listings = saleListingRepository.findAllByBusinessId(testBusiness.getId());
-        SaleListing listing = listings.get(numListings);
-        Assertions.assertFalse(listings.get(numListings).isFeatured());
-
-        JSONObject body = new JSONObject();
-        body.put("featured", true);
-
-        Integer businessId = testBusiness.getId();
-        Integer listingId = listing.getId();
-        request = MockMvcRequestBuilders
-                .patch("/businesses/{businessId}/listings/{listingId}/feature", businessId, listingId)
-                .content(body.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .with(user(new AppUserDetails(testBusinessAdmin)));
     }
 
     @Then("an error occurs and the listing is not featured")
     public void anErrorOccursAndTheListingIsNotFeatured() throws Exception {
         mockMvc.perform(request)
-                .andExpect(status().isNotAcceptable());
+                .andExpect(status().isBadRequest());
     }
 
 //    AC6
