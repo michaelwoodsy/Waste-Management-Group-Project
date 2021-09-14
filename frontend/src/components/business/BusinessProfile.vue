@@ -193,6 +193,8 @@ readOnly:         Boolean, default true.
       </div>
       <div v-else class="row" style="height: 500px">
         <div class="col col-12 justify-content-center">
+
+
           <sale-listing
               v-bind:key="featuredListings[0].id"
               :listing-data="featuredListings[0]"

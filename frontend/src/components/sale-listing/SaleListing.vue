@@ -7,7 +7,7 @@ Displays a single listing.
 <template>
   <div>
 
-    <div class="card shadow card-size">
+    <div v-if="listing" class="card shadow card-size">
 
       <!-- Listing Image -->
       <img v-if="imageUrl != null" :src="imageUrl" alt="productImage" class="card-img-top">
@@ -15,15 +15,15 @@ Displays a single listing.
       <div class="card-body">
 
         <!-- Product Name -->
-        <h6 class="card-title">{{ listingData.inventoryItem.product.name }}</h6>
+        <h6 class="card-title">{{ listing.inventoryItem.product.name }}</h6>
 
         <!-- Quantity and Price, cause sizing issues -->
         <p class="card-text text-muted small mb-1">
-          Quantity: {{ listingData.quantity }}
+          Quantity: {{ listing.quantity }}
         </p>
 
         <p class="card-text text-muted small mb-1">
-          Price: {{ formatPrice(listingData) }}
+          Price: {{ formatPrice(listing) }}
         </p>
 
         <div class="text-right">
@@ -70,15 +70,26 @@ export default {
     return {
       viewListingModal: false,
       businessToViewId: null,
-      imageUrl: null
+      imageUrl: null,
+      listing: null
     }
   },
 
   mounted() {
     this.getPrimaryImage(this.listingData.inventoryItem.product)
+    this.setCurrency()
   },
 
   methods: {
+    /**
+     * Sets the currency on the sale listing
+     */
+    async setCurrency() {
+      let listings = await this.$root.$data.product
+          .addSaleListingCurrencies([{...this.listingData}], this.listingData.business.address.country)
+      this.listing = listings[0]
+    },
+
     /**
      * Method called after closing the modal
      */
@@ -91,8 +102,7 @@ export default {
      * the country of the business offering the listing
      */
     formatPrice(listing) {
-      console.log('Here')
-      return this.$root.$data.product.formatPrice(listing.currency, listing.price);
+      return this.$root.$data.product.formatPrice(listing.currency, listing.price)
     },
 
     /**
