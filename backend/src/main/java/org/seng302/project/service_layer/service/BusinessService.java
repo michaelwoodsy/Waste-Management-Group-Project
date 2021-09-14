@@ -33,7 +33,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class BusinessService {
@@ -158,7 +157,7 @@ public class BusinessService {
 
     /**
      * Checks a business exists with the ID given.
-     * Throws and exception if no business exists.
+     * Throws an exception if no business exists.
      *
      * @param businessId Business Id to check.
      * @throws NotAcceptableException thrown if there is no business matching the ID
@@ -452,6 +451,12 @@ public class BusinessService {
         return List.of(sortBy.contains("ASC"), sortBy);
     }
 
+    /**
+     * Returns the string representation of a BusinessType enum
+     *
+     * @param businessType BusinessType enum
+     * @return string representation of the enum
+     */
     public String checkBusinessType(BusinessType businessType){
         String returnedBusinessType;
         switch (businessType){

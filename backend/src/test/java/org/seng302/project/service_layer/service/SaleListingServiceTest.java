@@ -3,6 +3,8 @@ package org.seng302.project.service_layer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
@@ -158,7 +160,7 @@ class SaleListingServiceTest extends AbstractInitializer {
 
     /**
      * Tests that a NotAcceptableException is thrown when
-     * a someone tries accessing the listings of a nonexistent business.
+     * someone tries accessing the listings of a nonexistent business.
      */
     @Test
     void getBusinessListings_nonExistentBusiness_NotAcceptableException() {
@@ -186,7 +188,7 @@ class SaleListingServiceTest extends AbstractInitializer {
 
     /**
      * Tests that a NotAcceptableException is thrown when
-     * a someone tries adding a listing to a nonexistent business.
+     * someone tries adding a listing to a nonexistent business.
      */
     @Test
     void postBusinessListings_nonExistentBusiness_NotAcceptableException() {
@@ -293,75 +295,24 @@ class SaleListingServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that searching for listing by business name with string 'first' returns first listing
+     * Tests that searching for listing by business name with different strings returns correct number of listings
      */
-    @Test
-    void searchByBusinessName_firstBusiness_returnsFirstListing() {
-        String searchTerm = "first";
+    @ParameterizedTest
+    @CsvSource({
+            "first, 2",
+            "second, 2",
+            "business, 4",
+            "\"first\", 0",
+            "\"first business\", 2",
+            "\"second\", 0",
+            "\"second business\", 2",
+            "random, 0",
+            "first AND second, 0"
+    })
+    void searchByBusinessName_business_returnsBothListings(String searchTerm, Integer expectedListings) {
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(2, listings.size());
-        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'second' returns second listing
-     */
-    @Test
-    void searchByBusinessName_secondBusiness_returnsSecondListing() {
-        String searchTerm = "second";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(2, listings.size());
-        Assertions.assertEquals("Third Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Fourth Product", listings.get(1).getInventoryItem().getProduct().getName());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'business' returns all four listings
-     */
-    @Test
-    void searchByBusinessName_business_returnsBothListings() {
-        String searchTerm = "business";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(4, listings.size());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string '"first"' returns nothing
-     */
-    @Test
-    void searchByBusinessName_firstExact_returnsNothing() {
-        String searchTerm = "\"first\"";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(0, listings.size());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string '"first business"' returns first listing
-     */
-    @Test
-    void searchByBusinessName_firstBusinessExact_returnsFirstListing() {
-        String searchTerm = "\"first business\"";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(2, listings.size());
-        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'random' returns nothing
-     */
-    @Test
-    void searchByBusinessName_random_returnsNothing() {
-        String searchTerm = "random";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(0, listings.size());
+        Assertions.assertEquals(expectedListings, listings.size());
     }
 
     /**
@@ -372,17 +323,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{"first", "second"});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
         Assertions.assertEquals(4, listings.size());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'first' and 'second' returns both listings
-     */
-    @Test
-    void searchByBusinessName_firstAndSecond_returnsNothing() {
-        String searchTerm = "first AND second";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(0, listings.size());
     }
 
     /**

@@ -755,6 +755,16 @@ public class SaleListingService {
     }
 
     /**
+     * Gets and returns a list of a business' featured sale listings
+     *
+     * @param businessId ID of the business to
+     * @return list of GetSaleListingDTOs of the business' featured sale listings
+     */
+    public List<GetSaleListingDTO> getFeaturedSaleListings(Integer businessId) {
+        return List.of();
+    }
+
+    /**
      * Deletes sale listings that have expired.
      * Scheduled to run at midnight every day.
      */
