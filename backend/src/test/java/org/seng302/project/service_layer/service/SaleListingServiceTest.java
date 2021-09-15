@@ -136,7 +136,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         saleListing2 = saleListingRepository.save(saleListing2);
 
         Address address2 = new Address(null, null, "Christchurch", null, "New Zealand", null);
-        Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
+        business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
         addressRepository.save(address2);
         business2 = businessRepository.save(business2);
         business2Id = business2.getId();
@@ -669,8 +669,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(2, total);
 
-        Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(1).getBusiness().getId());
     }
 
     /**
@@ -921,8 +921,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(8, total);
 
-        Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(1).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(2).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(3).getBusiness().getId());
     }
