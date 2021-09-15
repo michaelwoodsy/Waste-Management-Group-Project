@@ -64,7 +64,7 @@ class ResaleStatisticsServiceTest extends AbstractInitializer {
         User testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
         testUser.setId(null);
-        testUser = userRepository.save(testUser);
+        userRepository.save(testUser);
 
         User testOtherUser = this.getTestOtherUser();
         addressRepository.save(testOtherUser.getHomeAddress());
@@ -86,20 +86,19 @@ class ResaleStatisticsServiceTest extends AbstractInitializer {
         InventoryItem inventoryItem = new InventoryItem(product1, 10, null, null, "2021-01-01", null, null, "2021-12-01");
         inventoryItem = inventoryItemRepository.save(inventoryItem);
         SaleListing saleListing1 = new SaleListing(business1, inventoryItem, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
-        saleListing1 = saleListingRepository.save(saleListing1);
+        saleListingRepository.save(saleListing1);
 
         Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
         productRepository.save(product2);
         InventoryItem inventoryItem2 = new InventoryItem(product2, 10, null, null, "2021-01-01", null, null, "2021-12-02");
         inventoryItem2 = inventoryItemRepository.save(inventoryItem2);
         SaleListing saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
-        saleListing2 = saleListingRepository.save(saleListing2);
+        saleListingRepository.save(saleListing2);
 
         Address address2 = new Address(null, null, "Christchurch", null, "New Zealand", null);
         Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
         addressRepository.save(address2);
         businessRepository.save(business2);
-        var business2Id = business2.getId();
 
         Product product3 = new Product("TEST-3", "Third Product", null, null, 5.00, business2.getId());
         productRepository.save(product3);
@@ -123,9 +122,9 @@ class ResaleStatisticsServiceTest extends AbstractInitializer {
     @Test
     void getResaleStatistics_success(){
         JSONObject response = resaleStatisticsService.getStatistics();
-        Assertions.assertEquals(3, response.getAsNumber("totalUserCount"));
-        Assertions.assertEquals(4, response.getAsNumber("numAvailableListings"));
-        Assertions.assertEquals(2, response.getAsNumber("totalNumSales"));
+        Assertions.assertEquals(Long.valueOf("3"), response.getAsNumber("totalUserCount"));
+        Assertions.assertEquals(Long.valueOf("4"), response.getAsNumber("numAvailableListings"));
+        Assertions.assertEquals(Long.valueOf("2"), response.getAsNumber("totalNumSales"));
 
     }
 }

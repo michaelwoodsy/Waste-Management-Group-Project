@@ -47,7 +47,6 @@ export default {
     await Statistics.getStatistics().then((res) => {
       this.stats = res.data
     })
-    console.log(this.stats)
   }
 }
 </script>
