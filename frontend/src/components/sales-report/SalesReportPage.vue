@@ -13,7 +13,10 @@
         :currency="currency"
     />
 
-    <SalesReportGraph></SalesReportGraph>
+    <sales-report-graph
+        v-if="report != null"
+        :data="report"
+    />
 
   </div>
 </template>

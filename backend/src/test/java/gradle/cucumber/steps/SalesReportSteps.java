@@ -126,7 +126,7 @@ public class SalesReportSteps extends AbstractInitializer {
     @When("I request a sales report for July")
     public void i_request_a_sales_report_for_july() throws Exception {
         mockMvcResult = mockMvc.perform(MockMvcRequestBuilders
-                .get("/businesses/{id}/salesReport", business.getId())
+                .get("/businesses/{id}/sales", business.getId())
                 .param("periodStart", LocalDate.of(2021, 7, 1).toString())
                 .param("periodEnd", LocalDate.of(2021, 7, 31).toString())
                 .param("granularity", "all")
@@ -165,7 +165,7 @@ public class SalesReportSteps extends AbstractInitializer {
     @When("I request a sales report for {int}") //year = 2020
     public void i_request_a_sales_report_for(Integer year) throws Exception {
         mockMvcResult = mockMvc.perform(MockMvcRequestBuilders
-                .get("/businesses/{id}/salesReport", business.getId())
+                .get("/businesses/{id}/sales", business.getId())
                 .param("periodStart", LocalDate.of(year, 1, 1).toString())
                 .param("periodEnd", LocalDate.of(year, 12, 31).toString())
                 .param("granularity", "all")
@@ -200,7 +200,7 @@ public class SalesReportSteps extends AbstractInitializer {
     @When("I select a report from {string} to {string}")
     public void i_select_a_report_from_to(String date1, String date2) throws Exception {
         mockMvcResult = mockMvc.perform(MockMvcRequestBuilders
-                .get("/businesses/{id}/salesReport", business.getId())
+                .get("/businesses/{id}/sales", business.getId())
                 .param("periodStart", date1)
                 .param("periodEnd", date2)
                 .param("granularity", "all")
@@ -232,7 +232,7 @@ public class SalesReportSteps extends AbstractInitializer {
     @When("I request a sales report for June")
     public void i_request_a_sales_report_for_june() throws Exception {
         mockMvcResult = mockMvc.perform(MockMvcRequestBuilders
-                .get("/businesses/{id}/salesReport", business.getId())
+                .get("/businesses/{id}/sales", business.getId())
                 .param("periodStart", LocalDate.of(2021, 6, 1).toString())
                 .param("periodEnd", LocalDate.of(2021, 6, 30).toString())
                 .param("granularity", "all")
@@ -266,7 +266,7 @@ public class SalesReportSteps extends AbstractInitializer {
     @When("I request a sales report from June to August with monthly granularity")
     public void i_request_a_sales_report_from_june_to_august_with_monthly_granularity() throws Exception {
         mockMvcResult = mockMvc.perform(MockMvcRequestBuilders
-                .get("/businesses/{id}/salesReport", business.getId())
+                .get("/businesses/{id}/sales", business.getId())
                 .param("periodStart", LocalDate.of(2021, 6, 1).toString())
                 .param("periodEnd", LocalDate.of(2021, 8, 31).toString())
                 .param("granularity", "monthly")
