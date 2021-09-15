@@ -766,4 +766,212 @@ class SaleListingControllerTest extends AbstractInitializer {
         mockMvc.perform(request)
                 .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
+
+    /**
+     * Tests that featuring a sale listing
+     * returns a 200 response OK
+     */
+    @Test
+    void featureSaleListing_validTrue_200() throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("featured", true);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/listings/{listingId}/feature", business.getId(), 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests that featuring a sale listing
+     * returns a 200 response OK
+     */
+    @Test
+    void featureSaleListing_validFalse_200() throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("featured", false);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/listings/{listingId}/feature", business.getId(), 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests that featuring a sale listing with an invalid featured
+     * returns a 400 response Bad Request Exception
+     */
+    @Test
+    void featureSaleListing_invalidFeaturedString_400() throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("featured", "blah");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/listings/{listingId}/feature", business.getId(), 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(owner)));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tests that when a not logged in user features a sale listing
+     * returns a 401 response Unauthorized Exception
+     */
+    @Test
+    void featureSaleListing_notLoggedIn_401() throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("featured", true);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/listings/{listingId}/feature", business.getId(), 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * Tests that when a user who is not the admin of the given business ID features a sale listing
+     * returns a 403 response Forbidden Exception
+     */
+    @Test
+    void featureSaleListing_notAdmin_403() throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("featured", true);
+
+        Mockito.doThrow(new ForbiddenException(String.format(
+                "User with id %d can not perform this action as they are not an administrator of business with id %d.",
+                testUser.getId(), business.getId()))).when(saleListingService)
+                .featureSaleListing(any(Integer.class), any(Integer.class), any(boolean.class), any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/listings/{listingId}/feature", business.getId(), 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that when a user features a sale listing with an invalid business ID
+     * returns a 406 response Not Acceptable Exception
+     */
+    @Test
+    void featureSaleListings_nonExistentBusiness_406() throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("featured", true);
+
+        Mockito.doThrow(new NotAcceptableException(
+                String.format("Business with ID %d does not exist", 9999))).when(saleListingService)
+                .featureSaleListing(any(Integer.class), any(Integer.class), any(boolean.class), any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/listings/{listingId}/feature", 9999, 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that when a user features a sale listing with an invalid sale listing ID
+     * returns a 406 response Not Acceptable Exception
+     */
+    @Test
+    void featureSaleListings_nonExistentListing_406() throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("featured", true);
+
+        Mockito.doThrow(new NotAcceptableException(
+                String.format("No sale Listing with ID %d exists", 9999))).when(saleListingService)
+                .featureSaleListing(any(Integer.class), any(Integer.class), any(boolean.class), any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/listings/{listingId}/feature", business.getId(), 9999)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that when a user features a sale listing when the User already has the maximum number of featured
+     * sale listings
+     * returns a 406 response Not Acceptable Exception
+     */
+    @Test
+    void featureSaleListings_tooManyFeatured_406() throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("featured", true);
+
+        Mockito.doThrow(new NotAcceptableException(
+                "You already have the maximum number of possible featured sale listings")).when(saleListingService)
+                .featureSaleListing(any(Integer.class), any(Integer.class), any(boolean.class), any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/listings/{listingId}/feature", business.getId(), 1)
+                .content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that getting popular sale listings
+     * returns a 200 response
+     */
+    @Test
+    void getPopularListings_valid_200() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/popularlistings")
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+    }
+
+    /**
+     * Tests that getting popular sale listings
+     * returns a 200 response
+     */
+    @Test
+    void getPopularListings_validWithCountry_200() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/popularlistings")
+                .param("country", "New Zealand")
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+    }
 }

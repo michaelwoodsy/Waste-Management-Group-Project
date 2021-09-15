@@ -214,4 +214,38 @@ public class SaleListingController {
         }
         saleListingService.starSaleListing(listingId, star, user);
     }
+
+    @PatchMapping("/businesses/{businessId}/listings/{listingId}/feature")
+    @ResponseStatus(HttpStatus.OK)
+    public void featureSaleListing(@PathVariable Integer listingId,
+                                   @PathVariable Integer businessId,
+                                   @RequestBody JSONObject requestBody,
+                                   @AuthenticationPrincipal AppUserDetails user) {
+        boolean featured;
+        try{
+            featured = (boolean) requestBody.get("featured");
+        } catch (ClassCastException | NullPointerException exception) {
+            String message = "Value of \"featured\" must be a boolean";
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
+        saleListingService.featureSaleListing(listingId, businessId, featured, user);
+    }
+
+    /**
+     * Gets a list of popular sale listings for a given country.
+     *
+     * @param country Country to get popular listings for, null for worldwide popular sale listings.
+     * @return List of the up to 10 most popular sale listings in GetSaleListingDTOs'.
+     */
+    @GetMapping("/popularlistings")
+    public List<GetSaleListingDTO> getPopularListings(
+            @RequestParam(name = "country", required = false) String country) {
+        if (country != null) {
+            logger.info("Request to get popular sale listings from {}", country);
+        } else {
+            logger.info("Request to get popular sale listings");
+        }
+        return saleListingService.getPopularListings(country);
+    }
 }
