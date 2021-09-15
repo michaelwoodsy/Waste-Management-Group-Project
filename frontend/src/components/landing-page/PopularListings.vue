@@ -57,9 +57,9 @@
         <div class="carousel-inner">
           <div class="carousel-item active">
             <div class="row">
-                <div v-for="listing in listingsList1" v-bind:key="listing.id" class="col">
-                  <PopularListing :data="listing" @update-data="updateData" style="padding-left: 5px; padding-right: 5px"></PopularListing>
-                </div>
+              <div v-for="listing in listingsList1" v-bind:key="listing.id" class="col">
+                <PopularListing :data="listing" @update-data="updateData" style="padding-left: 5px; padding-right: 5px"></PopularListing>
+              </div>
             </div>
           </div>
           <div class="carousel-item">
@@ -129,9 +129,15 @@ export default {
     /**
      * Gets the popular listings from the backend, as well as setting each sale listing's currency
      */
-    async getPopularListings(){
+    async getPopularListings(country){
       try {
-        const response = await Landing.getPopularListings()
+        let response = null
+        if (country === undefined)  {
+          response = await Landing.getPopularListings()
+        } else {
+          response = await Landing.getPopularListings(this.countryInput)
+        }
+        this.listings = []
         for (let listing of response.data) {
           listing.currency = await this.$root.$data.product.getCurrency(listing.business.address.country)
           this.listings.push(listing)
@@ -178,13 +184,13 @@ export default {
     /**
      * Creates a request to photon api, updates the suggestions
      *
-     * @param inputAddress String, current address to search for.
+     * @param inputCountry String, current address to search for.
      * @returns {Promise<void>} Promise for this request.
      */
-    async updateSuggestions(inputAddress) {
+    async updateSuggestions(inputCountry) {
       try {
         this.loading = true
-        let res = await this.getPhotonCountry(inputAddress)
+        let res = await this.getPhotonCountry(inputCountry)
         this.cancelToken = null
 
         // Reset relevant variables
@@ -252,10 +258,9 @@ export default {
       }
     },
 
-    selectCountry(country) {
+    async selectCountry(country) {
       this.countryInput = country
-
-      //TODO: Search featured listings here
+      await this.getPopularListings(country)
     }
   }
 }
