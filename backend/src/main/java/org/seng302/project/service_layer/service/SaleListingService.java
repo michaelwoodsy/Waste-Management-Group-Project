@@ -804,4 +804,39 @@ public class SaleListingService {
         var logMessage = String.format("Deleted %d expired sales listings", expiredListings.size());
         logger.info(logMessage);
     }
+
+    /**
+     * Features a business' sale listing
+     * @param listingId The ID of the Sale Listing you are trying to feature
+     * @param businessId The Business ID who has the Sale Listing
+     * @param featured The new value of the featured field. True or False
+     * @param user The User who is trying to feature the Sale Listing
+     */
+    public void featureSaleListing(Integer listingId,
+                                   Integer businessId,
+                                   boolean featured,
+                                   AppUserDetails user){
+        Integer maxNumberFeature = 5;
+        logger.info("Request to feature a sale listing with ID: {}", listingId);
+        // Get the business of the request
+        Business business = businessService.checkBusiness(businessId);
+
+        // Check the user is an admin of the business
+        businessService.checkUserCanDoBusinessAction(user, business);
+
+        List<SaleListing> businessListings = saleListingRepository.findAllByBusinessId(businessId);
+        Integer currentlyFeatured = 0;
+        for (SaleListing businessListing : businessListings){
+            if(businessListing.isFeatured()){
+                currentlyFeatured++;
+            }
+            if(currentlyFeatured.equals(maxNumberFeature) && featured){
+                throw new BadRequestException("You already have the maximum number of possible featured sale listings");
+            }
+        }
+        SaleListing listing = retrieveListing(listingId);
+        listing.setFeatured(featured);
+        saleListingRepository.save(listing);
+
+    }
 }
