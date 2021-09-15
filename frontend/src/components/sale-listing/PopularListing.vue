@@ -6,9 +6,9 @@ Displays a popular listing
 -->
 <template>
   <div>
-    <div class="card shadow card-size" style="width: 15rem">
+    <div class="card shadow card-size" style="width: 12rem">
       <!-- Listing Image -->
-      <img v-if="imageUrl != null" :src="imageUrl" alt="productImage" class="card-img-top">
+      <img :src="getPrimaryImage(data.inventoryItem.product)" alt="productImage" class="card-img-top">
 
       <div class="card-body">
         <!-- Product Name -->
@@ -38,9 +38,7 @@ Displays a popular listing
       </div>
     </div>
 
-    <individual-sale-listing-modal v-if="viewListingModal" :listing="data"
-                                   @close-modal="closeModal"
-    />
+    <individual-sale-listing-modal v-if="viewListingModal" :listing="data"/>
   </div>
 </template>
 
@@ -63,21 +61,15 @@ export default {
   data() {
     return {
       viewListingModal: false,
-      businessToViewId: null,
-      imageUrl: null
+      businessToViewId: null
     }
   },
   mounted() {
+    console.log(this.data)
     this.getPrimaryImage(this.data.inventoryItem.product)
   },
 
   methods: {
-    /**
-     * Method called after closing the modal
-     */
-    closeModal() {
-      this.$emit('update-data')
-    },
     /**
      * Formats the price of a listing based on
      * the country of the business offering the listing
@@ -111,12 +103,15 @@ export default {
      * else it returns the default product image url
      */
     getPrimaryImage(product) {
+      if (product.primaryImageId === null) {
+        return this.getImageURL('/media/defaults/defaultProduct_thumbnail.jpg')
+      }
       if (product.primaryImageId !== null) {
         const filteredImages = product.images.filter(function (specificImage) {
           return specificImage.id === product.primaryImageId;
         })
         if (filteredImages.length === 1) {
-          this.imageUrl = this.getImageURL(filteredImages[0].filename)
+          return this.getImageURL(filteredImages[0].filename)
         }
       }
     },
