@@ -96,6 +96,7 @@ import {Landing} from "@/Api";
 import userState from "@/store/modules/user"
 import PopularListing from "../sale-listing/PopularListing";
 import axios from "axios";
+import $ from 'jquery';
 
 export default {
   name: "PopularListings",
@@ -138,6 +139,9 @@ export default {
           response = await Landing.getPopularListings(this.countryInput)
         }
         this.listings = []
+        this.listingsList1 = null
+        this.listingsList2 = null
+        this.listingsList3 = null
         for (let listing of response.data) {
           listing.currency = await this.$root.$data.product.getCurrency(listing.business.address.country)
           this.listings.push(listing)
@@ -285,6 +289,8 @@ export default {
 
     async selectCountry(country) {
       this.countryInput = country
+      //Resets the carousel to the first page
+      $('.carousel').carousel(0)
       await this.getPopularListings(country)
     }
   }
