@@ -192,16 +192,44 @@ readOnly:         Boolean, default true.
         <p class="text-center"><strong>This Business has no featured listings</strong></p>
       </div>
       <div v-else class="row">
-        <div
-            v-for="listing in featuredListings"
-            v-bind:key="listing.id"
-            class="col col-6 justify-content-center">
-          <sale-listing
-              :listing-data="listing"
-          />
-
-
+       <div class="col-6 m-auto">
+        <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+          <div class="carousel-inner">
+            <div class="carousel-item active p-3">
+              <sale-listing
+                  :listing-data="featuredListings[0]"
+              />
+            </div>
+            <div class="carousel-item">
+              <sale-listing
+                  :listing-data="featuredListings[1]"
+              />
+            </div>
+            <div class="carousel-item">
+              <sale-listing
+                  :listing-data="featuredListings[2]"
+              />
+            </div>
+          </div>
+          <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+          </a>
         </div>
+         </div>
+
+<!--        <div-->
+<!--            v-for="listing in featuredListings"-->
+<!--            v-bind:key="listing.id"-->
+<!--            class="col col-6 justify-content-center">-->
+<!--          <sale-listing-->
+<!--              :listing-data="listing"-->
+<!--          />-->
+<!--        </div>-->
       </div>
     </div>
 
