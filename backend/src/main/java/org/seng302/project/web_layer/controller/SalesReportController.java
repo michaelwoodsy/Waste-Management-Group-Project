@@ -38,7 +38,7 @@ public class SalesReportController {
      * @param appUser    The user that made the request.
      * @return  a list of GetSalesReportDTOs containing stats and sales from the requested time period
      */
-    @GetMapping("/businesses/{businessId}/salesReport")
+    @GetMapping("/businesses/{businessId}/sales")
     public List<GetSalesReportDTO> getSalesReport(
             @PathVariable int businessId,
             @RequestParam("periodStart") String periodStart,
