@@ -607,7 +607,8 @@
       "thumbnailFilename": "/media/ChocMuffins3_thumbnail.jpeg"
     },
     {
-      "productId": "CHOC-CHIP",
+      "productId": "WATT-250-BEANS",
+      "businessId": 2,
       "filename": "/media/ChocMuffins4.jpg",
       "thumbnailFilename": "/media/ChocMuffins4_thumbnail.jpeg"
     }
@@ -648,6 +649,17 @@
     },
     {
       "productId": "WATT-250-BEANS",
+      "businessId": 2,
+      "quantity": 4,
+      "pricePerItem": 1.99,
+      "totalPrice": 9.50,
+      "manufactured": "2021-04-09",
+      "sellBy": "2022-06-10",
+      "bestBefore": "2022-06-10",
+      "expires": "2022-06-21"
+    },
+    {
+      "productId": "WATT-500-BEANS",
       "businessId": 2,
       "quantity": 4,
       "pricePerItem": 1.99,
@@ -732,9 +744,17 @@
     },
     {
       "businessId": 2,
-      "inventoryItemId": 5,
+      "inventoryItemId": 3,
       "quantity": 4,
-      "price": 15.00,
+      "price": 10.00,
+      "moreInfo": null,
+      "closes": "2021-08-21T23:59:00Z"
+    },
+    {
+      "businessId": 2,
+      "inventoryItemId": 4,
+      "quantity": 4,
+      "price": 10.00,
       "moreInfo": null,
       "closes": "2021-08-21T23:59:00Z"
     },
@@ -747,13 +767,46 @@
       "closes": "2021-08-21T23:59:00Z"
     },
     {
+      "businessId": 2,
+      "inventoryItemId": 6,
+      "quantity": 4,
+      "price": 15.00,
+      "moreInfo": null,
+      "closes": "2021-08-21T23:59:00Z"
+    },
+    {
+      "businessId": 2,
+      "inventoryItemId": 7,
+      "quantity": 2,
+      "price": 10.00,
+      "moreInfo": null,
+      "closes": "2021-08-21T23:59:00Z"
+    },
+    {
+      "businessId": 2,
+      "inventoryItemId": 8,
+      "quantity": 4,
+      "price": 10.00,
+      "moreInfo": null,
+      "closes": "2021-08-21T23:59:00Z"
+    },
+    {
       "businessId": 3,
       "inventoryItemId": 9,
       "quantity": 4,
       "price": 10.00,
       "moreInfo": null,
       "closes": "2021-08-21T23:59:00Z"
+    },
+    {
+      "businessId": 3,
+      "inventoryItemId": 10,
+      "quantity": 4,
+      "price": 10.00,
+      "moreInfo": null,
+      "closes": "2021-08-21T23:59:00Z"
     }
+
   ],
   "cards": [
     {

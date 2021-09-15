@@ -2,39 +2,42 @@
   <div class="col text-center">
     <h2>Popular Listings</h2>
     <div class="">
-      <div id="popularListingCarousel" class="carousel slide w-100" data-ride="carousel">
+      <div id="popularListingCarousel" class="carousel slide w-auto" data-interval="false">
         <div class="carousel-inner">
+          <!-- Carousel Slides -->
           <div class="carousel-item active">
-            <div class="row">
-                <div v-for="listing in listingsList1" v-bind:key="listing.id" class="col">
-                  <PopularListing :data="listing" @update-data="updateData" style="padding-left: 5px; padding-right: 5px"></PopularListing>
+            <div class="row justify-content-center" v-if="listingsList1">
+                <div v-for="listing in listingsList1" v-bind:key="listing.id">
+                  <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px"></PopularListing>
                 </div>
             </div>
           </div>
           <div class="carousel-item">
-            <div class="row">
-              <div v-for="listing in listingsList2" v-bind:key="listing.id" class="col">
-                <PopularListing :data="listing" @update-data="updateData" style="padding-left: 5px; padding-right: 5px"></PopularListing>
+            <div class="row justify-content-center" v-if="listingsList2">
+              <div v-for="listing in listingsList2" v-bind:key="listing.id">
+                <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px"></PopularListing>
               </div>
             </div>
           </div>
-          <div class="carousel-item">
-            <div class="row">
-              <div v-for="listing in listingsList3" v-bind:key="listing.id" class="col">
-                <PopularListing :data="listing" @update-data="updateData" style="padding-left: 5px; padding-right: 5px"></PopularListing>
+          <div class="carousel-item" v-if="listingsList3">
+            <div class="row justify-content-center">
+              <div v-for="listing in listingsList3" v-bind:key="listing.id">
+                <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px"></PopularListing>
               </div>
             </div>
           </div>
-
         </div>
-        <a class="carousel-control-prev" data-slide="prev" href="#popularListingCarousel" role="button">
-          <span aria-hidden="true" class="carousel-control-prev-icon"></span>
-          <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" data-slide="next" href="#popularListingCarousel" role="button">
-          <span aria-hidden="true" class="carousel-control-next-icon"></span>
-          <span class="sr-only">Next</span>
-        </a>
+        <!-- Carousel Buttons -->
+        <div v-if="listingsList2">
+          <a class="carousel-control-prev" data-slide="prev" href="#popularListingCarousel" role="button">
+            <span aria-hidden="true" class="carousel-control-prev-icon"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="carousel-control-next" data-slide="next" href="#popularListingCarousel" role="button">
+            <span aria-hidden="true" class="carousel-control-next-icon"></span>
+            <span class="sr-only">Next</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -57,9 +60,9 @@ export default {
     return {
       user: userState,
       listings: [],
-      listingsList1: [],
-      listingsList2: [],
-      listingsList3: [],
+      listingsList1: null,
+      listingsList2: null,
+      listingsList3: null,
       country: "",
       error: ""
     }
@@ -79,12 +82,37 @@ export default {
         console.error(error)
         this.error = error
       }
-      this.listingsList1 = this.listings.slice(0,4)
-      this.listingsList2 = this.listings.slice(4,8)
-      this.listingsList3 = this.listings.slice(7)
-      this.listingsList3.push(this.listings[0])
+      let i = 0;
+      if(this.listings.length === 10){
+        //Maximum number of liked listings
+        this.listingsList1 = this.listings.slice(0,4)
+        this.listingsList2 = this.listings.slice(4,8)
+        this.listingsList3 = this.listings.slice(8)
+        this.listingsList3.push(this.listings[0])
+        this.listingsList3.push(this.listings[1])
+      } else if(this.listings.length < 10 && this.listings.length > 8){
+        //8-9 liked listings
+        this.listingsList1 = this.listings.slice(0,4)
+        this.listingsList2 = this.listings.slice(4,8)
+        this.listingsList3 = this.listings.slice(8)
+        while(this.listingsList3.length !== 4){
+          this.listingsList3.push(this.listings[i++])
+        }
+      } else if(this.listings.length === 8){
+        //8 liked listings
+        this.listingsList1 = this.listings.slice(0,4)
+        this.listingsList2 = this.listings.slice(4,8)
+      } else if(this.listings.length < 8 && this.listings.length > 4){
+        //4-7 liked listings
+        this.listingsList1 = this.listings.slice(0,4)
+        this.listingsList2 = this.listings.slice(4)
+        while(this.listingsList2.length !== 4){
+          this.listingsList2.push(this.listings[i++])
+        }
+      }else {
+        this.listingsList1 = this.listings.slice(0)
+      }
     },
-
 
     async updateData() {
       await this.user.updateData()
