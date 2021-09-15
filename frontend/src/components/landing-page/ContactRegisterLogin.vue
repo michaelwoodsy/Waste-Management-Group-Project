@@ -31,17 +31,7 @@
         <div class="modal-content">
           <div class="modal-body" v-if="this.contactUsModal">
             <div class="container-fluid">
-              <h5 class="form-row"><strong>Contact Us:</strong></h5>
-
-              <!-- Name Input -->
-              <div class="form-row mb-3">
-                <label for="name" style="margin-top:20px"><strong>Name:<span
-                    class="required">*</span></strong></label>
-                <input id="name" v-model="name" :class="{'form-control': true, 'is-invalid': msg.name}"
-                       maxlength="100"
-                       placeholder="Enter your Name" required style="width:100%" type="text">
-                <span class="invalid-feedback">{{ msg.name }}</span>
-              </div>
+              <h5 class="form-row mb-3"><strong>Contact Us:</strong></h5>
 
               <!-- Email Input -->
               <div class="form-row">
@@ -133,12 +123,10 @@ export default {
   data() {
     return {
       contactUsModal: false,
-      name: '',
       email: '',
       message: '',
       emailSent: true,
       msg: {
-        'name': null,
         'email': null,
         'message': null,
         'errorChecks': null
@@ -168,19 +156,6 @@ export default {
      */
     contactUs(){
       this.contactUsModal = true
-    },
-
-    /**
-     * Validates the name variable
-     * Checks if the string is empty, if so displays a warning message
-     */
-    validateName() {
-      if (this.name === '') {
-        this.msg['name'] = 'Please enter a name'
-        this.valid = false
-      } else {
-        this.msg['name'] = null
-      }
     },
 
     /**
@@ -219,11 +194,9 @@ export default {
      */
     resetContactUsModal() {
       this.contactUsModal = false
-      this.name = ''
       this.email = ''
       this.message = ''
       this.submitting = false
-      this.msg['name'] = null
       this.msg['email'] = null
       this.msg['message'] = null
       this.msg['errorChecks'] = null
@@ -238,7 +211,6 @@ export default {
      */
     async checkInputs() {
       this.submitting = true
-      this.validateName();
       this.validateEmail();
       this.validateMessage();
       if (!this.valid) {
