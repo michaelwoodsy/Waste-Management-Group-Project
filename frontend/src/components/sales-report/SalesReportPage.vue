@@ -13,6 +13,8 @@
         :currency="currency"
     />
 
+    <SalesReportGraph></SalesReportGraph>
+
   </div>
 </template>
 
@@ -21,10 +23,11 @@ import SalesReport from "@/components/sales-report/SalesReport";
 import {Business} from "@/Api";
 import product from "@/store/modules/product";
 import SalesReportControls from "@/components/sales-report/SalesReportControls";
+import SalesReportGraph from "./SalesReportGraph";
 
 export default {
   name: "SalesReportPage",
-  components: {SalesReportControls, SalesReport},
+  components: {SalesReportControls, SalesReport, SalesReportGraph},
   props: {
     businessId: Number
   },
