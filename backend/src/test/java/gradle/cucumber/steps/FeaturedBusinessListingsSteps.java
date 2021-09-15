@@ -84,7 +84,7 @@ public class FeaturedBusinessListingsSteps extends AbstractInitializer {
 
         businessRepository.save(testBusiness);
         List<SaleListing> listings = new ArrayList<>();
-        //Make 7 sale listings for the business
+        //Make 6 sale listings for the business
         for (int i = 1; i < 7; i++) {
             SaleListing listing = new SaleListing();
             listing.setBusiness(testBusiness);
@@ -140,7 +140,7 @@ public class FeaturedBusinessListingsSteps extends AbstractInitializer {
         Assertions.assertTrue(testBusiness.userIsAdmin(testBusinessAdmin.getId()));
         List<SaleListing> listings = saleListingRepository.findAllByBusinessId(testBusiness.getId());
         this.numListings = numListings;
-        //There are 7 sale listings for this business
+        //There are 6 sale listings for this business
         //Set numListings amount of sale listings to be featured (0 - numListings-1)
         //This will leave the sale listing at index numListings not featured
         for (int i = 0; i < numListings; i++) {

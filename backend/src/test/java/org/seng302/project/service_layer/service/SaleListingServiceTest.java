@@ -1453,11 +1453,11 @@ class SaleListingServiceTest extends AbstractInitializer {
         saleListingRepository.save(saleListing5);
         saleListing6.setFeatured(true);
         saleListingRepository.save(saleListing6);
-        saleListing7.setFeatured(true);
-        saleListingRepository.save(saleListing7);
+        saleListing8.setFeatured(true);
+        saleListingRepository.save(saleListing8);
 
         AppUserDetails user = new AppUserDetails(testAdmin);
-        Integer listingId = saleListing8.getId();
+        Integer listingId = saleListing7.getId();
         Integer businessID = business1.getId();
         Assertions.assertThrows(BadRequestException.class,
                 () -> saleListingService.featureSaleListing(listingId, businessID, true, user));

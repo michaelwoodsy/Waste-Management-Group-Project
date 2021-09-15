@@ -827,11 +827,11 @@ public class SaleListingService {
         List<SaleListing> businessListings = saleListingRepository.findAllByBusinessId(businessId);
         Integer currentlyFeatured = 0;
         for (SaleListing businessListing : businessListings){
-            if(currentlyFeatured.equals(maxNumberFeature) && featured){
-                throw new BadRequestException("You already have the maximum number of possible featured sale listings");
-            }
             if(businessListing.isFeatured()){
                 currentlyFeatured++;
+            }
+            if(currentlyFeatured.equals(maxNumberFeature) && featured){
+                throw new BadRequestException("You already have the maximum number of possible featured sale listings");
             }
         }
         SaleListing listing = retrieveListing(listingId);
