@@ -755,6 +755,32 @@ public class SaleListingService {
     }
 
     /**
+     * Retrieves the popular sale listings from the specified country,
+     * if no country is specified then it retrieves the popular sale listings worldwide.
+     * @param country country to get popular listings for.
+     * @return List of the up to 10 most popular sale listings in GetSaleListingDTOs'.
+     */
+    public List<GetSaleListingDTO> getPopularListings(String country) {
+        List<List<Object>> response;
+        if (country == null) {
+            response = likedSaleListingRepository.findPopular(PageRequest.of(0, 10));
+        } else {
+            response = likedSaleListingRepository.findPopularByCountry(country, PageRequest.of(0, 10));
+        }
+        List<GetSaleListingDTO> listings = new ArrayList<>();
+        for (List<Object> listing: response) {
+            //Making sure that the Objects are the right class
+            if (listing.get(0).getClass() == SaleListing.class && listing.get(1).getClass() == Long.class) {
+                GetSaleListingDTO dto = new GetSaleListingDTO((SaleListing) listing.get(0));
+                Long numLikes = (Long) listing.get(1);
+                dto.attachLikeData(numLikes.intValue(), false);
+                listings.add(dto);
+            }
+        }
+        return listings;
+    }
+
+    /**
      * Deletes sale listings that have expired.
      * Scheduled to run at midnight every day.
      */
