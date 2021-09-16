@@ -38,7 +38,7 @@ Displays a popular listing
       </div>
     </div>
 
-    <individual-sale-listing-modal v-if="viewListingModal" :listing="data"/>
+    <individual-sale-listing-modal v-if="viewListingModal" :listing="data" @close-modal="closeModal"/>
   </div>
 </template>
 
@@ -65,11 +65,16 @@ export default {
     }
   },
   mounted() {
-    console.log(this.data)
     this.getPrimaryImage(this.data.inventoryItem.product)
   },
 
   methods: {
+    /**
+     * Method called after closing the modal
+     */
+    closeModal() {
+      this.$emit('update-data')
+    },
     /**
      * Formats the price of a listing based on
      * the country of the business offering the listing
@@ -105,8 +110,7 @@ export default {
     getPrimaryImage(product) {
       if (product.primaryImageId === null) {
         return this.getImageURL('/media/defaults/defaultProduct_thumbnail.jpg')
-      }
-      if (product.primaryImageId !== null) {
+      } else {
         const filteredImages = product.images.filter(function (specificImage) {
           return specificImage.id === product.primaryImageId;
         })
