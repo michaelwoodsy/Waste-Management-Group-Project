@@ -8,32 +8,32 @@
           <div class="carousel-item active">
             <div class="row justify-content-center" v-if="listingsList1">
                 <div v-for="listing in listingsList1" v-bind:key="listing.id">
-                  <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px"></PopularListing>
+                  <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
                 </div>
             </div>
           </div>
           <div class="carousel-item">
             <div class="row justify-content-center" v-if="listingsList2">
               <div v-for="listing in listingsList2" v-bind:key="listing.id">
-                <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px"></PopularListing>
+                <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
               </div>
             </div>
           </div>
           <div class="carousel-item" v-if="listingsList3">
             <div class="row justify-content-center">
               <div v-for="listing in listingsList3" v-bind:key="listing.id">
-                <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px"></PopularListing>
+                <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
               </div>
             </div>
           </div>
         </div>
         <!-- Carousel Buttons -->
         <div v-if="listingsList2">
-          <a class="carousel-control-prev" data-slide="prev" href="#popularListingCarousel" role="button">
+          <a class="carousel-control-prev" data-slide="prev" href="#popularListingCarousel" role="button" @click="currentSlide--">
             <span aria-hidden="true" class="carousel-control-prev-icon"></span>
             <span class="sr-only">Previous</span>
           </a>
-          <a class="carousel-control-next" data-slide="next" href="#popularListingCarousel" role="button">
+          <a class="carousel-control-next" data-slide="next" href="#popularListingCarousel" role="button" @click="currentSlide++">
             <span aria-hidden="true" class="carousel-control-next-icon"></span>
             <span class="sr-only">Next</span>
           </a>
@@ -47,6 +47,7 @@
 import {Landing} from "@/Api";
 import userState from "@/store/modules/user"
 import PopularListing from "../sale-listing/PopularListing";
+import $ from "jquery";
 
 export default {
   name: "PopularListings",
@@ -63,6 +64,7 @@ export default {
       listingsList1: null,
       listingsList2: null,
       listingsList3: null,
+      currentSlide: 1,
       country: "",
       error: ""
     }
@@ -72,15 +74,14 @@ export default {
      * Gets the popular listings from the backend, as well as setting each sale listing's currency
      */
     async getPopularListings(){
-      try {
-        const response = await Landing.getPopularListings()
-        for (let listing of response.data) {
-          listing.currency = await this.$root.$data.product.getCurrency(listing.business.address.country)
-          this.listings.push(listing)
-        }
-      } catch (error) {
-        console.error(error)
-        this.error = error
+      this.listings = []
+      this.listingsList1 = null;
+      this.listingsList2 = null;
+      this.listingsList3 = null;
+      const response = await Landing.getPopularListings()
+      for (let listing of response.data) {
+        listing.currency = await this.$root.$data.product.getCurrency(listing.business.address.country)
+        this.listings.push(listing)
       }
       let i = 0;
       if(this.listings.length === 10){
@@ -115,7 +116,10 @@ export default {
     },
 
     async updateData() {
+
       await this.user.updateData()
+      await this.getPopularListings()
+      $(".carousel").carousel(this.currentSlide-1);
     }
   }
 }
