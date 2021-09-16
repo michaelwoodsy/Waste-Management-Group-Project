@@ -12,6 +12,7 @@
 
 <script>
 import {Chart, registerables} from "chart.js";
+import $ from "jquery";
 
 export default {
   name: "SalesReportGraph",
@@ -24,12 +25,13 @@ export default {
       dates: [],
       totalValues: [],
       totalSales: [],
+      dataLabel: "Total value",
       buttonText: "Show number of sales"
     }
   },
   mounted() {
     this.setGraphInfo()
-    this.drawGraph()
+    this.drawGraph(this.dataLabel, this.totalValues)
   },
   methods: {
     /**
@@ -68,7 +70,7 @@ export default {
     /**
      * Creates the graph
      */
-    drawGraph() {
+    drawGraph(datasetLabel, data) {
       Chart.register(...registerables);
       const ctx = document.getElementById('myChart').getContext('2d');
       this.chart = new Chart(ctx, {
@@ -76,8 +78,8 @@ export default {
         data: {
           labels: this.dates,
           datasets: [{
-            label: 'Total value', //dataset 0
-            data: this.totalValues,
+            label: datasetLabel, //dataset 0
+            data: data,
             backgroundColor: [
               'rgba(66, 185, 131, 0.2)'
             ],
@@ -86,18 +88,7 @@ export default {
               'rgba(66, 185, 131, 1)'
             ],
             borderWidth: 1
-          },{
-            label: 'Total number of sales', //dataset 1
-            data: this.totalSales,
-            backgroundColor: [
-              'rgba(52, 58, 64, 0.2)'
-            ],
-            borderColor: [
-              'rgba(52, 58, 64, 1)'
-            ],
-            borderWidth: 1
-          }
-          ]
+          }]
         },
         options: {
           scales: {
@@ -107,7 +98,6 @@ export default {
           }
         }
       });
-      this.chart.hide(1)
     },
     /**
      * Toggles between type of graph
@@ -116,12 +106,16 @@ export default {
      */
     toggleGraph() {
       if (this.buttonText === "Show number of sales") {
-        this.chart.hide(0)
-        this.chart.show(1)
+        this.dataLabel = "Total number of sales"
+        this.chart.destroy()
+        this.drawGraph(this.dataLabel, this.totalSales)
+        $("html, body").animate({ scrollTop: $(document).height() }, 0);
         this.buttonText = "Show total values"
       } else {
-        this.chart.hide(1)
-        this.chart.show(0)
+        this.dataLabel = "Total value"
+        this.chart.destroy()
+        this.drawGraph(this.dataLabel, this.totalValues)
+        $("html, body").animate({ scrollTop: $(document).height() }, 0);
         this.buttonText = "Show number of sales"
       }
 
