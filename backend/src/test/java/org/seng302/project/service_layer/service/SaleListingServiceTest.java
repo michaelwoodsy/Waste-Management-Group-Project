@@ -3,6 +3,8 @@ package org.seng302.project.service_layer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
@@ -23,9 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-
 import static org.mockito.ArgumentMatchers.any;
-
 
 
 @DataJpaTest
@@ -126,6 +126,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         inventoryItem = new InventoryItem(product1, 10, null, null, "2021-01-01", null, null, "2021-12-23");
         inventoryItem = inventoryItemRepository.save(inventoryItem);
         saleListing1 = new SaleListing(business1, inventoryItem, 10.00, null, LocalDateTime.parse("2021-12-22T00:00:00"), 5);
+        saleListing1.setFeatured(true);
         saleListing1 = saleListingRepository.save(saleListing1);
 
         Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
@@ -191,7 +192,7 @@ class SaleListingServiceTest extends AbstractInitializer {
 
     /**
      * Tests that a NotAcceptableException is thrown when
-     * a someone tries accessing the listings of a nonexistent business.
+     * someone tries accessing the listings of a nonexistent business.
      */
     @Test
     void getBusinessListings_nonExistentBusiness_NotAcceptableException() {
@@ -219,7 +220,7 @@ class SaleListingServiceTest extends AbstractInitializer {
 
     /**
      * Tests that a NotAcceptableException is thrown when
-     * a someone tries adding a listing to a nonexistent business.
+     * someone tries adding a listing to a nonexistent business.
      */
     @Test
     void postBusinessListings_nonExistentBusiness_NotAcceptableException() {
@@ -326,75 +327,24 @@ class SaleListingServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that searching for listing by business name with string 'first' returns first listing
+     * Tests that searching for listing by business name with different strings returns correct number of listings
      */
-    @Test
-    void searchByBusinessName_firstBusiness_returnsFirstListing() {
-        String searchTerm = "first";
+    @ParameterizedTest
+    @CsvSource({
+            "first, 6",
+            "second, 2",
+            "business, 8",
+            "\"first\", 0",
+            "\"first business\", 6",
+            "\"second\", 0",
+            "\"second business\", 2",
+            "random, 0",
+            "first AND second, 0"
+    })
+    void searchByBusinessName_business_returnsBothListings(String searchTerm, Integer expectedListings) {
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(6, listings.size());
-        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'second' returns second listing
-     */
-    @Test
-    void searchByBusinessName_secondBusiness_returnsSecondListing() {
-        String searchTerm = "second";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(2, listings.size());
-        Assertions.assertEquals("Third Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Fourth Product", listings.get(1).getInventoryItem().getProduct().getName());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'business' returns all four listings
-     */
-    @Test
-    void searchByBusinessName_business_returnsBothListings() {
-        String searchTerm = "business";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(8, listings.size());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string '"first"' returns nothing
-     */
-    @Test
-    void searchByBusinessName_firstExact_returnsNothing() {
-        String searchTerm = "\"first\"";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(0, listings.size());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string '"first business"' returns first listing
-     */
-    @Test
-    void searchByBusinessName_firstBusinessExact_returnsFirstListing() {
-        String searchTerm = "\"first business\"";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(6, listings.size());
-        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'random' returns nothing
-     */
-    @Test
-    void searchByBusinessName_random_returnsNothing() {
-        String searchTerm = "random";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(0, listings.size());
+        Assertions.assertEquals(expectedListings, listings.size());
     }
 
     /**
@@ -405,17 +355,6 @@ class SaleListingServiceTest extends AbstractInitializer {
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{"first", "second"});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
         Assertions.assertEquals(8, listings.size());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'first' and 'second' returns both listings
-     */
-    @Test
-    void searchByBusinessName_firstAndSecond_returnsNothing() {
-        String searchTerm = "first AND second";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(0, listings.size());
     }
 
     /**
@@ -1293,7 +1232,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * not already starred it
      */
     @Test
-    void starSaleListing_successWhenNotStarred_OK(){
+    void starSaleListing_successWhenNotStarred_OK() {
         testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
         LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
         listing.setStarred(false);
@@ -1317,7 +1256,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * already starred it
      */
     @Test
-    void starSaleListing_successWhenAlreadyStarred_OK(){
+    void starSaleListing_successWhenAlreadyStarred_OK() {
         testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
         LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
         listing.setStarred(true);
@@ -1362,18 +1301,29 @@ class SaleListingServiceTest extends AbstractInitializer {
     }
 
     /**
+     * Tests that getFeaturedSaleListings method only returns featured listings
+     */
+    @Test
+    void getFeaturedSaleListings_returnsOnlyFeaturedListings() {
+        List<GetSaleListingDTO> business1Listings = saleListingService.getFeaturedSaleListings(business1.getId(), testUser);
+        List<GetSaleListingDTO> business2Listings = saleListingService.getFeaturedSaleListings(business2Id, testUser);
+        Assertions.assertEquals(1, business1Listings.size());
+        Assertions.assertEquals(0, business2Listings.size());
+    }
+
+    /**
      * Tests the successful case for featuring a sale listing when you have
      * not already featured it (makes the sale listing featured)
      */
     @Test
-    void featureSaleListing_successWhenNotFeatured_OK(){
-        Assertions.assertFalse(saleListing1.isFeatured());
+    void featureSaleListing_successWhenNotFeatured_OK() {
+        Assertions.assertFalse(saleListing2.isFeatured());
 
         AppUserDetails user = new AppUserDetails(testAdmin);
-        saleListingService.featureSaleListing(saleListing1.getId(), business1.getId(), true, user);
+        saleListingService.featureSaleListing(saleListing2.getId(), business1.getId(), true, user);
 
-        saleListing1 = saleListingRepository.getOne(saleListing1.getId());
-        Assertions.assertTrue(saleListing1.isFeatured());
+        saleListing1 = saleListingRepository.getOne(saleListing2.getId());
+        Assertions.assertTrue(saleListing2.isFeatured());
     }
 
     /**
@@ -1381,13 +1331,13 @@ class SaleListingServiceTest extends AbstractInitializer {
      * already featured it (makes the sale listing no longer featured)
      */
     @Test
-    void featureSaleListing_successWhenAlreadyFeatured_OK(){
+    void featureSaleListing_successWhenAlreadyFeatured_OK() {
         saleListing1.setFeatured(true);
         saleListingRepository.save(saleListing1);
         Assertions.assertTrue(saleListing1.isFeatured());
 
         AppUserDetails user = new AppUserDetails(testAdmin);
-        saleListingService.featureSaleListing(saleListing1.getId(), business1.getId(),false, user);
+        saleListingService.featureSaleListing(saleListing1.getId(), business1.getId(), false, user);
 
         saleListing1 = saleListingRepository.getOne(saleListing1.getId());
         Assertions.assertFalse(saleListing1.isFeatured());
@@ -1398,7 +1348,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * a someone tries featuring a sale listing to a nonexistent business.
      */
     @Test
-    void featureSaleListing_nonExistentBusiness_NotAcceptableException(){
+    void featureSaleListing_nonExistentBusiness_NotAcceptableException() {
         Mockito.doThrow(new NotAcceptableException(""))
                 .when(businessService).checkBusiness(any(Integer.class));
 
@@ -1432,7 +1382,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * does not exist
      */
     @Test
-    void featureSaleListing_invalidSaleListingID_NotAcceptableException(){
+    void featureSaleListing_invalidSaleListingID_NotAcceptableException() {
         AppUserDetails user = new AppUserDetails(testAdmin);
         Integer businessID = business1.getId();
         Assertions.assertThrows(NotAcceptableException.class,
@@ -1444,7 +1394,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * already have the max number of featured sale listings 5
      */
     @Test
-    void featureSaleListing_tooManyFeatured_BadRequestException(){
+    void featureSaleListing_tooManyFeatured_BadRequestException() {
         saleListing1.setFeatured(true);
         saleListingRepository.save(saleListing1);
         saleListing2.setFeatured(true);

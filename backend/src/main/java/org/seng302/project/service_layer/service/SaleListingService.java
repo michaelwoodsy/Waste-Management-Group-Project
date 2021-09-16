@@ -30,7 +30,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
@@ -71,11 +74,12 @@ public class SaleListingService {
 
     /**
      * Helper method to convert a list of listings to a list of GetSaleListingDTOs, with the liked count attached
-     * @param listings  listings to convert
-     * @param user      currently logged-in user (used to check if they like a listing)
+     *
+     * @param listings listings to convert
+     * @param user     currently logged-in user (used to check if they like a listing)
      * @return a list of GetSaleListingDTO Objects
      */
-    List<GetSaleListingDTO> getListingDTOs(List<SaleListing> listings, User user) {
+    private List<GetSaleListingDTO> getListingDTOs(List<SaleListing> listings, User user) {
         List<GetSaleListingDTO> listingDTOs = new ArrayList<>();
         for (SaleListing listing : listings) {
             // Get like and star data for the listings
@@ -538,6 +542,7 @@ public class SaleListingService {
     /**
      * Retrieves the sale listing.
      * Throws a NotAcceptableException if the listing is not found
+     *
      * @param listingId the id of the listing to retrieve
      * @return the retrieved SaleListing
      */
@@ -556,7 +561,8 @@ public class SaleListingService {
     /**
      * Retrieves the LikedSaleListing.
      * Throws a BadRequestException if the user had not liked the listing
-     * @param listing the listing the user has liked
+     *
+     * @param listing      the listing the user has liked
      * @param loggedInUser the user that has liked the listing
      * @return the retrieved LikedSaleListing
      */
@@ -716,9 +722,10 @@ public class SaleListingService {
 
     /**
      * Tags a user's liked sale listing
+     *
      * @param listingId the id of the listing to tag
-     * @param tagName the name of the tag for the listing
-     * @param user the AppUserDetails of the user tagging the listing
+     * @param tagName   the name of the tag for the listing
+     * @param user      the AppUserDetails of the user tagging the listing
      */
     public void tagSaleListing(Integer listingId,
                                String tagName,
@@ -740,12 +747,13 @@ public class SaleListingService {
 
     /**
      * Stars user's liked sale listing
+     *
      * @param listingId the id of the listing to star
-     * @param user the AppUserDetails of the user starring the listing
+     * @param user      the AppUserDetails of the user starring the listing
      */
     public void starSaleListing(Integer listingId,
                                 boolean star,
-                                AppUserDetails user){
+                                AppUserDetails user) {
         logger.info("Request to star a sale listing with ID: {}", listingId);
         var loggedInUser = userService.getUserByEmail(user.getUsername());
         SaleListing listing = retrieveListing(listingId);
@@ -755,8 +763,22 @@ public class SaleListingService {
     }
 
     /**
+     * Gets and returns a list of a business' featured sale listings
+     *
+     * @param businessId ID of the business to
+     * @return list of GetSaleListingDTOs of the business' featured sale listings
+     */
+    public List<GetSaleListingDTO> getFeaturedSaleListings(Integer businessId, User user) {
+        Specification<SaleListing> spec = SaleListingSpecifications.isBusinessId(businessId)
+                .and(SaleListingSpecifications.isFeatured());
+        List<SaleListing> listings = saleListingRepository.findAll(spec);
+        return getListingDTOs(listings, user);
+    }
+
+    /**
      * Retrieves the popular sale listings from the specified country,
      * if no country is specified then it retrieves the popular sale listings worldwide.
+     *
      * @param country country to get popular listings for.
      * @return List of the up to 10 most popular sale listings in GetSaleListingDTOs'.
      */
@@ -768,7 +790,7 @@ public class SaleListingService {
             response = likedSaleListingRepository.findPopularByCountry(country, PageRequest.of(0, 10));
         }
         List<GetSaleListingDTO> listings = new ArrayList<>();
-        for (List<Object> listing: response) {
+        for (List<Object> listing : response) {
             //Making sure that the Objects are the right class
             if (listing.get(0).getClass() == SaleListing.class && listing.get(1).getClass() == Long.class) {
                 GetSaleListingDTO dto = new GetSaleListingDTO((SaleListing) listing.get(0));
@@ -807,15 +829,16 @@ public class SaleListingService {
 
     /**
      * Features a business' sale listing
-     * @param listingId The ID of the Sale Listing you are trying to feature
+     *
+     * @param listingId  The ID of the Sale Listing you are trying to feature
      * @param businessId The Business ID who has the Sale Listing
-     * @param featured The new value of the featured field. True or False
-     * @param user The User who is trying to feature the Sale Listing
+     * @param featured   The new value of the featured field. True or False
+     * @param user       The User who is trying to feature the Sale Listing
      */
     public void featureSaleListing(Integer listingId,
                                    Integer businessId,
                                    boolean featured,
-                                   AppUserDetails user){
+                                   AppUserDetails user) {
         Integer maxNumberFeature = 5;
         logger.info("Request to feature a sale listing with ID: {}", listingId);
         // Get the business of the request
@@ -826,11 +849,11 @@ public class SaleListingService {
 
         List<SaleListing> businessListings = saleListingRepository.findAllByBusinessId(businessId);
         Integer currentlyFeatured = 0;
-        for (SaleListing businessListing : businessListings){
-            if(businessListing.isFeatured()){
+        for (SaleListing businessListing : businessListings) {
+            if (businessListing.isFeatured()) {
                 currentlyFeatured++;
             }
-            if(currentlyFeatured.equals(maxNumberFeature) && featured){
+            if (currentlyFeatured.equals(maxNumberFeature) && featured) {
                 throw new BadRequestException("You already have the maximum number of possible featured sale listings");
             }
         }
