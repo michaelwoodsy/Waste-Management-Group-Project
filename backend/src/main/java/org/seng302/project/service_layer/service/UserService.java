@@ -15,6 +15,7 @@ import org.seng302.project.service_layer.dto.user.*;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NoUserExistsException;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.exceptions.dgaa.DGAARevokeAdminSelfException;
 import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenDGAAActionException;
 import org.seng302.project.service_layer.exceptions.register.ExistingRegisteredEmailException;
@@ -235,26 +236,40 @@ public class UserService {
     }
 
     /**
+     * Checks if a user with given ID exists.
+     * If the user exists, returns the user. If the user does not exist, throws an exception
+     *
+     * @param userId ID of the user to check
+     * @return the user with given ID if it exists
+     * @throws NotAcceptableException if user with ID does not exist
+     */
+    public User checkUser(Integer userId) throws NotAcceptableException {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            String message = String.format("User with ID %d does not exist", userId);
+            throw new NotAcceptableException(message);
+        }
+    }
+
+    /**
      * Service method for retrieving a user
      *
-     * @param id ID of the user to retrieve
-     * @return the user data inside of a GetUserDTO
+     * @param userId ID of the user to retrieve
+     * @return the user data inside a GetUserDTO
+     * @throws NotAcceptableException if the given user does not exist
      */
-    public GetUserDTO getUser(Integer id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isPresent()) {
-            User retrievedUser = user.get();
-            GetUserDTO getUserDTO = new GetUserDTO(retrievedUser);
-            getUserDTO.attachBusinessesAdministered(retrievedUser);
-            getUserDTO.attachLikedSaleListings(retrievedUser);
-            for (var like: getUserDTO.getLikedSaleListings()) {
-                Integer likes = likedSaleListingRepository.findAllByListingId(like.getListing().getId()).size();
-                like.getListing().attachLikeData(likes, true);
-            }
-            return getUserDTO;
-        } else {
-            throw new NoUserExistsException(id);
+    public GetUserDTO getUser(Integer userId) throws NotAcceptableException {
+        User user = checkUser(userId);
+        GetUserDTO getUserDTO = new GetUserDTO(user);
+        getUserDTO.attachBusinessesAdministered(user);
+        getUserDTO.attachLikedSaleListings(user);
+        for (var like : getUserDTO.getLikedSaleListings()) {
+            Integer likes = likedSaleListingRepository.findAllByListingId(like.getListing().getId()).size();
+            like.getListing().attachLikeData(likes, true);
         }
+        return getUserDTO;
     }
 
     /**
