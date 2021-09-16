@@ -2,8 +2,6 @@ package gradle.cucumber.steps;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -24,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -74,7 +71,7 @@ public class SaleHistorySteps extends AbstractInitializer {
                 .build();
     }
 
-    @Before
+    @BeforeEach
     @Autowired
     public void setup() {
         testUser = this.getTestUser();
@@ -92,8 +89,7 @@ public class SaleHistorySteps extends AbstractInitializer {
         testBusiness = businessRepository.save(testBusiness);
     }
 
-    @After
-    @Autowired
+    @AfterEach
     public void teardown() {
         saleHistoryRepository.deleteAll();
         userRepository.deleteAll();
@@ -122,7 +118,8 @@ public class SaleHistorySteps extends AbstractInitializer {
     @Then("The sales I have purchased are given to me")
     public void the_sales_i_have_purchased_are_given_to_me() throws Exception {
         String response = result.getResponse().getContentAsString();
-        List<GetSaleDTO> purchases = objectMapper.readValue(response, new TypeReference<>() {});
+        List<GetSaleDTO> purchases = objectMapper.readValue(response, new TypeReference<>() {
+        });
         Assertions.assertEquals(1, purchases.size());
         Assertions.assertEquals(testSale.getOldListingId(), purchases.get(0).getOldListingId());
     }
