@@ -22,6 +22,13 @@
       </div>
     </div>
 
+    <sales-report-graph
+        v-if="report != null"
+        :data="report"
+        :currency="currency"
+        v-bind:key="report"
+    />
+
   </div>
 </template>
 
@@ -30,10 +37,11 @@ import SalesReport from "@/components/sales-report/SalesReport";
 import {Business} from "@/Api";
 import product from "@/store/modules/product";
 import SalesReportControls from "@/components/sales-report/SalesReportControls";
+import SalesReportGraph from "./SalesReportGraph";
 
 export default {
   name: "SalesReportPage",
-  components: {SalesReportControls, SalesReport},
+  components: {SalesReportControls, SalesReport, SalesReportGraph},
   props: {
     businessId: Number
   },
@@ -73,7 +81,7 @@ export default {
       try {
         this.reportGenerated = true
         const res = await Business.getSalesReport(this.businessId, options)
-        this.report = res.data
+        this.$set(this, "report", res.data)
       } catch (error) {
         this.reportGenerated = false
         console.log(error)

@@ -52,7 +52,7 @@ class SalesReportControllerTest extends AbstractInitializer {
      */
     @Test
     void getSalesReport_notLoggedIn_401() throws Exception {
-        mockMvc.perform(get("/businesses/{id}/salesReport", business.getId()))
+        mockMvc.perform(get("/businesses/{id}/sales", business.getId()))
                 .andExpect(status().isUnauthorized());
     }
 

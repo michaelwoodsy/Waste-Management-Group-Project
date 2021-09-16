@@ -46,8 +46,21 @@ export default {
   async mounted() {
     await Statistics.getStatistics().then((res) => {
       this.stats = res.data
+      this.formatNumberWithCommas()
     })
     console.log(this.stats)
+  },
+
+  methods: {
+    /***
+     * Converts the statistic values into numbers with commas
+     * in them as thousands separators
+     */
+    formatNumberWithCommas() {
+      this.stats.numAvailableListings = this.stats.numAvailableListings.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      this.stats.totalNumSales = this.stats.totalNumSales.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      this.stats.totalUserCount = this.stats.totalUserCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
   }
 }
 </script>
