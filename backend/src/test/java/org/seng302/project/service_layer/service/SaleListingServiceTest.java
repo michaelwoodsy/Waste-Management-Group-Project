@@ -25,9 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-
 import static org.mockito.ArgumentMatchers.any;
-
 
 
 @DataJpaTest
@@ -333,11 +331,11 @@ class SaleListingServiceTest extends AbstractInitializer {
      */
     @ParameterizedTest
     @CsvSource({
-            "first, 2",
+            "first, 6",
             "second, 2",
-            "business, 4",
+            "business, 8",
             "\"first\", 0",
-            "\"first business\", 2",
+            "\"first business\", 6",
             "\"second\", 0",
             "\"second business\", 2",
             "random, 0",
@@ -1234,7 +1232,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * not already starred it
      */
     @Test
-    void starSaleListing_successWhenNotStarred_OK(){
+    void starSaleListing_successWhenNotStarred_OK() {
         testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
         LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
         listing.setStarred(false);
@@ -1258,7 +1256,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * already starred it
      */
     @Test
-    void starSaleListing_successWhenAlreadyStarred_OK(){
+    void starSaleListing_successWhenAlreadyStarred_OK() {
         testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
         LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
         listing.setStarred(true);
@@ -1318,14 +1316,14 @@ class SaleListingServiceTest extends AbstractInitializer {
      * not already featured it (makes the sale listing featured)
      */
     @Test
-    void featureSaleListing_successWhenNotFeatured_OK(){
-        Assertions.assertFalse(saleListing1.isFeatured());
+    void featureSaleListing_successWhenNotFeatured_OK() {
+        Assertions.assertFalse(saleListing2.isFeatured());
 
         AppUserDetails user = new AppUserDetails(testAdmin);
-        saleListingService.featureSaleListing(saleListing1.getId(), business1.getId(), true, user);
+        saleListingService.featureSaleListing(saleListing2.getId(), business1.getId(), true, user);
 
-        saleListing1 = saleListingRepository.getOne(saleListing1.getId());
-        Assertions.assertTrue(saleListing1.isFeatured());
+        saleListing1 = saleListingRepository.getOne(saleListing2.getId());
+        Assertions.assertTrue(saleListing2.isFeatured());
     }
 
     /**
@@ -1333,13 +1331,13 @@ class SaleListingServiceTest extends AbstractInitializer {
      * already featured it (makes the sale listing no longer featured)
      */
     @Test
-    void featureSaleListing_successWhenAlreadyFeatured_OK(){
+    void featureSaleListing_successWhenAlreadyFeatured_OK() {
         saleListing1.setFeatured(true);
         saleListingRepository.save(saleListing1);
         Assertions.assertTrue(saleListing1.isFeatured());
 
         AppUserDetails user = new AppUserDetails(testAdmin);
-        saleListingService.featureSaleListing(saleListing1.getId(), business1.getId(),false, user);
+        saleListingService.featureSaleListing(saleListing1.getId(), business1.getId(), false, user);
 
         saleListing1 = saleListingRepository.getOne(saleListing1.getId());
         Assertions.assertFalse(saleListing1.isFeatured());
@@ -1350,7 +1348,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * a someone tries featuring a sale listing to a nonexistent business.
      */
     @Test
-    void featureSaleListing_nonExistentBusiness_NotAcceptableException(){
+    void featureSaleListing_nonExistentBusiness_NotAcceptableException() {
         Mockito.doThrow(new NotAcceptableException(""))
                 .when(businessService).checkBusiness(any(Integer.class));
 
@@ -1384,7 +1382,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * does not exist
      */
     @Test
-    void featureSaleListing_invalidSaleListingID_NotAcceptableException(){
+    void featureSaleListing_invalidSaleListingID_NotAcceptableException() {
         AppUserDetails user = new AppUserDetails(testAdmin);
         Integer businessID = business1.getId();
         Assertions.assertThrows(NotAcceptableException.class,
@@ -1396,7 +1394,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * already have the max number of featured sale listings 5
      */
     @Test
-    void featureSaleListing_tooManyFeatured_BadRequestException(){
+    void featureSaleListing_tooManyFeatured_BadRequestException() {
         saleListing1.setFeatured(true);
         saleListingRepository.save(saleListing1);
         saleListing2.setFeatured(true);

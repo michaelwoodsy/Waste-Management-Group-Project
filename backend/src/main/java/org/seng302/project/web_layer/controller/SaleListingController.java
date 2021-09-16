@@ -146,8 +146,9 @@ public class SaleListingController {
 
     /**
      * Likes a sale listing,
+     *
      * @param listingId The sale listing ID the user is trying to like
-     * @param appUser The user that is trying to like a sale listing
+     * @param appUser   The user that is trying to like a sale listing
      */
     @PatchMapping("/listings/{listingId}/like")
     @ResponseStatus(HttpStatus.OK)
@@ -167,14 +168,15 @@ public class SaleListingController {
 
     /**
      * Unlikes a sale listing,
+     *
      * @param listingId The sale listing ID the user is trying to unlike
-     * @param user The user that is trying to like a sale listing
+     * @param user      The user that is trying to like a sale listing
      */
     @PatchMapping("/listings/{listingId}/unlike")
     @ResponseStatus(HttpStatus.OK)
     public void unlikeSaleListing(@PathVariable Integer listingId,
                                   @AuthenticationPrincipal AppUserDetails user) {
-        try{
+        try {
             logger.info("Request to unlike a sale listing with ID: {}", listingId);
             saleListingService.unlikeSaleListing(listingId, user);
         } catch (NotAcceptableException | BadRequestException expectedException) {
@@ -188,9 +190,10 @@ public class SaleListingController {
 
     /**
      * Handles request for a user to tag a sale listing
-     * @param listingId the id of the listing to tag
+     *
+     * @param listingId   the id of the listing to tag
      * @param requestBody request body containing the tag for the listing
-     * @param user the AppUserDetails of the user tagging the listing
+     * @param user        the AppUserDetails of the user tagging the listing
      */
     @PatchMapping("/listings/{listingId}/tag")
     @ResponseStatus(HttpStatus.OK)
@@ -203,9 +206,10 @@ public class SaleListingController {
 
     /**
      * Handles request for a user to star or unstar a sale listing
-     * @param listingId the id of the listing to star
+     *
+     * @param listingId   the id of the listing to star
      * @param requestBody containing a boolean of whether to star or unstar the listing
-     * @param user the AppUserDetails of the user starring the listing
+     * @param user        the AppUserDetails of the user starring the listing
      */
     @PatchMapping("/listings/{listingId}/star")
     @ResponseStatus(HttpStatus.OK)
@@ -213,7 +217,7 @@ public class SaleListingController {
                                 @RequestBody JSONObject requestBody,
                                 @AuthenticationPrincipal AppUserDetails user) {
         boolean star;
-        try{
+        try {
             star = (boolean) requestBody.get("star");
         } catch (ClassCastException | NullPointerException exception) {
             String message = "Value of \"star\" must be a boolean";
@@ -253,7 +257,7 @@ public class SaleListingController {
                                    @RequestBody JSONObject requestBody,
                                    @AuthenticationPrincipal AppUserDetails user) {
         boolean featured;
-        try{
+        try {
             featured = (boolean) requestBody.get("featured");
         } catch (ClassCastException | NullPointerException exception) {
             String message = "Value of \"featured\" must be a boolean";

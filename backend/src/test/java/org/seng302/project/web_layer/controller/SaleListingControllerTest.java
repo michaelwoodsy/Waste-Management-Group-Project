@@ -380,8 +380,8 @@ class SaleListingControllerTest extends AbstractInitializer {
         listing.setId(1);
 
         mockMvc.perform(MockMvcRequestBuilders
-                .patch("/listings/{listingId}/like", listing.getId())
-                .with(user(new AppUserDetails(testUser))))
+                        .patch("/listings/{listingId}/like", listing.getId())
+                        .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -404,8 +404,8 @@ class SaleListingControllerTest extends AbstractInitializer {
                 .when(saleListingService).likeSaleListing(any(Integer.class), any(AppUserDetails.class));
 
         mockMvc.perform(MockMvcRequestBuilders
-                .patch("/listings/{listingId}/like", listing.getId())
-                .with(user(new AppUserDetails(testUser))))
+                        .patch("/listings/{listingId}/like", listing.getId())
+                        .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -420,7 +420,7 @@ class SaleListingControllerTest extends AbstractInitializer {
         listing.setId(1);
 
         mockMvc.perform(MockMvcRequestBuilders
-                .patch("/listings/{listingId}/like", listing.getId()))
+                        .patch("/listings/{listingId}/like", listing.getId()))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
@@ -439,8 +439,8 @@ class SaleListingControllerTest extends AbstractInitializer {
                 .when(saleListingService).likeSaleListing(any(Integer.class), any(AppUserDetails.class));
 
         mockMvc.perform(MockMvcRequestBuilders
-                .patch("/listings/{listingId}/like", listing.getId() + 9999)
-                .with(user(new AppUserDetails(testUser))))
+                        .patch("/listings/{listingId}/like", listing.getId() + 9999)
+                        .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
 
@@ -496,8 +496,8 @@ class SaleListingControllerTest extends AbstractInitializer {
         listing.setId(1000);
 
         mockMvc.perform(MockMvcRequestBuilders
-                .post("/listings/{listingId}/buy", listing.getId())
-                .with(user(new AppUserDetails(testUser))))
+                        .post("/listings/{listingId}/buy", listing.getId())
+                        .with(user(new AppUserDetails(testUser))))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -565,7 +565,7 @@ class SaleListingControllerTest extends AbstractInitializer {
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
-       mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
     }
@@ -797,7 +797,8 @@ class SaleListingControllerTest extends AbstractInitializer {
 
         MvcResult response = mockMvc.perform(request).andExpect(status().isOk()).andReturn();
         String responseData = response.getResponse().getContentAsString();
-        List<GetSaleListingDTO> result = objectMapper.readValue(responseData, new TypeReference<>() {});
+        List<GetSaleListingDTO> result = objectMapper.readValue(responseData, new TypeReference<>() {
+        });
         Assertions.assertEquals(1, result.size());
     }
 
@@ -907,8 +908,8 @@ class SaleListingControllerTest extends AbstractInitializer {
         body.put("featured", true);
 
         Mockito.doThrow(new ForbiddenException(String.format(
-                "User with id %d can not perform this action as they are not an administrator of business with id %d.",
-                testUser.getId(), business.getId()))).when(saleListingService)
+                        "User with id %d can not perform this action as they are not an administrator of business with id %d.",
+                        testUser.getId(), business.getId()))).when(saleListingService)
                 .featureSaleListing(any(Integer.class), any(Integer.class), any(boolean.class), any(AppUserDetails.class));
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -932,7 +933,7 @@ class SaleListingControllerTest extends AbstractInitializer {
         body.put("featured", true);
 
         Mockito.doThrow(new NotAcceptableException(
-                String.format("Business with ID %d does not exist", 9999))).when(saleListingService)
+                        String.format("Business with ID %d does not exist", 9999))).when(saleListingService)
                 .featureSaleListing(any(Integer.class), any(Integer.class), any(boolean.class), any(AppUserDetails.class));
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -956,7 +957,7 @@ class SaleListingControllerTest extends AbstractInitializer {
         body.put("featured", true);
 
         Mockito.doThrow(new NotAcceptableException(
-                String.format("No sale Listing with ID %d exists", 9999))).when(saleListingService)
+                        String.format("No sale Listing with ID %d exists", 9999))).when(saleListingService)
                 .featureSaleListing(any(Integer.class), any(Integer.class), any(boolean.class), any(AppUserDetails.class));
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -981,7 +982,7 @@ class SaleListingControllerTest extends AbstractInitializer {
         body.put("featured", true);
 
         Mockito.doThrow(new NotAcceptableException(
-                "You already have the maximum number of possible featured sale listings")).when(saleListingService)
+                        "You already have the maximum number of possible featured sale listings")).when(saleListingService)
                 .featureSaleListing(any(Integer.class), any(Integer.class), any(boolean.class), any(AppUserDetails.class));
 
         RequestBuilder request = MockMvcRequestBuilders
