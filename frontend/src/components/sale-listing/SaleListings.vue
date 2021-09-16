@@ -83,35 +83,34 @@
                 </thead>
                 <tbody v-if="!loading">
                 <tr v-for="listing in paginatedListings"
-                    v-bind:key="listing.id"
-                    class="pointer"
-
-                >
+                    v-bind:key="listing.id">
                   <td data-target="#viewListingModal"
                       data-toggle="modal"
                       @click="viewListing(listing)">
-                    <img alt="productImage" class="ui-icon-image"
+                    <img alt="productImage" class="ui-icon-image pointer"
                          :src="getPrimaryImageThumbnail(listing.inventoryItem.product)">
                   </td>
-                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" style="word-break: break-word; width: 50%">
+                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" style="word-break: break-word; width: 50%" class="pointer">
                     {{ listing.inventoryItem.product.name }}
                     <span v-if="listing.moreInfo" style="font-size: small"><br/>{{ listing.moreInfo }}</span>
                   </td>
-                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)">
+                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" class="pointer">
                     {{ listing.quantity }}
                   </td>
-                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)">
+                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" class="pointer">
                     {{ formatPrice(listing) }}
                   </td>
-                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)">
+                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" class="pointer">
                     {{ formatDate(listing.created) }}
                   </td>
-                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)">
+                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" class="pointer">
                     {{ formatDate(listing.closes) }}
                   </td>
                   <td v-if="isAdminOf">
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" v-model="listing.featured" @click="featureListing(listing)">
+                    <div class="custom-control custom-checkbox">
+                      <input :id="listing.id" class="custom-control-input" type="checkbox" v-model="listing.featured" @click="featureListing(listing)">
+                      <!-- You need this label for some reason otherwise the checkbox wont show..... -->
+                      <label :for="listing.id" class="custom-control-label"></label>
                     </div>
 
                   </td>
@@ -483,6 +482,10 @@ export default {
     newListing() {
       this.createNewListing = true;
     },
+
+    /**
+     * Refreshes sale listings
+     */
     refreshListings() {
       this.createNewListing = false;
       this.fillTable();
@@ -497,8 +500,8 @@ export default {
         createAlertRed("Error: " + (err.response ? err.response.data.slice(err.response.data.indexOf(":") + 2) : err))
 
         //Change the listings featured boolean back to normal
-        for (let i = 0; i <= this.listings.length; i++) {
-          if (this.listings[i].id === listing.id) {
+        for (const [i, currListing] of this.listings.entries()) {
+          if (currListing.id === listing.id) {
             this.listings[i].featured = !this.listings[i].featured
           }
         }
@@ -509,15 +512,12 @@ export default {
 </script>
 
 <style scoped>
-.form-check {
-  display: flex;
-  align-items: center;
-}
 
-.form-check .form-check-input[type=checkbox] {
-  border-radius: .25em;
-  height: 25px;
-  width: 25px;
+.custom-control-label::before,
+.custom-control-label::after {
+  top: .8rem;
+  width: 2rem;
+  height: 2rem;
 }
 
 </style>
