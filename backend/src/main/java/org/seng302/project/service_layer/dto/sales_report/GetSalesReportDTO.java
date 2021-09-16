@@ -1,6 +1,7 @@
 package org.seng302.project.service_layer.dto.sales_report;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.seng302.project.repository_layer.model.Sale;
 
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import java.util.List;
  * Response for a sale report.
  */
 @Data
+@NoArgsConstructor
 public class GetSalesReportDTO {
 
     private List<GetSaleDTO> sales;
