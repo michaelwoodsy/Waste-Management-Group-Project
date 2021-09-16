@@ -6,13 +6,13 @@ Displays a popular listing
 -->
 <template>
   <div>
-    <div class="card shadow card-size" style="width: 12rem">
+    <div class="card shadow card-size" style="width: 12rem; height: 23rem">
       <!-- Listing Image -->
       <img :src="getPrimaryImage(data.inventoryItem.product)" alt="productImage" class="card-img-top">
 
       <div class="card-body">
         <!-- Product Name -->
-        <h6 class="card-title">{{ data.inventoryItem.product.name }}</h6>
+        <h6 class="card-title">{{ name }}</h6>
 
         <!-- Quantity and Price, cause sizing issues -->
         <p class="card-text text-muted small mb-1">
@@ -22,19 +22,18 @@ Displays a popular listing
         <p class="card-text text-muted small mb-1">
           Price: {{ formatPrice(data) }}
         </p>
-
-        <div class="text-right">
+        <div style="position: absolute; bottom: 10px; width: 150px">
           <!-- Open Listing Modal -->
           <button
-              class="btn btn-sm btn-outline-primary ml-3"
+              class="btn btn-sm btn-outline-primary"
               data-target="#viewListingModal"
               data-toggle="modal"
               @click="viewListingModal = true"
           >
             View Details
           </button>
-
         </div>
+
       </div>
     </div>
 
@@ -61,14 +60,28 @@ export default {
   data() {
     return {
       viewListingModal: false,
-      businessToViewId: null
+      businessToViewId: null,
+      name: ""
     }
   },
   mounted() {
     this.getPrimaryImage(this.data.inventoryItem.product)
+    this.formatTitle(this.data.inventoryItem.product.name)
   },
 
   methods: {
+    /**
+     * Method that cleans up and shortens the name of the listing
+     */
+    formatTitle(name){
+      if(name.length > 40){
+        name = name.slice(0, 37)
+        name += "..."
+        this.name = name;
+      } else {
+        this.name = name
+      }
+    },
     /**
      * Method called after closing the modal
      */
@@ -115,7 +128,7 @@ export default {
           return specificImage.id === product.primaryImageId;
         })
         if (filteredImages.length === 1) {
-          return this.getImageURL(filteredImages[0].filename)
+          return this.getImageURL(filteredImages[0].thumbnailFilename)
         }
       }
     },
