@@ -16,6 +16,7 @@
     <sales-report-graph
         v-if="report != null"
         :data="report"
+        :currency="currency"
         v-bind:key="report"
     />
 

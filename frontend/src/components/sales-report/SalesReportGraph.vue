@@ -17,7 +17,8 @@ import $ from "jquery";
 export default {
   name: "SalesReportGraph",
   props: {
-    data: Array
+    data: Array,
+    currency: Object
   },
   data(){
     return {
@@ -93,7 +94,13 @@ export default {
         options: {
           scales: {
             y: {
-              beginAtZero: true
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: this.buttonText === "Show number of sales" ?
+                    `${this.currency.symbol}${this.currency.code}`
+                    : "Sales"
+              }
             }
           }
         }
@@ -108,15 +115,15 @@ export default {
       if (this.buttonText === "Show number of sales") {
         this.dataLabel = "Total number of sales"
         this.chart.destroy()
+        this.buttonText = "Show total values"
         this.drawGraph(this.dataLabel, this.totalSales)
         $("html, body").animate({ scrollTop: $(document).height() }, 0);
-        this.buttonText = "Show total values"
       } else {
         this.dataLabel = "Total value"
         this.chart.destroy()
+        this.buttonText = "Show number of sales"
         this.drawGraph(this.dataLabel, this.totalValues)
         $("html, body").animate({ scrollTop: $(document).height() }, 0);
-        this.buttonText = "Show number of sales"
       }
 
     }
