@@ -49,7 +49,14 @@
       </div>
     </div>
 
+    <div v-if="country !== ''" style="padding-bottom: 20px">
+      <button class="btn btn-primary no-outline" type="button" @click="clearFilter">Clear Filter</button>
+    </div>
+
     <div class="">
+      <div v-if="listings.length === 0">
+        <p class="text-center"><strong>There are no popular sale listings for {{ country }}.</strong></p>
+      </div>
       <div id="popularListingCarousel" class="carousel slide w-auto" data-interval="false">
         <div class="carousel-inner">
           <!-- Carousel Slides -->
@@ -95,6 +102,7 @@
 import {Landing} from "@/Api";
 import userState from "@/store/modules/user"
 import PopularListing from "../sale-listing/PopularListing";
+import axios from "axios";
 import $ from "jquery";
 
 export default {
@@ -178,7 +186,6 @@ export default {
     },
 
     async updateData() {
-
       await this.user.updateData()
       await this.getPopularListings()
       $(".carousel").carousel(this.currentSlide-1);
@@ -285,11 +292,27 @@ export default {
       }
     },
 
+    /**
+     * Sets filtered country and retrieves its popular listings
+     */
     async selectCountry(country) {
       this.countryInput = country
+      this.country = country
+      this.suggestions = []
       //Resets the carousel to the first page
       $('.carousel').carousel(0)
       await this.getPopularListings(country)
+    },
+
+    /**
+     * Clears the filtered country and searches popular listings worldwide
+     */
+    async clearFilter() {
+      this.countryInput = ""
+      this.country = ""
+      //Resets the carousel to the first page
+      $('.carousel').carousel(0)
+      await this.getPopularListings()
     }
   }
 }
