@@ -16,6 +16,7 @@
     <sales-report-graph
         v-if="report != null"
         :data="report"
+        v-bind:key="report"
     />
 
   </div>
@@ -68,7 +69,7 @@ export default {
     async getReport(options) {
       try {
         const res = await Business.getSalesReport(this.businessId, options)
-        this.report = res.data
+        this.$set(this, "report", res.data)
       } catch (error) {
         console.log(error)
       }

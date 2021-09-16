@@ -28,7 +28,7 @@ export default {
     }
   },
   mounted() {
-    this.setGraphInfo() //TODO: details on graph don't change when granularity changes
+    this.setGraphInfo()
     this.drawGraph()
   },
   methods: {
