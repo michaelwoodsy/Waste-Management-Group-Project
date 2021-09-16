@@ -40,14 +40,17 @@ class SalesReportServiceTest extends AbstractInitializer {
     private final BusinessRepository businessRepository;
     private final UserRepository userRepository;
     private final SalesReportService salesReportService;
+    private final AddressRepository addressRepository;
 
     @Autowired
     public SalesReportServiceTest(BusinessRepository businessRepository,
-                                  UserRepository userRepository, SaleHistoryRepository saleHistoryRepository) {
+                                  UserRepository userRepository,
+                                  SaleHistoryRepository saleHistoryRepository,
+                                  AddressRepository addressRepository) {
         this.businessRepository = businessRepository;
         this.userRepository = userRepository;
         this.saleHistoryRepository = saleHistoryRepository;
-        AddressRepository addressRepository = Mockito.mock(AddressRepository.class);
+        this.addressRepository = addressRepository;
         ProductCatalogueService productCatalogueService = Mockito.mock(ProductCatalogueService.class);
         BusinessService businessService = new BusinessService(businessRepository, addressRepository, userRepository, productCatalogueService);
         this.salesReportService = new SalesReportService(businessService, this.saleHistoryRepository);
@@ -60,12 +63,12 @@ class SalesReportServiceTest extends AbstractInitializer {
         testUser.setHomeAddress(null);
         testUser = userRepository.save(testUser);
         owner = this.getTestUserBusinessAdmin();
-        owner.setHomeAddress(null);
+        addressRepository.save(owner.getHomeAddress());
         owner = userRepository.save(owner);
 
         business = this.getTestBusiness();
-        business.setAddress(null);
         business.setPrimaryAdministratorId(owner.getId());
+        addressRepository.save(business.getAddress());
         business = businessRepository.save(business);
 
         Product product = new Product("PROD", "Product", "Just a product", "Me",
