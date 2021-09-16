@@ -641,7 +641,7 @@ public class SaleListingService {
 
         //Record the sale
         var sale = new Sale(listing);
-        sale.setBuyer(buyer);
+        sale.setBuyerId(buyer.getId());
         saleHistoryRepository.save(sale);
 
         //Update the inventory items quantity or remove it if its new quantity is 0

@@ -23,9 +23,7 @@ public class Sale {
     @JoinColumn(name = "business_id")
     private Business business;
 
-    @ManyToOne
-    @JoinColumn(name = "buyer_id")
-    private User buyer;
+    private Integer buyerId;
 
     @Embedded
     private InventoryItemArchive inventoryItem;

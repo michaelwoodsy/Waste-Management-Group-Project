@@ -2,11 +2,15 @@ package org.seng302.project.service_layer.service;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.repository_layer.model.Address;
+import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
+import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.specification.SalesReportSpecifications;
 import org.seng302.project.repository_layer.specification.UserSpecifications;
+import org.seng302.project.service_layer.dto.sales_report.GetSaleDTO;
 import org.seng302.project.service_layer.dto.user.*;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
@@ -34,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Provides logic for User objects
@@ -47,16 +52,21 @@ public class UserService {
     private final LikedSaleListingRepository likedSaleListingRepository;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final SaleHistoryRepository saleHistoryRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, AddressRepository addressRepository,
+    public UserService(UserRepository userRepository,
+                       AddressRepository addressRepository,
                        LikedSaleListingRepository likedSaleListingRepository,
-                       AuthenticationManager authenticationManager, BCryptPasswordEncoder passwordEncoder) {
+                       AuthenticationManager authenticationManager,
+                       BCryptPasswordEncoder passwordEncoder,
+                       SaleHistoryRepository saleHistoryRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
+        this.saleHistoryRepository = saleHistoryRepository;
     }
 
     /**
@@ -376,5 +386,17 @@ public class UserService {
         return List.of(sortBy.contains("ASC"), sortBy);
     }
 
+    /**
+     * Gets a list of a user's purchases
+     *
+     * @param userId ID of the user to get purchases for
+     * @return list of the user's purchases
+     */
+    public List<GetSaleDTO> getPurchaseHistory(Integer userId) {
+        Specification<Sale> spec = SalesReportSpecifications.purchasedByUser(userId);
+        List<Sale> purchases = saleHistoryRepository.findAll(spec);
+
+        return purchases.stream().map(GetSaleDTO::new).collect(Collectors.toList());
+    }
 
 }

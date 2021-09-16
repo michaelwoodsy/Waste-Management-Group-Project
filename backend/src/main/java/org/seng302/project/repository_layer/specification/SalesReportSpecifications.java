@@ -59,7 +59,7 @@ public final class SalesReportSpecifications {
      */
     public static Specification<Sale> purchasedByUser(Integer userId) {
         return ((root, query, builder) ->
-                builder.equal(root.get("buyer").get("id"), userId)
+                builder.equal(root.get("buyerId"), userId)
         );
     }
 }

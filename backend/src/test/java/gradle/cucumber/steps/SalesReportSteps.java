@@ -65,11 +65,14 @@ public class SalesReportSteps extends AbstractInitializer {
      */
     @BeforeEach
     @Autowired
-    void setup(WebApplicationContext context, UserNotificationRepository userNotificationRepository) {
+    void setup(WebApplicationContext context,
+               UserNotificationRepository userNotificationRepository,
+               AddressRepository addressRepository) {
         userNotificationRepository.deleteAll();
         saleHistoryRepository.deleteAll();
         businessRepository.deleteAll();
         userRepository.deleteAll();
+        addressRepository.deleteAll();
 
 
         mockMvc = MockMvcBuilders
@@ -78,13 +81,13 @@ public class SalesReportSteps extends AbstractInitializer {
                 .build();
 
         owner = this.getTestUserBusinessAdmin();
-        owner.setHomeAddress(null);
+        addressRepository.save(owner.getHomeAddress());
         owner = userRepository.save(owner);
 
         business = this.getTestBusiness();
-        business.setAddress(null);
         business.setPrimaryAdministratorId(owner.getId());
         business.setAdministrators(List.of(owner));
+        addressRepository.save(business.getAddress());
         business = businessRepository.save(business);
 
         product = new Product("PROD", "Product", "Just a product", "Me",
