@@ -149,10 +149,7 @@ export default {
       } else {
         response = await Landing.getPopularListings(this.countryInput)
       }
-      for (let listing of response.data) {
-        listing.currency = await this.$root.$data.product.getCurrency(listing.business.address.country)
-        this.listings.push(listing)
-      }
+      this.listings = await this.$root.$data.product.addSaleListingCurrencies(response.data)
       let i = 0;
       if(this.listings.length === 10){
         //Maximum number of liked listings

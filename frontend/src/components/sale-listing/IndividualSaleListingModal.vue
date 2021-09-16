@@ -15,7 +15,7 @@
             <h2>
               <strong>{{ listing.inventoryItem.product.name }}</strong>
               <em v-if="isLoggedIn" :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart pointer" @click="likeListing"/>
-              <em v-else :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart"/>
+              <em v-else :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart" style="pointer-events: none"/>
               {{ likes }}
             </h2>
           </div>
@@ -233,7 +233,6 @@ export default {
   mounted() {
     this.likes = this.$props.listing.likes
     this.liked = this.$props.listing.userLikes
-    console.log(this.isLoggedIn)
   },
   computed: {
     /**

@@ -17,7 +17,6 @@ import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -351,7 +350,7 @@ public class TestDataRunner {
                     });
                 }
 
-                if (testListing.getId() == 3) {
+                if (testListing.getId() == 3 || testListing.getId() == 4 || testListing.getId() == 5) {
                     var user = userRepository.findById(1);
                     user.ifPresent(value -> {
                         var likedListing = new LikedSaleListing(value, listing);

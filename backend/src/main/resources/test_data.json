@@ -401,12 +401,12 @@
       "name": "Tinned Food Mart",
       "description": "The perfect place to purchase your non-perishables",
       "address": {
-        "streetNumber": "231",
-        "streetName": "Colombo Street",
-        "city": "Christchurch",
-        "region": "Canterbury",
-        "country": "New Zealand",
-        "postcode": "8021"
+        "streetNumber": "1600",
+        "streetName": "Pennsylvania Avenue",
+        "city": "Washington",
+        "region": "DC",
+        "country": "United States",
+        "postcode": "20500"
       },
       "businessType": "Accommodation and Food Services",
       "primaryAdministratorId": 2,
