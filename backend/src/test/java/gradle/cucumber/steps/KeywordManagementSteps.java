@@ -9,10 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
-import org.seng302.project.repository_layer.repository.AdminNotificationRepository;
-import org.seng302.project.repository_layer.repository.CardRepository;
-import org.seng302.project.repository_layer.repository.KeywordRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.card.CreateCardDTO;
 import org.seng302.project.service_layer.dto.card.CreateCardResponseDTO;
 import org.seng302.project.service_layer.dto.keyword.AddKeywordDTO;
@@ -41,6 +38,7 @@ public class KeywordManagementSteps extends AbstractInitializer {
     private final KeywordRepository keywordRepository;
     private final CardRepository cardRepository;
     private final AdminNotificationRepository adminNotificationRepository;
+    private final SaleListingRepository saleListingRepository;
     private final ObjectMapper objectMapper;
 
     private MockMvc mockMvc;
@@ -66,11 +64,13 @@ public class KeywordManagementSteps extends AbstractInitializer {
                                   KeywordRepository keywordRepository,
                                   CardRepository cardRepository,
                                   AdminNotificationRepository adminNotificationRepository,
+                                  SaleListingRepository saleListingRepository,
                                   ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.keywordRepository = keywordRepository;
         this.cardRepository = cardRepository;
         this.adminNotificationRepository = adminNotificationRepository;
+        this.saleListingRepository = saleListingRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -83,6 +83,7 @@ public class KeywordManagementSteps extends AbstractInitializer {
     @Autowired
     public void setup(WebApplicationContext context) {
         this.initialise();
+        saleListingRepository.deleteAll();
         cardRepository.deleteAll();
         userRepository.deleteAll();
         adminNotificationRepository.deleteAll();
