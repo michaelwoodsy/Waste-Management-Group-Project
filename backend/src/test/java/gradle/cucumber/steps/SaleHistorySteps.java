@@ -12,10 +12,7 @@ import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.repository_layer.model.User;
-import org.seng302.project.repository_layer.repository.AddressRepository;
-import org.seng302.project.repository_layer.repository.BusinessRepository;
-import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.sales_report.GetSaleDTO;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +70,13 @@ public class SaleHistorySteps extends AbstractInitializer {
 
     @BeforeEach
     @Autowired
-    public void setup() {
+    public void setup(UserNotificationRepository userNotificationRepository) {
+        userNotificationRepository.deleteAll();
+        saleHistoryRepository.deleteAll();
+        userRepository.deleteAll();
+        businessRepository.deleteAll();
+        addressRepository.deleteAll();
+
         testUser = this.getTestUser();
         testUser.setHomeAddress(addressRepository.save(testUser.getHomeAddress()));
         testUser = userRepository.save(testUser);
