@@ -1,5 +1,13 @@
 <template>
-  <canvas id="myChart" style="width: 200px"></canvas>
+  <div>
+    <canvas id="myChart" style="width: 200px"></canvas>
+    <button class="btn btn-primary"
+            @click="toggleGraph()"
+    >
+      {{buttonText}}
+    </button>
+  </div>
+
 </template>
 
 <script>
@@ -16,11 +24,12 @@ export default {
       dates: [],
       totalValues: [],
       totalSales: [],
+      buttonText: "Show number of sales"
     }
   },
   mounted() {
     this.setGraphInfo() //TODO: details on graph don't change when granularity changes
-    this.drawChart()
+    this.drawGraph()
   },
   methods: {
     /**
@@ -57,34 +66,34 @@ export default {
     },
 
     /**
-     * Creates the chart
+     * Creates the graph
      */
-    drawChart() { //TODO: enable toggle between 2 graphs
+    drawGraph() {
       Chart.register(...registerables);
-      var ctx = document.getElementById('myChart').getContext('2d');
+      const ctx = document.getElementById('myChart').getContext('2d');
       this.chart = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: this.dates,
           datasets: [{
-            label: 'Total value',
+            label: 'Total value', //dataset 0
             data: this.totalValues,
             backgroundColor: [
-              'rgba(75, 192, 192, 0.2)'
+              'rgba(66, 185, 131, 0.2)'
             ],
             borderColor: [
 
-              'rgba(75, 192, 192, 1)'
+              'rgba(66, 185, 131, 1)'
             ],
             borderWidth: 1
           },{
-            label: 'Total number of sales',
+            label: 'Total number of sales', //dataset 1
             data: this.totalSales,
             backgroundColor: [
-              'rgba(255, 99, 132, 0.2)'
+              'rgba(52, 58, 64, 0.2)'
             ],
             borderColor: [
-              'rgba(255, 99, 132, 1)'
+              'rgba(52, 58, 64, 1)'
             ],
             borderWidth: 1
           }
@@ -98,6 +107,24 @@ export default {
           }
         }
       });
+      this.chart.hide(1)
+    },
+    /**
+     * Toggles between type of graph
+     * from values to number of sales
+     * and vice versa
+     */
+    toggleGraph() {
+      if (this.buttonText === "Show number of sales") {
+        this.chart.hide(0)
+        this.chart.show(1)
+        this.buttonText = "Show total values"
+      } else {
+        this.chart.hide(1)
+        this.chart.show(0)
+        this.buttonText = "Show number of sales"
+      }
+
     }
   }
 }

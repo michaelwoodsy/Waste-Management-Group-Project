@@ -30,7 +30,7 @@ describe('Tests for the SalesReportGraph component', () => {
                 data: testReport
             },
             methods: {
-                drawChart() {
+                drawGraph() {
                     return null
                 }
             }
