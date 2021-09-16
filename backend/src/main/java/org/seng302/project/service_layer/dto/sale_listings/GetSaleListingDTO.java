@@ -1,6 +1,7 @@
 package org.seng302.project.service_layer.dto.sale_listings;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
  * Response DTO for SaleListing entities.
  */
 @Data
+@NoArgsConstructor
 public class GetSaleListingDTO {
 
     private Integer id;

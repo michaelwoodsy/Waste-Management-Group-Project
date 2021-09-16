@@ -465,6 +465,9 @@ class BusinessServiceTest extends AbstractInitializer {
                 () -> businessService.editBusiness(requestDTO, businessId, appUser));
     }
 
+    /**
+     * Tests that trying to change the primary admin when acting as primary admin results in success
+     */
     @Test
     void editBusiness_changePrimaryAdmin_validRequest_success() {
         testBusiness.addAdministrator(testUser);
@@ -481,6 +484,9 @@ class BusinessServiceTest extends AbstractInitializer {
         Assertions.assertEquals(testUser.getId(), testBusiness.getPrimaryAdministratorId());
     }
 
+    /**
+     * Tests that the correct exception is thrown when new primary admin does not exist
+     */
     @Test
     void editBusiness_nonExistentNewAdmin_throwsException() {
         PostBusinessDTO requestDTO = new PostBusinessDTO();
@@ -492,6 +498,10 @@ class BusinessServiceTest extends AbstractInitializer {
                 () -> businessService.editBusiness(requestDTO, businessId, appUser));
     }
 
+    /**
+     * Tests that an exception is thrown when trying to change the primary admin as a user who is not
+     * the primary admin
+     */
     @Test
     void editBusiness_changePrimaryAdmin_requestMakerNotPrimaryAdmin_throwsException() {
         testBusiness.addAdministrator(testUser);
@@ -504,6 +514,10 @@ class BusinessServiceTest extends AbstractInitializer {
                 () -> businessService.editBusiness(requestDTO, businessId, appUser));
     }
 
+    /**
+     * Tests that an exception is thrown when trying to change the primary admin to a user who is
+     * not an admin
+     */
     @Test
     void editBusiness_changePrimaryAdmin_newAdminNotAdmin_throwsException() {
         PostBusinessDTO requestDTO = new PostBusinessDTO();
