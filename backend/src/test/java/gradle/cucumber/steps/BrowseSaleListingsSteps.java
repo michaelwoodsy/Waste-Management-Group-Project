@@ -19,22 +19,25 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
+
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 
 
 /**
  * Steps for the Cucumber tests relating to U29 Browse/Search Sales Listings
  */
+@Transactional
 @AutoConfigureTestDatabase
 public class BrowseSaleListingsSteps extends AbstractInitializer {
 
@@ -79,10 +82,10 @@ public class BrowseSaleListingsSteps extends AbstractInitializer {
         saleListingRepository.deleteAll();
         inventoryItemRepository.deleteAll();
         productRepository.deleteAll();
-        businessRepository.deleteAll();
-        addressRepository.deleteAll();
         cardRepository.deleteAll();
         userRepository.deleteAll();
+        addressRepository.deleteAll();
+        businessRepository.deleteAll();
     }
 
     /**
@@ -93,12 +96,14 @@ public class BrowseSaleListingsSteps extends AbstractInitializer {
     void setup(WebApplicationContext context) {
         //need to clear the local repositories (these are repositories only used in this test class as I used the @AutoConfigureTestDatabase annotation)
         cardRepository.deleteAll();
-        userRepository.deleteAll();
         saleListingRepository.deleteAll();
         inventoryItemRepository.deleteAll();
         productRepository.deleteAll();
+        userRepository.deleteAll();
         businessRepository.deleteAll();
         addressRepository.deleteAll();
+
+
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
