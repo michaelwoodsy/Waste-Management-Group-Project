@@ -613,3 +613,13 @@ export const Statistics = {
      */
     getStatistics: () => instance.get(`statistics`)
 }
+
+/**
+ * Sends email to the re:sale address, which will most likely
+ * contain a question from an unregistered email
+ * @param email the email address the message has come from
+ * @param message the message from the user
+ */
+export const Landing ={
+    contact: (email, message) => instance.post('contact', {email, message})
+}

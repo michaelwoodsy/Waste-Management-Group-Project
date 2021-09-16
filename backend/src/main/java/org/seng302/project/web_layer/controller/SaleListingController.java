@@ -1,12 +1,15 @@
 package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
+import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.service_layer.dto.sale_listings.GetSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.PostSaleListingDTO;
 import org.seng302.project.service_layer.dto.sale_listings.SearchSaleListingsDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
+import org.seng302.project.service_layer.service.BusinessService;
 import org.seng302.project.service_layer.service.SaleListingService;
+import org.seng302.project.service_layer.service.UserService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -27,12 +31,16 @@ public class SaleListingController {
 
     private static final Logger logger = LoggerFactory.getLogger(SaleListingController.class.getName());
 
-
+    private final UserService userService;
+    private final BusinessService businessService;
     private final SaleListingService saleListingService;
 
     @Autowired
-    public SaleListingController(
-            SaleListingService saleListingService) {
+    public SaleListingController(SaleListingService saleListingService,
+                                 BusinessService businessService,
+                                 UserService userService) {
+        this.userService = userService;
+        this.businessService = businessService;
         this.saleListingService = saleListingService;
     }
 
@@ -138,8 +146,9 @@ public class SaleListingController {
 
     /**
      * Likes a sale listing,
+     *
      * @param listingId The sale listing ID the user is trying to like
-     * @param appUser The user that is trying to like a sale listing
+     * @param appUser   The user that is trying to like a sale listing
      */
     @PatchMapping("/listings/{listingId}/like")
     @ResponseStatus(HttpStatus.OK)
@@ -159,14 +168,15 @@ public class SaleListingController {
 
     /**
      * Unlikes a sale listing,
+     *
      * @param listingId The sale listing ID the user is trying to unlike
-     * @param user The user that is trying to like a sale listing
+     * @param user      The user that is trying to like a sale listing
      */
     @PatchMapping("/listings/{listingId}/unlike")
     @ResponseStatus(HttpStatus.OK)
     public void unlikeSaleListing(@PathVariable Integer listingId,
                                   @AuthenticationPrincipal AppUserDetails user) {
-        try{
+        try {
             logger.info("Request to unlike a sale listing with ID: {}", listingId);
             saleListingService.unlikeSaleListing(listingId, user);
         } catch (NotAcceptableException | BadRequestException expectedException) {
@@ -180,9 +190,10 @@ public class SaleListingController {
 
     /**
      * Handles request for a user to tag a sale listing
-     * @param listingId the id of the listing to tag
+     *
+     * @param listingId   the id of the listing to tag
      * @param requestBody request body containing the tag for the listing
-     * @param user the AppUserDetails of the user tagging the listing
+     * @param user        the AppUserDetails of the user tagging the listing
      */
     @PatchMapping("/listings/{listingId}/tag")
     @ResponseStatus(HttpStatus.OK)
@@ -195,9 +206,10 @@ public class SaleListingController {
 
     /**
      * Handles request for a user to star or unstar a sale listing
-     * @param listingId the id of the listing to star
+     *
+     * @param listingId   the id of the listing to star
      * @param requestBody containing a boolean of whether to star or unstar the listing
-     * @param user the AppUserDetails of the user starring the listing
+     * @param user        the AppUserDetails of the user starring the listing
      */
     @PatchMapping("/listings/{listingId}/star")
     @ResponseStatus(HttpStatus.OK)
@@ -205,7 +217,7 @@ public class SaleListingController {
                                 @RequestBody JSONObject requestBody,
                                 @AuthenticationPrincipal AppUserDetails user) {
         boolean star;
-        try{
+        try {
             star = (boolean) requestBody.get("star");
         } catch (ClassCastException | NullPointerException exception) {
             String message = "Value of \"star\" must be a boolean";
@@ -215,6 +227,29 @@ public class SaleListingController {
         saleListingService.starSaleListing(listingId, star, user);
     }
 
+    /**
+     * Handles request for getting a business' featured sale listings
+     *
+     * @param businessId ID of the business to get featured sale listings of
+     * @return list of the business' featured sale listings
+     */
+    @GetMapping("/businesses/{businessId}/featuredlistings")
+    @ResponseStatus(HttpStatus.OK)
+    public List<GetSaleListingDTO> getFeaturesSaleListings(
+            @PathVariable Integer businessId,
+            @AuthenticationPrincipal AppUserDetails user
+    ) {
+        try {
+            User loggedInUser = userService.getUserByEmail(user.getUsername());
+            businessService.checkBusiness(businessId);
+            return saleListingService.getFeaturedSaleListings(businessId, loggedInUser);
+        } catch (NotAcceptableException exception) {
+            String message = String.format("Business with ID %d does not exist", businessId);
+            logger.warn(message);
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, message, exception);
+        }
+    }
+
     @PatchMapping("/businesses/{businessId}/listings/{listingId}/feature")
     @ResponseStatus(HttpStatus.OK)
     public void featureSaleListing(@PathVariable Integer listingId,
@@ -222,7 +257,7 @@ public class SaleListingController {
                                    @RequestBody JSONObject requestBody,
                                    @AuthenticationPrincipal AppUserDetails user) {
         boolean featured;
-        try{
+        try {
             featured = (boolean) requestBody.get("featured");
         } catch (ClassCastException | NullPointerException exception) {
             String message = "Value of \"featured\" must be a boolean";
