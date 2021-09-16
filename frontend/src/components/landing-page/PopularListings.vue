@@ -116,8 +116,6 @@ export default {
     },
 
     async updateData() {
-
-      await this.user.updateData()
       await this.getPopularListings()
       $(".carousel").carousel(this.currentSlide-1);
     }
