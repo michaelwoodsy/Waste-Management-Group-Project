@@ -52,7 +52,7 @@ class SalesReportControllerTest extends AbstractInitializer {
      */
     @Test
     void getSalesReport_notLoggedIn_401() throws Exception {
-        mockMvc.perform(get("/businesses/{id}/salesReport", business.getId()))
+        mockMvc.perform(get("/businesses/{id}/sales", business.getId()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -63,7 +63,7 @@ class SalesReportControllerTest extends AbstractInitializer {
     @Test
     void getSalesReport_missingDateRange_400() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/businesses/{id}/salesReport", business.getId())
+                .get("/businesses/{id}/sales", business.getId())
                 .param("granularity", "weekly")
                 .with(user(new AppUserDetails(owner)));
 
@@ -77,7 +77,7 @@ class SalesReportControllerTest extends AbstractInitializer {
     @Test
     void getSalesReport_success_200() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/businesses/{id}/salesReport", business.getId())
+                .get("/businesses/{id}/sales", business.getId())
                 .param("periodStart", LocalDate.now().minusDays(30).toString())
                 .param("periodEnd", LocalDate.now().toString())
                 .param("granularity", "daily")
@@ -96,7 +96,7 @@ class SalesReportControllerTest extends AbstractInitializer {
                 any(String.class), any(String.class), any(AppUserDetails.class));
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/businesses/{id}/salesReport", business.getId())
+                .get("/businesses/{id}/sales", business.getId())
                 .param("periodStart", LocalDate.now().minusDays(30).toString())
                 .param("periodEnd", LocalDate.now().toString())
                 .param("granularity", "daily")
@@ -116,7 +116,7 @@ class SalesReportControllerTest extends AbstractInitializer {
                 any(String.class), any(String.class), any(AppUserDetails.class));
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/businesses/{id}/salesReport", 7)
+                .get("/businesses/{id}/sales", 7)
                 .param("periodStart", LocalDate.now().minusDays(30).toString())
                 .param("periodEnd", LocalDate.now().toString())
                 .param("granularity", "daily")
