@@ -12,7 +12,7 @@
 
     <div id="salesReport" :key="currency" class="accordion">
 
-      <div v-for="(section, index) in data" :key="index" class="card">
+      <div v-for="(section, index) in data" :key="section.periodStart" class="card">
         <div :id="`reportHeading${index}`" class="card-header">
           <div class="row align-items-center">
             <div class="col-6">
@@ -40,7 +40,10 @@
           </div>
         </div>
         <div :id="`reportSection${index}`" class="collapse" data-parent="#salesReport">
-          <sales-report-section :sales="section.sales"/>
+          <sales-report-section
+              :sales="section.sales"
+              :business-currency="currency"
+          />
         </div>
       </div>
 
