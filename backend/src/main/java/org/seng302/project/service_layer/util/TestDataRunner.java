@@ -36,6 +36,7 @@ public class TestDataRunner {
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
     private final LikedSaleListingRepository likedSaleListingRepository;
+    private final SaleHistoryRepository saleHistoryRepository;
     private final CardRepository cardRepository;
     private final ImageRepository imageRepository;
     private final KeywordRepository keywordRepository;
@@ -49,6 +50,7 @@ public class TestDataRunner {
                           ProductRepository productRepository, InventoryItemRepository inventoryItemRepository,
                           ImageRepository imageRepository, SaleListingRepository saleListingRepository,
                           LikedSaleListingRepository likedSaleListingRepository,
+                          SaleHistoryRepository saleHistoryRepository,
                           CardRepository cardRepository, KeywordRepository keywordRepository,
                           BCryptPasswordEncoder passwordEncoder, UserNotificationRepository userNotificationRepository,
                           AdminNotificationRepository adminNotificationRepository, ConformationTokenRepository conformationTokenRepository) {
@@ -59,6 +61,7 @@ public class TestDataRunner {
         this.addressRepository = addressRepository;
         this.saleListingRepository = saleListingRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
+        this.saleHistoryRepository = saleHistoryRepository;
         this.cardRepository = cardRepository;
         this.imageRepository = imageRepository;
         this.passwordEncoder = passwordEncoder;
@@ -324,7 +327,7 @@ public class TestDataRunner {
                     });
                 }
 
-                if (testListing.getId() == 2) {
+                else if (testListing.getId() == 2) {
                     var user = userRepository.findById(1);
                     user.ifPresent(value -> {
                         var likedListing = new LikedSaleListing(value, listing);
@@ -350,7 +353,7 @@ public class TestDataRunner {
                     });
                 }
 
-                if (testListing.getId() == 3 || testListing.getId() == 4 || testListing.getId() == 5) {
+                else if (testListing.getId() == 3 || testListing.getId() == 4 || testListing.getId() == 5) {
                     var user = userRepository.findById(1);
                     user.ifPresent(value -> {
                         var likedListing = new LikedSaleListing(value, listing);
@@ -358,6 +361,11 @@ public class TestDataRunner {
                         value.addLikedListing(likedListing);
                         userRepository.save(value);
                     });
+                } else {
+                    //Test data for sales
+                    Sale sale = new Sale(listing);
+                    sale.setDateSold(LocalDateTime.now().minusDays(listing.getId() * (long) 4));
+                    saleHistoryRepository.save(sale);
                 }
             }
         }
