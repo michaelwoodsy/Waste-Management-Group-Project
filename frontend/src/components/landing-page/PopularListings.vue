@@ -19,8 +19,8 @@
               </div>
             </div>
           </div>
-          <div class="carousel-item" v-if="listingsList3">
-            <div class="row justify-content-center">
+          <div class="carousel-item">
+            <div class="row justify-content-center" v-if="listingsList3">
               <div v-for="listing in listingsList3" v-bind:key="listing.id">
                 <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
               </div>
@@ -85,6 +85,7 @@ export default {
       }
       if(this.listings.length > 6){
         //7-9 listings
+        console.log(this.currentSlide)
         this.listingsList1 = this.listings.slice(0,3)
         this.listingsList2 = this.listings.slice(3,6)
         this.listingsList3 = this.listings.slice(6)
