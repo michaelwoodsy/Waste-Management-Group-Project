@@ -6,7 +6,7 @@
     <div class="nav-link text-white pointer" data-toggle="dropdown">
       <!-- Profile photo -->
       <img
-          :src="getPrimaryImageThumbnail()"
+          :src="getPrimaryImageThumbnail(actor.type)"
           alt="profile"
           class="profile-image rounded-circle"
       />
@@ -26,7 +26,7 @@
             class="dropdown-item pointer"
             @click="actAsBusiness(business)"
         >
-          <img :src="getPrimaryImageThumbnail(business.images, business.primaryImageId)" alt="profile"
+          <img :src="getPrimaryImageThumbnail('business', business.images, business.primaryImageId)" alt="profile"
                class="profile-image-sm rounded-circle">
           {{ business.name }}
         </a>
@@ -42,7 +42,7 @@
             class="dropdown-item pointer"
             @click="actAsUser(user)"
         >
-          <img :src="getPrimaryImageThumbnail(user.images, user.primaryImageId)" alt="profile"
+          <img :src="getPrimaryImageThumbnail('user', user.images, user.primaryImageId)" alt="profile"
                class="profile-image-sm rounded-circle">
           {{ user.firstName }} {{ user.lastName }}
           <span v-if="isGAA" class="badge badge-danger admin-badge">ADMIN</span>
@@ -155,7 +155,7 @@ export default {
      * Uses the primaryImageId of the user to find the primary image and return its imageURL,
      * else it returns the default user image url
      */
-    getPrimaryImageThumbnail(currImages, currPrimaryImageId) {
+    getPrimaryImageThumbnail(userType, currImages, currPrimaryImageId) {
       let images = currImages
       let primaryImageId = currPrimaryImageId
       if (images === undefined) {
@@ -177,6 +177,9 @@ export default {
         if (filteredImages.length === 1) {
           return this.getImageURL(filteredImages[0].thumbnailFilename)
         }
+      }
+      if (userType === 'business') {
+        return this.getImageURL('/media/defaults/defaultBusinessProfile_thumbnail.jpg')
       }
       return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
     },

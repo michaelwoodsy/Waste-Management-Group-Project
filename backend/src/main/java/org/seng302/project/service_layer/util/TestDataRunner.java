@@ -309,7 +309,7 @@ public class TestDataRunner {
                         jsonSaleListing.getAsNumber("quantity").intValue()
                 );
                 var listing = saleListingRepository.save(testListing);
-                if (testListing.getId() == 1) {
+                if (testListing.getId() == 1 || testListing.getId() == 2) {
                     var user = userRepository.findById(1);
                     user.ifPresent(value -> {
                         var likedListing = new LikedSaleListing(value, listing);
@@ -325,35 +325,7 @@ public class TestDataRunner {
                         value.addLikedListing(likedListing);
                         userRepository.save(value);
                     });
-                }
-
-                else if (testListing.getId() == 2) {
-                    var user = userRepository.findById(1);
-                    user.ifPresent(value -> {
-                        var likedListing = new LikedSaleListing(value, listing);
-                        likedSaleListingRepository.save(likedListing);
-                        value.addLikedListing(likedListing);
-                        userRepository.save(value);
-                    });
-
-                    var user2 = userRepository.findById(2);
-                    user2.ifPresent(value -> {
-                        var likedListing = new LikedSaleListing(value, listing);
-                        likedSaleListingRepository.save(likedListing);
-                        value.addLikedListing(likedListing);
-                        userRepository.save(value);
-                    });
-
-                    var user3 = userRepository.findById(3);
-                    user3.ifPresent(value -> {
-                        var likedListing = new LikedSaleListing(value, listing);
-                        likedSaleListingRepository.save(likedListing);
-                        value.addLikedListing(likedListing);
-                        userRepository.save(value);
-                    });
-                }
-
-                else if (testListing.getId() == 3 || testListing.getId() == 4 || testListing.getId() == 5) {
+                } else if (testListing.getId() == 3 || testListing.getId() == 4 || testListing.getId() == 5) {
                     var user = userRepository.findById(1);
                     user.ifPresent(value -> {
                         var likedListing = new LikedSaleListing(value, listing);

@@ -31,7 +31,8 @@
           <!-- Listing images -->
           <div class="mb-3">
             <div v-if="listing.inventoryItem.product.images.length === 0">
-              <p class="text-center"><strong>This Product has no Images</strong></p>
+              <img :src="getImageURL('/media/defaults/defaultProduct.jpg')" alt="ProductImage"
+                   class="d-block img-fluid rounded mx-auto w-auto" style="max-height: 300px">
             </div>
             <div v-else class="row">
               <div class="col col-12 justify-content-center">

@@ -60,22 +60,22 @@
       <div id="popularListingCarousel" class="carousel slide w-auto" data-interval="false">
         <div class="carousel-inner">
           <!-- Carousel Slides -->
-          <div class="carousel-item active">
-            <div class="row justify-content-center" v-if="listingsList1">
+          <div class="carousel-item active" v-if="listingsList1">
+            <div class="row justify-content-center">
                 <div v-for="listing in listingsList1" v-bind:key="listing.id">
                   <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
                 </div>
             </div>
           </div>
-          <div class="carousel-item">
-            <div class="row justify-content-center" v-if="listingsList2">
+          <div class="carousel-item" v-if="listingsList2">
+            <div class="row justify-content-center">
               <div v-for="listing in listingsList2" v-bind:key="listing.id">
                 <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
               </div>
             </div>
           </div>
-          <div class="carousel-item">
-            <div class="row justify-content-center" v-if="listingsList3">
+          <div class="carousel-item" v-if="listingsList3">
+            <div class="row justify-content-center">
               <div v-for="listing in listingsList3" v-bind:key="listing.id">
                 <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
               </div>
