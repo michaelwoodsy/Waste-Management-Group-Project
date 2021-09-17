@@ -6,7 +6,7 @@ Displays a popular listing
 -->
 <template>
   <div>
-    <div class="card shadow card-size" style="width: 12rem; height: 23rem">
+    <div class="card shadow card-size" style="width: 15rem; height: 23rem">
       <!-- Listing Image -->
       <img :src="getPrimaryImage(data.inventoryItem.product)" alt="productImage" class="card-img-top">
 
@@ -22,7 +22,7 @@ Displays a popular listing
         <p class="card-text text-muted small mb-1">
           Price: {{ formatPrice(data) }}
         </p>
-        <div style="position: absolute; bottom: 10px; width: 150px">
+        <div style="position: absolute; bottom: 10px; width: 198px">
           <!-- Open Listing Modal -->
           <button
               class="btn btn-sm btn-outline-primary"
@@ -122,13 +122,13 @@ export default {
      */
     getPrimaryImage(product) {
       if (product.primaryImageId === null) {
-        return this.getImageURL('/media/defaults/defaultProduct_thumbnail.jpg')
+        return this.getImageURL('/media/defaults/defaultProduct.jpg')
       } else {
         const filteredImages = product.images.filter(function (specificImage) {
           return specificImage.id === product.primaryImageId;
         })
         if (filteredImages.length === 1) {
-          return this.getImageURL(filteredImages[0].thumbnailFilename)
+          return this.getImageURL(filteredImages[0].filename)
         }
       }
     },
@@ -151,6 +151,6 @@ export default {
 
 .card-img-top {
   object-fit: cover;
-  max-height: 200px;
+  min-height: 190px;
 }
 </style>

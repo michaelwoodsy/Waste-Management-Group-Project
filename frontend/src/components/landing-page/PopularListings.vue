@@ -83,34 +83,17 @@ export default {
         listing.currency = await this.$root.$data.product.getCurrency(listing.business.address.country)
         this.listings.push(listing)
       }
-      let i = 0;
-      if(this.listings.length === 10){
-        //Maximum number of liked listings
-        this.listingsList1 = this.listings.slice(0,4)
-        this.listingsList2 = this.listings.slice(4,8)
-        this.listingsList3 = this.listings.slice(8)
-        this.listingsList3.push(this.listings[0])
-        this.listingsList3.push(this.listings[1])
-      } else if(this.listings.length < 10 && this.listings.length > 8){
-        //8-9 liked listings
-        this.listingsList1 = this.listings.slice(0,4)
-        this.listingsList2 = this.listings.slice(4,8)
-        this.listingsList3 = this.listings.slice(8)
-        while(this.listingsList3.length !== 4){
-          this.listingsList3.push(this.listings[i++])
-        }
-      } else if(this.listings.length === 8){
-        //8 liked listings
-        this.listingsList1 = this.listings.slice(0,4)
-        this.listingsList2 = this.listings.slice(4,8)
-      } else if(this.listings.length < 8 && this.listings.length > 4){
-        //4-7 liked listings
-        this.listingsList1 = this.listings.slice(0,4)
-        this.listingsList2 = this.listings.slice(4)
-        while(this.listingsList2.length !== 4){
-          this.listingsList2.push(this.listings[i++])
-        }
+      if(this.listings.length > 6){
+        //7-9 listings
+        this.listingsList1 = this.listings.slice(0,3)
+        this.listingsList2 = this.listings.slice(3,6)
+        this.listingsList3 = this.listings.slice(6)
+      } else if(this.listings.length > 3){
+        //4-6 liked listings
+        this.listingsList1 = this.listings.slice(0,3)
+        this.listingsList2 = this.listings.slice(3)
       }else {
+        //1-3
         this.listingsList1 = this.listings.slice(0)
       }
     },
