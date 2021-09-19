@@ -12,7 +12,7 @@
     </div>
     <!--Page content-->
     <div>
-      <table aria-label="Table to a user's purchases"
+      <table aria-label="Table to view a user's purchases"
              class="table mb-0"
       >
         <thead>
@@ -130,7 +130,7 @@ export default {
       }
     },
     /**
-     * Formats the date of the sale
+     * Formats the date of the purchase
      * @return string date formatted like "DD/MM/YYYY hh:mm"
      */
     formattedDate(dateSold) {
