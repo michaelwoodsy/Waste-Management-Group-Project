@@ -17,11 +17,17 @@
               <router-link class="btn btn-block btn-primary" to="/marketplace">Marketplace</router-link>
             </li>
             <li v-if="user.isActingAsUser()" class="nav-item mb-2">
+              <router-link class="btn btn-block btn-primary"
+                           :to="`users/${user.state.userId}/purchases`"
+              >
+                My Purchases
+              </router-link>
+            </li>
+            <li v-if="user.isActingAsUser()" class="nav-item mb-2">
               <router-link :to="`users/${user.state.userId}/edit`"
                            class="btn btn-block btn-primary">Edit Profile
               </router-link>
             </li>
-
           </ul>
         </div>
         <!-- Links to display if acting as business -->
