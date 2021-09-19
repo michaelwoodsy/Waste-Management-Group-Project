@@ -519,7 +519,7 @@ export const Business = {
         }),
 
     /**
-     * Sends a request to feature/feature a listing
+     * Sends a request to feature/un-feature a listing
      * @param businessId Id of the business the listing belongs to
      * @param listingId Id of the listing to feature
      * @param featured The featured boolean, true for featured, false for not featured
