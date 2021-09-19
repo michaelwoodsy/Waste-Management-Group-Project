@@ -599,6 +599,11 @@ export default {
             this.loading = false;
           })
     },
+  },
+  beforeRouteLeave(nextRoute, curRoute, next) {
+    // close all modals when leaving this page
+    $('.modal').modal('hide');
+    next()
   }
 }
 </script>

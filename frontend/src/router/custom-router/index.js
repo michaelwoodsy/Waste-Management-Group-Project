@@ -1,6 +1,6 @@
 import Router from './Router'
 import RouterLink from './RouterLink'
-import {listen, push as historyPush} from './history'
+import {listen, push as historyPush, runRouteGuard} from './history'
 import {findRoute, ParsedRoute} from "./routeParser";
 
 export default {
@@ -20,9 +20,9 @@ export default {
             push: (route) => {
                 let found = findRoute(parsedRoutes, route);
                 if (found) {
-                    historyPush(found.path)
+                    historyPush(found.path, parsedRoutes)
                 } else {
-                    historyPush(route.path || route)
+                    historyPush(route.path || route, parsedRoutes)
                 }
             },
             base: options.base
@@ -45,6 +45,7 @@ export default {
         window.addEventListener(
             'popstate',
             () => {
+                runRouteGuard(Vue.prototype.$route, parsedRoutes)
                 Vue.prototype.$route = findRoute(parsedRoutes, window.location.pathname + window.location.search)
             })
 
