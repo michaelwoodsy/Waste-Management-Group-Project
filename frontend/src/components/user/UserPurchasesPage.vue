@@ -20,7 +20,7 @@
           <th scope="col">Date Purchased</th>
           <th scope="col">Product Name</th>
           <th scope="col">Quantity</th>
-          <th scope="col">Sale Price</th>
+          <th scope="col">Price</th>
           <th scope="col">Business</th>
           <th scope="col">Review</th>
         </tr>
@@ -39,7 +39,7 @@
             {{ purchase.quantity }}
           </td>
           <td>
-            {{ purchase.price }} <!--TODO: format prices -->
+            {{ formattedPrice(purchase) }}
           </td>
           <td>
             {{ purchase.business.name }}
@@ -100,6 +100,9 @@ export default {
     PageWrapper,
     LoginRequired
   },
+  async mounted() {
+    await this.getCurrencies()
+  },
   computed: {
     /**
      * Checks to see if user is logged in currently
@@ -119,13 +122,27 @@ export default {
   },
   methods: {
     /**
+     * Gets the currencies of the purchases so that their prices can be formatted.
+     */
+    async getCurrencies() {
+      for (let purchase of this.purchases) {
+        purchase.currency = await this.$root.$data.product.getCurrency(purchase.currencyCountry)
+      }
+    },
+    /**
      * Formats the date of the sale
      * @return string date formatted like "DD/MM/YYYY hh:mm"
      */
     formattedDate(dateSold) {
       return formatDateTime(dateSold)
-
     },
+    /**
+     * Formats the price of the purchase
+     * @return string price formatted like `{symbol}{number} {code}`
+     */
+    formattedPrice(purchase) {
+      return this.$root.$data.product.formatPrice(purchase.currency, purchase.price);
+    }
   }
 }
 </script>
