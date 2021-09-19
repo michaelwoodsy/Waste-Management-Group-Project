@@ -28,7 +28,7 @@ export default {
             base: options.base
         };
         // Set current route as an observable
-        let route = Vue.observable({cur: findRoute(parsedRoutes, window.location.pathname)})
+        let route = Vue.observable({cur: findRoute(parsedRoutes, window.location.pathname + window.location.search)})
         Object.defineProperty(Vue.prototype, '$route', {
             get () {
                 return route.cur
@@ -45,7 +45,7 @@ export default {
         window.addEventListener(
             'popstate',
             () => {
-                Vue.prototype.$route = findRoute(parsedRoutes, window.location.pathname)
+                Vue.prototype.$route = findRoute(parsedRoutes, window.location.pathname + window.location.search)
             })
 
     }

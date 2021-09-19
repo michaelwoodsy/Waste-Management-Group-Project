@@ -65,6 +65,10 @@ export default {
     }
   },
 
+  mounted() {
+    this.checkTab()
+  },
+
   computed: {
     /**
      * Check if user is logged in
@@ -83,6 +87,25 @@ export default {
      */
     changeTab(tab) {
       this.tabSelected = tab;
+      if (tab === 'Businesses') {
+        // add mode=business to route query
+        this.$router.push({name: "search", query: {mode: 'business', ...this.$route.query}})
+      } else {
+        // remove route query
+        let query = this.$route.query
+        delete query.mode
+        this.$router.push({name: "search", query})
+      }
+    },
+
+    /**
+     * Checks if the correct search tab is shown based on the query parameters.
+     * If the mode query param is set to business, the business search will be shown.
+     */
+    checkTab() {
+      if (this.$route.query.mode === "business") {
+        this.tabSelected = "Businesses";
+      }
     }
   }
 }

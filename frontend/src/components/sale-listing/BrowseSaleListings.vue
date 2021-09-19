@@ -226,6 +226,15 @@
       </div>
     </div>
 
+    <!-- Hidden modal button so the modal can be opened from within code -->
+    <button
+        id="modalButton"
+        data-target="#viewListingModal"
+        data-toggle="modal"
+        class="d-none"
+    />
+
+    <!-- Sale listing modal -->
     <div v-if="viewListingModal">
       <individual-sale-listing-modal :listing="listingToView"
                                      @update-listings="checkInputs"
@@ -245,6 +254,7 @@ import {Business, Images} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
 import Alert from "@/components/Alert";
 import LoginRequired from "@/components/LoginRequired";
+import $ from 'jquery'
 
 export default {
   name: "BrowseSaleListings.vue",
@@ -314,11 +324,13 @@ export default {
       error: null,
       totalCount: 0,
       filtered: false,
-      optionsShow: false
+      optionsShow: false,
+      featuredListing: null
     }
   },
   mounted() {
     this.search()
+    this.checkFeaturedListing()
   },
   computed: {
     /**
@@ -330,6 +342,44 @@ export default {
     }
   },
   methods: {
+    /**
+     * Check if a featured listing should be shown based on businessId and listingId query parameters.
+     */
+    async checkFeaturedListing() {
+      // Check if a listing is specified in query params
+      if (this.$route.query.businessId && this.$route.query.listingId) {
+        // get the featured listing
+        // TODO: Replace with actual call to getFeaturedSaleListings
+        let res = await Business.searchSaleListings("",
+            true,
+            false,
+            false,
+            false,
+            null,
+            null,
+            null,
+            null,
+            0,
+            "bestMatch")
+        this.featuredListing = res.data[0].find(listing => `${listing.id}` === `${this.$route.query.listingId}`)
+
+        // Add currency to the listing
+        let listings = await this.$root.$data.product.addSaleListingCurrencies(
+            [this.featuredListing], this.featuredListing.business.address.country)
+        this.featuredListing = listings[0]
+
+        // Set listing as being viewed
+        this.viewListing(this.featuredListing)
+
+        // get the button that can open the modal, and click it now, otherwise when the page loads
+        let toggleBtn = document.getElementById('modalButton')
+        toggleBtn.click();
+        $(document).ready(function () {
+          toggleBtn.click();
+        })
+      }
+    },
+
     /**
      * Function is called by pagination component to make another call to the backend
      * to update the list of users that should be displayed
@@ -554,9 +604,5 @@ export default {
 </script>
 
 <style scoped>
-
-.option-title {
-  font-size: 18px;
-}
 
 </style>

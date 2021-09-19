@@ -28,14 +28,19 @@ Displays a single listing.
 
         <div class="text-right">
           <!-- Open Listing Modal -->
-          <button
-              class="btn btn-sm btn-outline-primary ml-3"
-              data-target="#viewListingModal"
-              data-toggle="modal"
-              @click="viewListingModal = true"
-          >
-            View Details
-          </button>
+          <router-link :to="{
+                      name: 'browseListings',
+                      query: {businessId: listingData.business.id, listingId: listingData.id}
+          }">
+            <button
+                class="btn btn-sm btn-outline-primary ml-3"
+                data-target="#viewListingModal"
+                data-toggle="modal"
+                @click="$emit('close-modal')"
+            >
+              View Details
+            </button>
+          </router-link>
 
         </div>
       </div>
