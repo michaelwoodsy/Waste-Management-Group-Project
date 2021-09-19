@@ -15,9 +15,8 @@
 
       <statistics></statistics>
 
-      <div class="row justify-content-center mb-3 align-content-center" style="border: 1px solid black; height: 100px">
-        <about-us></about-us>
-      </div>
+      <about-us></about-us>
+
 
       <contact-register-login></contact-register-login>
     </div>
