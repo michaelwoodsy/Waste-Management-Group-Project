@@ -239,6 +239,7 @@
       <individual-sale-listing-modal :listing="listingToView"
                                      @update-listings="checkInputs"
                                      @close-modal="viewListingModal = false"
+                                     v-bind:key="listingToView.id"
       />
     </div>
 
@@ -331,6 +332,14 @@ export default {
   mounted() {
     this.search()
     this.checkFeaturedListing()
+  },
+  watch: {
+    $route(val) {
+      // required if the user clicks on a featured listing from within this page
+      if (val.name === "browseListings") {
+        this.checkFeaturedListing()
+      }
+    }
   },
   computed: {
     /**
@@ -600,8 +609,9 @@ export default {
           })
     },
   },
-  beforeRouteLeave(nextRoute, curRoute, next) {
+  beforeRouteLeave: (nextRoute, curRoute, next) => {
     // close all modals when leaving this page
+    // this.viewListingModal = false
     $('.modal').modal('hide');
     next()
   }

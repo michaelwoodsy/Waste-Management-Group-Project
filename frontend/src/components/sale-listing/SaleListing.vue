@@ -5,14 +5,13 @@ Displays a single listing.
 @prop listingData: The json data for a sale listing (from the api) to display
 -->
 <template>
-  <div>
 
     <div v-if="listing" class="card shadow card-size">
 
       <!-- Listing Image -->
       <img v-if="imageUrl != null" :src="imageUrl" alt="productImage" class="card-img-top">
 
-      <div class="card-body">
+      <div class="card-body" style="min-height: 300px">
 
         <!-- Product Name -->
         <h6 class="card-title">{{ listing.inventoryItem.product.name }}</h6>
@@ -34,8 +33,6 @@ Displays a single listing.
           }">
             <button
                 class="btn btn-sm btn-outline-primary ml-3"
-                data-target="#viewListingModal"
-                data-toggle="modal"
                 @click="$emit('close-modal')"
             >
               View Details
@@ -45,24 +42,13 @@ Displays a single listing.
         </div>
       </div>
     </div>
-
-    <individual-sale-listing-modal v-if="viewListingModal" :listing="listingData"
-                                   @close-modal="closeModal"
-    />
-
-  </div>
-
 </template>
 
 <script>
 import {Images} from "@/Api";
-import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
 
 export default {
   name: "SaleListing",
-  components: {
-    IndividualSaleListingModal,
-  },
   props: {
     // Data of the sale listing.
     listingData: {

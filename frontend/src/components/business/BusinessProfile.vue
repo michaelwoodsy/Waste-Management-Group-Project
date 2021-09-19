@@ -207,6 +207,7 @@ readOnly:         Boolean, default true.
                  v-bind:key="listing.id"
             >
               <sale-listing
+                  style="height: 350px"
                   :listing-data="listing"
                   @close-modal="$emit('close-modal')"
               />

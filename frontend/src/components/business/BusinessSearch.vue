@@ -151,6 +151,7 @@ Component on Search page for searching businesses
         data-target="#viewBusinessModal"
         data-toggle="modal"
         class="d-none"
+        ref="closeButton"
     />
 
   </div>
@@ -164,7 +165,7 @@ import Pagination from "@/components/Pagination";
 import {Business, Images} from "@/Api";
 import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 import LoginRequired from "@/components/LoginRequired";
-import $ from "jquery";
+// import $ from "jquery";
 
 export default {
   name: "BusinessSearch",
@@ -214,20 +215,16 @@ export default {
   },
   mounted() {
     // check if we need to show a business with specific id based on query params
+    this.viewBusinessModal = false
     if (this.$route.query.id) {
 
       // get the business with corresponding id
       Business.getBusinessData(this.$route.query.id).then((res) => {
-        this.viewBusiness(res.data)
+        this.viewedBusiness = res.data
+        this.viewBusinessModal = true
 
-        // fake a click on the hidden button that opens the business modal
-        let toggleBtn = document.getElementById('modalButton')
-        toggleBtn.click();
-
-        // register a ready hook, to open the modal in case the page isn't loaded already
-        $(document).ready(function () {
-          toggleBtn.click();
-        })
+        // band-aid fix for the modal not displaying properly when clicking browser back button
+        window.setTimeout(() => {this.$refs.closeButton.click()}, 500)
       })
     }
   },
