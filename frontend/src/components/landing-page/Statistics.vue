@@ -42,7 +42,6 @@ export default {
       this.stats = res.data
       this.formatNumberWithCommas()
     })
-    console.log(this.stats)
   },
 
   methods: {

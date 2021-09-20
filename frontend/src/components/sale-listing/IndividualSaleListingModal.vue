@@ -233,7 +233,6 @@ export default {
   mounted() {
     this.likes = this.$props.listing.likes
     this.liked = this.$props.listing.userLikes
-    console.log(this.isLoggedIn)
   },
   computed: {
     /**

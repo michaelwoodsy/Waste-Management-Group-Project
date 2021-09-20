@@ -614,12 +614,11 @@ export const Statistics = {
     getStatistics: () => instance.get(`statistics`)
 }
 
-/**
- * Sends email to the re:sale address, which will most likely
- * contain a question from an unregistered email
- * @param email the email address the message has come from
- * @param message the message from the user
- */
 export const Landing ={
-    contact: (email, message) => instance.post('contact', {email, message})
+    /**
+     * Retrieves the popular listings from the backend
+     * @param country The parameter for popular listings in that country
+     * @returns {Promise<AxiosResponse<any>>} response with popular sale listings
+     */
+    getPopularListings: (country) => instance.get("popularlistings", {params: {'country': country}})
 }
