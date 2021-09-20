@@ -1,6 +1,5 @@
 import "@jest/globals"
 import BusinessProfile from "@/components/business/BusinessProfile"
-import SaleListing from "@/components/sale-listing/SaleListing";
 const VueTestUtils = require('@vue/test-utils')
 
 let wrapper
@@ -28,7 +27,7 @@ describe('Jest tests for the BusinessProfile component', () => {
         jest.spyOn(BusinessProfile.methods, 'getPrimaryImage').mockImplementation(() => {})
         jest.spyOn(BusinessProfile.methods, 'formatAddress').mockImplementation(() => {})
         wrapper = VueTestUtils.shallowMount(BusinessProfile, {
-            stubs: ['router-link', 'router-view', "login-required", "admin-required", 'sale-listing'],
+            stubs: ['router-link', 'router-view', "login-required", "admin-required"],
             computed,
             propsData: {
                 business: business
@@ -54,11 +53,10 @@ describe('Jest tests for the BusinessProfile component', () => {
         expect(saleListingEl.exists()).toBeFalsy()
     })
 
-    // Not currently working :(
-    test('Featured listings are shown, if there are some',async () => {
-        jest.spyOn(wrapper.vm, 'getFeaturedListings').mockImplementation(() => {return [{id: 1}]})
-        const saleListingEl = wrapper.findComponent(SaleListing)
-        console.log(saleListingEl)
+    test('Featured listings are shown, if there are some', async () => {
+        jest.spyOn(wrapper.vm, 'getFeaturedListings').mockImplementation(() => {})
+        await wrapper.setData({featuredListings: [{id: 1}]})
+        const saleListingEl = wrapper.findComponent({name: 'sale-listing'})
         expect(saleListingEl.exists()).toBeTruthy()
     })
 })
