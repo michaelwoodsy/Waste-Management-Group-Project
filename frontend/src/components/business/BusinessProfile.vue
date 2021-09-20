@@ -191,7 +191,7 @@ readOnly:         Boolean, default true.
 
       <!-- Display message if there are no featured listings -->
       <div v-if="featuredListings.length === 0">
-        <p class="text-center"><strong>This Business has no featured listings</strong></p>
+        <p class="text-center" id="featuredListingText"><strong>This Business has no featured listings</strong></p>
       </div>
 
       <!-- Otherwise, display featured listings in carousel -->

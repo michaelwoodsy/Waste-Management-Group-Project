@@ -27,17 +27,12 @@ Displays a single listing.
 
         <div class="text-right">
           <!-- Open Listing Modal -->
-          <router-link :to="{
-                      name: 'browseListings',
-                      query: {businessId: listingData.business.id, listingId: listingData.id}
-          }">
-            <button
-                class="btn btn-sm btn-outline-primary ml-3"
-                @click="$emit('close-modal')"
-            >
-              View Details
-            </button>
-          </router-link>
+          <button
+              class="btn btn-sm btn-outline-primary ml-3"
+              @click="routeToSaleListing"
+          >
+            View Details
+          </button>
 
         </div>
       </div>
@@ -136,6 +131,14 @@ export default {
      */
     getImageURL(path) {
       return Images.getImageURL(path)
+    },
+
+    async routeToSaleListing() {
+      await this.$emit('close-modal')
+      this.$router.push({
+        name: 'browseListings',
+        query: {businessId: this.listingData.business.id, listingId: this.listingData.id}
+      })
     }
   }
 }

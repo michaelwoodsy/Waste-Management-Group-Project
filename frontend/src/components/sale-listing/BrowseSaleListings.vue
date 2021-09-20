@@ -226,20 +226,13 @@
       </div>
     </div>
 
-    <!-- Hidden modal button so the modal can be opened from within code -->
-    <button
-        id="modalButton"
-        data-target="#viewListingModal"
-        data-toggle="modal"
-        class="d-none"
-    />
-
     <!-- Sale listing modal -->
     <div v-if="viewListingModal">
       <individual-sale-listing-modal :listing="listingToView"
                                      @update-listings="checkInputs"
                                      @close-modal="viewListingModal = false"
                                      v-bind:key="listingToView.id"
+                                     id="saleListingModal"
       />
     </div>
 
@@ -325,8 +318,7 @@ export default {
       error: null,
       totalCount: 0,
       filtered: false,
-      optionsShow: false,
-      featuredListing: null
+      optionsShow: false
     }
   },
   mounted() {
@@ -370,22 +362,16 @@ export default {
             null,
             0,
             "bestMatch")
-        this.featuredListing = res.data[0].find(listing => `${listing.id}` === `${this.$route.query.listingId}`)
+        let featuredListing = res.data[0].find(listing => `${listing.id}` === `${this.$route.query.listingId}`)
 
         // Add currency to the listing
         let listings = await this.$root.$data.product.addSaleListingCurrencies(
-            [this.featuredListing], this.featuredListing.business.address.country)
-        this.featuredListing = listings[0]
+            [featuredListing], featuredListing.business.address.country)
 
         // Set listing as being viewed
-        this.viewListing(this.featuredListing)
+        this.viewListing(listings[0])
 
-        // get the button that can open the modal, and click it now, otherwise when the page loads
-        let toggleBtn = document.getElementById('modalButton')
-        toggleBtn.click();
-        $(document).ready(function () {
-          toggleBtn.click();
-        })
+        window.setTimeout(() => {$('#saleListingModal').modal('show')}, 500)
       }
     },
 

@@ -50,6 +50,7 @@ import UserSearch from "@/components/user/UserSearch";
 import BusinessSearch from "@/components/business/BusinessSearch";
 import LoginRequired from "@/components/LoginRequired";
 import PageWrapper from "@/components/PageWrapper";
+import $ from "jquery";
 
 export default {
   name: "Search.vue",
@@ -107,6 +108,12 @@ export default {
         this.tabSelected = "Businesses";
       }
     }
+  },
+  beforeRouteLeave: (nextRoute, curRoute, next) => {
+    // close all modals when leaving this page
+    // this.viewListingModal = false
+    $('.modal').modal('hide');
+    next()
   }
 }
 
