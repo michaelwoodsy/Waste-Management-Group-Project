@@ -174,7 +174,7 @@ export default {
     /**
      * Makes a request to the photon address api.
      *
-     * @param text The text entered into the autofill-able text field
+     * @param text The country entered into the autofill-able text field
      * @param limit Limit for the number of results to get from the request. Default 10.
      * @return Axios Promise
      */
@@ -231,9 +231,19 @@ export default {
     },
 
     /**
-     * Method to run when the full address has been entered
+     * Method to run when a country has been entered, updates suggestions
      */
     async countryEntered() {
+
+      //Opens dropdown when searching
+      let dropDownEl = document.getElementById('dropdown')
+      let dropDownShown = dropDownEl.classList.contains('show')
+      // open the drop down if it's not shown already
+      if (!dropDownShown) {
+        let toggleBtn = document.getElementById('countryInput')
+        toggleBtn.click();
+      }
+
       if (!this.countryInput) {
         this.suggestions = []
         return

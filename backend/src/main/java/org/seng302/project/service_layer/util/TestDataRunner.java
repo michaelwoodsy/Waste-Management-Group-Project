@@ -325,7 +325,7 @@ public class TestDataRunner {
                         value.addLikedListing(likedListing);
                         userRepository.save(value);
                     });
-                } else if (testListing.getId() == 3 || testListing.getId() == 4 || testListing.getId() == 5) {
+                } else if (testListing.getId() == 3 || testListing.getId() == 4 || testListing.getId() == 5 || testListing.getId() == 6 || testListing.getId() == 7 || testListing.getId() == 8) {
                     var user = userRepository.findById(1);
                     user.ifPresent(value -> {
                         var likedListing = new LikedSaleListing(value, listing);
