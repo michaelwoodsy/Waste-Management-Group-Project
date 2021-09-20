@@ -24,6 +24,7 @@ public class GetSaleListingDTO {
     private Integer quantity;
     private Integer likes;
     private boolean userLikes;
+    private boolean featured;
 
     public GetSaleListingDTO(SaleListing listing) {
         this.id = listing.getId();
@@ -35,6 +36,7 @@ public class GetSaleListingDTO {
         this.closes = listing.getCloses();
         this.created = listing.getCreated();
         this.quantity = listing.getQuantity();
+        this.featured = listing.isFeatured();
     }
 
     /**

@@ -74,28 +74,46 @@
                     <p class="d-inline">Closes</p>
                     <p v-if="orderCol === 'closes'" class="d-inline">{{ orderDirArrow }}</p>
                   </th>
+                  <!-- Featured toggle -->
+                  <th v-if="isAdminOf" scope="col">
+                    <p class="d-inline">Featured</p>
+                  </th>
+
                 </tr>
                 </thead>
                 <tbody v-if="!loading">
                 <tr v-for="listing in paginatedListings"
-                    v-bind:key="listing.id"
-                    class="pointer"
-                    data-target="#viewListingModal"
-                    data-toggle="modal"
-                    @click="viewListing(listing)"
-                >
-                  <td>
-                    <img alt="productImage" class="ui-icon-image"
+                    v-bind:key="listing.id">
+                  <td data-target="#viewListingModal"
+                      data-toggle="modal"
+                      @click="viewListing(listing)">
+                    <img alt="productImage" class="ui-icon-image pointer"
                          :src="getPrimaryImageThumbnail(listing.inventoryItem.product)">
                   </td>
-                  <td style="word-break: break-word; width: 50%">
+                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" style="word-break: break-word; width: 50%" class="pointer">
                     {{ listing.inventoryItem.product.name }}
                     <span v-if="listing.moreInfo" style="font-size: small"><br/>{{ listing.moreInfo }}</span>
                   </td>
-                  <td>{{ listing.quantity }}</td>
-                  <td>{{ formatPrice(listing) }}</td>
-                  <td>{{ formatDate(listing.created) }}</td>
-                  <td>{{ formatDate(listing.closes) }}</td>
+                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" class="pointer">
+                    {{ listing.quantity }}
+                  </td>
+                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" class="pointer">
+                    {{ formatPrice(listing) }}
+                  </td>
+                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" class="pointer">
+                    {{ formatDate(listing.created) }}
+                  </td>
+                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" class="pointer">
+                    {{ formatDate(listing.closes) }}
+                  </td>
+                  <td v-if="isAdminOf">
+                    <div class="custom-control custom-checkbox">
+                      <input :id="listing.id" class="custom-control-input" type="checkbox" v-model="listing.featured" @click="featureListing(listing)">
+                      <!-- You need this label for some reason otherwise the checkbox wont show..... -->
+                      <label :for="listing.id" class="custom-control-label"></label>
+                    </div>
+
+                  </td>
                 </tr>
                 </tbody>
               </table>
@@ -176,6 +194,7 @@ import IndividualSaleListingModal from "@/components/sale-listing/IndividualSale
 import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 import CreateListing from "@/components/sale-listing/CreateListing";
 import PageWrapper from "@/components/PageWrapper";
+import {createRed as createAlertRed} from "@/utils/globalAlerts"
 
 export default {
   name: "SaleListings",
@@ -463,14 +482,42 @@ export default {
     newListing() {
       this.createNewListing = true;
     },
+
+    /**
+     * Refreshes sale listings
+     */
     refreshListings() {
       this.createNewListing = false;
       this.fillTable();
+    },
+
+    /**
+     * Calls api endpoint to feature a listing
+     * @param listing listing to feature
+     */
+    featureListing(listing) {
+      Business.featureListing(listing.business.id, listing.id, !listing.featured).catch((err) => {
+        createAlertRed("Error: " + (err.response ? err.response.data.slice(err.response.data.indexOf(":") + 2) : err))
+
+        //Change the listings featured boolean back to normal
+        for (const [i, currListing] of this.listings.entries()) {
+          if (currListing.id === listing.id) {
+            this.listings[i].featured = !this.listings[i].featured
+          }
+        }
+      })
     }
   }
 }
 </script>
 
 <style scoped>
+
+.custom-control-label::before,
+.custom-control-label::after {
+  top: .8rem;
+  width: 2rem;
+  height: 2rem;
+}
 
 </style>

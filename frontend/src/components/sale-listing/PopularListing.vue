@@ -6,41 +6,38 @@ Displays a popular listing
 -->
 <template>
   <div>
-    <div class="card shadow card-size" style="width: 22rem">
+    <div class="card shadow card-size" style="width: 15rem; height: 23rem">
       <!-- Listing Image -->
-      <img v-if="imageUrl != null" :src="imageUrl" alt="productImage" class="card-img-top">
+      <img :src="getPrimaryImage(data.inventoryItem.product)" alt="productImage" class="card-img-top">
 
       <div class="card-body">
         <!-- Product Name -->
-        <h6 class="card-title">{{ data.listing.inventoryItem.product.name }}</h6>
+        <h6 class="card-title">{{ name }}</h6>
 
         <!-- Quantity and Price, cause sizing issues -->
         <p class="card-text text-muted small mb-1">
-          Quantity: {{ data.listing.quantity }}
+          Quantity: {{ data.quantity }}
         </p>
 
         <p class="card-text text-muted small mb-1">
-          Price: {{ formatPrice(data.listing) }}
+          Price: {{ formatPrice(data) }}
         </p>
-
-        <div class="text-right">
+        <div style="position: absolute; bottom: 10px; width: 198px">
           <!-- Open Listing Modal -->
           <button
-              class="btn btn-sm btn-outline-primary ml-3"
+              class="btn btn-sm btn-outline-primary"
               data-target="#viewListingModal"
               data-toggle="modal"
               @click="viewListingModal = true"
           >
             View Details
           </button>
-
         </div>
+
       </div>
     </div>
 
-    <individual-sale-listing-modal v-if="viewListingModal" :listing="data.listing"
-                                   @close-modal="closeModal"
-    />
+    <individual-sale-listing-modal v-if="viewListingModal" :listing="data" @close-modal="closeModal"/>
   </div>
 </template>
 
@@ -64,14 +61,27 @@ export default {
     return {
       viewListingModal: false,
       businessToViewId: null,
-      imageUrl: null
+      name: ""
     }
   },
   mounted() {
-    this.getPrimaryImage(this.data.listing.inventoryItem.product)
+    this.getPrimaryImage(this.data.inventoryItem.product)
+    this.formatTitle(this.data.inventoryItem.product.name)
   },
 
   methods: {
+    /**
+     * Method that cleans up and shortens the name of the listing
+     */
+    formatTitle(name){
+      if(name.length > 40){
+        name = name.slice(0, 37)
+        name += "..."
+        this.name = name;
+      } else {
+        this.name = name
+      }
+    },
     /**
      * Method called after closing the modal
      */
@@ -83,7 +93,7 @@ export default {
      * the country of the business offering the listing
      */
     formatPrice(listing) {
-      return this.$root.$data.product.formatPrice(listing.currency, listing.price);
+       return this.$root.$data.product.formatPrice(listing.currency, listing.price);
     },
 
     /**
@@ -111,12 +121,14 @@ export default {
      * else it returns the default product image url
      */
     getPrimaryImage(product) {
-      if (product.primaryImageId !== null) {
+      if (product.primaryImageId === null) {
+        return this.getImageURL('/media/defaults/defaultProduct.jpg')
+      } else {
         const filteredImages = product.images.filter(function (specificImage) {
           return specificImage.id === product.primaryImageId;
         })
         if (filteredImages.length === 1) {
-          this.imageUrl = this.getImageURL(filteredImages[0].filename)
+          return this.getImageURL(filteredImages[0].filename)
         }
       }
     },
@@ -139,6 +151,6 @@ export default {
 
 .card-img-top {
   object-fit: cover;
-  max-height: 200px;
+  min-height: 190px;
 }
 </style>

@@ -86,15 +86,13 @@ public class SalesReportService {
     private List<GetSalesReportDTO> getAllReport(Integer businessId, LocalDate periodStartDate, LocalDate periodEndDate) {
         List<Sale> salesWithinPeriod = getSalesWithinPeriod(businessId, periodStartDate, periodEndDate);
 
-        List<GetSalesReportDTO> resultList = new ArrayList<>();
+        List<GetSaleDTO> resultList = new ArrayList<>();
 
         for (Sale sale : salesWithinPeriod) {
-            GetSaleDTO saleDTO = new GetSaleDTO(sale);
-            resultList.add(new GetSalesReportDTO(saleDTO.getDateSold().toLocalDate(),
-                    saleDTO.getDateSold().toLocalDate(), List.of(saleDTO)));
+            resultList.add(new GetSaleDTO(sale));
         }
 
-        return resultList;
+        return List.of(new GetSalesReportDTO(periodStartDate, periodEndDate, resultList));
     }
 
 

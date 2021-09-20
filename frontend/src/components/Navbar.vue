@@ -39,6 +39,14 @@
           <li v-if="isLoggedIn" class="nav-item">
             <router-link class="nav-link text-white ml-2" to="/listings">Browse Sale Listings</router-link>
           </li>
+          <!-- User Purchases link -->
+          <li v-if="isActingAsUser" class="nav-item">
+            <router-link class="nav-link text-white ml-2"
+                         :to="`users/${userId}/purchases`"
+            >
+              My Purchases
+            </router-link>
+          </li>
         </ul>
 
         <!-- Logged in user links -->
@@ -85,6 +93,22 @@ export default {
      */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
+    },
+
+    /**
+     * Gets the users' ID
+     * @returns {any}
+     */
+    userId() {
+      return this.$root.$data.user.state.userId
+    },
+
+    /**
+     * Checks if user is acting as a user
+     * @returns {boolean|*}
+     */
+    isActingAsUser() {
+      return this.$root.$data.user.isActingAsUser()
     },
 
     /** Returns the landing page url if the user is not logged in and the users home page if they are logged in **/
