@@ -14,7 +14,8 @@
           <div class="col text-center">
             <h2>
               <strong>{{ listing.inventoryItem.product.name }}</strong>
-              <em :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart pointer" @click="likeListing"/>
+              <em v-if="isLoggedIn" :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart pointer" @click="likeListing"/>
+              <em v-else :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart" style="pointer-events: none"/>
               {{ likes }}
             </h2>
           </div>
@@ -30,7 +31,8 @@
           <!-- Listing images -->
           <div class="mb-3">
             <div v-if="listing.inventoryItem.product.images.length === 0">
-              <p class="text-center"><strong>This Product has no Images</strong></p>
+              <img :src="getImageURL('/media/defaults/defaultProduct.jpg')" alt="ProductImage"
+                   class="d-block img-fluid rounded mx-auto w-auto" style="max-height: 300px">
             </div>
             <div v-else class="row">
               <div class="col col-12 justify-content-center">
@@ -65,7 +67,7 @@
           </alert>
 
           <!-- Buy button -->
-          <div class="row text-center mb-3">
+          <div v-if="isLoggedIn" class="row text-center mb-3">
             <div class="col">
               <button v-if="!buyClicked"
                       id="buyButton"
@@ -233,6 +235,14 @@ export default {
     this.likes = this.$props.listing.likes
     this.liked = this.$props.listing.userLikes
   },
+  computed: {
+    /**
+     * Returns true if the user is logged in, false if they are not
+     */
+    isLoggedIn() {
+      return this.$root.$data.user.isLoggedIn()
+    }
+  },
   methods: {
     /**
      * Retrieves the image specified by the path
@@ -273,16 +283,13 @@ export default {
      * Likes the displayed listing
      */
     async likeListing() {
-      // TDOD refactor
       if (this.liked) {
         Business.unlikeListing(this.$props.listing.id).then(() => {
           this.liked = !this.liked
           this.likes -= 1
           this.$emit('update-listings')
         }).catch((err) => {
-          this.errorMsg = err.response
-              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-              : err
+          this.showError(err)
         })
       } else {
         Business.likeListing(this.$props.listing.id).then(() => {
@@ -290,9 +297,7 @@ export default {
           this.likes += 1
           this.$emit('update-listings')
         }).catch((err) => {
-          this.errorMsg = err.response
-              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-              : err
+          this.showError(err)
         })
       }
     },
@@ -304,12 +309,10 @@ export default {
       this.buyClicked = true
       await Business.purchaseListing(this.listing.id).then(() => {
         this.purchaseMsg = "Successfully purchased Listing!"
-        this.$emit('updateListings')
+        this.$emit('update-listings')
       }).catch((err) => {
         this.buyClicked = false
-        this.errorMsg = err.response
-            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-            : err
+        this.showError(err)
       });
     },
 
@@ -319,6 +322,15 @@ export default {
     viewBusiness() {
       this.viewingBusiness = true
     },
+
+    /**
+     * Method that shows an error when needed
+     */
+    showError(err) {
+      this.errorMsg = err.response
+          ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+          : err
+    }
 
   }
 }

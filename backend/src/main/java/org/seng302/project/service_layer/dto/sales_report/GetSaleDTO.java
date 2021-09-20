@@ -1,8 +1,10 @@
 package org.seng302.project.service_layer.dto.sales_report;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.seng302.project.repository_layer.model.ProductArchive;
 import org.seng302.project.repository_layer.model.Sale;
+import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +12,7 @@ import java.time.LocalDateTime;
  * Response for a sale.
  */
 @Data
+@NoArgsConstructor
 public class GetSaleDTO {
 
     private Integer oldListingId;
@@ -22,6 +25,7 @@ public class GetSaleDTO {
     private String productDescription;
     private String productManufacturer;
     private String currencyCountry;
+    private GetBusinessDTO business;
 
     public GetSaleDTO(Sale sale) {
         this.oldListingId = sale.getOldListingId();
@@ -35,5 +39,6 @@ public class GetSaleDTO {
         this.productDescription = product.getDescription();
         this.productManufacturer = product.getManufacturer();
         this.currencyCountry = product.getCurrencyCountry();
+        this.business = new GetBusinessDTO(sale.getBusiness());
     }
 }

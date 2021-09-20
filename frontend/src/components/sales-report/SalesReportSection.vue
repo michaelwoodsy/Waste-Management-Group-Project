@@ -31,7 +31,7 @@
           {{ sale.quantity }} sold
         </td>
         <td>
-          {{ formattedPrice(sale) }}
+          <span v-if="sale.currency">{{ formattedPrice(sale) }}</span>
         </td>
         <td>
           No review
@@ -47,7 +47,8 @@ import {formatDateTime} from "@/utils/dateTime";
 export default {
   name: "SalesReportSection",
   props: {
-    sales: Array
+    sales: Array,
+    businessCurrency: Object
   },
   mounted() {
     this.getCurrencies()
@@ -57,8 +58,13 @@ export default {
      * Gets the currencies of the sales so that their prices can be formatted.
      */
     async getCurrencies() {
-      for (let sale of this.sales) {
-        sale.currency = await this.$root.$data.product.getCurrency(sale.currencyCountry)
+      for (const [index, sale] of this.sales.entries()) {
+        if (sale.currencyCountry) {
+          sale.currency = await this.$root.$data.product.getCurrency(sale.currencyCountry)
+        } else {
+          sale.currency = this.businessCurrency
+        }
+        this.$set(this.sales, index, sale)
       }
     },
     /**

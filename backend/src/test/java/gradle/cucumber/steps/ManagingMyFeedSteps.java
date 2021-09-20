@@ -1,12 +1,13 @@
 package gradle.cucumber.steps;
 
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
+
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.model.enums.Tag;
@@ -19,9 +20,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -33,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Steps for the Cucumber tests relating to U32 Managing my feed
  */
+@Transactional
 @AutoConfigureTestDatabase
 public class ManagingMyFeedSteps extends AbstractInitializer {
 
@@ -81,7 +83,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     /**
      * Before each test, setup four sale listings with different parameters
      */
-    @Before
+    @BeforeEach
     @Autowired
     void setup(WebApplicationContext context) {
         var users = userRepository.findAll();
@@ -90,6 +92,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
             userRepository.save(user);
         }
         likedSaleListingRepository.deleteAll();
+        saleListingRepository.deleteAll();
         cardRepository.deleteAll();
         messageRepository.deleteAll();
         userRepository.deleteAll();
@@ -121,7 +124,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
         listing = saleListingRepository.save(listing);
     }
 
-    @After
+    @AfterEach
     void teardown() {
         likedSaleListingRepository.deleteAll();
         saleListingRepository.deleteAll();
@@ -200,9 +203,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     @Then("The message is marked as read")
     public void the_message_is_marked_as_read() {
         Optional<Message> message = messageRepository.findById(this.message.getId());
-        message.ifPresent(value -> {
-            Assertions.assertTrue(value.isRead());
-        });
+        message.ifPresent(value -> Assertions.assertTrue(value.isRead()));
     }
 
     @Given("I have an unread notification")
@@ -232,9 +233,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     @Then("The notification is marked as read")
     public void the_notification_is_marked_as_read() {
         Optional<UserNotification> userNotification = userNotificationRepository.findById(this.userNotification.getId());
-        userNotification.ifPresent(value -> {
-            Assertions.assertTrue(value.isRead());
-        });
+        userNotification.ifPresent(value -> Assertions.assertTrue(value.isRead()));
     }
 
     @Given("I have a new message")
@@ -246,9 +245,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     @When("I see the message on my home page")
     public void i_see_the_message_on_my_home_page() {
         Optional<Message> message = messageRepository.findById(this.message.getId());
-        message.ifPresent(value -> {
-            this.message = value;
-        });
+        message.ifPresent(value -> this.message = value);
     }
 
     @Then("The message is marked as unread")
@@ -265,9 +262,7 @@ public class ManagingMyFeedSteps extends AbstractInitializer {
     @When("I see the notification on my home page")
     public void i_see_the_notification_on_my_home_page() {
         Optional<UserNotification> userNotification = userNotificationRepository.findById(this.userNotification.getId());
-        userNotification.ifPresent(value -> {
-            this.userNotification = value;
-        });
+        userNotification.ifPresent(value -> this.userNotification = value);
     }
 
     @Then("The notification is marked as unread")

@@ -3,6 +3,7 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.repository_layer.model.*;
@@ -117,6 +118,14 @@ public class CardExpirySteps {
         testUser.setPassword(passwordEncoder.encode(testUser.getPassword()));
         testUser.setRole("user");
         userRepository.save(testUser);
+    }
+
+    @AfterEach
+    void teardown() {
+        userNotificationRepository.deleteAll();
+        cardRepository.deleteAll();
+        userRepository.deleteAll();
+        addressRepository.deleteAll();
     }
 
     //AC1

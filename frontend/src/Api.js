@@ -300,6 +300,8 @@ export const Business = {
      * Get back all businesses with a certain search term and business type
      * @param searchTerm Criteria to search businesses for, e.g: businesses full name or part of a name
      * @param businessSearchType Criteria to limit the search for only businesses with this type
+     * @param pageNumber Page number to retrive
+     * @param sortBy sorting criteria
      * @returns {Promise<AxiosResponse<any>>} Response from request
      */
     getBusinesses: (searchTerm, businessSearchType, pageNumber, sortBy) => instance.get('businesses/search', {
@@ -468,46 +470,12 @@ export const Business = {
 
     /**
      * requests to get sales listings matching supplied properties
-     * @param searchQuery query searched by
-     * @param matchingProductName weather to match product name with the search query
-     * @param matchingBusinessName weather to match business name with the search query
-     * @param matchingBusinessLocation weather to match business location with the search query
-     * @param matchingBusinessType weather to match business type with the search query
-     * @param priceRangeLower lower price range
-     * @param priceRangeUpper upper price range
-     * @param closingDateLower lower closing date range
-     * @param closingDateUpper upper closing date range
-     * @param pageNumber the page number to get
-     * @param sortBy the sort parameter
+     * @param params query parameters for browsing slae listings
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
-    searchSaleListings: (searchQuery,
-                         matchingProductName,
-                         matchingBusinessName,
-                         matchingBusinessLocation,
-                         matchingBusinessType,
-                         priceRangeLower,
-                         priceRangeUpper,
-                         closingDateLower,
-                         closingDateUpper,
-                         pageNumber,
-                         sortBy) => instance.get(`listings`,
-        {
-            params:
-                {
-                    'searchQuery': searchQuery,
-                    'matchingProductName': matchingProductName,
-                    'matchingBusinessName': matchingBusinessName,
-                    'matchingBusinessLocation': matchingBusinessLocation,
-                    'matchingBusinessType': matchingBusinessType,
-                    'priceRangeLower': priceRangeLower,
-                    'priceRangeUpper': priceRangeUpper,
-                    'closingDateLower': closingDateLower,
-                    'closingDateUpper': closingDateUpper,
-                    'pageNumber': pageNumber,
-                    'sortBy': sortBy
-                }
-        }),
+    searchSaleListings: (params) => instance.get(`listings`, {
+        params
+    }),
 
     /**
      * Sends a request to purchase a specific listing
@@ -539,6 +507,28 @@ export const Business = {
     starListing: (listingId, value) => instance.patch(`/listings/${listingId}/star`, {star: value}),
 
     /**
+     * Gets a sales report for a specififed business
+     *
+     * @param businessId ID of business to generate sales report for
+     * @param params query parameters specifying date range and granularity
+     * @returns {Promise<AxiosResponse<any>>} response containing sales report
+     */
+    getSalesReport: (businessId, params) =>
+        instance.get(`/businesses/${businessId}/sales`, {
+            params
+        }),
+
+    /**
+     * Sends a request to feature/un-feature a listing
+     * @param businessId Id of the business the listing belongs to
+     * @param listingId Id of the listing to feature
+     * @param featured The featured boolean, true for featured, false for not featured
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    featureListing: (businessId, listingId, featured) =>
+        instance.patch(`/businesses/${businessId}/listings/${listingId}/feature`, {featured}),
+
+    /**
      * Gets a business' featured listings from the backend.
      * @param businessId Id of the business.
      * @returns {Promise<AxiosResponse<any>>} List of sale listings.
@@ -565,12 +555,13 @@ export const Business = {
                             'sortBy': "bestMatch"
                         }
                 }).then((res) => {
-                    resolve({data: res.data[0]})
+                resolve({data: res.data[0]})
             })
 
         })
 
     }
+};
 };
 
 export const Card = {
@@ -649,4 +640,20 @@ export const Images = {
      * @param path Path to the image
      */
     getImageURL: (path) => SERVER_URL + path.slice(1)
+}
+
+export const Statistics = {
+    /**
+     * Retrieves statistics about resale.
+     */
+    getStatistics: () => instance.get(`statistics`)
+}
+
+export const Landing ={
+    /**
+     * Retrieves the popular listings from the backend
+     * @param country The parameter for popular listings in that country
+     * @returns {Promise<AxiosResponse<any>>} response with popular sale listings
+     */
+    getPopularListings: (country) => instance.get("popularlistings", {params: {'country': country}})
 }

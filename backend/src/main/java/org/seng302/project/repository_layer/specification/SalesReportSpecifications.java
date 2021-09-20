@@ -38,4 +38,28 @@ public final class SalesReportSpecifications {
                 builder.greaterThanOrEqualTo(root.get("dateSold"), dateSold)
         );
     }
+
+    /**
+     * Creates a Specification object used to search sales by business
+     *
+     * @param businessId the id of the business to find sales of
+     * @return a specification object to search repository with
+     */
+    public static Specification<Sale> fromBusiness(Integer businessId) {
+        return ((root, query, builder) ->
+                builder.equal(root.get("business").get("id"), businessId)
+        );
+    }
+
+    /**
+     * Creates a Specification object used to search sales by user who purchased them
+     *
+     * @param userId ID of the user to find sales purchased by
+     * @return a Specification object to search repository with
+     */
+    public static Specification<Sale> purchasedByUser(Integer userId) {
+        return ((root, query, builder) ->
+                builder.equal(root.get("buyerId"), userId)
+        );
+    }
 }
