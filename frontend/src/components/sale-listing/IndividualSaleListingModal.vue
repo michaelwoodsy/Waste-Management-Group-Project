@@ -308,7 +308,7 @@ export default {
       this.buyClicked = true
       await Business.purchaseListing(this.listing.id).then(() => {
         this.purchaseMsg = "Successfully purchased Listing!"
-        this.$emit('updateListings')
+        this.$emit('update-listings')
       }).catch((err) => {
         this.buyClicked = false
         this.showError(err)

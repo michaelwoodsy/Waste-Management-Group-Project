@@ -5,7 +5,7 @@
       <div class="row justify-content-center" style="justify-content: center; display: flex">
         <img
             alt="logo"
-            width="400"
+            width="40%"
             src="../../../public/logoInverted.png">
       </div>
 
