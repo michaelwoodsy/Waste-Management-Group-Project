@@ -407,11 +407,14 @@ public class UserService {
      * @param userId ID of the user to get purchases for
      * @return list of the user's purchases
      */
-    public List<GetSaleDTO> getPurchaseHistory(Integer userId) {
+    public List<Object> getPurchaseHistory(Integer userId, Integer pageNumber, String sortBy) {
+        System.out.println(pageNumber + "     " + sortBy);
         Specification<Sale> spec = SalesReportSpecifications.purchasedByUser(userId);
-        List<Sale> purchases = saleHistoryRepository.findAll(spec);
-
-        return purchases.stream().map(GetSaleDTO::new).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(pageNumber, 10);
+        Page<Sale> page = saleHistoryRepository.findAll(spec, pageable);
+        Long totalCount = page.getTotalElements();
+        List<Sale> purchases = page.getContent();
+        return Arrays.asList(purchases.stream().map(GetSaleDTO::new).collect(Collectors.toList()), totalCount);
     }
 
 }
