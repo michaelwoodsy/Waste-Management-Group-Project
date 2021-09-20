@@ -264,7 +264,7 @@ export default {
         }
       }
 
-      return this.getImageURL('/media/defaults/defaultProfile.jpg')
+      return this.getImageURL('/media/defaults/defaultBusinessProfile.jpg')
     },
 
     /**

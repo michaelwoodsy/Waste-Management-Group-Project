@@ -13,7 +13,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @DataJpaTest
-public class ReviewRepositoryTest extends AbstractInitializer {
+class ReviewRepositoryTest extends AbstractInitializer {
 
     @Autowired
     private ReviewRepository reviewRepository;
@@ -23,40 +23,39 @@ public class ReviewRepositoryTest extends AbstractInitializer {
     private BusinessRepository businessRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AddressRepository addressRepository;
 
-    Review review1;
-    Review review2;
+    Review review;
 
     @BeforeEach
     void setup() {
-        this.initialise();
-        Sale sale1 = new Sale(getSaleListings().get(0));
-        Sale sale2 = new Sale(getSaleListings().get(1));
-        saleHistoryRepository.save(sale1);
-        saleHistoryRepository.save(sale2);
-        Business business =  this.getTestBusiness();
-        businessRepository.save(business);
+        Sale sale = new Sale(getSaleListings().get(0));
+        saleHistoryRepository.save(sale);
         User user = this.getTestUser();
-        userRepository.save(user);
-        review1 = new Review(sale1, user, 5, "Very Good!");
-        review2 = new Review(sale2, user, 1, "Not Very Good");
+        addressRepository.save(user.getHomeAddress());
+        user = userRepository.save(user);
+        Business business =  sale.getBusiness();
+        addressRepository.save(business.getAddress());
+        business = businessRepository.save(business);
+        review = new Review(sale, business, user, 5, "Very Good!");
     }
 
-//    /**
-//     * Basic test to show that the entity can be saved.
-//     */
-//    @Test
-//    void reviewRepository_savingEntity_noError() {
-//        assertDoesNotThrow(() -> reviewRepository.save(review1));
-//    }
-//
-//    /**
-//     * Basic test to show that the entity can be saved and is actually stored.
-//     */
-//    @Test
-//    void reviewRepository_savingEntity_isSaved() {
-//        reviewRepository.save(review2);
-//        Optional<Review> foundReview = reviewRepository.findById(review2.getReviewId());
-//        Assertions.assertTrue(foundReview.isPresent());
-//    }
+    /**
+     * Basic test to show that the entity can be saved.
+     */
+    @Test
+    void reviewRepository_savingEntity_noError() {
+        assertDoesNotThrow(() -> reviewRepository.save(review));
+    }
+
+    /**
+     * Basic test to show that the entity can be saved and is actually stored.
+     */
+    @Test
+    void reviewRepository_savingEntity_isSaved() {
+        reviewRepository.save(review);
+        Optional<Review> foundReview = reviewRepository.findById(review.getReviewId());
+        Assertions.assertTrue(foundReview.isPresent());
+    }
 }

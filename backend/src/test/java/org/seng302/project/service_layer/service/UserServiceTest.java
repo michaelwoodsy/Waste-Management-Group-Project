@@ -345,7 +345,7 @@ class UserServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that a user's purchases are returned when getPurchaseHistory is given a user's ID
+     * Tests that an empty list is returned when trying to get purchase history of a non-existent user
      */
     @Test
     void getPurchaseHistory_nonExistentUser_returnsEmptyList() {

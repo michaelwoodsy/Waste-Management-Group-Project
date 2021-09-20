@@ -16,16 +16,21 @@ public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "review_id")
     private Integer reviewId;
+
     @OneToOne
     @JoinColumn(name = "sale_id")
     private Sale sale;
+
     @ManyToOne
     @JoinColumn(name = "business_id")
     private Business business;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
     private Integer rating;
     private String reviewMessage;
     private String reviewResponse;
