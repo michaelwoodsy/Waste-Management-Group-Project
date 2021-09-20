@@ -13,7 +13,6 @@ import java.util.List;
 
 @Service
 public class ReviewService {
-    private static final Logger logger = LoggerFactory.getLogger(ReviewService.class.getName());
 
     private final BusinessService businessService;
     private final ReviewRepository reviewRepository;
@@ -34,8 +33,6 @@ public class ReviewService {
      */
     public List<Review> getBusinessReviews(Integer businessId,
                                             AppUserDetails user){
-        logger.info("Request to get all sale reviews of a Business with ID: {}", businessId);
-
         // Get the business of the request
         Business business = businessService.checkBusiness(businessId);
 
@@ -43,6 +40,8 @@ public class ReviewService {
         businessService.checkUserCanDoBusinessAction(user, business);
 
         // Return a list of all the reviews belonging to the business (if there are none an empty list)
-        return reviewRepository.findAllByBusinessId(businessId);
+        List<Review> reviews = reviewRepository.findAllByBusinessId(businessId);
+        System.out.println(reviews);
+        return reviews;
     }
 }
