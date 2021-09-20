@@ -18,17 +18,28 @@ public class Sale {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer saleId;
+
     @ManyToOne
     @JoinColumn(name = "business_id")
     private Business business;
+
+    private Integer buyerId;
+
     @Embedded
     private InventoryItemArchive inventoryItem;
+
     private Integer oldListingId;
+
     private Double price;
+
     private String moreInfo;
+
     private LocalDateTime closes;
+
     private LocalDateTime dateSold = LocalDateTime.now();
+
     private LocalDateTime created;
+
     private Integer quantity;
 
     public Sale(SaleListing saleListing) {

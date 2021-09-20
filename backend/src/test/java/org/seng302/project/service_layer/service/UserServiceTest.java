@@ -7,11 +7,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.Address;
+import org.seng302.project.repository_layer.model.Sale;
+import org.seng302.project.repository_layer.model.SaleListing;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
+import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.specification.SalesReportSpecifications;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
+import org.seng302.project.service_layer.dto.sales_report.GetSaleDTO;
 import org.seng302.project.service_layer.dto.user.PostUserDTO;
 import org.seng302.project.service_layer.dto.user.PutUserDTO;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
@@ -40,6 +45,7 @@ class UserServiceTest extends AbstractInitializer {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final UserService userService;
+    private final SaleHistoryRepository saleHistoryRepository;
     private User testUser;
     private User otherUser;
     private User testAdmin;
@@ -49,6 +55,7 @@ class UserServiceTest extends AbstractInitializer {
     UserServiceTest() {
         userRepository = Mockito.mock(UserRepository.class);
         addressRepository = Mockito.mock(AddressRepository.class);
+        saleHistoryRepository = Mockito.mock(SaleHistoryRepository.class);
         LikedSaleListingRepository likedSaleListingRepository = Mockito.mock(LikedSaleListingRepository.class);
         AuthenticationManager authenticationManager = Mockito.mock(AuthenticationManager.class);
         userService = new UserService(
@@ -56,7 +63,8 @@ class UserServiceTest extends AbstractInitializer {
                 addressRepository,
                 likedSaleListingRepository,
                 authenticationManager,
-                passwordEncoder
+                passwordEncoder,
+                saleHistoryRepository
         );
     }
 
@@ -317,5 +325,34 @@ class UserServiceTest extends AbstractInitializer {
 
         User user = userService.getUserByEmail(testUser.getEmail());
         Assertions.assertNull(user);
+    }
+
+    /**
+     * Tests that a user's purchases are returned when getPurchaseHistory is given a user's ID
+     */
+    @Test
+    void getPurchaseHistory_validUser_returnsUsersPurchases() {
+        SaleListing listing = this.getSaleListings().get(0);
+        Sale sale = new Sale(listing);
+        sale.setSaleId(1);
+        sale.setBuyerId(testUser.getId());
+
+        Mockito.when(saleHistoryRepository.findAll(any(Specification.class)))
+                .thenReturn(List.of(sale));
+
+        List<GetSaleDTO> result = userService.getPurchaseHistory(testUser.getId());
+        Assertions.assertEquals(1, result.size());
+    }
+
+    /**
+     * Tests that a user's purchases are returned when getPurchaseHistory is given a user's ID
+     */
+    @Test
+    void getPurchaseHistory_nonExistentUser_returnsEmptyList() {
+        Mockito.when(saleHistoryRepository.findAll(any(Specification.class)))
+                .thenReturn(Collections.emptyList());
+
+        List<GetSaleDTO> result = userService.getPurchaseHistory(1000);
+        Assertions.assertEquals(0, result.size());
     }
 }
