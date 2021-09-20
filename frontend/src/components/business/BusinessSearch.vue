@@ -193,9 +193,6 @@ export default {
       loading: false
     }
   },
-  mounted() {
-    this.search()
-  },
   computed: {
     /**
      * Check if user is logged in
@@ -217,8 +214,10 @@ export default {
     }
   },
   mounted() {
-    // check if we need to show a business with specific id based on query params
+    this.search()
     this.viewBusinessModal = false
+
+    // check if we need to show a business with specific id based on query params
     if (this.$route.query.id) {
 
       // get the business with corresponding id
