@@ -40,7 +40,7 @@
             <router-link class="nav-link text-white ml-2" to="/listings">Browse Sale Listings</router-link>
           </li>
           <!-- User Purchases link -->
-          <li v-if="isActingAsUser" class="nav-item">
+          <li v-if="isLoggedIn && isActingAsUser" class="nav-item">
             <router-link class="nav-link text-white ml-2"
                          :to="`users/${userId}/purchases`"
             >

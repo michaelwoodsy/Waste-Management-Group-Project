@@ -6,7 +6,7 @@ Displays a popular listing
 -->
 <template>
   <div>
-    <div class="card shadow card-size" style="width: 15rem; height: 23rem">
+    <div class="card shadow card-size" style="width: 15rem; height: 24rem">
       <!-- Listing Image -->
       <img :src="getPrimaryImage(data.inventoryItem.product)" alt="productImage" class="card-img-top">
 
@@ -21,6 +21,9 @@ Displays a popular listing
 
         <p class="card-text text-muted small mb-1">
           Price: {{ formatPrice(data) }}
+        </p>
+        <p>
+          <em class="bi bi-heart" style="color: red"/> {{ data.likes }}
         </p>
         <div style="position: absolute; bottom: 10px; width: 198px">
           <!-- Open Listing Modal -->

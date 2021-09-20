@@ -190,6 +190,10 @@ export default {
     }
   },
 
+  mounted() {
+    this.search()
+  },
+
   computed: {
     /**
      * Checks to see if user is logged in currently
@@ -366,10 +370,6 @@ export default {
 </script>
 
 <style scoped>
-.col-centered {
-  margin: 0 auto;
-  float: none;
-}
 
 .pointer {
   cursor: pointer;
