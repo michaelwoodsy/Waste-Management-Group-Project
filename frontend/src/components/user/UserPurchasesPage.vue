@@ -12,66 +12,100 @@
     </div>
     <!--Page content-->
     <div>
-      <table aria-label="Table to view a user's purchases"
-             class="table mb-0"
-      >
-        <thead>
-        <tr>
-          <th class="pointer" scope="col" @click="orderSearch('datePurchased')">
-            <p class="d-inline">Date Purchased</p>
-            <p v-if="orderCol === 'datePurchased'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
-          </th>
-          <th class="pointer" scope="col" @click="orderSearch('productName')">
-            <p class="d-inline">Product Name</p>
-            <p v-if="orderCol === 'productName'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
-          </th>
-          <th class="pointer" scope="col" @click="orderSearch('quantity')">
-            <p class="d-inline">Quantity</p>
-            <p v-if="orderCol === 'quantity'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
-          </th>
-          <th class="pointer" scope="col" @click="orderSearch('price')">
-            <p class="d-inline">Price</p>
-            <p v-if="orderCol === 'price'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
-          </th>
-          <th class="pointer" scope="col" @click="orderSearch('business')">
-            <p class="d-inline">Business</p>
-            <p v-if="orderCol === 'business'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
-          </th>
-          <th scope="col">Review</th>
-        </tr>
-        </thead>
-        <tr
-            v-for="[index, purchase] of purchases.entries()"
-            :key="index"
+      <alert v-if="error">{{ error }}</alert>
+      <div class="overflow-auto">
+        <table aria-label="Table to view a user's purchases"
+               class="table mb-0"
         >
-          <td>
-            {{ formattedDate(purchase.dateSold) }}
-          </td>
-          <td>
-            {{ purchase.productName }}
-          </td>
-          <td>
-            {{ purchase.quantity }}
-          </td>
-          <td>
-            {{ formattedPrice(purchase) }}
-          </td>
-          <td>
-            {{ purchase.business.name }}
-          </td>
-          <td>
-            No review
-          </td>
-        </tr>
-      </table>
+          <thead>
+          <tr>
+            <th class="pointer" scope="col" @click="orderSearch('datePurchased')">
+              <p class="d-inline">Date Purchased</p>
+              <p v-if="orderCol === 'datePurchased'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
+            </th>
+            <th class="pointer" scope="col" @click="orderSearch('productName')">
+              <p class="d-inline">Product Name</p>
+              <p v-if="orderCol === 'productName'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
+            </th>
+            <th class="pointer" scope="col" @click="orderSearch('quantity')">
+              <p class="d-inline">Quantity</p>
+              <p v-if="orderCol === 'quantity'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
+            </th>
+            <th class="pointer" scope="col" @click="orderSearch('price')">
+              <p class="d-inline">Price</p>
+              <p v-if="orderCol === 'price'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
+            </th>
+            <th class="pointer" scope="col" @click="orderSearch('business')">
+              <p class="d-inline">Business</p>
+              <p v-if="orderCol === 'business'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
+            </th>
+            <th scope="col">Review</th>
+          </tr>
+          </thead>
+          <tbody v-if="!loading">
+          <tr
+              v-for="[index, purchase] of purchases.entries()"
+              :key="index"
+          >
+            <td>
+              {{ formattedDate(purchase.dateSold) }}
+            </td>
+            <td>
+              {{ purchase.productName }}
+            </td>
+            <td>
+              {{ purchase.quantity }}
+            </td>
+            <td>
+              {{ formattedPrice(purchase) }}
+            </td>
+            <td>
+              {{ purchase.business.name }}
+            </td>
+            <td>
+              No review
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Show loading text until results are obtained -->
+      <div v-if="loading" class="row">
+        <span class="col text-center text-muted">Loading...</span>
+      </div>
+
+      <!--    Result Information    -->
+      <div class="row">
+        <div class="col">
+          <div class="mb-2 text-center">
+            <showing-results-text
+                :items-per-page="resultsPerPage"
+                :page="page"
+                :total-count="totalCount"
+            />
+          </div>
+          <div>
+            <pagination
+                :current-page.sync="page"
+                :items-per-page="resultsPerPage"
+                :total-items="totalCount"
+                @change-page="changePage"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   </page-wrapper>
 </template>
 
 <script>
 import PageWrapper from "@/components/PageWrapper";
+import Pagination from "@/components/Pagination";
+import ShowingResultsText from "@/components/ShowingResultsText";
 import LoginRequired from "@/components/LoginRequired";
+import Alert from "@/components/Alert";
 import {formatDateTime} from "@/utils/dateTime";
+import {User} from "@/Api";
 
 export default {
   name: "UserPurchasesPage",
@@ -89,10 +123,13 @@ export default {
   },
   components: {
     PageWrapper,
-    LoginRequired
+    Pagination,
+    ShowingResultsText,
+    LoginRequired,
+    Alert
   },
   async mounted() {
-    this.purchases = await this.fillTable()
+    await this.fillTable()
   },
   computed: {
     /**
@@ -124,45 +161,41 @@ export default {
   },
   methods: {
     /**
+     * Function is called by pagination component to make another call to the backend
+     * to update the list of users that should be displayed
+     */
+    async changePage(page) {
+      this.page = page
+      this.loading = true;
+      await this.fillTable()
+    },
+    /**
      * Fills the table with the users purchases
      */
     async fillTable() {
-      let data = [
-        {
-          price: 15.00,
-          dateSold: '2021-09-09',
-          quantity: 10,
-          productName: "Tinned Kidney Beans",
-          currencyCountry: "New Zealand",
-          business: {
-            name: "Tinned Food Mart"
-          }
-        },
-        {
-          price: 6.50,
-          dateSold: '2021-09-11',
-          quantity: 3,
-          productName: "Banana muffins",
-          currencyCountry: "New Zealand",
-          business: {
-            name: "Myrtle's Muffins"
-          }
-        },
-        {
-          price: 12.00,
-          dateSold: '2021-09-14',
-          quantity: 10,
-          productName: "Canned Lychees",
-          currencyCountry: "Australia",
-          business: {
-            name: "Camilla's Canned Foods"
-          }
-        },
-      ]
-      for (let purchase of data) {
-        purchase.currency = await this.$root.$data.product.getCurrency(purchase.currencyCountry)
+      this.loading = true;
+
+      let sortBy = ""
+      if (this.orderCol !== null) {
+        sortBy = this.orderCol
+        if (!this.orderDirection) {
+          sortBy += "ASC"
+        } else {
+          sortBy += "DESC"
+        }
       }
-      return data
+      await User.getPurchases(this.userId, {
+        pageNumber: this.page - 1,
+        sortBy: sortBy
+      }).then(async (res) => {
+        this.error = null;
+        this.purchases = await this.$root.$data.product.addPurchasesCurrencies(res.data[0])
+        this.totalCount = res.data[1]
+        this.loading = false;
+      }).catch((err) => {
+        this.error = "Error: " + (err.response ? err.response.data.slice(err.response.data.indexOf(":") + 2) : err)
+        this.loading = false;
+      })
     },
 
     /**
@@ -170,9 +203,6 @@ export default {
      * Makes another call to the backend to get the correct businesses when ordered
      */
     async orderSearch(sortBy) {
-      this.loading = true;
-      console.log(sortBy)
-
       if (this.orderCol !== sortBy) {
         this.orderDirection = false
       } else {
@@ -180,22 +210,8 @@ export default {
       }
 
       this.orderCol = sortBy
-      if (!this.orderDirection) {
-        sortBy += "ASC"
-      } else {
-        sortBy += "DESC"
-      }
 
-      // try {
-      //   const res = await Business.getBusinesses(this.searchTerm, this.businessType, this.page - 1, sortBy)
-      //   this.error = null;
-      //   this.businesses = res.data[0];
-      //   this.totalCount = res.data[1];
-      //   this.loading = false;
-      // } catch (error) {
-      //   this.error = error;
-      //   this.loading = false;
-      // }
+      await this.fillTable()
     },
 
     /**
