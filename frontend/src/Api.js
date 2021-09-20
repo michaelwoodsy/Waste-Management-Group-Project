@@ -537,6 +537,40 @@ export const Business = {
      * @returns {Promise<AxiosResponse<any>>} Response from  the request
      */
     starListing: (listingId, value) => instance.patch(`/listings/${listingId}/star`, {star: value}),
+
+    /**
+     * Gets a business' featured listings from the backend.
+     * @param businessId Id of the business.
+     * @returns {Promise<AxiosResponse<any>>} List of sale listings.
+     */
+    // getFeaturedListings: (businessId) => instance.get(`/businesses/${businessId}/featuredListings`),
+
+    // TEST METHOD
+    getFeaturedListings: (businessId) => {
+        return new Promise((resolve) => {
+            instance.get(`listings`,
+                {
+                    params:
+                        {
+                            'searchQuery': "",
+                            'matchingProductName': true,
+                            'matchingBusinessName': businessId === -1,
+                            'matchingBusinessLocation': false,
+                            'matchingBusinessType': false,
+                            'priceRangeLower': null,
+                            'priceRangeUpper': null,
+                            'closingDateLower': null,
+                            'closingDateUpper': null,
+                            'pageNumber': 0,
+                            'sortBy': "bestMatch"
+                        }
+                }).then((res) => {
+                    resolve({data: res.data[0]})
+            })
+
+        })
+
+    }
 };
 
 export const Card = {

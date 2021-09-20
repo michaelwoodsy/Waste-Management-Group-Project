@@ -349,20 +349,10 @@ export default {
     async checkFeaturedListing() {
       // Check if a listing is specified in query params
       if (this.$route.query.businessId && this.$route.query.listingId) {
+
         // get the featured listing
-        // TODO: Replace with actual call to getFeaturedSaleListings
-        let res = await Business.searchSaleListings("",
-            true,
-            false,
-            false,
-            false,
-            null,
-            null,
-            null,
-            null,
-            0,
-            "bestMatch")
-        let featuredListing = res.data[0].find(listing => `${listing.id}` === `${this.$route.query.listingId}`)
+        let res = await Business.getFeaturedListings(this.$route.query.businessId)
+        let featuredListing = res.data.find(listing => `${listing.id}` === `${this.$route.query.listingId}`)
 
         // Add currency to the listing
         let listings = await this.$root.$data.product.addSaleListingCurrencies(

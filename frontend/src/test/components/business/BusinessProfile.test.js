@@ -1,14 +1,10 @@
 import "@jest/globals"
 import BusinessProfile from "@/components/business/BusinessProfile"
 const VueTestUtils = require('@vue/test-utils')
+import {Business} from "@/Api";
+jest.mock('@/Api')
 
 let wrapper
-
-let computed = {
-    isLoggedIn() {
-        return true
-    },
-}
 
 let business = {
     "id": 100,
@@ -28,13 +24,10 @@ describe('Jest tests for the BusinessProfile component', () => {
         jest.spyOn(BusinessProfile.methods, 'formatAddress').mockImplementation(() => {})
         wrapper = VueTestUtils.shallowMount(BusinessProfile, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-            computed,
+            computed: {isLoggedIn() { return true }},
             propsData: {
                 business: business
             }
-            // mocks: {
-            //     $route: {query: {}}
-            // }
         })
 
     });
@@ -59,5 +52,12 @@ describe('Jest tests for the BusinessProfile component', () => {
         const saleListingEl = wrapper.findComponent({name: 'sale-listing'})
         expect(saleListingEl.exists()).toBeTruthy()
     })
+
+    test('Check the getFeaturedListings method sends a request to the backend', async () => {
+        Business.getFeaturedListings.mockImplementation(() => Promise.resolve([{}]))
+        await wrapper.vm.getFeaturedListings()
+        expect(Business.getFeaturedListings).toBeCalledWith(expect.any(Number))
+    })
+
 })
 

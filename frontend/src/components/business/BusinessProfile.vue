@@ -391,18 +391,8 @@ export default {
      * Retrieves the business' featured listings, and sets to  this.featuredListings.
      */
     async getFeaturedListings() {
-      let res = await Business.searchSaleListings("",
-            true,
-            false,
-            false,
-            false,
-            null,
-            null,
-            null,
-            null,
-            0,
-            "bestMatch")
-      this.featuredListings = res.data[0]
+      let res = await Business.getFeaturedListings(this.business.id)
+      this.featuredListings = res.data
     },
 
     /**
