@@ -38,8 +38,8 @@ public class ReviewRepositoryTest extends AbstractInitializer {
         businessRepository.save(business);
         User user = this.getTestUser();
         userRepository.save(user);
-        review1 = new Review(sale1, business, user, 5, "Very Good!");
-        review2 = new Review(sale2, business, user, 1, "Not Very Good");
+        review1 = new Review(sale1, user, 5, "Very Good!");
+        review2 = new Review(sale2, user, 1, "Not Very Good");
     }
 
     /**

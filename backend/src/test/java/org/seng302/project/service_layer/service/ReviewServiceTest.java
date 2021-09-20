@@ -6,10 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
-import org.seng302.project.repository_layer.repository.AddressRepository;
-import org.seng302.project.repository_layer.repository.BusinessRepository;
-import org.seng302.project.repository_layer.repository.ReviewRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -29,6 +26,7 @@ class ReviewServiceTest extends AbstractInitializer {
     private final AddressRepository addressRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewService reviewService;
+    private final SaleHistoryRepository saleHistoryRepository;
 
     private User testUser;
     private User testAdmin;
@@ -38,14 +36,17 @@ class ReviewServiceTest extends AbstractInitializer {
     public ReviewServiceTest(UserRepository userRepository,
                              BusinessRepository businessRepository,
                              AddressRepository addressRepository,
-                             ReviewRepository reviewRepository){
+                             ReviewRepository reviewRepository,
+                             SaleHistoryRepository saleHistoryRepository){
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.reviewRepository = reviewRepository;
+        this.saleHistoryRepository = saleHistoryRepository;
         UserService userService = Mockito.mock(UserService.class);
         this.businessService = Mockito.mock(BusinessService.class);
-        this.reviewService = new ReviewService(businessService, userService, this.reviewRepository);
+        this.reviewService = new ReviewService(businessService, userService,
+                this.reviewRepository, this.saleHistoryRepository);
     }
 
     @BeforeEach
@@ -137,4 +138,9 @@ class ReviewServiceTest extends AbstractInitializer {
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> reviewService.getBusinessReviews(businessId, appUser));
     }
+
+    //TODO: tests for review service
+    //nonexistent user
+    //nonexistent purchase for that user
+    //success
 }
