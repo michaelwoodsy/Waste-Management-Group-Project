@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 public class PostReviewDTO {
 
     @NotNull
-    @Range(min = 0, max = 5, message = "Rating must be between 0 and 5")
+    @Range(min = 1, max = 5, message = "Rating must be between 1 and 5")
     private Integer rating;
 
     private String reviewMessage;

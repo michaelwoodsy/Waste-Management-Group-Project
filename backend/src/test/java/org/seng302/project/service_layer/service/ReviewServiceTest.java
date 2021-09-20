@@ -7,6 +7,7 @@ import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -21,6 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 @DataJpaTest
 class ReviewServiceTest extends AbstractInitializer {
     private final UserRepository userRepository;
+    private final UserService userService;
     private final BusinessRepository businessRepository;
     private final BusinessService businessService;
     private final AddressRepository addressRepository;
@@ -31,6 +33,7 @@ class ReviewServiceTest extends AbstractInitializer {
     private User testUser;
     private User testAdmin;
     private Business testBusiness;
+    private Sale sale;
 
     @Autowired
     public ReviewServiceTest(UserRepository userRepository,
@@ -43,7 +46,7 @@ class ReviewServiceTest extends AbstractInitializer {
         this.addressRepository = addressRepository;
         this.reviewRepository = reviewRepository;
         this.saleHistoryRepository = saleHistoryRepository;
-        UserService userService = Mockito.mock(UserService.class);
+        this.userService = Mockito.mock(UserService.class);
         this.businessService = Mockito.mock(BusinessService.class);
         this.reviewService = new ReviewService(businessService, userService,
                 this.reviewRepository, this.saleHistoryRepository);
@@ -67,12 +70,19 @@ class ReviewServiceTest extends AbstractInitializer {
         addressRepository.save(testBusiness.getAddress());
         businessRepository.save(testBusiness);
 
+        this.sale = new Sale();
+        sale.setBuyerId(testUser.getId());
+        saleHistoryRepository.save(sale);
+
         List<Review> reviews = new ArrayList<>();
         //Make 6 reviews for the business
         for (int i = 0; i < 6; i++) {
             Review review = new Review();
             review.setBusiness(testBusiness);
             review.setUser(testUser);
+            if ( i == 0) {
+                review.setSale(sale);
+            }
             reviews.add(review);
         }
         reviewRepository.saveAll(reviews);
@@ -139,8 +149,79 @@ class ReviewServiceTest extends AbstractInitializer {
                 () -> reviewService.getBusinessReviews(businessId, appUser));
     }
 
-    //TODO: tests for review service
-    //nonexistent user
-    //nonexistent purchase for that user
-    //success
+    /**
+     * Tests that posting a review as a different user
+     * results in a ForbiddenException
+     */
+    @Test
+    void newReview_notUser_forbiddenException() {
+        Mockito.doThrow(new ForbiddenException(""))
+                .when(userService).checkForbidden(any(Integer.class),
+                any(AppUserDetails.class));
+
+        Integer userId = testUser.getId();
+        Integer purchaseId = sale.getSaleId();
+        PostReviewDTO requestDTO = new PostReviewDTO(5, "Loved it!");
+        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
+        Assertions.assertThrows(ForbiddenException.class,
+                () -> reviewService.newReview(userId, purchaseId, requestDTO, appUser));
+
+    }
+
+    /**
+     * Tests that posting a review as a nonexistent user
+     * results in a NotAcceptableException
+     */
+    @Test
+    void newReview_nonExistentUser_notAcceptableException() {
+
+        Mockito.when(userService.getUserByEmail(any(String.class))).thenReturn(null);
+
+        Integer purchaseId = sale.getSaleId();
+        PostReviewDTO requestDTO = new PostReviewDTO(5, "Loved it!");
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> reviewService.newReview(50, purchaseId, requestDTO, appUser));
+
+    }
+
+    /**
+     * Tests that posting a review for a nonexistent purchase
+     * for the user results in a NotAcceptableException
+     */
+    @Test
+    void newReview_nonExistentPurchaseForUser_notAcceptableException() {
+        Mockito.when(userService.getUserByEmail(any(String.class))).thenReturn(testUser);
+
+        Integer userId = testUser.getId();
+        Integer purchaseId = sale.getSaleId();
+        PostReviewDTO requestDTO = new PostReviewDTO(5, "Loved it!");
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> reviewService.newReview(userId, purchaseId + 70, requestDTO, appUser));
+
+    }
+
+    /**
+     * Tests that posting a review adds the review to the repository
+     */
+    @Test
+    void newReview_success() {
+
+        Mockito.when(userService.getUserByEmail(any(String.class))).thenReturn(testUser);
+
+        Integer userId = testUser.getId();
+        Integer purchaseId = sale.getSaleId();
+        PostReviewDTO requestDTO = new PostReviewDTO(5, "Loved it!");
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+
+        reviewService.newReview(userId, purchaseId, requestDTO, appUser);
+
+        List<Review> reviews = reviewRepository.findAllByUserId(testUser.getId());
+
+        //Expect 6 reviews from setup() plus the 1 from this test
+        Assertions.assertEquals(7, reviews.size());
+
+    }
+
 }

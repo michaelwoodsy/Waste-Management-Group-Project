@@ -180,7 +180,7 @@ class ReviewControllerTest extends AbstractInitializer{
     /**
      * Tests that trying to leave a review with
      * a 6 star rating gives a 400 response
-     * because the acceptable range is 0-5
+     * because the acceptable range is 1-5
      */
     @Test
     void postReview_6StarRating_400() throws Exception {
