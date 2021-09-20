@@ -7,11 +7,20 @@
         @generate-report="getReport"
     />
 
-    <sales-report
-        v-if="report != null"
-        :data="report"
-        :currency="currency"
-    />
+    <div class="text-center" v-if="!reportGenerated">
+      <span>Click the button above to generate a sales report</span>
+    </div>
+
+    <div v-else>
+      <sales-report
+          v-if="report != null && report.length > 0"
+          :data="report"
+          :currency="currency"
+      />
+      <div v-else class="text-center">
+        <span>No sales for the selected period</span>
+      </div>
+    </div>
 
     <sales-report-graph
         v-if="report != null"
@@ -40,6 +49,7 @@ export default {
     return {
       report: null,
       currency: null,
+      reportGenerated: false,
       options: {
         startDate: null,
         endDate: null,
@@ -69,9 +79,11 @@ export default {
      */
     async getReport(options) {
       try {
+        this.reportGenerated = true
         const res = await Business.getSalesReport(this.businessId, options)
         this.$set(this, "report", res.data)
       } catch (error) {
+        this.reportGenerated = false
         console.log(error)
       }
     }

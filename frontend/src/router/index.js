@@ -19,6 +19,7 @@ import Search from "@/components/Search";
 import EditBusiness from "@/components/business/EditBusiness";
 import BrowseSaleListings from "@/components/sale-listing/BrowseSaleListings";
 import PasswordReset from "@/components/user/PasswordReset";
+import UserPurchasesPage from "@/components/user/UserPurchasesPage";
 
 const routes = [
     {
@@ -30,6 +31,11 @@ const routes = [
         path: '/search',
         name: 'search',
         component: Search
+    },
+    {
+        path: '/users/:userId/purchases',
+        name: 'purchases',
+        component: UserPurchasesPage
     },
     {
         path: '/users/:userId/edit',

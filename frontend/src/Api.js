@@ -300,6 +300,8 @@ export const Business = {
      * Get back all businesses with a certain search term and business type
      * @param searchTerm Criteria to search businesses for, e.g: businesses full name or part of a name
      * @param businessSearchType Criteria to limit the search for only businesses with this type
+     * @param pageNumber Page number to retrive
+     * @param sortBy sorting criteria
      * @returns {Promise<AxiosResponse<any>>} Response from request
      */
     getBusinesses: (searchTerm, businessSearchType, pageNumber, sortBy) => instance.get('businesses/search', {
@@ -514,7 +516,17 @@ export const Business = {
     getSalesReport: (businessId, params) =>
         instance.get(`/businesses/${businessId}/sales`, {
             params
-        })
+        }),
+
+    /**
+     * Sends a request to feature/un-feature a listing
+     * @param businessId Id of the business the listing belongs to
+     * @param listingId Id of the listing to feature
+     * @param featured The featured boolean, true for featured, false for not featured
+     * @returns {Promise<AxiosResponse<any>>} Response from the request
+     */
+    featureListing: (businessId, listingId, featured) =>
+        instance.patch(`/businesses/${businessId}/listings/${listingId}/feature`, {featured}),
 };
 
 export const Card = {
@@ -597,8 +609,7 @@ export const Images = {
 
 export const Statistics = {
     /**
-     * Retrieves the image at the path.
-     * @param path Path to the image
+     * Retrieves statistics about resale.
      */
     getStatistics: () => instance.get(`statistics`)
 }
