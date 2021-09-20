@@ -15,8 +15,59 @@ readOnly:         Boolean, default true.
 <template>
   <div class="container-fluid">
 
+    <!-- Featured listings -->
+    <div>
+      <div class="row">
+        <div class="col text-center">
+          <h4>Featured Listings</h4>
+        </div>
+      </div>
+
+      <!-- Display message if there are no featured listings -->
+      <div v-if="featuredListings.length === 0">
+        <p class="text-center" id="featuredListingText"><strong>This Business has no featured listings</strong></p>
+      </div>
+
+      <!-- Otherwise, display featured listings in carousel -->
+      <div v-else class="row">
+        <div class="col-12 col-md-12 col-lg-6 m-auto">
+          <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+
+            <!-- Carousel items -->
+            <div class="carousel-inner">
+              <div class="carousel-item p-3"
+                   :class="{active: listing === featuredListings[0]}"
+                   v-for="listing in featuredListings"
+                   v-bind:key="listing.id"
+              >
+                <sale-listing
+                    style="height: 350px"
+                    :listing-data="listing"
+                    @close-modal="$emit('close-modal')"
+                />
+              </div>
+            </div>
+
+            <!-- Carousel left button -->
+            <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="sr-only">Previous</span>
+            </a>
+
+            <!-- Carousel right button -->
+            <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="sr-only">Next</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <div class="row mb-3">
       <div class="col">
+
         <!-- Profile image -->
         <div class="row mb-3">
           <div class="col-12 text-center">
@@ -177,56 +228,6 @@ readOnly:         Boolean, default true.
             </div>
           </div>
         </div>
-
-      </div>
-    </div>
-
-    <!-- Featured listings -->
-    <div>
-      <div class="row">
-        <div class="col text-left mb-2">
-          <h2>Featured Listings</h2>
-        </div>
-      </div>
-
-      <!-- Display message if there are no featured listings -->
-      <div v-if="featuredListings.length === 0">
-        <p class="text-center" id="featuredListingText"><strong>This Business has no featured listings</strong></p>
-      </div>
-
-      <!-- Otherwise, display featured listings in carousel -->
-      <div v-else class="row">
-       <div class="col-6 m-auto">
-        <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
-
-          <!-- Carousel items -->
-          <div class="carousel-inner">
-            <div class="carousel-item p-3"
-                 :class="{active: listing === featuredListings[0]}"
-                 v-for="listing in featuredListings"
-                 v-bind:key="listing.id"
-            >
-              <sale-listing
-                  style="height: 350px"
-                  :listing-data="listing"
-                  @close-modal="$emit('close-modal')"
-              />
-            </div>
-          </div>
-
-          <!-- Carousel left button -->
-          <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-          </a>
-
-          <!-- Carousel right button -->
-          <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-          </a>
-        </div>
-         </div>
 
       </div>
     </div>
