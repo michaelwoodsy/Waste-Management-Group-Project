@@ -63,6 +63,7 @@ class ReviewServiceTest extends AbstractInitializer {
 
         this.testBusiness = this.getTestBusiness();
         this.testBusiness.setId(null);
+        this.testBusiness.setPrimaryAdministratorId(this.testAdmin.getId());
         addressRepository.save(testBusiness.getAddress());
         businessRepository.save(testBusiness);
 
@@ -83,6 +84,7 @@ class ReviewServiceTest extends AbstractInitializer {
      */
     @Test
     void getBusinessReviews_hasReviews_Success(){
+        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         Integer businessId = this.testBusiness.getId();
         AppUserDetails appUser = new AppUserDetails(this.testAdmin);
         List<Review> reviews = reviewService.getBusinessReviews(businessId, appUser);
@@ -95,6 +97,7 @@ class ReviewServiceTest extends AbstractInitializer {
      */
     @Test
     void getBusinessReviews_hasNoReviews_Success(){
+        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         reviewRepository.deleteAll();
         Integer businessId = this.testBusiness.getId();
         AppUserDetails appUser = new AppUserDetails(this.testAdmin);
@@ -103,23 +106,16 @@ class ReviewServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that a ForbiddenException is thrown when
-     * getting a business' reviews and
-     * a the user is not an admin of the given business
+     * Tests that when getting a business' reviews as a user who is not an admin of a business
+     * all expected reviews are returned
      */
     @Test
-    void getBusinessReviews_notAdmin_ForbiddenException(){
+    void getBusinessReviews_notAdmin_Success(){
+        Assertions.assertNotEquals(this.testBusiness.getPrimaryAdministratorId(), this.testUser.getId());
         Integer businessId = this.testBusiness.getId();
-
-        Mockito.when(businessService.checkBusiness(businessId))
-                .thenReturn(this.testBusiness);
-
-        Mockito.doThrow(new ForbiddenException(""))
-                .when(businessService).checkUserCanDoBusinessAction(any(AppUserDetails.class), any(Business.class));
-
         AppUserDetails appUser = new AppUserDetails(this.testUser);
-        Assertions.assertThrows(ForbiddenException.class,
-                () -> reviewService.getBusinessReviews(businessId, appUser));
+        List<Review> reviews = reviewService.getBusinessReviews(businessId, appUser);
+        Assertions.assertEquals(6, reviews.size());
     }
 
     /**

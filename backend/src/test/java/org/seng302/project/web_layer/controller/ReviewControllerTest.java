@@ -14,6 +14,7 @@ import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.ReviewService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -74,6 +75,7 @@ class ReviewControllerTest extends AbstractInitializer{
 
         this.testBusiness = this.getTestBusiness();
         this.testBusiness.setId(null);
+        this.testBusiness.setPrimaryAdministratorId(this.testAdmin.getId());
         addressRepository.save(testBusiness.getAddress());
         this.testBusiness = businessRepository.save(testBusiness);
 
@@ -88,8 +90,39 @@ class ReviewControllerTest extends AbstractInitializer{
         reviewRepository.saveAll(reviews);
     }
 
+    /**
+     * Tests that getting a business' reviews when the user is an admin of the business
+     *  returns a 200 OK and all the business' reviews
+     */
     @Test
-    void getBusinessReviews_success_200() throws Exception {
+    void getBusinessReviews_isAdminSuccess_200() throws Exception {
+        Integer businessId = this.testBusiness.getId();
+        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
+
+        Mockito.when(reviewService.getBusinessReviews(any(Integer.class), any(AppUserDetails.class)))
+                .thenReturn(reviewRepository.findAllByBusinessId(businessId));
+        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/reviews", businessId)
+                .with(user(appUser));
+
+        MvcResult response = mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        String responseData = response.getResponse().getContentAsString();
+        List<Review> result = objectMapper.readValue(responseData, new TypeReference<>() {
+        });
+        Assertions.assertEquals(6, result.size());
+    }
+
+    /**
+     * Tests that getting a business' reviews when the user is not an admin of the business
+     * returns a 200 OK and all the business' reviews
+     */
+    @Test
+    void getBusinessReviews_notAdminSuccess_200() throws Exception {
+        Assertions.assertNotEquals(this.testBusiness.getPrimaryAdministratorId(), this.testUser.getId());
         Integer businessId = this.testBusiness.getId();
         Mockito.when(reviewService.getBusinessReviews(any(Integer.class), any(AppUserDetails.class)))
                 .thenReturn(reviewRepository.findAllByBusinessId(businessId));
@@ -108,19 +141,60 @@ class ReviewControllerTest extends AbstractInitializer{
         Assertions.assertEquals(6, result.size());
     }
 
+    /**
+     * Tests that getting a business' reviews with an invalid business ID
+     * returns a 400 Bad Request
+     */
     @Test
-    void getBusinessReviews_notAdmin_403() throws Exception {
-        Integer businessId = this.testBusiness.getId();
-        Mockito.doThrow(NotAcceptableException.class)
-                .when(businessService)
-                .checkBusiness(any(Integer.class));
-        AppUserDetails appUser = new AppUserDetails(this.testUser);
+    void getBusinessReviews_invalidBusinessIdType_400() throws Exception {
+        String businessId = "two";
+        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
+        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/businesses/{businessId}/reviews", businessId)
                 .with(user(appUser));
 
         mockMvc.perform(request)
-                .andExpect(MockMvcResultMatchers.status().isForbidden());
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tests that getting a business' reviews with an invalid business ID
+     * returns a 401 Unauthorized
+     */
+    @Test
+    void getBusinessReviews_notLoggedIn_401() throws Exception {
+        Integer businessId = this.testBusiness.getId();
+        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
+        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/reviews", businessId);
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Tests that getting a business' reviews with an nonexistent business ID
+     * returns a 406 Not Acceptable
+     */
+    @Test
+    void getBusinessReviews_nonexistentBusinessID_406() throws Exception {
+        Integer businessId = 9999;
+        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
+        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
+
+        Mockito.doThrow(new NotAcceptableException(
+                String.format("No Business with ID %d exists", businessId))).when(reviewService)
+                .getBusinessReviews(any(Integer.class), any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/reviews", businessId)
+                .with(user(appUser));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
 }

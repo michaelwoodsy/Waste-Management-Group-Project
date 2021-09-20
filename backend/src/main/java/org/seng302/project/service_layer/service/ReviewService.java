@@ -1,11 +1,8 @@
 package org.seng302.project.service_layer.service;
 
-import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.Review;
 import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,14 +31,9 @@ public class ReviewService {
     public List<Review> getBusinessReviews(Integer businessId,
                                             AppUserDetails user){
         // Get the business of the request
-        Business business = businessService.checkBusiness(businessId);
-
-        // Check the user is an admin of the business
-        businessService.checkUserCanDoBusinessAction(user, business);
+        businessService.checkBusiness(businessId);
 
         // Return a list of all the reviews belonging to the business (if there are none an empty list)
-        List<Review> reviews = reviewRepository.findAllByBusinessId(businessId);
-        System.out.println(reviews);
-        return reviews;
+        return reviewRepository.findAllByBusinessId(businessId);
     }
 }
