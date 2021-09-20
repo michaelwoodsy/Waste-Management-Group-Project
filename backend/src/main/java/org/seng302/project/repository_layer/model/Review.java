@@ -19,7 +19,7 @@ public class Review {
     @Column(name = "review_id")
     private Integer reviewId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "sale_id")
     private Sale sale;
 
@@ -38,7 +38,7 @@ public class Review {
 
     public Review(Sale sale, Business business, User user, Integer rating, String reviewMessage) {
         this.sale = sale;
-        this.business = business;
+        this.business = sale.getBusiness();
         this.user = user;
         this.rating = rating;
         this.reviewMessage = reviewMessage;

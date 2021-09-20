@@ -30,15 +30,14 @@ class ReviewRepositoryTest extends AbstractInitializer {
 
     @BeforeEach
     void setup() {
-        this.initialise();
         Sale sale = new Sale(getSaleListings().get(0));
         saleHistoryRepository.save(sale);
         User user = this.getTestUser();
         addressRepository.save(user.getHomeAddress());
-        userRepository.save(user);
+        user = userRepository.save(user);
         Business business =  sale.getBusiness();
         addressRepository.save(business.getAddress());
-        businessRepository.save(business);
+        business = businessRepository.save(business);
         review = new Review(sale, business, user, 5, "Very Good!");
     }
 
