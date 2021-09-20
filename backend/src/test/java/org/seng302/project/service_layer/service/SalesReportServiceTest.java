@@ -211,7 +211,8 @@ class SalesReportServiceTest extends AbstractInitializer {
                 periodEnd, "all", appUser);
 
         //expect 3 items: soldToday, alsoSoldToday and soldYesterday
-        Assertions.assertEquals(3, salesReport.size());
+        Assertions.assertEquals(1, salesReport.size());
+        Assertions.assertEquals(3, salesReport.get(0).getSales().size());
     }
 
 

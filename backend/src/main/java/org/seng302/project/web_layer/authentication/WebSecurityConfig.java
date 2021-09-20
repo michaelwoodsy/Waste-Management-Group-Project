@@ -90,6 +90,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/login", "/users", "/lostpassword/send").permitAll()
                 .antMatchers(HttpMethod.GET, "/lostpassword/validate", "/statistics", "/popularlistings").permitAll()
+                .regexMatchers(HttpMethod.GET, "\\/media\\/(.*)").permitAll()
                 .antMatchers(HttpMethod.PATCH, "/lostpassword/edit").permitAll()
                 .antMatchers(HttpMethod.POST, "/contact").permitAll()
                 .anyRequest().authenticated();

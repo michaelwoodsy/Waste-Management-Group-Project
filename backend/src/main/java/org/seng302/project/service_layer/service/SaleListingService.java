@@ -786,9 +786,9 @@ public class SaleListingService {
     public List<GetSaleListingDTO> getPopularListings(String country) {
         List<List<Object>> response;
         if (country == null) {
-            response = likedSaleListingRepository.findPopular(PageRequest.of(0, 10));
+            response = likedSaleListingRepository.findPopular(PageRequest.of(0, 9));
         } else {
-            response = likedSaleListingRepository.findPopularByCountry(country, PageRequest.of(0, 10));
+            response = likedSaleListingRepository.findPopularByCountry(country, PageRequest.of(0, 9));
         }
         List<GetSaleListingDTO> listings = new ArrayList<>();
         for (List<Object> listing : response) {
