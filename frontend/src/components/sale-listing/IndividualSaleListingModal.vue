@@ -15,7 +15,7 @@
             <h2>
               <strong>{{ listing.inventoryItem.product.name }}</strong>
               <em v-if="isLoggedIn" :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart pointer" @click="likeListing"/>
-              <em v-else :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart"/>
+              <em v-else :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart" style="pointer-events: none"/>
               {{ likes }}
             </h2>
           </div>
@@ -31,7 +31,8 @@
           <!-- Listing images -->
           <div class="mb-3">
             <div v-if="listing.inventoryItem.product.images.length === 0">
-              <p class="text-center"><strong>This Product has no Images</strong></p>
+              <img :src="getImageURL('/media/defaults/defaultProduct.jpg')" alt="ProductImage"
+                   class="d-block img-fluid rounded mx-auto w-auto" style="max-height: 300px">
             </div>
             <div v-else class="row">
               <div class="col col-12 justify-content-center">
@@ -233,7 +234,6 @@ export default {
   mounted() {
     this.likes = this.$props.listing.likes
     this.liked = this.$props.listing.userLikes
-    console.log(this.isLoggedIn)
   },
   computed: {
     /**
@@ -309,7 +309,7 @@ export default {
       this.buyClicked = true
       await Business.purchaseListing(this.listing.id).then(() => {
         this.purchaseMsg = "Successfully purchased Listing!"
-        this.$emit('updateListings')
+        this.$emit('update-listings')
       }).catch((err) => {
         this.buyClicked = false
         this.showError(err)

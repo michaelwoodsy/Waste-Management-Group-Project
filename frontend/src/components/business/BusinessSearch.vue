@@ -183,6 +183,9 @@ export default {
       loading: false
     }
   },
+  mounted() {
+    this.search()
+  },
   computed: {
     /**
      * Check if user is logged in
@@ -319,7 +322,7 @@ export default {
      */
     getPrimaryImageThumbnail(user) {
       if (user.primaryImageId === null) {
-        return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
+        return this.getImageURL('/media/defaults/defaultBusinessProfile_thumbnail.jpg')
       }
       const filteredImages = user.images.filter(function (specificImage) {
         return specificImage.id === user.primaryImageId;
@@ -328,7 +331,7 @@ export default {
         return this.getImageURL(filteredImages[0].thumbnailFilename)
       }
       //Return the default image if the program gets to this point (if it does something went wrong)
-      return this.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
+      return this.getImageURL('/media/defaults/defaultBusinessProfile_thumbnail.jpg')
     },
 
     /**
