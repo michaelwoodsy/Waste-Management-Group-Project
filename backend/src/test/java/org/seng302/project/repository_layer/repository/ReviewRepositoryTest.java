@@ -13,7 +13,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @DataJpaTest
-public class ReviewRepositoryTest extends AbstractInitializer {
+class ReviewRepositoryTest extends AbstractInitializer {
 
     @Autowired
     private ReviewRepository reviewRepository;
@@ -23,23 +23,23 @@ public class ReviewRepositoryTest extends AbstractInitializer {
     private BusinessRepository businessRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AddressRepository addressRepository;
 
-    Review review1;
-    Review review2;
+    Review review;
 
     @BeforeEach
     void setup() {
         this.initialise();
-        Sale sale1 = new Sale(getSaleListings().get(0));
-        Sale sale2 = new Sale(getSaleListings().get(1));
-        saleHistoryRepository.save(sale1);
-        saleHistoryRepository.save(sale2);
-        Business business =  this.getTestBusiness();
-        businessRepository.save(business);
+        Sale sale = new Sale(getSaleListings().get(0));
+        saleHistoryRepository.save(sale);
         User user = this.getTestUser();
+        addressRepository.save(user.getHomeAddress());
         userRepository.save(user);
-        review1 = new Review(sale1, business, user, 5, "Very Good!");
-        review2 = new Review(sale2, business, user, 1, "Not Very Good");
+        Business business =  sale.getBusiness();
+        addressRepository.save(business.getAddress());
+        businessRepository.save(business);
+        review = new Review(sale, business, user, 5, "Very Good!");
     }
 
     /**
@@ -47,7 +47,7 @@ public class ReviewRepositoryTest extends AbstractInitializer {
      */
     @Test
     void reviewRepository_savingEntity_noError() {
-        assertDoesNotThrow(() -> reviewRepository.save(review1));
+        assertDoesNotThrow(() -> reviewRepository.save(review));
     }
 
     /**
@@ -55,8 +55,8 @@ public class ReviewRepositoryTest extends AbstractInitializer {
      */
     @Test
     void reviewRepository_savingEntity_isSaved() {
-        reviewRepository.save(review2);
-        Optional<Review> foundReview = reviewRepository.findById(review2.getReviewId());
+        reviewRepository.save(review);
+        Optional<Review> foundReview = reviewRepository.findById(review.getReviewId());
         Assertions.assertTrue(foundReview.isPresent());
     }
 }
