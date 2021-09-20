@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.Review;
@@ -13,6 +14,7 @@ import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.BusinessRepository;
 import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.ReviewService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -88,12 +91,13 @@ class ReviewControllerTest extends AbstractInitializer{
     @Test
     void getBusinessReviews_success_200() throws Exception {
         Integer businessId = this.testBusiness.getId();
-        System.out.println(reviewRepository.findAllByBusinessId(businessId));
+        Mockito.when(reviewService.getBusinessReviews(any(Integer.class), any(AppUserDetails.class)))
+                .thenReturn(reviewRepository.findAllByBusinessId(businessId));
         AppUserDetails appUser = new AppUserDetails(this.testAdmin);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/businesses/{businessId}/reviews", businessId)
-                .with(user(new AppUserDetails(testUser)));
+                .with(user(appUser));
 
         MvcResult response = mockMvc.perform(request)
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -102,5 +106,21 @@ class ReviewControllerTest extends AbstractInitializer{
         List<Review> result = objectMapper.readValue(responseData, new TypeReference<>() {
         });
         Assertions.assertEquals(6, result.size());
+    }
+
+    @Test
+    void getBusinessReviews_notAdmin_403() throws Exception {
+        Integer businessId = this.testBusiness.getId();
+        Mockito.doThrow(NotAcceptableException.class)
+                .when(businessService)
+                .checkBusiness(any(Integer.class));
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/reviews", businessId)
+                .with(user(appUser));
+
+        mockMvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 }
