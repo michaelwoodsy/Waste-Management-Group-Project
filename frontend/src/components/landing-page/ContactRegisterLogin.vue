@@ -1,27 +1,33 @@
 <template>
-  <div class="row mb-3">
+  <div>
 
-    <!-- Contact Us Card -->
-    <div class="card col-sm text-white bg-secondary ml-2 mr-2">
-      <div class="card-body">
-        <h5 class="card-title d-inline">Have any questions?</h5>
-        <button class="btn-block btn-sm btn-primary" @click="contactUs" data-toggle="modal" :data-target="'#contactUsModal'"><h5>Contact Us</h5></button>
+    <div class="row row-cols-1 row-cols-md-3 mb-5 justify-content-center">
+      <div class="col mb-3 mb-md-0">
+        <!-- Contact Us Card -->
+        <div class="card text-light bg-secondary shadow">
+          <div class="card-body">
+            <h5 class="card-title">Have any questions?</h5>
+            <button class="btn btn-lg btn-block btn-primary" @click="contactUs" data-toggle="modal" :data-target="'#contactUsModal'">Contact Us</button>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <!-- Register Card -->
-    <div class="card col-sm text-white bg-secondary ml-2 mr-2">
-      <div class="card-body">
-        <h5 class="card-title d-inline">Don't have an account?</h5>
-        <button class="btn-block btn-sm btn-primary" @click="register"><h5>Register</h5></button>
+      <div class="col mb-3 mb-md-0">
+        <!-- Register Card -->
+        <div class="card text-light bg-secondary shadow">
+          <div class="card-body">
+            <h5 class="card-title">Don't have an account?</h5>
+            <button class="btn btn-lg btn-block btn-primary" @click="register">Register</button>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <!-- Login Card -->
-    <div class="card col-sm text-white bg-secondary ml-2 mr-2">
-      <div class="card-body">
-        <h5 class="card-title d-inline">Already have an account?</h5>
-        <button class="btn-block btn-sm btn-primary" @click="login"><h5>Login</h5></button>
+      <div class="col mb-3 mb-md-0">
+        <!-- Login Card -->
+        <div class="card text-light bg-secondary shadow">
+          <div class="card-body">
+            <h5 class="card-title">Already have an account?</h5>
+            <button class="btn btn-lg btn-block btn-primary" @click="login">Login</button>
+          </div>
+        </div>
       </div>
     </div>
 

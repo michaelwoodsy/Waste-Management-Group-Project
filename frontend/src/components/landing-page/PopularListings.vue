@@ -1,97 +1,105 @@
 <template>
-  <div class="col text-center">
-    <h2>Popular Listings</h2>
+  <div class="row mb-5">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-body">
 
+          <h3>Popular Listings</h3>
 
-    <div class="row d-flex justify-content-center country-input">
-      <div class="d-flex align-items-center" style="padding-right: 10px">
-        Filter by Country:
-      </div>
-      <input id="countryInput" v-model="countryInput"
-             class="form-control"
-             maxlength="30"
-             placeholder="Enter a Country"
-             @keyup="countryEntered"
-             @keyup.tab="dropdown"
-             @click="dropdown"
-             data-toggle="dropdown"
-             autocomplete="on"
-             type="text"
-             style="width: 40%"
-      >
-      <!--    Address suggestions    -->
-      <div class="dropdown-menu" id="dropdown">
+          <div class="form-group row mb-5">
+            <div class="input-group col">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Filter by Country</span>
+              </div>
+              <!--    Address suggestions    -->
+              <div class="dropdown-menu" id="dropdown">
 
-        <!-- Error text -->
-        <p class="text-danger left-padding dropdown-item mb-0 alert-danger" v-if="error">
-          {{ error }}
-        </p>
+                <!-- Error text -->
+                <p class="text-danger left-padding dropdown-item mb-0 alert-danger" v-if="error">
+                  {{ error }}
+                </p>
 
-        <!-- Loading spinning wheel -->
-        <p v-else-if="loading" class="dropdown-item left-padding"
-        >Loading... <span class="spinner-border spinner-border-sm"></span></p>
+                <!-- Loading spinning wheel -->
+                <p v-else-if="loading" class="dropdown-item left-padding"
+                >Loading... <span class="spinner-border spinner-border-sm"></span></p>
 
-        <!-- No Results text -->
-        <p class="text-muted dropdown-item left-padding mb-0 disabled"
-           v-else-if="suggestions.length === 0">
-          No results found.
-        </p>
+                <!-- No Results text -->
+                <p class="text-muted dropdown-item left-padding mb-0 disabled"
+                   v-else-if="suggestions.length === 0">
+                  No results found.
+                </p>
 
-        <!-- Location Results text -->
-        <a class="dropdown-item pointer left-padding"
-           v-bind:key="country"
-           v-for="country in suggestions"
-           v-else
-           @click="selectCountry(country)"
-        >
-          {{ country }}
-        </a>
-      </div>
-    </div>
+                <!-- Location Results text -->
+                <a class="dropdown-item pointer left-padding"
+                   v-bind:key="country"
+                   v-for="country in suggestions"
+                   v-else
+                   @click="selectCountry(country)"
+                >
+                  {{ country }}
+                </a>
+              </div>
+              <input id="countryInput" v-model="countryInput"
+                     class="form-control"
+                     maxlength="30"
+                     placeholder="Enter a Country"
+                     @keyup="countryEntered"
+                     @keyup.tab="dropdown"
+                     @click="dropdown"
+                     data-toggle="dropdown"
+                     autocomplete="on"
+                     type="text"
+                     style="width: 40%"
+              >
+              <div v-if="country !== ''" class="input-group-append">
+                <button class="btn btn-danger" type="button" @click="clearFilter">Clear Filter</button>
+              </div>
+            </div>
+          </div>
 
-    <div v-if="country !== ''" style="padding-bottom: 20px">
-      <button class="btn btn-primary no-outline" type="button" @click="clearFilter">Clear Filter</button>
-    </div>
-
-    <div class="">
-      <div v-if="listings.length === 0">
-        <p class="text-center"><strong>There are no popular sale listings for {{ country }}.</strong></p>
-      </div>
-      <div id="popularListingCarousel" class="carousel slide w-auto" data-interval="false">
-        <div class="carousel-inner">
-          <!-- Carousel Slides -->
-          <div class="carousel-item active" v-if="listingsList1">
-            <div class="row justify-content-center">
-                <div v-for="listing in listingsList1" v-bind:key="listing.id">
-                  <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
+          <div>
+            <div v-if="listings.length === 0">
+              <p class="text-center"><strong>There are no popular sale listings for {{ country }}.</strong></p>
+            </div>
+            <div id="popularListingCarousel" class="carousel slide w-auto" data-interval="false" data-wrap="false">
+              <div class="carousel-inner">
+                <!-- Carousel Slides -->
+                <div class="carousel-item active" v-if="listingsList1">
+                  <div class="row justify-content-center">
+                    <div v-for="listing in listingsList1" v-bind:key="listing.id">
+                      <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
+                    </div>
+                  </div>
                 </div>
-            </div>
-          </div>
-          <div class="carousel-item" v-if="listingsList2">
-            <div class="row justify-content-center">
-              <div v-for="listing in listingsList2" v-bind:key="listing.id">
-                <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
+                <div class="carousel-item" v-if="listingsList2">
+                  <div class="row justify-content-center">
+                    <div v-for="listing in listingsList2" v-bind:key="listing.id">
+                      <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
+                    </div>
+                  </div>
+                </div>
+                <div class="carousel-item" v-if="listingsList3">
+                  <div class="row justify-content-center">
+                    <div v-for="listing in listingsList3" v-bind:key="listing.id">
+                      <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Carousel Buttons -->
+              <div v-if="listingsList2">
+                <a class="carousel-control-prev" data-slide="prev" href="#popularListingCarousel" role="button" @click="currentSlide--">
+                  <span aria-hidden="true" class="carousel-control-prev-icon"></span>
+                  <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" data-slide="next" href="#popularListingCarousel" role="button" @click="currentSlide++">
+                  <span aria-hidden="true" class="carousel-control-next-icon"></span>
+                  <span class="sr-only">Next</span>
+                </a>
               </div>
             </div>
           </div>
-          <div class="carousel-item" v-if="listingsList3">
-            <div class="row justify-content-center">
-              <div v-for="listing in listingsList3" v-bind:key="listing.id">
-                <PopularListing :data="listing" style="padding-right: 20px;padding-left: 20px" @update-data="updateData"></PopularListing>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Carousel Buttons -->
-        <div v-if="listingsList2">
-          <a class="carousel-control-prev" data-slide="prev" href="#popularListingCarousel" role="button" @click="currentSlide--">
-            <span aria-hidden="true" class="carousel-control-prev-icon"></span>
-            <span class="sr-only">Previous</span>
-          </a>
-          <a class="carousel-control-next" data-slide="next" href="#popularListingCarousel" role="button" @click="currentSlide++">
-            <span aria-hidden="true" class="carousel-control-next-icon"></span>
-            <span class="sr-only">Next</span>
-          </a>
+
         </div>
       </div>
     </div>
@@ -309,9 +317,5 @@ export default {
 </script>
 
 <style scoped>
-
-.country-input {
-  margin: 20px;
-}
 
 </style>

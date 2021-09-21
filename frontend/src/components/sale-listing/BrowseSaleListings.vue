@@ -29,7 +29,7 @@
                        type="search"
                        @keyup.enter="checkInputs">
                 <div class="input-group-append">
-                  <button :class="{'btn-outline-secondary': !optionsShow, 'btn-secondary': optionsShow}" class="btn"
+                  <button :class="{'btn-secondary': !optionsShow, 'btn-danger': optionsShow}" class="btn"
                           data-target="#searchOptions" data-toggle="collapse" type="button"
                           @click="optionsShow = !optionsShow"
                   >

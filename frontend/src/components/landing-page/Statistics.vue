@@ -1,6 +1,6 @@
 <template>
-  <div class="row justify-content-center mb-3 align-content-center">
-    <div class="col-4">
+  <div class="row row-cols-1 row-cols-md-3 mb-5 justify-content-center">
+    <div class="col mb-3 mb-md-0">
       <div class="card text-white bg-primary shadow">
         <div class="card-body">
           <h1 id="userCountText" class="card-text mb-0">{{ stats.totalUserCount }}</h1>
@@ -8,7 +8,7 @@
         </div>
       </div>
     </div>
-    <div class="col-4">
+    <div class="col mb-3 mb-md-0">
       <div class="card text-white bg-primary shadow">
         <div class="card-body">
           <h1 id="availableListingsText" class="card-text mb-0">{{ stats.numAvailableListings }}</h1>
@@ -16,7 +16,7 @@
         </div>
       </div>
     </div>
-    <div class="col-4">
+    <div class="col mb-3 mb-md-0">
       <div class="card text-white bg-primary shadow">
         <div class="card-body">
           <h1 id="totalSalesText" class="card-text mb-0">{{ stats.totalNumSales }}</h1>
