@@ -22,6 +22,7 @@ describe('Jest tests for the BusinessProfile component', () => {
     beforeEach(() => {
         jest.spyOn(BusinessProfile.methods, 'getPrimaryImage').mockImplementation(() => {})
         jest.spyOn(BusinessProfile.methods, 'formatAddress').mockImplementation(() => {})
+        Business.getFeaturedListings.mockReturnValue({data: [{}]})
         wrapper = VueTestUtils.shallowMount(BusinessProfile, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
             computed: {isLoggedIn() { return true }},
@@ -53,8 +54,7 @@ describe('Jest tests for the BusinessProfile component', () => {
         expect(saleListingEl.exists()).toBeTruthy()
     })
 
-    test('Check the getFeaturedListings method sends a request to the backend', async () => {
-        Business.getFeaturedListings.mockImplementation(() => Promise.resolve([{}]))
+    test('Check the getFeaturedListings method sends a request to the backend',  async () => {
         await wrapper.vm.getFeaturedListings()
         expect(Business.getFeaturedListings).toBeCalledWith(expect.any(Number))
     })
