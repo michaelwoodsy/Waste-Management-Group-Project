@@ -14,7 +14,7 @@
           <div class="col text-center">
             <h2>
               <strong>{{ listing.inventoryItem.product.name }}</strong>
-              <em v-if="isLoggedIn" :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart pointer" @click="likeListing"/>
+              <em v-if="isLoggedIn && isActingAsUser" :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart pointer" @click="likeListing"/>
               <em v-else :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart" style="pointer-events: none"/>
               {{ likes }}
             </h2>
@@ -67,22 +67,19 @@
           </alert>
 
           <!-- Buy button -->
-          <div v-if="isLoggedIn" class="row text-center mb-3">
+          <div class="row text-center mb-3">
             <div class="col">
-              <button v-if="!buyClicked"
+              <button v-if="!buyClicked && isLoggedIn && isActingAsUser"
                       id="buyButton"
                       class="btn btn-primary mx-2 button"
                       @click="buy"
               >
                 Buy
               </button>
-              <button v-else
-                      class="btn btn-outline-secondary mx-2 button"
-                      disabled
-              >
+              <button v-else-if="isLoggedIn && isActingAsUser" class="btn btn-outline-secondary mx-2 button" disabled>
                 Bought
               </button>
-              <button class="btn btn-primary mx-2 button" @click="viewBusiness">View Business</button>
+              <button v-if="isLoggedIn" class="btn btn-primary mx-2 button" @click="viewBusiness">View Business</button>
             </div>
           </div>
 
@@ -241,6 +238,12 @@ export default {
      */
     isLoggedIn() {
       return this.$root.$data.user.isLoggedIn()
+    },
+    /**
+     * Returns true if the user is acting as a user, false if they are not
+     */
+    isActingAsUser() {
+      return this.$root.$data.user.isActingAsUser()
     }
   },
   methods: {
