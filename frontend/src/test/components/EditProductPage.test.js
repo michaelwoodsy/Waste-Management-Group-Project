@@ -80,23 +80,23 @@ jest.mock('@/Api', () => ({
     }
 }));
 
-// Setup before each test
-beforeEach(() => {
-    wrapper = VueTestUtils.shallowMount(EditProductPage, {
-        stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-        computed,
-        methods
-    })
-});
-
-// Reset any test variables that might have been changed
-afterEach(() => {
-    businessId = 2
-    productId = "WATT-420-BEANS"
-    loggedIn = true
-})
-
 describe('EditProductPage Component Tests', () => {
+
+    // Setup before each test
+    beforeEach(() => {
+        wrapper = VueTestUtils.shallowMount(EditProductPage, {
+            stubs: ['router-link', 'router-view', "login-required", "admin-required"],
+            computed,
+            methods
+        })
+    });
+
+    // Reset any test variables that might have been changed
+    afterEach(() => {
+        businessId = 2
+        productId = "WATT-420-BEANS"
+        loggedIn = true
+    })
 
     // Test the title is there
     test('displays title', () => {
