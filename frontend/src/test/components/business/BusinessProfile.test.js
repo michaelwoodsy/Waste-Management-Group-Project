@@ -22,7 +22,7 @@ describe('Jest tests for the BusinessProfile component', () => {
     beforeEach(() => {
         jest.spyOn(BusinessProfile.methods, 'getPrimaryImage').mockImplementation(() => {})
         jest.spyOn(BusinessProfile.methods, 'formatAddress').mockImplementation(() => {})
-        Business.getFeaturedListings.mockReturnValue({data: [{}]})
+        Business.getFeaturedListings.mockReturnValue({data: []})
         wrapper = VueTestUtils.shallowMount(BusinessProfile, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
             computed: {isLoggedIn() { return true }},
