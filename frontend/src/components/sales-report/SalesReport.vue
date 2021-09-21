@@ -1,10 +1,9 @@
 <template>
   <div>
-    <alert> <!--TODO: v-if this and include actual date & currency values -->
+    <alert v-if="showCurrencyWarning">
       <strong>Totals include unconverted data in multiple currencies.</strong>
       <br>
-      Data up to 01/09/2021 is in CNY and data after 01/09/2021 is in NZD.
-      Please convert manually.
+      <span style="white-space: pre;">{{currencyWarningText}}</span>
     </alert>
 
     <div id="salesReport" :key="currency" class="accordion shadow">
@@ -74,6 +73,16 @@ import Alert from "@/components/Alert";
 export default {
   name: "SalesReport",
   components: {Alert, SalesReportSection},
+  data() {
+    return {
+      showCurrencyWarning: false,
+      currencyWarningText: ""
+    }
+  },
+  mounted() {
+    this.currencyWarning(["NZD", "AUD"], ["AUD", "GBP"],
+        ["10/04/2021", "14/09/2021"])
+  },
   props: {
     data: Array,
     currency: Object
@@ -113,6 +122,23 @@ export default {
      */
     formattedValue(value) {
       return product.formatPrice(this.currency, value)
+    },
+
+    /**
+     * Sets the text of the currency warning message.
+     * Generates a message for each currency change.
+     * @param beforeCurrencies list of currency codes before each currency change
+     * @param afterCurrencies list of currency codes after each currency change
+     * @param changeDates list of dates when a currency changes (last date at the previous currency)
+     */
+    currencyWarning(beforeCurrencies, afterCurrencies, changeDates) {
+      this.currencyWarningText = ""
+      for (let i = 0; i < beforeCurrencies.length; i++) {
+        this.currencyWarningText += `Data up to ${changeDates[i]} is in ${beforeCurrencies[i]} `
+            + `and data after ${changeDates[i]} is in ${afterCurrencies[i]}. `
+        this.currencyWarningText += "Please convert manually.\n"
+      }
+      this.showCurrencyWarning = true
     }
   }
 }

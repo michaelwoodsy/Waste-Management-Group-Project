@@ -144,4 +144,15 @@ describe('Tests for the SalesReport component', () => {
         expect(wrapper.vm.totalValue).toStrictEqual(expectedVal)
     })
 
+    test('Tests the currencyWarning method produces expected currency warning text', () => {
+        wrapper.vm.currencyWarning(["NZD", "AUD"], ["AUD", "GBP"],
+            ["10/04/2021", "14/09/2021"])
+        expect(wrapper.vm.$data.currencyWarningText).toStrictEqual(
+            "Data up to 10/04/2021 is in NZD and data after 10/04/2021 is in AUD."
+        + " Please convert manually.\n"
+        + "Data up to 14/09/2021 is in AUD and data after 14/09/2021 is in GBP."
+            + " Please convert manually.\n")
+        expect(wrapper.vm.$data.showCurrencyWarning).toBeTruthy()
+    })
+
 })
