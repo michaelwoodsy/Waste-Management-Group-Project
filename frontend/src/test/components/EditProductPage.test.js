@@ -118,7 +118,8 @@ describe('EditProductPage Component Tests', () => {
         businessId = 3;
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-            computed
+            computed,
+            methods
         })
         expect(wrapper.findComponent({name: 'admin-required'}).exists()).toBeTruthy()
     })
@@ -137,7 +138,8 @@ describe('EditProductPage Component Tests', () => {
         productId = "Non existent";
         wrapper = VueTestUtils.shallowMount(EditProductPage, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required", "alert"],
-            computed
+            computed,
+            methods
         })
         await Vue.nextTick() // Otherwise the loading ... message is displayed
 
@@ -147,7 +149,7 @@ describe('EditProductPage Component Tests', () => {
     })
 
     // Check the idValid computed field
-    test("testing idField computed property", async () => {
+    test("testing idField computed property",  () => {
         const fakeId = (id) => {
             return {newProduct: {id: id}}
         }
@@ -158,7 +160,7 @@ describe('EditProductPage Component Tests', () => {
     })
 
     // Check the nameValid computed field
-    test("testing nameValid computed property", async () => {
+    test("testing nameValid computed property",  () => {
         const fakeName = (name) => {
             return {newProduct: {name: name}}
         }
@@ -167,7 +169,7 @@ describe('EditProductPage Component Tests', () => {
     })
 
     // Check the priceValid computed field
-    test("testing priceValid computed property", async () => {
+    test("testing priceValid computed property",  () => {
         const fakePrice = (price) => {
             return {newProduct: {recommendedRetailPrice: price}}
         }
