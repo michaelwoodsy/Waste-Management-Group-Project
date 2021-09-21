@@ -15,6 +15,9 @@ beforeEach(() => {
             isLoggedIn() {
                 return true
             },
+        },
+        mocks: {
+            $route: {query: {}}
         }
     })
 });
