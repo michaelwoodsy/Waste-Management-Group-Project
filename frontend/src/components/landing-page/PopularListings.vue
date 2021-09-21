@@ -59,7 +59,7 @@
 
           <div>
             <div v-if="listings.length === 0">
-              <p class="text-center"><strong>There are no popular sale listings for {{ country }}.</strong></p>
+              <p class="text-center">There are no popular sale listings for {{ country }}</p>
             </div>
             <div id="popularListingCarousel" class="carousel slide w-auto" data-interval="false" data-wrap="false">
               <div class="carousel-inner">

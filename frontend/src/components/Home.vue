@@ -28,6 +28,9 @@
                            class="btn btn-block btn-primary">Edit Profile
               </router-link>
             </li>
+            <li>
+              <button class="btn btn-primary" data-toggle="modal" data-target="#review">Review</button>
+            </li>
           </ul>
         </div>
         <!-- Links to display if acting as business -->
@@ -237,6 +240,9 @@
         </div>
       </div>
     </div>
+
+    <review review-id="review"/>
+
   </div>
 </template>
 
@@ -252,6 +258,7 @@ import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
 import undo from "@/utils/undo"
 import SalesReportPage from "@/components/sales-report/SalesReportPage";
+import Review from "@/components/Review";
 
 const tags = {
   RED: {
@@ -287,6 +294,7 @@ const tags = {
 export default {
   name: "Home",
   components: {
+    Review,
     SalesReportPage,
     LikedListing,
     Message,
