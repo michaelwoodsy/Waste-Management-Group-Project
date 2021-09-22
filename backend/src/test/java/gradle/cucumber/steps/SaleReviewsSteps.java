@@ -20,16 +20,6 @@ public class SaleReviewsSteps {
         
     }
 
-    @When("I leave a {int} star review without a comment.")
-    public void iLeaveAStarReviewWithoutAComment(int arg0) {
-        
-    }
-
-    @Then("An error message is returned to say that no comment has been provided for the review.")
-    public void anErrorMessageIsReturnedToSayThatNoCommentHasBeenProvidedForTheReview() {
-        
-    }
-
     @When("I leave a review with comment {string} but no star rating.")
     public void iLeaveAReviewWithCommentButNoStarRating(String arg0) {
         

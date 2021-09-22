@@ -36,7 +36,7 @@ public class Review {
     private String reviewResponse;
     private LocalDateTime created = LocalDateTime.now();
 
-    public Review(Sale sale, Business business, User user, Integer rating, String reviewMessage) {
+    public Review(Sale sale, User user, Integer rating, String reviewMessage) {
         this.sale = sale;
         this.business = sale.getBusiness();
         this.user = user;
