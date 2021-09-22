@@ -34,6 +34,14 @@ Displays a single listing.
             View Details
           </button>
 
+          <!-- Remove from featured listings button -->
+          <button
+              class="btn btn-sm btn-outline-danger ml-3"
+              id="removeButton"
+          >
+            Remove From Featured
+          </button>
+
         </div>
       </div>
     </div>
@@ -41,6 +49,7 @@ Displays a single listing.
 
 <script>
 import {Images} from "@/Api";
+import product from "@/store/modules/product"
 
 export default {
   name: "SaleListing",
@@ -66,12 +75,22 @@ export default {
     this.setCurrency()
   },
 
+  computed: {
+    /**
+     * Returns true if the current user is an administrator of the business.
+     * Also returns true if they are a GAA / DGAA
+     */
+    isAdminOfBusiness() {
+      return true
+    }
+  },
+
   methods: {
     /**
      * Sets the currency on the sale listing
      */
     async setCurrency() {
-      let listings = await this.$root.$data.product
+      let listings = await product
           .addSaleListingCurrencies([{...this.listingData}], this.listingData.business.address.country)
       this.listing = listings[0]
     },
@@ -88,7 +107,7 @@ export default {
      * the country of the business offering the listing
      */
     formatPrice(listing) {
-      return this.$root.$data.product.formatPrice(listing.currency, listing.price)
+      return product.formatPrice(listing.currency, listing.price)
     },
 
     /**
