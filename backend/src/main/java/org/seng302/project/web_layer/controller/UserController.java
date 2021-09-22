@@ -1,7 +1,6 @@
 package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
-import org.seng302.project.service_layer.dto.sales_report.GetSaleDTO;
 import org.seng302.project.service_layer.dto.user.*;
 import org.seng302.project.service_layer.exceptions.*;
 import org.seng302.project.service_layer.exceptions.register.*;
@@ -212,14 +211,16 @@ public class UserController {
      */
     @GetMapping("/users/{userId}/purchases")
     @ResponseStatus(HttpStatus.OK)
-    public List<GetSaleDTO> getPurchaseHistory(
+    public List<Object> getPurchaseHistory(
             @PathVariable Integer userId,
+            @RequestParam("pageNumber") Integer pageNumber,
+            @RequestParam("sortBy") String sortBy,
             @AuthenticationPrincipal AppUserDetails appUser
     ) {
         try {
             userService.checkUser(userId);
             userService.checkForbidden(userId, appUser);
-            return userService.getPurchaseHistory(userId);
+            return userService.getPurchaseHistory(userId, pageNumber, sortBy);
         } catch (NotAcceptableException exception) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, exception.getMessage(), exception);
         } catch (ForbiddenException exception) {

@@ -276,7 +276,18 @@ export const User = {
         {
             tag: name
         }
-    )
+    ),
+
+    /**
+     * Gets purchases for a specific user
+     *
+     * @param userId users purchases to retrieve
+     * @param params the page number and sorting parameter
+     * @returns {Promise<AxiosResponse<any>>} response containing the users purchases
+     */
+    getPurchases: (userId, params) => instance.get(`users/${userId}/purchases`, {
+        params
+    }),
 
 };
 
@@ -470,7 +481,7 @@ export const Business = {
 
     /**
      * requests to get sales listings matching supplied properties
-     * @param params query parameters for browsing slae listings
+     * @param params query parameters for browsing sale listings
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     searchSaleListings: (params) => instance.get(`listings`, {
