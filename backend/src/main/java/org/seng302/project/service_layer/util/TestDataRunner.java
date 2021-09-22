@@ -16,9 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Class containing functions to populate test database with test data.
@@ -295,6 +293,7 @@ public class TestDataRunner {
      */
     public void insertTestSaleListings(JSONArray saleData) {
         logger.info("Adding sample data to sale listing repository");
+        List<String> countries = List.of("New Zealand", "New Zealand", "New Zealand", "China", "Australia", "France", "Germany", "Australia");
         for (Object object : saleData) {
             JSONObject jsonSaleListing = (JSONObject) object;
             Optional<InventoryItem> testItemOptions = inventoryItemRepository.findById(jsonSaleListing.getAsNumber("inventoryItemId").intValue());
@@ -325,18 +324,11 @@ public class TestDataRunner {
                         value.addLikedListing(likedListing);
                         userRepository.save(value);
                     });
-                } else if (testListing.getId() == 3 || testListing.getId() == 4 || testListing.getId() == 5 || testListing.getId() == 6 || testListing.getId() == 7 || testListing.getId() == 8) {
-                    var user = userRepository.findById(1);
-                    user.ifPresent(value -> {
-                        var likedListing = new LikedSaleListing(value, listing);
-                        likedSaleListingRepository.save(likedListing);
-                        value.addLikedListing(likedListing);
-                        userRepository.save(value);
-                    });
                 } else {
                     //Test data for sales
+                    listing.getInventoryItem().getProduct().setCurrencyCountry(countries.get(listing.getId() - 2));
                     Sale sale = new Sale(listing);
-                    sale.setDateSold(LocalDateTime.now().minusDays(listing.getId() * (long) 4));
+                    sale.setDateSold(LocalDateTime.now().minusDays(80 - (listing.getId() * (long) 4)));
                     saleHistoryRepository.save(sale);
                 }
             }
