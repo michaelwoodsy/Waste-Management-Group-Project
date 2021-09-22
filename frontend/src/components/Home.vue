@@ -17,11 +17,17 @@
               <router-link class="btn btn-block btn-primary" to="/marketplace">Marketplace</router-link>
             </li>
             <li v-if="user.isActingAsUser()" class="nav-item mb-2">
+              <router-link class="btn btn-block btn-primary"
+                           :to="`users/${user.state.userId}/purchases`"
+              >
+                My Purchases
+              </router-link>
+            </li>
+            <li v-if="user.isActingAsUser()" class="nav-item mb-2">
               <router-link :to="`users/${user.state.userId}/edit`"
                            class="btn btn-block btn-primary">Edit Profile
               </router-link>
             </li>
-
           </ul>
         </div>
         <!-- Links to display if acting as business -->
@@ -131,28 +137,6 @@
               </div>
             </div>
             <div v-else>You have no liked sale listings.</div>
-          </div>
-          <!-- TODO:Put carousel into separate component with popular listing inside-->
-          <div class="row">
-            <div>
-              <div id="popularListingCarousel" class="carousel slide w-50 col" data-ride="carousel">
-                <div class="carousel-inner" role="listbox">
-                  <div v-for="(listing, index) in likedListings" v-bind:key="listing.id"
-                       :class="{'carousel-item': true, 'active': index === 0}">
-                    <PopularListing :data="listing"
-                                    @update-data="updateData"></PopularListing>
-                  </div>
-                </div>
-                <a class="carousel-control-prev" data-slide="prev" href="#popularListingCarousel" role="button">
-                  <span aria-hidden="true" class="carousel-control-prev-icon"></span>
-                  <span class="sr-only">Previous</span>
-                </a>
-                <a class="carousel-control-next" data-slide="next" href="#popularListingCarousel" role="button">
-                  <span aria-hidden="true" class="carousel-control-next-icon"></span>
-                  <span class="sr-only">Next</span>
-                </a>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -268,7 +252,6 @@ import Message from "@/components/marketplace/Message";
 import LikedListing from "@/components/sale-listing/LikedListing";
 import undo from "@/utils/undo"
 import SalesReportPage from "@/components/sales-report/SalesReportPage";
-import PopularListing from "@/components/sale-listing/PopularListing";
 
 const tags = {
   RED: {
@@ -310,33 +293,15 @@ export default {
     Alert,
     LoginRequired,
     MarketCard,
-    Notification,
-    PopularListing
+    Notification
   },
   async mounted() {
-    await this.getData()
-    //TODO: place the sections underneath into the carousel component for the popular listings
-    $('#popularListingCarousel').carousel({
-      interval: 10000
-    })
-
-    $('.carousel .carousel-item').each(function(){
-      var minPerSlide = 3;
-      var next = $(this).next();
-      if (!next.length) {
-        next = $(this).siblings(':first');
-      }
-      next.children(':first-child').clone().appendTo($(this));
-
-      for (var i=0;i<minPerSlide;i++) {
-        next=next.next();
-        if (!next.length) {
-          next = $(this).siblings(':first');
-        }
-
-        next.children(':first-child').clone().appendTo($(this));
-      }
-    });
+    try {
+      await this.getData()
+    }
+    catch (err) {
+      // do nothing
+    }
   },
   watch: {
     async actingAs() {
@@ -855,41 +820,5 @@ export default {
 
 .tag:hover {
   text-shadow: currentColor 0 0 5px;
-}
-
-/*TODO: place the sections underneath into the carousel component for the popular listings*/
-/* display 2 */
-@media (max-width: 768px) {
-  .carousel-inner .carousel-item > div {
-    display: none;
-  }
-  .carousel-inner .carousel-item > div:first-child {
-    display: block;
-  }
-}
-
-.carousel-inner .carousel-item.active,
-.carousel-inner .carousel-item-next,
-.carousel-inner .carousel-item-prev {
-  display: flex;
-}
-
-/* display 3 */
-@media (min-width: 768px) {
-
-  .carousel-inner .carousel-item-right.active,
-  .carousel-inner .carousel-item-next {
-    transform: translateX(33.333%);
-  }
-
-  .carousel-inner .carousel-item-left.active,
-  .carousel-inner .carousel-item-prev {
-    transform: translateX(-33.333%);
-  }
-}
-
-.carousel-inner .carousel-item-right,
-.carousel-inner .carousel-item-left{
-  transform: translateX(0);
 }
 </style>

@@ -68,6 +68,7 @@ export class ParsedRoute {
                 return path.name === this.name
             }
         } else if (typeof path === 'string') {
+            path = path.split("?")[0]
             const pathParts = this.getPathParts(path);
             if (pathParts.length === this.pathParts.length) {
                 // Iterate over the path parts and return false if they don't match
@@ -121,7 +122,19 @@ export class ParsedRoute {
             }
         }
 
-        // TODO: Add query params to the route object
+        // Add query params to the route object
+        if (path.includes("?")) {
+            let queryString = path.split('?')[1];
+            let queryStrings = queryString.split("&");
+            for (let query of queryStrings) {
+                if (query.includes("=")) {
+                    let pair = query.split('=')
+                    route.query[pair[0]] = pair[1]
+                } else {
+                    route.query[query] = true
+                }
+            }
+        }
 
         return route
     }

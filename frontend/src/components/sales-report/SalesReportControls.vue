@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <div class="row mb-5 justify-content-center">
+    <div class="row mb-3 justify-content-center">
       <div class="col-8">
 
         <div class="form-group row">

@@ -1,8 +1,73 @@
+<!--
+Component for displaying a business' information.
+
+-----------------------------------------------------------
+Props
+-----------------------------------------------------------
+business:         Object, required. Business object from backend.
+isBusinessAdmin:  Boolean, default false. Displays buttons / options that are only
+                  visible to a business admin.
+isPrimaryAdmin:   Boolean, default false. Displays buttons / options only available to
+                  the businesses primary admin.
+readOnly:         Boolean, default true.
+-->
+
 <template>
   <div class="container-fluid">
 
+    <!-- Featured listings -->
+    <div>
+      <div class="row">
+        <div class="col text-center">
+          <h4>Featured Listings</h4>
+        </div>
+      </div>
+
+      <!-- Display message if there are no featured listings -->
+      <div v-if="featuredListings.length === 0">
+        <p class="text-center" id="featuredListingText"><strong>This Business has no featured listings</strong></p>
+      </div>
+
+      <!-- Otherwise, display featured listings in carousel -->
+      <div v-else class="row">
+        <div class="col-12 col-md-12 col-lg-6 m-auto">
+          <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+
+            <!-- Carousel items -->
+            <div class="carousel-inner">
+              <div class="carousel-item p-3"
+                   :class="{active: listing === featuredListings[0]}"
+                   v-for="listing in featuredListings"
+                   v-bind:key="listing.id"
+              >
+                <sale-listing
+                    style="height: 350px"
+                    :listing-data="listing"
+                    @close-modal="$emit('close-modal')"
+                />
+              </div>
+            </div>
+
+            <!-- Carousel left button -->
+            <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="sr-only">Previous</span>
+            </a>
+
+            <!-- Carousel right button -->
+            <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="sr-only">Next</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <div class="row mb-3">
       <div class="col">
+
         <!-- Profile image -->
         <div class="row mb-3">
           <div class="col-12 text-center">
@@ -206,9 +271,11 @@
 <script>
 import userState from "@/store/modules/user";
 import {Business, Images} from '@/Api';
+import SaleListing from "@/components/sale-listing/SaleListing";
 
 export default {
   name: "BusinessProfile",
+  components: {SaleListing},
   props: {
     business: {
       type: Object,
@@ -238,8 +305,12 @@ export default {
       addAdministratorError: null,
       addAdministratorSuccess: null,
       error: null,
-      canDoAdminAction: false
+      canDoAdminAction: false,
+      featuredListings: []
     }
+  },
+  mounted () {
+    this.getFeaturedListings()
   },
   methods: {
     /**
@@ -264,7 +335,7 @@ export default {
         }
       }
 
-      return this.getImageURL('/media/defaults/defaultProfile.jpg')
+      return this.getImageURL('/media/defaults/defaultBusinessProfile.jpg')
     },
 
     /**
@@ -315,6 +386,14 @@ export default {
             ? err.response.data.slice(err.response.data.indexOf(":") + 2)
             : err
       }
+    },
+
+    /**
+     * Retrieves the business' featured listings, and sets to  this.featuredListings.
+     */
+    async getFeaturedListings() {
+      let res = await Business.getFeaturedListings(this.business.id)
+      this.featuredListings = res.data
     },
 
     /**

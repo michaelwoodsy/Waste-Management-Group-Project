@@ -1,102 +1,94 @@
 <!--
-PopularListing.vue
-Displays a popular listing
+SaleListing.vue
+Displays a single listing.
 
-@prop listingData: The json data (from the api) to display
+@prop listingData: The json data for a sale listing (from the api) to display
 -->
 <template>
-  <div>
-    <div class="card shadow card-size" style="width: 15rem; height: 24rem">
-      <!-- Listing Image -->
-      <img :src="getPrimaryImage(data.inventoryItem.product)" alt="productImage" class="card-img-top">
 
-      <div class="card-body">
+    <div v-if="listing" class="card shadow card-size">
+
+      <!-- Listing Image -->
+      <img v-if="imageUrl != null" :src="imageUrl" alt="productImage" class="card-img-top">
+
+      <div class="card-body" style="min-height: 300px">
+
         <!-- Product Name -->
-        <h6 class="card-title">{{ name }}</h6>
+        <h6 class="card-title">{{ listing.inventoryItem.product.name }}</h6>
 
         <!-- Quantity and Price, cause sizing issues -->
         <p class="card-text text-muted small mb-1">
-          Quantity: {{ data.quantity }}
+          Quantity: {{ listing.quantity }}
         </p>
 
         <p class="card-text text-muted small mb-1">
-          Price: {{ formatPrice(data) }}
+          Price: {{ formatPrice(listing) }}
         </p>
-        <p>
-          <em class="bi bi-heart" style="color: red"/> {{ data.likes }}
-        </p>
-        <div style="position: absolute; bottom: 10px; width: 198px">
+
+        <div class="text-right">
           <!-- Open Listing Modal -->
           <button
-              class="btn btn-sm btn-outline-primary"
-              data-target="#viewListingModal"
-              data-toggle="modal"
-              @click="viewListingModal = true"
+              class="btn btn-sm btn-outline-primary ml-3"
+              @click="routeToSaleListing"
           >
             View Details
           </button>
-        </div>
 
+        </div>
       </div>
     </div>
-
-    <individual-sale-listing-modal v-if="viewListingModal" :listing="data" @close-modal="closeModal"/>
-  </div>
 </template>
 
 <script>
-
 import {Images} from "@/Api";
-import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
+
 export default {
-  name: "PopularListing",
-  components: {
-    IndividualSaleListingModal,
-  },
+  name: "SaleListing",
   props: {
     // Data of the sale listing.
-    data: {
+    listingData: {
       type: Object,
       required: true
     }
   },
+
   data() {
     return {
       viewListingModal: false,
       businessToViewId: null,
-      name: ""
+      imageUrl: null,
+      listing: null
     }
   },
+
   mounted() {
-    this.getPrimaryImage(this.data.inventoryItem.product)
-    this.formatTitle(this.data.inventoryItem.product.name)
+    this.getPrimaryImage(this.listingData.inventoryItem.product)
+    this.setCurrency()
   },
 
   methods: {
     /**
-     * Method that cleans up and shortens the name of the listing
+     * Sets the currency on the sale listing
      */
-    formatTitle(name){
-      if(name.length > 40){
-        name = name.slice(0, 37)
-        name += "..."
-        this.name = name;
-      } else {
-        this.name = name
-      }
+    async setCurrency() {
+      let listings = await this.$root.$data.product
+          .addSaleListingCurrencies([{...this.listingData}], this.listingData.business.address.country)
+      this.listing = listings[0]
     },
+
     /**
      * Method called after closing the modal
      */
     closeModal() {
       this.$emit('update-data')
     },
+
     /**
      * Formats the price of a listing based on
      * the country of the business offering the listing
      */
     formatPrice(listing) {
-       return this.$root.$data.product.formatPrice(listing.currency, listing.price);
+      return this.$root.$data.product.formatPrice(listing.currency, listing.price)
     },
 
     /**
@@ -124,14 +116,12 @@ export default {
      * else it returns the default product image url
      */
     getPrimaryImage(product) {
-      if (product.primaryImageId === null) {
-        return this.getImageURL('/media/defaults/defaultProduct.jpg')
-      } else {
+      if (product.primaryImageId !== null) {
         const filteredImages = product.images.filter(function (specificImage) {
           return specificImage.id === product.primaryImageId;
         })
         if (filteredImages.length === 1) {
-          return this.getImageURL(filteredImages[0].filename)
+          this.imageUrl = this.getImageURL(filteredImages[0].filename)
         }
       }
     },
@@ -141,6 +131,14 @@ export default {
      */
     getImageURL(path) {
       return Images.getImageURL(path)
+    },
+
+    async routeToSaleListing() {
+      await this.$emit('close-modal')
+      this.$router.push({
+        name: 'browseListings',
+        query: {businessId: this.listingData.business.id, listingId: this.listingData.id}
+      })
     }
   }
 }
@@ -148,12 +146,22 @@ export default {
 
 <style scoped>
 
+.icon {
+  font-size: 30px;
+  transition: 0.3s;
+}
+
+.icon:hover {
+  text-shadow: currentColor 0 0 5px;
+}
+
 .card-size {
   margin-bottom: 40px;
 }
 
 .card-img-top {
   object-fit: cover;
-  min-height: 190px;
+  max-height: 200px;
 }
+
 </style>

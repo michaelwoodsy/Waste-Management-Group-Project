@@ -52,7 +52,9 @@ export default {
      * Updates data for user, called when a new business is created, so the new business is shown in userData
      */
     async updateData() {
-        await this.setLoggedIn(this.state.userId)
+        if (this.state.userId !== null) {
+            await this.setLoggedIn(this.state.userId)
+        }
     },
 
     /**

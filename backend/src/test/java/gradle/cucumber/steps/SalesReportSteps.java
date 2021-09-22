@@ -1,5 +1,6 @@
 package gradle.cucumber.steps;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.service_layer.dto.sales_report.GetSalesReportDTO;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -39,6 +41,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 public class SalesReportSteps extends AbstractInitializer {
 
     private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
 
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
@@ -53,11 +56,14 @@ public class SalesReportSteps extends AbstractInitializer {
     private ResultActions mockMvcResult;
 
     @Autowired
-    public SalesReportSteps(UserRepository userRepository, BusinessRepository businessRepository,
-                            SaleHistoryRepository saleHistoryRepository) {
+    public SalesReportSteps(UserRepository userRepository,
+                            BusinessRepository businessRepository,
+                            SaleHistoryRepository saleHistoryRepository,
+                            ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.saleHistoryRepository = saleHistoryRepository;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -65,11 +71,14 @@ public class SalesReportSteps extends AbstractInitializer {
      */
     @BeforeEach
     @Autowired
-    void setup(WebApplicationContext context, UserNotificationRepository userNotificationRepository) {
+    void setup(WebApplicationContext context,
+               UserNotificationRepository userNotificationRepository,
+               AddressRepository addressRepository) {
         userNotificationRepository.deleteAll();
         saleHistoryRepository.deleteAll();
         businessRepository.deleteAll();
         userRepository.deleteAll();
+        addressRepository.deleteAll();
 
 
         mockMvc = MockMvcBuilders
@@ -78,13 +87,13 @@ public class SalesReportSteps extends AbstractInitializer {
                 .build();
 
         owner = this.getTestUserBusinessAdmin();
-        owner.setHomeAddress(null);
+        addressRepository.save(owner.getHomeAddress());
         owner = userRepository.save(owner);
 
         business = this.getTestBusiness();
-        business.setAddress(null);
         business.setPrimaryAdministratorId(owner.getId());
         business.setAdministrators(List.of(owner));
+        addressRepository.save(business.getAddress());
         business = businessRepository.save(business);
 
         product = new Product("PROD", "Product", "Just a product", "Me",
@@ -135,10 +144,12 @@ public class SalesReportSteps extends AbstractInitializer {
     }
 
     @Then("The {int} sales from July are shown")
-    public void the_sales_from_july_are_shown(Integer julySalesCount) throws JSONException, UnsupportedEncodingException {
+    public void the_sales_from_july_are_shown(Integer julySalesCount) throws Exception {
         String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
         JSONArray sales = new JSONArray(contentAsString);
-        Assertions.assertEquals(julySalesCount, sales.length()); //TODO: why is this 6 (includes Jun & Aug)?
+        System.out.println(sales.getString(0));
+        GetSalesReportDTO report = objectMapper.readValue(sales.getString(0), GetSalesReportDTO.class);
+        Assertions.assertEquals(julySalesCount, report.getSales().size());
     }
 
 
@@ -174,10 +185,11 @@ public class SalesReportSteps extends AbstractInitializer {
     }
 
     @Then("The {int} sales from {int} are shown") //salesCount = 3, year = 2020
-    public void the_sales_from_are_shown(Integer salesCount, Integer year) throws JSONException, UnsupportedEncodingException {
+    public void the_sales_from_are_shown(Integer salesCount, Integer year) throws Exception {
         String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
-        JSONArray sales = new JSONArray(contentAsString); //TODO: java.lang.String cannot be converted to JSONArray
-        Assertions.assertEquals(salesCount, sales.length());
+        JSONArray sales = new JSONArray(contentAsString);
+        GetSalesReportDTO report = objectMapper.readValue(sales.getString(0), GetSalesReportDTO.class);
+        Assertions.assertEquals(salesCount, report.getSales().size());
     }
 
     //AC3
@@ -209,10 +221,11 @@ public class SalesReportSteps extends AbstractInitializer {
     }
 
     @Then("The {int} sales from that period are shown")
-    public void the_sales_from_that_period_are_shown(Integer salesCount) throws UnsupportedEncodingException, JSONException {
+    public void the_sales_from_that_period_are_shown(Integer salesCount) throws Exception {
         String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
-        JSONArray sales = new JSONArray(contentAsString); //TODO: java.lang.String cannot be converted to JSONArray
-        Assertions.assertEquals(salesCount, sales.length());
+        JSONArray sales = new JSONArray(contentAsString);
+        GetSalesReportDTO report = objectMapper.readValue(sales.getString(0), GetSalesReportDTO.class);
+        Assertions.assertEquals(salesCount, report.getSales().size());
     }
 
     //AC4
@@ -241,10 +254,11 @@ public class SalesReportSteps extends AbstractInitializer {
     }
 
     @Then("The report shows a total number of {int}")
-    public void the_report_shows_a_total_number_of(Integer salesCount) throws UnsupportedEncodingException, JSONException {
+    public void the_report_shows_a_total_number_of(Integer salesCount) throws Exception {
         String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
         JSONArray sales = new JSONArray(contentAsString);
-        Assertions.assertEquals(salesCount, sales.length());
+        GetSalesReportDTO report = objectMapper.readValue(sales.getString(0), GetSalesReportDTO.class);
+        Assertions.assertEquals(salesCount, report.getSales().size());
     }
 
     @Then("The report shows a total value of ${double}")
