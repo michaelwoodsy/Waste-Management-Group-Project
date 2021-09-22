@@ -64,7 +64,7 @@ jest.mock('@/Api', () => ({
 beforeEach(() => {
     // Reset the state
     user.state = {
-        message: 'Hello!',
+        reviewMessage: 'Hello!',
         loggedIn: false,
         userId: null,
         userData: {
@@ -90,7 +90,7 @@ describe('store.user', () => {
     // Logging out
     test('logging out', async () => {
         user.state = {
-            message: 'Hello!',
+            reviewMessage: 'Hello!',
             loggedIn: true,
             userId: 1,
             userData: {},

@@ -241,7 +241,7 @@
       </div>
     </div>
 
-    <review review-id="review"/>
+    <review sale-id="review"/>
 
   </div>
 </template>
