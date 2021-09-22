@@ -82,7 +82,8 @@ export default {
      * Also returns true if they are a GAA / DGAA
      */
     isAdminOfBusiness() {
-      return true
+      return this.$root.$data.user.isActingAsBusiness() &&
+          this.$root.$data.user.actor().id === this.listingData.business.id
     }
   },
 

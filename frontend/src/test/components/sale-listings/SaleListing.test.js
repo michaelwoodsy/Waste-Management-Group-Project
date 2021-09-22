@@ -63,8 +63,6 @@ describe("Tests for the SaleListing component", () => {
 
     test("Check the delete button doesn't exist when the user viewing is not a business admin", async () => {
         let removeButton = await wrapper.find("#removeButton")
-        console.log(wrapper.vm.isAdminOfBusiness)
-        console.log(removeButton)
         expect(removeButton.exists()).toBeFalsy()
     })
 
