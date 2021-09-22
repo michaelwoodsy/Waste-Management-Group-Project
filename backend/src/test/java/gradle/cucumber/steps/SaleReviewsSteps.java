@@ -4,6 +4,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
@@ -39,6 +40,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
     private final AddressRepository addressRepository;
     private final BusinessRepository businessRepository;
     private final SaleHistoryRepository saleHistoryRepository;
+    private final ReviewRepository reviewRepository;
 
 
     private MockMvc mockMvc;
@@ -53,11 +55,13 @@ public class SaleReviewsSteps extends AbstractInitializer {
     public SaleReviewsSteps(AddressRepository addressRepository,
                               UserRepository userRepository,
                               BusinessRepository businessRepository,
-                            SaleHistoryRepository saleHistoryRepository) {
+                            SaleHistoryRepository saleHistoryRepository,
+                            ReviewRepository reviewRepository) {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.saleHistoryRepository = saleHistoryRepository;
+        this.reviewRepository = reviewRepository;
     }
 
     @BeforeEach
@@ -68,6 +72,10 @@ public class SaleReviewsSteps extends AbstractInitializer {
                 .apply(springSecurity())
                 .build();
 
+        reviewRepository.deleteAll();
+        saleHistoryRepository.deleteAll();
+        userRepository.deleteAll();
+
         this.testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
         testUser.setId(null);
@@ -76,13 +84,21 @@ public class SaleReviewsSteps extends AbstractInitializer {
         this.testAdmin = this.getTestUserBusinessAdmin();
         addressRepository.save(testAdmin.getHomeAddress());
         testAdmin.setId(null);
-        this.testAdmin = userRepository.save(testAdmin);
 
         this.testBusiness = this.getTestBusiness();
         this.testBusiness.setId(null);
         addressRepository.save(testBusiness.getAddress());
         this.testBusiness = businessRepository.save(testBusiness);
 
+    }
+
+    @AfterEach
+    public void teardown() {
+        reviewRepository.deleteAll();
+        saleHistoryRepository.deleteAll();
+        businessRepository.deleteAll();
+        userRepository.deleteAll();
+        addressRepository.deleteAll();
     }
 
 
@@ -117,9 +133,9 @@ public class SaleReviewsSteps extends AbstractInitializer {
 
     @Then("A review is successfully left on the sale.")
     public void aReviewIsSuccessfullyLeftOnTheSale() {
-        List<Sale> retrievedSales = saleHistoryRepository.findAllByBuyerId(testUser.getId());
-        Assertions.assertEquals(1, retrievedSales.size());
-        Assertions.assertEquals("Purchased sale listing", retrievedSales.get(0).getMoreInfo());
+        List<Review> retrievedReviews = reviewRepository.findAllByUserId(testUser.getId());
+        Assertions.assertEquals(1, retrievedReviews.size());
+        Assertions.assertEquals("Purchased sale listing", retrievedReviews.get(0).getSale().getMoreInfo());
     }
 
 
