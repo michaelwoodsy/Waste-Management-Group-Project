@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "e4fb878a-5c08-4c51-b0ad-7d16db8936d7",
+		"_postman_id": "1e5c76be-0141-45ca-a7c0-12c8e075c575",
 		"name": "UD5 Sale History",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,7 +11,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:9599/users/:userId/purchases",
+					"raw": "http://localhost:9599/users/:userId/purchases?pageNumber=0&sortBy=",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -21,6 +21,16 @@
 						"users",
 						":userId",
 						"purchases"
+					],
+					"query": [
+						{
+							"key": "pageNumber",
+							"value": "0"
+						},
+						{
+							"key": "sortBy",
+							"value": ""
+						}
 					],
 					"variable": [
 						{
