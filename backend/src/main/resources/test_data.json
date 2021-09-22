@@ -660,7 +660,7 @@
     {
       "productId": "DELM-400-TOM",
       "businessId": 1,
-      "quantity": 8,
+      "quantity": 10,
       "pricePerItem": 3.99,
       "totalPrice": 30.00,
       "manufactured": "2021-04-09",

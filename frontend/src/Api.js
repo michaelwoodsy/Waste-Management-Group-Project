@@ -276,7 +276,18 @@ export const User = {
         {
             tag: name
         }
-    )
+    ),
+
+    /**
+     * Gets purchases for a specific user
+     *
+     * @param userId users purchases to retrieve
+     * @param params the page number and sorting parameter
+     * @returns {Promise<AxiosResponse<any>>} response containing the users purchases
+     */
+    getPurchases: (userId, params) => instance.get(`users/${userId}/purchases`, {
+        params
+    }),
 
 };
 
@@ -470,7 +481,7 @@ export const Business = {
 
     /**
      * requests to get sales listings matching supplied properties
-     * @param params query parameters for browsing slae listings
+     * @param params query parameters for browsing sale listings
      * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     searchSaleListings: (params) => instance.get(`listings`, {
@@ -527,6 +538,13 @@ export const Business = {
      */
     featureListing: (businessId, listingId, featured) =>
         instance.patch(`/businesses/${businessId}/listings/${listingId}/feature`, {featured}),
+
+    /**
+     * Gets a business' featured listings from the backend.
+     * @param businessId Id of the business.
+     * @returns {Promise<AxiosResponse<any>>} List of sale listings.
+     */
+    getFeaturedListings: (businessId) => instance.get(`/businesses/${businessId}/featuredlistings`),
 };
 
 export const Card = {
