@@ -48,7 +48,6 @@ export default {
   name: "SalesReportSection",
   props: {
     sales: Array,
-    businessCurrency: Object
   },
   methods: {
 

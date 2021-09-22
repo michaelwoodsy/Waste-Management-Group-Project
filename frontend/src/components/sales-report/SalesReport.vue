@@ -55,7 +55,6 @@
         </div>
         <div :id="`reportSection${index}`" class="collapse" data-parent="#salesReport">
           <sales-report-section
-              :business-currency="currency"
               :sales="section.sales"
           />
         </div>
@@ -137,7 +136,7 @@ export default {
           if (sale.currencyCountry) {
             sale.currency = await this.$root.$data.product.getCurrency(sale.currencyCountry)
           } else {
-            sale.currency = this.businessCurrency
+            sale.currency = this.currency
           }
           if (currentCurrency == null) {
             currentCurrency = sale.currency.code
