@@ -304,7 +304,12 @@ export default {
     Notification
   },
   async mounted() {
-    await this.getData()
+    try {
+      await this.getData()
+    }
+    catch (err) {
+      // do nothing
+    }
   },
   watch: {
     async actingAs() {
