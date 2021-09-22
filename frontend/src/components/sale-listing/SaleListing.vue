@@ -38,6 +38,7 @@ Displays a single listing.
           <button
               class="btn btn-sm btn-outline-danger ml-3"
               id="removeButton"
+              v-if="isAdminOfBusiness"
           >
             Remove From Featured
           </button>

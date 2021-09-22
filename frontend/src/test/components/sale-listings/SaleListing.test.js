@@ -58,15 +58,18 @@ describe("Tests for the SaleListing component", () => {
             },
             propsData: {listingData}
         })
+        await wrapper.vm.$nextTick()
     });
 
     test("Check the delete button doesn't exist when the user viewing is not a business admin", async () => {
-        await wrapper.vm.$nextTick()
         let removeButton = await wrapper.find("#removeButton")
+        console.log(wrapper.vm.isAdminOfBusiness)
+        console.log(removeButton)
         expect(removeButton.exists()).toBeFalsy()
     })
 
     test("Check the delete button exists when the user viewing is a business admin", async () => {
+        product.addSaleListingCurrencies.mockResolvedValue([listingData])
         wrapper = await shallowMount(SaleListing, {
             computed: {
                 isAdminOfBusiness() {
@@ -75,7 +78,7 @@ describe("Tests for the SaleListing component", () => {
             },
             propsData: {listingData}
         })
-        console.log(wrapper.vm.isAdminOfBusiness)
+        await wrapper.vm.$nextTick()
         await wrapper.vm.$nextTick()
         let removeButton = await wrapper.find("#removeButton")
         expect(removeButton.exists()).toBeTruthy()
