@@ -29,6 +29,7 @@ public class GetBusinessDTO {
     private LocalDateTime created;
     private Integer primaryImageId;
     private List<Image> images;
+    private Double averageRating;
 
     public GetBusinessDTO(Business business) {
         this.id = business.getId();
@@ -52,6 +53,15 @@ public class GetBusinessDTO {
         for (User user : business.getAdministrators()) {
             this.administrators.add(new GetUserDTO(user));
         }
+    }
+
+    /**
+     * Method which attaches a business' average review rating to the DTO
+     *
+     * @param averageRating Average review rating
+     */
+    public void attachAverageRating(Double averageRating) {
+        this.averageRating  = averageRating;
     }
 
 }

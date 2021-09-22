@@ -6,6 +6,7 @@ import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.BusinessRepository;
+import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.repository_layer.specification.BusinessSpecifications;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
@@ -42,16 +43,19 @@ public class BusinessService {
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
     private final ProductCatalogueService productCatalogueService;
+    private final ReviewRepository reviewRepository;
 
     @Autowired
     public BusinessService(BusinessRepository businessRepository,
                            AddressRepository addressRepository,
                            UserRepository userRepository,
-                           ProductCatalogueService productCatalogueService) {
+                           ProductCatalogueService productCatalogueService,
+                           ReviewRepository reviewRepository) {
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.productCatalogueService = productCatalogueService;
+        this.reviewRepository = reviewRepository;
     }
 
 
@@ -143,6 +147,7 @@ public class BusinessService {
                 Business retrievedBusiness = business.get();
                 GetBusinessDTO getBusinessDTO = new GetBusinessDTO(retrievedBusiness);
                 getBusinessDTO.attachAdministrators(retrievedBusiness);
+                getBusinessDTO.attachAverageRating(getAverageStarRating(businessId));
                 return getBusinessDTO;
             }
         } catch (BusinessNotFoundException businessNotFoundException) {
@@ -410,6 +415,7 @@ public class BusinessService {
         for (Business business : businesses) {
             GetBusinessDTO dto = new GetBusinessDTO(business);
             dto.attachAdministrators(business);
+            dto.attachAverageRating(getAverageStarRating(business.getId()));
             getBusinessDTOs.add(dto);
         }
         return Arrays.asList(getBusinessDTOs, totalCount);
@@ -476,6 +482,24 @@ public class BusinessService {
                 returnedBusinessType = "";
         }
         return returnedBusinessType;
+    }
+
+    /**
+     * Helper method to calculate a businesses average star rating from its reviews.
+     * @param businessId id of the business to get the average star rating from
+     * @return int between 1 and 5 for the average star rating, null for if the business has no ratings
+     */
+    public Double getAverageStarRating(Integer businessId) {
+        var reviews = reviewRepository.findAllByBusinessId(businessId);
+
+        //return null if there are no reviews
+        if (reviews.isEmpty()) return null;
+
+        Double total = 0.0;
+        for (var review: reviews) {
+            total += review.getRating();
+        }
+        return total / reviews.size();
     }
 }
 
