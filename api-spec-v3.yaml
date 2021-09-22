@@ -2704,49 +2704,6 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
-  '/businesses/{businessId}/reviews/{reviewId}':
-    get:
-      tags:
-        - 'UD7: Responding to Sale Reviews'
-        - 'Reviews'
-      summary: "Gets a specific business review"
-      description: 'Retrieves a specific review left on a business'
-      security:
-        - CookieAuth:
-            - user
-            - globalApplicationAdmin
-            - defaultGlobalApplicationAdmin
-      parameters:
-        - name: businessId
-          in: path
-          description: The id of the bus8iness
-          required: true
-          schema:
-            type: integer
-            example: 100
-        - name: reviewId
-          in: path
-          description: The id of the review
-          required: true
-          schema:
-            type: integer
-            example: 100
-      responses:
-        '200':
-          description: Request successful, returns a review
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Review'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '406':
-          $ref: '#/components/responses/NotAcceptableError'
-
   '/users/{userId}/purchases/{purchaseId}/review':
     post:
       tags:

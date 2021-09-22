@@ -46,38 +46,6 @@
 				}
 			},
 			"response": []
-		},
-		{
-			"name": "Gets a specific business review",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:9599/businesses/:businessId/reviews/:reviewId",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "9599",
-					"path": [
-						"businesses",
-						":businessId",
-						"reviews",
-						":reviewId"
-					],
-					"variable": [
-						{
-							"key": "businessId",
-							"value": "1"
-						},
-						{
-							"key": "reviewId",
-							"value": "1"
-						}
-					]
-				}
-			},
-			"response": []
 		}
 	]
 }
