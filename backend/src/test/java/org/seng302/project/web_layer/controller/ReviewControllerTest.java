@@ -145,7 +145,7 @@ class ReviewControllerTest extends AbstractInitializer{
         requestBody.put("rating", 4);
         requestBody.put("reviewMessage", "Very tasty");
 
-        RequestBuilder createMessageRequest = MockMvcRequestBuilders
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
                 .post("/users/{userId}/purchases/{purchaseId}/review",
                         testUser.getId(), sale.getSaleId())
                 .content(requestBody.toString())
@@ -153,7 +153,7 @@ class ReviewControllerTest extends AbstractInitializer{
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
-        mockMvc.perform(createMessageRequest).andExpect(status().isCreated());
+        mockMvc.perform(createReviewRequest).andExpect(status().isCreated());
     }
 
     /**
@@ -165,7 +165,7 @@ class ReviewControllerTest extends AbstractInitializer{
         JSONObject requestBody = new JSONObject();
         requestBody.put("rating", 4);
 
-        RequestBuilder createMessageRequest = MockMvcRequestBuilders
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
                 .post("/users/{userId}/purchases/{purchaseId}/review",
                         testUser.getId(), sale.getSaleId())
                 .content(requestBody.toString())
@@ -173,7 +173,7 @@ class ReviewControllerTest extends AbstractInitializer{
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
-        mockMvc.perform(createMessageRequest).andExpect(status().isCreated());
+        mockMvc.perform(createReviewRequest).andExpect(status().isCreated());
 
     }
 
@@ -188,7 +188,7 @@ class ReviewControllerTest extends AbstractInitializer{
         requestBody.put("rating", 6);
         requestBody.put("reviewMessage", "Super tasty");
 
-        RequestBuilder createMessageRequest = MockMvcRequestBuilders
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
                 .post("/users/{userId}/purchases/{purchaseId}/review",
                         testUser.getId(), sale.getSaleId())
                 .content(requestBody.toString())
@@ -196,7 +196,7 @@ class ReviewControllerTest extends AbstractInitializer{
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
-        mockMvc.perform(createMessageRequest).andExpect(status().isBadRequest());
+        mockMvc.perform(createReviewRequest).andExpect(status().isBadRequest());
     }
 
     /**
@@ -208,7 +208,7 @@ class ReviewControllerTest extends AbstractInitializer{
         JSONObject requestBody = new JSONObject();
         requestBody.put("reviewMessage", "Super tasty");
 
-        RequestBuilder createMessageRequest = MockMvcRequestBuilders
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
                 .post("/users/{userId}/purchases/{purchaseId}/review",
                         testUser.getId(), sale.getSaleId())
                 .content(requestBody.toString())
@@ -216,7 +216,7 @@ class ReviewControllerTest extends AbstractInitializer{
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
-        mockMvc.perform(createMessageRequest).andExpect(status().isBadRequest());
+        mockMvc.perform(createReviewRequest).andExpect(status().isBadRequest());
 
     }
 
@@ -235,7 +235,7 @@ class ReviewControllerTest extends AbstractInitializer{
                 .newReview(Mockito.any(Integer.class), Mockito.any(Integer.class),
                         Mockito.any(PostReviewDTO.class), Mockito.any(AppUserDetails.class));
 
-        RequestBuilder createMessageRequest = MockMvcRequestBuilders
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
                 .post("/users/{userId}/purchases/{purchaseId}/review",
                     testUser.getId(), sale.getSaleId())
                 .content(requestBody.toString())
@@ -243,7 +243,7 @@ class ReviewControllerTest extends AbstractInitializer{
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testAdmin)));
 
-        mockMvc.perform(createMessageRequest).andExpect(status().isForbidden());
+        mockMvc.perform(createReviewRequest).andExpect(status().isForbidden());
     }
 
     /**
@@ -261,7 +261,7 @@ class ReviewControllerTest extends AbstractInitializer{
                 .newReview(Mockito.any(Integer.class), Mockito.any(Integer.class),
                         Mockito.any(PostReviewDTO.class), Mockito.any(AppUserDetails.class));
 
-        RequestBuilder createMessageRequest = MockMvcRequestBuilders
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
                 .post("/users/{userId}/purchases/{purchaseId}/review",
                         testUser.getId(), sale.getSaleId() + 50)
                 .content(requestBody.toString())
@@ -269,7 +269,7 @@ class ReviewControllerTest extends AbstractInitializer{
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
-        mockMvc.perform(createMessageRequest).andExpect(status().isNotAcceptable());
+        mockMvc.perform(createReviewRequest).andExpect(status().isNotAcceptable());
     }
 
 }

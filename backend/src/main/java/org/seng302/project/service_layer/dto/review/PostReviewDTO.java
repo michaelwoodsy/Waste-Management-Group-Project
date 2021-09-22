@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class PostReviewDTO {
 
-    @NotNull
+    @NotNull(message = "Rating is a mandatory field.")
     @Range(min = 1, max = 5, message = "Rating must be between 1 and 5")
     private Integer rating;
 
