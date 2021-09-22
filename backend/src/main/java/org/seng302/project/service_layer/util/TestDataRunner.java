@@ -293,7 +293,7 @@ public class TestDataRunner {
      */
     public void insertTestSaleListings(JSONArray saleData) {
         logger.info("Adding sample data to sale listing repository");
-        List<String> countries = List.of("New Zealand", "New Zealand", "New Zealand", "China", "China", "France", "Germany", "Australia");
+        List<String> countries = List.of("New Zealand", "New Zealand", "New Zealand", "China", "Australia", "France", "Germany", "Australia");
         for (Object object : saleData) {
             JSONObject jsonSaleListing = (JSONObject) object;
             Optional<InventoryItem> testItemOptions = inventoryItemRepository.findById(jsonSaleListing.getAsNumber("inventoryItemId").intValue());
@@ -328,7 +328,7 @@ public class TestDataRunner {
                     //Test data for sales
                     listing.getInventoryItem().getProduct().setCurrencyCountry(countries.get(listing.getId() - 2));
                     Sale sale = new Sale(listing);
-                    sale.setDateSold(LocalDateTime.now().minusDays(listing.getId() * (long) 4));
+                    sale.setDateSold(LocalDateTime.now().minusDays(80 - (listing.getId() * (long) 4)));
                     saleHistoryRepository.save(sale);
                 }
             }

@@ -79,9 +79,8 @@ export default {
       currencyWarningText: ""
     }
   },
-  mounted() {
-    this.currencyWarning(["NZD", "AUD"], ["AUD", "GBP"],
-        ["10/04/2021", "14/09/2021"])
+  async mounted() {
+    await this.getCurrencies()
   },
   props: {
     data: Array,
@@ -125,6 +124,42 @@ export default {
     },
 
     /**
+     * Gets the currencies of the sales so that their prices can be formatted.
+     */
+    async getCurrencies() {
+      let currentCurrency = null
+      const beforeCurrencies = []
+      const afterCurrencies = []
+      const changeDates = []
+
+      for (const [sectionIndex, section] of this.data.entries()) {
+        for (const [index, sale] of section.sales.entries()) {
+          if (sale.currencyCountry) {
+            sale.currency = await this.$root.$data.product.getCurrency(sale.currencyCountry)
+          } else {
+            sale.currency = this.businessCurrency
+          }
+          if (currentCurrency == null) {
+            currentCurrency = sale.currency.code
+          } else if (currentCurrency !== sale.currency.code) {
+            beforeCurrencies.push(currentCurrency)
+            afterCurrencies.push(sale.currency.code)
+            changeDates.push(new Date(sale.dateSold).toLocaleDateString())
+            currentCurrency = sale.currency.code
+          }
+          this.$set(section.sales, index, sale)
+        }
+        this.$set(this.data, sectionIndex, section)
+      }
+
+      if (beforeCurrencies.length > 0) {
+        this.currencyWarning(beforeCurrencies, afterCurrencies,
+            changeDates)
+      }
+
+    },
+
+    /**
      * Sets the text of the currency warning message.
      * Generates a message for each currency change.
      * @param beforeCurrencies list of currency codes before each currency change
@@ -134,8 +169,8 @@ export default {
     currencyWarning(beforeCurrencies, afterCurrencies, changeDates) {
       this.currencyWarningText = ""
       for (let i = 0; i < beforeCurrencies.length; i++) {
-        this.currencyWarningText += `Data up to ${changeDates[i]} is in ${beforeCurrencies[i]} `
-            + `and data after ${changeDates[i]} is in ${afterCurrencies[i]}. `
+        this.currencyWarningText += `Data before ${changeDates[i]} is in ${beforeCurrencies[i]} `
+            + `and data from ${changeDates[i]} is in ${afterCurrencies[i]}. `
         this.currencyWarningText += "Please convert manually.\n"
       }
       this.showCurrencyWarning = true
