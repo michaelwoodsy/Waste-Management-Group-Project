@@ -226,10 +226,13 @@
       </div>
     </div>
 
+    <!-- Sale listing modal -->
     <div v-if="viewListingModal">
       <individual-sale-listing-modal :listing="listingToView"
                                      @update-listings="checkInputs"
                                      @close-modal="viewListingModal = false"
+                                     v-bind:key="listingToView.id"
+                                     id="saleListingModal"
       />
     </div>
 
@@ -245,6 +248,7 @@ import {Business, Images} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
 import Alert from "@/components/Alert";
 import LoginRequired from "@/components/LoginRequired";
+import $ from 'jquery'
 
 export default {
   name: "BrowseSaleListings.vue",
@@ -319,6 +323,15 @@ export default {
   },
   mounted() {
     this.search()
+    this.checkFeaturedListing()
+  },
+  watch: {
+    $route(val) {
+      // required if the user clicks on a featured listing from within this page
+      if (val.name === "browseListings") {
+        this.checkFeaturedListing()
+      }
+    }
   },
   computed: {
     /**
@@ -330,6 +343,28 @@ export default {
     }
   },
   methods: {
+    /**
+     * Check if a featured listing should be shown based on businessId and listingId query parameters.
+     */
+    async checkFeaturedListing() {
+      // Check if a listing is specified in query params
+      if (this.$route.query.businessId && this.$route.query.listingId) {
+
+        // get the featured listing
+        let res = await Business.getFeaturedListings(this.$route.query.businessId)
+        let featuredListing = res.data.find(listing => `${listing.id}` === `${this.$route.query.listingId}`)
+
+        // Add currency to the listing
+        let listings = await this.$root.$data.product.addSaleListingCurrencies(
+            [featuredListing], featuredListing.business.address.country)
+
+        // Set listing as being viewed
+        this.viewListing(listings[0])
+
+        window.setTimeout(() => {$('#saleListingModal').modal('show')}, 500)
+      }
+    },
+
     /**
      * Function is called by pagination component to make another call to the backend
      * to update the list of users that should be displayed
@@ -548,14 +583,16 @@ export default {
         this.loading = false;
       })
     },
+  },
+  beforeRouteLeave: (nextRoute, curRoute, next) => {
+    // close all modals when leaving this page
+    // this.viewListingModal = false
+    $('.modal').modal('hide');
+    next()
   }
 }
 </script>
 
 <style scoped>
-
-.option-title {
-  font-size: 18px;
-}
 
 </style>

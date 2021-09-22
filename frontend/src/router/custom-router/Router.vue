@@ -11,7 +11,7 @@ export default {
   name: "Router",
   data() {
     return {
-      current: window.location.pathname
+      current: window.location.pathname + window.location.search
     }
   },
   created() {
@@ -26,7 +26,7 @@ export default {
     window.addEventListener(
         'popstate',
         () => {
-          this.current = window.location.pathname
+          this.current = window.location.pathname + window.location.search
         })
   },
   computed: {

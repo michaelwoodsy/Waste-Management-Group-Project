@@ -50,6 +50,7 @@ import UserSearch from "@/components/user/UserSearch";
 import BusinessSearch from "@/components/business/BusinessSearch";
 import LoginRequired from "@/components/LoginRequired";
 import PageWrapper from "@/components/PageWrapper";
+import $ from "jquery";
 
 export default {
   name: "Search.vue",
@@ -63,6 +64,10 @@ export default {
     return {
       tabSelected: 'Users', //Default tab
     }
+  },
+
+  mounted() {
+    this.checkTab()
   },
 
   computed: {
@@ -83,7 +88,32 @@ export default {
      */
     changeTab(tab) {
       this.tabSelected = tab;
+      if (tab === 'Businesses') {
+        // add mode=business to route query
+        this.$router.push({name: "search", query: {mode: 'business', ...this.$route.query}})
+      } else {
+        // remove route query
+        let query = this.$route.query
+        delete query.mode
+        this.$router.push({name: "search", query})
+      }
+    },
+
+    /**
+     * Checks if the correct search tab is shown based on the query parameters.
+     * If the mode query param is set to business, the business search will be shown.
+     */
+    checkTab() {
+      if (this.$route.query.mode === "business") {
+        this.tabSelected = "Businesses";
+      }
     }
+  },
+  beforeRouteLeave: (nextRoute, curRoute, next) => {
+    // close all modals when leaving this page
+    // this.viewListingModal = false
+    $('.modal').modal('hide');
+    next()
   }
 }
 
