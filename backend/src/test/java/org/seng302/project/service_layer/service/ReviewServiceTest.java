@@ -16,6 +16,7 @@ import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +51,6 @@ class ReviewServiceTest extends AbstractInitializer {
 
     @BeforeEach
     void setup() {
-        this.initialise();
         this.testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
         testUser.setId(null);
