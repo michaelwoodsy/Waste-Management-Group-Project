@@ -527,6 +527,13 @@ export const Business = {
      */
     featureListing: (businessId, listingId, featured) =>
         instance.patch(`/businesses/${businessId}/listings/${listingId}/feature`, {featured}),
+
+    /**
+     * Gets a business' featured listings from the backend.
+     * @param businessId Id of the business.
+     * @returns {Promise<AxiosResponse<any>>} List of sale listings.
+     */
+    getFeaturedListings: (businessId) => instance.get(`/businesses/${businessId}/featuredlistings`),
 };
 
 export const Card = {
