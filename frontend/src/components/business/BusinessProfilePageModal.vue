@@ -9,14 +9,14 @@
         <h2>{{ business.name }}</h2>
       </div>
       <div class="col-2 text-right">
-        <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="$emit('close-modal')">
+        <button id="closeModalButton" aria-label="Close" class="close" data-dismiss="modal" type="button" @click="$emit('close-modal')">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
     </div>
 
     <div class="modal-body">
-      <business-profile :business="business"/>
+      <business-profile @close-modal="closeModal" :business="business"/>
     </div>
 
   </div>
@@ -37,6 +37,14 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    }
+  },
+  methods: {
+    /**
+     * Closes the business profile modal by simulating a click on the close button.
+     */
+    closeModal() {
+      document.getElementById("closeModalButton").click()
     }
   }
 }

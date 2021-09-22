@@ -145,6 +145,15 @@ Component on Search page for searching businesses
       </div>
     </div>
 
+    <!-- hidden button used to programmatically open the business modal -->
+    <button
+        id="modalButton"
+        data-target="#viewBusinessModal"
+        data-toggle="modal"
+        class="d-none"
+        ref="closeButton"
+    />
+
   </div>
   <login-required v-else page="search users"/>
 </template>
@@ -156,6 +165,7 @@ import Pagination from "@/components/Pagination";
 import {Business, Images} from "@/Api";
 import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 import LoginRequired from "@/components/LoginRequired";
+// import $ from "jquery";
 
 export default {
   name: "BusinessSearch",
@@ -183,9 +193,6 @@ export default {
       loading: false
     }
   },
-  mounted() {
-    this.search()
-  },
   computed: {
     /**
      * Check if user is logged in
@@ -204,6 +211,23 @@ export default {
         return '↓'
       }
       return '↑'
+    }
+  },
+  mounted() {
+    this.search()
+    this.viewBusinessModal = false
+
+    // check if we need to show a business with specific id based on query params
+    if (this.$route.query.id) {
+
+      // get the business with corresponding id
+      Business.getBusinessData(this.$route.query.id).then((res) => {
+        this.viewedBusiness = res.data
+        this.viewBusinessModal = true
+
+        // band-aid fix for the modal not displaying properly when clicking browser back button
+        window.setTimeout(() => {this.$refs.closeButton.click()}, 500)
+      })
     }
   },
   methods: {
@@ -314,6 +338,7 @@ export default {
     viewBusiness(business) {
       this.viewedBusiness = business
       this.viewBusinessModal = true
+      this.$router.push({name: "search", query: {id: business.id, ...this.$route.query}})
     },
 
     /**

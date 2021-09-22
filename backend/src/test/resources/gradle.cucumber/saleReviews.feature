@@ -8,11 +8,6 @@ Feature: UD6 Sale Reviews
 
   Scenario: AC2: The review includes a star rating (out of 5) and a text message.
     Given I have purchased a sale listing from a given business.
-    When I leave a 3 star review without a comment.
-    Then An error message is returned to say that no comment has been provided for the review.
-
-  Scenario: AC2: The review includes a star rating (out of 5) and a text message.
-    Given I have purchased a sale listing from a given business.
     When I leave a review with comment "Happy with service provided and product is good" but no star rating.
     Then An error message is returned to say that no star rating has been provided for the review.
 

@@ -37,7 +37,7 @@ class ReviewRepositoryTest extends AbstractInitializer {
         user = userRepository.save(user);
         Business business =  sale.getBusiness();
         addressRepository.save(business.getAddress());
-        businessRepository.save(business);
+        business = businessRepository.save(business);
         review = new Review(sale, user, 5, "Very Good!");
     }
 
