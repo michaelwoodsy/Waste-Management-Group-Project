@@ -42,15 +42,15 @@ public class BusinessService {
     private final BusinessRepository businessRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
-    private final ProductCatalogueService productCatalogueService;
     private final ReviewRepository reviewRepository;
+    private final ProductCatalogueService productCatalogueService;
 
     @Autowired
     public BusinessService(BusinessRepository businessRepository,
                            AddressRepository addressRepository,
                            UserRepository userRepository,
-                           ProductCatalogueService productCatalogueService,
-                           ReviewRepository reviewRepository) {
+                           ReviewRepository reviewRepository,
+                           ProductCatalogueService productCatalogueService) {
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
@@ -487,7 +487,7 @@ public class BusinessService {
     /**
      * Helper method to calculate a businesses average star rating from its reviews.
      * @param businessId id of the business to get the average star rating from
-     * @return int between 1 and 5 for the average star rating, null for if the business has no ratings
+     * @return Double between 1 and 5 for the average star rating, null for if the business has no ratings
      */
     public Double getAverageStarRating(Integer businessId) {
         var reviews = reviewRepository.findAllByBusinessId(businessId);
