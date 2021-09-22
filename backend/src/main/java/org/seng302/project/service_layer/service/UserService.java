@@ -374,7 +374,7 @@ public class UserService {
     }
 
     /**
-     * Checks if the sort column is one of the valid ones, if not replaces it with the empty string and no sorting is done
+     * Checks if the sort column for users is one of the valid ones, if not replaces it with the empty string and no sorting is done
      *
      * @param sortBy This is the string that will contain information about what column to sort by
      * @return A list that contains a boolean to describe if the sort is ascending or descending, and the sortby string
@@ -407,11 +407,69 @@ public class UserService {
      * @param userId ID of the user to get purchases for
      * @return list of the user's purchases
      */
-    public List<GetSaleDTO> getPurchaseHistory(Integer userId) {
+    public List<Object> getPurchaseHistory(Integer userId, Integer pageNumber, String sortBy) {
         Specification<Sale> spec = SalesReportSpecifications.purchasedByUser(userId);
-        List<Sale> purchases = saleHistoryRepository.findAll(spec);
 
-        return purchases.stream().map(GetSaleDTO::new).collect(Collectors.toList());
+        var sort = buildPurchaseSort(sortBy);
+
+        Pageable pageable;
+        if (sort != null) {
+            pageable = PageRequest.of(pageNumber, 10, sort);
+        } else {
+            pageable = PageRequest.of(pageNumber, 10);
+        }
+
+        Page<Sale> page = saleHistoryRepository.findAll(spec, pageable);
+        long totalCount = page.getTotalElements();
+        List<Sale> purchases = page.getContent();
+
+        logger.info("Retrieved {} Purchases, showing {}", totalCount, purchases.size());
+        return Arrays.asList(purchases.stream().map(GetSaleDTO::new).collect(Collectors.toList()), totalCount);
+    }
+
+    /**
+     * Given a sort query string, returns a Sort object used to sort purchases by.
+     *
+     * @param sortQuery String query to sort by.
+     * @return Sort object used to sort entries retrieved from the Sale History Repository
+     */
+    public Sort buildPurchaseSort(String sortQuery) {
+        Sort sort = null;
+        switch (sortQuery) {
+            case "datePurchasedASC":
+                sort = Sort.by(Sort.Order.asc("dateSold"));
+                break;
+            case "datePurchasedDESC":
+                sort = Sort.by(Sort.Order.desc("dateSold"));
+                break;
+            case "productNameASC":
+                sort = Sort.by(Sort.Order.asc("inventoryItem.product.name"));
+                break;
+            case "productNameDESC":
+                sort = Sort.by(Sort.Order.desc("inventoryItem.product.name"));
+                break;
+            case "quantityASC":
+                sort = Sort.by(Sort.Order.asc("quantity"));
+                break;
+            case "quantityDESC":
+                sort = Sort.by(Sort.Order.desc("quantity"));
+                break;
+            case "priceASC":
+                sort = Sort.by(Sort.Order.asc("price"));
+                break;
+            case "priceDESC":
+                sort = Sort.by(Sort.Order.desc("price"));
+                break;
+            case "businessASC":
+                sort = Sort.by(Sort.Order.asc("business.name"));
+                break;
+            case "businessDESC":
+                sort = Sort.by(Sort.Order.desc("business.name"));
+                break;
+            default:
+                break;
+        }
+        return sort;
     }
 
 }

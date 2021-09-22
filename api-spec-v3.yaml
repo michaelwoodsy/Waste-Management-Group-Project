@@ -2647,6 +2647,18 @@ paths:
           schema:
             type: integer
             example: 100
+        - name: pageNumber
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: 'The page to get'
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+          required: true
+          description: 'The sorting parameter. One of "datePurchasedAsc", "datePurchasedDesc", "productNameAsc", "productNameDesc", "quantityAsc", "quantityDesc", "priceAsc", "priceDesc", "businessAsc", "businessDesc"'
       responses:
         '200':
           description: Request successful, a list (potentially empty) of purchases is returned
