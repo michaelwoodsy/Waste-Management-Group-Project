@@ -1,0 +1,51 @@
+{
+	"info": {
+		"_postman_id": "11ab725d-70c7-41e2-9abf-b4e0626f3fff",
+		"name": "UD7 Responding to Sale Reviews",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Respond to a review",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"reviewResponse\": \"string\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9599/businesses/:businessId/reviews/:reviewId/respond",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9599",
+					"path": [
+						"businesses",
+						":businessId",
+						"reviews",
+						":reviewId",
+						"respond"
+					],
+					"variable": [
+						{
+							"key": "businessId",
+							"value": "1"
+						},
+						{
+							"key": "reviewId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
