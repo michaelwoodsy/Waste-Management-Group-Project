@@ -85,7 +85,7 @@ readOnly:         Boolean, default true.
           <em :class="{'bi-star-fill': business.averageRating, 'bi-star': !business.averageRating}"
               class="icon bi float-right"
               style="color: gold; font-size: 30px"/>
-          <p v-if="business.averageRating" class="rating-message">{{ business.averageRating }}</p>
+          <p v-if="business.averageRating" class="rating-message">{{ business.averageRating.toFixed(2) }}</p>
           <p v-else class="rating-message"> No Ratings</p>
         </div>
 
