@@ -252,7 +252,17 @@ export const User = {
         {
             tag: name
         }
-    )
+    ),
+
+    /**
+     * Gets purchases for a specific user
+     *
+     * @param userId users purchases to retrieve
+     * @param params the page number and sorting parameter
+     */
+    getPurchases: (userId, params) => instance.get(`users/${userId}/purchases`, {
+        params
+    }),
 
 };
 

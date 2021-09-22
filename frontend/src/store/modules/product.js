@@ -157,5 +157,35 @@ export default {
         }
 
         return listings
+    },
+
+    /**
+     * Takes a list of purchases, and adds currency object to them.
+     * @param purchases List of Sale objects.
+     * @returns {*[]} List of Sale objects with currency field added.
+     */
+    async addPurchasesCurrencies(purchases) {
+        let currenciesToFind = {}
+        // Iterate over all products and find the currency countries that need to be found
+        for (let purchase of purchases) {
+            let currency = null;
+            if (purchase.currencyCountry) {
+                currency = purchase.inventoryItem.product.currencyCountry
+            } else {
+                currency = purchase.business.address.country
+            }
+            if (!(currency in currenciesToFind)) {
+                currenciesToFind[currency] = null
+            }
+        }
+        // Iterate over the countries and find the currency
+        for (let country of Object.keys(currenciesToFind)) {
+            currenciesToFind[country] = await this.getCurrency(country)
+        }
+        // Add the found currencies to the objects
+        for (let purchase of purchases) {
+            purchase.currency = currenciesToFind[purchase.currencyCountry || purchase.business.address.country]
+        }
+        return purchases
     }
 }
