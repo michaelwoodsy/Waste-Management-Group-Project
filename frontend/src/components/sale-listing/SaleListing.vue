@@ -51,6 +51,7 @@ Displays a single listing.
 <script>
 import {Images} from "@/Api";
 import product from "@/store/modules/product"
+import user from "@/store/modules/user"
 
 export default {
   name: "SaleListing",
@@ -82,8 +83,8 @@ export default {
      * Also returns true if they are a GAA / DGAA
      */
     isAdminOfBusiness() {
-      return this.$root.$data.user.isActingAsBusiness() &&
-          this.$root.$data.user.actor().id === this.listingData.business.id
+      return user.isActingAsBusiness() &&
+          user.actor().id === this.listingData.business.id
     }
   },
 

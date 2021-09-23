@@ -2,7 +2,9 @@ import "@jest/globals";
 import SaleListing from "@/components/sale-listing/SaleListing";
 import {shallowMount} from '@vue/test-utils'
 import product from "@/store/modules/product"
+import user from "@/store/modules/user"
 jest.mock('@/store/modules/product')
+jest.mock('@/store/modules/user')
 
 let wrapper
 let listingData = {
@@ -80,6 +82,23 @@ describe("Tests for the SaleListing component", () => {
         await wrapper.vm.$nextTick()
         let removeButton = await wrapper.find("#removeButton")
         expect(removeButton.exists()).toBeTruthy()
+    })
+
+    test("Check the isAdminOfBusiness computed method is false when user is acting as user", () => {
+        user.isActingAsBusiness.mockReturnValue(false)
+        expect(SaleListing.computed.isAdminOfBusiness.call({})).toBeFalsy()
+    })
+
+    test("Check the isAdminOfBusiness computed method is false when acting as a business that isn't the current displayed business", () => {
+        user.isActingAsBusiness.mockReturnValue(true)
+        user.actor.mockReturnValue({id: -1})
+        expect(SaleListing.computed.isAdminOfBusiness.call({listingData: {business: {id: 100}}})).toBeFalsy()
+    })
+
+    test("Check the isAdminOfBusiness computed method is true when acting as the current business", () => {
+        user.isActingAsBusiness.mockReturnValue(true)
+        user.actor.mockReturnValue({id: 100})
+        expect(SaleListing.computed.isAdminOfBusiness.call({listingData: {business: {id: 100}}})).toBeTruthy()
     })
 
 })
