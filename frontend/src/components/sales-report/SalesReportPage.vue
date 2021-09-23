@@ -24,9 +24,11 @@
 
     <sales-report-graph
         v-if="report != null"
-        :data="report"
+        :data="reportGraph"
         :currency="currency"
-        v-bind:key="report"
+        :granularity="options.granularity"
+        :business-id="businessId"
+        v-bind:key="reportGraph"
     />
 
   </div>
@@ -48,6 +50,7 @@ export default {
   data() {
     return {
       report: null,
+      reportGraph: null,
       currency: null,
       reportGenerated: false,
       options: {
@@ -81,12 +84,14 @@ export default {
       try {
         this.reportGenerated = true
         const res = await Business.getSalesReport(this.businessId, options)
+        this.options.granularity = options.granularity
+        this.$set(this, "reportGraph", res.data)
         this.$set(this, "report", res.data)
       } catch (error) {
         this.reportGenerated = false
         console.log(error)
       }
-    }
+    },
   }
 }
 </script>

@@ -12,7 +12,7 @@ export default {
         //This should always get a currency as the country with its currency being retrieved properly
         // is a requirement for creating a business
         const promise = await new Promise((resolve, reject) => {
-            axios.get(`https://restcountries.eu/rest/v2/name/${country}`)
+            axios.get(`https://restcountries.com/v2/name/${country}`)
                 .then((response) => {
                     if (response.status === 404) {
                         console.log(`No country found with name '${country}'`)
@@ -69,7 +69,7 @@ export default {
 
         // Iterate over the countries and find the currency
         for (let country of Object.keys(currenciesToFind)) {
-            currenciesToFind[country] = await this.getCurrency(country)
+            currenciesToFind[country] = this.getCurrency(country)
         }
 
         // Add the found currencies to the objects
@@ -88,6 +88,7 @@ export default {
     /**
      * Takes a list of inventory items, and adds currency object to them.
      * @param items List of inventory item objects.
+     * @param businessCurrency the currency the business is currently using
      * @returns {*[]} List of product objects with currency field added.
      */
     async addInventoryItemCurrencies(items, businessCurrency) {
@@ -104,7 +105,7 @@ export default {
 
         // Iterate over the countries and find the currency
         for (let country of Object.keys(currenciesToFind)) {
-            currenciesToFind[country] = await this.getCurrency(country)
+            currenciesToFind[country] = this.getCurrency(country)
         }
 
         // Add the found currencies to the objects
@@ -148,7 +149,7 @@ export default {
 
         // Iterate over the countries and find the currency
         for (let country of Object.keys(currenciesToFind)) {
-            currenciesToFind[country] = await this.getCurrency(country)
+            currenciesToFind[country] = this.getCurrency(country)
         }
 
         // Add the found currencies to the objects
@@ -180,7 +181,7 @@ export default {
         }
         // Iterate over the countries and find the currency
         for (let country of Object.keys(currenciesToFind)) {
-            currenciesToFind[country] = await this.getCurrency(country)
+            currenciesToFind[country] = this.getCurrency(country)
         }
         // Add the found currencies to the objects
         for (let purchase of purchases) {

@@ -25,7 +25,7 @@
               <span class="input-group-text">Granularity</span>
             </div>
             <select v-model="options.granularity" class="custom-select" ref="select">
-              <option v-for="option of granularityOptions" :key="option" :value="option.toLowerCase()">
+              <option v-for="(option,index) of granularityOptions" :key="index" :value="option.toLowerCase()">
                 {{ option }}
               </option>
             </select>
