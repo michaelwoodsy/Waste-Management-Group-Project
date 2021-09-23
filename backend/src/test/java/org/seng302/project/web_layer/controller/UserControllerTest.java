@@ -508,11 +508,13 @@ class UserControllerTest extends AbstractInitializer {
         sale.setBuyerId(testUser.getId());
         GetSaleDTO dto = new GetSaleDTO(sale);
 
-        Mockito.when(userService.getPurchaseHistory(testUser.getId()))
+        Mockito.when(userService.getPurchaseHistory(testUser.getId(), 1, ""))
                 .thenReturn(List.of(dto));
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/users/{userId}/purchases", testUser.getId())
+                .param("pageNumber", String.valueOf(0))
+                .param("sortBy", "")
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
@@ -529,6 +531,8 @@ class UserControllerTest extends AbstractInitializer {
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/users/{userId}/purchases", testUser.getId())
+                .param("pageNumber", String.valueOf(0))
+                .param("sortBy", "")
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
@@ -545,6 +549,8 @@ class UserControllerTest extends AbstractInitializer {
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/users/{userId}/purchases", testUser.getId())
+                .param("pageNumber", String.valueOf(1))
+                .param("sortBy", "")
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
 
