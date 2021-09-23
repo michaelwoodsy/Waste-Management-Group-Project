@@ -59,5 +59,17 @@ describe('Jest tests for the BusinessProfile component', () => {
         expect(Business.getFeaturedListings).toBeCalledWith(expect.any(Number))
     })
 
+    test('Checks the sale listing is removed when removeFromFeatured is run with an present ID',  async () => {
+        await wrapper.setData({featuredListings: [{id: 1}]})
+        await wrapper.vm.removeFromFeatured(1)
+        expect(wrapper.vm.featuredListings.length).toBe(0)
+    })
+
+    test('Checks no sale listings are removed when removeFromFeatured is run with an random number',  async () => {
+        await wrapper.setData({featuredListings: [{id: 1}]})
+        await wrapper.vm.removeFromFeatured(2)
+        expect(wrapper.vm.featuredListings.length).toBe(1)
+    })
+
 })
 

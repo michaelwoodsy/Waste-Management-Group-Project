@@ -44,6 +44,7 @@ readOnly:         Boolean, default true.
                     style="height: 350px"
                     :listing-data="listing"
                     @close-modal="$emit('close-modal')"
+                    @un-feature-listing="removeFromFeatured(listing.id)"
                 />
               </div>
             </div>
@@ -471,6 +472,15 @@ export default {
           break
       }
       return text
+    },
+
+    /**
+     * Removes listing with ID from this.featuredListings.
+     * Does nothing if the listing doesn't exist in list.
+     * @param listingId ID of listing
+     */
+    removeFromFeatured(listingId) {
+      return listingId
     }
   }
 }

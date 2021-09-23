@@ -40,6 +40,7 @@ Displays a single listing.
               class="btn btn-sm btn-outline-danger ml-3"
               id="removeButton"
               v-if="isAdminOfBusiness"
+              @click="unFeatureListing"
           >
             <em class="bi bi-dash-lg"></em>
           </button>
