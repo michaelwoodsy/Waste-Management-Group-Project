@@ -2,7 +2,8 @@
 SaleListing.vue
 Displays a single listing.
 
-@prop listingData: The json data for a sale listing (from the api) to display
+@prop listingData: The json data for a sale listing (from the api) to display.
+@emits un-feature-listing: Emits this event when the sale listing is un-featured.
 -->
 <template>
 
@@ -172,7 +173,8 @@ export default {
      * Emits a 'un-feature-listing' event
      */
     async unFeatureListing() {
-      return ''
+      await Business.featureListing(this.listingData.business.id, this.listingData.id, false)
+      this.$emit('un-feature-listing', this.listingData.id)
     }
   }
 }
