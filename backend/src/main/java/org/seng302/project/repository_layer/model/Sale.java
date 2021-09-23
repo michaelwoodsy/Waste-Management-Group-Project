@@ -23,7 +23,7 @@ public class Sale {
     @JoinColumn(name = "business_id")
     private Business business;
 
-    @OneToOne
+    @OneToOne(cascade=CascadeType.ALL)
     @JoinColumn(name = "review_id")
     private Review review;
 
