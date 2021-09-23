@@ -1,10 +1,8 @@
 package org.seng302.project.web_layer.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,9 +13,7 @@ import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
-import org.seng302.project.service_layer.dto.user.AddUserImageDTO;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
-import org.seng302.project.service_layer.exceptions.NoUserExistsException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.ReviewService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -27,7 +23,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -221,8 +216,9 @@ class ReviewControllerTest extends AbstractInitializer{
     }
 
     /**
-     * Tests that a 403 response is given when the
-     * appUser doesn't match the userId, or is not an admin
+     * Tests that a 403 response is given when
+     * trying to leave a review and
+     * the appUser doesn't match the userId, or is not an admin
      */
     @Test
     void postReview_differentUser_403() throws Exception {
@@ -247,8 +243,9 @@ class ReviewControllerTest extends AbstractInitializer{
     }
 
     /**
-     * Tests that a 406 response is given when the
-     * sale doesn't exist
+     * Tests that a 406 response is given when
+     * trying to leave a review and
+     * the sale doesn't exist
      */
     @Test
     void postReview_nonExistentSale_406() throws Exception {

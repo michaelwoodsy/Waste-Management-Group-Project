@@ -1,13 +1,8 @@
 package org.seng302.project.web_layer.controller;
 
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
-import org.seng302.project.service_layer.service.BusinessService;
 import org.seng302.project.service_layer.service.ReviewService;
-import org.seng302.project.service_layer.service.SaleListingService;
-import org.seng302.project.service_layer.service.UserService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,8 +16,6 @@ import javax.validation.Valid;
 @RestController
 public class ReviewController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ReviewController.class.getName());
-
     private final ReviewService reviewService;
 
     @Autowired
@@ -31,10 +24,10 @@ public class ReviewController {
     }
 
     /**
-     * Creates a review
+     * Creates a review on a sale (purchased sale listing)
      *
-     * @param userId the user to make the review as
-     * @param purchaseId the sale the user is leaving the review about
+     * @param userId id of the user to make the review as
+     * @param purchaseId id of the sale the user is leaving the review about
      * @param requestDTO the dto containing the rating and message of the review
      * @param appUser the user making the request
      */

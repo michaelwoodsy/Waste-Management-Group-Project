@@ -12,12 +12,8 @@ import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,15 +59,17 @@ public class ReviewService {
 
 
     /**
-     * Creates a review
+     * Creates a review on a sale (purchased sale listing)
      *
-     * @param userId the user to make the review as
-     * @param purchaseId the sale the user is leaving the review about
+     * @param userId id of the user to make the review as
+     * @param purchaseId id of the sale the user is leaving the review about
      * @param requestDTO the dto containing the rating and message of the review
      * @param appUser the user making the request
      */
     public void newReview(Integer userId, Integer purchaseId, PostReviewDTO requestDTO,
                           AppUserDetails appUser) {
+
+        logger.info("Request by user with id {} to make a review for sale with id {}", userId, purchaseId);
 
         userService.checkForbidden(userId, appUser);
         User user = userService.getUserByEmail(appUser.getUsername());
