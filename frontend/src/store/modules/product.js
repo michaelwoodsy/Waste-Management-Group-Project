@@ -170,7 +170,7 @@ export default {
         for (let purchase of purchases) {
             let currency = null;
             if (purchase.currencyCountry) {
-                currency = purchase.inventoryItem.product.currencyCountry
+                currency = purchase.currencyCountry
             } else {
                 currency = purchase.business.address.country
             }
