@@ -69,8 +69,8 @@
                   data-target="#reviewModal"
                   @click="viewReview(purchase)"
               >
-                <span v-if="!purchase.review">Leave a review</span>
-                <span v-else>View Review</span>
+                <span v-if="!purchase.review">Leave</span>
+                <span v-else>View</span>
               </button>
             </td>
           </tr>
@@ -104,7 +104,7 @@
       </div>
     </div>
 
-    <review id="reviewModal" :sale="purchaseToView" @update-data="fillTable"/>
+    <review v-if="showModal" :sale="purchaseToView" @update-data="fillTable" @close-modal="showModal = false"/>
 
   </page-wrapper>
 </template>
@@ -131,7 +131,8 @@ export default {
       totalCount: 0,
       page: 1,
       loading: false,
-      purchaseToView: null
+      purchaseToView: null,
+      showModal: false
     }
   },
   components: {
@@ -248,6 +249,7 @@ export default {
      */
     viewReview(purchase) {
       this.purchaseToView = purchase
+      this.showModal = true
     }
   }
 }

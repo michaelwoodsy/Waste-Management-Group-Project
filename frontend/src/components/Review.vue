@@ -1,5 +1,5 @@
 <template>
-  <div class="modal fade" role="dialog" tabindex="-1">
+  <div id="reviewModal" class="modal fade" role="dialog" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -63,6 +63,7 @@
 import {User} from '@/Api'
 import userState from '@/store/modules/user'
 import Alert from "@/components/Alert";
+import $ from 'jquery'
 
 export default {
   name: "Review",
@@ -80,6 +81,13 @@ export default {
       invalidRating: false,
       error: null
     }
+  },
+  mounted() {
+    $('#reviewModal').on('hidden.bs.modal', () => {
+      this.reviewForm.rating = 0
+      this.reviewForm.reviewMessage = null
+      this.$emit('close-modal')
+    })
   },
   methods: {
     /**
