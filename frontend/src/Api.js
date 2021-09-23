@@ -42,7 +42,6 @@ export const User = {
     /**
      * Creates a new user
      * @param data information for new user account
-     * @returns {Promise<AxiosResponse<any>>} response containing users ID
      */
     createNew: (data) => instance.post('users', data),
 
@@ -50,7 +49,6 @@ export const User = {
      * Edits a user
      * @param id The ID of the user that is going to be edited
      * @param editUserJSON The edited user data
-     * @returns {Promise<AxiosResponse<any>>}
      */
     editUser: (id, editUserJSON) => instance.put(`users/${id}`, editUserJSON),
 
@@ -58,14 +56,12 @@ export const User = {
      * Log a user in
      * @param username the username (email) of the account the user is trying to log in with
      * @param password the password of the account the user is trying to log in with
-     * @returns {Promise<AxiosResponse<any>>} response containing the user ID of the user that is now logged in
      */
     login: (username, password) => instance.post('login', {username, password}),
 
     /**
      * Retrieves a user's data
      * @param id The ID of the user you are trying to get information about
-     * @returns {Promise<AxiosResponse<any>>} response containing the user with its information
      */
     getUserData: (id) => instance.get(`users/${id}`, {}),
 
@@ -74,8 +70,6 @@ export const User = {
      * @param searchTerm The query that is used to find particular users
      * @param pageNumber The page number used by the backend pagination
      * @param sortBy The sort criteria used by the backend pagination
-     * @returns {Promise<AxiosResponse<any>>} response containing all the users that match the search criteria
-     * in order given by the sortBy term, along with the total number of users found
      */
     getUsers: (searchTerm, pageNumber, sortBy) => instance.get('users/search', {
         params: {
@@ -87,14 +81,12 @@ export const User = {
     /**
      * Promotes a user account to the Global Application Admin role
      * @param id The ID of the user that will become a GAA
-     * @returns {Promise<AxiosResponse<any>>}
      */
     makeAdmin: (id) => instance.put(`users/${id}/makeadmin`),
 
     /**
      * Revokes the Global Application Admin role from a user account
      * @param id The ID of the user that will no longer be a GAA
-     * @returns {Promise<AxiosResponse<any>>}
      */
     revokeAdmin: (id) => instance.put(`users/${id}/revokeadmin`),
 
@@ -107,7 +99,6 @@ export const User = {
     /**
      * Gets a user's cards from the backend
      * @param userId User ID to get cards from
-     * @returns {Promise<AxiosResponse<any>>} response containing user's cards
      */
     getCards: (userId) => instance.get(`users/${userId}/cards`),
 
@@ -117,7 +108,6 @@ export const User = {
      * @param userId ID of the user to send the message to.
      * @param cardId ID of the card the message is about.
      * @param text The contents of the message
-     * @returns {Promise<AxiosResponse<any>>} response containing message ID.
      */
     sendCardMessage: (userId, cardId, text) => instance.post(
         `users/${userId}/cards/${cardId}/messages`,
@@ -130,7 +120,6 @@ export const User = {
      * Gets a user's messages
      *
      * @param userId ID of the user of whom to get messages of
-     * @returns {Promise<AxiosResponse<any>>} List of user's messages
      */
     getMessages: (userId) => instance.get(`users/${userId}/messages`),
 
@@ -139,7 +128,6 @@ export const User = {
      *
      * @param userId ID of the user of whom to delete message of
      * @param messageId ID of the message that is to be deleted
-     * @returns {Promise<AxiosResponse<any>>} List of user's messages
      */
     deleteMessage: (userId, messageId) => instance.delete(`users/${userId}/messages/${messageId}`),
 
@@ -149,7 +137,6 @@ export const User = {
      * @param userId user ID of whom which the message is for
      * @param messageId ID of the message
      * @param read boolean of whether the message is read or not
-     * @returns {Promise<AxiosResponse<any>>} response with status code
      */
     readMessage: (userId, messageId, read) =>
         instance.patch(
@@ -160,7 +147,6 @@ export const User = {
     /**
      * Gets a user's notifications from the backend
      * @param userId User ID to get notifications from
-     * @returns {Promise<AxiosResponse<any>>} response containing user's notifications
      */
     getNotifications: (userId) => instance.get(`users/${userId}/notifications`),
 
@@ -179,7 +165,6 @@ export const User = {
      * @param userId user ID of whom the notification is for
      * @param notificationId ID of the notification
      * @param read boolean of whether or not the notification is read
-     * @returns {Promise<AxiosResponse<any>>} response with status code
      */
     readNotification: (userId, notificationId, read) =>
         instance.patch(
@@ -190,7 +175,6 @@ export const User = {
     /**
      * Gets all admin notifications from the backend
      *
-     * @returns {Promise<AxiosResponse<any>>} response containing admin notifications
      */
     getAdminNotifications: () => instance.get(`notifications`),
 
@@ -198,7 +182,6 @@ export const User = {
      * Deletes and admin notification from the backend
      *
      * @param notificationId ID of the notification to delete
-     * @returns {Promise<AxiosResponse<any>>} response with status code
      */
     deleteAdminNotification: (notificationId) =>
         instance.delete(`notifications/${notificationId}`),
@@ -207,7 +190,6 @@ export const User = {
      * Sets an admin notification to read/unread
      * @param notificationId ID of the notification
      * @param read boolean of whether or not the notification is read
-     * @returns {Promise<AxiosResponse<any>>} response with status code
      */
     readAdminNotification: (notificationId, read) =>
         instance.patch(
@@ -231,7 +213,6 @@ export const User = {
      * Sends a request to delete a specific image for a specific user
      * @param userId The ID of the user in the database
      * @param imageId The ID of the image for the product in the database
-     * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     removeImage: (userId, imageId) => instance.delete(`users/${userId}/images/${imageId}`),
 
@@ -239,14 +220,12 @@ export const User = {
      * Sends a request to make a specific image the primary image of a specific user
      * @param userId The ID of the user in the database
      * @param imageId The ID of the image for the product in the database
-     * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     makePrimaryImage: (userId, imageId) => instance.put(`users/${userId}/images/${imageId}/makeprimary`),
 
     /**
      * Sends a request to validate a lost password token used when resetting your password
      * @param token reset password token from the user
-     * @returns {Promise<AxiosResponse<any>>}
      */
     validateLostPasswordToken: (token) => instance.get(`lostpassword/validate?token=${token}`),
 
@@ -254,14 +233,12 @@ export const User = {
      * Sends a request to edit a lost password for the user that the token links to
      * @param token         reset password token from the user
      * @param password   new password for the user
-     * @returns {Promise<AxiosResponse<any>>}
      */
     editLostPassword: (token, password) => instance.patch(`lostpassword/edit`, {token, password}),
 
     /**
      * Sends a request to send an email to the given email to reset the users password
      * @param email the user's email used to send a password reset email to
-     * @returns {Promise<AxiosResponse<any>>}
      */
     sendPasswordResetEmail: (email) => instance.post('lostpassword/send', {email}),
 
@@ -270,7 +247,6 @@ export const User = {
      *
      * @param listingId ID of listing to tag
      * @param name Name of the tag
-     * @returns {Promise<AxiosResponse<any>>} response from request
      */
     tagListing: (listingId, name) => instance.patch(`listings/${listingId}/tag`,
         {
@@ -283,7 +259,6 @@ export const User = {
      *
      * @param userId users purchases to retrieve
      * @param params the page number and sorting parameter
-     * @returns {Promise<AxiosResponse<any>>} response containing the users purchases
      */
     getPurchases: (userId, params) => instance.get(`users/${userId}/purchases`, {
         params
@@ -292,7 +267,7 @@ export const User = {
 };
 
 export const Business = {
-    /*
+    /**
      * Creates a new business under a given user.
      */
     createNew: (primaryAdministratorId,
@@ -313,7 +288,6 @@ export const Business = {
      * @param businessSearchType Criteria to limit the search for only businesses with this type
      * @param pageNumber Page number to retrive
      * @param sortBy sorting criteria
-     * @returns {Promise<AxiosResponse<any>>} Response from request
      */
     getBusinesses: (searchTerm, businessSearchType, pageNumber, sortBy) => instance.get('businesses/search', {
         params: {
@@ -324,7 +298,7 @@ export const Business = {
         }
     }),
 
-    /*
+    /**
      * Retrieves the data for a given business
      */
     getBusinessData: (id) => instance.get(`businesses/${id}`, {}),
@@ -335,7 +309,6 @@ export const Business = {
      * @param businessId ID of the business to update
      * @param newData new details to update business with
      * @param updateProductCurrency Boolean, updates the existing products with the new countries currency
-     * @returns {Promise<AxiosResponse<any>>} response from request
      */
     editBusiness: (businessId, newData, updateProductCurrency) =>
         instance.put(`businesses/${businessId}`, newData, {
@@ -344,22 +317,22 @@ export const Business = {
         }),
 
 
-    /*
+    /**
      *  Removes a user with id userId from administering the business with id businessId
      */
     removeAdministrator: (businessId, userId) => instance.put(`/businesses/${businessId}/removeAdministrator`, {userId}),
 
-    /*
+    /**
      *  Adds a user with id userId to administrators of the business with id businessId
      */
     addAdministrator: (businessId, userId) => instance.put(`/businesses/${businessId}/makeAdministrator`, {userId}),
 
-    /*
+    /**
      * Gets all the products in a business's catalogue
      */
     getProducts: (businessId) => instance.get(`businesses/${businessId}/products`, {}),
 
-    /*
+    /**
      * Sends an edit product request to the backend
      */
     editProduct: (businessId, productId, newProductData) => instance.put(
@@ -371,12 +344,12 @@ export const Business = {
      */
     createItem: (businessId, data) => instance.post(`businesses/${businessId}/inventory`, data),
 
-    /*
+    /**
      * Gets all the items in a business's inventory
      */
     getInventory: (businessId) => instance.get(`businesses/${businessId}/inventory`, {}),
 
-    /*
+    /**
      * Sends an edit inventory item request to the backend
      */
     editItem: (businessId, inventoryItemId, newItemData) => instance.put(
@@ -416,7 +389,6 @@ export const Business = {
      * @param businessId The ID of the business in the database
      * @param productId The ID of the product in the database
      * @param imageId The ID of the image for the product in the database
-     * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     removeProductImage: (businessId, productId, imageId) => instance.delete(`businesses/${businessId}/products/${productId}/images/${imageId}`),
 
@@ -425,7 +397,6 @@ export const Business = {
      * @param businessId The ID of the business in the database
      * @param productId The ID of the product in the database
      * @param imageId The ID of the image for the product in the database
-     * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     makePrimaryProductImage: (businessId, productId, imageId) => instance.put(`businesses/${businessId}/products/${productId}/images/${imageId}/makeprimary`),
 
@@ -466,7 +437,6 @@ export const Business = {
      * Sends a request to delete a specific image for a specific business
      * @param businessId The ID of the business in the database
      * @param imageId The ID of the image for the product in the database
-     * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     removeBusinessImage: (businessId, imageId) => instance.delete(`businesses/${businessId}/images/${imageId}`),
 
@@ -474,7 +444,6 @@ export const Business = {
      * Sends a request to make a specific image the primary image of a specific business
      * @param businessId The ID of the business in the database
      * @param imageId The ID of the image for the product in the database
-     * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     makePrimaryBusinessImage: (businessId, imageId) => instance.put(`businesses/${businessId}/images/${imageId}/makeprimary`),
 
@@ -482,7 +451,6 @@ export const Business = {
     /**
      * requests to get sales listings matching supplied properties
      * @param params query parameters for browsing sale listings
-     * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     searchSaleListings: (params) => instance.get(`listings`, {
         params
@@ -491,21 +459,18 @@ export const Business = {
     /**
      * Sends a request to purchase a specific listing
      * @param listingId The ID of the listing to purchase
-     * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     purchaseListing: (listingId) => instance.post(`/listings/${listingId}/buy`),
 
     /**
      * Sends a request to like a specific listing
      * @param listingId The ID of the listing to like
-     * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     likeListing: (listingId) => instance.patch(`/listings/${listingId}/like`),
 
     /**
      * Sends a request to unlike a specific listing
      * @param listingId The ID of the listing to unlike
-     * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     unlikeListing: (listingId) => instance.patch(`/listings/${listingId}/unlike`),
 
@@ -513,7 +478,6 @@ export const Business = {
      * Sends a request to star or un-star a sale listing.
      * @param listingId Id of the sale listing to star.
      * @param value Boolean, sets the listing to starred if true, and un-starred if false.
-     * @returns {Promise<AxiosResponse<any>>} Response from  the request
      */
     starListing: (listingId, value) => instance.patch(`/listings/${listingId}/star`, {star: value}),
 
@@ -522,7 +486,6 @@ export const Business = {
      *
      * @param businessId ID of business to generate sales report for
      * @param params query parameters specifying date range and granularity
-     * @returns {Promise<AxiosResponse<any>>} response containing sales report
      */
     getSalesReport: (businessId, params) =>
         instance.get(`/businesses/${businessId}/sales`, {
@@ -534,7 +497,6 @@ export const Business = {
      * @param businessId Id of the business the listing belongs to
      * @param listingId Id of the listing to feature
      * @param featured The featured boolean, true for featured, false for not featured
-     * @returns {Promise<AxiosResponse<any>>} Response from the request
      */
     featureListing: (businessId, listingId, featured) =>
         instance.patch(`/businesses/${businessId}/listings/${listingId}/feature`, {featured}),
@@ -542,7 +504,6 @@ export const Business = {
     /**
      * Gets a business' featured listings from the backend.
      * @param businessId Id of the business.
-     * @returns {Promise<AxiosResponse<any>>} List of sale listings.
      */
     getFeaturedListings: (businessId) => instance.get(`/businesses/${businessId}/featuredlistings`),
 };
@@ -572,7 +533,6 @@ export const Card = {
     /**
      * Searches for cards by keyword
      * @param params parameters to search by, the keywords, the section, and whether to match all keywords or only some
-     * @returns {Promise<AxiosResponse<any>>} Response from request
      */
     searchCards: (params) => instance.get(`cards/search${params}`, {}),
 
@@ -586,7 +546,6 @@ export const Card = {
     /**
      * Sends a marketplace card deletion request to the api.
      * @param cardId Id of the card to delete
-     * @returns {Promise<AxiosResponse<any>>} Response from request
      */
     deleteCard: (cardId) => instance.delete(`cards/${cardId}`)
 };
@@ -611,7 +570,6 @@ export const Keyword = {
      * Deletes a keyword by ID
      *
      * @param keywordId the ID of the keyword to delete
-     * @returns {Promise<AxiosResponse<any>>} response with status code
      */
     deleteKeyword: (keywordId) =>
         instance.delete(`keywords/${keywordId}`)
@@ -636,7 +594,13 @@ export const Landing ={
     /**
      * Retrieves the popular listings from the backend
      * @param country The parameter for popular listings in that country
-     * @returns {Promise<AxiosResponse<any>>} response with popular sale listings
      */
-    getPopularListings: (country) => instance.get("popularlistings", {params: {'country': country}})
+    getPopularListings: (country) => instance.get("popularlistings", {params: {'country': country}}),
+
+    /**
+     * Sends a request to email contact resale
+     * @param email email of the user sending
+     * @param message message to send to resale
+     */
+    contact: (email, message) => instance.post('contact', {email, message})
 }

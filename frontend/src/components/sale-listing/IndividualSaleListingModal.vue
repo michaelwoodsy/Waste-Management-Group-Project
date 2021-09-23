@@ -228,6 +228,15 @@ export default {
       viewingBusiness: false
     }
   },
+  watch: {
+    listing() {
+      this.buyClicked = false
+      this.purchaseMsg = null
+      this.errorMsg = null
+      this.likes = this.$props.listing.likes
+      this.liked = this.$props.listing.userLikes
+    }
+  },
   mounted() {
     this.likes = this.$props.listing.likes
     this.liked = this.$props.listing.userLikes
