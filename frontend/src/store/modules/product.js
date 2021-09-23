@@ -19,20 +19,23 @@ export default {
                         reject(promise)
                     }
                     if (response.data.length >= 1) {
-                        resolve(response)
+                        resolve({
+                            "code": response.data[0].currencies[0].code,
+                            "symbol": response.data[0].currencies[0].symbol
+                        })
                     } else {
                         reject(response)
                     }
                 })
-                .catch((err) => {
-                    //console.log(err.response.data)
-                    reject(err)
+                .catch(() => {
+                    //Uses this data if the api fails or is down
+                    resolve({
+                        "code": "",
+                        "symbol": ""
+                    })
                 })
         })
-        return {
-            "code": promise.data[0].currencies[0].code,
-            "symbol": promise.data[0].currencies[0].symbol
-        }
+        return promise
     },
 
     /**
