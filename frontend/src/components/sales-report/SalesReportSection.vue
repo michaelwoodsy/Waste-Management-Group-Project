@@ -48,25 +48,9 @@ export default {
   name: "SalesReportSection",
   props: {
     sales: Array,
-    businessCurrency: Object
-  },
-  mounted() {
-    this.getCurrencies()
   },
   methods: {
-    /**
-     * Gets the currencies of the sales so that their prices can be formatted.
-     */
-    async getCurrencies() {
-      for (const [index, sale] of this.sales.entries()) {
-        if (sale.currencyCountry) {
-          sale.currency = await this.$root.$data.product.getCurrency(sale.currencyCountry)
-        } else {
-          sale.currency = this.businessCurrency
-        }
-        this.$set(this.sales, index, sale)
-      }
-    },
+
     /**
      * Formats the date of the sale
      * @return string date formatted like "DD/MM/YYYY hh:mm"

@@ -644,10 +644,10 @@ public class SaleListingService {
         sale.setBuyerId(buyer.getId());
         saleHistoryRepository.save(sale);
 
-        //Update the inventory items quantity or remove it if its new quantity is 0
-        updateInventoryItem(listing);
         //Send notifications to the users who liked the listing saying it was brought
         sendPurchaseNotifications(listing, buyer);
+        //Update the inventory items quantity or remove it if its new quantity is 0
+        updateInventoryItem(listing);
 
         //Remove the sales listing
         saleListingRepository.delete(listing);

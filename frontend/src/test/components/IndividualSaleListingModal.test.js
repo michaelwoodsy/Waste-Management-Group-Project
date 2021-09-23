@@ -37,6 +37,9 @@ beforeEach(() => {
         computed: {
             isLoggedIn() {
                 return true
+            },
+            isActingAsUser() {
+                return true
             }
         }
     })
