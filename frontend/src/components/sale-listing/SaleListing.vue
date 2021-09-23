@@ -49,7 +49,7 @@ Displays a single listing.
 </template>
 
 <script>
-import {Images} from "@/Api";
+import {Images, Business} from "@/Api";
 import product from "@/store/modules/product"
 import user from "@/store/modules/user"
 
@@ -155,12 +155,24 @@ export default {
       return Images.getImageURL(path)
     },
 
+    /**
+     * Routes to the sale listing page.
+     */
     async routeToSaleListing() {
       await this.$emit('close-modal')
       this.$router.push({
         name: 'browseListings',
         query: {businessId: this.listingData.business.id, listingId: this.listingData.id}
       })
+    },
+
+    /**
+     * Run when the remove button is clicked.
+     * Removes the listing from the businesses featured listings.
+     * Emits a 'un-feature-listing' event
+     */
+    async unFeatureListing() {
+      return ''
     }
   }
 }

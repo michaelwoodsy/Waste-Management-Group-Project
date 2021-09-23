@@ -3,8 +3,10 @@ import SaleListing from "@/components/sale-listing/SaleListing";
 import {shallowMount} from '@vue/test-utils'
 import product from "@/store/modules/product"
 import user from "@/store/modules/user"
+import {Business} from "@/Api"
 jest.mock('@/store/modules/product')
 jest.mock('@/store/modules/user')
+jest.mock('@/Api')
 
 let wrapper
 let listingData = {
@@ -99,6 +101,24 @@ describe("Tests for the SaleListing component", () => {
         user.isActingAsBusiness.mockReturnValue(true)
         user.actor.mockReturnValue({id: 100})
         expect(SaleListing.computed.isAdminOfBusiness.call({listingData: {business: {id: 100}}})).toBeTruthy()
+    })
+
+    test("Check the unFeatureListing method makes a call to the api", async () => {
+        Business.featureListing.mockResolvedValue({})
+        await wrapper.vm.unFeatureListing()
+        expect(Business.featureListing).toBeCalled()
+    })
+
+    test("Check the unFeatureListing method makes a call to the api", async () => {
+        Business.featureListing.mockResolvedValue({})
+        await wrapper.vm.unFeatureListing()
+        expect(Business.featureListing).toBeCalled()
+    })
+
+    test("Check the unFeatureListing emits an 'un-feature-listing' event", async () => {
+        Business.featureListing.mockResolvedValue({})
+        await wrapper.vm.unFeatureListing()
+        expect(wrapper.emitted('un-feature-listing')).toBeTruthy()
     })
 
 })
