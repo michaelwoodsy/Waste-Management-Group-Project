@@ -31,7 +31,7 @@ readOnly:         Boolean, default true.
       <!-- Otherwise, display featured listings in carousel -->
       <div v-else class="row">
         <div class="col-12 col-md-12 col-lg-6 m-auto">
-          <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+          <div id="carouselExampleControls" class="carousel slide" data-ride="carousel" v-bind:key="this.featuredListings.length">
 
             <!-- Carousel items -->
             <div class="carousel-inner">
