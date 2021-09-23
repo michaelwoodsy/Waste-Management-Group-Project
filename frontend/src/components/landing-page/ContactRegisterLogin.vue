@@ -52,9 +52,10 @@
               <div class="form-row mb-3">
                 <label for="message" style="margin-top:20px"><strong>Message:<span
                     class="required">*</span></strong></label>
+                <br>
                 <textarea id="message" v-model="message" :class="{'form-control': true, 'is-invalid': msg.message}"
-                       maxlength="100"
-                       placeholder="Enter your Message" required style="width:100%" type="text"></textarea>
+                       maxlength="500"
+                       placeholder="Enter your Message, max 500 characters" required style="width:100%; height: 10em" type="text"></textarea>
                 <span class="invalid-feedback">{{ msg.message }}</span>
               </div>
 
@@ -225,7 +226,6 @@ export default {
         this.valid = true;
       } else {
         this.msg['errorChecks'] = '';
-        console.log('No Errors');
         await this.contact();
       }
     },

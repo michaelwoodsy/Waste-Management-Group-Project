@@ -80,6 +80,15 @@ readOnly:         Boolean, default true.
           </div>
         </div>
 
+        <!-- Average Star rating -->
+        <div class="row d-flex justify-content-center">
+          <em :class="{'bi-star-fill': business.averageRating, 'bi-star': !business.averageRating}"
+              class="icon bi float-right"
+              style="color: gold; font-size: 30px"/>
+          <p v-if="business.averageRating" class="rating-message">{{ business.averageRating.toFixed(2) }}</p>
+          <p v-else class="rating-message"> No Ratings</p>
+        </div>
+
         <!-- Name of Business -->
         <div class="row">
           <div class="col-6 text-right font-weight-bold">
@@ -460,5 +469,9 @@ export default {
 </script>
 
 <style scoped>
+
+.rating-message {
+  margin: 13px 0 0 10px;
+}
 
 </style>

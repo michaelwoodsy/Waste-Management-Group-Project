@@ -160,7 +160,6 @@ export default {
       this.listings = await this.$root.$data.product.addSaleListingCurrencies(response.data)
       if(this.listings.length > 6){
         //7-9 listings
-        console.log(this.currentSlide)
         this.listingsList1 = this.listings.slice(0,3)
         this.listingsList2 = this.listings.slice(3,6)
         this.listingsList3 = this.listings.slice(6)
