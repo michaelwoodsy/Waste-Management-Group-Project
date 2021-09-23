@@ -40,7 +40,7 @@ Displays a single listing.
               id="removeButton"
               v-if="isAdminOfBusiness"
           >
-            Remove From Featured
+            <em class="bi bi-dash-lg"></em>
           </button>
 
         </div>
