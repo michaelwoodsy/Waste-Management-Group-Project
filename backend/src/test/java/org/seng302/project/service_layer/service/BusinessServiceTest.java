@@ -6,12 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repository_layer.model.Address;
-import org.seng302.project.repository_layer.model.Business;
-import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.BusinessRepository;
+import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
@@ -31,6 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,6 +44,7 @@ class BusinessServiceTest extends AbstractInitializer {
     private AddressRepository addressRepository;
     private UserRepository userRepository;
     private BusinessRepository businessRepository;
+    private ReviewRepository reviewRepository;
     private ProductCatalogueService productCatalogueService;
 
     private User testPrimaryAdmin;
@@ -58,9 +59,10 @@ class BusinessServiceTest extends AbstractInitializer {
         addressRepository = Mockito.mock(AddressRepository.class);
         userRepository = Mockito.mock(UserRepository.class);
         businessRepository = Mockito.mock(BusinessRepository.class);
+        reviewRepository = Mockito.mock(ReviewRepository.class);
         productCatalogueService = Mockito.mock(ProductCatalogueService.class);
         businessService = new BusinessService(businessRepository, addressRepository,
-                userRepository, productCatalogueService);
+                userRepository, reviewRepository, productCatalogueService);
 
         //Mock a test user to be used as business primary admin
         testPrimaryAdmin = this.getTestUserBusinessAdmin();
@@ -529,6 +531,9 @@ class BusinessServiceTest extends AbstractInitializer {
                 () -> businessService.editBusiness(requestDTO, businessId, appUser));
     }
 
+    /**
+     * Tests Editing a business and updating the products currencies to a new country
+     */
     @Test
     void editBusiness_updateProductCurrencyTrue_usesNewCountry() {
         // Setup test objects
@@ -555,6 +560,9 @@ class BusinessServiceTest extends AbstractInitializer {
         Assertions.assertEquals(newAddress.getCountry(), countryCaptor.getValue());
     }
 
+    /**
+     * Tests Editing a business and updating the products currencies using the old country
+     */
     @Test
     void editBusiness_updateProductCurrencyTrue_usesOldCountry() {
         // Setup test objects
@@ -582,4 +590,44 @@ class BusinessServiceTest extends AbstractInitializer {
         Assertions.assertEquals(originalCountry, countryCaptor.getValue());
     }
 
+    /**
+     * Tests the getAverageStarRating method when there are no reviews for a business, should return null
+     */
+    @Test
+    void getAverageStarRating_noRatings_returns_null() {
+        Mockito.when(reviewRepository.findAllByBusinessId(any(Integer.class)))
+                .thenReturn(Collections.emptyList());
+
+        Assertions.assertNull(businessService.getAverageStarRating(1));
+    }
+
+    /**
+     * Tests the getAverageStarRating method when there are reviews for a business, should return X
+     */
+    @Test
+    void getAverageStarRating_withRatings_returns_Double() {
+        SaleListing saleListing = this.getSaleListings().get(0);
+        Sale sale = new Sale(saleListing);
+        User user = this.getTestUser();
+        List<Review> reviews = List.of(
+                new Review(sale, user, 4, ""),
+                new Review(sale, user, 1, ""),
+                new Review(sale, user, 2, ""),
+                new Review(sale, user, 5, ""),
+                new Review(sale, user, 1, ""),
+                new Review(sale, user, 4, ""),
+                new Review(sale, user, 1, ""),
+                new Review(sale, user, 4, ""));
+        Mockito.when(reviewRepository.findAllByBusinessId(any(Integer.class)))
+                .thenReturn(reviews);
+
+        //Calculating what the star rating should be
+        var total = 0.0;
+        for (var review: reviews) {
+            total += review.getRating();
+        }
+        Double average = total/reviews.size();
+
+        Assertions.assertEquals(average, businessService.getAverageStarRating(1));
+    }
 }
