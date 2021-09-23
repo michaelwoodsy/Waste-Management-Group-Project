@@ -12,12 +12,8 @@ import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -98,5 +94,7 @@ public class ReviewService {
 
         Review review = new Review(purchase, user, requestDTO.getRating(), requestDTO.getReviewMessage());
         reviewRepository.save(review);
+        purchase.setReview(review);
+        saleHistoryRepository.save(purchase);
     }
 }
