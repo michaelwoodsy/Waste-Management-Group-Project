@@ -480,7 +480,7 @@ export default {
      * @param listingId ID of listing
      */
     removeFromFeatured(listingId) {
-      return listingId
+      this.featuredListings = this.featuredListings.filter(listing => listingId !== listing.id);
     }
   }
 }
