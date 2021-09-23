@@ -6,10 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
-import org.seng302.project.repository_layer.repository.AddressRepository;
-import org.seng302.project.repository_layer.repository.BusinessRepository;
-import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.sales_report.GetSalesReportDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
@@ -41,18 +38,22 @@ class SalesReportServiceTest extends AbstractInitializer {
     private final UserRepository userRepository;
     private final SalesReportService salesReportService;
     private final AddressRepository addressRepository;
+    private final ReviewRepository reviewRepository;
 
     @Autowired
     public SalesReportServiceTest(BusinessRepository businessRepository,
                                   UserRepository userRepository,
                                   SaleHistoryRepository saleHistoryRepository,
-                                  AddressRepository addressRepository) {
+                                  AddressRepository addressRepository,
+                                  ReviewRepository reviewRepository) {
         this.businessRepository = businessRepository;
         this.userRepository = userRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.addressRepository = addressRepository;
+        this.reviewRepository = reviewRepository;
+
         ProductCatalogueService productCatalogueService = Mockito.mock(ProductCatalogueService.class);
-        BusinessService businessService = new BusinessService(businessRepository, addressRepository, userRepository, productCatalogueService);
+        BusinessService businessService = new BusinessService(businessRepository, addressRepository, userRepository, reviewRepository, productCatalogueService);
         this.salesReportService = new SalesReportService(businessService, this.saleHistoryRepository);
     }
 
