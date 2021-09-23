@@ -63,7 +63,15 @@
               {{ purchase.business.name }}
             </td>
             <td>
-              No review
+              <button
+                  class="btn btn-sm btn-primary"
+                  data-toggle="modal"
+                  data-target="#reviewModal"
+                  @click="viewReview(purchase)"
+              >
+                <span v-if="!purchase.review">Leave a review</span>
+                <span v-else>View Review</span>
+              </button>
             </td>
           </tr>
           </tbody>
@@ -95,6 +103,9 @@
         </div>
       </div>
     </div>
+
+    <review id="reviewModal" :sale="purchaseToView" @update-data="fillTable"/>
+
   </page-wrapper>
 </template>
 
@@ -106,6 +117,7 @@ import LoginRequired from "@/components/LoginRequired";
 import Alert from "@/components/Alert";
 import {formatDateTime} from "@/utils/dateTime";
 import {User} from "@/Api";
+import Review from "@/components/Review";
 
 export default {
   name: "UserPurchasesPage",
@@ -118,10 +130,12 @@ export default {
       resultsPerPage: 10,
       totalCount: 0,
       page: 1,
-      loading: false
+      loading: false,
+      purchaseToView: null
     }
   },
   components: {
+    Review,
     PageWrapper,
     Pagination,
     ShowingResultsText,
@@ -227,6 +241,13 @@ export default {
      */
     formattedPrice(purchase) {
       return this.$root.$data.product.formatPrice(purchase.currency, purchase.price);
+    },
+    /**
+     * Updates the purchase to show in the review modal
+     * @param purchase purchase to view
+     */
+    viewReview(purchase) {
+      this.purchaseToView = purchase
     }
   }
 }

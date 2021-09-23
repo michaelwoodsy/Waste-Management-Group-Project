@@ -263,7 +263,6 @@ export const User = {
     getPurchases: (userId, params) => instance.get(`users/${userId}/purchases`, {
         params
     }),
-    ),
 
     /**
      * Sends a request to leave a review on a sale
