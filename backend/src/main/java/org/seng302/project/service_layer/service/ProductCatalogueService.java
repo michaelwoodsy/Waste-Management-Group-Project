@@ -238,6 +238,8 @@ public class ProductCatalogueService {
                 //Save new product
                 productRepository.save(newProduct);
 
+                //TODO: add images to the new product here
+
                 // Get inventory items
                 List<InventoryItem> inventoryItems = inventoryItemRepository.findAllByBusinessId(requestDTO.getBusinessId());
                 //Loop through businesses inventory items and change product of inventory item if it is the one that needs to be changed

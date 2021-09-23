@@ -90,6 +90,7 @@ public class SaleListingService {
             // Create DTO and annotate with like and star data
             var dto = new GetSaleListingDTO(listing);
             dto.attachLikeData(likes, userLikes);
+            dto.getBusiness().setAverageRating(businessService.getAverageStarRating(listing.getBusiness().getId()));
             listingDTOs.add(dto);
         }
         return listingDTOs;
