@@ -622,6 +622,9 @@ export default {
       }
     },
 
+    /**
+     * Gets the business' notifications
+     */
     async getBusinessNotificationData() {
       try {
         const response = await Business.getNotifications(this.user.actor().id)

@@ -36,8 +36,8 @@
           </button>
         </div>
 
+        <!-- Purchase Notification Body -->
         <div v-if="data.type === 'purchase'">
-
           <p><strong>Price:</strong>
             <br>
             {{formattedPrice}}</p>
@@ -45,9 +45,9 @@
           <p><strong>Pickup from:</strong>
             <br>
             {{formattedAddress}}</p>
-
         </div>
 
+        <!-- Business Review Notification Body -->
         <div v-if="data.type === 'review'">
           <p class="mb-2">Review left on sale: {{data.review.sale.inventoryItem.product.name}}</p>
           <em v-for="num in [1, 2, 3, 4, 5]" :key="num"
@@ -59,6 +59,7 @@
             <i>{{data.review.reviewMessage}}</i></p>
         </div>
 
+        <!-- User Review Reply Notification Body -->
         <div v-if="data.type === 'reviewReply'">
           <p class="mb-2">Reply left on sale: {{data.review.sale.inventoryItem.product.name}}</p>
           <em v-for="num in [1, 2, 3, 4, 5]" :key="num"

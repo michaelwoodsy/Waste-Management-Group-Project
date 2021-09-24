@@ -518,8 +518,19 @@ export const Business = {
      */
     getFeaturedListings: (businessId) => instance.get(`/businesses/${businessId}/featuredlistings`),
 
+    /**
+     * Gets a business' notifications from the backend
+     * @param businessId Business ID to get notifications from
+     */
     getNotifications: (businessId) => instance.get(`/businesses/${businessId}/notifications`),
 
+    /**
+     * Sets a notification ot read/unread
+     *
+     * @param businessId Business ID of whom the notification is for
+     * @param notificationId ID of the notification
+     * @param read boolean of whether or not the notification is read
+     */
     readNotification: (businessId, notificationId, read) =>
         instance.patch(
             `businesses/${businessId}/notifications/${notificationId}/read`,
