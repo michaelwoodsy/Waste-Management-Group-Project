@@ -10,12 +10,15 @@ import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ReviewService {
+    private static final Logger logger = LoggerFactory.getLogger(ReviewService.class.getName());
 
     private final BusinessService businessService;
     private final UserService userService;
@@ -41,6 +44,7 @@ public class ReviewService {
      */
     public List<Review> getBusinessReviews(Integer businessId,
                                             AppUserDetails user){
+        logger.info("Request to get all sale reviews of a Business with ID: {}", businessId);
         // Get the business of the request
         businessService.checkBusiness(businessId);
 
