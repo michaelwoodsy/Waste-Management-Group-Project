@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,6 +115,8 @@ public class SaleHistorySteps extends AbstractInitializer {
     public void i_make_a_request_to_view_my_sale_history() throws Exception {
         request = MockMvcRequestBuilders
                 .get("/users/{userId}/purchases", testUser.getId())
+                .param("pageNumber", String.valueOf(0))
+                .param("sortBy", "")
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
         result = mockMvc.perform(request).andExpect(status().isOk()).andReturn();
@@ -120,7 +124,9 @@ public class SaleHistorySteps extends AbstractInitializer {
 
     @Then("The sales I have purchased are given to me")
     public void the_sales_i_have_purchased_are_given_to_me() throws Exception {
-        String response = result.getResponse().getContentAsString();
+
+        String response = new JSONArray(result.getResponse().getContentAsString()).getJSONArray(0).toString();
+
         List<GetSaleDTO> purchases = objectMapper.readValue(response, new TypeReference<>() {
         });
         Assertions.assertEquals(1, purchases.size());

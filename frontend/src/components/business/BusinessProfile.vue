@@ -31,7 +31,7 @@ readOnly:         Boolean, default true.
       <!-- Otherwise, display featured listings in carousel -->
       <div v-else class="row">
         <div class="col-12 col-md-12 col-lg-6 m-auto">
-          <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+          <div id="carouselExampleControls" class="carousel slide" data-ride="carousel" v-bind:key="this.featuredListings.length">
 
             <!-- Carousel items -->
             <div class="carousel-inner">
@@ -44,18 +44,28 @@ readOnly:         Boolean, default true.
                     style="height: 350px"
                     :listing-data="listing"
                     @close-modal="$emit('close-modal')"
+                    @un-feature-listing="removeFromFeatured(listing.id)"
                 />
               </div>
             </div>
 
             <!-- Carousel left button -->
-            <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+            <a class="carousel-control-prev my-auto"
+               style="height: 20px;"
+               href="#carouselExampleControls"
+               role="button"
+               data-slide="prev"
+            >
               <span class="carousel-control-prev-icon" aria-hidden="true"></span>
               <span class="sr-only">Previous</span>
             </a>
 
             <!-- Carousel right button -->
-            <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+            <a class="carousel-control-next my-auto"
+               style="height: 20px;"
+               href="#carouselExampleControls"
+               role="button"
+               data-slide="next">
               <span class="carousel-control-next-icon" aria-hidden="true"></span>
               <span class="sr-only">Next</span>
             </a>
@@ -78,6 +88,15 @@ readOnly:         Boolean, default true.
                 style="max-height: 200px"
             />
           </div>
+        </div>
+
+        <!-- Average Star rating -->
+        <div class="row d-flex justify-content-center">
+          <em :class="{'bi-star-fill': business.averageRating, 'bi-star': !business.averageRating}"
+              class="icon bi float-right"
+              style="color: gold; font-size: 30px"/>
+          <p v-if="business.averageRating" class="rating-message">{{ business.averageRating.toFixed(2) }}</p>
+          <p v-else class="rating-message"> No Ratings</p>
         </div>
 
         <!-- Name of Business -->
@@ -453,6 +472,15 @@ export default {
           break
       }
       return text
+    },
+
+    /**
+     * Removes listing with ID from this.featuredListings.
+     * Does nothing if the listing doesn't exist in list.
+     * @param listingId ID of listing
+     */
+    removeFromFeatured(listingId) {
+      this.featuredListings = this.featuredListings.filter(listing => listingId !== listing.id);
     }
   }
 }
@@ -460,5 +488,9 @@ export default {
 </script>
 
 <style scoped>
+
+.rating-message {
+  margin: 13px 0 0 10px;
+}
 
 </style>

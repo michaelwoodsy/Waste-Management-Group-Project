@@ -1,19 +1,18 @@
 package org.seng302.project.web_layer.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.Review;
+import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.repository_layer.model.User;
-import org.seng302.project.repository_layer.repository.AddressRepository;
-import org.seng302.project.repository_layer.repository.BusinessRepository;
-import org.seng302.project.repository_layer.repository.ReviewRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.service.ReviewService;
@@ -22,8 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -32,8 +31,10 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -55,10 +56,13 @@ class ReviewControllerTest extends AbstractInitializer{
     private AddressRepository addressRepository;
     @Autowired
     private ReviewRepository reviewRepository;
+    @Autowired
+    private SaleHistoryRepository saleHistoryRepository;
 
     private User testUser;
     private User testAdmin;
     private Business testBusiness;
+    private Sale sale;
 
     @BeforeEach
     public void setup() {
@@ -75,9 +79,10 @@ class ReviewControllerTest extends AbstractInitializer{
 
         this.testBusiness = this.getTestBusiness();
         this.testBusiness.setId(null);
-        this.testBusiness.setPrimaryAdministratorId(this.testAdmin.getId());
         addressRepository.save(testBusiness.getAddress());
         this.testBusiness = businessRepository.save(testBusiness);
+
+        this.sale = saleHistoryRepository.save(new Sale());
 
         List<Review> reviews = new ArrayList<>();
         //Make 6 reviews for the business
@@ -85,116 +90,183 @@ class ReviewControllerTest extends AbstractInitializer{
             Review review = new Review();
             review.setBusiness(testBusiness);
             review.setUser(testUser);
+            if ( i == 0) {
+                review.setSale(sale);
+            }
             reviews.add(review);
         }
         reviewRepository.saveAll(reviews);
     }
 
+//    @Test
+//    void getBusinessReviews_success_200() throws Exception {
+//        Integer businessId = this.testBusiness.getId();
+//        System.out.println(reviewRepository.findAllByBusinessId(businessId));
+//        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
+//
+//        RequestBuilder request = MockMvcRequestBuilders
+//                .get("/businesses/{businessId}/reviews", businessId)
+//                .with(user(new AppUserDetails(testUser)));
+//
+//        MvcResult response = mockMvc.perform(request)
+//                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andReturn();
+//        String responseData = response.getResponse().getContentAsString();
+//        List<Review> result = objectMapper.readValue(responseData, new TypeReference<>() {
+//        });
+//        Assertions.assertEquals(6, result.size());
+//    }
+
     /**
-     * Tests that getting a business' reviews when the user is an admin of the business
-     *  returns a 200 OK and all the business' reviews
+     * Tests that leaving a valid review
+     * when not logged in gives a
+     * 401 response
      */
     @Test
-    void getBusinessReviews_isAdminSuccess_200() throws Exception {
-        Integer businessId = this.testBusiness.getId();
-        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
-
-        Mockito.when(reviewService.getBusinessReviews(any(Integer.class), any(AppUserDetails.class)))
-                .thenReturn(reviewRepository.findAllByBusinessId(businessId));
-        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
-
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/reviews", businessId)
-                .with(user(appUser));
-
-        MvcResult response = mockMvc.perform(request)
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn();
-        String responseData = response.getResponse().getContentAsString();
-        List<Review> result = objectMapper.readValue(responseData, new TypeReference<>() {
-        });
-        Assertions.assertEquals(6, result.size());
+    void postReview_notLoggedIn_401() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/users/{userId}/purchases/{purchaseId}/review",
+                        testUser.getId(), sale.getSaleId()))
+        .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
     /**
-     * Tests that getting a business' reviews when the user is not an admin of the business
-     * returns a 200 OK and all the business' reviews
+     * Tests that leaving a valid review with
+     * a message gives a 201 response
      */
     @Test
-    void getBusinessReviews_notAdminSuccess_200() throws Exception {
-        Assertions.assertNotEquals(this.testBusiness.getPrimaryAdministratorId(), this.testUser.getId());
-        Integer businessId = this.testBusiness.getId();
-        Mockito.when(reviewService.getBusinessReviews(any(Integer.class), any(AppUserDetails.class)))
-                .thenReturn(reviewRepository.findAllByBusinessId(businessId));
-        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
+    void postReview_withMessage_201() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("rating", 4);
+        requestBody.put("reviewMessage", "Very tasty");
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/reviews", businessId)
-                .with(user(appUser));
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
+                .post("/users/{userId}/purchases/{purchaseId}/review",
+                        testUser.getId(), sale.getSaleId())
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
 
-        MvcResult response = mockMvc.perform(request)
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn();
-        String responseData = response.getResponse().getContentAsString();
-        List<Review> result = objectMapper.readValue(responseData, new TypeReference<>() {
-        });
-        Assertions.assertEquals(6, result.size());
+        mockMvc.perform(createReviewRequest).andExpect(status().isCreated());
     }
 
     /**
-     * Tests that getting a business' reviews with an invalid business ID
-     * returns a 400 Bad Request
+     * Tests that leaving a valid review without
+     * a message gives a 201 response
      */
     @Test
-    void getBusinessReviews_invalidBusinessIdType_400() throws Exception {
-        String businessId = "two";
-        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
-        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
+    void postReview_withoutMessage_201() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("rating", 4);
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/reviews", businessId)
-                .with(user(appUser));
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
+                .post("/users/{userId}/purchases/{purchaseId}/review",
+                        testUser.getId(), sale.getSaleId())
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
 
-        mockMvc.perform(request)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        mockMvc.perform(createReviewRequest).andExpect(status().isCreated());
+
     }
 
     /**
-     * Tests that getting a business' reviews with an invalid business ID
-     * returns a 401 Unauthorized
+     * Tests that trying to leave a review with
+     * a 6 star rating gives a 400 response
+     * because the acceptable range is 1-5
      */
     @Test
-    void getBusinessReviews_notLoggedIn_401() throws Exception {
-        Integer businessId = this.testBusiness.getId();
-        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
-        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
+    void postReview_6StarRating_400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("rating", 6);
+        requestBody.put("reviewMessage", "Super tasty");
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/reviews", businessId);
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
+                .post("/users/{userId}/purchases/{purchaseId}/review",
+                        testUser.getId(), sale.getSaleId())
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
 
-        mockMvc.perform(request)
-                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+        mockMvc.perform(createReviewRequest).andExpect(status().isBadRequest());
     }
 
     /**
-     * Tests that getting a business' reviews with an nonexistent business ID
-     * returns a 406 Not Acceptable
+     * Tests that trying to leave a review with
+     * no star rating gives a 400 response
      */
     @Test
-    void getBusinessReviews_nonexistentBusinessID_406() throws Exception {
-        Integer businessId = 9999;
-        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
-        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
+    void postReview_noRating_400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("reviewMessage", "Super tasty");
 
-        Mockito.doThrow(new NotAcceptableException(
-                String.format("No Business with ID %d exists", businessId))).when(reviewService)
-                .getBusinessReviews(any(Integer.class), any(AppUserDetails.class));
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
+                .post("/users/{userId}/purchases/{purchaseId}/review",
+                        testUser.getId(), sale.getSaleId())
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/businesses/{businessId}/reviews", businessId)
-                .with(user(appUser));
+        mockMvc.perform(createReviewRequest).andExpect(status().isBadRequest());
 
-        mockMvc.perform(request)
-                .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
     }
+
+    /**
+     * Tests that a 403 response is given when
+     * trying to leave a review and
+     * the appUser doesn't match the userId, or is not an admin
+     */
+    @Test
+    void postReview_differentUser_403() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("rating", 4);
+        requestBody.put("reviewMessage", "Very tasty");
+
+        doThrow(ForbiddenException.class)
+                .when(reviewService)
+                .newReview(Mockito.any(Integer.class), Mockito.any(Integer.class),
+                        Mockito.any(PostReviewDTO.class), Mockito.any(AppUserDetails.class));
+
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
+                .post("/users/{userId}/purchases/{purchaseId}/review",
+                    testUser.getId(), sale.getSaleId())
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testAdmin)));
+
+        mockMvc.perform(createReviewRequest).andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that a 406 response is given when
+     * trying to leave a review and
+     * the sale doesn't exist
+     */
+    @Test
+    void postReview_nonExistentSale_406() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("rating", 4);
+        requestBody.put("reviewMessage", "Very tasty");
+
+        doThrow(NotAcceptableException.class)
+                .when(reviewService)
+                .newReview(Mockito.any(Integer.class), Mockito.any(Integer.class),
+                        Mockito.any(PostReviewDTO.class), Mockito.any(AppUserDetails.class));
+
+        RequestBuilder createReviewRequest = MockMvcRequestBuilders
+                .post("/users/{userId}/purchases/{purchaseId}/review",
+                        testUser.getId(), sale.getSaleId() + 50)
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(createReviewRequest).andExpect(status().isNotAcceptable());
+    }
+
 }

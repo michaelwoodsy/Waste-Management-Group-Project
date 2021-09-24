@@ -13,4 +13,5 @@ import java.util.Optional;
 public interface SaleHistoryRepository extends JpaRepository<Sale, Integer>, JpaSpecificationExecutor<Sale> {
 
     Optional<Sale> findByOldListingId(@Param("oldListingId") Integer oldListingId);
+
 }
