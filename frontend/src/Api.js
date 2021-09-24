@@ -517,6 +517,14 @@ export const Business = {
      * @param businessId Id of the business.
      */
     getFeaturedListings: (businessId) => instance.get(`/businesses/${businessId}/featuredlistings`),
+
+    getNotifications: (businessId) => instance.get(`/businesses/${businessId}/notifications`),
+
+    readNotification: (businessId, notificationId, read) =>
+        instance.patch(
+            `businesses/${businessId}/notifications/${notificationId}/read`,
+            {read: read}
+        ),
 };
 
 export const Card = {

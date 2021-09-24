@@ -48,6 +48,31 @@
 
         </div>
 
+        <div v-if="data.type === 'review'">
+          <p class="mb-2">Review left on sale: {{data.review.sale.inventoryItem.product.name}}</p>
+          <em v-for="num in [1, 2, 3, 4, 5]" :key="num"
+              :class="{'bi-star-fill': data.review.rating >= num, 'bi-star': data.review.rating < num}"
+              class="icon bi mr-1"
+          />
+          <p v-if="data.review.reviewMessage" class="mt-2 mb-0"><strong>Their message:</strong>
+            <br>
+            <i>{{data.review.reviewMessage}}</i></p>
+        </div>
+
+        <div v-if="data.type === 'reviewReply'">
+          <p class="mb-2">Reply left on sale: {{data.review.sale.inventoryItem.product.name}}</p>
+          <em v-for="num in [1, 2, 3, 4, 5]" :key="num"
+              :class="{'bi-star-fill': data.review.rating >= num, 'bi-star': data.review.rating < num}"
+              class="icon bi mr-1"
+          />
+          <p class="mt-2"><strong>Your message:</strong>
+            <br>
+            <i>{{data.review.reviewMessage}}</i></p>
+          <p class="mb-0"><strong>Their reply:</strong>
+            <br>
+            <i>{{data.review.reviewReply}}</i></p>
+        </div>
+
       </div>
     </div>
 
@@ -68,7 +93,7 @@
 <script>
 import {formatDateTime} from "@/utils/dateTime";
 import ConfirmationModal from "@/components/ConfirmationModal";
-import {Keyword, User} from "@/Api";
+import {Keyword, User, Business} from "@/Api";
 import user from "@/store/modules/user"
 import undo from "@/utils/undo"
 
@@ -143,6 +168,8 @@ export default {
         try {
           if (this.isAdminNotification) {
             await User.readAdminNotification(this.data.id, true)
+          } else if (this.data.type === "review") {
+            await Business.readNotification(user.actor().id, this.data.id, true)
           } else {
             await User.readNotification(user.actingUserId(), this.data.id, true)
           }
