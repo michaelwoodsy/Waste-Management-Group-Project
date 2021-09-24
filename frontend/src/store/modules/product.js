@@ -95,7 +95,7 @@ export default {
     /**
      * Takes a list of inventory items, and adds currency object to them.
      * @param items List of inventory item objects.
-     * @param businessCurrency currency of the business (if there is one)
+     * @param businessCurrency the currency the business is currently using
      * @returns {*[]} List of product objects with currency field added.
      */
     async addInventoryItemCurrencies(items, businessCurrency) {
