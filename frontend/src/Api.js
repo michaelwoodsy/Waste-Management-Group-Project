@@ -264,6 +264,17 @@ export const User = {
         params
     }),
 
+    /**
+     * Sends a request to leave a review on a sale
+     *
+     * @param userId ID of user who purchased the sale
+     * @param saleId ID of the sale to leave a review for
+     * @param review object containing review rating and message
+     */
+    leaveReview: (userId, saleId, review) => instance.post(`users/${userId}/purchases/${saleId}/review`,
+        review
+    )
+
 };
 
 export const Business = {
