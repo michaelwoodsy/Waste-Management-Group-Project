@@ -536,6 +536,15 @@ export const Business = {
             `businesses/${businessId}/notifications/${notificationId}/read`,
             {read: read}
         ),
+
+    /**
+     * Deletes a business' notification from the backend
+     *
+     * @param businessId Business ID of whom to delete notification for
+     * @param notificationId ID of the notification to delete
+     */
+    deleteNotification: (businessId, notificationId) =>
+        instance.delete(`businesses/${businessId}/notifications/${notificationId}`),
 };
 
 export const Card = {

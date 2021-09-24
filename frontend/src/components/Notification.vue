@@ -196,6 +196,8 @@ export default {
           }else {
             request = async () => {await User.deleteAdminNotification(this.data.id)}
           }
+        } else if (this.data.type === "review") {
+          await Business.deleteNotification(user.actor().id, this.data.id)
         } else {
           request = async () => {await User.deleteNotification(user.actingUserId(), this.data.id)}
         }
