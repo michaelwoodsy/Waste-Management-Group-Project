@@ -72,7 +72,7 @@ export default {
 
         // Iterate over the countries and find the currency
         for (let country of Object.keys(currenciesToFind)) {
-            currenciesToFind[country] = this.getCurrency(country)
+            currenciesToFind[country] = await this.getCurrency(country)
         }
 
         // Add the found currencies to the objects
@@ -108,7 +108,7 @@ export default {
 
         // Iterate over the countries and find the currency
         for (let country of Object.keys(currenciesToFind)) {
-            currenciesToFind[country] = this.getCurrency(country)
+            currenciesToFind[country] = await this.getCurrency(country)
         }
 
         // Add the found currencies to the objects
@@ -152,7 +152,7 @@ export default {
 
         // Iterate over the countries and find the currency
         for (let country of Object.keys(currenciesToFind)) {
-            currenciesToFind[country] = this.getCurrency(country)
+            currenciesToFind[country] = await this.getCurrency(country)
         }
 
         // Add the found currencies to the objects
@@ -184,7 +184,7 @@ export default {
         }
         // Iterate over the countries and find the currency
         for (let country of Object.keys(currenciesToFind)) {
-            currenciesToFind[country] = this.getCurrency(country)
+            currenciesToFind[country] = await this.getCurrency(country)
         }
         // Add the found currencies to the objects
         for (let purchase of purchases) {
