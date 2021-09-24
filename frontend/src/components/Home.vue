@@ -570,6 +570,7 @@ export default {
       try {
         const response = await User.getNotifications(this.user.actor().id)
         this.notifications = response.data
+        // TODO: Whoever implements the Business notification endpoints can remove this test data
         const test_data =
             {
               id: 999,
@@ -630,6 +631,7 @@ export default {
         const response = await Business.getNotifications(this.user.actor().id)
         this.notifications.push(...response.data)
       } catch (error) {
+        // TODO: Whoever implements the Business notification endpoints can remove this test data
         const test_data =
           {
             id: 1000,
