@@ -6,7 +6,7 @@
       <span style="white-space: pre;">{{currencyWarningText}}</span>
     </alert>
 
-    <div id="salesReport" :key="currency" class="accordion shadow">
+    <div id="salesReport" :key="currency.toString()" class="accordion shadow">
 
       <div class="card">
         <div class="card-header bg-secondary text-light">
