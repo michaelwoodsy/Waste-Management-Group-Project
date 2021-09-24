@@ -2,7 +2,8 @@
 SaleListing.vue
 Displays a single listing.
 
-@prop listingData: The json data for a sale listing (from the api) to display
+@prop listingData: The json data for a sale listing (from the api) to display.
+@emits un-feature-listing: Emits this event when the sale listing is un-featured.
 -->
 <template>
 
@@ -34,13 +35,25 @@ Displays a single listing.
             View Details
           </button>
 
+          <!-- Remove from featured listings button -->
+          <button
+              class="btn btn-sm btn-outline-danger ml-3"
+              id="removeButton"
+              v-if="isAdminOfBusiness"
+              @click="unFeatureListing"
+          >
+            <em class="bi bi-dash-lg"></em>
+          </button>
+
         </div>
       </div>
     </div>
 </template>
 
 <script>
-import {Images} from "@/Api";
+import {Images, Business} from "@/Api";
+import product from "@/store/modules/product"
+import user from "@/store/modules/user"
 
 export default {
   name: "SaleListing",
@@ -66,12 +79,23 @@ export default {
     this.setCurrency()
   },
 
+  computed: {
+    /**
+     * Returns true if the current user is an administrator of the business.
+     * Also returns true if they are a GAA / DGAA
+     */
+    isAdminOfBusiness() {
+      return user.isActingAsBusiness() &&
+          user.actor().id === this.listingData.business.id
+    }
+  },
+
   methods: {
     /**
      * Sets the currency on the sale listing
      */
     async setCurrency() {
-      let listings = await this.$root.$data.product
+      let listings = await product
           .addSaleListingCurrencies([{...this.listingData}], this.listingData.business.address.country)
       this.listing = listings[0]
     },
@@ -88,7 +112,7 @@ export default {
      * the country of the business offering the listing
      */
     formatPrice(listing) {
-      return this.$root.$data.product.formatPrice(listing.currency, listing.price)
+      return product.formatPrice(listing.currency, listing.price)
     },
 
     /**
@@ -133,12 +157,25 @@ export default {
       return Images.getImageURL(path)
     },
 
+    /**
+     * Routes to the sale listing page.
+     */
     async routeToSaleListing() {
       await this.$emit('close-modal')
       this.$router.push({
         name: 'browseListings',
         query: {businessId: this.listingData.business.id, listingId: this.listingData.id}
       })
+    },
+
+    /**
+     * Run when the remove button is clicked.
+     * Removes the listing from the businesses featured listings.
+     * Emits a 'un-feature-listing' event
+     */
+    async unFeatureListing() {
+      await Business.featureListing(this.listingData.business.id, this.listingData.id, false)
+      this.$emit('un-feature-listing', this.listingData.id)
     }
   }
 }
