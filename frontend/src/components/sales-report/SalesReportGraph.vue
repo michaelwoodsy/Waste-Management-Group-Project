@@ -31,7 +31,7 @@
 <script>
 import {Chart, registerables} from "chart.js";
 import $ from "jquery";
-import {Business} from "../../Api";
+import {Business} from "@/Api";
 
 export default {
   name: "SalesReportGraph",
@@ -163,13 +163,18 @@ export default {
       }
       $("html, body").animate({ scrollTop: $(document).height() }, 0);
     },
+
+    /**
+     * Updates the graph if there is a change of granularity
+     * @returns {Promise<void>} this is the updated data with different granularity
+     */
     async updateGraph() {
       try {
         const res = await Business.getSalesReport(this.businessId, this.options)
         this.graphData = res.data
         this.chart.destroy()
         this.setGraphInfo()
-        this.drawGraph(this.dataLabel, this.totalSales)
+        this.drawGraph(this.dataLabel, this.totalValues)
         $("html, body").animate({ scrollTop: $(document).height() }, 0);
       } catch (error) {
         console.log(error)
