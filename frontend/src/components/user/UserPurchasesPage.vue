@@ -5,6 +5,8 @@
         v-if="!isLoggedIn"
         page="view your purchases"
     />
+
+    <div v-else>
     <!--Page heading-->
     <div class="text-center">
       <h1>My Purchases</h1>
@@ -105,7 +107,7 @@
     </div>
 
     <review v-if="showModal" :sale="purchaseToView" @update-data="fillTable" @close-modal="showModal = false"/>
-
+    </div>
   </page-wrapper>
 </template>
 

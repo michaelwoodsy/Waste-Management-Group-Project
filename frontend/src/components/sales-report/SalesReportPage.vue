@@ -85,14 +85,6 @@ export default {
       try {
         this.reportGenerated = true
         const res = await Business.getSalesReport(this.businessId, options)
-        for (const [index, section] of res.data.entries()) { // TODO: Used to test review modal, delete this for loop before merging to dev
-          if (section.sales.length > 0) {
-            res.data[index].sales[0].review = {
-              rating: (index % 5) + 1,
-              reviewMessage: `I enjoyed my ${section.sales[0].productName}!`
-            }
-          }
-        }
         this.$set(this, "report", res.data)
       } catch (error) {
         this.reportGenerated = false
