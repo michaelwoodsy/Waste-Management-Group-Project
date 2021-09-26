@@ -841,7 +841,7 @@ class BusinessControllerTest extends AbstractInitializer {
      */
     @Test
     void getBusinessNotifications_nonExistentBusiness_406() throws Exception {
-        Mockito.doThrow(new BusinessNotFoundException(80)).when(businessService)
+        Mockito.doThrow(new NotAcceptableException("message")).when(businessService)
                 .getBusinessNotifications(any(Integer.class), any(AppUserDetails.class));
 
         RequestBuilder getBusinessNotificationsRequest = MockMvcRequestBuilders

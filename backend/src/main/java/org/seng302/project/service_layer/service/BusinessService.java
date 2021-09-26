@@ -5,10 +5,7 @@ import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.BusinessNotification;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.model.enums.BusinessType;
-import org.seng302.project.repository_layer.repository.AddressRepository;
-import org.seng302.project.repository_layer.repository.BusinessRepository;
-import org.seng302.project.repository_layer.repository.ReviewRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.BusinessSpecifications;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
 import org.seng302.project.service_layer.dto.business.PostBusinessDTO;
@@ -45,18 +42,21 @@ public class BusinessService {
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
     private final ProductCatalogueService productCatalogueService;
+    private final BusinessNotificationRepository businessNotificationRepository;
 
     @Autowired
     public BusinessService(BusinessRepository businessRepository,
                            AddressRepository addressRepository,
                            UserRepository userRepository,
                            ReviewRepository reviewRepository,
-                           ProductCatalogueService productCatalogueService) {
+                           ProductCatalogueService productCatalogueService,
+                           BusinessNotificationRepository businessNotificationRepository) {
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.productCatalogueService = productCatalogueService;
         this.reviewRepository = reviewRepository;
+        this.businessNotificationRepository = businessNotificationRepository;
     }
 
 
@@ -510,8 +510,12 @@ public class BusinessService {
      * @param appUser the user making the request
      */
     public List<BusinessNotification> getBusinessNotifications(Integer businessId, AppUserDetails appUser) {
-        //TODO: implement me
-        return List.of();
+        logger.info("Request to get notifications for business with id {}", businessId);
+
+        Business business = checkBusiness(businessId);
+        checkUserCanDoBusinessAction(appUser, business);
+
+        return businessNotificationRepository.findAllByBusiness(business);
     }
 
 
@@ -523,6 +527,7 @@ public class BusinessService {
      * @param appUser the user making the request
      */
     public void deleteBusinessNotification(Integer businessId, Integer notificationId, AppUserDetails appUser) {
+        logger.info("Request to delete notification with id {} for business with id {}", notificationId, businessId);
         //TODO: implement me
     }
 
@@ -536,6 +541,7 @@ public class BusinessService {
      * @param appUser the user making the request
      */
     public void readBusinessNotification(Integer businessId, Integer notificationId, Boolean read, AppUserDetails appUser) {
+        logger.info("Request to read/unread notification with id {} for business with id {}", notificationId, businessId);
         //TODO: implement me
     }
 

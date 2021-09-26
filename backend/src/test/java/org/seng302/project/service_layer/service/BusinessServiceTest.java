@@ -8,10 +8,7 @@ import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.model.enums.BusinessType;
-import org.seng302.project.repository_layer.repository.AddressRepository;
-import org.seng302.project.repository_layer.repository.BusinessRepository;
-import org.seng302.project.repository_layer.repository.ReviewRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
 import org.seng302.project.service_layer.dto.business.PostBusinessDTO;
@@ -46,6 +43,7 @@ class BusinessServiceTest extends AbstractInitializer {
     private BusinessRepository businessRepository;
     private ReviewRepository reviewRepository;
     private ProductCatalogueService productCatalogueService;
+    private BusinessNotificationRepository businessNotificationRepository;
 
     private User testPrimaryAdmin;
     private User testUser;
@@ -61,8 +59,10 @@ class BusinessServiceTest extends AbstractInitializer {
         businessRepository = Mockito.mock(BusinessRepository.class);
         reviewRepository = Mockito.mock(ReviewRepository.class);
         productCatalogueService = Mockito.mock(ProductCatalogueService.class);
+        businessNotificationRepository = Mockito.mock(BusinessNotificationRepository.class);
+
         businessService = new BusinessService(businessRepository, addressRepository,
-                userRepository, reviewRepository, productCatalogueService);
+                userRepository, reviewRepository, productCatalogueService, businessNotificationRepository);
 
         //Mock a test user to be used as business primary admin
         testPrimaryAdmin = this.getTestUserBusinessAdmin();
@@ -630,4 +630,58 @@ class BusinessServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(average, businessService.getAverageStarRating(1));
     }
+
+    /**
+     * Tests that getting a business' notifications returns the expected list
+     */
+    @Test
+    void getBusinessNotifications_success() {
+        Integer businessId = testBusiness.getId();
+        AppUserDetails admin = new AppUserDetails(testPrimaryAdmin);
+
+        BusinessNotification notification1 = new BusinessNotification("notification1", testBusiness);
+        BusinessNotification notification2 = new BusinessNotification("notification2", testBusiness);
+
+        Mockito.when(businessNotificationRepository.findAllByBusiness(testBusiness)).thenReturn(List.of(notification1, notification2));
+
+        List<BusinessNotification> retrievedNotifications = businessService.getBusinessNotifications(businessId, admin);
+
+        //Account for both orderings of the 2 notifications
+        Assertions.assertTrue((notification1.getMessage().equals(retrievedNotifications.get(0).getMessage())
+                && notification2.getMessage().equals(retrievedNotifications.get(1).getMessage()))
+                || (notification1.getMessage().equals(retrievedNotifications.get(1).getMessage())
+                && notification2.getMessage().equals(retrievedNotifications.get(0).getMessage())));
+    }
+
+    /**
+     * Tests that getting a business' notifications
+     * when not an admin throws a ForbiddenException
+     */
+    @Test
+    void getBusinessNotifications_notAdmin_forbiddenException() {
+        Integer businessId = testBusiness.getId();
+        AppUserDetails user = new AppUserDetails(testUser);
+
+        Assertions.assertThrows(ForbiddenException.class,
+                () -> businessService.getBusinessNotifications(businessId, user));
+
+    }
+
+    /**
+     * Tests that getting a business' notifications
+     * for a non-existent business throws a NotAcceptableException
+     */
+    @Test
+    void getBusinessNotifications_nonExistentBusiness_notAcceptableException() {
+        AppUserDetails admin = new AppUserDetails(testPrimaryAdmin);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> businessService.getBusinessNotifications(120, admin));
+
+    }
+
+
+    //TODO: tests for deleting business notifications
+
+    //TODO: tests for reading business notifications
 }
