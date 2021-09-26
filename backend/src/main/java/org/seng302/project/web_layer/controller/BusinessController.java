@@ -182,4 +182,21 @@ public class BusinessController {
 
     }
 
+    /**
+     * Marks a business' notification as read/unread
+     *
+     * @param businessId the id of the business to read/unread the notification for
+     * @param notificationId the id of the notification to mark as read/unread
+     * @param requestBody request body containing whether to mark the notification as read or not read
+     * @param appUser the user making the request
+     */
+    @PatchMapping("/businesses/{businessId}/notifications/{notificationId}/read")
+    public void readBusinessNotification(@PathVariable Integer businessId, @PathVariable Integer notificationId,
+                                         @RequestBody JSONObject requestBody,
+                                           @AuthenticationPrincipal AppUserDetails appUser) {
+        Boolean read = (Boolean) requestBody.get("read");
+        businessService.readBusinessNotification(businessId, notificationId, read, appUser);
+
+    }
+
 }

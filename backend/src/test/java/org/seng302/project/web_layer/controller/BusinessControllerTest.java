@@ -930,12 +930,117 @@ class BusinessControllerTest extends AbstractInitializer {
     }
 
 
-    //TODO: tests for business notifications:
-    //PATCH businesses/{businessId}/notifications/{notificationId}/read
-        //200
-        //400
-        //401
-        //403
-        //406
+    /**
+     * Tests that successfully marking a business' notification
+     * as read gives a 200 response
+     */
+    @Test
+    void readBusinessNotification_success_200() throws Exception {
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder readBusinessNotificationRequest = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/notifications/{notificationId}/read", 1, 1)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
+
+        this.mvc.perform(readBusinessNotificationRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+    }
+
+    /**
+     * Tests that marking a business' notification
+     * as read without a request body gives a 400 response
+     */
+    @Test
+    void readBusinessNotification_missingBody_400() throws Exception {
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder readBusinessNotificationRequest = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/notifications/{notificationId}/read", 1, 1)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
+
+        this.mvc.perform(readBusinessNotificationRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    }
+
+    /**
+     * Tests that marking a business' notification
+     * as read when not logged in gives a 401 response
+     */
+    @Test
+    void readBusinessNotification_notLoggedIn_401() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        RequestBuilder readBusinessNotificationRequest = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/notifications/{notificationId}/read", 1, 1)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        this.mvc.perform(readBusinessNotificationRequest)
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+
+    }
+
+    /**
+     * Tests that marking a business' notification
+     * as read when not an admin gives a 403 response
+     */
+    @Test
+    void readBusinessNotification_notAdmin_403() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        Mockito.doThrow(new ForbiddenException("message")).when(businessService)
+                .readBusinessNotification(any(Integer.class), any(Integer.class), any(Boolean.class),
+                        any(AppUserDetails.class));
+
+        RequestBuilder readBusinessNotificationRequest = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/notifications/{notificationId}/read", 1, 1)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        this.mvc.perform(readBusinessNotificationRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+
+    }
+
+    /**
+     * Tests that marking a nonexistent business' notification
+     * as read gives a 406 response
+     */
+    @Test
+    void readBusinessNotification_nonExistentNotification_406() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("read", true);
+
+        Mockito.doThrow(new NotAcceptableException("message")).when(businessService)
+                .readBusinessNotification(any(Integer.class), any(Integer.class), any(Boolean.class),
+                        any(AppUserDetails.class));
+
+        RequestBuilder readBusinessNotificationRequest = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/notifications/{notificationId}/read", 1, 1)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
+
+        this.mvc.perform(readBusinessNotificationRequest)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
+
+    }
+
 
 }

@@ -525,6 +525,20 @@ public class BusinessService {
     public void deleteBusinessNotification(Integer businessId, Integer notificationId, AppUserDetails appUser) {
         //TODO: implement me
     }
+
+
+    /**
+     * Marks a business' notification as read/unread
+     *
+     * @param businessId the id of the business to read/unread the notification for
+     * @param notificationId the id of the notification to mark as read/unread
+     * @param read whether to mark the notification as read or not read
+     * @param appUser the user making the request
+     */
+    public void readBusinessNotification(Integer businessId, Integer notificationId, Boolean read, AppUserDetails appUser) {
+        //TODO: implement me
+    }
+
 }
 
 
