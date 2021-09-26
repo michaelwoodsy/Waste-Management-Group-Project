@@ -518,6 +518,34 @@ public class BusinessService {
         return businessNotificationRepository.findAllByBusiness(business);
     }
 
+    /**
+     * Gets a notification for a business.
+     * Throws a NotAcceptableException if the notification isn't found for the business.
+     *
+     * @param businessId the id of the business to retrieve a notification for
+     * @param notificationId the id of the notification to retrieve
+     * @return the business notification if it exists
+     */
+    private BusinessNotification getNotification(Integer businessId, Integer notificationId) {
+        Optional<BusinessNotification> notificationOptional = businessNotificationRepository.findById(notificationId);
+
+        if (notificationOptional.isEmpty()) {
+            String message = String.format("Notification with id %d does not exist", notificationId);
+            logger.warn(message);
+            throw new NotAcceptableException(message);
+        }
+
+        BusinessNotification notification = notificationOptional.get();
+
+        if (!notification.getBusiness().getId().equals(businessId)) {
+            String message = String.format("Notification with id %d does not exist for business with id %d",
+                    notificationId, businessId);
+            logger.warn(message);
+            throw new NotAcceptableException(message);
+        }
+
+        return notification;
+    }
 
     /**
      * Deletes a notification from a business
@@ -528,18 +556,13 @@ public class BusinessService {
      */
     public void deleteBusinessNotification(Integer businessId, Integer notificationId, AppUserDetails appUser) {
         logger.info("Request to delete notification with id {} for business with id {}", notificationId, businessId);
+
         Business business = checkBusiness(businessId);
         checkUserCanDoBusinessAction(appUser, business);
 
-        Optional<BusinessNotification> notificationOptional = businessNotificationRepository.findById(notificationId);
+        BusinessNotification notification = getNotification(businessId, notificationId);
 
-        if (notificationOptional.isEmpty()) {
-            String message = String.format("Notification with id %s exists", notificationId);
-            logger.warn(message);
-            throw new NotAcceptableException(message);
-        }
-
-        //TODO: check notification is for business, delete notification
+        businessNotificationRepository.delete(notification);
     }
 
 
@@ -553,7 +576,13 @@ public class BusinessService {
      */
     public void readBusinessNotification(Integer businessId, Integer notificationId, Boolean read, AppUserDetails appUser) {
         logger.info("Request to read/unread notification with id {} for business with id {}", notificationId, businessId);
-        //TODO: implement me
+        Business business = checkBusiness(businessId);
+        checkUserCanDoBusinessAction(appUser, business);
+
+        BusinessNotification notification = getNotification(businessId, notificationId);
+
+        notification.setRead(read);
+        businessNotificationRepository.save(notification);
     }
 
 }
