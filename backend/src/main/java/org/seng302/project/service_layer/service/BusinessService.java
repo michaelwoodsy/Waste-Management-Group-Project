@@ -528,7 +528,18 @@ public class BusinessService {
      */
     public void deleteBusinessNotification(Integer businessId, Integer notificationId, AppUserDetails appUser) {
         logger.info("Request to delete notification with id {} for business with id {}", notificationId, businessId);
-        //TODO: implement me
+        Business business = checkBusiness(businessId);
+        checkUserCanDoBusinessAction(appUser, business);
+
+        Optional<BusinessNotification> notificationOptional = businessNotificationRepository.findById(notificationId);
+
+        if (notificationOptional.isEmpty()) {
+            String message = String.format("Notification with id %s exists", notificationId);
+            logger.warn(message);
+            throw new NotAcceptableException(message);
+        }
+
+        //TODO: check notification is for business, delete notification
     }
 
 

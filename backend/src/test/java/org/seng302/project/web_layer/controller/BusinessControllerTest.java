@@ -959,12 +959,31 @@ class BusinessControllerTest extends AbstractInitializer {
     @Test
     void readBusinessNotification_missingBody_400() throws Exception {
 
+        RequestBuilder readBusinessNotificationRequest = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/notifications/{notificationId}/read", 1, 1)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
+
+        this.mvc.perform(readBusinessNotificationRequest)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    }
+
+    /**
+     * Tests that marking a business' notification
+     * as read without a correct body gives 400 response
+     */
+    @Test
+    void readBusinessNotification_incorrectBody_400() throws Exception {
+        //TODO: this test actually gives a 415?
+
         JSONObject requestBody = new JSONObject();
-        requestBody.put("read", true);
+        requestBody.put("read", "please");
 
         RequestBuilder readBusinessNotificationRequest = MockMvcRequestBuilders
                 .patch("/businesses/{businessId}/notifications/{notificationId}/read", 1, 1)
                 .accept(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
                 .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         this.mvc.perform(readBusinessNotificationRequest)

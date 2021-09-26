@@ -680,8 +680,52 @@ class BusinessServiceTest extends AbstractInitializer {
 
     }
 
+    /**
+     * Tests that deleting a business' notification
+     * when not an admin throws a ForbiddenException
+     */
+    @Test
+    void deleteBusinessNotification_notAdmin_forbiddenException() {
+        Integer businessId = testBusiness.getId();
+        AppUserDetails user = new AppUserDetails(testUser);
+
+        Assertions.assertThrows(ForbiddenException.class,
+                () -> businessService.deleteBusinessNotification(businessId, 1, user));
+
+    }
+
+    /**
+     * Tests that deleting a business' notification
+     * for a non-existent business throws a NotAcceptableException
+     */
+    @Test
+    void deleteBusinessNotifications_nonExistentBusiness_notAcceptableException() {
+        AppUserDetails admin = new AppUserDetails(testPrimaryAdmin);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> businessService.deleteBusinessNotification(120, 1, admin));
+
+    }
+
+    /**
+     * Tests that deleting a business' notification
+     * for a non-existent notification throws a NotAcceptableException
+     */
+    @Test
+    void deleteBusinessNotifications_nonExistentNotification_notAcceptableException() {
+        Integer businessId = testBusiness.getId();
+        AppUserDetails admin = new AppUserDetails(testPrimaryAdmin);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> businessService.deleteBusinessNotification(businessId, 1, admin));
+
+    }
 
     //TODO: tests for deleting business notifications
+    //success
 
     //TODO: tests for reading business notifications
+    //success
+    //forbidden
+    //not acceptable
 }

@@ -194,9 +194,15 @@ public class BusinessController {
     public void readBusinessNotification(@PathVariable Integer businessId, @PathVariable Integer notificationId,
                                          @RequestBody JSONObject requestBody,
                                            @AuthenticationPrincipal AppUserDetails appUser) {
-        Boolean read = (Boolean) requestBody.get("read");
-        businessService.readBusinessNotification(businessId, notificationId, read, appUser);
 
+        try {
+            Boolean read = (Boolean) requestBody.get("read");
+            businessService.readBusinessNotification(businessId, notificationId, read, appUser);
+        } catch (ClassCastException castException) {
+            String message = "Request body must contain a 'read' field with a boolean value";
+            logger.warn(message);
+            throw new BadRequestException(message);
+        }
     }
 
 }
