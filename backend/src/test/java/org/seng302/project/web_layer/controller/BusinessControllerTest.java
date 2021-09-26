@@ -975,8 +975,6 @@ class BusinessControllerTest extends AbstractInitializer {
      */
     @Test
     void readBusinessNotification_incorrectBody_400() throws Exception {
-        //TODO: this test actually gives a 415?
-
         JSONObject requestBody = new JSONObject();
         requestBody.put("read", "please");
 
@@ -984,6 +982,7 @@ class BusinessControllerTest extends AbstractInitializer {
                 .patch("/businesses/{businessId}/notifications/{notificationId}/read", 1, 1)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testPrimaryAdmin)));
 
         this.mvc.perform(readBusinessNotificationRequest)
