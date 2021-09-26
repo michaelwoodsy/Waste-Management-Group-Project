@@ -46,6 +46,9 @@ public class SalesReportSteps extends AbstractInitializer {
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
     private final SaleHistoryRepository saleHistoryRepository;
+    private final UserNotificationRepository userNotificationRepository;
+    private final AddressRepository addressRepository;
+    private final ReviewRepository reviewRepository;
 
     private Business business;
     private User owner;
@@ -59,10 +62,16 @@ public class SalesReportSteps extends AbstractInitializer {
     public SalesReportSteps(UserRepository userRepository,
                             BusinessRepository businessRepository,
                             SaleHistoryRepository saleHistoryRepository,
+                            UserNotificationRepository userNotificationRepository,
+                            AddressRepository addressRepository,
+                            ReviewRepository reviewRepository,
                             ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.saleHistoryRepository = saleHistoryRepository;
+        this.addressRepository = addressRepository;
+        this.userNotificationRepository = userNotificationRepository;
+        this.reviewRepository = reviewRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -71,9 +80,8 @@ public class SalesReportSteps extends AbstractInitializer {
      */
     @BeforeEach
     @Autowired
-    void setup(WebApplicationContext context,
-               UserNotificationRepository userNotificationRepository,
-               AddressRepository addressRepository) {
+    void setup(WebApplicationContext context) {
+        reviewRepository.deleteAll();
         userNotificationRepository.deleteAll();
         saleHistoryRepository.deleteAll();
         businessRepository.deleteAll();
@@ -105,9 +113,12 @@ public class SalesReportSteps extends AbstractInitializer {
 
     @AfterEach
     void teardown() {
+        reviewRepository.deleteAll();
+        userNotificationRepository.deleteAll();
         saleHistoryRepository.deleteAll();
         businessRepository.deleteAll();
         userRepository.deleteAll();
+        addressRepository.deleteAll();
     }
 
     //AC2
