@@ -21,9 +21,12 @@
         <div class="card shadow mt-5">
           <div class="card-body">
             <sales-report-graph
+                v-if="report != null"
                 :data="report"
                 :currency="currency"
-                v-bind:key="report"
+                :granularity="options.granularity"
+                :business-id="businessId"
+                v-bind:key="reportChange"
             />
           </div>
         </div>
@@ -32,7 +35,6 @@
         <span>No sales for the selected period</span>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -52,6 +54,7 @@ export default {
   data() {
     return {
       report: null,
+      reportChange: null,
       currency: null,
       reportGenerated: false,
       options: {
@@ -85,7 +88,9 @@ export default {
       try {
         this.reportGenerated = true
         const res = await Business.getSalesReport(this.businessId, options)
+        this.options.granularity = options.granularity
         this.$set(this, "report", res.data)
+        this.reportChange = this.report[0].periodStart + this.report[0].periodEnd
       } catch (error) {
         this.reportGenerated = false
         console.log(error)

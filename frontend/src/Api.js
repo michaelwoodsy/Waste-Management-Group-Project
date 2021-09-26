@@ -517,6 +517,34 @@ export const Business = {
      * @param businessId Id of the business.
      */
     getFeaturedListings: (businessId) => instance.get(`/businesses/${businessId}/featuredlistings`),
+
+    /**
+     * Gets a business' notifications from the backend
+     * @param businessId Business ID to get notifications from
+     */
+    getNotifications: (businessId) => instance.get(`/businesses/${businessId}/notifications`),
+
+    /**
+     * Sets a notification ot read/unread
+     *
+     * @param businessId Business ID of whom the notification is for
+     * @param notificationId ID of the notification
+     * @param read boolean of whether or not the notification is read
+     */
+    readNotification: (businessId, notificationId, read) =>
+        instance.patch(
+            `businesses/${businessId}/notifications/${notificationId}/read`,
+            {read: read}
+        ),
+
+    /**
+     * Deletes a business' notification from the backend
+     *
+     * @param businessId Business ID of whom to delete notification for
+     * @param notificationId ID of the notification to delete
+     */
+    deleteNotification: (businessId, notificationId) =>
+        instance.delete(`businesses/${businessId}/notifications/${notificationId}`),
 };
 
 export const Card = {
