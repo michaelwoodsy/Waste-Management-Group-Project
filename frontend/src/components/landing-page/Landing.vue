@@ -5,20 +5,18 @@
       <div class="row justify-content-center" style="justify-content: center; display: flex">
         <img
             alt="logo"
-            width="40%"
-            src="../../../public/logoInverted.png">
+            src="../../../public/logoInverted.png"
+            width="40%">
       </div>
 
-      <div class="row justify-content-center mb-3 align-content-center">
-        <popular-listings></popular-listings>
-      </div>
+      <popular-listings></popular-listings>
 
-      <statistics></statistics>
+      <statistics/>
 
-      <about-us></about-us>
+      <about-us/>
 
+      <contact-register-login/>
 
-      <contact-register-login></contact-register-login>
     </div>
 
   </page-wrapper>
