@@ -19,7 +19,7 @@
     </div>
 
     <canvas id="myChart" style="width: 200px"></canvas>
-    <button class="btn btn-primary"
+    <button class="btn btm-sm btn-primary"
             @click="toggleGraph()"
     >
       {{buttonText}}
@@ -48,8 +48,8 @@ export default {
       dates: [],
       totalValues: [],
       totalSales: [],
-      dataLabel: "Total value",
-      buttonText: "Show number of sales",
+      dataLabel: "Total Value",
+      buttonText: "Show Number of Sales",
       options: {
         periodStart: null,
         periodEnd: null,
@@ -68,7 +68,7 @@ export default {
     this.options.granularity = this.granularity
     this.graphData = this.data
     this.options.periodStart = this.graphData[0].periodStart
-    this.options.periodEnd = this.graphData[0].periodEnd
+    this.options.periodEnd = this.graphData[this.graphData.length-1].periodEnd
     this.setGraphInfo()
     this.drawGraph(this.dataLabel, this.totalValues)
   },
@@ -135,7 +135,7 @@ export default {
               beginAtZero: true,
               title: {
                 display: true,
-                text: this.buttonText === "Show number of sales" ?
+                text: this.buttonText === "Show Number of Sales" ?
                     `${this.currency.symbol}${this.currency.code}`
                     : "Sales"
               }
@@ -150,15 +150,15 @@ export default {
      * and vice versa
      */
     toggleGraph() {
-      if (this.buttonText === "Show number of sales") {
-        this.dataLabel = "Total number of sales"
+      if (this.buttonText === "Show Number of Sales") {
+        this.dataLabel = "Total Number of Sales"
         this.chart.destroy()
-        this.buttonText = "Show total values"
+        this.buttonText = "Show Total Values"
         this.drawGraph(this.dataLabel, this.totalSales)
       } else {
-        this.dataLabel = "Total value"
+        this.dataLabel = "Total Value"
         this.chart.destroy()
-        this.buttonText = "Show number of sales"
+        this.buttonText = "Show Number of Sales"
         this.drawGraph(this.dataLabel, this.totalValues)
       }
       $("html, body").animate({ scrollTop: $(document).height() }, 0);

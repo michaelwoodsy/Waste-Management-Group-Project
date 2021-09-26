@@ -1,5 +1,5 @@
 <template>
-  <div id="viewListingModal" class="modal fade" data-backdrop="static">
+  <div id="viewListingModal" class="modal fade text-left" data-backdrop="static">
     <div class="modal-dialog modal-lg">
       <business-profile-page-modal v-if="viewingBusiness"
                                    :business="listing.business"

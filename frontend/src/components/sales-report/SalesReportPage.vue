@@ -12,25 +12,29 @@
     </div>
 
     <div v-else>
-      <sales-report
-          v-if="report != null && report.length > 0"
-          :data="report"
-          :currency="currency"
-      />
+      <div v-if="report != null">
+        <sales-report
+            v-if="report != null && report.length > 0"
+            :data="report"
+            :currency="currency"
+        />
+        <div class="card shadow mt-5">
+          <div class="card-body">
+            <sales-report-graph
+                v-if="report != null"
+                :data="report"
+                :currency="currency"
+                :granularity="options.granularity"
+                :business-id="businessId"
+                v-bind:key="reportChange"
+            />
+          </div>
+        </div>
+      </div>
       <div v-else class="text-center">
         <span>No sales for the selected period</span>
       </div>
     </div>
-
-    <sales-report-graph
-        v-if="report != null"
-        :data="report"
-        :currency="currency"
-        :granularity="options.granularity"
-        :business-id="businessId"
-        v-bind:key="reportChange"
-    />
-
   </div>
 </template>
 
@@ -84,6 +88,14 @@ export default {
       try {
         this.reportGenerated = true
         const res = await Business.getSalesReport(this.businessId, options)
+        for (const [index, section] of res.data.entries()) { // TODO: Used to test review modal, delete this for loop before merging to dev
+          if (section.sales.length > 0) {
+            res.data[index].sales[0].review = {
+              rating: (index % 5) + 1,
+              reviewMessage: `I enjoyed my ${section.sales[0].productName}!`
+            }
+          }
+        }
         this.options.granularity = options.granularity
         this.$set(this, "report", res.data)
         this.reportChange = this.report[0].periodStart + this.report[0].periodEnd
