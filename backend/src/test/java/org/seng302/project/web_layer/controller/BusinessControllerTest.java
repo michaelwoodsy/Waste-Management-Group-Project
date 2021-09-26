@@ -784,4 +784,87 @@ class BusinessControllerTest extends AbstractInitializer {
         mvc.perform(request).andExpect(status().isNotAcceptable());
     }
 
+    /**
+     * Tests that successfully getting a business' notifications
+     * gives a 200 response
+     */
+    @Test
+    void getBusinessNotifications_success_200() throws Exception {
+        RequestBuilder getBusinessNotificationsRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/notifications", 1)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
+
+        mvc.perform(getBusinessNotificationsRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Tests that trying to get a business' notifications
+     * when not logged in
+     * gives a 401 response
+     */
+    @Test
+    void getBusinessNotifications_notLoggedIn_401() throws Exception {
+        RequestBuilder getBusinessNotificationsRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/notifications", 1);
+
+        mvc.perform(getBusinessNotificationsRequest)
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Tests that trying to get a business' notifications
+     * when not an admin of the business
+     * gives a 403 response
+     */
+    @Test
+    void getBusinessNotifications_notAdmin_403() throws Exception {
+        Mockito.doThrow(new ForbiddenException("message")).when(businessService)
+                .getBusinessNotifications(any(Integer.class), any(AppUserDetails.class));
+
+        RequestBuilder getBusinessNotificationsRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/notifications", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        this.mvc.perform(getBusinessNotificationsRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+
+    }
+
+    /**
+     * Tests that trying to get a business' notifications
+     * for a non-existent business
+     * gives a 406 response
+     */
+    @Test
+    void getBusinessNotifications_nonExistentBusiness_406() throws Exception {
+        Mockito.doThrow(new BusinessNotFoundException(80)).when(businessService)
+                .getBusinessNotifications(any(Integer.class), any(AppUserDetails.class));
+
+        RequestBuilder getBusinessNotificationsRequest = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/notifications", 80)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
+
+        this.mvc.perform(getBusinessNotificationsRequest)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable()); // We expect a 406 response
+
+    }
+
+    //TODO: tests for business notifications:
+    //DELETE businesses/{businessId}/notifications/{notificationId}
+        //200
+        //401
+        //403
+        //406
+    //PATCH businesses/{businessId}/notifications/{notificationId}/read
+        //200
+        //400
+        //401
+        //403
+        //406
+
 }

@@ -2,6 +2,7 @@ package org.seng302.project.service_layer.service;
 
 import org.seng302.project.repository_layer.model.Address;
 import org.seng302.project.repository_layer.model.Business;
+import org.seng302.project.repository_layer.model.BusinessNotification;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.repository_layer.repository.AddressRepository;
@@ -500,6 +501,17 @@ public class BusinessService {
             total += review.getRating();
         }
         return total / reviews.size();
+    }
+
+    /**
+     * Gets all the notifications for a business
+     *
+     * @param businessId the id of the business to get notifications for
+     * @param appUser the user making the request
+     */
+    public List<BusinessNotification> getBusinessNotifications(Integer businessId, AppUserDetails appUser) {
+        //TODO: implement me
+        return List.of();
     }
 }
 

@@ -1,6 +1,7 @@
 package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
+import org.seng302.project.repository_layer.model.BusinessNotification;
 import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
 import org.seng302.project.service_layer.dto.business.PostBusinessDTO;
@@ -153,6 +154,18 @@ public class BusinessController {
             logger.error(String.format("Unexpected error while searching businesses: %s", exception.getMessage()));
             throw exception;
         }
+    }
+
+    /**
+     * Gets all the notifications for a business
+     *
+     * @param businessId the id of the business to get notifications for
+     * @param appUser the user making the request
+     */
+    @GetMapping("/businesses/{businessId}/notifications")
+    public List<BusinessNotification> getBusinessNotifications(@PathVariable Integer businessId,
+                                                               @AuthenticationPrincipal AppUserDetails appUser) {
+        return businessService.getBusinessNotifications(businessId, appUser);
     }
 
 }
