@@ -513,6 +513,18 @@ public class BusinessService {
         //TODO: implement me
         return List.of();
     }
+
+
+    /**
+     * Deletes a notification from a business
+     *
+     * @param businessId the id of the business to delete the notification for
+     * @param notificationId the id of the notification to delete
+     * @param appUser the user making the request
+     */
+    public void deleteBusinessNotification(Integer businessId, Integer notificationId, AppUserDetails appUser) {
+        //TODO: implement me
+    }
 }
 
 

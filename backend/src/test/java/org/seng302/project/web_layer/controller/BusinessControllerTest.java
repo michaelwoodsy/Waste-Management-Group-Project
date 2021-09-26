@@ -854,12 +854,83 @@ class BusinessControllerTest extends AbstractInitializer {
 
     }
 
+
+    /**
+     * Tests that successfully deleting a business' notification
+     * gives a 200 response
+     */
+    @Test
+    void deleteBusinessNotification_success_200() throws Exception {
+
+        RequestBuilder deleteBusinessNotificationRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/notifications/{notificationId}", 1, 1)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
+
+        this.mvc.perform(deleteBusinessNotificationRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+    }
+
+    /**
+     * Tests that trying to delete a business' notification
+     * when not logged in
+     * gives a 401 response
+     */
+    @Test
+    void deleteBusinessNotification_notLoggedIn_401() throws Exception {
+
+        RequestBuilder deleteBusinessNotificationRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/notifications/{notificationId}", 1, 1)
+                .accept(MediaType.APPLICATION_JSON);
+
+        this.mvc.perform(deleteBusinessNotificationRequest)
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+
+    }
+
+    /**
+     * Tests that trying to delete a business' notification
+     * when not an admin of the business (or GAA)
+     * gives a 403 response
+     */
+    @Test
+    void deleteBusinessNotification_notAdmin_403() throws Exception {
+        Mockito.doThrow(new ForbiddenException("message")).when(businessService)
+                .deleteBusinessNotification(any(Integer.class), any(Integer.class), any(AppUserDetails.class));
+
+        RequestBuilder deleteBusinessNotificationRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/notifications/{notificationId}", 1, 1)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        this.mvc.perform(deleteBusinessNotificationRequest)
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+
+    }
+
+    /**
+     * Tests that trying to delete a business' notification
+     * that doesn't exist
+     * gives a 406 response
+     */
+    @Test
+    void deleteBusinessNotification_nonExistentNotification_406() throws Exception {
+        Mockito.doThrow(new NotAcceptableException("message")).when(businessService)
+                .deleteBusinessNotification(any(Integer.class), any(Integer.class), any(AppUserDetails.class));
+
+        RequestBuilder deleteBusinessNotificationRequest = MockMvcRequestBuilders
+                .delete("/businesses/{businessId}/notifications/{notificationId}", 1, 80)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testPrimaryAdmin)));
+
+        this.mvc.perform(deleteBusinessNotificationRequest)
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
+
+    }
+
+
     //TODO: tests for business notifications:
-    //DELETE businesses/{businessId}/notifications/{notificationId}
-        //200
-        //401
-        //403
-        //406
     //PATCH businesses/{businessId}/notifications/{notificationId}/read
         //200
         //400

@@ -168,4 +168,18 @@ public class BusinessController {
         return businessService.getBusinessNotifications(businessId, appUser);
     }
 
+    /**
+     * Deletes a notification from a business
+     *
+     * @param businessId the id of the business to delete the notification for
+     * @param notificationId the id of the notification to delete
+     * @param appUser the user making the request
+     */
+    @DeleteMapping("/businesses/{businessId}/notifications/{notificationId}")
+    public void deleteBusinessNotification(@PathVariable Integer businessId, @PathVariable Integer notificationId,
+                                           @AuthenticationPrincipal AppUserDetails appUser) {
+        businessService.deleteBusinessNotification(businessId, notificationId, appUser);
+
+    }
+
 }
