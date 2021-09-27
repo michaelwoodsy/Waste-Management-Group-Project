@@ -12,7 +12,7 @@ export default {
         //This should always get a currency as the country with its currency being retrieved properly
         // is a requirement for creating a business
         const promise = await new Promise((resolve, reject) => {
-            axios.get(`https://restcountries.com/v2/name/${country}`)
+            axios.get(`https://restcountries.com/v3/name/${country}`)
                 .then((response) => {
                     if (response.status === 404) {
                         console.log(`No country found with name '${country}'`)
