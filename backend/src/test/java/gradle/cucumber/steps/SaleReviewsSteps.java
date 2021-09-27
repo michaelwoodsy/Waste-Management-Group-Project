@@ -3,6 +3,7 @@ package gradle.cucumber.steps;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -24,6 +25,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.ArrayList;
+
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -48,6 +51,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
     private User testAdmin;
     private Business testBusiness;
     private Sale sale;
+    private MvcResult result;
 
     private RequestBuilder createReviewRequest;
 
@@ -90,6 +94,20 @@ public class SaleReviewsSteps extends AbstractInitializer {
         addressRepository.save(testBusiness.getAddress());
         this.testBusiness = businessRepository.save(testBusiness);
 
+        testAdmin = userRepository.findByEmail(testAdmin.getEmail()).get(0);
+        this.testBusiness.setPrimaryAdministratorId(testAdmin.getId());
+        this.testBusiness = businessRepository.save(testBusiness);
+
+        List<Review> reviews = new ArrayList<>();
+        //Make 6 reviews for the business
+        for (int i = 0; i < 6; i++) {
+            Review review = new Review();
+            review.setBusiness(testBusiness);
+            review.setUser(testUser);
+            reviews.add(review);
+        }
+        reviewRepository.saveAll(reviews);
+
     }
 
     @AfterEach
@@ -103,7 +121,6 @@ public class SaleReviewsSteps extends AbstractInitializer {
 
 
     //AC1
-
     @Given("I have purchased a sale listing from a given business.")
     public void iHavePurchasedASaleListingFromAGivenBusiness() {
         Sale newSale = new Sale();
@@ -134,14 +151,13 @@ public class SaleReviewsSteps extends AbstractInitializer {
     @Then("A review is successfully left on the sale.")
     public void aReviewIsSuccessfullyLeftOnTheSale() {
         List<Review> retrievedReviews = reviewRepository.findAllByUserId(testUser.getId());
-        Assertions.assertEquals(1, retrievedReviews.size());
-        Assertions.assertEquals("Purchased sale listing", retrievedReviews.get(0).getSale().getMoreInfo());
+        //6 from the constructor and 1 new one
+        Assertions.assertEquals(7, retrievedReviews.size());
+        Assertions.assertEquals("Purchased sale listing", retrievedReviews.get(6).getSale().getMoreInfo());
     }
 
 
     //AC2
-
-
     @When("I leave a review with comment {string} but no star rating.")
     public void iLeaveAReviewWithCommentButNoStarRating(String comment) throws Exception {
         JSONObject requestBody = new JSONObject();
@@ -168,10 +184,9 @@ public class SaleReviewsSteps extends AbstractInitializer {
     }
 
     //AC3
-
     @Given("I am logged in as a user.")
     public void iAmLoggedInAsAUser() {
-        
+        Assertions.assertEquals(1, userRepository.findByEmail(this.testUser.getEmail()).size());
     }
 
     @When("I view my purchase history.")
@@ -185,19 +200,23 @@ public class SaleReviewsSteps extends AbstractInitializer {
     }
 
     //AC4
-
     @When("I view a business' profile page.")
-    public void iViewABusinessProfilePage() {
-        
+    public void iViewABusinessProfilePage() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/reviews", this.testBusiness.getId())
+                .with(user(new AppUserDetails(this.testUser)));
+        result = mockMvc.perform(request).andExpect(status().isOk()).andReturn();
     }
 
     @Then("I can view the reviews left on their business.")
-    public void iCanViewTheReviewsLeftOnTheirBusiness() {
-        
+    public void iCanViewTheReviewsLeftOnTheirBusiness() throws Exception{
+        String response = result.getResponse().getContentAsString();
+        JSONArray reviews = new JSONArray(response);
+        JSONObject review = reviews.getJSONObject(0);
+        Assertions.assertEquals(6, reviews.length());
     }
 
     //AC5
-
     @Then("I can see the average star rating based on the average score of the business' reviews.")
     public void iCanSeeTheAverageStarRatingBasedOnTheAverageScoreOfTheBusinessReviews() {
     }
