@@ -19,7 +19,7 @@
         <label for="inventoryItem"><strong>Inventory Item<span class="required">*</span></strong></label>
         <div :class="{'input-group': true, 'is-invalid': msg.inventoryItemId}">
           <input id="inventoryItem" :class="{'form-control': true, 'is-invalid': msg.inventoryItemId}"
-                 :value="formatInventoryItem()" placeholder="Select a product from inventory..." readonly>
+                 :value="formatInventoryItem()" placeholder="Select a product from inventory..." readonly style="cursor: default">
           <div class="input-group-append">
             <button class="btn btn-primary" @click="selectItem">Select</button>
           </div>

@@ -487,6 +487,7 @@ export default {
      * Gets the user or businesses notifications, cards and messages
      */
     async getData() {
+      this.notifications = []
       if (this.user.actor().type === "user") {
         await this.user.updateData()
         await this.getCardData()
@@ -570,27 +571,6 @@ export default {
       try {
         const response = await User.getNotifications(this.user.actor().id)
         this.notifications = response.data
-        // TODO: Whoever implements the Business notification endpoints can remove this test data
-        const test_data =
-            {
-              id: 999,
-              review: {
-                reviewMessage: "10/10 really good would recommend",
-                reviewReply: "Thank you for the feedback!",
-                rating: 3,
-                sale: {
-                  inventoryItem: {
-                    product: {
-                      name: "Beans"
-                    }
-                  }
-                }
-              },
-              created: "2021-09-25T13:02:50.632123",
-              message: "Myrtle's Muffins has left a reply.",
-              type: "reviewReply"
-            }
-        this.notifications.push(test_data)
       } catch (error) {
         console.error(error)
         this.error = error
@@ -629,28 +609,8 @@ export default {
     async getBusinessNotificationData() {
       try {
         const response = await Business.getNotifications(this.user.actor().id)
-        this.notifications.push(...response.data)
+        this.notifications = response.data
       } catch (error) {
-        // TODO: Whoever implements the Business notification endpoints can remove this test data
-        const test_data =
-          {
-            id: 1000,
-            review: {
-              reviewMessage: "10/10 really good would recommend",
-              rating: 3,
-              sale: {
-                inventoryItem: {
-                  product: {
-                    name: "Beans"
-                  }
-                }
-              }
-            },
-            created: "2021-09-24T13:02:50.632123",
-            message: "Tom has left you a review.",
-            type: "review"
-          }
-        this.notifications.push(test_data)
         console.error(error)
         this.error = error
       }
