@@ -15,8 +15,6 @@ import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -222,7 +220,8 @@ class ReviewServiceTest extends AbstractInitializer {
 
         //Expect 6 reviews from setup() plus the 1 from this test
         Assertions.assertEquals(7, reviews.size());
-
+        Assertions.assertEquals(sale, reviews.get(6).getSale());
+        Assertions.assertEquals(reviews.get(6), sale.getReview());
     }
 
     /**
