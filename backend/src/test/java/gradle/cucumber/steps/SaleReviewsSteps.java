@@ -48,7 +48,6 @@ public class SaleReviewsSteps extends AbstractInitializer {
 
     private MockMvc mockMvc;
     private User testUser;
-    private User testAdmin;
     private Business testBusiness;
     private Sale sale;
     private MvcResult result;
@@ -85,7 +84,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
         testUser.setId(null);
         this.testUser = userRepository.save(testUser);
 
-        this.testAdmin = this.getTestUserBusinessAdmin();
+        User testAdmin = this.getTestUserBusinessAdmin();
         addressRepository.save(testAdmin.getHomeAddress());
         testAdmin.setId(null);
 
@@ -212,7 +211,6 @@ public class SaleReviewsSteps extends AbstractInitializer {
     public void iCanViewTheReviewsLeftOnTheirBusiness() throws Exception{
         String response = result.getResponse().getContentAsString();
         JSONArray reviews = new JSONArray(response);
-        JSONObject review = reviews.getJSONObject(0);
         Assertions.assertEquals(6, reviews.length());
     }
 
