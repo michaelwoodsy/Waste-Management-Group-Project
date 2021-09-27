@@ -3,6 +3,8 @@ package org.seng302.project.service_layer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
@@ -13,7 +15,6 @@ import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,7 @@ class ReviewServiceTest extends AbstractInitializer {
     private final ReviewRepository reviewRepository;
     private final ReviewService reviewService;
     private final SaleHistoryRepository saleHistoryRepository;
+    private final BusinessNotificationRepository businessNotificationRepository;
 
     private User testUser;
     private User testAdmin;
@@ -48,13 +50,14 @@ class ReviewServiceTest extends AbstractInitializer {
         this.saleHistoryRepository = saleHistoryRepository;
         this.userService = Mockito.mock(UserService.class);
         this.businessService = Mockito.mock(BusinessService.class);
+        this.businessNotificationRepository = Mockito.mock(
+                BusinessNotificationRepository.class);
         this.reviewService = new ReviewService(businessService, userService,
-                this.reviewRepository, this.saleHistoryRepository);
+                this.reviewRepository, this.saleHistoryRepository, this.businessNotificationRepository);
     }
 
     @BeforeEach
     void setup() {
-        this.initialise();
         this.testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
         testUser.setId(null);
@@ -67,6 +70,7 @@ class ReviewServiceTest extends AbstractInitializer {
 
         this.testBusiness = this.getTestBusiness();
         this.testBusiness.setId(null);
+        this.testBusiness.setPrimaryAdministratorId(this.testAdmin.getId());
         addressRepository.save(testBusiness.getAddress());
         businessRepository.save(testBusiness);
 
@@ -94,6 +98,7 @@ class ReviewServiceTest extends AbstractInitializer {
      */
     @Test
     void getBusinessReviews_hasReviews_Success(){
+        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         Integer businessId = this.testBusiness.getId();
         AppUserDetails appUser = new AppUserDetails(this.testAdmin);
         List<Review> reviews = reviewService.getBusinessReviews(businessId, appUser);
@@ -106,6 +111,7 @@ class ReviewServiceTest extends AbstractInitializer {
      */
     @Test
     void getBusinessReviews_hasNoReviews_Success(){
+        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         reviewRepository.deleteAll();
         Integer businessId = this.testBusiness.getId();
         AppUserDetails appUser = new AppUserDetails(this.testAdmin);
@@ -114,23 +120,16 @@ class ReviewServiceTest extends AbstractInitializer {
     }
 
     /**
-     * Tests that a ForbiddenException is thrown when
-     * getting a business' reviews and
-     * a the user is not an admin of the given business
+     * Tests that when getting a business' reviews as a user who is not an admin of a business
+     * all expected reviews are returned
      */
     @Test
-    void getBusinessReviews_notAdmin_ForbiddenException(){
+    void getBusinessReviews_notAdmin_Success(){
+        Assertions.assertNotEquals(this.testBusiness.getPrimaryAdministratorId(), this.testUser.getId());
         Integer businessId = this.testBusiness.getId();
-
-        Mockito.when(businessService.checkBusiness(businessId))
-                .thenReturn(this.testBusiness);
-
-        Mockito.doThrow(new ForbiddenException(""))
-                .when(businessService).checkUserCanDoBusinessAction(any(AppUserDetails.class), any(Business.class));
-
         AppUserDetails appUser = new AppUserDetails(this.testUser);
-        Assertions.assertThrows(ForbiddenException.class,
-                () -> reviewService.getBusinessReviews(businessId, appUser));
+        List<Review> reviews = reviewService.getBusinessReviews(businessId, appUser);
+        Assertions.assertEquals(6, reviews.size());
     }
 
     /**
@@ -221,6 +220,33 @@ class ReviewServiceTest extends AbstractInitializer {
 
         //Expect 6 reviews from setup() plus the 1 from this test
         Assertions.assertEquals(7, reviews.size());
+        Assertions.assertEquals(sale, reviews.get(6).getSale());
+        Assertions.assertEquals(reviews.get(6), sale.getReview());
+    }
+
+    /**
+     * Tests that leaving a review creates a notification
+     * for the business
+     */
+    @Test
+    void newReview_createsNotification() {
+
+        Mockito.when(userService.getUserByEmail(any(String.class))).thenReturn(testUser);
+
+        Integer userId = testUser.getId();
+        Integer purchaseId = sale.getSaleId();
+        PostReviewDTO requestDTO = new PostReviewDTO(5, "Loved it!");
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+
+        ArgumentCaptor<ReviewNotification> notificationArgumentCaptor = ArgumentCaptor.forClass(
+                ReviewNotification.class);
+
+        reviewService.newReview(userId, purchaseId, requestDTO, appUser);
+        Mockito.verify(businessNotificationRepository).save(notificationArgumentCaptor.capture());
+
+        Review reviewOnNotification = notificationArgumentCaptor.getValue().getReview();
+
+        Assertions.assertEquals(purchaseId, reviewOnNotification.getSale().getSaleId());
 
     }
 

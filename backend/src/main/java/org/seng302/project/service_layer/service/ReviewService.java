@@ -1,18 +1,19 @@
 package org.seng302.project.service_layer.service;
 
-import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.Review;
+import org.seng302.project.repository_layer.model.ReviewNotification;
 import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.repository.BusinessNotificationRepository;
 import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,16 +26,19 @@ public class ReviewService {
     private final UserService userService;
     private final ReviewRepository reviewRepository;
     private final SaleHistoryRepository saleHistoryRepository;
+    private final BusinessNotificationRepository businessNotificationRepository;
 
     @Autowired
     public ReviewService(BusinessService businessService,
                          UserService userService,
                          ReviewRepository reviewRepository,
-                         SaleHistoryRepository saleHistoryRepository){
+                         SaleHistoryRepository saleHistoryRepository,
+                         BusinessNotificationRepository businessNotificationRepository){
         this.businessService = businessService;
         this.userService = userService;
         this.reviewRepository = reviewRepository;
         this.saleHistoryRepository = saleHistoryRepository;
+        this.businessNotificationRepository = businessNotificationRepository;
     }
 
     /**
@@ -46,12 +50,8 @@ public class ReviewService {
     public List<Review> getBusinessReviews(Integer businessId,
                                             AppUserDetails user){
         logger.info("Request to get all sale reviews of a Business with ID: {}", businessId);
-
         // Get the business of the request
-        Business business = businessService.checkBusiness(businessId);
-
-        // Check the user is an admin of the business
-        businessService.checkUserCanDoBusinessAction(user, business);
+        businessService.checkBusiness(businessId);
 
         // Return a list of all the reviews belonging to the business (if there are none an empty list)
         return reviewRepository.findAllByBusinessId(businessId);
@@ -96,5 +96,9 @@ public class ReviewService {
 
         Review review = new Review(purchase, user, requestDTO.getRating(), requestDTO.getReviewMessage());
         reviewRepository.save(review);
+        purchase.setReview(review);
+        saleHistoryRepository.save(purchase);
+        ReviewNotification notification = new ReviewNotification(review);
+        businessNotificationRepository.save(notification);
     }
 }
