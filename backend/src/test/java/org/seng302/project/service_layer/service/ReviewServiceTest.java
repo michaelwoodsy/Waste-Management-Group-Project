@@ -3,6 +3,8 @@ package org.seng302.project.service_layer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
@@ -30,6 +32,7 @@ class ReviewServiceTest extends AbstractInitializer {
     private final ReviewRepository reviewRepository;
     private final ReviewService reviewService;
     private final SaleHistoryRepository saleHistoryRepository;
+    private final BusinessNotificationRepository businessNotificationRepository;
 
     private User testUser;
     private User testAdmin;
@@ -49,8 +52,10 @@ class ReviewServiceTest extends AbstractInitializer {
         this.saleHistoryRepository = saleHistoryRepository;
         this.userService = Mockito.mock(UserService.class);
         this.businessService = Mockito.mock(BusinessService.class);
+        this.businessNotificationRepository = Mockito.mock(
+                BusinessNotificationRepository.class);
         this.reviewService = new ReviewService(businessService, userService,
-                this.reviewRepository, this.saleHistoryRepository);
+                this.reviewRepository, this.saleHistoryRepository, this.businessNotificationRepository);
     }
 
     @BeforeEach
@@ -217,6 +222,32 @@ class ReviewServiceTest extends AbstractInitializer {
 
         //Expect 6 reviews from setup() plus the 1 from this test
         Assertions.assertEquals(7, reviews.size());
+
+    }
+
+    /**
+     * Tests that leaving a review creates a notification
+     * for the business
+     */
+    @Test
+    void newReview_createsNotification() {
+
+        Mockito.when(userService.getUserByEmail(any(String.class))).thenReturn(testUser);
+
+        Integer userId = testUser.getId();
+        Integer purchaseId = sale.getSaleId();
+        PostReviewDTO requestDTO = new PostReviewDTO(5, "Loved it!");
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+
+        ArgumentCaptor<ReviewNotification> notificationArgumentCaptor = ArgumentCaptor.forClass(
+                ReviewNotification.class);
+
+        reviewService.newReview(userId, purchaseId, requestDTO, appUser);
+        Mockito.verify(businessNotificationRepository).save(notificationArgumentCaptor.capture());
+
+        Review reviewOnNotification = notificationArgumentCaptor.getValue().getReview();
+
+        Assertions.assertEquals(purchaseId, reviewOnNotification.getSale().getSaleId());
 
     }
 
