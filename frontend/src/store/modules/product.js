@@ -19,9 +19,10 @@ export default {
                         reject(promise)
                     }
                     if (response.data.length >= 1) {
+                        const currency = Object.entries(response.data[0].currencies)[0]
                         resolve({
-                            "code": response.data[0].currencies[0].code,
-                            "symbol": response.data[0].currencies[0].symbol
+                            "code": currency[0],
+                            "symbol": currency[1].symbol
                         })
                     } else {
                         reject(response)
@@ -78,6 +79,7 @@ export default {
             }))
         }
         await Promise.all(promises)
+
 
         // Add the found currencies to the objects
         for (let product of products) {
@@ -202,7 +204,6 @@ export default {
             }))
         }
         await Promise.all(promises)
-
         // Add the found currencies to the objects
         for (let purchase of purchases) {
             purchase.currency = currenciesToFind[purchase.currencyCountry || purchase.business.address.country]
