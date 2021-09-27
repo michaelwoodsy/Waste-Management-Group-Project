@@ -1,6 +1,7 @@
 package org.seng302.project.web_layer.controller;
 
 import net.minidev.json.JSONObject;
+import org.seng302.project.repository_layer.model.BusinessNotification;
 import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
 import org.seng302.project.service_layer.dto.business.PostBusinessDTO;
@@ -152,6 +153,55 @@ public class BusinessController {
         } catch (Exception exception) {
             logger.error(String.format("Unexpected error while searching businesses: %s", exception.getMessage()));
             throw exception;
+        }
+    }
+
+    /**
+     * Gets all the notifications for a business
+     *
+     * @param businessId the id of the business to get notifications for
+     * @param appUser the user making the request
+     */
+    @GetMapping("/businesses/{businessId}/notifications")
+    public List<BusinessNotification> getBusinessNotifications(@PathVariable Integer businessId,
+                                                               @AuthenticationPrincipal AppUserDetails appUser) {
+        return businessService.getBusinessNotifications(businessId, appUser);
+    }
+
+    /**
+     * Deletes a notification from a business
+     *
+     * @param businessId the id of the business to delete the notification for
+     * @param notificationId the id of the notification to delete
+     * @param appUser the user making the request
+     */
+    @DeleteMapping("/businesses/{businessId}/notifications/{notificationId}")
+    public void deleteBusinessNotification(@PathVariable Integer businessId, @PathVariable Integer notificationId,
+                                           @AuthenticationPrincipal AppUserDetails appUser) {
+        businessService.deleteBusinessNotification(businessId, notificationId, appUser);
+
+    }
+
+    /**
+     * Marks a business' notification as read/unread
+     *
+     * @param businessId the id of the business to read/unread the notification for
+     * @param notificationId the id of the notification to mark as read/unread
+     * @param requestBody request body containing whether to mark the notification as read or not read
+     * @param appUser the user making the request
+     */
+    @PatchMapping("/businesses/{businessId}/notifications/{notificationId}/read")
+    public void readBusinessNotification(@PathVariable Integer businessId, @PathVariable Integer notificationId,
+                                         @RequestBody JSONObject requestBody,
+                                           @AuthenticationPrincipal AppUserDetails appUser) {
+
+        try {
+            Boolean read = (Boolean) requestBody.get("read");
+            businessService.readBusinessNotification(businessId, notificationId, read, appUser);
+        } catch (ClassCastException castException) {
+            String message = "Request body must contain a 'read' field with a boolean value";
+            logger.warn(message);
+            throw new BadRequestException(message);
         }
     }
 

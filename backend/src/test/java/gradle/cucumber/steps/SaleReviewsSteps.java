@@ -44,6 +44,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
     private final BusinessRepository businessRepository;
     private final SaleHistoryRepository saleHistoryRepository;
     private final ReviewRepository reviewRepository;
+    private final BusinessNotificationRepository businessNotificationRepository;
 
 
     private MockMvc mockMvc;
@@ -59,12 +60,14 @@ public class SaleReviewsSteps extends AbstractInitializer {
                               UserRepository userRepository,
                               BusinessRepository businessRepository,
                             SaleHistoryRepository saleHistoryRepository,
-                            ReviewRepository reviewRepository) {
+                            ReviewRepository reviewRepository,
+                            BusinessNotificationRepository businessNotificationRepository) {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.reviewRepository = reviewRepository;
+        this.businessNotificationRepository = businessNotificationRepository;
     }
 
     @BeforeEach
@@ -75,6 +78,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
                 .apply(springSecurity())
                 .build();
 
+        businessNotificationRepository.deleteAll();
         reviewRepository.deleteAll();
         saleHistoryRepository.deleteAll();
         userRepository.deleteAll();
@@ -111,6 +115,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
 
     @AfterEach
     public void teardown() {
+        businessNotificationRepository.deleteAll();
         reviewRepository.deleteAll();
         saleHistoryRepository.deleteAll();
         businessRepository.deleteAll();

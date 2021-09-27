@@ -53,7 +53,9 @@ class SalesReportServiceTest extends AbstractInitializer {
         this.reviewRepository = reviewRepository;
 
         ProductCatalogueService productCatalogueService = Mockito.mock(ProductCatalogueService.class);
-        BusinessService businessService = new BusinessService(businessRepository, addressRepository, userRepository, reviewRepository, productCatalogueService);
+        BusinessNotificationRepository businessNotificationRepository = Mockito.mock(BusinessNotificationRepository.class);
+        BusinessService businessService = new BusinessService(businessRepository, addressRepository, userRepository,
+                reviewRepository, productCatalogueService, businessNotificationRepository);
         this.salesReportService = new SalesReportService(businessService, this.saleHistoryRepository);
     }
 
