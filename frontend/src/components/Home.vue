@@ -299,6 +299,7 @@ export default {
   async mounted() {
     try {
       await this.getData()
+      await this.showNotifications()
     }
     catch (err) {
       // do nothing
@@ -486,7 +487,6 @@ export default {
      * Gets the user or businesses notifications, cards and messages
      */
     async getData() {
-      this.notifications = []
       if (this.user.actor().type === "user") {
         await this.user.updateData()
         await this.getCardData()

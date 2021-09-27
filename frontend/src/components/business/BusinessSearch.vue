@@ -165,7 +165,6 @@ import Pagination from "@/components/Pagination";
 import {Business, Images} from "@/Api";
 import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 import LoginRequired from "@/components/LoginRequired";
-// import $ from "jquery";
 
 export default {
   name: "BusinessSearch",
