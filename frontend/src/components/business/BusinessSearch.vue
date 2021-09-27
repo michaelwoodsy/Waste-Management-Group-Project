@@ -250,6 +250,9 @@ export default {
         this.businesses = res.data[0]
         this.totalCount = res.data[1]
         this.loading = false;
+        if (this.businessType == null) {
+          this.businessType = 'Any type'
+        }
       } catch (error) {
         this.error = error;
         this.loading = false;
