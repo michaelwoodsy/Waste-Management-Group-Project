@@ -44,11 +44,11 @@ public class SaleReviewsSteps extends AbstractInitializer {
     private final BusinessRepository businessRepository;
     private final SaleHistoryRepository saleHistoryRepository;
     private final ReviewRepository reviewRepository;
+    private final BusinessNotificationRepository businessNotificationRepository;
 
 
     private MockMvc mockMvc;
     private User testUser;
-    private User testAdmin;
     private Business testBusiness;
     private Sale sale;
     private MvcResult result;
@@ -60,12 +60,14 @@ public class SaleReviewsSteps extends AbstractInitializer {
                               UserRepository userRepository,
                               BusinessRepository businessRepository,
                             SaleHistoryRepository saleHistoryRepository,
-                            ReviewRepository reviewRepository) {
+                            ReviewRepository reviewRepository,
+                            BusinessNotificationRepository businessNotificationRepository) {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.reviewRepository = reviewRepository;
+        this.businessNotificationRepository = businessNotificationRepository;
     }
 
     @BeforeEach
@@ -76,6 +78,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
                 .apply(springSecurity())
                 .build();
 
+        businessNotificationRepository.deleteAll();
         reviewRepository.deleteAll();
         saleHistoryRepository.deleteAll();
         userRepository.deleteAll();
@@ -85,7 +88,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
         testUser.setId(null);
         this.testUser = userRepository.save(testUser);
 
-        this.testAdmin = this.getTestUserBusinessAdmin();
+        User testAdmin = this.getTestUserBusinessAdmin();
         addressRepository.save(testAdmin.getHomeAddress());
         testAdmin.setId(null);
 
@@ -112,6 +115,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
 
     @AfterEach
     public void teardown() {
+        businessNotificationRepository.deleteAll();
         reviewRepository.deleteAll();
         saleHistoryRepository.deleteAll();
         businessRepository.deleteAll();
@@ -212,7 +216,6 @@ public class SaleReviewsSteps extends AbstractInitializer {
     public void iCanViewTheReviewsLeftOnTheirBusiness() throws Exception{
         String response = result.getResponse().getContentAsString();
         JSONArray reviews = new JSONArray(response);
-        JSONObject review = reviews.getJSONObject(0);
         Assertions.assertEquals(6, reviews.length());
     }
 
