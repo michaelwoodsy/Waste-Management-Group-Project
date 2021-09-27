@@ -445,9 +445,11 @@ export default {
     },
     filterAvailableItems() {
       let newInventoryItems = [];
+      const today = new Date();
 
       for (const item of this.inventoryItems) {
-        if (this.getMaxQuantity(item) !== 0) {
+        const itemDate = new Date(item.expires)
+        if (this.getMaxQuantity(item) !== 0 && itemDate > today) {
           newInventoryItems.push(item);
         }
       }
