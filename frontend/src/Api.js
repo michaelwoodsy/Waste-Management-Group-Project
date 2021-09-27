@@ -545,6 +545,13 @@ export const Business = {
      */
     deleteNotification: (businessId, notificationId) =>
         instance.delete(`businesses/${businessId}/notifications/${notificationId}`),
+
+    /**
+     * Request to get a business' reviews
+     *
+     * @param businessId ID if the business to get reviews for
+     */
+    getReviews: (businessId) => instance.get(`businesses/${businessId}/reviews`)
 };
 
 export const Card = {

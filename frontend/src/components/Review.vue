@@ -106,6 +106,7 @@ export default {
       try {
         await User.leaveReview(userState.actor().id, this.sale.id, this.reviewForm)
         this.$emit('update-data')
+        $('#reviewModal').modal('hide')
       } catch (error) {
         this.error = error.message
       }

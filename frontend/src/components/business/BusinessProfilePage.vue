@@ -11,7 +11,7 @@
       <div class="row mb-2">
         <div class="col-2"/>
         <div class="col text-center">
-          <h2>{{ business.name }}</h2>
+          <h2 class="mb-0">{{ business.name }}</h2>
         </div>
         <div class="col-2 text-right">
           <router-link v-if="isBusinessAdmin || user.canDoAdminAction()"

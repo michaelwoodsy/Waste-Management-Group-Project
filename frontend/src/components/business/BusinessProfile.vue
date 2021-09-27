@@ -25,7 +25,7 @@ readOnly:         Boolean, default true.
 
       <!-- Display message if there are no featured listings -->
       <div v-if="featuredListings.length === 0">
-        <p class="text-center" id="featuredListingText"><strong>This Business has no featured listings</strong></p>
+        <p class="text-center" id="featuredListingText">This business has no featured listings.</p>
       </div>
 
       <!-- Otherwise, display featured listings in carousel -->
@@ -75,6 +75,8 @@ readOnly:         Boolean, default true.
       </div>
     </div>
 
+    <hr/>
+
     <div class="row mb-3">
       <div class="col">
 
@@ -87,6 +89,74 @@ readOnly:         Boolean, default true.
                 class="profile-image rounded-left rounded-right"
                 style="max-height: 200px"
             />
+          </div>
+        </div>
+
+        <div class="row justify-content-center mb-3">
+          <router-link :to="`businesses/${this.business.id}/listings`" class="btn btn-primary mx-1"
+                       data-dismiss="modal">
+            View Business' Listings
+          </router-link>
+          <div v-if="!readOnly && (isBusinessAdmin || user.canDoAdminAction())">
+            <router-link
+                :class="{'btn-primary': isBusinessAdmin, 'btn-outline-danger': !isBusinessAdmin && user.canDoAdminAction()}"
+                :to="`businesses/${this.business.id}/products`" class="btn mx-1">
+              View Product Catalogue
+            </router-link>
+            <router-link
+                :class="{'btn-primary': isBusinessAdmin, 'btn-outline-danger': !isBusinessAdmin && user.canDoAdminAction()}"
+                :to="`businesses/${this.business.id}/inventory`" class="btn mx-1">
+              View Inventory
+            </router-link>
+            <button v-if="isPrimaryAdmin || user.canDoAdminAction()"
+                    :class="{'btn-primary': isPrimaryAdmin, 'btn-outline-danger': !isPrimaryAdmin && user.canDoAdminAction()}"
+                    class="btn mx-1" data-target="#addAdministrator"
+                    data-toggle="modal">
+              Add Administrator
+            </button>
+
+            <!-- Add admin modal -->
+            <div id="addAdministrator" aria-hidden="true" aria-labelledby="addAdministratorLabel" class="modal fade"
+                 role="dialog" tabindex="-1">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 id="addAdministratorLabel" class="modal-title">Add Administrator</h5>
+                    <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-row">
+                      <!--    User ID    -->
+                      <label for="userId">
+                        <strong>User ID</strong>
+                      </label>
+                      <br/>
+                      <input id="userId" v-model="addAdministratorUserId"
+                             :class="{'form-control': true, 'is-invalid': addAdministratorError}"
+                             placeholder="ID of the user you want to make administrator"
+                             required style="width:100%" type="number">
+                      <!--   Error message for userId input   -->
+                      <span class="invalid-feedback text-left">{{ addAdministratorError }}</span>
+
+                      <div v-if="addAdministratorSuccess" class="col text-center mb-2">
+                        <p style="color: green">{{ addAdministratorSuccess }}</p>
+                      </div>
+
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-block btn-danger" style="width: 40%; margin:0 10px"
+                            v-on:click="addAdministrator">
+                      Add Administrator
+                    </button>
+                    <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -183,83 +253,17 @@ readOnly:         Boolean, default true.
       </div>
     </div>
 
-    <div class="row justify-content-center mb-3">
-      <router-link :to="`businesses/${this.business.id}/listings`" class="btn btn-primary mx-1"
-                   data-dismiss="modal">
-        View Business' Listings
-      </router-link>
-      <div v-if="!readOnly && (isBusinessAdmin || user.canDoAdminAction())">
-        <router-link
-            :class="{'btn-primary': isBusinessAdmin, 'btn-outline-danger': !isBusinessAdmin && user.canDoAdminAction()}"
-            :to="`businesses/${this.business.id}/products`" class="btn mx-1">
-          View Product Catalogue
-        </router-link>
-        <router-link
-            :class="{'btn-primary': isBusinessAdmin, 'btn-outline-danger': !isBusinessAdmin && user.canDoAdminAction()}"
-            :to="`businesses/${this.business.id}/inventory`" class="btn mx-1">
-          View Inventory
-        </router-link>
-        <button v-if="isPrimaryAdmin || user.canDoAdminAction()"
-                :class="{'btn-primary': isPrimaryAdmin, 'btn-outline-danger': !isPrimaryAdmin && user.canDoAdminAction()}"
-                class="btn mx-1" data-target="#addAdministrator"
-                data-toggle="modal">
-          Add Administrator
-        </button>
-
-        <!-- Add admin modal -->
-        <div id="addAdministrator" aria-hidden="true" aria-labelledby="addAdministratorLabel" class="modal fade"
-             role="dialog" tabindex="-1">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 id="addAdministratorLabel" class="modal-title">Add Administrator</h5>
-                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <div class="form-row">
-                  <!--    User ID    -->
-                  <label for="userId">
-                    <strong>User ID</strong>
-                  </label>
-                  <br/>
-                  <input id="userId" v-model="addAdministratorUserId"
-                         :class="{'form-control': true, 'is-invalid': addAdministratorError}"
-                         placeholder="ID of the user you want to make administrator"
-                         required style="width:100%" type="number">
-                  <!--   Error message for userId input   -->
-                  <span class="invalid-feedback text-left">{{ addAdministratorError }}</span>
-
-                  <div v-if="addAdministratorSuccess" class="col text-center mb-2">
-                    <p style="color: green">{{ addAdministratorSuccess }}</p>
-                  </div>
-
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button class="btn btn-block btn-danger" style="width: 40%; margin:0 10px"
-                        v-on:click="addAdministrator">
-                  Add Administrator
-                </button>
-                <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
+    <hr/>
 
     <!-- Images -->
     <div>
       <div class="row">
-        <div class="col text-left mb-2">
-          <h2>Business' Images</h2>
+        <div class="col text-center">
+          <h4>Business' Images</h4>
         </div>
       </div>
       <div v-if="business.images.length === 0">
-        <p class="text-center"><strong>This Business has no Images</strong></p>
+        <p class="text-center">This business has no images.</p>
       </div>
       <div v-else class="row" style="height: 500px">
         <div class="col col-12 justify-content-center">
@@ -284,6 +288,12 @@ readOnly:         Boolean, default true.
       </div>
     </div>
 
+    <!-- Reviews -->
+    <div>
+      <hr/>
+      <business-reviews :business-id="business.id"/>
+    </div>
+
   </div>
 </template>
 
@@ -291,10 +301,11 @@ readOnly:         Boolean, default true.
 import userState from "@/store/modules/user";
 import {Business, Images} from '@/Api';
 import SaleListing from "@/components/sale-listing/SaleListing";
+import BusinessReviews from "@/components/business/BusinessReviews";
 
 export default {
   name: "BusinessProfile",
-  components: {SaleListing},
+  components: {BusinessReviews, SaleListing},
   props: {
     business: {
       type: Object,

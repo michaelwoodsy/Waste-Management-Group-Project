@@ -71,8 +71,8 @@
                   data-target="#reviewModal"
                   @click="viewReview(purchase)"
               >
-                <span v-if="!purchase.review">Leave</span>
-                <span v-else>View</span>
+                <span v-if="!purchase.review">Leave Review</span>
+                <span v-else>View Review</span>
               </button>
             </td>
           </tr>
