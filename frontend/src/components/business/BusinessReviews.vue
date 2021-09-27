@@ -55,7 +55,7 @@ export default {
         const res = await Business.getReviews(this.businessId)
         this.reviews = res.data
       } catch (error) {
-        this.error = error
+        this.error = error.message
       }
     }
   }

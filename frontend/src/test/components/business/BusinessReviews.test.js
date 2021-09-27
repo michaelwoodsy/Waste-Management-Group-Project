@@ -34,4 +34,13 @@ describe("Tests for the BusinessReviews component", () => {
         expect(wrapper.vm.$data.reviews.length).toStrictEqual(1)
     })
 
+    test("Error is properly set when getting reviews fails", async () => {
+        Business.getReviews.mockImplementation(jest.fn(() => {
+            throw new Error("This is an error")
+        }))
+        await wrapper.vm.getReviews()
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.$data.error).toStrictEqual("This is an error")
+    })
+
 })

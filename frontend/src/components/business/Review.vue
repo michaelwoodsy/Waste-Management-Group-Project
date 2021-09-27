@@ -32,7 +32,6 @@
 </template>
 
 <script>
-import {formatDate} from "@/utils/dateTime";
 import {Images} from "@/Api";
 
 export default {
@@ -49,16 +48,6 @@ export default {
   mounted() {
     this.getProfileImage(this.review.user)
   },
-  computed: {
-    /**
-     * Returns formatted created date
-     *
-     * @returns {string} String representation of date formatted
-     */
-    formattedDate() {
-      return formatDate(this.review.created)
-    }
-  },
   methods: {
     /**
      * Gets the profile image of a user
@@ -73,7 +62,9 @@ export default {
         }
       }
       if (primaryImage) {
+        console.log(primaryImage.thumbnailFilename)
         this.profileImage = Images.getImageURL(primaryImage.thumbnailFilename)
+        console.log(this.profileImage)
       } else {
         this.profileImage = Images.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
       }
