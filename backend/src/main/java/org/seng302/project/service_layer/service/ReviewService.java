@@ -2,8 +2,10 @@ package org.seng302.project.service_layer.service;
 
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.model.Review;
+import org.seng302.project.repository_layer.model.ReviewNotification;
 import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.repository.BusinessNotificationRepository;
 import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
 import org.seng302.project.repository_layer.repository.UserNotificationRepository;
@@ -27,6 +29,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final SaleHistoryRepository saleHistoryRepository;
     private final UserNotificationRepository userNotificationRepository;
+    private final BusinessNotificationRepository businessNotificationRepository;
 
     @Autowired
     public ReviewService(BusinessService businessService,
@@ -34,11 +37,14 @@ public class ReviewService {
                          ReviewRepository reviewRepository,
                          SaleHistoryRepository saleHistoryRepository,
                          UserNotificationRepository userNotificationRepository){
+                         SaleHistoryRepository saleHistoryRepository,
+                         BusinessNotificationRepository businessNotificationRepository){
         this.businessService = businessService;
         this.userService = userService;
         this.reviewRepository = reviewRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.userNotificationRepository = userNotificationRepository;
+        this.businessNotificationRepository = businessNotificationRepository;
     }
 
     /**
@@ -95,7 +101,10 @@ public class ReviewService {
         }
 
         Review review = new Review(purchase, user, requestDTO.getRating(), requestDTO.getReviewMessage());
-        reviewRepository.save(review);
+        review = reviewRepository.save(review);
+
+        ReviewNotification notification = new ReviewNotification(review);
+        businessNotificationRepository.save(notification);
     }
 
     /**
