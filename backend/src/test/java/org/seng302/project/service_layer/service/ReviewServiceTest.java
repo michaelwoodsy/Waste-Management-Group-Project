@@ -4,13 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repository_layer.model.Business;
-import org.seng302.project.repository_layer.model.Review;
-import org.seng302.project.repository_layer.model.Sale;
-import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
@@ -58,10 +54,8 @@ class ReviewServiceTest extends AbstractInitializer {
         this.businessService = Mockito.mock(BusinessService.class);
         this.businessNotificationRepository = Mockito.mock(
                 BusinessNotificationRepository.class);
-        this.reviewService = new ReviewService(businessService, userService,
-                this.reviewRepository, this.saleHistoryRepository, this.businessNotificationRepository);
-                this.reviewRepository, this.saleHistoryRepository,
-                userNotificationRepository);
+        this.reviewService = new ReviewService(businessService, userService, this.reviewRepository,
+                this.saleHistoryRepository, userNotificationRepository, this.businessNotificationRepository);
     }
 
     @BeforeEach

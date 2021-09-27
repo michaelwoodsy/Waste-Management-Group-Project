@@ -36,8 +36,7 @@ public class ReviewService {
                          UserService userService,
                          ReviewRepository reviewRepository,
                          SaleHistoryRepository saleHistoryRepository,
-                         UserNotificationRepository userNotificationRepository){
-                         SaleHistoryRepository saleHistoryRepository,
+                         UserNotificationRepository userNotificationRepository,
                          BusinessNotificationRepository businessNotificationRepository){
         this.businessService = businessService;
         this.userService = userService;
