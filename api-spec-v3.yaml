@@ -2769,7 +2769,7 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
-  '/businesses/{businessId}/reviews/{reviewId}/repsond':
+  '/businesses/{businessId}/reviews/{reviewId}/respond':
     patch:
       tags:
         - 'UD7: Responding to Sale Reviews'

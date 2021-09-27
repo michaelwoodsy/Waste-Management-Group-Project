@@ -63,6 +63,7 @@ class ReviewControllerTest extends AbstractInitializer{
     private User testAdmin;
     private Business testBusiness;
     private Sale sale;
+    private Review testReview;
 
     @BeforeEach
     public void setup() {
@@ -96,6 +97,7 @@ class ReviewControllerTest extends AbstractInitializer{
             reviews.add(review);
         }
         reviewRepository.saveAll(reviews);
+        this.testReview = reviewRepository.findAllByBusinessId(testBusiness.getId()).get(0);
     }
 
 //    @Test
@@ -267,6 +269,109 @@ class ReviewControllerTest extends AbstractInitializer{
                 .with(user(new AppUserDetails(testUser)));
 
         mockMvc.perform(createReviewRequest).andExpect(status().isNotAcceptable());
+    }
+
+    /**
+     * Tests that leaving a valid response to a review
+     * gives a 201 response
+     */
+    @Test
+    void respondToReview_success_200() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("reviewResponse", "Thank you for the feedback");
+
+        RequestBuilder patchReviewRequest = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/reviews/{reviewId}/respond", testBusiness.getId(), testReview.getReviewId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testAdmin)));
+
+        mockMvc.perform(patchReviewRequest).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that leaving a response to a review
+     * with no response message
+     * gives a 400 response
+     */
+    @Test
+    void respondToReview_noMessage_400() throws Exception {
+        JSONObject requestBody = new JSONObject();
+
+        RequestBuilder patchReviewRequest = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/reviews/{reviewId}/respond", testBusiness.getId(), testReview.getReviewId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toString())
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testAdmin)));
+
+        mockMvc.perform(patchReviewRequest).andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests that responding to a review
+     * when not logged in gives a
+     * 401 response
+     */
+    @Test
+    void respondToReview_notLoggedIn_401() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/businesses/{businessId}/reviews/{reviewId}/respond",
+                                testBusiness.getId(), testReview.getReviewId()))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    /**
+     * Tests that a 403 response is given when
+     * trying to respond to a review
+     * and the user is not an admin of the business
+     */
+    @Test
+    void respondToReview_notBusinessAdmin_403() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("reviewResponse", "Thank you for the feedback");
+
+        doThrow(ForbiddenException.class)
+                .when(reviewService)
+                .respondToReview(Mockito.any(Integer.class), Mockito.any(Integer.class),
+                        Mockito.any(String.class), Mockito.any(AppUserDetails.class));
+
+        RequestBuilder patchReviewRequest = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/reviews/{reviewId}/respond",
+                        testBusiness.getId(), testReview.getReviewId())
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mockMvc.perform(patchReviewRequest).andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that a 406 response is given when
+     * trying to respond to a review and
+     * the review doesn't exist
+     */
+    @Test
+    void respondToReview_nonExistentReview_406() throws Exception {
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("reviewResponse", "Thank you for the feedback");
+
+        doThrow(NotAcceptableException.class)
+                .when(reviewService)
+                .respondToReview(Mockito.any(Integer.class), Mockito.any(Integer.class),
+                        Mockito.any(String.class), Mockito.any(AppUserDetails.class));
+
+        RequestBuilder patchReviewRequest = MockMvcRequestBuilders
+                .patch("/businesses/{businessId}/reviews/{reviewId}/respond",
+                        testBusiness.getId(), testReview.getReviewId())
+                .content(requestBody.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testAdmin)));
+
+        mockMvc.perform(patchReviewRequest).andExpect(status().isNotAcceptable());
     }
 
 }

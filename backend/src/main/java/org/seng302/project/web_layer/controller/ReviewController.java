@@ -1,8 +1,12 @@
 package org.seng302.project.web_layer.controller;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
+import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.service.ReviewService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +21,7 @@ import javax.validation.Valid;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private static final Logger logger = LoggerFactory.getLogger(ReviewController.class.getName());
 
     @Autowired
     public ReviewController(ReviewService reviewService) {
@@ -37,5 +42,29 @@ public class ReviewController {
             @PathVariable int purchaseId, @Valid @RequestBody PostReviewDTO requestDTO,
             @AuthenticationPrincipal AppUserDetails appUser) {
         reviewService.newReview(userId, purchaseId, requestDTO, appUser);
+    }
+
+    /**
+     * Responds to a review left on a business
+     *
+     * @param businessId id of business the review is from
+     * @param reviewId id of the review the response is being left on
+     * @param requestBody the JSONObject containing the review response message
+     * @param appUser the user making the request
+     */
+    @PatchMapping("/businesses/{businessId}/reviews/{reviewId}/respond")
+    @ResponseStatus(HttpStatus.OK)
+    public void respondToReview(@PathVariable int businessId,
+                           @PathVariable int reviewId, @RequestBody JSONObject requestBody,
+                           @AuthenticationPrincipal AppUserDetails appUser) {
+        String response;
+        if (!requestBody.containsKey("reviewResponse")) {
+            String message = "A reviewResponse message has not been provided";
+            logger.warn(message);
+            throw new BadRequestException(message);
+        } else {
+            response = (String) requestBody.get("reviewResponse");
+            reviewService.respondToReview(businessId, reviewId, response, appUser);
+        }
     }
 }
