@@ -10,14 +10,16 @@
       {{ error }}
     </alert>
 
-    <div class="text-center" v-else>
+    <div v-else class="text-center">
 
       <div v-if="reviews.length === 0">
         This business has not had any reviews.
       </div>
 
-      <div v-else>
-        <review v-for="review in reviews" :key="review.reviewId" :review="review"/>
+      <div v-else class="row row-cols-1 row-cols-md-2">
+        <div v-for="review in reviews" :key="review.reviewId" class="col mb-5">
+          <review :review="review"/>
+        </div>
       </div>
 
     </div>
