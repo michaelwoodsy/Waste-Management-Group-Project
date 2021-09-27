@@ -76,11 +76,12 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <p class="card-text">{{ cardData.description }}</p>
         <hr/>
         <!-- Keyword Bubbles -->
-        <button v-for="(keyword, index) in cardData.keywords"
+        <div v-for="(keyword, index) in cardData.keywords"
                 :key="'keyword' + index"
-                class="btn btn-sm btn-primary mr-2">
+             style="font-size: large"
+                class="badge badge-primary mr-2">
           {{ keyword.name }}
-        </button>
+        </div>
 
         <hr/>
       </div>
