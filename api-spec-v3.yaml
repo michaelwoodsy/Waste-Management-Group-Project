@@ -2880,7 +2880,120 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '406':
           $ref: '#/components/responses/NotAcceptableError'
+  '/businesses/{businessId}/notifications':
+    get:
+      tags:
+        - 'Notifications'
+      summary: 'Gets all the notifications for a business'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: The ID of the business to get notifications for
+          required: true
+          schema:
+            type: integer
+            example: 100
+      responses:
+        200:
+          description: Request successful, a (possibly empty) list of notifications is returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BusinessNotification'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          description: 'Forbidden: if someone who is not an admin of the business (or a GAA) tries to get notifications for the business'
+        406:
+          $ref: '#/components/responses/NotAcceptableError'
 
+  '/businesses/{businessId}/notifications/{notificationId}':
+    delete:
+      tags:
+        - 'Notifications'
+      summary: 'Deletes a business notification'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: The ID of the business to delete a notification of
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: notificationId
+          in: path
+          description: The ID of the notification to delete
+          required: true
+          schema:
+            type: integer
+            example: 100
+      responses:
+        200:
+          description: Request successful, notification deleted
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          description: 'Forbidden: if someone who is not an admin of the business (or GAA) tries to '
+        406:
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/businesses/{businessId}/notifications/{notificationId}/read':
+    patch:
+      tags:
+        - 'Notifications'
+      summary: 'Marks a business notification as read or unread'
+      description: 'Marks the notification as either read or unread based on the "read" value in the request body.'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: The ID of the user
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: notificationId
+          in: path
+          description: The ID of the notification
+          required: true
+          schema:
+            type: integer
+            example: 100
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                read:
+                  type: boolean
+      responses:
+        200:
+          description: Success
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        406:
+          $ref: '#/components/responses/NotAcceptableError'
 
 components:
   securitySchemes:
@@ -3467,6 +3580,39 @@ components:
           enum:
             - admin
             - newKeyword
+        message:
+          type: string
+          example: 'This is a notification'
+          readOnly: true
+          description: 'A string message contained within the notification'
+        created:
+          type: string
+          format: date-time
+          example: '2020-07-14T14:32:00Z'
+          readOnly: true
+          description: 'The date and time the notification was created'
+
+    BusinessNotification:
+      type: object
+      description: A notification entity for a specific business
+      required:
+        - id
+        - type
+        - message
+        - created
+      properties:
+        id:
+          type: integer
+          example: 100
+          readOnly: true
+          description: 'ID of the notification. Automatically generated and assigned by the server.'
+        type:
+          type: string
+          readOnly: true
+          description: 'The type of the notification'
+          enum:
+            - business
+            - review
         message:
           type: string
           example: 'This is a notification'
