@@ -29,7 +29,7 @@
                        type="search"
                        @keyup.enter="checkInputs">
                 <div class="input-group-append">
-                  <button :class="{'btn-outline-secondary': !optionsShow, 'btn-secondary': optionsShow}" class="btn"
+                  <button :class="{'btn-secondary': !optionsShow, 'btn-danger': optionsShow}" class="btn"
                           data-target="#searchOptions" data-toggle="collapse" type="button"
                           @click="optionsShow = !optionsShow"
                   >
@@ -231,8 +231,6 @@
       <individual-sale-listing-modal :listing="listingToView"
                                      @update-listings="checkInputs"
                                      @close-modal="viewListingModal = false"
-                                     v-bind:key="listingToView.id"
-                                     id="saleListingModal"
       />
     </div>
 
@@ -361,7 +359,7 @@ export default {
         // Set listing as being viewed
         this.viewListing(listings[0])
 
-        window.setTimeout(() => {$('#saleListingModal').modal('show')}, 500)
+        window.setTimeout(() => {$('#viewListingModal').modal('show')}, 500)
       }
     },
 

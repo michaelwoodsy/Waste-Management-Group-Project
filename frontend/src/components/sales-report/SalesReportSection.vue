@@ -34,23 +34,43 @@
           <span v-if="sale.currency">{{ formattedPrice(sale) }}</span>
         </td>
         <td>
-          No review
+          <div v-if="!sale.review">No review</div>
+          <div v-else>
+            <button
+                class="btn btn-sm btn-primary"
+                data-toggle="modal"
+                data-target="#reviewModal"
+                @click="viewReview(sale)"
+            >
+              View
+            </button>
+          </div>
         </td>
       </tr>
     </table>
+
+    <review v-if="viewModal" :sale="saleToView" @close-modal="viewModal = false"/>
+
   </div>
 </template>
 
 <script>
 import {formatDateTime} from "@/utils/dateTime";
+import Review from "@/components/Review";
 
 export default {
   name: "SalesReportSection",
+  components: {Review},
   props: {
     sales: Array,
   },
+  data() {
+    return {
+      saleToView: null,
+      viewModal: false
+    }
+  },
   methods: {
-
     /**
      * Formats the date of the sale
      * @return string date formatted like "DD/MM/YYYY hh:mm"
@@ -65,6 +85,15 @@ export default {
      */
     formattedPrice(sale) {
       return this.$root.$data.product.formatPrice(sale.currency, sale.price);
+    },
+    /**
+     * Toggles the sale review modal
+     *
+     * @param sale the sale to display in the review modal
+     */
+    viewReview(sale) {
+      this.saleToView = sale
+      this.viewModal = true
     }
   }
 }

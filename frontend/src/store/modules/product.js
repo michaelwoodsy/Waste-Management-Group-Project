@@ -12,27 +12,30 @@ export default {
         //This should always get a currency as the country with its currency being retrieved properly
         // is a requirement for creating a business
         const promise = await new Promise((resolve, reject) => {
-            axios.get(`https://restcountries.eu/rest/v2/name/${country}`)
+            axios.get(`https://restcountries.com/v2/name/${country}`)
                 .then((response) => {
                     if (response.status === 404) {
                         console.log(`No country found with name '${country}'`)
                         reject(promise)
                     }
                     if (response.data.length >= 1) {
-                        resolve(response)
+                        resolve({
+                            "code": response.data[0].currencies[0].code,
+                            "symbol": response.data[0].currencies[0].symbol
+                        })
                     } else {
                         reject(response)
                     }
                 })
-                .catch((err) => {
-                    //console.log(err.response.data)
-                    reject(err)
+                .catch(() => {
+                    //Uses this data if the api fails or is down
+                    resolve({
+                        "code": "",
+                        "symbol": ""
+                    })
                 })
         })
-        return {
-            "code": promise.data[0].currencies[0].code,
-            "symbol": promise.data[0].currencies[0].symbol
-        }
+        return promise
     },
 
     /**
@@ -88,6 +91,7 @@ export default {
     /**
      * Takes a list of inventory items, and adds currency object to them.
      * @param items List of inventory item objects.
+     * @param businessCurrency the currency the business is currently using
      * @returns {*[]} List of product objects with currency field added.
      */
     async addInventoryItemCurrencies(items, businessCurrency) {

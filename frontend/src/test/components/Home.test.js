@@ -2,7 +2,7 @@ import "@jest/globals";
 import MarketCard from '@/components/marketplace/MarketCard';
 import Home from "@/components/Home";
 import {shallowMount} from "@vue/test-utils";
-import {User} from "@/Api";
+import {Business, User} from "@/Api";
 import userState from "@/store/modules/user"
 import product from "@/store/modules/product"
 import undo from "@/utils/undo"
@@ -232,7 +232,7 @@ describe('Jest tests for the home component', () => {
         userState.canDoAdminAction.mockImplementationOnce(jest.fn(() => {
             return true
         }))
-        wrapper = shallowMount(Home, {computed})
+        wrapper = await shallowMount(Home, {computed})
         await wrapper.vm.$nextTick()
         expect(User.getAdminNotifications).toHaveBeenCalledTimes(1)
     })
@@ -274,5 +274,11 @@ describe('Jest tests for the home component', () => {
         wrapper.vm.$data.tagFilters = ["RED"]
         wrapper.vm.toggleTagFilter("red")
         expect(wrapper.vm.tagged("red")).toBeFalsy()
+    })
+
+    test('getBusinessNotificationData calls the Business.getNotifications method', () => {
+        Business.getNotifications.mockResolvedValue({data: []})
+        wrapper.vm.getBusinessNotificationData()
+        expect(Business.getNotifications).toBeCalledTimes(1)
     })
 })
