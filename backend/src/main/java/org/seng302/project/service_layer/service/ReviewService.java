@@ -100,8 +100,9 @@ public class ReviewService {
         }
 
         Review review = new Review(purchase, user, requestDTO.getRating(), requestDTO.getReviewMessage());
-        review = reviewRepository.save(review);
-
+        reviewRepository.save(review);
+        purchase.setReview(review);
+        saleHistoryRepository.save(purchase);
         ReviewNotification notification = new ReviewNotification(review);
         businessNotificationRepository.save(notification);
     }

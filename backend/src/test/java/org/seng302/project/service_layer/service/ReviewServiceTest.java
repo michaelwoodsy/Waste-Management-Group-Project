@@ -223,7 +223,8 @@ class ReviewServiceTest extends AbstractInitializer {
 
         //Expect 6 reviews from setup() plus the 1 from this test
         Assertions.assertEquals(7, reviews.size());
-
+        Assertions.assertEquals(sale, reviews.get(6).getSale());
+        Assertions.assertEquals(reviews.get(6), sale.getReview());
     }
 
     /**

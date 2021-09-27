@@ -23,6 +23,10 @@ public class Sale {
     @JoinColumn(name = "business_id")
     private Business business;
 
+    @OneToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name = "review_id")
+    private Review review;
+
     private Integer buyerId;
 
     @Embedded
@@ -51,6 +55,7 @@ public class Sale {
         this.closes = saleListing.getCloses();
         this.created = saleListing.getCreated();
         this.quantity = saleListing.getQuantity();
+        this.review = null;
     }
 
     //Date sorter
