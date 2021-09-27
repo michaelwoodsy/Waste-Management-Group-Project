@@ -7,6 +7,7 @@ import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.service_layer.dto.review.GetReviewDTO;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
@@ -71,21 +72,22 @@ class ReviewServiceTest extends AbstractInitializer {
         addressRepository.save(testBusiness.getAddress());
         businessRepository.save(testBusiness);
 
-        this.sale = new Sale();
-        sale.setBuyerId(testUser.getId());
-        saleHistoryRepository.save(sale);
+        List<SaleListing> listings = this.getSaleListings();
 
         List<Review> reviews = new ArrayList<>();
-        //Make 6 reviews for the business
-        for (int i = 0; i < 6; i++) {
+        //Make 4 reviews for the business
+        for (SaleListing listing : listings) {
             Review review = new Review();
             review.setBusiness(testBusiness);
             review.setUser(testUser);
-            if ( i == 0) {
-                review.setSale(sale);
-            }
+            Sale sale = new Sale(listing);
+            sale.setBuyerId(testUser.getId());
+            sale.setBusiness(testBusiness);
+            sale = saleHistoryRepository.save(sale);
+            review.setSale(sale);
             reviews.add(review);
         }
+        sale = reviews.get(0).getSale();
         reviewRepository.saveAll(reviews);
     }
 
@@ -97,9 +99,8 @@ class ReviewServiceTest extends AbstractInitializer {
     void getBusinessReviews_hasReviews_Success(){
         Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         Integer businessId = this.testBusiness.getId();
-        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
-        List<Review> reviews = reviewService.getBusinessReviews(businessId, appUser);
-        Assertions.assertEquals(6, reviews.size());
+        List<GetReviewDTO> reviews = reviewService.getBusinessReviews(businessId);
+        Assertions.assertEquals(4, reviews.size());
     }
 
     /**
@@ -111,8 +112,7 @@ class ReviewServiceTest extends AbstractInitializer {
         Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         reviewRepository.deleteAll();
         Integer businessId = this.testBusiness.getId();
-        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
-        List<Review> reviews = reviewService.getBusinessReviews(businessId, appUser);
+        List<GetReviewDTO> reviews = reviewService.getBusinessReviews(businessId);
         Assertions.assertEquals(0, reviews.size());
     }
 
@@ -124,9 +124,8 @@ class ReviewServiceTest extends AbstractInitializer {
     void getBusinessReviews_notAdmin_Success(){
         Assertions.assertNotEquals(this.testBusiness.getPrimaryAdministratorId(), this.testUser.getId());
         Integer businessId = this.testBusiness.getId();
-        AppUserDetails appUser = new AppUserDetails(this.testUser);
-        List<Review> reviews = reviewService.getBusinessReviews(businessId, appUser);
-        Assertions.assertEquals(6, reviews.size());
+        List<GetReviewDTO> reviews = reviewService.getBusinessReviews(businessId);
+        Assertions.assertEquals(4, reviews.size());
     }
 
     /**
@@ -140,9 +139,8 @@ class ReviewServiceTest extends AbstractInitializer {
                 .when(businessService).checkBusiness(any(Integer.class));
 
         Integer businessId = 99999;
-        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
         Assertions.assertThrows(NotAcceptableException.class,
-                () -> reviewService.getBusinessReviews(businessId, appUser));
+                () -> reviewService.getBusinessReviews(businessId));
     }
 
     /**
@@ -215,8 +213,8 @@ class ReviewServiceTest extends AbstractInitializer {
 
         List<Review> reviews = reviewRepository.findAllByUserId(testUser.getId());
 
-        //Expect 6 reviews from setup() plus the 1 from this test
-        Assertions.assertEquals(7, reviews.size());
+        //Expect 4 reviews from setup() plus the 1 from this test
+        Assertions.assertEquals(5, reviews.size());
 
     }
 

@@ -17,7 +17,7 @@
       </div>
 
       <div v-else>
-        There are some reviews but I don't know what to do with them yet :(
+        <review v-for="review in reviews" :key="review.reviewId" :review="review"/>
       </div>
 
     </div>
@@ -30,10 +30,11 @@
 <script>
 import {Business} from "@/Api";
 import Alert from "@/components/Alert";
+import Review from "@/components/business/Review";
 
 export default {
   name: "BusinessReviews",
-  components: {Alert},
+  components: {Review, Alert},
   props: {
     businessId: Number
   },

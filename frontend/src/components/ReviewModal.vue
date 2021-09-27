@@ -66,7 +66,7 @@ import Alert from "@/components/Alert";
 import $ from 'jquery'
 
 export default {
-  name: "Review",
+  name: "ReviewModal",
   components: {Alert},
   props: {
     sale: Object

@@ -106,7 +106,7 @@
       </div>
     </div>
 
-    <review v-if="showModal" :sale="purchaseToView" @update-data="fillTable" @close-modal="showModal = false"/>
+    <ReviewModal v-if="showModal" :sale="purchaseToView" @update-data="fillTable" @close-modal="showModal = false"/>
     </div>
   </page-wrapper>
 </template>
@@ -119,7 +119,7 @@ import LoginRequired from "@/components/LoginRequired";
 import Alert from "@/components/Alert";
 import {formatDateTime} from "@/utils/dateTime";
 import {User} from "@/Api";
-import Review from "@/components/Review";
+import ReviewModal from "@/components/ReviewModal";
 
 export default {
   name: "UserPurchasesPage",
@@ -138,7 +138,7 @@ export default {
     }
   },
   components: {
-    Review,
+    ReviewModal,
     PageWrapper,
     Pagination,
     ShowingResultsText,

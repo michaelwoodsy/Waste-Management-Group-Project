@@ -5,6 +5,7 @@ import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
+import org.seng302.project.service_layer.dto.review.GetReviewDTO;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,17 +41,24 @@ public class ReviewService {
     /**
      * Method that gets all reviews left by Users for a particular Business
      * @param businessId The ID of the Business you wish to get reviews of
-     * @param user The User that is trying to access the reviews for this Business
      * @return a List of all the reviews for this Business
      */
-    public List<Review> getBusinessReviews(Integer businessId,
-                                            AppUserDetails user){
+    public List<GetReviewDTO> getBusinessReviews(Integer businessId){
         logger.info("Request to get all sale reviews of a Business with ID: {}", businessId);
         // Get the business of the request
         businessService.checkBusiness(businessId);
 
+        List<Review> reviews = reviewRepository.findAllByBusinessId(businessId);
+
+        List<GetReviewDTO> response = new ArrayList<>();
+        for (Review review : reviews) {
+            GetReviewDTO dto = new GetReviewDTO(review);
+            dto.attachSale(review.getSale());
+            response.add(dto);
+        }
+
         // Return a list of all the reviews belonging to the business (if there are none an empty list)
-        return reviewRepository.findAllByBusinessId(businessId);
+        return response;
     }
 
 

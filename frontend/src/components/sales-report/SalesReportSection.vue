@@ -49,18 +49,18 @@
       </tr>
     </table>
 
-    <review v-if="viewModal" :sale="saleToView" @close-modal="viewModal = false"/>
+    <ReviewModal v-if="viewModal" :sale="saleToView" @close-modal="viewModal = false"/>
 
   </div>
 </template>
 
 <script>
 import {formatDateTime} from "@/utils/dateTime";
-import Review from "@/components/Review";
+import ReviewModal from "@/components/ReviewModal";
 
 export default {
   name: "SalesReportSection",
-  components: {Review},
+  components: {ReviewModal},
   props: {
     sales: Array,
   },
