@@ -1,7 +1,6 @@
 package org.seng302.project.web_layer.controller;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,8 +41,6 @@ class ReviewControllerTest extends AbstractInitializer{
 
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockBean
     private ReviewService reviewService;
@@ -100,24 +97,22 @@ class ReviewControllerTest extends AbstractInitializer{
         this.testReview = reviewRepository.findAllByBusinessId(testBusiness.getId()).get(0);
     }
 
-//    @Test
-//    void getBusinessReviews_success_200() throws Exception {
-//        Integer businessId = this.testBusiness.getId();
-//        System.out.println(reviewRepository.findAllByBusinessId(businessId));
-//        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
-//
-//        RequestBuilder request = MockMvcRequestBuilders
-//                .get("/businesses/{businessId}/reviews", businessId)
-//                .with(user(new AppUserDetails(testUser)));
-//
-//        MvcResult response = mockMvc.perform(request)
-//                .andExpect(MockMvcResultMatchers.status().isOk())
-//                .andReturn();
-//        String responseData = response.getResponse().getContentAsString();
-//        List<Review> result = objectMapper.readValue(responseData, new TypeReference<>() {
-//        });
-//        Assertions.assertEquals(6, result.size());
-//    }
+    /**
+     * Tests that retrieving reviews for a business
+     * gives a 200 response
+     */
+    @Test
+    void getBusinessReviews_success_200() throws Exception {
+        Integer businessId = this.testBusiness.getId();
+        System.out.println(reviewRepository.findAllByBusinessId(businessId));
+        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/businesses/{businessId}/reviews", businessId)
+                .with(user(appUser));
+
+        mockMvc.perform(request).andExpect(MockMvcResultMatchers.status().isOk());
+    }
 
     /**
      * Tests that leaving a valid review
@@ -273,7 +268,7 @@ class ReviewControllerTest extends AbstractInitializer{
 
     /**
      * Tests that leaving a valid response to a review
-     * gives a 201 response
+     * gives a 200 response
      */
     @Test
     void respondToReview_success_200() throws Exception {

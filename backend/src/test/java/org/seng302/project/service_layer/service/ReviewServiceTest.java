@@ -5,7 +5,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
-import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.model.Business;
+import org.seng302.project.repository_layer.model.Review;
+import org.seng302.project.repository_layer.model.Sale;
+import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
@@ -14,7 +17,6 @@ import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +32,6 @@ class ReviewServiceTest extends AbstractInitializer {
     private final ReviewRepository reviewRepository;
     private final ReviewService reviewService;
     private final SaleHistoryRepository saleHistoryRepository;
-    private final UserNotificationRepository userNotificationRepository;
 
     private User testUser;
     private User testAdmin;
@@ -50,12 +51,11 @@ class ReviewServiceTest extends AbstractInitializer {
         this.addressRepository = addressRepository;
         this.reviewRepository = reviewRepository;
         this.saleHistoryRepository = saleHistoryRepository;
-        this.userNotificationRepository = userNotificationRepository;
         this.userService = Mockito.mock(UserService.class);
         this.businessService = Mockito.mock(BusinessService.class);
         this.reviewService = new ReviewService(businessService, userService,
                 this.reviewRepository, this.saleHistoryRepository,
-                this.userNotificationRepository);
+                userNotificationRepository);
     }
 
     @BeforeEach
@@ -231,7 +231,7 @@ class ReviewServiceTest extends AbstractInitializer {
      */
     @Test
     void respondToReview_success() {
-        Assertions.assertEquals(null, testReview.getReviewResponse());
+        Assertions.assertNull(testReview.getReviewResponse());
 
         Integer businessId = testBusiness.getId();
         Integer reviewId = testReview.getReviewId();

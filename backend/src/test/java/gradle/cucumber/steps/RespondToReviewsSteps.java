@@ -42,14 +42,10 @@ public class RespondToReviewsSteps extends AbstractInitializer {
 
 
     private MockMvc mockMvc;
-    private User testUser;
     private User testAdmin;
     private Business testBusiness;
-    private Sale testSale;
     private Review testReview;
 
-
-    private RequestBuilder patchReviewRequest;
 
     @Autowired
     public RespondToReviewsSteps(AddressRepository addressRepository,
@@ -74,15 +70,15 @@ public class RespondToReviewsSteps extends AbstractInitializer {
                 .apply(springSecurity())
                 .build();
 
+        userNotificationRepository.deleteAll();
         reviewRepository.deleteAll();
         saleHistoryRepository.deleteAll();
         userRepository.deleteAll();
-        userNotificationRepository.deleteAll();
 
-        this.testUser = this.getTestUser();
+        User testUser = this.getTestUser();
         addressRepository.save(testUser.getHomeAddress());
         testUser.setId(null);
-        this.testUser = userRepository.save(testUser);
+        testUser = userRepository.save(testUser);
 
         this.testAdmin = this.getTestUserBusinessAdmin();
         addressRepository.save(testAdmin.getHomeAddress());
@@ -93,13 +89,13 @@ public class RespondToReviewsSteps extends AbstractInitializer {
         addressRepository.save(testBusiness.getAddress());
         this.testBusiness = businessRepository.save(testBusiness);
 
-        this.testSale = new Sale(this.getSaleListings().get(0));
-        this.testSale.setSaleId(null);
-        this.testSale.setBusiness(testBusiness);
-        this.testSale.setBuyerId(this.testUser.getId());
-        this.testSale = saleHistoryRepository.save(this.testSale);
+        Sale testSale = new Sale(this.getSaleListings().get(0));
+        testSale.setSaleId(null);
+        testSale.setBusiness(testBusiness);
+        testSale.setBuyerId(testUser.getId());
+        testSale = saleHistoryRepository.save(testSale);
 
-        this.testReview = new Review(this.testSale, this.testUser, 3, "Very good");
+        this.testReview = new Review(testSale, testUser, 3, "Very good");
         this.testReview.setReviewId(null);
         this.testReview = reviewRepository.save(this.testReview);
     }
@@ -128,7 +124,7 @@ public class RespondToReviewsSteps extends AbstractInitializer {
         requestBody.put("reviewResponse", response);
         Assertions.assertEquals("Thank you very much for the feedback", response);
 
-        patchReviewRequest = MockMvcRequestBuilders
+        RequestBuilder patchReviewRequest = MockMvcRequestBuilders
                 .patch("/businesses/{businessId}/reviews/{reviewId}/respond", testBusiness.getId(), testReview.getReviewId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody.toString())
