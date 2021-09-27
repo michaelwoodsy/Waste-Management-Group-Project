@@ -1,5 +1,8 @@
 package org.seng302.project.service_layer.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 @DataJpaTest
 class ReviewServiceTest extends AbstractInitializer {
+    
     private final UserRepository userRepository;
     private final UserService userService;
     private final BusinessRepository businessRepository;
@@ -99,10 +103,11 @@ class ReviewServiceTest extends AbstractInitializer {
      * all expected reviews are returned
      */
     @Test
-    void getBusinessReviews_hasReviews_Success(){
+    void getBusinessReviews_hasReviews_Success() {
         Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         Integer businessId = this.testBusiness.getId();
-        List<GetReviewDTO> reviews = reviewService.getBusinessReviews(businessId);
+        JSONObject response = reviewService.getBusinessReviews(businessId);
+        List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
         Assertions.assertEquals(4, reviews.size());
     }
 
@@ -111,11 +116,12 @@ class ReviewServiceTest extends AbstractInitializer {
      * all expected reviews are returned
      */
     @Test
-    void getBusinessReviews_hasNoReviews_Success(){
+    void getBusinessReviews_hasNoReviews_Success() {
         Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         reviewRepository.deleteAll();
         Integer businessId = this.testBusiness.getId();
-        List<GetReviewDTO> reviews = reviewService.getBusinessReviews(businessId);
+        JSONObject response = reviewService.getBusinessReviews(businessId);
+        List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
         Assertions.assertEquals(0, reviews.size());
     }
 
@@ -124,10 +130,11 @@ class ReviewServiceTest extends AbstractInitializer {
      * all expected reviews are returned
      */
     @Test
-    void getBusinessReviews_notAdmin_Success(){
+    void getBusinessReviews_notAdmin_Success() {
         Assertions.assertNotEquals(this.testBusiness.getPrimaryAdministratorId(), this.testUser.getId());
         Integer businessId = this.testBusiness.getId();
-        List<GetReviewDTO> reviews = reviewService.getBusinessReviews(businessId);
+        JSONObject response = reviewService.getBusinessReviews(businessId);
+        List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
         Assertions.assertEquals(4, reviews.size());
     }
 

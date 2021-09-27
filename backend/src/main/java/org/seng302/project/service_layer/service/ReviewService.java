@@ -1,5 +1,6 @@
 package org.seng302.project.service_layer.service;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.repository_layer.model.Review;
 import org.seng302.project.repository_layer.model.ReviewNotification;
 import org.seng302.project.repository_layer.model.Sale;
@@ -48,21 +49,23 @@ public class ReviewService {
      * @param businessId The ID of the Business you wish to get reviews of
      * @return a List of all the reviews for this Business
      */
-    public List<GetReviewDTO> getBusinessReviews(Integer businessId){
+    public JSONObject getBusinessReviews(Integer businessId){
         logger.info("Request to get all sale reviews of a Business with ID: {}", businessId);
         // Get the business of the request
         businessService.checkBusiness(businessId);
 
         List<Review> reviews = reviewRepository.findAllByBusinessId(businessId);
 
-        List<GetReviewDTO> response = new ArrayList<>();
+        List<GetReviewDTO> reviewDTOs = new ArrayList<>();
         for (Review review : reviews) {
             GetReviewDTO dto = new GetReviewDTO(review);
             dto.attachSale(review.getSale());
-            response.add(dto);
+            reviewDTOs.add(dto);
         }
 
         // Return a list of all the reviews belonging to the business (if there are none an empty list)
+        JSONObject response = new JSONObject();
+        response.put("reviews", reviewDTOs);
         return response;
     }
 
