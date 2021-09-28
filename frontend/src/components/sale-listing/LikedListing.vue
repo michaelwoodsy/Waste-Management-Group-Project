@@ -162,6 +162,8 @@ export default {
         if (filteredImages.length === 1) {
           this.imageUrl = this.getImageURL(filteredImages[0].filename)
         }
+      } else {
+        this.imageUrl = this.getImageURL('/media/defaults/defaultProduct.jpg')
       }
     },
 

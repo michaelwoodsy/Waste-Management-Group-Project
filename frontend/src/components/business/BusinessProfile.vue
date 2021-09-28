@@ -110,53 +110,45 @@ readOnly:         Boolean, default true.
             </router-link>
             <button v-if="isPrimaryAdmin || user.canDoAdminAction()"
                     :class="{'btn-primary': isPrimaryAdmin, 'btn-outline-danger': !isPrimaryAdmin && user.canDoAdminAction()}"
-                    class="btn mx-1" data-target="#addAdministrator"
-                    data-toggle="modal">
+                    class="btn mx-1" :data-target="'#addAdmin' + business.id"
+                    data-toggle="collapse">
               Add Administrator
             </button>
+          </div>
+        </div>
 
-            <!-- Add admin modal -->
-            <div id="addAdministrator" aria-hidden="true" aria-labelledby="addAdministratorLabel" class="modal fade"
-                 role="dialog" tabindex="-1">
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 id="addAdministratorLabel" class="modal-title">Add Administrator</h5>
-                    <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    <div class="form-row">
-                      <!--    User ID    -->
-                      <label for="userId">
-                        <strong>User ID</strong>
-                      </label>
-                      <br/>
-                      <input id="userId" v-model="addAdministratorUserId"
-                             :class="{'form-control': true, 'is-invalid': addAdministratorError}"
-                             placeholder="ID of the user you want to make administrator"
-                             required style="width:100%" type="number">
-                      <!--   Error message for userId input   -->
-                      <span class="invalid-feedback text-left">{{ addAdministratorError }}</span>
-
-                      <div v-if="addAdministratorSuccess" class="col text-center mb-2">
-                        <p style="color: green">{{ addAdministratorSuccess }}</p>
-                      </div>
-
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button class="btn btn-block btn-danger" style="width: 40%; margin:0 10px"
+        <div>
+          <div class="row justify-content-center mb-3">
+            <div :id="'addAdmin' + business.id" class="collapse">
+              <div class="form-row" style="width: 400px">
+                <!--    User ID    -->
+                <label for="userId">
+                  <strong>User ID</strong>
+                </label>
+                <br/>
+                <div class="input-group">
+                  <input id="userId" v-model="addAdministratorUserId"
+                         :class="{'form-control': true, 'is-invalid': addAdministratorError}"
+                         placeholder="Id of the user to make administrator"
+                         required type="number" min="1">
+                  <div class="input-group-append">
+                    <button class="btn btn-block btn-danger"
                             v-on:click="addAdministrator">
-                      Add Administrator
+                      Add User
                     </button>
-                    <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
                   </div>
                 </div>
+
+                <!--   Error message for userId input   -->
+                <span class="invalid-feedback text-left">{{ addAdministratorError }}</span>
+
+
+                <div v-if="addAdministratorSuccess" class="col text-center mb-2">
+                  <p style="color: green">{{ addAdministratorSuccess }}</p>
+                </div>
+
               </div>
             </div>
-
           </div>
         </div>
 
@@ -232,7 +224,8 @@ readOnly:         Boolean, default true.
                     {{ admin.firstName }} {{ admin.lastName }}
                   </router-link>
                 </th>
-                <td v-if="!readOnly && isPrimaryAdmin && (business.primaryAdministratorId !== admin.id)">
+                <td v-if="(!readOnly && isPrimaryAdmin && (business.primaryAdministratorId !== admin.id)) ||
+                user.canDoAdminAction() && (business.primaryAdministratorId !== admin.id)">
                   <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;"
                      v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
                 </td>
@@ -385,7 +378,7 @@ export default {
     async removeAdministrator(userId, firstName, lastName) {
 
       try {
-        await Business.removeAdministrator(this.$route.params.businessId, userId)
+        await Business.removeAdministrator(Number(this.business.id), userId)
         this.removedAdmin = `Removed ${firstName} ${lastName} from administering business`
         //Reload the data
         this.$emit('update-data')
@@ -408,7 +401,7 @@ export default {
       }
       try {
         await Business.addAdministrator(Number(this.business.id), Number(this.addAdministratorUserId))
-        this.addAdministratorSuccess = `Added user with id ${this.addAdministratorUserId} to administrators of business with id ${this.businessId}`
+        this.addAdministratorSuccess = `Added user with id ${this.addAdministratorUserId} to administrators of business with id ${this.business.id}`
         //Reload the data
         this.$emit('update-data')
       } catch (err) {

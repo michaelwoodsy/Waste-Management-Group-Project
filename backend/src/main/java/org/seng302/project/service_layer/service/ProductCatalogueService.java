@@ -235,6 +235,11 @@ public class ProductCatalogueService {
 
                 //Create new product
                 var newProduct = new Product(newId, newName, newDescription, newManufacturer, newRRP, requestDTO.getBusinessId());
+
+                newProduct.setImages(originalProduct.getImages());
+                newProduct.setPrimaryImageId(originalProduct.getPrimaryImageId());
+                originalProduct.setImages(Collections.emptyList());
+
                 //Save new product
                 productRepository.save(newProduct);
 
