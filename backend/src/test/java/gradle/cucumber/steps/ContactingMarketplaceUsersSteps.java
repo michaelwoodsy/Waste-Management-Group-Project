@@ -4,6 +4,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
@@ -89,6 +90,14 @@ public class ContactingMarketplaceUsersSteps extends AbstractInitializer {
 
         testMessage = new Message("Is this still available?", testReceiver, testCard, testSender);
 
+    }
+
+    @AfterEach
+    void teardown() {
+        userNotificationRepository.deleteAll();
+        cardRepository.deleteAll();
+        userRepository.deleteAll();
+        addressRepository.deleteAll();
     }
 
 

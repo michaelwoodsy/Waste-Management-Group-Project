@@ -33,6 +33,9 @@ public class SaleListing {
     private LocalDateTime created = LocalDateTime.now();
     private Integer quantity;
 
+    @Column(name = "featured")
+    private boolean featured;
+
     public SaleListing(Business business, InventoryItem inventoryItem, Double price, String moreInfo,
                        LocalDateTime closes, Integer quantity) {
         this.business = business;
@@ -41,5 +44,6 @@ public class SaleListing {
         this.moreInfo = moreInfo;
         this.closes = closes;
         this.quantity = quantity;
+        this.featured = false;
     }
 }

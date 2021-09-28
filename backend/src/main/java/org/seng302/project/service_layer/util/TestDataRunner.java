@@ -16,9 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Class containing functions to populate test database with test data.
@@ -36,6 +34,8 @@ public class TestDataRunner {
     private final InventoryItemRepository inventoryItemRepository;
     private final SaleListingRepository saleListingRepository;
     private final LikedSaleListingRepository likedSaleListingRepository;
+    private final SaleHistoryRepository saleHistoryRepository;
+    private final ReviewRepository reviewRepository;
     private final CardRepository cardRepository;
     private final ImageRepository imageRepository;
     private final KeywordRepository keywordRepository;
@@ -49,6 +49,7 @@ public class TestDataRunner {
                           ProductRepository productRepository, InventoryItemRepository inventoryItemRepository,
                           ImageRepository imageRepository, SaleListingRepository saleListingRepository,
                           LikedSaleListingRepository likedSaleListingRepository,
+                          SaleHistoryRepository saleHistoryRepository, ReviewRepository reviewRepository,
                           CardRepository cardRepository, KeywordRepository keywordRepository,
                           BCryptPasswordEncoder passwordEncoder, UserNotificationRepository userNotificationRepository,
                           AdminNotificationRepository adminNotificationRepository, ConformationTokenRepository conformationTokenRepository) {
@@ -59,6 +60,8 @@ public class TestDataRunner {
         this.addressRepository = addressRepository;
         this.saleListingRepository = saleListingRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
+        this.saleHistoryRepository = saleHistoryRepository;
+        this.reviewRepository = reviewRepository;
         this.cardRepository = cardRepository;
         this.imageRepository = imageRepository;
         this.passwordEncoder = passwordEncoder;
@@ -292,6 +295,7 @@ public class TestDataRunner {
      */
     public void insertTestSaleListings(JSONArray saleData) {
         logger.info("Adding sample data to sale listing repository");
+        List<String> countries = List.of("New Zealand", "New Zealand", "New Zealand", "China", "Australia", "France", "Germany", "Australia");
         for (Object object : saleData) {
             JSONObject jsonSaleListing = (JSONObject) object;
             Optional<InventoryItem> testItemOptions = inventoryItemRepository.findById(jsonSaleListing.getAsNumber("inventoryItemId").intValue());
@@ -306,7 +310,7 @@ public class TestDataRunner {
                         jsonSaleListing.getAsNumber("quantity").intValue()
                 );
                 var listing = saleListingRepository.save(testListing);
-                if (testListing.getId() == 1) {
+                if (testListing.getId() == 1 || testListing.getId() == 2) {
                     var user = userRepository.findById(1);
                     user.ifPresent(value -> {
                         var likedListing = new LikedSaleListing(value, listing);
@@ -322,14 +326,16 @@ public class TestDataRunner {
                         value.addLikedListing(likedListing);
                         userRepository.save(value);
                     });
-
-                    var user3 = userRepository.findById(3);
-                    user3.ifPresent(value -> {
-                        var likedListing = new LikedSaleListing(value, listing);
-                        likedSaleListingRepository.save(likedListing);
-                        value.addLikedListing(likedListing);
-                        userRepository.save(value);
-                    });
+                } else {
+                    //Test data for sales
+                    listing.getInventoryItem().getProduct().setCurrencyCountry(countries.get(listing.getId() - 2));
+                    Sale sale = new Sale(listing);
+                    sale.setDateSold(LocalDateTime.now().minusDays(80 - (listing.getId() * (long) 4)));
+                    sale = saleHistoryRepository.save(sale);
+                    List<Integer> ratingNumbers = List.of(1, 2, 3, 4, 5); //Used to get different review numbers
+                    System.out.println(ratingNumbers.get((listing.getId()-1)%5));
+                    Review review = new Review(sale, userRepository.findById(1).get(), ratingNumbers.get((listing.getId()-1)%5), "");
+                    reviewRepository.save(review);
                 }
             }
         }

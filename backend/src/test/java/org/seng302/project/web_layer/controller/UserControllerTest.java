@@ -12,6 +12,7 @@ import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
+import org.seng302.project.service_layer.dto.sales_report.GetSaleDTO;
 import org.seng302.project.service_layer.dto.user.LoginCredentialsDTO;
 import org.seng302.project.service_layer.dto.user.PostUserDTO;
 import org.seng302.project.service_layer.dto.user.PutUserDTO;
@@ -495,5 +496,64 @@ class UserControllerTest extends AbstractInitializer {
         String returnedExceptionString = postUserResponse.getResponse().getContentAsString();
         //Exception string from the validation class
         Assertions.assertEquals("MethodArgumentNotValidException: InvalidPhoneNumber: This Phone Number is not valid.", returnedExceptionString);
+    }
+
+    /**
+     * Tests that requesting purchases with a valid request results in a 200 status code
+     */
+    @Test
+    void getPurchaseHistory_validRequest_status200() throws Exception {
+        SaleListing saleListing = this.getSaleListings().get(0);
+        Sale sale = new Sale(saleListing);
+        sale.setBuyerId(testUser.getId());
+        GetSaleDTO dto = new GetSaleDTO(sale);
+
+        Mockito.when(userService.getPurchaseHistory(testUser.getId(), 1, ""))
+                .thenReturn(List.of(dto));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/users/{userId}/purchases", testUser.getId())
+                .param("pageNumber", String.valueOf(0))
+                .param("sortBy", "")
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mvc.perform(request).andExpect(status().isOk());
+    }
+
+    /**
+     * Tests that requesting purchases from a different user results in a 403 status code
+     */
+    @Test
+    void getPurchaseHistory_notUserMakingRequest_status403() throws Exception {
+        Mockito.doThrow(ForbiddenException.class)
+                .when(userService).checkForbidden(any(Integer.class), any(AppUserDetails.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/users/{userId}/purchases", testUser.getId())
+                .param("pageNumber", String.valueOf(0))
+                .param("sortBy", "")
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests that requesting purchases from a non-existent user results in a 406 status code
+     */
+    @Test
+    void getPurchaseHistory_nonExistentUser_status406() throws Exception {
+        Mockito.when(userService.checkUser(testUser.getId()))
+                .thenThrow(NotAcceptableException.class);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/users/{userId}/purchases", testUser.getId())
+                .param("pageNumber", String.valueOf(1))
+                .param("sortBy", "")
+                .accept(MediaType.APPLICATION_JSON)
+                .with(user(new AppUserDetails(testUser)));
+
+        mvc.perform(request).andExpect(status().isNotAcceptable());
     }
 }

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from './custom-router'
 
-import Landing from '../components/Landing'
+import Landing from '../components/landing-page/Landing'
 import RegisterPage from "../components/user/RegisterPage";
 import LoginPage from "../components/LoginPage";
 import Home from "../components/Home";
@@ -19,6 +19,7 @@ import Search from "@/components/Search";
 import EditBusiness from "@/components/business/EditBusiness";
 import BrowseSaleListings from "@/components/sale-listing/BrowseSaleListings";
 import PasswordReset from "@/components/user/PasswordReset";
+import UserPurchasesPage from "@/components/user/UserPurchasesPage";
 
 const routes = [
     {
@@ -30,6 +31,11 @@ const routes = [
         path: '/search',
         name: 'search',
         component: Search
+    },
+    {
+        path: '/users/:userId/purchases',
+        name: 'purchases',
+        component: UserPurchasesPage
     },
     {
         path: '/users/:userId/edit',

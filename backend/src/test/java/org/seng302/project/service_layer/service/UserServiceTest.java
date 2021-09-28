@@ -7,9 +7,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.Address;
+import org.seng302.project.repository_layer.model.Sale;
+import org.seng302.project.repository_layer.model.SaleListing;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
+import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
 import org.seng302.project.service_layer.dto.address.AddressDTO;
 import org.seng302.project.service_layer.dto.user.PostUserDTO;
@@ -20,6 +23,8 @@ import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenDGAAActionExce
 import org.seng302.project.service_layer.exceptions.register.ExistingRegisteredEmailException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,6 +45,7 @@ class UserServiceTest extends AbstractInitializer {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final UserService userService;
+    private final SaleHistoryRepository saleHistoryRepository;
     private User testUser;
     private User otherUser;
     private User testAdmin;
@@ -49,6 +55,7 @@ class UserServiceTest extends AbstractInitializer {
     UserServiceTest() {
         userRepository = Mockito.mock(UserRepository.class);
         addressRepository = Mockito.mock(AddressRepository.class);
+        saleHistoryRepository = Mockito.mock(SaleHistoryRepository.class);
         LikedSaleListingRepository likedSaleListingRepository = Mockito.mock(LikedSaleListingRepository.class);
         AuthenticationManager authenticationManager = Mockito.mock(AuthenticationManager.class);
         userService = new UserService(
@@ -56,7 +63,8 @@ class UserServiceTest extends AbstractInitializer {
                 addressRepository,
                 likedSaleListingRepository,
                 authenticationManager,
-                passwordEncoder
+                passwordEncoder,
+                saleHistoryRepository
         );
     }
 
@@ -317,5 +325,39 @@ class UserServiceTest extends AbstractInitializer {
 
         User user = userService.getUserByEmail(testUser.getEmail());
         Assertions.assertNull(user);
+    }
+
+    /**
+     * Tests that a user's purchases are returned when getPurchaseHistory is given a user's ID
+     */
+    @Test
+    void getPurchaseHistory_validUser_returnsUsersPurchases() {
+        SaleListing listing = this.getSaleListings().get(0);
+        Sale sale = new Sale(listing);
+        sale.setSaleId(1);
+        sale.setBuyerId(testUser.getId());
+        Page<Sale> pageReturned = new PageImpl<>(List.of(sale), PageRequest.of(0, 10), 1);
+        Mockito.when(saleHistoryRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(pageReturned);
+
+        List<Object> result = userService.getPurchaseHistory(testUser.getId(), 1, "");
+        Assertions.assertEquals(Long.class, result.get(1).getClass());
+        Long totalCount = (Long) result.get(1);
+        Assertions.assertEquals(Long.valueOf("1"), totalCount);
+    }
+
+    /**
+     * Tests that an empty list is returned when trying to get purchase history of a non-existent user
+     */
+    @Test
+    void getPurchaseHistory_nonExistentUser_returnsEmptyList() {
+        Page<Sale> pageReturned = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
+        Mockito.when(saleHistoryRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(pageReturned);
+
+        List<Object> result = userService.getPurchaseHistory(1000, 1, "");
+        Assertions.assertEquals(Long.class, result.get(1).getClass());
+        Long totalCount = (Long) result.get(1);
+        Assertions.assertEquals(Long.valueOf("0"), totalCount);
     }
 }

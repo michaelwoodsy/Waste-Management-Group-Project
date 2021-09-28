@@ -51,12 +51,14 @@ tags:
   - name: 'U31: Purchases'
   - name: 'U32: Managing my feed'
   - name: 'U25: Lost Password'
+  - name: 'U41: Sales Report'
   - name: 'UD1: Landing Page'
   - name: 'UD2: Popular Listings'
   - name: 'UD3: Featured Business Listings'
   - name: 'UD4: New Card Notifications'
   - name: 'UD5: Sale History'
   - name: 'UD6: Sale Reviews'
+  - name: 'UD7: Responding to Sale Reviews'
   # Entities
   - name: 'Users'
     description: 'Grouping of endpoints related to the User entity'
@@ -2460,7 +2462,6 @@ paths:
           name: country
           schema:
             type: string
-          required: true
           description: 'Country to retrieve popular listings for'
       responses:
         '200':
@@ -2471,8 +2472,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Listing'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
 
   '/businesses/{businessId}/featuredlistings':
     get:
@@ -2648,6 +2647,18 @@ paths:
           schema:
             type: integer
             example: 100
+        - name: pageNumber
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: 'The page to get'
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+          required: true
+          description: 'The sorting parameter. One of "datePurchasedAsc", "datePurchasedDesc", "productNameAsc", "productNameDesc", "quantityAsc", "quantityDesc", "priceAsc", "priceDesc", "businessAsc", "businessDesc"'
       responses:
         '200':
           description: Request successful, a list (potentially empty) of purchases is returned
@@ -2657,131 +2668,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Sale'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '406':
-          $ref: '#/components/responses/NotAcceptableError'
-
-  '/users/{userId}/purchases/{purchaseId}':
-    get:
-      tags:
-        - 'UD5: Sale History'
-        - 'Users'
-        - 'Sales'
-      summary: "Gets a specific user purchase"
-      security:
-        - CookieAuth:
-            - user
-            - globalApplicationAdmin
-            - defaultGlobalApplicationAdmin
-      parameters:
-        - name: userId
-          in: path
-          description: The id of the user
-          required: true
-          schema:
-            type: integer
-            example: 100
-        - name: purchaseId
-          in: path
-          description: The id of the purchase
-          required: true
-          schema:
-            type: integer
-            example: 100
-      responses:
-        '200':
-          description: Request successful, a sale is returned
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Sale'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '406':
-          $ref: '#/components/responses/NotAcceptableError'
-
-  '/businesses/{businessId}/sales':
-    get:
-      tags:
-        - 'UD5: Sale History'
-        - 'Business Accounts'
-        - 'Sales'
-      summary: "Gets a business' sold sale listings"
-      description: 'Retrieves all the sale listings a given business has sold.'
-      security:
-        - CookieAuth:
-            - user
-            - globalApplicationAdmin
-            - defaultGlobalApplicationAdmin
-      parameters:
-        - name: businessId
-          in: path
-          description: The id of the business
-          required: true
-          schema:
-            type: integer
-            example: 100
-      responses:
-        '200':
-          description: Request successful, a list (potentially empty) of sales is returned
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Sale'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '406':
-          $ref: '#/components/responses/NotAcceptableError'
-
-  '/businesses/{businessId}/sales/{saleId}':
-    get:
-      tags:
-        - 'UD5: Sale History'
-        - 'Business Accounts'
-        - 'Sales'
-      summary: "Gets a business' specific sale"
-      security:
-        - CookieAuth:
-            - user
-            - globalApplicationAdmin
-            - defaultGlobalApplicationAdmin
-      parameters:
-        - name: businessId
-          in: path
-          description: The id of the business
-          required: true
-          schema:
-            type: integer
-            example: 100
-        - name: saleId
-          in: path
-          description: The id of the sale
-          required: true
-          schema:
-            type: integer
-            example: 100
-      responses:
-        '200':
-          description: Request successful, returns a sale
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Sale'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -2821,130 +2707,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '406':
-          $ref: '#/components/responses/NotAcceptableError'
-
-  '/businesses/{businessId}/reviews/{reviewId}':
-    get:
-      tags:
-        - 'UD6: Sale Reviews'
-        - 'Reviews'
-      summary: "Gets a specific business review"
-      description: 'Retrieves a specific review left on a business'
-      security:
-        - CookieAuth:
-            - user
-            - globalApplicationAdmin
-            - defaultGlobalApplicationAdmin
-      parameters:
-        - name: businessId
-          in: path
-          description: The id of the bus8iness
-          required: true
-          schema:
-            type: integer
-            example: 100
-        - name: reviewId
-          in: path
-          description: The id of the review
-          required: true
-          schema:
-            type: integer
-            example: 100
-      responses:
-        '200':
-          description: Request successful, returns a review
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Review'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '406':
-          $ref: '#/components/responses/NotAcceptableError'
-
-  '/users/{userId}/reviews':
-    get:
-      tags:
-        - 'UD6: Sale Reviews'
-        - 'Reviews'
-      summary: "Gets the reviews for a user"
-      description: 'Retrieves all the reviews a user has left on businesses'
-      security:
-        - CookieAuth:
-            - user
-            - globalApplicationAdmin
-            - defaultGlobalApplicationAdmin
-      parameters:
-        - name: userId
-          in: path
-          description: The id of the user
-          required: true
-          schema:
-            type: integer
-            example: 100
-      responses:
-        '200':
-          description: Request successful, a list of reviews (potentially empty) is returned
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Review'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '406':
-          $ref: '#/components/responses/NotAcceptableError'
-
-  '/users/{userId}/reviews/{reviewId}':
-    get:
-      tags:
-        - 'UD6: Sale Reviews'
-        - 'Reviews'
-      summary: "Gets a specific user review"
-      description: 'Retrieves a specific review a user has left on a business'
-      security:
-        - CookieAuth:
-            - user
-            - globalApplicationAdmin
-            - defaultGlobalApplicationAdmin
-      parameters:
-        - name: userId
-          in: path
-          description: The id of the user
-          required: true
-          schema:
-            type: integer
-            example: 100
-        - name: reviewId
-          in: path
-          description: The id of the review
-          required: true
-          schema:
-            type: integer
-            example: 100
-      responses:
-        '200':
-          description: Request successful, a review is returned
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Review'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -3010,7 +2772,7 @@ paths:
   '/businesses/{businessId}/reviews/{reviewId}/repsond':
     patch:
       tags:
-        - 'UD6: Sale Reviews'
+        - 'UD7: Responding to Sale Reviews'
         - 'Reviews'
       summary: "Respond to a review"
       description: 'Business admin can reply to a review left by a user on one of their sales'
@@ -3058,6 +2820,180 @@ paths:
         '406':
           $ref: '#/components/responses/NotAcceptableError'
 
+
+  '/businesses/{businessId}/sales':
+    get:
+      tags:
+        - 'U41: Sales Report'
+        - 'Business Accounts'
+        - 'Sales'
+      summary: "Gets a business' sales report"
+      description: 'Retrieves the number of sales and the total price of those sales during a given period.'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: The id of the business
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: periodStart
+          in: query
+          description: Start date of the sales report
+          required: true
+          schema:
+            type: string
+          example: '2021-07-15'
+        - name: periodEnd
+          in: query
+          description: End date of the sales report
+          required: true
+          schema:
+            type: string
+          example: '2021-08-15'
+        - name: granularity
+          in: query
+          description: Granularity of sales
+          required: true
+          schema:
+            type: string
+          example: 'monthly'
+      responses:
+        '200':
+          description: Request successful, returns a list of GetSalesReportDTOs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetSalesReportDTO'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '406':
+          $ref: '#/components/responses/NotAcceptableError'
+  '/businesses/{businessId}/notifications':
+    get:
+      tags:
+        - 'Notifications'
+      summary: 'Gets all the notifications for a business'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: The ID of the business to get notifications for
+          required: true
+          schema:
+            type: integer
+            example: 100
+      responses:
+        200:
+          description: Request successful, a (possibly empty) list of notifications is returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BusinessNotification'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          description: 'Forbidden: if someone who is not an admin of the business (or a GAA) tries to get notifications for the business'
+        406:
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/businesses/{businessId}/notifications/{notificationId}':
+    delete:
+      tags:
+        - 'Notifications'
+      summary: 'Deletes a business notification'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: The ID of the business to delete a notification of
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: notificationId
+          in: path
+          description: The ID of the notification to delete
+          required: true
+          schema:
+            type: integer
+            example: 100
+      responses:
+        200:
+          description: Request successful, notification deleted
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          description: 'Forbidden: if someone who is not an admin of the business (or GAA) tries to '
+        406:
+          $ref: '#/components/responses/NotAcceptableError'
+
+  '/businesses/{businessId}/notifications/{notificationId}/read':
+    patch:
+      tags:
+        - 'Notifications'
+      summary: 'Marks a business notification as read or unread'
+      description: 'Marks the notification as either read or unread based on the "read" value in the request body.'
+      security:
+        - CookieAuth:
+            - user
+            - globalApplicationAdmin
+            - defaultGlobalApplicationAdmin
+      parameters:
+        - name: businessId
+          in: path
+          description: The ID of the user
+          required: true
+          schema:
+            type: integer
+            example: 100
+        - name: notificationId
+          in: path
+          description: The ID of the notification
+          required: true
+          schema:
+            type: integer
+            example: 100
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                read:
+                  type: boolean
+      responses:
+        200:
+          description: Success
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        406:
+          $ref: '#/components/responses/NotAcceptableError'
 
 components:
   securitySchemes:
@@ -3656,6 +3592,39 @@ components:
           readOnly: true
           description: 'The date and time the notification was created'
 
+    BusinessNotification:
+      type: object
+      description: A notification entity for a specific business
+      required:
+        - id
+        - type
+        - message
+        - created
+      properties:
+        id:
+          type: integer
+          example: 100
+          readOnly: true
+          description: 'ID of the notification. Automatically generated and assigned by the server.'
+        type:
+          type: string
+          readOnly: true
+          description: 'The type of the notification'
+          enum:
+            - business
+            - review
+        message:
+          type: string
+          example: 'This is a notification'
+          readOnly: true
+          description: 'A string message contained within the notification'
+        created:
+          type: string
+          format: date-time
+          example: '2020-07-14T14:32:00Z'
+          readOnly: true
+          description: 'The date and time the notification was created'
+
     LikedSaleListing:
       type: object
       description: Entity representing a sale listing liked by a user
@@ -3681,6 +3650,7 @@ components:
           description: Boolean for if a liked sale listing is starred or not
         tag:
           $ref: '#/components/schemas/Tag'
+
     Tag:
       type: string
       example: 'red'
@@ -3693,6 +3663,7 @@ components:
         - blue
         - purple
         - none
+
     ConformationToken:
       type: object
       description: "A conformation token saved when a user activates the forgotten password functionality"
@@ -3713,6 +3684,7 @@ components:
           example: '2021-07-15T05:10:00Z'
           readOnly: true
           description: Date and time when the conformation token was created
+
     Sale:
       type: object
       description: "A sale listing purchased by a user."
@@ -3733,19 +3705,27 @@ components:
           description: Unique ID, autogenerated by the system
         business:
           $ref: '#/components/schemas/Business'
+        buyer:
+          type: integer
+          example: 1
+          readOnly: true
+          description: ID of the user who purchased this sale listing
         inventoryItem:
           $ref: '#/components/schemas/InventoryItem'
         oldListingId:
           type: integer
           example: 100
+          readOnly: true
           description: ID of the sale listing before it was sold
         price:
           type: number
           example: 20
+          readOnly: true
           description: Price of the sale listing
         moreInfo:
           type: string
           example: "These bananas are really good!"
+          readOnly: true
           description: Provides more information about the sale
         closes:
           type: string
@@ -3765,6 +3745,9 @@ components:
           example: '2021-07-15T05:10:00Z'
           readOnly: true
           description: Date and time when the sale was created
+        review:
+          $ref: '#/components/schemas/Review'
+
 
     Review:
       type: object
@@ -3775,7 +3758,6 @@ components:
         - business
         - user
         - rating
-        - reviewMessage
       properties:
         id:
           type: integer
@@ -3806,3 +3788,37 @@ components:
           example: '2021-07-15T05:10:00Z'
           readOnly: true
           description: Date and time when the review was created
+
+    GetSalesReportDTO:
+      type: object
+      description: "A sales report for a business over a given period."
+      required:
+        - sales
+        - periodStart
+        - periodEnd
+        - totalPurchaseValue
+        - purchaseCount
+      properties:
+        sales:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sale'
+          description: List of all says during time period.
+        periodStart:
+          type: string
+          example: '2021-07-15'
+          readOnly: true
+          description: Start date which sales are tracked after.
+        periodEnd:
+          type: string
+          example: '2021-07-15'
+          readOnly: true
+          description: End date which sales are tracked before.
+        totalPurchaseValue:
+          type: integer
+          example: 1000
+          description: Total price of all sales.
+        purchaseCount:
+          type: integer
+          example: 50
+          description: Total number of sales.

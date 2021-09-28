@@ -20,12 +20,20 @@ let computed = {
     },
 }
 
+let methods = {
+    search() {}
+}
+
 describe('Jest tests for the BusinessSearch component', () => {
     // Setup before each test
     beforeEach(() => {
         wrapper = VueTestUtils.shallowMount(BusinessSearch, {
             stubs: ['router-link', 'router-view', "login-required", "admin-required"],
-            computed
+            computed,
+            methods,
+            mocks: {
+                $route: {query: {}}
+            }
         })
     });
 

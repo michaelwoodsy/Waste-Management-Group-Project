@@ -52,12 +52,13 @@ const options = {
 Vue.use(VueLogger, options);
 
 // Check if the user is logged in on starting the app
-Store.user.checkLoggedIn();
-
-/* eslint-disable no-new */
-new Vue({
-    el: '#app',
-    components: {App},
-    template: '<App/>',
-    data: Store
-});
+Store.user.checkLoggedIn()
+    .finally(() => {
+        /* eslint-disable no-new */
+        new Vue({
+            el: '#app',
+            components: {App},
+            template: '<App/>',
+            data: Store
+        })
+    })

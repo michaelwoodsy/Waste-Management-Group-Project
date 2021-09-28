@@ -1,5 +1,5 @@
 <template>
-  <div id="viewListingModal" class="modal fade" data-backdrop="static">
+  <div id="viewListingModal" class="modal fade text-left" data-backdrop="static">
     <div class="modal-dialog modal-lg">
       <business-profile-page-modal v-if="viewingBusiness"
                                    :business="listing.business"
@@ -14,7 +14,8 @@
           <div class="col text-center">
             <h2>
               <strong>{{ listing.inventoryItem.product.name }}</strong>
-              <em :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart pointer" @click="likeListing"/>
+              <em v-if="isLoggedIn && isActingAsUser" :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart pointer" @click="likeListing"/>
+              <em v-else :class="{'bi-heart-fill': liked, 'bi-heart': !liked}" class="bi heart" style="pointer-events: none"/>
               {{ likes }}
             </h2>
           </div>
@@ -30,7 +31,8 @@
           <!-- Listing images -->
           <div class="mb-3">
             <div v-if="listing.inventoryItem.product.images.length === 0">
-              <p class="text-center"><strong>This Product has no Images</strong></p>
+              <img :src="getImageURL('/media/defaults/defaultProduct.jpg')" alt="ProductImage"
+                   class="d-block img-fluid rounded mx-auto w-auto" style="max-height: 300px">
             </div>
             <div v-else class="row">
               <div class="col col-12 justify-content-center">
@@ -67,20 +69,17 @@
           <!-- Buy button -->
           <div class="row text-center mb-3">
             <div class="col">
-              <button v-if="!buyClicked"
+              <button v-if="!buyClicked && isLoggedIn && isActingAsUser"
                       id="buyButton"
                       class="btn btn-primary mx-2 button"
                       @click="buy"
               >
                 Buy
               </button>
-              <button v-else
-                      class="btn btn-outline-secondary mx-2 button"
-                      disabled
-              >
+              <button v-else-if="isLoggedIn && isActingAsUser" class="btn btn-outline-secondary mx-2 button" disabled>
                 Bought
               </button>
-              <button class="btn btn-primary mx-2 button" @click="viewBusiness">View Business</button>
+              <button v-if="isLoggedIn" class="btn btn-primary mx-2 button" @click="viewBusiness">View Business</button>
             </div>
           </div>
 
@@ -229,9 +228,32 @@ export default {
       viewingBusiness: false
     }
   },
+  watch: {
+    listing() {
+      this.buyClicked = false
+      this.purchaseMsg = null
+      this.errorMsg = null
+      this.likes = this.$props.listing.likes
+      this.liked = this.$props.listing.userLikes
+    }
+  },
   mounted() {
     this.likes = this.$props.listing.likes
     this.liked = this.$props.listing.userLikes
+  },
+  computed: {
+    /**
+     * Returns true if the user is logged in, false if they are not
+     */
+    isLoggedIn() {
+      return this.$root.$data.user.isLoggedIn()
+    },
+    /**
+     * Returns true if the user is acting as a user, false if they are not
+     */
+    isActingAsUser() {
+      return this.$root.$data.user.isActingAsUser()
+    }
   },
   methods: {
     /**
@@ -273,16 +295,13 @@ export default {
      * Likes the displayed listing
      */
     async likeListing() {
-      // TDOD refactor
       if (this.liked) {
         Business.unlikeListing(this.$props.listing.id).then(() => {
           this.liked = !this.liked
           this.likes -= 1
           this.$emit('update-listings')
         }).catch((err) => {
-          this.errorMsg = err.response
-              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-              : err
+          this.showError(err)
         })
       } else {
         Business.likeListing(this.$props.listing.id).then(() => {
@@ -290,9 +309,7 @@ export default {
           this.likes += 1
           this.$emit('update-listings')
         }).catch((err) => {
-          this.errorMsg = err.response
-              ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-              : err
+          this.showError(err)
         })
       }
     },
@@ -304,12 +321,10 @@ export default {
       this.buyClicked = true
       await Business.purchaseListing(this.listing.id).then(() => {
         this.purchaseMsg = "Successfully purchased Listing!"
-        this.$emit('updateListings')
+        this.$emit('update-listings')
       }).catch((err) => {
         this.buyClicked = false
-        this.errorMsg = err.response
-            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-            : err
+        this.showError(err)
       });
     },
 
@@ -319,6 +334,15 @@ export default {
     viewBusiness() {
       this.viewingBusiness = true
     },
+
+    /**
+     * Method that shows an error when needed
+     */
+    showError(err) {
+      this.errorMsg = err.response
+          ? err.response.data.slice(err.response.data.indexOf(":") + 2)
+          : err
+    }
 
   }
 }

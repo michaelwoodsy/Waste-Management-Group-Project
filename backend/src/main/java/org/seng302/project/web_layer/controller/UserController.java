@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -199,5 +200,31 @@ public class UserController {
             throw exception;
         }
 
+    }
+
+    /**
+     * Receives a request to get a user's purchase history
+     *
+     * @param userId ID of the user to get purchase history for
+     * @param appUser currently logged-in user
+     * @return the user's purchase history
+     */
+    @GetMapping("/users/{userId}/purchases")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Object> getPurchaseHistory(
+            @PathVariable Integer userId,
+            @RequestParam("pageNumber") Integer pageNumber,
+            @RequestParam("sortBy") String sortBy,
+            @AuthenticationPrincipal AppUserDetails appUser
+    ) {
+        try {
+            userService.checkUser(userId);
+            userService.checkForbidden(userId, appUser);
+            return userService.getPurchaseHistory(userId, pageNumber, sortBy);
+        } catch (NotAcceptableException exception) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, exception.getMessage(), exception);
+        } catch (ForbiddenException exception) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exception.getMessage(), exception);
+        }
     }
 }

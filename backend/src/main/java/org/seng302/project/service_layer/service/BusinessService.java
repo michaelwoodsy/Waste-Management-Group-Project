@@ -2,11 +2,10 @@ package org.seng302.project.service_layer.service;
 
 import org.seng302.project.repository_layer.model.Address;
 import org.seng302.project.repository_layer.model.Business;
+import org.seng302.project.repository_layer.model.BusinessNotification;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.model.enums.BusinessType;
-import org.seng302.project.repository_layer.repository.AddressRepository;
-import org.seng302.project.repository_layer.repository.BusinessRepository;
-import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.BusinessSpecifications;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
 import org.seng302.project.service_layer.dto.business.PostBusinessDTO;
@@ -33,7 +32,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class BusinessService {
@@ -42,17 +40,23 @@ public class BusinessService {
     private final BusinessRepository businessRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
+    private final ReviewRepository reviewRepository;
     private final ProductCatalogueService productCatalogueService;
+    private final BusinessNotificationRepository businessNotificationRepository;
 
     @Autowired
     public BusinessService(BusinessRepository businessRepository,
                            AddressRepository addressRepository,
                            UserRepository userRepository,
-                           ProductCatalogueService productCatalogueService) {
+                           ReviewRepository reviewRepository,
+                           ProductCatalogueService productCatalogueService,
+                           BusinessNotificationRepository businessNotificationRepository) {
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.productCatalogueService = productCatalogueService;
+        this.reviewRepository = reviewRepository;
+        this.businessNotificationRepository = businessNotificationRepository;
     }
 
 
@@ -144,6 +148,7 @@ public class BusinessService {
                 Business retrievedBusiness = business.get();
                 GetBusinessDTO getBusinessDTO = new GetBusinessDTO(retrievedBusiness);
                 getBusinessDTO.attachAdministrators(retrievedBusiness);
+                getBusinessDTO.attachAverageRating(getAverageStarRating(businessId));
                 return getBusinessDTO;
             }
         } catch (BusinessNotFoundException businessNotFoundException) {
@@ -158,7 +163,7 @@ public class BusinessService {
 
     /**
      * Checks a business exists with the ID given.
-     * Throws and exception if no business exists.
+     * Throws an exception if no business exists.
      *
      * @param businessId Business Id to check.
      * @throws NotAcceptableException thrown if there is no business matching the ID
@@ -411,6 +416,7 @@ public class BusinessService {
         for (Business business : businesses) {
             GetBusinessDTO dto = new GetBusinessDTO(business);
             dto.attachAdministrators(business);
+            dto.attachAverageRating(getAverageStarRating(business.getId()));
             getBusinessDTOs.add(dto);
         }
         return Arrays.asList(getBusinessDTOs, totalCount);
@@ -452,6 +458,12 @@ public class BusinessService {
         return List.of(sortBy.contains("ASC"), sortBy);
     }
 
+    /**
+     * Returns the string representation of a BusinessType enum
+     *
+     * @param businessType BusinessType enum
+     * @return string representation of the enum
+     */
     public String checkBusinessType(BusinessType businessType){
         String returnedBusinessType;
         switch (businessType){
@@ -472,6 +484,107 @@ public class BusinessService {
         }
         return returnedBusinessType;
     }
+
+    /**
+     * Helper method to calculate a businesses average star rating from its reviews.
+     * @param businessId id of the business to get the average star rating from
+     * @return Double between 1 and 5 for the average star rating, null for if the business has no ratings
+     */
+    public Double getAverageStarRating(Integer businessId) {
+        var reviews = reviewRepository.findAllByBusinessId(businessId);
+
+        //return null if there are no reviews
+        if (reviews.isEmpty()) return null;
+
+        Double total = 0.0;
+        for (var review: reviews) {
+            total += review.getRating();
+        }
+        return total / reviews.size();
+    }
+
+    /**
+     * Gets all the notifications for a business
+     *
+     * @param businessId the id of the business to get notifications for
+     * @param appUser the user making the request
+     */
+    public List<BusinessNotification> getBusinessNotifications(Integer businessId, AppUserDetails appUser) {
+        logger.info("Request to get notifications for business with id {}", businessId);
+
+        Business business = checkBusiness(businessId);
+        checkUserCanDoBusinessAction(appUser, business);
+
+        return businessNotificationRepository.findAllByBusiness(business);
+    }
+
+    /**
+     * Gets a notification for a business.
+     * Throws a NotAcceptableException if the notification isn't found for the business.
+     *
+     * @param businessId the id of the business to retrieve a notification for
+     * @param notificationId the id of the notification to retrieve
+     * @return the business notification if it exists
+     */
+    private BusinessNotification getNotification(Integer businessId, Integer notificationId) {
+        Optional<BusinessNotification> notificationOptional = businessNotificationRepository.findById(notificationId);
+
+        if (notificationOptional.isEmpty()) {
+            String message = String.format("Notification with id %d does not exist", notificationId);
+            logger.warn(message);
+            throw new NotAcceptableException(message);
+        }
+
+        BusinessNotification notification = notificationOptional.get();
+
+        if (!notification.getBusiness().getId().equals(businessId)) {
+            String message = String.format("Notification with id %d does not exist for business with id %d",
+                    notificationId, businessId);
+            logger.warn(message);
+            throw new NotAcceptableException(message);
+        }
+
+        return notification;
+    }
+
+    /**
+     * Deletes a notification from a business
+     *
+     * @param businessId the id of the business to delete the notification for
+     * @param notificationId the id of the notification to delete
+     * @param appUser the user making the request
+     */
+    public void deleteBusinessNotification(Integer businessId, Integer notificationId, AppUserDetails appUser) {
+        logger.info("Request to delete notification with id {} for business with id {}", notificationId, businessId);
+
+        Business business = checkBusiness(businessId);
+        checkUserCanDoBusinessAction(appUser, business);
+
+        BusinessNotification notification = getNotification(businessId, notificationId);
+
+        businessNotificationRepository.delete(notification);
+    }
+
+
+    /**
+     * Marks a business' notification as read/unread
+     *
+     * @param businessId the id of the business to read/unread the notification for
+     * @param notificationId the id of the notification to mark as read/unread
+     * @param read whether to mark the notification as read or not read
+     * @param appUser the user making the request
+     */
+    public void readBusinessNotification(Integer businessId, Integer notificationId, Boolean read, AppUserDetails appUser) {
+        logger.info("Request to read/unread notification with id {} for business with id {}", notificationId, businessId);
+        Business business = checkBusiness(businessId);
+        checkUserCanDoBusinessAction(appUser, business);
+
+        BusinessNotification notification = getNotification(businessId, notificationId);
+
+        notification.setRead(read);
+        businessNotificationRepository.save(notification);
+    }
+
 }
 
 

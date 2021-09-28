@@ -1,7 +1,7 @@
 package org.seng302.project.service_layer.dto.business;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.seng302.project.repository_layer.model.Business;
 import org.seng302.project.repository_layer.model.Image;
 import org.seng302.project.repository_layer.model.User;
@@ -10,13 +10,13 @@ import org.seng302.project.service_layer.dto.user.GetUserDTO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Response DTO for business entities.
  */
 @Data
+@NoArgsConstructor
 public class GetBusinessDTO {
 
     private Integer id;
@@ -29,6 +29,7 @@ public class GetBusinessDTO {
     private LocalDateTime created;
     private Integer primaryImageId;
     private List<Image> images;
+    private Double averageRating;
 
     public GetBusinessDTO(Business business) {
         this.id = business.getId();
@@ -52,6 +53,15 @@ public class GetBusinessDTO {
         for (User user : business.getAdministrators()) {
             this.administrators.add(new GetUserDTO(user));
         }
+    }
+
+    /**
+     * Method which attaches a business' average review rating to the DTO
+     *
+     * @param averageRating Average review rating
+     */
+    public void attachAverageRating(Double averageRating) {
+        this.averageRating  = averageRating;
     }
 
 }

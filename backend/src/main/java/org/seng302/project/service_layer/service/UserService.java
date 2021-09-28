@@ -2,15 +2,20 @@ package org.seng302.project.service_layer.service;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.repository_layer.model.Address;
+import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.AddressRepository;
 import org.seng302.project.repository_layer.repository.LikedSaleListingRepository;
+import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
+import org.seng302.project.repository_layer.specification.SalesReportSpecifications;
 import org.seng302.project.repository_layer.specification.UserSpecifications;
+import org.seng302.project.service_layer.dto.sales_report.GetSaleDTO;
 import org.seng302.project.service_layer.dto.user.*;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NoUserExistsException;
+import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.service_layer.exceptions.dgaa.DGAARevokeAdminSelfException;
 import org.seng302.project.service_layer.exceptions.dgaa.ForbiddenDGAAActionException;
 import org.seng302.project.service_layer.exceptions.register.ExistingRegisteredEmailException;
@@ -34,6 +39,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Provides logic for User objects
@@ -47,16 +53,21 @@ public class UserService {
     private final LikedSaleListingRepository likedSaleListingRepository;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final SaleHistoryRepository saleHistoryRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, AddressRepository addressRepository,
+    public UserService(UserRepository userRepository,
+                       AddressRepository addressRepository,
                        LikedSaleListingRepository likedSaleListingRepository,
-                       AuthenticationManager authenticationManager, BCryptPasswordEncoder passwordEncoder) {
+                       AuthenticationManager authenticationManager,
+                       BCryptPasswordEncoder passwordEncoder,
+                       SaleHistoryRepository saleHistoryRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.likedSaleListingRepository = likedSaleListingRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
+        this.saleHistoryRepository = saleHistoryRepository;
     }
 
     /**
@@ -225,26 +236,40 @@ public class UserService {
     }
 
     /**
+     * Checks if a user with given ID exists.
+     * If the user exists, returns the user. If the user does not exist, throws an exception
+     *
+     * @param userId ID of the user to check
+     * @return the user with given ID if it exists
+     * @throws NotAcceptableException if user with ID does not exist
+     */
+    public User checkUser(Integer userId) throws NotAcceptableException {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            String message = String.format("User with ID %d does not exist", userId);
+            throw new NotAcceptableException(message);
+        }
+    }
+
+    /**
      * Service method for retrieving a user
      *
-     * @param id ID of the user to retrieve
-     * @return the user data inside of a GetUserDTO
+     * @param userId ID of the user to retrieve
+     * @return the user data inside a GetUserDTO
+     * @throws NotAcceptableException if the given user does not exist
      */
-    public GetUserDTO getUser(Integer id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isPresent()) {
-            User retrievedUser = user.get();
-            GetUserDTO getUserDTO = new GetUserDTO(retrievedUser);
-            getUserDTO.attachBusinessesAdministered(retrievedUser);
-            getUserDTO.attachLikedSaleListings(retrievedUser);
-            for (var like: getUserDTO.getLikedSaleListings()) {
-                Integer likes = likedSaleListingRepository.findAllByListingId(like.getListing().getId()).size();
-                like.getListing().attachLikeData(likes, true);
-            }
-            return getUserDTO;
-        } else {
-            throw new NoUserExistsException(id);
+    public GetUserDTO getUser(Integer userId) throws NotAcceptableException {
+        User user = checkUser(userId);
+        GetUserDTO getUserDTO = new GetUserDTO(user);
+        getUserDTO.attachBusinessesAdministered(user);
+        getUserDTO.attachLikedSaleListings(user);
+        for (var like : getUserDTO.getLikedSaleListings()) {
+            Integer likes = likedSaleListingRepository.findAllByListingId(like.getListing().getId()).size();
+            like.getListing().attachLikeData(likes, true);
         }
+        return getUserDTO;
     }
 
     /**
@@ -349,7 +374,7 @@ public class UserService {
     }
 
     /**
-     * Checks if the sort column is one of the valid ones, if not replaces it with the empty string and no sorting is done
+     * Checks if the sort column for users is one of the valid ones, if not replaces it with the empty string and no sorting is done
      *
      * @param sortBy This is the string that will contain information about what column to sort by
      * @return A list that contains a boolean to describe if the sort is ascending or descending, and the sortby string
@@ -376,5 +401,75 @@ public class UserService {
         return List.of(sortBy.contains("ASC"), sortBy);
     }
 
+    /**
+     * Gets a list of a user's purchases
+     *
+     * @param userId ID of the user to get purchases for
+     * @return list of the user's purchases
+     */
+    public List<Object> getPurchaseHistory(Integer userId, Integer pageNumber, String sortBy) {
+        Specification<Sale> spec = SalesReportSpecifications.purchasedByUser(userId);
+
+        var sort = buildPurchaseSort(sortBy);
+
+        Pageable pageable;
+        if (sort != null) {
+            pageable = PageRequest.of(pageNumber, 10, sort);
+        } else {
+            pageable = PageRequest.of(pageNumber, 10);
+        }
+
+        Page<Sale> page = saleHistoryRepository.findAll(spec, pageable);
+        long totalCount = page.getTotalElements();
+        List<Sale> purchases = page.getContent();
+
+        logger.info("Retrieved {} Purchases, showing {}", totalCount, purchases.size());
+        return Arrays.asList(purchases.stream().map(GetSaleDTO::new).collect(Collectors.toList()), totalCount);
+    }
+
+    /**
+     * Given a sort query string, returns a Sort object used to sort purchases by.
+     *
+     * @param sortQuery String query to sort by.
+     * @return Sort object used to sort entries retrieved from the Sale History Repository
+     */
+    public Sort buildPurchaseSort(String sortQuery) {
+        Sort sort = null;
+        switch (sortQuery) {
+            case "datePurchasedASC":
+                sort = Sort.by(Sort.Order.asc("dateSold"));
+                break;
+            case "datePurchasedDESC":
+                sort = Sort.by(Sort.Order.desc("dateSold"));
+                break;
+            case "productNameASC":
+                sort = Sort.by(Sort.Order.asc("inventoryItem.product.name"));
+                break;
+            case "productNameDESC":
+                sort = Sort.by(Sort.Order.desc("inventoryItem.product.name"));
+                break;
+            case "quantityASC":
+                sort = Sort.by(Sort.Order.asc("quantity"));
+                break;
+            case "quantityDESC":
+                sort = Sort.by(Sort.Order.desc("quantity"));
+                break;
+            case "priceASC":
+                sort = Sort.by(Sort.Order.asc("price"));
+                break;
+            case "priceDESC":
+                sort = Sort.by(Sort.Order.desc("price"));
+                break;
+            case "businessASC":
+                sort = Sort.by(Sort.Order.asc("business.name"));
+                break;
+            case "businessDESC":
+                sort = Sort.by(Sort.Order.desc("business.name"));
+                break;
+            default:
+                break;
+        }
+        return sort;
+    }
 
 }

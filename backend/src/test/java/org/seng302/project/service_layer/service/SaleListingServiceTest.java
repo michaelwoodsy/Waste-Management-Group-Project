@@ -3,6 +3,8 @@ package org.seng302.project.service_layer.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
@@ -23,9 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-
 import static org.mockito.ArgumentMatchers.any;
-
 
 
 @DataJpaTest
@@ -47,6 +47,7 @@ class SaleListingServiceTest extends AbstractInitializer {
 
 
     Business business1;
+    Business business2;
     Integer business2Id;
     User testUser;
     User testOtherUser;
@@ -56,6 +57,10 @@ class SaleListingServiceTest extends AbstractInitializer {
     SaleListing saleListing2;
     SaleListing saleListing3;
     SaleListing saleListing4;
+    SaleListing saleListing5;
+    SaleListing saleListing6;
+    SaleListing saleListing7;
+    SaleListing saleListing8;
 
     @Autowired
     SaleListingServiceTest(UserRepository userRepository,
@@ -118,37 +123,66 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Product product1 = new Product("TEST-1", "First Product", null, null, 5.00, business1.getId());
         productRepository.save(product1);
-        inventoryItem = new InventoryItem(product1, 10, null, null, "2021-01-01", null, null, "2021-12-01");
+        inventoryItem = new InventoryItem(product1, 10, null, null, "2021-01-01", null, null, "2021-12-23");
         inventoryItem = inventoryItemRepository.save(inventoryItem);
-        saleListing1 = new SaleListing(business1, inventoryItem, 10.00, null, LocalDateTime.parse("2021-08-25T00:00:00"), 5);
+        saleListing1 = new SaleListing(business1, inventoryItem, 10.00, null, LocalDateTime.parse("2021-12-22T00:00:00"), 5);
+        saleListing1.setFeatured(true);
         saleListing1 = saleListingRepository.save(saleListing1);
 
         Product product2 = new Product("TEST-2", "Second Product", null, null, 5.00, business1.getId());
         productRepository.save(product2);
-        InventoryItem inventoryItem2 = new InventoryItem(product2, 10, null, null, "2021-01-01", null, null, "2021-12-02");
+        InventoryItem inventoryItem2 = new InventoryItem(product2, 10, null, null, "2021-01-02", null, null, "2021-12-24");
         inventoryItem2 = inventoryItemRepository.save(inventoryItem2);
-        saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-10-25T00:00:00"), 10);
+        saleListing2 = new SaleListing(business1, inventoryItem2, 15.00, null, LocalDateTime.parse("2021-12-23T00:00:00"), 10);
         saleListing2 = saleListingRepository.save(saleListing2);
 
         Address address2 = new Address(null, null, "Christchurch", null, "New Zealand", null);
-        Business business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
+        business2 = new Business("Second Business", null, address2, "Charitable Organisation", 1);
         addressRepository.save(address2);
-        businessRepository.save(business2);
+        business2 = businessRepository.save(business2);
         business2Id = business2.getId();
 
         Product product3 = new Product("TEST-3", "Third Product", null, null, 5.00, business2.getId());
         productRepository.save(product3);
-        InventoryItem inventoryItem3 = new InventoryItem(product3, 5, null, null, "2021-01-01", null, null, "2021-12-03");
+        InventoryItem inventoryItem3 = new InventoryItem(product3, 5, null, null, "2021-01-03", null, null, "2021-12-25");
         inventoryItem3 = inventoryItemRepository.save(inventoryItem3);
-        saleListing3 = new SaleListing(business2, inventoryItem3, 20.00, null, LocalDateTime.parse("2021-11-25T00:00:00"), 5);
+        saleListing3 = new SaleListing(business2, inventoryItem3, 20.00, null, LocalDateTime.parse("2021-12-24T00:00:00"), 5);
         saleListingRepository.save(saleListing3);
 
         Product product4 = new Product("TEST-4", "Fourth Product", null, null, 5.00, business2.getId());
         productRepository.save(product4);
-        InventoryItem inventoryItem4 = new InventoryItem(product4, 5, null, null, "2021-01-01", null, null, "2021-12-04");
+        InventoryItem inventoryItem4 = new InventoryItem(product4, 5, null, null, "2021-01-04", null, null, "2021-12-26");
         inventoryItem4 = inventoryItemRepository.save(inventoryItem4);
         saleListing4 = new SaleListing(business2, inventoryItem4, 30.00, null, LocalDateTime.parse("2021-12-25T00:00:00"), 5);
         saleListingRepository.save(saleListing4);
+
+        Product product5 = new Product("TEST-5", "Fifth Product", null, null, 5.00, business1.getId());
+        productRepository.save(product5);
+        InventoryItem inventoryItem5 = new InventoryItem(product5, 5, null, null, "2021-01-05", null, null, "2021-12-27");
+        inventoryItem5 = inventoryItemRepository.save(inventoryItem5);
+        saleListing5 = new SaleListing(business1, inventoryItem5, 30.00, null, LocalDateTime.parse("2021-12-26T00:00:00"), 5);
+        saleListingRepository.save(saleListing5);
+
+        Product product6 = new Product("TEST-6", "Sixth Product", null, null, 5.00, business1.getId());
+        productRepository.save(product6);
+        InventoryItem inventoryItem6 = new InventoryItem(product6, 5, null, null, "2021-01-06", null, null, "2021-12-28");
+        inventoryItem6 = inventoryItemRepository.save(inventoryItem6);
+        saleListing6 = new SaleListing(business1, inventoryItem6, 30.00, null, LocalDateTime.parse("2021-12-27T00:00:00"), 5);
+        saleListingRepository.save(saleListing6);
+
+        Product product7 = new Product("TEST-7", "Seventh Product", null, null, 5.00, business1.getId());
+        productRepository.save(product7);
+        InventoryItem inventoryItem7 = new InventoryItem(product7, 5, null, null, "2021-01-07", null, null, "2021-12-29");
+        inventoryItem7 = inventoryItemRepository.save(inventoryItem7);
+        saleListing7 = new SaleListing(business1, inventoryItem7, 30.00, null, LocalDateTime.parse("2021-12-28T00:00:00"), 5);
+        saleListingRepository.save(saleListing7);
+
+        Product product8 = new Product("TEST-8", "Eighth Product", null, null, 5.00, business1.getId());
+        productRepository.save(product8);
+        InventoryItem inventoryItem8 = new InventoryItem(product8, 5, null, null, "2021-01-08", null, null, "2021-12-30");
+        inventoryItem8 = inventoryItemRepository.save(inventoryItem8);
+        saleListing8 = new SaleListing(business1, inventoryItem8, 30.00, null, LocalDateTime.parse("2021-12-29T00:00:00"), 5);
+        saleListingRepository.save(saleListing8);
 
         Mockito.when(userService.getUserByEmail(testUser.getEmail()))
                 .thenReturn(userRepository.findByEmail(testUser.getEmail()).get(0));
@@ -158,7 +192,7 @@ class SaleListingServiceTest extends AbstractInitializer {
 
     /**
      * Tests that a NotAcceptableException is thrown when
-     * a someone tries accessing the listings of a nonexistent business.
+     * someone tries accessing the listings of a nonexistent business.
      */
     @Test
     void getBusinessListings_nonExistentBusiness_NotAcceptableException() {
@@ -181,12 +215,12 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = saleListingService.getBusinessListings(business1.getId(), appUser);
 
         //We expect to get the 2 listings added in the setup() method
-        Assertions.assertEquals(2, listings.size());
+        Assertions.assertEquals(6, listings.size());
     }
 
     /**
      * Tests that a NotAcceptableException is thrown when
-     * a someone tries adding a listing to a nonexistent business.
+     * someone tries adding a listing to a nonexistent business.
      */
     @Test
     void postBusinessListings_nonExistentBusiness_NotAcceptableException() {
@@ -288,80 +322,29 @@ class SaleListingServiceTest extends AbstractInitializer {
         saleListingService.newBusinessListing(requestDTO, business1.getId(), appUser);
         List<SaleListing> listings = saleListingRepository.findAllByBusinessId(business1.getId());
 
-        //The business had 2 listings added to it in the setup() method, and we check 1 more was added to this
-        Assertions.assertEquals(3, listings.size());
+        //The business had 6 listings added to it in the setup() method, and we check 1 more was added to this
+        Assertions.assertEquals(7, listings.size());
     }
 
     /**
-     * Tests that searching for listing by business name with string 'first' returns first listing
+     * Tests that searching for listing by business name with different strings returns correct number of listings
      */
-    @Test
-    void searchByBusinessName_firstBusiness_returnsFirstListing() {
-        String searchTerm = "first";
+    @ParameterizedTest
+    @CsvSource({
+            "first, 6",
+            "second, 2",
+            "business, 8",
+            "\"first\", 0",
+            "\"first business\", 6",
+            "\"second\", 0",
+            "\"second business\", 2",
+            "random, 0",
+            "first AND second, 0"
+    })
+    void searchByBusinessName_business_returnsBothListings(String searchTerm, Integer expectedListings) {
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(2, listings.size());
-        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'second' returns second listing
-     */
-    @Test
-    void searchByBusinessName_secondBusiness_returnsSecondListing() {
-        String searchTerm = "second";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(2, listings.size());
-        Assertions.assertEquals("Third Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Fourth Product", listings.get(1).getInventoryItem().getProduct().getName());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'business' returns all four listings
-     */
-    @Test
-    void searchByBusinessName_business_returnsBothListings() {
-        String searchTerm = "business";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(4, listings.size());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string '"first"' returns nothing
-     */
-    @Test
-    void searchByBusinessName_firstExact_returnsNothing() {
-        String searchTerm = "\"first\"";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(0, listings.size());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string '"first business"' returns first listing
-     */
-    @Test
-    void searchByBusinessName_firstBusinessExact_returnsFirstListing() {
-        String searchTerm = "\"first business\"";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(2, listings.size());
-        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'random' returns nothing
-     */
-    @Test
-    void searchByBusinessName_random_returnsNothing() {
-        String searchTerm = "random";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(0, listings.size());
+        Assertions.assertEquals(expectedListings, listings.size());
     }
 
     /**
@@ -371,18 +354,7 @@ class SaleListingServiceTest extends AbstractInitializer {
     void searchByBusinessName_firstOrSecond_returnsBothListings() {
         Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{"first", "second"});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(4, listings.size());
-    }
-
-    /**
-     * Tests that searching for listing by business name with string 'first' and 'second' returns both listings
-     */
-    @Test
-    void searchByBusinessName_firstAndSecond_returnsNothing() {
-        String searchTerm = "first AND second";
-        Specification<SaleListing> spec = saleListingService.searchByBusinessName(new String[]{searchTerm});
-        List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(0, listings.size());
+        Assertions.assertEquals(8, listings.size());
     }
 
     /**
@@ -393,7 +365,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         String searchTerm = "trade";
         Specification<SaleListing> spec = saleListingService.searchByBusinessType(new String[]{searchTerm});
         List<SaleListing> listings = saleListingRepository.findAll(spec);
-        Assertions.assertEquals(2, listings.size());
+        Assertions.assertEquals(6, listings.size());
         Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
     }
@@ -434,7 +406,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(4, total);
+        Assertions.assertEquals(8, total);
     }
 
     /**
@@ -520,7 +492,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(2, total);
+        Assertions.assertEquals(6, total);
 
         Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
@@ -576,7 +548,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(2, total);
+        Assertions.assertEquals(6, total);
 
         Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
@@ -605,7 +577,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(2, total);
+        Assertions.assertEquals(6, total);
 
         Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
@@ -636,8 +608,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(2, total);
 
-        Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(1).getBusiness().getId());
     }
 
     /**
@@ -663,7 +635,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(3, total);
+        Assertions.assertEquals(7, total);
 
         GetSaleListingDTO listing1 = listings.get(0);
         Assertions.assertTrue(listing1.getPrice() >= 15 && listing1.getPrice() <= 40);
@@ -723,8 +695,8 @@ class SaleListingServiceTest extends AbstractInitializer {
                 false,
                 null,
                 null,
-                "2021-10-20",
-                "2021-12-5",
+                "2021-12-20",
+                "2021-12-23",
                 "",
                 0
         );
@@ -735,8 +707,8 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(2, total);
 
-        Assertions.assertEquals("Second Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Third Product", listings.get(1).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
     }
 
     /**
@@ -762,7 +734,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(4, total);
+        Assertions.assertEquals(8, total);
 
         Assertions.assertEquals(10.00, listings.get(0).getPrice());
         Assertions.assertEquals(15.00, listings.get(1).getPrice());
@@ -793,12 +765,12 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(4, total);
+        Assertions.assertEquals(8, total);
 
         Assertions.assertEquals(30.00, listings.get(0).getPrice());
-        Assertions.assertEquals(20.00, listings.get(1).getPrice());
-        Assertions.assertEquals(15.00, listings.get(2).getPrice());
-        Assertions.assertEquals(10.00, listings.get(3).getPrice());
+        Assertions.assertEquals(30.00, listings.get(1).getPrice());
+        Assertions.assertEquals(30.00, listings.get(2).getPrice());
+        Assertions.assertEquals(30.00, listings.get(3).getPrice());
     }
 
     /**
@@ -824,12 +796,12 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(4, total);
+        Assertions.assertEquals(8, total);
 
-        Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Fourth Product", listings.get(1).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Third Product", listings.get(3).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Eighth Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Fifth Product", listings.get(1).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("First Product", listings.get(2).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Fourth Product", listings.get(3).getInventoryItem().getProduct().getName());
     }
 
     /**
@@ -855,12 +827,12 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(4, total);
+        Assertions.assertEquals(8, total);
 
         Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(2).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(3).getBusiness().getId());
+        Assertions.assertEquals(business2Id, listings.get(6).getBusiness().getId());
+        Assertions.assertEquals(business2Id, listings.get(7).getBusiness().getId());
     }
 
     /**
@@ -886,10 +858,10 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(4, total);
+        Assertions.assertEquals(8, total);
 
-        Assertions.assertEquals(business2Id, listings.get(0).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(1).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(0).getBusiness().getId());
+        Assertions.assertEquals(business2.getId(), listings.get(1).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(2).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(3).getBusiness().getId());
     }
@@ -917,12 +889,12 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(4, total);
+        Assertions.assertEquals(8, total);
 
         Assertions.assertEquals(business1.getId(), listings.get(0).getBusiness().getId());
         Assertions.assertEquals(business1.getId(), listings.get(1).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(2).getBusiness().getId());
-        Assertions.assertEquals(business2Id, listings.get(3).getBusiness().getId());
+        Assertions.assertEquals(business2Id, listings.get(6).getBusiness().getId());
+        Assertions.assertEquals(business2Id, listings.get(7).getBusiness().getId());
     }
 
     /**
@@ -948,7 +920,7 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(4, total);
+        Assertions.assertEquals(8, total);
 
         Assertions.assertEquals("First Product", listings.get(0).getInventoryItem().getProduct().getName());
         Assertions.assertEquals("Second Product", listings.get(1).getInventoryItem().getProduct().getName());
@@ -979,12 +951,12 @@ class SaleListingServiceTest extends AbstractInitializer {
         List<GetSaleListingDTO> listings = (List<GetSaleListingDTO>) response.get(0);
         long total = (long) response.get(1);
 
-        Assertions.assertEquals(4, total);
+        Assertions.assertEquals(8, total);
 
-        Assertions.assertEquals("Fourth Product", listings.get(0).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Third Product", listings.get(1).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("Second Product", listings.get(2).getInventoryItem().getProduct().getName());
-        Assertions.assertEquals("First Product", listings.get(3).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Eighth Product", listings.get(0).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Seventh Product", listings.get(1).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Sixth Product", listings.get(2).getInventoryItem().getProduct().getName());
+        Assertions.assertEquals("Fifth Product", listings.get(3).getInventoryItem().getProduct().getName());
     }
 
     /**
@@ -1260,7 +1232,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * not already starred it
      */
     @Test
-    void starSaleListing_successWhenNotStarred_OK(){
+    void starSaleListing_successWhenNotStarred_OK() {
         testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
         LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
         listing.setStarred(false);
@@ -1284,7 +1256,7 @@ class SaleListingServiceTest extends AbstractInitializer {
      * already starred it
      */
     @Test
-    void starSaleListing_successWhenAlreadyStarred_OK(){
+    void starSaleListing_successWhenAlreadyStarred_OK() {
         testUser = userRepository.findByEmail(testUser.getEmail()).get(0);
         LikedSaleListing listing = new LikedSaleListing(testUser, saleListing1);
         listing.setStarred(true);
@@ -1326,5 +1298,118 @@ class SaleListingServiceTest extends AbstractInitializer {
 
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> saleListingService.starSaleListing(45434, true, user));
+    }
+
+    /**
+     * Tests that getFeaturedSaleListings method only returns featured listings
+     */
+    @Test
+    void getFeaturedSaleListings_returnsOnlyFeaturedListings() {
+        List<GetSaleListingDTO> business1Listings = saleListingService.getFeaturedSaleListings(business1.getId(), testUser);
+        List<GetSaleListingDTO> business2Listings = saleListingService.getFeaturedSaleListings(business2Id, testUser);
+        Assertions.assertEquals(1, business1Listings.size());
+        Assertions.assertEquals(0, business2Listings.size());
+    }
+
+    /**
+     * Tests the successful case for featuring a sale listing when you have
+     * not already featured it (makes the sale listing featured)
+     */
+    @Test
+    void featureSaleListing_successWhenNotFeatured_OK() {
+        Assertions.assertFalse(saleListing2.isFeatured());
+
+        AppUserDetails user = new AppUserDetails(testAdmin);
+        saleListingService.featureSaleListing(saleListing2.getId(), business1.getId(), true, user);
+
+        saleListing1 = saleListingRepository.getOne(saleListing2.getId());
+        Assertions.assertTrue(saleListing2.isFeatured());
+    }
+
+    /**
+     * Tests the successful case for featuring a sale listing when you have
+     * already featured it (makes the sale listing no longer featured)
+     */
+    @Test
+    void featureSaleListing_successWhenAlreadyFeatured_OK() {
+        saleListing1.setFeatured(true);
+        saleListingRepository.save(saleListing1);
+        Assertions.assertTrue(saleListing1.isFeatured());
+
+        AppUserDetails user = new AppUserDetails(testAdmin);
+        saleListingService.featureSaleListing(saleListing1.getId(), business1.getId(), false, user);
+
+        saleListing1 = saleListingRepository.getOne(saleListing1.getId());
+        Assertions.assertFalse(saleListing1.isFeatured());
+    }
+
+    /**
+     * Tests that a NotAcceptableException is thrown when
+     * a someone tries featuring a sale listing to a nonexistent business.
+     */
+    @Test
+    void featureSaleListing_nonExistentBusiness_NotAcceptableException() {
+        Mockito.doThrow(new NotAcceptableException(""))
+                .when(businessService).checkBusiness(any(Integer.class));
+
+        AppUserDetails user = new AppUserDetails(testAdmin);
+        Integer saleListingID = saleListing1.getId();
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.featureSaleListing(saleListingID, 99, true, user));
+    }
+
+    /**
+     * Tests that a Forbidden Exception is thrown when someone tries featuring a sale listing
+     * for a business they are not an admin of
+     */
+    @Test
+    void featureSaleListing_notAdmin_ForbiddenException() {
+        Mockito.when(businessService.checkBusiness(business1.getId()))
+                .thenReturn(business1);
+
+        Mockito.doThrow(new ForbiddenException(""))
+                .when(businessService).checkUserCanDoBusinessAction(any(AppUserDetails.class), any(Business.class));
+        AppUserDetails user = new AppUserDetails(testUser);
+        Integer saleListingID = saleListing1.getId();
+        Integer businessID = business1.getId();
+        Assertions.assertThrows(ForbiddenException.class,
+                () -> saleListingService.featureSaleListing(saleListingID, businessID, true, user));
+    }
+
+    /**
+     * Tests that a Not Acceptable Exception is thrown when a user tries to feature a sale listing that
+     * does not exist
+     */
+    @Test
+    void featureSaleListing_invalidSaleListingID_NotAcceptableException() {
+        AppUserDetails user = new AppUserDetails(testAdmin);
+        Integer businessID = business1.getId();
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> saleListingService.featureSaleListing(99, businessID, true, user));
+    }
+
+    /**
+     * Tests that a Bad Request Exception is thrown when a user tries to feature a sale listing when they
+     * already have the max number of featured sale listings 5
+     */
+    @Test
+    void featureSaleListing_tooManyFeatured_BadRequestException() {
+        saleListing1.setFeatured(true);
+        saleListingRepository.save(saleListing1);
+        saleListing2.setFeatured(true);
+        saleListingRepository.save(saleListing2);
+        saleListing5.setFeatured(true);
+        saleListingRepository.save(saleListing5);
+        saleListing6.setFeatured(true);
+        saleListingRepository.save(saleListing6);
+        saleListing8.setFeatured(true);
+        saleListingRepository.save(saleListing8);
+
+        AppUserDetails user = new AppUserDetails(testAdmin);
+        Integer listingId = saleListing7.getId();
+        Integer businessID = business1.getId();
+        Assertions.assertThrows(BadRequestException.class,
+                () -> saleListingService.featureSaleListing(listingId, businessID, true, user));
     }
 }

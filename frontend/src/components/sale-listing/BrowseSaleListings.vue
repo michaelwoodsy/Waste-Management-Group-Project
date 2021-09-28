@@ -29,7 +29,7 @@
                        type="search"
                        @keyup.enter="checkInputs">
                 <div class="input-group-append">
-                  <button :class="{'btn-outline-secondary': !optionsShow, 'btn-secondary': optionsShow}" class="btn"
+                  <button :class="{'btn-secondary': !optionsShow, 'btn-danger': optionsShow}" class="btn"
                           data-target="#searchOptions" data-toggle="collapse" type="button"
                           @click="optionsShow = !optionsShow"
                   >
@@ -179,8 +179,8 @@
               </td>
               <td style="word-break: break-word; width: 35%">
                 {{ listing.inventoryItem.product.name }}<br>
-                <em class="bi" style="color: red"
-                    :class="{'bi-heart-fill': listing.userLikes, 'bi-heart': !listing.userLikes}"
+                <em :class="{'bi-heart-fill': listing.userLikes, 'bi-heart': !listing.userLikes}" class="bi"
+                    style="color: red"
                 /> {{ listing.likes }}
                 <span v-if="listing.moreInfo" style="font-size: small"><br/>{{ listing.moreInfo }}</span>
               </td>
@@ -226,6 +226,7 @@
       </div>
     </div>
 
+    <!-- Sale listing modal -->
     <div v-if="viewListingModal">
       <individual-sale-listing-modal :listing="listingToView"
                                      @update-listings="checkInputs"
@@ -245,6 +246,7 @@ import {Business, Images} from "@/Api";
 import IndividualSaleListingModal from "@/components/sale-listing/IndividualSaleListingModal";
 import Alert from "@/components/Alert";
 import LoginRequired from "@/components/LoginRequired";
+import $ from 'jquery'
 
 export default {
   name: "BrowseSaleListings.vue",
@@ -319,6 +321,15 @@ export default {
   },
   mounted() {
     this.search()
+    this.checkFeaturedListing()
+  },
+  watch: {
+    $route(val) {
+      // required if the user clicks on a featured listing from within this page
+      if (val.name === "browseListings") {
+        this.checkFeaturedListing()
+      }
+    }
   },
   computed: {
     /**
@@ -330,6 +341,28 @@ export default {
     }
   },
   methods: {
+    /**
+     * Check if a featured listing should be shown based on businessId and listingId query parameters.
+     */
+    async checkFeaturedListing() {
+      // Check if a listing is specified in query params
+      if (this.$route.query.businessId && this.$route.query.listingId) {
+
+        // get the featured listing
+        let res = await Business.getFeaturedListings(this.$route.query.businessId)
+        let featuredListing = res.data.find(listing => `${listing.id}` === `${this.$route.query.listingId}`)
+
+        // Add currency to the listing
+        let listings = await this.$root.$data.product.addSaleListingCurrencies(
+            [featuredListing], featuredListing.business.address.country)
+
+        // Set listing as being viewed
+        this.viewListing(listings[0])
+
+        window.setTimeout(() => {$('#viewListingModal').modal('show')}, 500)
+      }
+    },
+
     /**
      * Function is called by pagination component to make another call to the backend
      * to update the list of users that should be displayed
@@ -525,38 +558,39 @@ export default {
      */
     async search() {
       this.loading = true
-      await Business.searchSaleListings(
-          this.searchQuery,
-          this.fieldOptions[0].checked,
-          this.fieldOptions[1].checked,
-          this.fieldOptions[2].checked,
-          this.fieldOptions[3].checked,
-          this.priceLowerBound,
-          this.priceUpperBound,
-          this.closingDateLowerBound,
-          this.closingDateUpperBound,
-          this.page - 1,
-          this.orderBy)
-          .then(async (res) => {
-            this.listings = res.data[0]
-            this.listings = await this.$root.$data.product.addSaleListingCurrencies(this.listings)
-            this.totalCount = res.data[1]
-            this.error = null
-            this.loading = false
-          })
-          .catch((err) => {
-            this.error = err;
-            this.loading = false;
-          })
+      await Business.searchSaleListings({
+        searchQuery: this.searchQuery,
+        matchingProductName: this.fieldOptions[0].checked,
+        matchingBusinessName: this.fieldOptions[1].checked,
+        matchingBusinessLocation: this.fieldOptions[2].checked,
+        matchingBusinessType: this.fieldOptions[3].checked,
+        priceRangeLower: this.priceLowerBound,
+        priceRangeUpper: this.priceUpperBound,
+        closingDateLower: this.closingDateLowerBound,
+        closingDateUpper: this.closingDateUpperBound,
+        pageNumber: this.page - 1,
+        sortBy: this.orderBy
+      }).then(async (res) => {
+        this.listings = res.data[0]
+        this.listings = await this.$root.$data.product.addSaleListingCurrencies(this.listings)
+        this.totalCount = res.data[1]
+        this.error = null
+        this.loading = false
+      }).catch((err) => {
+        this.error = err;
+        this.loading = false;
+      })
     },
+  },
+  beforeRouteLeave: (nextRoute, curRoute, next) => {
+    // close all modals when leaving this page
+    // this.viewListingModal = false
+    $('.modal').modal('hide');
+    next()
   }
 }
 </script>
 
 <style scoped>
-
-.option-title {
-  font-size: 18px;
-}
 
 </style>

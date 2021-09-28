@@ -401,12 +401,12 @@
       "name": "Tinned Food Mart",
       "description": "The perfect place to purchase your non-perishables",
       "address": {
-        "streetNumber": "231",
-        "streetName": "Colombo Street",
-        "city": "Christchurch",
-        "region": "Canterbury",
-        "country": "New Zealand",
-        "postcode": "8021"
+        "streetNumber": "1600",
+        "streetName": "Pennsylvania Avenue",
+        "city": "Washington",
+        "region": "DC",
+        "country": "United States",
+        "postcode": "20500"
       },
       "businessType": "Accommodation and Food Services",
       "primaryAdministratorId": 2,
@@ -459,7 +459,7 @@
       "description": "Just regular old baked bean.",
       "manufacturer": "Watties",
       "recommendedRetailPrice": 1.99,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "WATT-400-BEANS",
@@ -467,7 +467,7 @@
       "description": "Just regular old baked bean.",
       "manufacturer": "Watties",
       "recommendedRetailPrice": 3.50,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "WATT-500-BEANS",
@@ -475,7 +475,7 @@
       "description": "Just regular old baked bean.",
       "manufacturer": "Watties",
       "recommendedRetailPrice": 3.99,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "WATT-250-SPAG",
@@ -483,7 +483,7 @@
       "description": "Spaghetti in a tomato sauce.",
       "manufacturer": "Watties",
       "recommendedRetailPrice": 1.50,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "DELM-400-TOM",
@@ -491,7 +491,7 @@
       "description": "Whole peeled italian tomatoes.",
       "manufacturer": "Delmaine",
       "recommendedRetailPrice": 3.95,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "TUNA-200g-LEMON",
@@ -499,7 +499,7 @@
       "description": "Tuna with lemon pepper flavour.",
       "manufacturer": "Sealord",
       "recommendedRetailPrice": 2.95,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "TUNA-200g-BASIL",
@@ -507,7 +507,7 @@
       "description": "Tuna with basil flavour.",
       "manufacturer": "Sealord",
       "recommendedRetailPrice": 2.95,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "TUNA-200g-SPRW",
@@ -515,7 +515,7 @@
       "description": "Tuna in fresh spring water.",
       "manufacturer": "Sealord",
       "recommendedRetailPrice": 2.95,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "TUNA-200g-BBQ",
@@ -523,7 +523,7 @@
       "description": "Tuna with BBQ flavour.",
       "manufacturer": "Sealord",
       "recommendedRetailPrice": 2.95,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "TUNA-200g-SATAY",
@@ -531,7 +531,7 @@
       "description": "Tuna with satay flavour.",
       "manufacturer": "Sealord",
       "recommendedRetailPrice": 2.95,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "WATT-TOMAT-SAUCE",
@@ -539,7 +539,7 @@
       "description": "Just your average tomato sauce.",
       "manufacturer": "Watties",
       "recommendedRetailPrice": 2.00,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "DELM-350-RKBEAN",
@@ -547,7 +547,7 @@
       "description": "Red kidney beans.",
       "manufacturer": "Delmaine",
       "recommendedRetailPrice": 2.50,
-      "businessId": 2
+      "businessId": 1
     },
     {
       "id": "PLUM-JAM",
@@ -555,7 +555,7 @@
       "description": "Homemade plum jam.",
       "manufacturer": "Layla",
       "recommendedRetailPrice": 2.99,
-      "businessId": 3
+      "businessId": 1
     },
     {
       "id": "STRAWBERRY-JAM",
@@ -563,7 +563,7 @@
       "description": "Homemade strawberry jam.",
       "manufacturer": "Layla",
       "recommendedRetailPrice": 2.99,
-      "businessId": 3
+      "businessId": 1
     },
     {
       "id": "GREEN-TOM-CHUTNEY",
@@ -571,7 +571,7 @@
       "description": "Home chutney made with local tomatoes.",
       "manufacturer": "Layla",
       "recommendedRetailPrice": 3.99,
-      "businessId": 3
+      "businessId": 1
     }
   ],
   "productImages": [
@@ -637,7 +637,7 @@
     },
     {
       "productId": "WATT-250-BEANS",
-      "businessId": 2,
+      "businessId": 1,
       "quantity": 5,
       "pricePerItem": 1.99,
       "totalPrice": 9.50,
@@ -648,7 +648,7 @@
     },
     {
       "productId": "WATT-250-BEANS",
-      "businessId": 2,
+      "businessId": 1,
       "quantity": 4,
       "pricePerItem": 1.99,
       "totalPrice": 9.50,
@@ -659,8 +659,8 @@
     },
     {
       "productId": "DELM-400-TOM",
-      "businessId": 2,
-      "quantity": 8,
+      "businessId": 1,
+      "quantity": 10,
       "pricePerItem": 3.99,
       "totalPrice": 30.00,
       "manufactured": "2021-04-09",
@@ -670,7 +670,7 @@
     },
     {
       "productId": "TUNA-200g-LEMON",
-      "businessId": 2,
+      "businessId": 1,
       "quantity": 4,
       "pricePerItem": 2.90,
       "totalPrice": 10.95,
@@ -681,7 +681,7 @@
     },
     {
       "productId": "TUNA-200g-SATAY",
-      "businessId": 2,
+      "businessId": 1,
       "quantity": 4,
       "pricePerItem": 2.90,
       "totalPrice": 10.95,
@@ -692,7 +692,7 @@
     },
     {
       "productId": "TUNA-200g-SPRW",
-      "businessId": 2,
+      "businessId": 1,
       "quantity": 4,
       "pricePerItem": 2.90,
       "totalPrice": 10.95,
@@ -703,7 +703,7 @@
     },
     {
       "productId": "PLUM-JAM",
-      "businessId": 3,
+      "businessId": 1,
       "quantity": 4,
       "pricePerItem": 2.90,
       "totalPrice": 10.95,
@@ -731,7 +731,7 @@
       "closes": "2021-08-21T23:59:00Z"
     },
     {
-      "businessId": 2,
+      "businessId": 1,
       "inventoryItemId": 5,
       "quantity": 4,
       "price": 15.00,
@@ -739,7 +739,7 @@
       "closes": "2021-08-21T23:59:00Z"
     },
     {
-      "businessId": 2,
+      "businessId": 1,
       "inventoryItemId": 5,
       "quantity": 4,
       "price": 15.00,
@@ -747,11 +747,35 @@
       "closes": "2021-08-21T23:59:00Z"
     },
     {
-      "businessId": 3,
+      "businessId": 1,
       "inventoryItemId": 9,
       "quantity": 4,
       "price": 10.00,
       "moreInfo": null,
+      "closes": "2021-08-21T23:59:00Z"
+    },
+    {
+      "businessId": 1,
+      "inventoryItemId": 1,
+      "quantity": 1,
+      "price": 7.00,
+      "moreInfo": "Seller may be willing to consider near offers",
+      "closes": "2021-08-21T23:59:00Z"
+    },
+    {
+      "businessId": 2,
+      "inventoryItemId": 4,
+      "quantity": 4,
+      "price": 10.00,
+      "moreInfo": null,
+      "closes": "2021-08-21T23:59:00Z"
+    },
+    {
+      "businessId": 2,
+      "inventoryItemId": 5,
+      "quantity": 1,
+      "price": 7.00,
+      "moreInfo": "Seller may be willing to consider near offers",
       "closes": "2021-08-21T23:59:00Z"
     }
   ],

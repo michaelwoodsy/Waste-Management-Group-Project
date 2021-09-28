@@ -12,27 +12,31 @@ export default {
         //This should always get a currency as the country with its currency being retrieved properly
         // is a requirement for creating a business
         const promise = await new Promise((resolve, reject) => {
-            axios.get(`https://restcountries.eu/rest/v2/name/${country}`)
+            axios.get(`https://restcountries.com/v3/name/${country}`)
                 .then((response) => {
                     if (response.status === 404) {
                         console.log(`No country found with name '${country}'`)
                         reject(promise)
                     }
                     if (response.data.length >= 1) {
-                        resolve(response)
+                        const currency = Object.entries(response.data[0].currencies)[0]
+                        resolve({
+                            "code": currency[0],
+                            "symbol": currency[1].symbol
+                        })
                     } else {
                         reject(response)
                     }
                 })
-                .catch((err) => {
-                    //console.log(err.response.data)
-                    reject(err)
+                .catch(() => {
+                    //Uses this data if the api fails or is down
+                    resolve({
+                        "code": "",
+                        "symbol": ""
+                    })
                 })
         })
-        return {
-            "code": promise.data[0].currencies[0].code,
-            "symbol": promise.data[0].currencies[0].symbol
-        }
+        return promise
     },
 
     /**
@@ -68,9 +72,14 @@ export default {
         }
 
         // Iterate over the countries and find the currency
+        let promises = []
         for (let country of Object.keys(currenciesToFind)) {
-            currenciesToFind[country] = await this.getCurrency(country)
+            promises.push(this.getCurrency(country).then((res) => {
+                currenciesToFind[country] = res
+            }))
         }
+        await Promise.all(promises)
+
 
         // Add the found currencies to the objects
         for (let product of products) {
@@ -88,6 +97,7 @@ export default {
     /**
      * Takes a list of inventory items, and adds currency object to them.
      * @param items List of inventory item objects.
+     * @param businessCurrency the currency the business is currently using
      * @returns {*[]} List of product objects with currency field added.
      */
     async addInventoryItemCurrencies(items, businessCurrency) {
@@ -103,9 +113,13 @@ export default {
         }
 
         // Iterate over the countries and find the currency
+        let promises = []
         for (let country of Object.keys(currenciesToFind)) {
-            currenciesToFind[country] = await this.getCurrency(country)
+            promises.push(this.getCurrency(country).then((res) => {
+                currenciesToFind[country] = res
+            }))
         }
+        await Promise.all(promises)
 
         // Add the found currencies to the objects
         for (let item of items) {
@@ -147,9 +161,13 @@ export default {
         }
 
         // Iterate over the countries and find the currency
+        let promises = []
         for (let country of Object.keys(currenciesToFind)) {
-            currenciesToFind[country] = await this.getCurrency(country)
+            promises.push(this.getCurrency(country).then((res) => {
+                currenciesToFind[country] = res
+            }))
         }
+        await Promise.all(promises)
 
         // Add the found currencies to the objects
         for (let listing of listings) {
@@ -157,5 +175,39 @@ export default {
         }
 
         return listings
+    },
+
+    /**
+     * Takes a list of purchases, and adds currency object to them.
+     * @param purchases List of Sale objects.
+     * @returns {*[]} List of Sale objects with currency field added.
+     */
+    async addPurchasesCurrencies(purchases) {
+        let currenciesToFind = {}
+        // Iterate over all products and find the currency countries that need to be found
+        for (let purchase of purchases) {
+            let currency = null;
+            if (purchase.currencyCountry) {
+                currency = purchase.currencyCountry
+            } else {
+                currency = purchase.business.address.country
+            }
+            if (!(currency in currenciesToFind)) {
+                currenciesToFind[currency] = null
+            }
+        }
+        // Iterate over the countries and find the currency
+        let promises = []
+        for (let country of Object.keys(currenciesToFind)) {
+            promises.push(this.getCurrency(country).then((res) => {
+                currenciesToFind[country] = res
+            }))
+        }
+        await Promise.all(promises)
+        // Add the found currencies to the objects
+        for (let purchase of purchases) {
+            purchase.currency = currenciesToFind[purchase.currencyCountry || purchase.business.address.country]
+        }
+        return purchases
     }
 }
