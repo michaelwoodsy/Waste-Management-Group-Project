@@ -89,7 +89,11 @@ public class SalesReportService {
         List<GetSaleDTO> resultList = new ArrayList<>();
 
         for (Sale sale : salesWithinPeriod) {
-            resultList.add(new GetSaleDTO(sale));
+            GetSaleDTO dto = new GetSaleDTO(sale);
+            if (sale.getReview() != null){
+                dto.attachReview(sale.getReview());
+            }
+            resultList.add(dto);
         }
 
         return List.of(new GetSalesReportDTO(periodStartDate, periodEndDate, resultList));
@@ -115,7 +119,11 @@ public class SalesReportService {
                 salesForDays.get(sale.getDateSold().toLocalDate()).add(new GetSaleDTO(sale));
             } else {
                 List<GetSaleDTO> sales = new ArrayList<>();
-                sales.add(new GetSaleDTO(sale));
+                GetSaleDTO dto = new GetSaleDTO(sale);
+                if (sale.getReview() != null){
+                    dto.attachReview(sale.getReview());
+                }
+                sales.add(dto);
                 salesForDays.put(sale.getDateSold().toLocalDate(), sales);
             }
         }

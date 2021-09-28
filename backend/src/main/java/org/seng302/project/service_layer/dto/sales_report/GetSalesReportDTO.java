@@ -40,7 +40,11 @@ public class GetSalesReportDTO {
     public void attachSales(List<Sale> sales) {
         List<GetSaleDTO> saleDTOS = new ArrayList<>();
         for (Sale sale : sales) {
-            saleDTOS.add(new GetSaleDTO(sale));
+            GetSaleDTO dto = new GetSaleDTO(sale);
+            if (sale.getReview() != null){
+                dto.attachReview(sale.getReview());
+            }
+            saleDTOS.add(dto);
         }
 
         this.sales = saleDTOS;
