@@ -40,13 +40,15 @@ class ReviewServiceTest extends AbstractInitializer {
     private Business testBusiness;
     private Sale sale;
     private Integer numOfReviews;
+    private Review testReview;
 
     @Autowired
     public ReviewServiceTest(UserRepository userRepository,
                              BusinessRepository businessRepository,
                              AddressRepository addressRepository,
                              ReviewRepository reviewRepository,
-                             SaleHistoryRepository saleHistoryRepository) {
+                             SaleHistoryRepository saleHistoryRepository,
+                             UserNotificationRepository userNotificationRepository) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
@@ -56,8 +58,8 @@ class ReviewServiceTest extends AbstractInitializer {
         this.businessService = Mockito.mock(BusinessService.class);
         this.businessNotificationRepository = Mockito.mock(
                 BusinessNotificationRepository.class);
-        this.reviewService = new ReviewService(businessService, userService,
-                this.reviewRepository, this.saleHistoryRepository, this.businessNotificationRepository);
+        this.reviewService = new ReviewService(businessService, userService, this.reviewRepository,
+                this.saleHistoryRepository, userNotificationRepository, this.businessNotificationRepository);
     }
 
     @BeforeEach
@@ -96,6 +98,7 @@ class ReviewServiceTest extends AbstractInitializer {
         }
         sale = reviews.get(0).getSale();
         reviewRepository.saveAll(reviews);
+        this.testReview = reviewRepository.findAllByBusinessId(testBusiness.getId()).get(0);
     }
 
     /**
@@ -227,6 +230,56 @@ class ReviewServiceTest extends AbstractInitializer {
         Assertions.assertEquals(numOfReviews + 1, reviews.size());
     }
 
+    /**
+     * Tests that responding to a review leaves a response message on the review
+     */
+    @Test
+    void respondToReview_success() {
+        Assertions.assertNull(testReview.getReviewResponse());
+
+        Integer businessId = testBusiness.getId();
+        Integer reviewId = testReview.getReviewId();
+        String response = "Thank you for the feedback";
+        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
+
+        reviewService.respondToReview(businessId, reviewId, response, appUser);
+
+        Assertions.assertEquals("Thank you for the feedback", testReview.getReviewResponse());
+    }
+
+    /**
+     * Tests that responding to a business review without being an admin
+     * results in a ForbiddenException
+     */
+    @Test
+    void respondToReview_notAdmin_forbiddenException() {
+        Mockito.when(businessService.checkBusiness(any(Integer.class))).thenReturn(testBusiness);
+        Mockito.doThrow(new ForbiddenException(""))
+                .when(businessService).checkUserCanDoBusinessAction(any(AppUserDetails.class), any(Business.class));
+
+        Integer businessId = testBusiness.getId();
+        Integer reviewId = testReview.getReviewId();
+        String response = "Thank you for the feedback";
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+
+        Assertions.assertThrows(ForbiddenException.class,
+                () -> reviewService.respondToReview(businessId, reviewId, response, appUser));
+    }
+
+    /**
+     * Tests that responding to a non-existent review
+     * for the business results in a NotAcceptableException
+     */
+    @Test
+    void respondToReview_nonExistentReview_notAcceptableException() {
+        Integer businessId = testBusiness.getId();
+        Integer reviewId = testReview.getReviewId();
+        String response = "Thank you for the feedback";
+        AppUserDetails appUser = new AppUserDetails(this.testUser);
+
+        Assertions.assertThrows(NotAcceptableException.class,
+                () -> reviewService.respondToReview(businessId, reviewId + 100, response, appUser));
+    }
     /**
      * Tests that leaving a review creates a notification
      * for the business
