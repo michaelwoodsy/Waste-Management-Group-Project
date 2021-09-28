@@ -1,7 +1,5 @@
 package org.seng302.project.service_layer.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 @DataJpaTest
 class ReviewServiceTest extends AbstractInitializer {
-    
+
     private final UserRepository userRepository;
     private final UserService userService;
     private final BusinessRepository businessRepository;
@@ -47,7 +45,7 @@ class ReviewServiceTest extends AbstractInitializer {
                              BusinessRepository businessRepository,
                              AddressRepository addressRepository,
                              ReviewRepository reviewRepository,
-                             SaleHistoryRepository saleHistoryRepository){
+                             SaleHistoryRepository saleHistoryRepository) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
@@ -144,7 +142,7 @@ class ReviewServiceTest extends AbstractInitializer {
      * a nonexistent business is provided
      */
     @Test
-    void getBusinessReviews_invalidBusiness_NotAcceptableException(){
+    void getBusinessReviews_invalidBusiness_NotAcceptableException() {
         Mockito.doThrow(new NotAcceptableException(""))
                 .when(businessService).checkBusiness(any(Integer.class));
 
@@ -161,7 +159,7 @@ class ReviewServiceTest extends AbstractInitializer {
     void newReview_notUser_forbiddenException() {
         Mockito.doThrow(new ForbiddenException(""))
                 .when(userService).checkForbidden(any(Integer.class),
-                any(AppUserDetails.class));
+                        any(AppUserDetails.class));
 
         Integer userId = testUser.getId();
         Integer purchaseId = sale.getSaleId();

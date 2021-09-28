@@ -1,16 +1,17 @@
 package gradle.cucumber.steps;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.service_layer.dto.review.GetReviewDTO;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -24,9 +25,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.ArrayList;
-
+import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -45,6 +45,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
     private final SaleHistoryRepository saleHistoryRepository;
     private final ReviewRepository reviewRepository;
     private final BusinessNotificationRepository businessNotificationRepository;
+    private final ObjectMapper objectMapper;
 
 
     private MockMvc mockMvc;
@@ -54,20 +55,23 @@ public class SaleReviewsSteps extends AbstractInitializer {
     private MvcResult result;
 
     private RequestBuilder createReviewRequest;
+    private Integer numberOfListings;
 
     @Autowired
     public SaleReviewsSteps(AddressRepository addressRepository,
-                              UserRepository userRepository,
-                              BusinessRepository businessRepository,
+                            UserRepository userRepository,
+                            BusinessRepository businessRepository,
                             SaleHistoryRepository saleHistoryRepository,
                             ReviewRepository reviewRepository,
-                            BusinessNotificationRepository businessNotificationRepository) {
+                            BusinessNotificationRepository businessNotificationRepository,
+                            ObjectMapper objectMapper) {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.reviewRepository = reviewRepository;
         this.businessNotificationRepository = businessNotificationRepository;
+        this.objectMapper = objectMapper;
     }
 
     @BeforeEach
@@ -101,12 +105,20 @@ public class SaleReviewsSteps extends AbstractInitializer {
         this.testBusiness.setPrimaryAdministratorId(testAdmin.getId());
         this.testBusiness = businessRepository.save(testBusiness);
 
+        List<SaleListing> listings = this.getSaleListings();
+        numberOfListings = listings.size();
+
         List<Review> reviews = new ArrayList<>();
-        //Make 6 reviews for the business
-        for (int i = 0; i < 6; i++) {
+        //Make 4 reviews for the business
+        for (SaleListing listing : listings) {
             Review review = new Review();
             review.setBusiness(testBusiness);
             review.setUser(testUser);
+            Sale sale = new Sale(listing);
+            sale.setBuyerId(testUser.getId());
+            sale.setBusiness(testBusiness);
+            sale = saleHistoryRepository.save(sale);
+            review.setSale(sale);
             reviews.add(review);
         }
         reviewRepository.saveAll(reviews);
@@ -132,7 +144,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
         newSale.setMoreInfo("Purchased sale listing");
 
         this.sale = saleHistoryRepository.save(newSale);
-        
+
     }
 
     @When("I leave a {int} star review with the comment {string}")
@@ -155,9 +167,9 @@ public class SaleReviewsSteps extends AbstractInitializer {
     @Then("A review is successfully left on the sale.")
     public void aReviewIsSuccessfullyLeftOnTheSale() {
         List<Review> retrievedReviews = reviewRepository.findAllByUserId(testUser.getId());
-        //6 from the constructor and 1 new one
-        Assertions.assertEquals(7, retrievedReviews.size());
-        Assertions.assertEquals("Purchased sale listing", retrievedReviews.get(6).getSale().getMoreInfo());
+        //number of listings from the constructor and 1 new one
+        Assertions.assertEquals(numberOfListings + 1, retrievedReviews.size());
+        Assertions.assertEquals("Purchased sale listing", retrievedReviews.get(numberOfListings).getSale().getMoreInfo());
     }
 
 
@@ -174,7 +186,7 @@ public class SaleReviewsSteps extends AbstractInitializer {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(user(new AppUserDetails(testUser)));
-        
+
     }
 
     @Then("An error message is returned to say that no star rating has been provided for the review.")
@@ -195,12 +207,12 @@ public class SaleReviewsSteps extends AbstractInitializer {
 
     @When("I view my purchase history.")
     public void iViewMyPurchaseHistory() {
-        
+
     }
 
     @Then("I can view the reviews left on my purchase history.")
     public void iCanViewTheReviewsLeftOnMyPurchaseHistory() {
-        
+
     }
 
     //AC4
@@ -213,10 +225,10 @@ public class SaleReviewsSteps extends AbstractInitializer {
     }
 
     @Then("I can view the reviews left on their business.")
-    public void iCanViewTheReviewsLeftOnTheirBusiness() throws Exception{
-        String response = result.getResponse().getContentAsString();
-        JSONArray reviews = new JSONArray(response);
-        Assertions.assertEquals(6, reviews.length());
+    public void iCanViewTheReviewsLeftOnTheirBusiness() throws Exception {
+        JSONObject response = objectMapper.readValue(result.getResponse().getContentAsString(), JSONObject.class);
+        List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
+        Assertions.assertEquals(numberOfListings, reviews.size());
     }
 
     //AC5
