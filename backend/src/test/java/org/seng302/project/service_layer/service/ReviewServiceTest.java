@@ -16,6 +16,7 @@ import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +99,7 @@ class ReviewServiceTest extends AbstractInitializer {
         }
         sale = reviews.get(0).getSale();
         reviewRepository.saveAll(reviews);
-        this.testReview = reviewRepository.findAllByBusinessId(testBusiness.getId()).get(0);
+        this.testReview = reviewRepository.findAllByBusinessId(testBusiness.getId(), Pageable.unpaged()).getContent().get(0);
     }
 
     /**
@@ -280,6 +281,7 @@ class ReviewServiceTest extends AbstractInitializer {
         Assertions.assertThrows(NotAcceptableException.class,
                 () -> reviewService.respondToReview(businessId, reviewId + 100, response, appUser));
     }
+
     /**
      * Tests that leaving a review creates a notification
      * for the business
