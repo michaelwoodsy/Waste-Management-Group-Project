@@ -184,11 +184,11 @@
       </div>
 
       <div v-if="userRole === 'defaultGlobalApplicationAdmin'" class="row d-flex justify-content-center">
-        <button v-if="isGAA" id="removeGAAButton" class="btn btn-block btn-danger"
+        <button v-if="isGAA" id="removeGAAButton" class="btn btn-block btn-outline-danger"
                 style="width: 15%;margin:0 20px; font-size: 14px;"
                 v-on:click="removeUserAdmin(userId)">Remove Admin Access
         </button>
-        <button v-else-if="!isDGAA" id="addGAAButton" class="btn btn-block btn-success"
+        <button v-else-if="!isDGAA" id="addGAAButton" class="btn btn-block btn-outline-danger"
                 style="width: 15%;margin:0 20px; font-size: 14px;"
                 v-on:click="addUserAdmin(userId)">Grant Admin Access
         </button>

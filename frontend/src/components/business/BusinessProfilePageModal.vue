@@ -16,7 +16,11 @@
     </div>
 
     <div class="modal-body">
-      <business-profile @close-modal="closeModal" :business="business"/>
+      <business-profile @close-modal="closeModal"
+                        :business="business"
+                        :is-business-admin="isBusinessAdmin"
+                        :is-primary-admin="isPrimaryAdmin"
+                        :read-only="false"/>
     </div>
 
   </div>
@@ -24,6 +28,7 @@
 
 <script>
 import BusinessProfile from "@/components/business/BusinessProfile";
+import userState from "@/store/modules/user"
 
 export default {
   name: "BusinessProfilePageModal",
@@ -37,6 +42,32 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+  },
+  data() {
+    return {
+      user: userState,
+    }
+  },
+  computed: {
+    /**
+     * Returns true if the logged in user is a business admin
+     */
+    isBusinessAdmin() {
+      for (const user of this.business.administrators) {
+        if (Number(user.id) === Number(this.user.state.userId)) {
+          return true
+        }
+      }
+      return false
+    },
+
+    /**
+     * Returns true if the currently logged in user is the primary admin of the business
+     */
+    isPrimaryAdmin() {
+      return (this.isBusinessAdmin &&
+          Number(this.business.primaryAdministratorId) === Number(this.user.state.userId)) || this.$root.$data.user.canDoAdminAction()
     }
   },
   methods: {
