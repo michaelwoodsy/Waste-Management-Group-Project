@@ -1,5 +1,6 @@
 package org.seng302.project.service_layer.service;
 
+import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.model.Review;
 import org.seng302.project.repository_layer.model.ReviewNotification;
 import org.seng302.project.repository_layer.model.Sale;
@@ -7,6 +8,7 @@ import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.BusinessNotificationRepository;
 import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
+import org.seng302.project.repository_layer.repository.UserNotificationRepository;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
@@ -26,6 +28,7 @@ public class ReviewService {
     private final UserService userService;
     private final ReviewRepository reviewRepository;
     private final SaleHistoryRepository saleHistoryRepository;
+    private final UserNotificationRepository userNotificationRepository;
     private final BusinessNotificationRepository businessNotificationRepository;
 
     @Autowired
@@ -33,11 +36,13 @@ public class ReviewService {
                          UserService userService,
                          ReviewRepository reviewRepository,
                          SaleHistoryRepository saleHistoryRepository,
+                         UserNotificationRepository userNotificationRepository,
                          BusinessNotificationRepository businessNotificationRepository){
         this.businessService = businessService;
         this.userService = userService;
         this.reviewRepository = reviewRepository;
         this.saleHistoryRepository = saleHistoryRepository;
+        this.userNotificationRepository = userNotificationRepository;
         this.businessNotificationRepository = businessNotificationRepository;
     }
 
@@ -100,5 +105,36 @@ public class ReviewService {
         saleHistoryRepository.save(purchase);
         ReviewNotification notification = new ReviewNotification(review);
         businessNotificationRepository.save(notification);
+    }
+
+    /**
+     * Creates a review on a sale (purchased sale listing)
+     *
+     * @param businessId id of business the review is from
+     * @param reviewId id of the review the response is being left on
+     * @param response the review response message
+     * @param appUser the user making the request
+     */
+    public void respondToReview(Integer businessId, Integer reviewId, String response,
+                          AppUserDetails appUser) {
+        logger.info("Request by business with ID {} to respond to a review with ID {}", businessId, reviewId);
+
+        Business business = businessService.checkBusiness(businessId);
+
+        businessService.checkUserCanDoBusinessAction(appUser, business);
+
+        Optional<Review> reviewOptional = reviewRepository.findById(reviewId);
+        if (reviewOptional.isEmpty()) {
+            String errorMessage = reviewId + " is not a valid review id.";
+            logger.warn(errorMessage);
+            throw new NotAcceptableException(errorMessage);
+        }
+
+        Review review = reviewOptional.get();
+        review.setReviewResponse(response);
+        reviewRepository.save(review);
+
+        ReviewReplyNotification reviewReplyNotification = new ReviewReplyNotification(review);
+        userNotificationRepository.save(reviewReplyNotification);
     }
 }
