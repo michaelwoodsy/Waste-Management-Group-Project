@@ -6,7 +6,7 @@
         <button v-if="showBack" class="btn btn-secondary" @click="$emit('back')">Back</button>
       </div>
       <div class="col text-center">
-        <h2>{{ business.name }}</h2>
+        <h2 class="mb-0">{{ business.name }}</h2>
       </div>
       <div class="col-2 text-right">
         <button id="closeModalButton" aria-label="Close" class="close" data-dismiss="modal" type="button" @click="$emit('close-modal')">

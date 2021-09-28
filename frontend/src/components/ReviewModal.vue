@@ -66,7 +66,7 @@ import Alert from "@/components/Alert";
 import $ from 'jquery'
 
 export default {
-  name: "Review",
+  name: "ReviewModal",
   components: {Alert},
   props: {
     sale: Object
@@ -106,7 +106,7 @@ export default {
       try {
         await User.leaveReview(userState.actor().id, this.sale.id, this.reviewForm)
         this.$emit('update-data')
-        this.$refs.close.click();
+        $('#reviewModal').modal('hide')
       } catch (error) {
         this.error = error.message
       }

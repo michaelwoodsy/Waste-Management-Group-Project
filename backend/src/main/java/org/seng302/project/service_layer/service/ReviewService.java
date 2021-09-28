@@ -1,5 +1,6 @@
 package org.seng302.project.service_layer.service;
 
+import net.minidev.json.JSONObject;
 import org.seng302.project.repository_layer.model.Review;
 import org.seng302.project.repository_layer.model.ReviewNotification;
 import org.seng302.project.repository_layer.model.Sale;
@@ -7,14 +8,20 @@ import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.BusinessNotificationRepository;
 import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
+import org.seng302.project.service_layer.dto.review.GetReviewDTO;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,17 +51,30 @@ public class ReviewService {
     /**
      * Method that gets all reviews left by Users for a particular Business
      * @param businessId The ID of the Business you wish to get reviews of
-     * @param user The User that is trying to access the reviews for this Business
+     * @param page page number to get
      * @return a List of all the reviews for this Business
      */
-    public List<Review> getBusinessReviews(Integer businessId,
-                                            AppUserDetails user){
+    public JSONObject getBusinessReviews(Integer businessId, Integer page) {
         logger.info("Request to get all sale reviews of a Business with ID: {}", businessId);
         // Get the business of the request
         businessService.checkBusiness(businessId);
 
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("created").descending());
+        Page<Review> reviewsPage = reviewRepository.findAllByBusinessId(businessId, pageable);
+        List<Review> reviews = reviewsPage.getContent();
+
+        List<GetReviewDTO> reviewDTOs = new ArrayList<>();
+        for (Review review : reviews) {
+            GetReviewDTO dto = new GetReviewDTO(review);
+            dto.attachSale(review.getSale());
+            reviewDTOs.add(dto);
+        }
+
         // Return a list of all the reviews belonging to the business (if there are none an empty list)
-        return reviewRepository.findAllByBusinessId(businessId);
+        JSONObject response = new JSONObject();
+        response.put("reviews", reviewDTOs);
+        response.put("totalReviews", reviewsPage.getTotalElements());
+        return response;
     }
 
 

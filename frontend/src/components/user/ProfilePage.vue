@@ -11,7 +11,7 @@
       <div class="row">
         <div class="col-2"/>
         <div class="col text-center">
-          <h2>{{ firstName }} {{ lastName }}
+          <h2 class="mb-0">{{ firstName }} {{ lastName }}
             <span v-if="isGAA && canDoAdminAction" class="badge badge-danger admin-badge">ADMIN</span>
             <span v-else-if="isDGAA && canDoAdminAction" class="badge badge-danger admin-badge">DGAA</span>
           </h2>
@@ -194,14 +194,16 @@
         </button>
       </div>
 
+      <hr/>
+
       <div class="row">
-        <div class="col text-left mb-2">
-          <h2>User's Images</h2>
+        <div class="col text-center">
+          <h4>User's Images</h4>
         </div>
       </div>
 
       <div v-if="images.length === 0">
-        <p class="text-center"><strong>This User has no Images</strong></p>
+        <p class="text-center">This user has no images.</p>
       </div>
       <div v-else class="row" style="height: 500px">
         <div class="col col-12 justify-content-center">
@@ -225,9 +227,11 @@
         </div>
       </div>
 
+      <hr/>
+
       <div class="row">
-        <div v-if="cards.length !== 0" class="col text-left mb-2">
-          <h2>User's Cards</h2>
+        <div v-if="cards.length !== 0" class="col text-center">
+          <h4>User's Cards</h4>
         </div>
       </div>
 

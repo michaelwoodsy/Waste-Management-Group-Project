@@ -94,6 +94,10 @@ export default {
     itemsPerPage: {
       type: Number,
       required: true
+    },
+    scrollToTopOnChange: {
+      type: Boolean,
+      default: true
     }
   },
 
@@ -161,7 +165,9 @@ export default {
      */
     changePage(page) {
       this.$emit('change-page', page)
-      this.scrollToTop()
+      if (this.scrollToTopOnChange) {
+        window.scrollTo(0, 0)
+      }
     },
 
     /**
@@ -172,13 +178,6 @@ export default {
         'page-item': true,
         'active': page === this.currentPage
       }
-    },
-
-    /**
-     * Lets user to scroll to top of window
-     */
-    scrollToTop() {
-      window.scrollTo(0, 0)
     }
   }
 }

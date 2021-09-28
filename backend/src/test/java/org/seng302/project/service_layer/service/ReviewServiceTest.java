@@ -1,20 +1,22 @@
 package org.seng302.project.service_layer.service;
 
+import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.seng302.project.AbstractInitializer;
 import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.*;
+import org.seng302.project.service_layer.dto.review.GetReviewDTO;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.ForbiddenException;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 @DataJpaTest
 class ReviewServiceTest extends AbstractInitializer {
+
     private final UserRepository userRepository;
     private final UserService userService;
     private final BusinessRepository businessRepository;
@@ -36,13 +39,14 @@ class ReviewServiceTest extends AbstractInitializer {
     private User testAdmin;
     private Business testBusiness;
     private Sale sale;
+    private Integer numOfReviews;
 
     @Autowired
     public ReviewServiceTest(UserRepository userRepository,
                              BusinessRepository businessRepository,
                              AddressRepository addressRepository,
                              ReviewRepository reviewRepository,
-                             SaleHistoryRepository saleHistoryRepository){
+                             SaleHistoryRepository saleHistoryRepository) {
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
@@ -74,21 +78,23 @@ class ReviewServiceTest extends AbstractInitializer {
         addressRepository.save(testBusiness.getAddress());
         businessRepository.save(testBusiness);
 
-        this.sale = new Sale();
-        sale.setBuyerId(testUser.getId());
-        saleHistoryRepository.save(sale);
+        List<SaleListing> listings = this.getSaleListings();
+        numOfReviews = listings.size();
 
         List<Review> reviews = new ArrayList<>();
-        //Make 6 reviews for the business
-        for (int i = 0; i < 6; i++) {
+        //Make 4 reviews for the business
+        for (SaleListing listing : listings) {
             Review review = new Review();
             review.setBusiness(testBusiness);
             review.setUser(testUser);
-            if ( i == 0) {
-                review.setSale(sale);
-            }
+            Sale sale = new Sale(listing);
+            sale.setBuyerId(testUser.getId());
+            sale.setBusiness(testBusiness);
+            sale = saleHistoryRepository.save(sale);
+            review.setSale(sale);
             reviews.add(review);
         }
+        sale = reviews.get(0).getSale();
         reviewRepository.saveAll(reviews);
     }
 
@@ -97,12 +103,12 @@ class ReviewServiceTest extends AbstractInitializer {
      * all expected reviews are returned
      */
     @Test
-    void getBusinessReviews_hasReviews_Success(){
+    void getBusinessReviews_hasReviews_Success() {
         Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         Integer businessId = this.testBusiness.getId();
-        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
-        List<Review> reviews = reviewService.getBusinessReviews(businessId, appUser);
-        Assertions.assertEquals(6, reviews.size());
+        JSONObject response = reviewService.getBusinessReviews(businessId, 0);
+        List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
+        Assertions.assertEquals(numOfReviews, reviews.size());
     }
 
     /**
@@ -110,12 +116,12 @@ class ReviewServiceTest extends AbstractInitializer {
      * all expected reviews are returned
      */
     @Test
-    void getBusinessReviews_hasNoReviews_Success(){
+    void getBusinessReviews_hasNoReviews_Success() {
         Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         reviewRepository.deleteAll();
         Integer businessId = this.testBusiness.getId();
-        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
-        List<Review> reviews = reviewService.getBusinessReviews(businessId, appUser);
+        JSONObject response = reviewService.getBusinessReviews(businessId, 0);
+        List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
         Assertions.assertEquals(0, reviews.size());
     }
 
@@ -124,12 +130,12 @@ class ReviewServiceTest extends AbstractInitializer {
      * all expected reviews are returned
      */
     @Test
-    void getBusinessReviews_notAdmin_Success(){
+    void getBusinessReviews_notAdmin_Success() {
         Assertions.assertNotEquals(this.testBusiness.getPrimaryAdministratorId(), this.testUser.getId());
         Integer businessId = this.testBusiness.getId();
-        AppUserDetails appUser = new AppUserDetails(this.testUser);
-        List<Review> reviews = reviewService.getBusinessReviews(businessId, appUser);
-        Assertions.assertEquals(6, reviews.size());
+        JSONObject response = reviewService.getBusinessReviews(businessId, 0);
+        List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
+        Assertions.assertEquals(numOfReviews, reviews.size());
     }
 
     /**
@@ -138,14 +144,13 @@ class ReviewServiceTest extends AbstractInitializer {
      * a nonexistent business is provided
      */
     @Test
-    void getBusinessReviews_invalidBusiness_NotAcceptableException(){
+    void getBusinessReviews_invalidBusiness_NotAcceptableException() {
         Mockito.doThrow(new NotAcceptableException(""))
                 .when(businessService).checkBusiness(any(Integer.class));
 
         Integer businessId = 99999;
-        AppUserDetails appUser = new AppUserDetails(this.testAdmin);
         Assertions.assertThrows(NotAcceptableException.class,
-                () -> reviewService.getBusinessReviews(businessId, appUser));
+                () -> reviewService.getBusinessReviews(businessId, 0));
     }
 
     /**
@@ -156,7 +161,7 @@ class ReviewServiceTest extends AbstractInitializer {
     void newReview_notUser_forbiddenException() {
         Mockito.doThrow(new ForbiddenException(""))
                 .when(userService).checkForbidden(any(Integer.class),
-                any(AppUserDetails.class));
+                        any(AppUserDetails.class));
 
         Integer userId = testUser.getId();
         Integer purchaseId = sale.getSaleId();
@@ -218,10 +223,8 @@ class ReviewServiceTest extends AbstractInitializer {
 
         List<Review> reviews = reviewRepository.findAllByUserId(testUser.getId());
 
-        //Expect 6 reviews from setup() plus the 1 from this test
-        Assertions.assertEquals(7, reviews.size());
-        Assertions.assertEquals(sale, reviews.get(6).getSale());
-        Assertions.assertEquals(reviews.get(6), sale.getReview());
+        //Expect number of reviews from setup() plus the 1 from this test
+        Assertions.assertEquals(numOfReviews + 1, reviews.size());
     }
 
     /**
@@ -248,6 +251,18 @@ class ReviewServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(purchaseId, reviewOnNotification.getSale().getSaleId());
 
+    }
+
+    /**
+     * Tests that trying to get reviews on second page returns an empty list as there are less than 10 reviews
+     */
+    @Test
+    void getBusinessReviews_secondPage_returnsEmptyList() {
+        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
+        Integer businessId = this.testBusiness.getId();
+        JSONObject response = reviewService.getBusinessReviews(businessId, 1);
+        List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
+        Assertions.assertEquals(0, reviews.size());
     }
 
 }
