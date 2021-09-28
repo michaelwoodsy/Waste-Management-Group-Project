@@ -33,7 +33,7 @@ public class ReviewController {
     @ResponseStatus(HttpStatus.OK)
     public JSONObject getBusinessReviews(@PathVariable Integer businessId,
                                          @RequestParam(defaultValue = "0") Integer page){
-        return reviewService.getBusinessReviews(businessId);
+        return reviewService.getBusinessReviews(businessId, 0);
     }
 
     /**

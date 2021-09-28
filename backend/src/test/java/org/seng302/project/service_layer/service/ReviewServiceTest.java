@@ -39,6 +39,7 @@ class ReviewServiceTest extends AbstractInitializer {
     private User testAdmin;
     private Business testBusiness;
     private Sale sale;
+    private Integer numOfReviews;
 
     @Autowired
     public ReviewServiceTest(UserRepository userRepository,
@@ -78,6 +79,7 @@ class ReviewServiceTest extends AbstractInitializer {
         businessRepository.save(testBusiness);
 
         List<SaleListing> listings = this.getSaleListings();
+        numOfReviews = listings.size();
 
         List<Review> reviews = new ArrayList<>();
         //Make 4 reviews for the business
@@ -104,9 +106,9 @@ class ReviewServiceTest extends AbstractInitializer {
     void getBusinessReviews_hasReviews_Success() {
         Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         Integer businessId = this.testBusiness.getId();
-        JSONObject response = reviewService.getBusinessReviews(businessId);
+        JSONObject response = reviewService.getBusinessReviews(businessId, 0);
         List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
-        Assertions.assertEquals(4, reviews.size());
+        Assertions.assertEquals(numOfReviews, reviews.size());
     }
 
     /**
@@ -118,7 +120,7 @@ class ReviewServiceTest extends AbstractInitializer {
         Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
         reviewRepository.deleteAll();
         Integer businessId = this.testBusiness.getId();
-        JSONObject response = reviewService.getBusinessReviews(businessId);
+        JSONObject response = reviewService.getBusinessReviews(businessId, 0);
         List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
         Assertions.assertEquals(0, reviews.size());
     }
@@ -131,9 +133,9 @@ class ReviewServiceTest extends AbstractInitializer {
     void getBusinessReviews_notAdmin_Success() {
         Assertions.assertNotEquals(this.testBusiness.getPrimaryAdministratorId(), this.testUser.getId());
         Integer businessId = this.testBusiness.getId();
-        JSONObject response = reviewService.getBusinessReviews(businessId);
+        JSONObject response = reviewService.getBusinessReviews(businessId, 0);
         List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
-        Assertions.assertEquals(4, reviews.size());
+        Assertions.assertEquals(numOfReviews, reviews.size());
     }
 
     /**
@@ -148,7 +150,7 @@ class ReviewServiceTest extends AbstractInitializer {
 
         Integer businessId = 99999;
         Assertions.assertThrows(NotAcceptableException.class,
-                () -> reviewService.getBusinessReviews(businessId));
+                () -> reviewService.getBusinessReviews(businessId, 0));
     }
 
     /**
@@ -221,8 +223,8 @@ class ReviewServiceTest extends AbstractInitializer {
 
         List<Review> reviews = reviewRepository.findAllByUserId(testUser.getId());
 
-        //Expect 4 reviews from setup() plus the 1 from this test
-        Assertions.assertEquals(5, reviews.size());
+        //Expect number of reviews from setup() plus the 1 from this test
+        Assertions.assertEquals(numOfReviews + 1, reviews.size());
     }
 
     /**
@@ -249,6 +251,18 @@ class ReviewServiceTest extends AbstractInitializer {
 
         Assertions.assertEquals(purchaseId, reviewOnNotification.getSale().getSaleId());
 
+    }
+
+    /**
+     * Tests that trying to get reviews on second page returns an empty list as there are less than 10 reviews
+     */
+    @Test
+    void getBusinessReviews_secondPage_returnsEmptyList() {
+        Assertions.assertEquals(this.testBusiness.getPrimaryAdministratorId(), this.testAdmin.getId());
+        Integer businessId = this.testBusiness.getId();
+        JSONObject response = reviewService.getBusinessReviews(businessId, 1);
+        List<GetReviewDTO> reviews = (List<GetReviewDTO>) response.get("reviews");
+        Assertions.assertEquals(0, reviews.size());
     }
 
 }
