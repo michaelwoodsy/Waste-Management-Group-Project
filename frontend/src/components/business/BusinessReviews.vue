@@ -22,6 +22,15 @@
         </div>
       </div>
 
+      <pagination
+          :current-page.sync="page"
+          :items-per-page="10"
+          :total-items="totalReviews"
+          :scroll-to-top-on-change="false"
+          class="mx-auto"
+          @change-page="changePage"
+      />
+
     </div>
 
     <hr/>
@@ -33,16 +42,19 @@
 import {Business} from "@/Api";
 import Alert from "@/components/Alert";
 import Review from "@/components/business/Review";
+import Pagination from "@/components/Pagination";
 
 export default {
   name: "BusinessReviews",
-  components: {Review, Alert},
+  components: {Pagination, Review, Alert},
   props: {
     businessId: Number
   },
   data() {
     return {
       reviews: [],
+      totalReviews: 0,
+      page: 1,
       error: null
     }
   },
@@ -50,13 +62,25 @@ export default {
     await this.getReviews()
   },
   methods: {
+    /**
+     * Method to get all reviews for a business
+     */
     async getReviews() {
       try {
-        const res = await Business.getReviews(this.businessId)
-        this.reviews = res.data
+        const res = await Business.getReviews(this.businessId, this.page - 1)
+        this.reviews = res.data.reviews
+        this.totalReviews = res.data.totalReviews
       } catch (error) {
         this.error = error.message
       }
+    },
+    /**
+     * Method which makes request to get new page of reviews
+     * @param page page  number to change to
+     */
+    async changePage(page) {
+      this.page = page;
+      await this.getReviews()
     }
   }
 }

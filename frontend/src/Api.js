@@ -550,8 +550,13 @@ export const Business = {
      * Request to get a business' reviews
      *
      * @param businessId ID if the business to get reviews for
+     * @param page page number to get from backend
      */
-    getReviews: (businessId) => instance.get(`businesses/${businessId}/reviews`)
+    getReviews: (businessId, page) => instance.get(`businesses/${businessId}/reviews`, {
+        params: {
+            page
+        }
+    })
 };
 
 export const Card = {

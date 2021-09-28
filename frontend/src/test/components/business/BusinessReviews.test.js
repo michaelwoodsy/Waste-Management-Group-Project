@@ -20,17 +20,25 @@ const reviews = [
 describe("Tests for the BusinessReviews component", () => {
 
     beforeEach(() => {
+        Business.getReviews.mockResolvedValue({
+            data: {
+                reviews: reviews,
+                totalReviews: reviews.length
+            }
+        })
         wrapper = shallowMount(BusinessReviews, {
             propsData: {
                 businessId: 1
             }
         })
-        Business.getReviews.mockResolvedValue({data: reviews})
     })
 
-    test("Reviews are obtained when getReviews is called", async () => {
-        await wrapper.vm.getReviews()
-        await wrapper.vm.$nextTick()
+    afterEach(() => {
+        jest.resetAllMocks()
+    })
+
+    test("Reviews are obtained when mounted", async () => {
+        expect(Business.getReviews).toHaveBeenCalledTimes(1) // called when mounted
         expect(wrapper.vm.$data.reviews.length).toStrictEqual(1)
     })
 
@@ -41,6 +49,13 @@ describe("Tests for the BusinessReviews component", () => {
         await wrapper.vm.getReviews()
         await wrapper.vm.$nextTick()
         expect(wrapper.vm.$data.error).toStrictEqual("This is an error")
+    })
+
+    test("Changing page makes request for new page", async () => {
+        await wrapper.vm.changePage(2)
+        await wrapper.vm.$nextTick()
+        expect(Business.getReviews).toHaveBeenCalledTimes(2) // called once when mounted and once when page changed
+        expect(wrapper.vm.$data.page).toStrictEqual(2)
     })
 
 })
