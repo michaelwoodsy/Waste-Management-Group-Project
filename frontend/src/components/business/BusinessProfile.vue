@@ -25,24 +25,25 @@ readOnly:         Boolean, default true.
 
       <!-- Display message if there are no featured listings -->
       <div v-if="featuredListings.length === 0">
-        <p class="text-center" id="featuredListingText">This business has no featured listings.</p>
+        <p id="featuredListingText" class="text-center">This business has no featured listings.</p>
       </div>
 
       <!-- Otherwise, display featured listings in carousel -->
       <div v-else class="row">
         <div class="col-12 col-md-12 col-lg-6 m-auto">
-          <div id="carouselExampleControls" class="carousel slide" data-ride="carousel" v-bind:key="this.featuredListings.length">
+          <div id="carouselExampleControls" v-bind:key="this.featuredListings.length" class="carousel slide"
+               data-ride="carousel">
 
             <!-- Carousel items -->
             <div class="carousel-inner">
-              <div class="carousel-item p-3"
-                   :class="{active: listing === featuredListings[0]}"
-                   v-for="listing in featuredListings"
+              <div v-for="listing in featuredListings"
                    v-bind:key="listing.id"
+                   :class="{active: listing === featuredListings[0]}"
+                   class="carousel-item p-3"
               >
                 <sale-listing
-                    style="height: 350px"
                     :listing-data="listing"
+                    style="height: 350px"
                     @close-modal="$emit('close-modal')"
                     @un-feature-listing="removeFromFeatured(listing.id)"
                 />
@@ -51,22 +52,22 @@ readOnly:         Boolean, default true.
 
             <!-- Carousel left button -->
             <a class="carousel-control-prev my-auto"
-               style="height: 20px;"
+               data-slide="prev"
                href="#carouselExampleControls"
                role="button"
-               data-slide="prev"
+               style="height: 20px;"
             >
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span aria-hidden="true" class="carousel-control-prev-icon"></span>
               <span class="sr-only">Previous</span>
             </a>
 
             <!-- Carousel right button -->
             <a class="carousel-control-next my-auto"
-               style="height: 20px;"
+               data-slide="next"
                href="#carouselExampleControls"
                role="button"
-               data-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+               style="height: 20px;">
+              <span aria-hidden="true" class="carousel-control-next-icon"></span>
               <span class="sr-only">Next</span>
             </a>
           </div>
@@ -92,71 +93,64 @@ readOnly:         Boolean, default true.
           </div>
         </div>
 
-        <div class="row justify-content-center mb-3">
-          <router-link :to="`businesses/${this.business.id}/listings`" class="btn btn-primary mx-1"
-                       data-dismiss="modal">
-            View Business' Listings
-          </router-link>
-          <div v-if="!readOnly && (isBusinessAdmin || user.canDoAdminAction())">
-            <router-link
-                :class="{'btn-primary': isBusinessAdmin, 'btn-outline-danger': !isBusinessAdmin && user.canDoAdminAction()}"
-                :to="`businesses/${this.business.id}/products`" class="btn mx-1">
-              View Product Catalogue
-            </router-link>
-            <router-link
-                :class="{'btn-primary': isBusinessAdmin, 'btn-outline-danger': !isBusinessAdmin && user.canDoAdminAction()}"
-                :to="`businesses/${this.business.id}/inventory`" class="btn mx-1">
-              View Inventory
-            </router-link>
-            <button v-if="isPrimaryAdmin || user.canDoAdminAction()"
+        <div class="row justify-content-center mb-3 row-cols-1 row-cols-lg-4">
+              <div class="col col-xl-2 mb-2">
+                <router-link :to="`businesses/${this.business.id}/listings`" class="btn btn-primary btn-block"
+                             data-dismiss="modal">
+                  Sale Listings
+                </router-link>
+              </div>
+              <div v-if="isBusinessAdmin || user.canDoAdminAction()" class="col col-xl-2 mb-2">
+                <router-link
+                    :class="{'btn-primary': isBusinessAdmin, 'btn-outline-danger': !isBusinessAdmin && user.canDoAdminAction()}"
+                    :to="`businesses/${this.business.id}/products`" class="btn btn-block">
+                  Product Catalogue
+                </router-link>
+              </div>
+              <div v-if="isBusinessAdmin || user.canDoAdminAction()" class="col col-xl-2 mb-2">
+                <router-link
+                    :class="{'btn-primary': isBusinessAdmin, 'btn-outline-danger': !isBusinessAdmin && user.canDoAdminAction()}"
+                    :to="`businesses/${this.business.id}/inventory`" class="btn btn-block">
+                  Inventory
+                </router-link>
+              </div>
+              <div v-if="isPrimaryAdmin || user.canDoAdminAction()" class="col col-xl-2 mb-2">
+                <button
                     :class="{'btn-primary': isPrimaryAdmin, 'btn-outline-danger': !isPrimaryAdmin && user.canDoAdminAction()}"
-                    class="btn mx-1" data-target="#addAdministrator"
-                    data-toggle="modal">
-              Add Administrator
-            </button>
-
-            <!-- Add admin modal -->
-            <div id="addAdministrator" aria-hidden="true" aria-labelledby="addAdministratorLabel" class="modal fade"
-                 role="dialog" tabindex="-1">
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 id="addAdministratorLabel" class="modal-title">Add Administrator</h5>
-                    <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    <div class="form-row">
-                      <!--    User ID    -->
-                      <label for="userId">
-                        <strong>User ID</strong>
-                      </label>
-                      <br/>
-                      <input id="userId" v-model="addAdministratorUserId"
-                             :class="{'form-control': true, 'is-invalid': addAdministratorError}"
-                             placeholder="ID of the user you want to make administrator"
-                             required style="width:100%" type="number">
-                      <!--   Error message for userId input   -->
-                      <span class="invalid-feedback text-left">{{ addAdministratorError }}</span>
-
-                      <div v-if="addAdministratorSuccess" class="col text-center mb-2">
-                        <p style="color: green">{{ addAdministratorSuccess }}</p>
-                      </div>
-
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button class="btn btn-block btn-danger" style="width: 40%; margin:0 10px"
-                            v-on:click="addAdministrator">
-                      Add Administrator
-                    </button>
-                    <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
-                  </div>
-                </div>
+                    :data-target="`#addAdmin${business.id}`" class="btn btn-block"
+                    data-toggle="collapse">
+                  Add Administrator
+                </button>
               </div>
             </div>
 
+        <div class="row justify-content-center">
+          <div :id="`addAdmin${business.id}`" class="collapse">
+            <div class="card shadow" style="max-width: 500px; width: 90vw">
+              <div class="card-header">
+                <span>Add Administrator</span>
+                <button :data-target="`#addAdmin${business.id}`" class="close" data-toggle="collapse">&times;</button>
+              </div>
+              <div class="card-body">
+                <div class="form-row">
+                  <div :class="{'is-invalid': addAdministratorError, 'is-valid': addAdministratorSuccess}"
+                       class="input-group">
+                    <input id="userId" v-model="addAdministratorUserId"
+                           :class="{'is-invalid': addAdministratorError, 'is-valid': addAdministratorSuccess}"
+                           class="form-control" min="1"
+                           placeholder="User ID" required type="number">
+                    <div class="input-group-append">
+                      <button class="btn btn-block btn-danger"
+                              v-on:click="addAdministrator">
+                        Add User
+                      </button>
+                    </div>
+                  </div>
+                  <span class="invalid-feedback">{{ addAdministratorError }}</span>
+                  <span class="valid-feedback">{{ addAdministratorSuccess }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -232,7 +226,8 @@ readOnly:         Boolean, default true.
                     {{ admin.firstName }} {{ admin.lastName }}
                   </router-link>
                 </th>
-                <td v-if="!readOnly && isPrimaryAdmin && (business.primaryAdministratorId !== admin.id)">
+                <td v-if="(!readOnly && isPrimaryAdmin && (business.primaryAdministratorId !== admin.id)) ||
+                user.canDoAdminAction() && (business.primaryAdministratorId !== admin.id)">
                   <p class="nav-link d-inline" style="font-size: 11px; color: red; cursor: pointer;"
                      v-on:click="removeAdministrator(admin.id, admin.firstName, admin.lastName)">Remove</p>
                 </td>
@@ -243,8 +238,8 @@ readOnly:         Boolean, default true.
         </div>
 
         <div class="row">
-          <div v-if="removedAdmin" class="col text-center text-success">
-            <p>{{ removedAdmin }}</p>
+          <div v-if="removedAdmin" class="col text-center">
+            <p class="text-primary">{{ removedAdmin }}</p>
           </div>
           <div v-if="error" class="col text-center text-danger">
             <p>{{ error }}</p>
@@ -302,6 +297,7 @@ import userState from "@/store/modules/user";
 import {Business, Images} from '@/Api';
 import SaleListing from "@/components/sale-listing/SaleListing";
 import BusinessReviews from "@/components/business/BusinessReviews";
+import $ from 'jquery'
 
 export default {
   name: "BusinessProfile",
@@ -339,7 +335,12 @@ export default {
       featuredListings: []
     }
   },
-  mounted () {
+  mounted() {
+    $(`#addAdmin${this.business.id}`).on('hidden.bs.collapse', () => {
+      this.addAdministratorError = null
+      this.addAdministratorSuccess = null
+      this.addAdministratorUserId = null
+    })
     this.getFeaturedListings()
   },
   methods: {
@@ -383,9 +384,8 @@ export default {
      * @param lastName last name of the user removing as admin
      */
     async removeAdministrator(userId, firstName, lastName) {
-
       try {
-        await Business.removeAdministrator(this.$route.params.businessId, userId)
+        await Business.removeAdministrator(Number(this.business.id), userId)
         this.removedAdmin = `Removed ${firstName} ${lastName} from administering business`
         //Reload the data
         this.$emit('update-data')
@@ -403,18 +403,18 @@ export default {
     async addAdministrator() {
       this.addAdministratorError = null
       this.addAdministratorSuccess = null
-      if (this.addAdministratorUserId === null) {
-        this.addAdministratorError = "Please enter a User ID"
-      }
-      try {
-        await Business.addAdministrator(Number(this.business.id), Number(this.addAdministratorUserId))
-        this.addAdministratorSuccess = `Added user with id ${this.addAdministratorUserId} to administrators of business with id ${this.businessId}`
-        //Reload the data
-        this.$emit('update-data')
-      } catch (err) {
-        this.addAdministratorError = err.response
-            ? err.response.data.slice(err.response.data.indexOf(":") + 2)
-            : err
+      if (this.addAdministratorUserId === null || this.addAdministratorUserId < 1) {
+        this.addAdministratorError = "Please enter a valid User ID (must be greater than 0)"
+      } else {
+        try {
+          await Business.addAdministrator(Number(this.business.id), Number(this.addAdministratorUserId))
+          this.addAdministratorSuccess = `Added user with ID ${this.addAdministratorUserId} as business administrator`
+          //Reload the data
+          this.$emit('update-data')
+        } catch (err) {
+          let message = err.response ? err.response.data.slice(err.response.data.indexOf(":") + 2) : err
+          this.addAdministratorError = message.charAt(0).toUpperCase() + message.slice(1)
+        }
       }
     },
 

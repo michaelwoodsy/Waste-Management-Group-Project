@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -41,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-class ReviewControllerTest extends AbstractInitializer{
+class ReviewControllerTest extends AbstractInitializer {
 
     @Autowired
     private MockMvc mockMvc;
@@ -92,7 +93,7 @@ class ReviewControllerTest extends AbstractInitializer{
             Review review = new Review();
             review.setBusiness(testBusiness);
             review.setUser(testUser);
-            if ( i == 0) {
+            if (i == 0) {
                 review.setSale(sale);
             }
             reviews.add(review);
@@ -127,10 +128,11 @@ class ReviewControllerTest extends AbstractInitializer{
      */
     @Test
     void postReview_notLoggedIn_401() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders
+        RequestBuilder request = MockMvcRequestBuilders
                 .post("/users/{userId}/purchases/{purchaseId}/review",
-                        testUser.getId(), sale.getSaleId()))
-        .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+                        testUser.getId(), sale.getSaleId());
+
+        mockMvc.perform(request).andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
     /**
@@ -236,7 +238,7 @@ class ReviewControllerTest extends AbstractInitializer{
 
         RequestBuilder createReviewRequest = MockMvcRequestBuilders
                 .post("/users/{userId}/purchases/{purchaseId}/review",
-                    testUser.getId(), sale.getSaleId())
+                        testUser.getId(), sale.getSaleId())
                 .content(requestBody.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -317,10 +319,11 @@ class ReviewControllerTest extends AbstractInitializer{
      */
     @Test
     void respondToReview_notLoggedIn_401() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/businesses/{businessId}/reviews/{reviewId}/respond",
-                                testBusiness.getId(), testReview.getReviewId()))
-                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/businesses/{businessId}/reviews/{reviewId}/respond",
+                        testBusiness.getId(), testReview.getReviewId());
+
+        mockMvc.perform(request).andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
     /**
