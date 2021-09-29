@@ -303,7 +303,7 @@ public class SalesReportSteps extends AbstractInitializer {
                                                                                    Integer julySalesCount,
                                                                                    Integer augSalesCount) throws UnsupportedEncodingException, JSONException {
         String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
-        JSONArray sales = new JSONArray(contentAsString); //TODO: java.lang.String cannot be converted to JSONArray
+        JSONArray sales = new JSONArray(contentAsString);
 
         Assertions.assertEquals(juneSalesCount, sales.getJSONObject(0).getInt("purchaseCount"));
         Assertions.assertEquals(julySalesCount, sales.getJSONObject(1).getInt("purchaseCount"));
