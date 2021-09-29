@@ -131,16 +131,15 @@ Page for displaying the marketplace.
             </div>
           </div>
           <!-- Keyword Bubbles -->
-          <div class="keyword text-left">
-            <button
-                v-for="(keyword, index) in keywords"
-                :key="'keyword' + index"
-                class="btn btn-primary mr-2 mb-2">
-              <span>{{ keyword.name }}</span>
-              <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
-            </button>
+          <div class="form-group row ml-0">
+            <h4 class="float-left mr-2 mb-2" v-for="(keyword, index) in keywords" :key="'keyword' + index">
+              <span class="badge badge-primary">
+                {{ keyword.name }}
+              <span style="cursor: pointer" @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
+              </span>
+            </h4>
           </div>
-          <div v-if="keywords.length > 0" class="custom-control custom-switch m-2">
+          <div v-if="keywords.length > 0" class="form-group row custom-control custom-switch m-2">
             <input id="any-all-keyword-switch" v-model="keywordUnion" class="custom-control-input"
                    type="checkbox">
             <label class="custom-control-label" for="any-all-keyword-switch">Match All</label>
@@ -474,10 +473,6 @@ export default {
 
 .row {
   margin-bottom: 20px;
-}
-
-.keyword {
-  font-size: 16px;
 }
 
 </style>
