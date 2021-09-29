@@ -10,11 +10,12 @@ beforeEach(() => {
     wrapper = VueTestUtils.shallowMount(UserProfileLinks, {
         stubs: ['router-link', 'router-view'],
         computed: {
-            userProfileRoute() {
-                return `users/1`;
-            },
             actor() {
-                return "Tom"
+                return {
+                    id: 1,
+                    name: "Tom",
+                    type: "user"
+                }
             },
             actorName() {
                 return "Tom"
@@ -34,10 +35,7 @@ beforeEach(() => {
             },
             isActingAsUser() {
                 return true
-            },
-            editUserRoute() {
-                return ''
-            },
+            }
         },
         methods: {
             getPrimaryImageThumbnail() {

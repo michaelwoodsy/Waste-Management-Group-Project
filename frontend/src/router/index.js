@@ -5,7 +5,6 @@ import Landing from '../components/landing-page/Landing'
 import RegisterPage from "../components/user/RegisterPage";
 import LoginPage from "../components/LoginPage";
 import Home from "../components/Home";
-import ProfilePage from "../components/user/ProfilePage";
 import EditUserProfile from "../components/user/EditUserProfile";
 import BusinessProfilePage from "../components/business/BusinessProfilePage";
 import RegisterBusinessPage from "../components/business/RegisterBusinessPage";
@@ -20,6 +19,7 @@ import EditBusiness from "@/components/business/EditBusiness";
 import BrowseSaleListings from "@/components/sale-listing/BrowseSaleListings";
 import PasswordReset from "@/components/user/PasswordReset";
 import UserPurchasesPage from "@/components/user/UserPurchasesPage";
+import ProfilePage from "@/components/user/ProfilePage";
 
 const routes = [
     {

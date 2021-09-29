@@ -64,98 +64,89 @@ Page for displaying the marketplace.
 
       <!-- Div above results for ordering -->
       <div class="row form justify-content-center">
-        <div class="col form-group text-center">
-          <!-- Combobox and label for ordering -->
-          <label class="d-inline-block" for="order-select">Order By</label>
-          <select id="order-select"
-                  v-model="order"
-                  class="form-control ml-2 d-inline-block w-auto"
-                  @change="searchCards"
-          >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="title">Title</option>
-            <option value="location">Location</option>
-          </select>
-
-          <!-- Text for "showing x of x results -->
-          <showing-results-text
-              :items-per-page="resultsPerPage"
-              :page="page"
-              :total-count="totalCount"
-              class="ml-4"
-          />
-        </div>
-      </div>
-
-      <!-- Div above results for filtering by keywords -->
-      <div class="row form justify-content-center">
-        <div class="col form-group text-center">
-          <label class="d-inline-block" for="order-select">Filter By Keywords</label>
-          <div class="dropdown">
-            <!-- Keyword Input -->
-            <input id="keywordSearchValue" v-model="keywordValue"
-                   autocomplete="off"
-                   class="form-control ml-2 d-inline-block w-auto"
-                   maxlength="25" placeholder="Enter Keywords"
-                   required
-                   data-toggle="dropdown"
-                   style="margin-bottom: 2px"
-                   type="text"
-                   @click="showAutocomplete"
-                   @input="searchKeywords"
-                   @keyup.enter="setKeyword"/>
-
-            <!-- Autocomplete dropdown -->
-            <div id="autocompleteDropdown" class="dropdown-menu overflow-auto">
-              <!-- If no user input -->
-              <p v-if="keywordValue.length === 0"
-                 class="text-muted dropdown-item left-padding mb-0 disabled"
+        <div class="col-6 text-center">
+          <div class="form-group">
+            <div class="input-group">
+              <!-- Combobox and label for ordering -->
+              <div class="input-group-prepend">
+                <span class="input-group-text">Order By</span>
+              </div>
+              <select id="order-select"
+                      v-model="order"
+                      class="form-control"
+                      @change="searchCards"
               >
-                Start typing...
-              </p>
-              <!-- If no matches -->
-              <p v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
-                 class="text-muted dropdown-item left-padding mb-0 disabled"
-              >
-                No results found.
-              </p>
-              <!-- If there are matches -->
-              <a v-for="keyword in filteredKeywords" v-else
-                 :key="keyword.id"
-                 class="dropdown-item pointer left-padding"
-                 href="#"
-                 @click="setKeyword(keyword)">
-                <span>{{ keyword.name }}</span>
-              </a>
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="title">Title</option>
+                <option value="location">Location</option>
+              </select>
             </div>
           </div>
-          <!-- Checkbox to select whether all a cards must match all keywords -->
-          <span
-              class="custom-control custom-switch m-2">
-            <input id="any-all-keyword-switch" v-model="keywordUnion" class="custom-control-input" type="checkbox">
-            <label class="custom-control-label" for="any-all-keyword-switch">Match all</label>
-          </span>
-
-
+          <div class="form-group">
+            <div class="input-group dropdown">
+              <div class="input-group-prepend">
+                <label class="input-group-text">Filter By</label>
+              </div>
+              <!-- Autocomplete dropdown -->
+              <div id="autocompleteDropdown" class="dropdown-menu overflow-auto">
+                <!-- If no user input -->
+                <p v-if="keywordValue.length === 0"
+                   class="text-muted dropdown-item left-padding mb-0 disabled"
+                >
+                  Start typing...
+                </p>
+                <!-- If no matches -->
+                <p v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
+                   class="text-muted dropdown-item left-padding mb-0 disabled"
+                >
+                  No results found.
+                </p>
+                <!-- If there are matches -->
+                <a v-for="keyword in filteredKeywords" v-else
+                   :key="keyword.id"
+                   class="dropdown-item pointer left-padding"
+                   href="#"
+                   @click="setKeyword(keyword)">
+                  <span>{{ keyword.name }}</span>
+                </a>
+              </div>
+              <!-- Keyword Input -->
+              <input id="keywordSearchValue" v-model="keywordValue"
+                     autocomplete="off"
+                     class="form-control"
+                     data-toggle="dropdown" maxlength="25"
+                     placeholder="Enter Keywords"
+                     required
+                     type="text"
+                     @click="showAutocomplete"
+                     @input="searchKeywords"
+                     @keyup.enter="setKeyword"/>
+              <div v-if="keywords.length > 0" class="input-group-append">
+                <!-- Button to clear keyword filter -->
+                <button class="btn btn-danger" @click="clearFilter">
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
           <!-- Keyword Bubbles -->
-          <div class="keyword">
+          <div class="keyword text-left">
             <button
                 v-for="(keyword, index) in keywords"
                 :key="'keyword' + index"
-                class="btn btn-primary d-inline-block m-2">
+                class="btn btn-primary mr-2 mb-2">
               <span>{{ keyword.name }}</span>
               <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
             </button>
           </div>
-          <!-- Button to clear keyword filter -->
-          <button v-if="keywords.length > 0"
-                  class="btn btn-danger ml-5" @click="clearFilter">
-            Clear Keywords
-          </button>
+          <div v-if="keywords.length > 0" class="custom-control custom-switch m-2">
+            <input id="any-all-keyword-switch" v-model="keywordUnion" class="custom-control-input"
+                   type="checkbox">
+            <label class="custom-control-label" for="any-all-keyword-switch">Match All</label>
+          </div>
         </div>
       </div>
-
 
       <!-- Div with cards -->
       <div class="row row-cols-1 row-cols-lg-2">
@@ -166,14 +157,22 @@ Page for displaying the marketplace.
         </div>
       </div>
 
-      <!-- Pagination Links -->
-      <pagination
-          :current-page.sync="page"
-          :items-per-page="resultsPerPage"
-          :total-items="totalCount"
-          class="mx-auto"
-          @change-page="changePage"
-      />
+      <div class="text-center">
+        <!-- Text for "showing x of x results -->
+        <showing-results-text
+            :items-per-page="resultsPerPage"
+            :page="page"
+            :total-count="totalCount - expiredCardsLength"
+        />
+        <!-- Pagination Links -->
+        <pagination
+            :current-page.sync="page"
+            :items-per-page="resultsPerPage"
+            :total-items="totalCount - expiredCardsLength"
+            class="mx-auto mt-2"
+            @change-page="changePage"
+        />
+      </div>
 
     </div>
 
@@ -271,6 +270,14 @@ export default {
         }
       }
       return newCards
+    },
+    /**
+     * Returns the number of expired cards
+     *
+     * @returns {number} Number of expired cards
+     */
+    expiredCardsLength() {
+      return this.totalCount - this.filteredCards.length
     }
   },
   components: {
@@ -448,9 +455,9 @@ export default {
     /**
      * Helper function to make sure autocomplete dropdown is not hidden when clicked on
      */
-    showAutocomplete(){
+    showAutocomplete() {
       const dropdown = document.getElementById('autocompleteDropdown')
-      if(dropdown.classList.contains('show')){
+      if (dropdown.classList.contains('show')) {
         document.getElementById('keywordSearchValue').click()
       }
     },

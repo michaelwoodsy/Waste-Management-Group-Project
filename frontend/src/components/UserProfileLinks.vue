@@ -53,17 +53,18 @@
       </div>
 
       <!-- Profile and logout section -->
-      <div v-if="this.actor.type === 'business'">
-        <router-link :to="`/businesses/${this.actor.id}`" class="dropdown-item">Business Profile</router-link>
-        <router-link :to="productCatalogueRoute" class="dropdown-item">Product Catalogue</router-link>
-        <router-link :to="inventoryRoute" class="dropdown-item">Inventory</router-link>
-        <router-link :to="listingsRoute" class="dropdown-item">Listings</router-link>
-        <router-link :to="editBusinessRoute" class="dropdown-item">Edit Business</router-link>
+      <div v-if="actor.type === 'business'">
+        <router-link :to="`/businesses/${actor.id}`" class="dropdown-item">Business Profile</router-link>
+        <router-link :to="`businesses/${actor.id}/products`" class="dropdown-item">Product Catalogue</router-link>
+        <router-link :to="`businesses/${actor.id}/inventory`" class="dropdown-item">Product Inventory</router-link>
+        <router-link :to="`businesses/${actor.id}/listings`" class="dropdown-item">Sale Listings</router-link>
+        <router-link :to="`businesses/${actor.id}/edit`" class="dropdown-item">Edit Business</router-link>
       </div>
       <div v-else>
+        <router-link :to="`/users/${actor.id}/purchases`" class="dropdown-item">My Purchases</router-link>
         <router-link class="dropdown-item" to="/businesses">Create Business</router-link>
-        <router-link :to="userProfileRoute" class="dropdown-item">My Profile</router-link>
-        <router-link :to="editUserRoute" class="dropdown-item">Edit Profile</router-link>
+        <router-link :to="`users/${actor.id}`" class="dropdown-item">My Profile</router-link>
+        <router-link :to="`users/${actor.id}/edit`" class="dropdown-item">Edit Profile</router-link>
       </div>
       <div class="dropdown-divider"/>
       <router-link class="dropdown-item" to="/login" @click.native="logOut()">Logout</router-link>
@@ -78,36 +79,6 @@ import {Images} from "@/Api";
 export default {
   name: "UserProfileLinks",
   computed: {
-    /** Returns the users profile url **/
-    userProfileRoute() {
-      return `users/${this.$root.$data.user.state.userId}`;
-    },
-
-    /** Returns the product catalogue url **/
-    productCatalogueRoute() {
-      return `businesses/${this.actor.id}/products`;
-    },
-
-    /** Returns the inventory url **/
-    inventoryRoute() {
-      return `businesses/${this.actor.id}/inventory`;
-    },
-
-    /** Returns the listing url **/
-    listingsRoute() {
-      return `businesses/${this.actor.id}/listings`
-    },
-
-    /** Returns the listing url **/
-    editBusinessRoute() {
-      return `businesses/${this.actor.id}/edit`
-    },
-
-    /** Returns the listing url **/
-    editUserRoute() {
-      return `users/${this.$root.$data.user.state.userId}/edit`
-    },
-
     /**
      * Current actor
      * Returns {name, id, type}
