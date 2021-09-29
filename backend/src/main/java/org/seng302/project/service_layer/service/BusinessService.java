@@ -1,9 +1,6 @@
 package org.seng302.project.service_layer.service;
 
-import org.seng302.project.repository_layer.model.Address;
-import org.seng302.project.repository_layer.model.Business;
-import org.seng302.project.repository_layer.model.BusinessNotification;
-import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.BusinessSpecifications;
@@ -516,7 +513,24 @@ public class BusinessService {
         Business business = checkBusiness(businessId);
         checkUserCanDoBusinessAction(appUser, business);
 
-        return businessNotificationRepository.findAllByBusiness(business);
+        List<BusinessNotification> businessNotifications = businessNotificationRepository.findAllByBusiness(business);
+        List<BusinessNotification> returnList = new ArrayList<>();
+        for (var notification: businessNotifications){
+            if(notification.getClass() == ReviewNotification.class){
+                ReviewNotification notif = (ReviewNotification) notification;
+                notif.getReview().getSale().setReview(null);
+                notif.getReview().getSale().setBusiness(null);
+                notif.getReview().getBusiness().setAdministrators(Collections.emptyList());
+                notif.getReview().getUser().setBusinessesAdministered(Collections.emptyList());
+                notif.getBusiness().setAdministrators(Collections.emptyList());
+                returnList.add(notif);
+            }
+            else {
+                notification.getBusiness().setAdministrators(Collections.emptyList());
+                returnList.add(notification);
+            }
+        }
+        return returnList;
     }
 
     /**

@@ -3,7 +3,6 @@ package org.seng302.project.web_layer.controller;
 import net.minidev.json.JSONObject;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.BadRequestException;
-import org.seng302.project.repository_layer.model.Review;
 import org.seng302.project.service_layer.service.ReviewService;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.slf4j.Logger;

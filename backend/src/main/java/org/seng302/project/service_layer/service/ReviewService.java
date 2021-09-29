@@ -11,7 +11,6 @@ import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
 import org.seng302.project.service_layer.dto.review.GetReviewDTO;
 import org.seng302.project.repository_layer.repository.UserNotificationRepository;
-import org.seng302.project.service_layer.dto.review.GetReviewDTO;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
