@@ -408,12 +408,10 @@ export default {
 
       if (!this.valid) {
         this.msg['errorChecks'] = 'Please fix the shown errors and try again';
-        console.log('Please fix the shown errors and try again');
         this.submitting = false
         this.valid = true;//Reset the value
       } else {
         this.msg['errorChecks'] = '';
-        console.log('No Errors');
         //Send to server here
         await this.addUser();
       }

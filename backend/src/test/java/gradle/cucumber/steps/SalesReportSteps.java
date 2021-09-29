@@ -158,7 +158,6 @@ public class SalesReportSteps extends AbstractInitializer {
     public void the_sales_from_july_are_shown(Integer julySalesCount) throws Exception {
         String contentAsString = mockMvcResult.andReturn().getResponse().getContentAsString();
         JSONArray sales = new JSONArray(contentAsString);
-        System.out.println(sales.getString(0));
         GetSalesReportDTO report = objectMapper.readValue(sales.getString(0), GetSalesReportDTO.class);
         Assertions.assertEquals(julySalesCount, report.getSales().size());
     }

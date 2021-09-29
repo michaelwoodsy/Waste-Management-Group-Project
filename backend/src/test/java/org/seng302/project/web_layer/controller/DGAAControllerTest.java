@@ -35,7 +35,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
-public class DGAAControllerTest {
+class DGAAControllerTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -92,7 +92,7 @@ public class DGAAControllerTest {
      * Expect 200 response
      */
     @Test
-    public void testDGAAAddAdmin() throws Exception {
+    void testDGAAAddAdmin() throws Exception {
         testUser.setRole("user");
         testUserId = userRepository.save(testUser).getId();
 
@@ -116,7 +116,7 @@ public class DGAAControllerTest {
      * Expect 403 response
      */
     @Test
-    public void testNotDGAAAddAdmin() throws Exception {
+    void testNotDGAAAddAdmin() throws Exception {
 
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
                 .put("/users/{id}/makeadmin", testUserId)
@@ -137,7 +137,7 @@ public class DGAAControllerTest {
      * Expect a 406 response
      */
     @Test
-    public void testDGAAAddAdminNonexistentUser() throws Exception {
+    void testDGAAAddAdminNonexistentUser() throws Exception {
 
         if (userRepository.findById(128).isPresent()) {
             userRepository.deleteById(128);
@@ -163,7 +163,7 @@ public class DGAAControllerTest {
      * Expect 200 response
      */
     @Test
-    public void testDGAARevokeAdmin() throws Exception {
+    void testDGAARevokeAdmin() throws Exception {
         testUser.setRole("globalApplicationAdmin");
         testUserId = userRepository.save(testUser).getId();
 
@@ -188,7 +188,7 @@ public class DGAAControllerTest {
      * Expect 403 response
      */
     @Test
-    public void testNotDGAARevokeAdmin() throws Exception {
+    void testNotDGAARevokeAdmin() throws Exception {
         RequestBuilder putAdminRequest = MockMvcRequestBuilders
                 .put("/users/{id}/revokeadmin", testUserId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -209,7 +209,7 @@ public class DGAAControllerTest {
      * Expect a 406 response
      */
     @Test
-    public void testDGAARevokeAdminNonexistentUser() throws Exception {
+    void testDGAARevokeAdminNonexistentUser() throws Exception {
 
         if (userRepository.findById(128).isPresent()) {
             userRepository.deleteById(128);
@@ -234,7 +234,7 @@ public class DGAAControllerTest {
      * Expect 409 response
      */
     @Test
-    public void testDGAARevokeAdminSelf() throws Exception {
+    void testDGAARevokeAdminSelf() throws Exception {
         Integer dgaaId = userRepository.findByEmail(dgaaEmail).get(0).getId();
 
         RequestBuilder putAdminRequest = MockMvcRequestBuilders

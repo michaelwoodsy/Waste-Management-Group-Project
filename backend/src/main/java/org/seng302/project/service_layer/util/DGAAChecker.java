@@ -64,7 +64,7 @@ public class DGAAChecker {
      */
     public Boolean dgaaExists() {
         List<User> dgaaUsers = userRepository.findByRole("defaultGlobalApplicationAdmin");
-        return dgaaUsers.size() != 0;
+        return dgaaUsers.isEmpty();
     }
 
     /**

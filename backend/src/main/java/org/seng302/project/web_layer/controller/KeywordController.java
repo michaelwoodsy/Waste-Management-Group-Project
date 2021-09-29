@@ -73,7 +73,7 @@ public class KeywordController {
 
         // Check the user is a gaa
         if (!user.isGAA()) {
-            logger.warn(String.format("User %s attempted to delete a keyword but is not a GAA", user.getEmail()));
+            logger.warn("User {} attempted to delete a keyword but is not a GAA", user.getEmail());
             throw new ForbiddenDGAAActionException();
         }
 

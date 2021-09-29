@@ -184,8 +184,6 @@ public class KeywordManagementSteps extends AbstractInitializer {
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createCardDTO))
                 .with(user(new AppUserDetails(testUser)));
-        System.out.println(createCardDTO);
-        System.out.println(testUser);
 
         MvcResult result = mockMvc.perform(newCardRequest)
                 .andExpect(MockMvcResultMatchers.status().isCreated())

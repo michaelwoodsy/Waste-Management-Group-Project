@@ -159,7 +159,6 @@ export default {
       try {
         // create request function to be queued so the delete action can be undone
         let request = async () => {await User.deleteMessage(user.actingUserId(), messageId)}
-        console.log("HEREEREREERE\n\n\n")
         // register the request in the undo queue
         undo.queueMessageDelete(request, this.message)
         this.$emit('remove-message');
