@@ -76,11 +76,13 @@ Eg, <market-card @card-deleted="someMethod" ... />
         <p class="card-text">{{ cardData.description }}</p>
         <hr/>
         <!-- Keyword Bubbles -->
-        <button v-for="(keyword, index) in cardData.keywords"
+        <h4>
+          <span v-for="(keyword, index) in cardData.keywords"
                 :key="'keyword' + index"
-                class="btn btn-sm btn-primary mr-2">
+                class="mr-2 mb-2 badge badge-primary">
           {{ keyword.name }}
-        </button>
+        </span>
+        </h4>
 
         <hr/>
       </div>
@@ -96,9 +98,9 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
         <!-- Button to expand area to send a message to the creator -->
         <button v-if="!isCardCreator && actingAsUser"
+                :class="{'btn-outline-primary': !sendingMessage, 'btn-danger': sendingMessage}"
                 :data-target="'#cardMessage' + cardData.id"
                 class="btn btn-sm ml-3"
-                :class="{'btn-outline-primary': !sendingMessage, 'btn-danger': sendingMessage}"
                 data-toggle="collapse"
                 @click="clearMessage">
           <span v-if="sendingMessage">Cancel</span>
@@ -149,7 +151,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
     <div :id="'editCard' + cardData.id" :key="this.editCurrentCard" class="modal fade" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-body" v-if="this.editCurrentCard">
+          <div v-if="this.editCurrentCard" class="modal-body">
             <edit-card :card-id="cardData.id" @card-edited="refreshCards()"></edit-card>
           </div>
         </div>
@@ -157,12 +159,12 @@ Eg, <market-card @card-deleted="someMethod" ... />
     </div>
 
     <!-- Delete modal -->
-    <confirmation-modal :modal-id="`deleteModal${cardData.id}`"
-                        :modal-header="`Delete Card: ${cardData.title}`"
-                        modal-message="Do you really want to permanently delete this card?"
+    <confirmation-modal :modal-header="`Delete Card: ${cardData.title}`"
+                        :modal-id="`deleteModal${cardData.id}`"
+                        modal-confirm-colour="btn-danger"
                         modal-confirm-text="Delete"
                         modal-dismiss-text="Cancel"
-                        modal-confirm-colour="btn-danger"
+                        modal-message="Do you really want to permanently delete this card?"
                         @confirm="deleteCard"/>
 
   </div>

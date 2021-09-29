@@ -301,40 +301,49 @@ public class TestDataRunner {
             Optional<InventoryItem> testItemOptions = inventoryItemRepository.findById(jsonSaleListing.getAsNumber("inventoryItemId").intValue());
             if (testItemOptions.isPresent()) {
                 InventoryItem testItem = testItemOptions.get();
-                var testListing = new SaleListing(
-                        businessRepository.findById(jsonSaleListing.getAsNumber("businessId").intValue()).get(),
-                        testItem,
-                        jsonSaleListing.getAsNumber("price").doubleValue(),
-                        jsonSaleListing.getAsString("moreInfo"),
-                        LocalDateTime.parse(jsonSaleListing.getAsString("closes"), DateTimeFormatter.ISO_DATE_TIME),
-                        jsonSaleListing.getAsNumber("quantity").intValue()
-                );
-                var listing = saleListingRepository.save(testListing);
-                if (testListing.getId() == 1 || testListing.getId() == 2) {
-                    var user = userRepository.findById(1);
-                    user.ifPresent(value -> {
-                        var likedListing = new LikedSaleListing(value, listing);
-                        likedSaleListingRepository.save(likedListing);
-                        value.addLikedListing(likedListing);
-                        userRepository.save(value);
-                    });
+                Optional<Business> testBusinessOptions = businessRepository.findById(jsonSaleListing.getAsNumber("businessId").intValue());
+                if (testBusinessOptions.isPresent()) {
+                    Business testBusiness = testBusinessOptions.get();
+                    var testListing = new SaleListing(
+                            testBusiness,
+                            testItem,
+                            jsonSaleListing.getAsNumber("price").doubleValue(),
+                            jsonSaleListing.getAsString("moreInfo"),
+                            LocalDateTime.parse(jsonSaleListing.getAsString("closes"), DateTimeFormatter.ISO_DATE_TIME),
+                            jsonSaleListing.getAsNumber("quantity").intValue()
+                    );
+                    var listing = saleListingRepository.save(testListing);
+                    if (testListing.getId() == 1 || testListing.getId() == 2) {
+                        var user = userRepository.findById(1);
+                        user.ifPresent(value -> {
+                            var likedListing = new LikedSaleListing(value, listing);
+                            likedSaleListingRepository.save(likedListing);
+                            value.addLikedListing(likedListing);
+                            userRepository.save(value);
+                        });
 
-                    var user2 = userRepository.findById(2);
-                    user2.ifPresent(value -> {
-                        var likedListing = new LikedSaleListing(value, listing);
-                        likedSaleListingRepository.save(likedListing);
-                        value.addLikedListing(likedListing);
-                        userRepository.save(value);
-                    });
-                } else {
-                    //Test data for sales
-                    listing.getInventoryItem().getProduct().setCurrencyCountry(countries.get(listing.getId() - 2));
-                    Sale sale = new Sale(listing);
-                    sale.setDateSold(LocalDateTime.now().minusDays(80 - (listing.getId() * (long) 4)));
-                    sale = saleHistoryRepository.save(sale);
-                    List<Integer> ratingNumbers = List.of(1, 2, 3, 4, 5); //Used to get different review numbers
-                    Review review = new Review(sale, userRepository.findById(1).get(), ratingNumbers.get((listing.getId()-1)%5), "Was a really good product thanks!");
-                    reviewRepository.save(review);
+                        var user2 = userRepository.findById(2);
+                        user2.ifPresent(value -> {
+                            var likedListing = new LikedSaleListing(value, listing);
+                            likedSaleListingRepository.save(likedListing);
+                            value.addLikedListing(likedListing);
+                            userRepository.save(value);
+                        });
+                    } else {
+                        //Test data for sales
+                        listing.getInventoryItem().getProduct().setCurrencyCountry(countries.get(listing.getId() - 2));
+                        Sale sale = new Sale(listing);
+                        sale.setDateSold(LocalDateTime.now().minusDays(80 - (listing.getId() * (long) 4)));
+                        sale = saleHistoryRepository.save(sale);
+                        List<Integer> ratingNumbers = List.of(1, 2, 3, 4, 5); //Used to get different review numbers
+                        System.out.println(ratingNumbers.get((listing.getId()-1)%5));
+                        Optional<User> userOptional = userRepository.findById(1);
+                        if (userOptional.isPresent()) {
+                            User user = userOptional.get();
+                            Review review = new Review(sale, user, ratingNumbers.get((listing.getId()-1)%5), "");
+                            reviewRepository.save(review);
+                        }
+                    }
                 }
             }
         }

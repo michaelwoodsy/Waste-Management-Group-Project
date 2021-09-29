@@ -165,7 +165,6 @@ import Pagination from "@/components/Pagination";
 import {Business, Images} from "@/Api";
 import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 import LoginRequired from "@/components/LoginRequired";
-// import $ from "jquery";
 
 export default {
   name: "BusinessSearch",
@@ -250,6 +249,9 @@ export default {
         this.businesses = res.data[0]
         this.totalCount = res.data[1]
         this.loading = false;
+        if (this.businessType == null) {
+          this.businessType = 'Any type'
+        }
       } catch (error) {
         this.error = error;
         this.loading = false;

@@ -13,17 +13,18 @@
       <!-- Section -->
       <div class="form-group row">
         <label for="section"><strong>Section<span class="required">*</span></strong></label>
-          <select id="section" v-model="section" :class="{'form-control': true, 'is-invalid': msg.section}" >
-            <option value="ForSale">
-              For Sale
-            </option>
-            <option value="Wanted">
-              Wanted
-            </option>
-            <option value="Exchange">
-              Exchange
-            </option>
-          </select>
+        <select id="section" v-model="section" :class="{'form-control': true, 'is-invalid': msg.section}">
+          <option disabled hidden selected value>Please select one</option>
+          <option value="ForSale">
+            For Sale
+          </option>
+          <option value="Wanted">
+            Wanted
+          </option>
+          <option value="Exchange">
+            Exchange
+          </option>
+        </select>
         <span class="invalid-feedback">{{ msg.section }}</span>
       </div>
 
@@ -31,8 +32,8 @@
       <div class="form-group row">
         <label for="title"><strong>Card Title<span class="required">*</span></strong></label>
         <input id="title" v-model="title" :class="{'form-control': true, 'is-invalid': msg.title}"
-               placeholder="Enter the title"
-               required maxlength="255" type="text">
+               maxlength="255"
+               placeholder="Enter the title" required type="text">
         <span class="invalid-feedback">{{ msg.title }}</span>
       </div>
 
@@ -40,8 +41,8 @@
       <div class="form-group row">
         <label for="description"><strong>Description</strong></label>
         <textarea id="description" v-model="description" :class="{'form-control': true, 'is-invalid': false}"
-               placeholder="Enter the description"
-               required maxlength="255" type="text">
+                  maxlength="255"
+                  placeholder="Enter the description" required type="text">
         </textarea>
       </div>
 
@@ -54,45 +55,46 @@
         <!-- Keyword Input -->
         <input id="keywordValue" v-model="keywordValue"
                :class="{'form-control': true, 'is-invalid': msg.keywords}"
-               placeholder="Enter the Keywords"
-               required maxlength="25" type="text"
-               style="margin-bottom: 2px"
                autocomplete="off"
-               data-toggle="dropdown"
+               data-toggle="dropdown" maxlength="25" placeholder="Enter the Keywords"
+               required
+               style="margin-bottom: 2px"
+               type="text"
                @click="showAutocomplete"
                @input="searchKeywords"
                @keyup.space="addKeyword"
                @keyup.enter="setKeyword()"/>
         <!-- Autocomplete dropdown -->
-        <div class="dropdown-menu overflow-auto" id="selectKeywordDropdown">
+        <div id="selectKeywordDropdown" class="dropdown-menu overflow-auto">
           <!-- If no user input -->
-          <p class="text-muted dropdown-item left-padding mb-0 disabled"
-             v-if="keywordValue.length === 0"
+          <p v-if="keywordValue.length === 0"
+             class="text-muted dropdown-item left-padding mb-0 disabled"
           >
             Start typing...
           </p>
           <!-- If no matches -->
-          <p class="text-muted dropdown-item left-padding mb-0 disabled"
-             v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
+          <p v-else-if="filteredKeywords.length === 0 && keywordValue.length > 0"
+             class="text-muted dropdown-item left-padding mb-0 disabled"
           >
             No results found.
           </p>
           <!-- If there are matches -->
-          <a class="dropdown-item pointer left-padding"  href="#"
-             v-for="keyword in filteredKeywords"
-             v-else
+          <a v-for="keyword in filteredKeywords" v-else
              :key="keyword.id"
+             class="dropdown-item pointer left-padding"
+             href="#"
              @click="setKeyword(keyword.name)">
             <span>{{ keyword.name }}</span>
           </a>
         </div>
         <!-- Keyword Bubbles -->
-        <div class="keyword" v-for="(keyword, index) in keywords" style="padding: 2px"
-             :key="'keyword' + index">
-          <button class="btn btn-primary">
-            <span>{{  keyword  }}</span>
-            <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
-          </button>
+        <div class="mt-2">
+          <h4 class="float-left mr-2 mb-2" v-for="(keyword, index) in keywords" :key="'keyword' + index">
+              <span class="badge badge-primary">
+                {{ keyword }}
+                <span style="cursor: pointer" @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
+              </span>
+          </h4>
         </div>
         <span class="invalid-feedback">{{ msg.keywords }}</span>
       </div>
@@ -100,8 +102,12 @@
       <!-- Create Card button -->
       <div class="form-group row mb-0">
         <div class="btn-group" style="width: 100%">
-          <button id="cancelButton" ref="close" class="btn btn-secondary col-4" data-dismiss="modal" v-on:click="cancel=true" @click="close">Cancel</button>
-          <button id="createButton" class="btn btn-primary col-8" v-on:click="submit=true" @click="checkInputs">Create Card</button>
+          <button id="cancelButton" ref="close" class="btn btn-secondary col-4" data-dismiss="modal"
+                  @click="close" v-on:click="cancel=true">Cancel
+          </button>
+          <button id="createButton" class="btn btn-primary col-8" @click="checkInputs" v-on:click="submit=true">Create
+            Card
+          </button>
         </div>
         <!-- Show an error if required fields are missing -->
         <div v-if="msg.errorChecks" class="error-box">
@@ -148,11 +154,11 @@ export default {
      * Validate the section input
      * Must select one of the 3 available sections
      */
-    validateSection(){
-      if (this.section === '' || this.section === null){
+    validateSection() {
+      if (this.section === '' || this.section === null) {
         this.msg.section = 'Please select a section'
         this.valid = false
-      } else if (this.section === 'ForSale' || this.section === 'Wanted' || this.section === 'Exchange'){
+      } else if (this.section === 'ForSale' || this.section === 'Wanted' || this.section === 'Exchange') {
         this.msg.section = null
       } else {
         this.msg.section = 'Please select an appropriate section'
@@ -163,11 +169,11 @@ export default {
      * Validate the title input
      * Cannot be empty
      */
-    validateTitle(){
+    validateTitle() {
       if (this.title != null) {
         this.title = this.title.trim()
       }
-      if (this.title === '' || this.title === null){
+      if (this.title === '' || this.title === null) {
         this.msg.title = 'Please enter a title'
         this.valid = false
       } else {
@@ -178,7 +184,7 @@ export default {
     /**
      * Check all inputs are valid, if not show error message otherwise add card to marketplace
      */
-    checkInputs(){
+    checkInputs() {
       this.validateSection()
       this.validateTitle()
 
@@ -200,7 +206,7 @@ export default {
       for (const keyword of this.keywords) {
         const response = await Keyword.searchKeywords(keyword)
         //Filter to see if the keyword is already in the database
-        const filterKeywords = response.data.filter(function(indKeyword) {
+        const filterKeywords = response.data.filter(function (indKeyword) {
           return indKeyword.name === keyword;
         })
         //if keyword is not in database
@@ -247,11 +253,11 @@ export default {
     },
 
     /**
-    * Adds a keyword to the list of keywords
-    */
+     * Adds a keyword to the list of keywords
+     */
     addKeyword() {
       this.keywordValue = this.keywordValue.trim().toLowerCase()
-      if((this.keywordValue === '' || this.keywordValue === ' ')
+      if ((this.keywordValue === '' || this.keywordValue === ' ')
           || this.keywords.includes(this.keywordValue)) {
         this.keywordValue = '';
       }
@@ -275,12 +281,12 @@ export default {
     async searchKeywords() {
       if (this.keywordValue.length > 2) {
         await Keyword.searchKeywords(this.keywordValue)
-        .then((response) => {
-          this.filteredKeywords = response.data;
-        })
-        .catch((err) => {
-          this.showError(err)
-        })
+            .then((response) => {
+              this.filteredKeywords = response.data;
+            })
+            .catch((err) => {
+              this.showError(err)
+            })
       } else {
         this.filteredKeywords = []
       }
@@ -313,9 +319,9 @@ export default {
     /**
      * Helper function to make sure autocomplete dropdown is not hidden when clicked on
      */
-    showAutocomplete(){
+    showAutocomplete() {
       const dropdown = document.getElementById('selectKeywordDropdown')
-      if(dropdown.classList.contains('show')){
+      if (dropdown.classList.contains('show')) {
         document.getElementById('keywordValue').click()
       }
     },

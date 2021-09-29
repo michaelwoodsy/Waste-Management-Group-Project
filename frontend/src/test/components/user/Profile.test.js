@@ -1,10 +1,10 @@
 /**
- * Module for testing the ProfilePage.vue component
+ * Module for testing the Profile.vue component
  */
 
 import '@jest/globals'
 import {shallowMount} from "@vue/test-utils";
-import ProfilePage from "@/components/user/ProfilePage";
+import Profile from "@/components/user/Profile";
 import {User} from '@/Api'
 
 let wrapper
@@ -41,7 +41,7 @@ beforeAll(() => {
 
     User.getUserData.mockResolvedValue(userDataResponse)
 
-    wrapper = shallowMount(ProfilePage, {
+    wrapper = shallowMount(Profile, {
         data() {
             return {
                 stateRole: 'defaultGlobalApplicationAdmin'
