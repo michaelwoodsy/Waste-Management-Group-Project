@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * Model tests for business images
  */
 @SpringBootTest
-public class BusinessImageTest extends AbstractInitializer {
+class BusinessImageTest extends AbstractInitializer {
 
     private Business testBusiness;
 

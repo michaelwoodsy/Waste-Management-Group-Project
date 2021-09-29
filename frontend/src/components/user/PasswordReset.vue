@@ -162,10 +162,8 @@ export default {
       }
 
       if (!this.valid) {
-        console.log('Please fix the shown errors and try again');
         this.success = false
       } else {
-        console.log('No Errors');
         //Send to server here
         await this.changePassword()
       }
@@ -184,7 +182,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

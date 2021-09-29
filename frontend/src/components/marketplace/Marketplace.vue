@@ -324,7 +324,6 @@ export default {
      * Refreshes the card modal
      */
     refreshCards() {
-      console.log("Refreshing Cards...")
       this.createNewCard = false;
       this.searchCards()
     },

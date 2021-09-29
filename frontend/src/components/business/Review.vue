@@ -62,9 +62,7 @@ export default {
         }
       }
       if (primaryImage) {
-        console.log(primaryImage.thumbnailFilename)
         this.profileImage = Images.getImageURL(primaryImage.thumbnailFilename)
-        console.log(this.profileImage)
       } else {
         this.profileImage = Images.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
       }

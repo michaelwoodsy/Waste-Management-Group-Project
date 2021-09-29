@@ -16,7 +16,7 @@ import java.util.Optional;
  * Tests related to the InventoryItem class.
  */
 @SpringBootTest
-public class InventoryItemTest {
+class InventoryItemTest {
 
     @Autowired
     private InventoryItemRepository inventoryItemRepository;
@@ -39,7 +39,7 @@ public class InventoryItemTest {
      * Then checks all of the attributes of the new InventoryItem
      */
     @Test
-    public void createTestInventoryItem() {
+    void createTestInventoryItem() {
         Product testInventoryItemProduct = new Product("VALUE-420-BEANS", "Value Baked Beans - 420g can",
                 "Cheap Baked Beans", "", 1.1, 1);
 
@@ -61,7 +61,7 @@ public class InventoryItemTest {
      * Creates a test InventoryItem, and query's the repository to get the inventory item
      */
     @Test
-    public void testRepository() {
+    void testRepository() {
         Product testInventoryItemProduct= new Product("VALUE-420-BEANS", "Value Baked Beans - 420g can",
                 "Cheap Baked Beans", "", 1.1, 1);
 

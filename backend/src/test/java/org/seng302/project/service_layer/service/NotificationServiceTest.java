@@ -273,9 +273,11 @@ class NotificationServiceTest extends AbstractInitializer {
     @Test
     void readUserNotification_notAuthorized_throwsException() {
         AppUserDetails appUser = new AppUserDetails(otherUser);
+        Integer testUserId = testUser.getId();
+        Integer notificationId = testNotification.getId();
 
         Assertions.assertThrows(ForbiddenException.class, () ->
-                notificationService.readUserNotification(true, testUser.getId(), testNotification.getId(), appUser));
+                notificationService.readUserNotification(true, testUserId, notificationId, appUser));
     }
 
     /**
@@ -285,9 +287,10 @@ class NotificationServiceTest extends AbstractInitializer {
     @Test
     void readUserNotification_userNotFound_throwsException() {
         AppUserDetails appUser = new AppUserDetails(testUser);
+        Integer notificationId = testNotification.getId();
 
         Assertions.assertThrows(NotAcceptableException.class, () ->
-                notificationService.readUserNotification(true, 1000, testNotification.getId(), appUser));
+                notificationService.readUserNotification(true, 1000, notificationId, appUser));
     }
 
     /**
@@ -296,9 +299,10 @@ class NotificationServiceTest extends AbstractInitializer {
     @Test
     void readUserNotification_notificationNotFound_throwsException() {
         AppUserDetails appUser = new AppUserDetails(testUser);
+        Integer userId = testUser.getId();
 
         Assertions.assertThrows(NotAcceptableException.class, () ->
-                notificationService.readUserNotification(true, testUser.getId(), 1000, appUser));
+                notificationService.readUserNotification(true, userId, 1000, appUser));
     }
 
     /**
@@ -329,9 +333,10 @@ class NotificationServiceTest extends AbstractInitializer {
     @Test
     void readAdminNotification_notAuthorized_throwsException() {
         AppUserDetails appUser = new AppUserDetails(testUser);
+        Integer notificationId = testAdminNotification.getId();
 
         Assertions.assertThrows(ForbiddenSystemAdminActionException.class, () ->
-                notificationService.readAdminNotification(true, testAdminNotification.getId(), appUser));
+                notificationService.readAdminNotification(true, notificationId, appUser));
     }
 
     /**

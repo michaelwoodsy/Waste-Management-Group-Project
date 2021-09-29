@@ -296,15 +296,12 @@ export default {
 
       if (this.isUnder16YearsOld()) {
         this.msg['errorChecks'] = 'You must be at least 16 years old to register a business';
-        console.log('Please fix the shown errors and try again');
       } else if (!this.valid) {
         this.msg['errorChecks'] = 'Please fix the shown errors and try again';
-        console.log('Please fix the shown errors and try again');
         this.submitting = false
         this.valid = true;//Reset the value
       } else {
         this.msg['errorChecks'] = '';
-        console.log('No Errors');
         //Send to server here
         await this.addBusiness();
       }

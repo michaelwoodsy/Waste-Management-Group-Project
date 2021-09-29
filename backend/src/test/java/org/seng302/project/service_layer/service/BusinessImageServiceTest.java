@@ -171,10 +171,12 @@ class BusinessImageServiceTest extends AbstractInitializer {
      */
     @Test
     void makePrimaryImage_withNotAdmin_throwsException() {
+        Integer businessId = testBusiness.getId();
         var imageId = testImages.get(1).getId();
+        AppUserDetails userDetails = new AppUserDetails(testUser);
 
         Assertions.assertThrows(ForbiddenException.class,
-                () -> businessImageService.setPrimaryImage(testBusiness.getId(), imageId , new AppUserDetails(testUser)));
+                () -> businessImageService.setPrimaryImage(businessId, imageId , userDetails));
     }
 
     /**
@@ -184,9 +186,10 @@ class BusinessImageServiceTest extends AbstractInitializer {
     void makePrimaryImage_noBusinessFound_throwsException() {
         given(businessRepository.findById(1000)).willReturn(Optional.empty());
         var imageId = testImages.get(1).getId();
+        AppUserDetails businessAdmin =  new AppUserDetails(testUserBusinessAdmin);
 
         Assertions.assertThrows(NotAcceptableException.class,
-                () -> businessImageService.setPrimaryImage(1000, imageId , new AppUserDetails(testUserBusinessAdmin)));
+                () -> businessImageService.setPrimaryImage(1000, imageId , businessAdmin));
     }
 
     /**
@@ -194,10 +197,11 @@ class BusinessImageServiceTest extends AbstractInitializer {
      */
     @Test
     void makePrimaryImage_noImageFound_throwsException() {
-        var imageId = testImages.get(1).getId();
+       Integer businessId = testBusiness.getId();
+       AppUserDetails businessAdmin =  new AppUserDetails(testUserBusinessAdmin);
 
         Assertions.assertThrows(NotAcceptableException.class,
-                () -> businessImageService.setPrimaryImage(testBusiness.getId(), 1000 , new AppUserDetails(testUserBusinessAdmin)));
+                () -> businessImageService.setPrimaryImage(businessId, 1000 ,businessAdmin));
     }
 
     /**

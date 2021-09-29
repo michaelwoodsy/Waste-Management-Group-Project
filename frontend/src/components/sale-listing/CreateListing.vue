@@ -255,11 +255,9 @@ export default {
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
-        console.log(this.msg.errorChecks);
         this.valid = true;
       } else {
         this.msg.errorChecks = null;
-        console.log('No errors');
         this.addListing();
       }
     },
@@ -305,15 +303,13 @@ export default {
           || this.quantity === ''
           || this.quantity === null
           || Number(this.quantity) > 2147483647
-          || !/^([0-9]+([0-9]{0,2})?)?$/.test(this.quantity)) {
+          || !/^([0-9]+([0-9]{0,2})?)?$/.test(this.quantity)
+          || Number(this.quantity) > this.getMaxQuantity(this.selectedInventoryItem)) {
         this.msg.quantity = 'Please enter a valid quantity';
         this.valid = false;
       } else if (Number(this.quantity) <= 0) {
         this.msg.quantity = 'Please enter a quantity above 0'
         this.valid = false
-      } else if (Number(this.quantity) > this.getMaxQuantity(this.selectedInventoryItem)) {
-        this.msg.quantity = 'Please enter a valid quantity';
-        this.valid = false;
       } else {
         this.msg.quantity = null;
       }
