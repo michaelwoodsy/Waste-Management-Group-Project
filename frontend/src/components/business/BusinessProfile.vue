@@ -94,35 +94,32 @@ readOnly:         Boolean, default true.
         </div>
 
         <div class="row justify-content-center mb-3 row-cols-1 row-cols-lg-4">
-              <div class="col col-xl-2 mb-2">
-                <router-link :to="`businesses/${this.business.id}/listings`" class="btn btn-primary btn-block"
-                             data-dismiss="modal">
-                  Sale Listings
-                </router-link>
-              </div>
-              <div v-if="isBusinessAdmin || user.canDoAdminAction()" class="col col-xl-2 mb-2">
-                <router-link
-                    :class="{'btn-primary': isBusinessAdmin, 'btn-outline-danger': !isBusinessAdmin && user.canDoAdminAction()}"
-                    :to="`businesses/${this.business.id}/products`" class="btn btn-block">
-                  Product Catalogue
-                </router-link>
-              </div>
-              <div v-if="isBusinessAdmin || user.canDoAdminAction()" class="col col-xl-2 mb-2">
-                <router-link
-                    :class="{'btn-primary': isBusinessAdmin, 'btn-outline-danger': !isBusinessAdmin && user.canDoAdminAction()}"
-                    :to="`businesses/${this.business.id}/inventory`" class="btn btn-block">
-                  Inventory
-                </router-link>
-              </div>
-              <div v-if="isPrimaryAdmin || user.canDoAdminAction()" class="col col-xl-2 mb-2">
-                <button
-                    :class="{'btn-primary': isPrimaryAdmin, 'btn-outline-danger': !isPrimaryAdmin && user.canDoAdminAction()}"
-                    :data-target="`#addAdmin${business.id}`" class="btn btn-block"
-                    data-toggle="collapse">
-                  Add Administrator
-                </button>
-              </div>
-            </div>
+          <div class="col col-xl-2 mb-2">
+            <router-link :to="`businesses/${this.business.id}/listings`" class="btn btn-primary btn-block text-truncate"
+                         data-dismiss="modal">
+              Sale Listings
+            </router-link>
+          </div>
+          <div v-if="isBusinessAdmin || user.canDoAdminAction()" class="col col-xl-2 mb-2">
+            <router-link :to="`businesses/${this.business.id}/products`"
+                         class="btn btn-primary btn-block text-truncate">
+              Product Catalogue
+            </router-link>
+          </div>
+          <div v-if="isBusinessAdmin || user.canDoAdminAction()" class="col col-xl-2 mb-2">
+            <router-link :to="`businesses/${this.business.id}/inventory`"
+                         class="btn btn-primary btn-block text-truncate">
+              Inventory
+            </router-link>
+          </div>
+          <div v-if="isPrimaryAdmin || user.canDoAdminAction()" class="col col-xl-2 mb-2">
+            <button
+                :data-target="`#addAdmin${business.id}`" class="btn btn-primary btn-block text-truncate"
+                data-toggle="collapse">
+              Add Administrator
+            </button>
+          </div>
+        </div>
 
         <div class="row justify-content-center">
           <div :id="`addAdmin${business.id}`" class="collapse">
