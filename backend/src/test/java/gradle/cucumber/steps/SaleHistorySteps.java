@@ -6,7 +6,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +17,7 @@ import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.service_layer.dto.sales_report.GetSaleDTO;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,6 +33,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Configurable
 @AutoConfigureTestDatabase
 public class SaleHistorySteps extends AbstractInitializer {
 
@@ -41,13 +42,14 @@ public class SaleHistorySteps extends AbstractInitializer {
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
     private final SaleHistoryRepository saleHistoryRepository;
+    private final ReviewRepository reviewRepository;
+    private final UserNotificationRepository userNotificationRepository;
     private final ObjectMapper objectMapper;
 
     private User testUser;
     private Business testBusiness;
     private Sale testSale;
 
-    private RequestBuilder request;
     private MvcResult result;
 
     @Autowired
@@ -57,13 +59,17 @@ public class SaleHistorySteps extends AbstractInitializer {
             BusinessRepository businessRepository,
             SaleHistoryRepository saleHistoryRepository,
             ObjectMapper objectMapper,
-            WebApplicationContext webApplicationContext
+            WebApplicationContext webApplicationContext,
+            UserNotificationRepository userNotificationRepository,
+            ReviewRepository reviewRepository
     ) {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.objectMapper = objectMapper;
+        this.userNotificationRepository = userNotificationRepository;
+        this.reviewRepository = reviewRepository;
         this.mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
@@ -72,8 +78,9 @@ public class SaleHistorySteps extends AbstractInitializer {
 
     @BeforeEach
     @Autowired
-    public void setup(UserNotificationRepository userNotificationRepository) {
+    public void setup() {
         userNotificationRepository.deleteAll();
+        reviewRepository.deleteAll();
         saleHistoryRepository.deleteAll();
         userRepository.deleteAll();
         businessRepository.deleteAll();
@@ -113,7 +120,7 @@ public class SaleHistorySteps extends AbstractInitializer {
 
     @When("I make a request to view my sale history")
     public void i_make_a_request_to_view_my_sale_history() throws Exception {
-        request = MockMvcRequestBuilders
+        RequestBuilder request = MockMvcRequestBuilders
                 .get("/users/{userId}/purchases", testUser.getId())
                 .param("pageNumber", String.valueOf(0))
                 .param("sortBy", "")

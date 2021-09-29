@@ -1,5 +1,5 @@
 import '@jest/globals'
-import Review from "@/components/Review"
+import ReviewModal from "@/components/ReviewModal"
 import {shallowMount} from "@vue/test-utils"
 import {User} from "@/Api"
 import userState from '@/store/modules/user'
@@ -18,7 +18,7 @@ describe('Tests for the review component', () => {
 
     beforeEach(() => {
         jest.clearAllMocks()
-        wrapper = shallowMount(Review, {
+        wrapper = shallowMount(ReviewModal, {
             propsData: {
                 sale: sale
             }

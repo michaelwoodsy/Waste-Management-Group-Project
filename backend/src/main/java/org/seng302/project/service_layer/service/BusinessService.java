@@ -491,7 +491,8 @@ public class BusinessService {
      * @return Double between 1 and 5 for the average star rating, null for if the business has no ratings
      */
     public Double getAverageStarRating(Integer businessId) {
-        var reviews = reviewRepository.findAllByBusinessId(businessId);
+        var reviewsPage = reviewRepository.findAllByBusinessId(businessId, Pageable.unpaged());
+        var reviews = reviewsPage.getContent();
 
         //return null if there are no reviews
         if (reviews.isEmpty()) return null;
