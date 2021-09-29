@@ -2698,6 +2698,13 @@ paths:
           schema:
             type: integer
             example: 100
+        - name: page
+          in: query
+          description: page number to get from backend
+          required: true
+          schema:
+            type: integer
+            example: 1
       responses:
         '200':
           description: Request successful, a list of reviews (potentially empty) is returned
@@ -2880,6 +2887,7 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '406':
           $ref: '#/components/responses/NotAcceptableError'
+
   '/businesses/{businessId}/notifications':
     get:
       tags:
