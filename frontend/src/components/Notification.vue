@@ -56,7 +56,7 @@
           />
           <p v-if="data.review.reviewMessage" class="mt-2 mb-0"><strong>Their message:</strong>
             <br>
-            <i>{{data.review.reviewMessage}}</i></p>
+            <em>{{data.review.reviewMessage}}</em></p>
         </div>
 
         <!-- User Review Reply Notification Body -->
@@ -68,10 +68,10 @@
           />
           <p class="mt-2"><strong>Your message:</strong>
             <br>
-            <i>{{data.review.reviewMessage}}</i></p>
+            <em>{{data.review.reviewMessage}}</em></p>
           <p class="mb-0"><strong>Their reply:</strong>
             <br>
-            <i>{{data.review.reviewReply}}</i></p>
+            <em>{{data.review.reviewReply}}</em></p>
         </div>
 
       </div>
