@@ -73,7 +73,7 @@
             </div>
             <div v-else>
               <hr v-if="sale.review.reviewResponse"/>
-              <p class="font-weight-bold">business' Response:</p>
+              <p class="font-weight-bold">Business' Response:</p>
               <p>{{ sale.review.reviewResponse }}</p>
             </div>
           </div>
