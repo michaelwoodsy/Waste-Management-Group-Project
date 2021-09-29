@@ -53,21 +53,28 @@
             <p>{{ sale.review.reviewMessage }}</p>
           </div>
 
-          <!-- Form to leave a reply -->
-          <div v-if="isActingAsBusiness() && isBusinessAdmin()" id="reviewReplyForm">
-            <h5>Leave a reply</h5>
-            <div class="form-group row">
-              <div class="col">
-                <label for="reply">Message</label>
-                <textarea id="reply" v-model="reviewForm.reviewMessage" class="form-control"/>
+          <div v-if="sale.review">
+            <!-- Form to leave a reply -->
+            <div v-if="!sale.review.reviewResponse">
+              <div v-if="isActingAsBusiness() && isBusinessAdmin()" id="reviewReplyForm">
+                <h5>Leave a reply</h5>
+                <div class="form-group row">
+                  <div class="col">
+                    <label for="reply">Message</label>
+                    <textarea id="reply" v-model="replyForm.replyMessage" class="form-control"/>
+                    <span v-if="invalidReply" class="text-danger small"><br>Please enter a reply</span>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <button class="btn btn-primary" @click="checkReply">Leave Reply</button>
+                </div>
               </div>
             </div>
-            <div class="text-right">
-              <button class="btn btn-primary" @click="checkReply">Leave Reply</button>
+            <div v-else>
+              <hr v-if="sale.review.reviewResponse"/>
+              <p>{{ sale.review.reviewResponse }}</p>
             </div>
           </div>
-
-
         </div>
       </div>
     </div>
@@ -75,11 +82,10 @@
 </template>
 
 <script>
-import {User} from '@/Api'
+import {User, Business} from '@/Api'
 import userState from '@/store/modules/user'
 import Alert from "@/components/Alert";
 import $ from 'jquery'
-import {Business} from "../Api";
 
 export default {
   name: "ReviewModal",
@@ -99,6 +105,7 @@ export default {
         replyMessage: null
       },
       invalidRating: false,
+      invalidReply: false,
       error: null
     }
   },
@@ -154,7 +161,8 @@ export default {
      * Checks that a valid rating has been given
      */
     async checkReply() {
-      if (!this.replyForm.replyMessage.isEmpty()) {
+      this.invalidReply = this.replyForm.replyMessage === null || this.replyForm.replyMessage.length === 0
+      if (!this.invalidReply) {
         await this.leaveReply()
       }
     },
@@ -163,7 +171,7 @@ export default {
      */
     async leaveReply() {
       try {
-        await Business.leaveReviewResponse(this.sale.business.id, this.sale.review.id, this.replyForm.replyMessage)
+        await Business.leaveReviewResponse(this.sale.business.id, this.sale.review.reviewId, this.replyForm.replyMessage)
         this.$emit('update-data')
         $('#reviewModal').modal('hide')
       } catch (error) {
