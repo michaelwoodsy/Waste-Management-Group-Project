@@ -50,6 +50,7 @@
               />
             </div>
             <hr v-if="sale.review.reviewMessage"/>
+            <p class="font-weight-bold">Review Message:</p>
             <p>{{ sale.review.reviewMessage }}</p>
           </div>
 
@@ -72,6 +73,7 @@
             </div>
             <div v-else>
               <hr v-if="sale.review.reviewResponse"/>
+              <p class="font-weight-bold">business' Response:</p>
               <p>{{ sale.review.reviewResponse }}</p>
             </div>
           </div>

@@ -517,13 +517,15 @@ public class BusinessService {
         List<BusinessNotification> returnList = new ArrayList<>();
         for (var notification: businessNotifications){
             if(notification.getClass() == ReviewNotification.class){
-                ReviewNotification notif = (ReviewNotification) notification;
-                notif.getReview().getSale().setReview(null);
-                notif.getReview().getSale().setBusiness(null);
-                notif.getReview().getBusiness().setAdministrators(Collections.emptyList());
-                notif.getReview().getUser().setBusinessesAdministered(Collections.emptyList());
-                notif.getBusiness().setAdministrators(Collections.emptyList());
-                returnList.add(notif);
+                ReviewNotification reviewNotification = (ReviewNotification) notification;
+                //Need to empty objects so you dont get a stack overflow... dont mind this code below...
+                reviewNotification.getReview().getSale().setReview(null);
+                reviewNotification.getReview().getSale().setBusiness(null);
+                reviewNotification.getReview().getBusiness().setAdministrators(Collections.emptyList());
+                reviewNotification.getReview().getUser().setBusinessesAdministered(Collections.emptyList());
+                reviewNotification.getReview().getUser().setLikedSaleListings(Collections.emptyList());
+                reviewNotification.getBusiness().setAdministrators(Collections.emptyList());
+                returnList.add(reviewNotification);
             }
             else {
                 notification.getBusiness().setAdministrators(Collections.emptyList());
