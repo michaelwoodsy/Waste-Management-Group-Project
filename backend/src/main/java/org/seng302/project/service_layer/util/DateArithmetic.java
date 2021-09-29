@@ -12,6 +12,15 @@ import static java.util.Calendar.*;
 public final class DateArithmetic {
 
     /**
+     * Private DateArithmetic constructor to hide the implicit one
+     * SonarLint recommendation
+     */
+    private DateArithmetic() {
+        throw new IllegalStateException("DateArithmetic is a utility class and should not be instantiated");
+    }
+
+
+    /**
      * Calculates the difference between two dates in years.
      *
      * @see <a href="https://stackoverflow.com/questions/7906301/how-can-i-find-the-number-of-years-between-two-dates">

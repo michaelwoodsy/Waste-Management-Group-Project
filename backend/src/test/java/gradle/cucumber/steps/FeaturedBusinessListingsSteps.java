@@ -150,7 +150,6 @@ public class FeaturedBusinessListingsSteps extends AbstractInitializer {
         //Check that sale listings with index (0 - numListings-1) are now featured
         listings = saleListingRepository.findAllByBusinessId(testBusiness.getId());
         for (int i = 0; i < numListings; i++) {
-            System.out.println(i);
             Assertions.assertTrue(listings.get(i).isFeatured());
         }
 

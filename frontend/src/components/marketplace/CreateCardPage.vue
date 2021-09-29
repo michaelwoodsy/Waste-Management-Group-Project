@@ -190,11 +190,9 @@ export default {
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
-        console.log(this.msg.errorChecks);
         this.valid = true;
       } else {
         this.msg.errorChecks = null;
-        console.log('No errors');
         this.addCard()
       }
     },
@@ -301,12 +299,9 @@ export default {
      */
     setKeyword(keyword) {
       //If enter was pressed on the input box to automatically select the first keyword in the list
-      console.log(keyword)
-      console.log(this.filteredKeywords)
       if (keyword === undefined && this.filteredKeywords.length > 0) {
         keyword = this.filteredKeywords[0].name
       }
-      console.log(keyword)
       this.keywordValue = keyword
       this.addKeyword()
     },

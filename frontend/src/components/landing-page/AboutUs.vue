@@ -28,7 +28,3 @@ export default {
   name: "AboutUs"
 }
 </script>
-
-<style scoped>
-
-</style>

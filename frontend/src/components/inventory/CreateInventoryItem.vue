@@ -328,11 +328,9 @@ export default {
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
-        console.log(this.msg.errorChecks);
         this.valid = true;
       } else {
         this.msg.errorChecks = null;
-        console.log('No errors');
         this.addItem();
       }
     },

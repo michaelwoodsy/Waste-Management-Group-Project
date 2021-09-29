@@ -6,7 +6,9 @@
 
       <!--    Order By   -->
       <div class="overflow-auto">
-        <table aria-label="Table showing inventory items" class="table table-hover">
+        <table class="table table-hover"
+               aria-label="Table showing inventory items"
+        >
           <thead>
           <tr>
             <!--    Product Code    -->
@@ -471,7 +473,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

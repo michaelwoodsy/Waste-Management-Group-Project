@@ -98,7 +98,6 @@ public class UserRegisterSteps {
 
         String dateOfBirth = userMap.get(0).get("dateOfBirth");
 
-        //TODO: get this to use country from dataTable
         AddressDTO homeAddress = new AddressDTO(
                 "", "", "", "", "New Zealand", "");
 
@@ -140,7 +139,6 @@ public class UserRegisterSteps {
         String lastName = "User";
         String dateOfBirth = "2001-02-15";
 
-        //TODO: get this to use country from dataTable
         AddressDTO homeAddress = new AddressDTO(
                 "", "", "", "", "New Zealand", "");
 

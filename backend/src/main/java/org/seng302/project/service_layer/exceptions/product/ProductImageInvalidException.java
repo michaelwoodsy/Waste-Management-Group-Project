@@ -6,6 +6,6 @@ package org.seng302.project.service_layer.exceptions.product;
  */
 public class ProductImageInvalidException extends RuntimeException {
     public ProductImageInvalidException() {
-        super(String.format("ProductImageInvalidException: Image supplied is of invalid type"));
+        super("ProductImageInvalidException: Image supplied is of invalid type");
     }
 }
