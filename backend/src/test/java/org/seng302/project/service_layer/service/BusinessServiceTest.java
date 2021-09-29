@@ -24,6 +24,7 @@ import org.seng302.project.service_layer.exceptions.businessAdministrator.UserNo
 import org.seng302.project.service_layer.exceptions.register.UserUnderageException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -175,6 +176,8 @@ class BusinessServiceTest extends AbstractInitializer {
      */
     @Test
     void getBusiness() {
+        Mockito.when(reviewRepository.findAllByBusinessId(any(Integer.class), any(Pageable.class)))
+                .thenReturn(Page.empty());
 
         GetBusinessDTO returnedBusiness = businessService.getBusiness(testBusiness.getId());
 
@@ -595,8 +598,8 @@ class BusinessServiceTest extends AbstractInitializer {
      */
     @Test
     void getAverageStarRating_noRatings_returns_null() {
-        Mockito.when(reviewRepository.findAllByBusinessId(any(Integer.class)))
-                .thenReturn(Collections.emptyList());
+        Mockito.when(reviewRepository.findAllByBusinessId(any(Integer.class), any(Pageable.class)))
+                .thenReturn(Page.empty());
 
         Assertions.assertNull(businessService.getAverageStarRating(1));
     }
@@ -618,8 +621,8 @@ class BusinessServiceTest extends AbstractInitializer {
                 new Review(sale, user, 4, ""),
                 new Review(sale, user, 1, ""),
                 new Review(sale, user, 4, ""));
-        Mockito.when(reviewRepository.findAllByBusinessId(any(Integer.class)))
-                .thenReturn(reviews);
+        Mockito.when(reviewRepository.findAllByBusinessId(any(Integer.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(reviews));
 
         //Calculating what the star rating should be
         var total = 0.0;

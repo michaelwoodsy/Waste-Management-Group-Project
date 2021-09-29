@@ -3,7 +3,6 @@ package org.seng302.project.service_layer.dto.sales_report;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.seng302.project.repository_layer.model.ProductArchive;
-import org.seng302.project.repository_layer.model.Review;
 import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
 

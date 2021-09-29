@@ -11,7 +11,7 @@
       <div class="row">
         <div class="col-2"/>
         <div class="col text-center">
-          <h2>{{ firstName }} {{ lastName }}
+          <h2 class="mb-0">{{ firstName }} {{ lastName }}
             <span v-if="isGAA && canDoAdminAction" class="badge badge-danger admin-badge">ADMIN</span>
             <span v-else-if="isDGAA && canDoAdminAction" class="badge badge-danger admin-badge">DGAA</span>
           </h2>
@@ -184,24 +184,26 @@
       </div>
 
       <div v-if="userRole === 'defaultGlobalApplicationAdmin'" class="row d-flex justify-content-center">
-        <button v-if="isGAA" id="removeGAAButton" class="btn btn-block btn-danger"
+        <button v-if="isGAA" id="removeGAAButton" class="btn btn-block btn-outline-danger"
                 style="width: 15%;margin:0 20px; font-size: 14px;"
                 v-on:click="removeUserAdmin(userId)">Remove Admin Access
         </button>
-        <button v-else-if="!isDGAA" id="addGAAButton" class="btn btn-block btn-success"
+        <button v-else-if="!isDGAA" id="addGAAButton" class="btn btn-block btn-outline-danger"
                 style="width: 15%;margin:0 20px; font-size: 14px;"
                 v-on:click="addUserAdmin(userId)">Grant Admin Access
         </button>
       </div>
 
+      <hr/>
+
       <div class="row">
-        <div class="col text-left mb-2">
-          <h2>User's Images</h2>
+        <div class="col text-center">
+          <h4>User's Images</h4>
         </div>
       </div>
 
       <div v-if="images.length === 0">
-        <p class="text-center"><strong>This User has no Images</strong></p>
+        <p class="text-center">This user has no images.</p>
       </div>
       <div v-else class="row" style="height: 500px">
         <div class="col col-12 justify-content-center">
@@ -225,9 +227,11 @@
         </div>
       </div>
 
+      <hr/>
+
       <div class="row">
-        <div v-if="cards.length !== 0" class="col text-left mb-2">
-          <h2>User's Cards</h2>
+        <div v-if="cards.length !== 0" class="col text-center">
+          <h4>User's Cards</h4>
         </div>
       </div>
 
