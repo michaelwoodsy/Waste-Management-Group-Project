@@ -41,25 +41,4 @@ describe('RegisterBusinessPage component test', () => {
         expect(wrapper.find('span.error-msg').exists()).toBeTruthy()
     })
 
-
-    test("API call is made when valid data", async () => {
-        wrapper.setData({
-            businessName: "Myrtle's Muffin",    //Required
-            description: 'Muffins by Myrtle',
-            address: {  //Required
-                streetNumber: '',
-                streetName: '',
-                city: '',
-                region: '',
-                country: 'New Zealand',
-                postcode: '',
-            },
-        })
-
-        wrapper.find('button').trigger('click')
-        await wrapper.vm.$nextTick()
-
-        //TODO: Is not called
-        // expect(Business.createNew).toBeCalled()
-    })
 })

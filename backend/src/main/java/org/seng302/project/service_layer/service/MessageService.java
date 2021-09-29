@@ -78,9 +78,8 @@ public class MessageService {
         }
 
         var newMessage = new Message(requestDTO.getText(), receivingUser, card, loggedInUser);
-        Integer messageId = messageRepository.save(newMessage).getId();
 
-        return messageId;
+        return messageRepository.save(newMessage).getId();
     }
 
     /**
@@ -100,8 +99,6 @@ public class MessageService {
                 var message = String.format("There is no user that exists with the id %d", userId);
                 throw new NotAcceptableException(message);
             }
-
-            var loggedInUser = userService.getUserByEmail(appUser.getUsername());
 
             // Check if the logged in user is the same user whose messages we are retrieving
             userService.checkForbidden(userId, appUser);
@@ -140,9 +137,6 @@ public class MessageService {
     public List<GetMessageDTO> getMessages(Integer userId, AppUserDetails appUser) {
         try {
             logger.info("Request to get messages for user with id {}", userId);
-
-            // Get the logged in user from the users email
-            var loggedInUser = userService.getUserByEmail(appUser.getUsername());
 
             // Get the user whose messages we want
             Optional<User> userResult = userRepository.findById(userId);

@@ -120,7 +120,6 @@ public class ProductSearchSteps extends AbstractInitializer {
 
         String searchResultString = searchResult.getResponse().getContentAsString();
         JSONArray searchResultArray = new JSONArray(searchResultString);
-        System.out.println(searchResultArray);
 
         Assertions.assertEquals(1, searchResultArray.length());
         Assertions.assertEquals(productName, searchResultArray.getJSONObject(0).getString("name"));
@@ -216,8 +215,6 @@ public class ProductSearchSteps extends AbstractInitializer {
 
         String searchResultString = searchResult.getResponse().getContentAsString();
         JSONArray searchResultArray = new JSONArray(searchResultString);
-
-        System.out.println(searchResultArray);
 
         Assertions.assertEquals(1, searchResultArray.length());
         Assertions.assertEquals(productId, searchResultArray.getJSONObject(0).getString("id"));

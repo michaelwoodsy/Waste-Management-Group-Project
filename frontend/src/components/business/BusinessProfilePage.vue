@@ -113,7 +113,6 @@ export default {
 
     /**
      * Gets business data from the backend
-     * @param response is the response from the server
      */
     async getBusiness() {
       try {
@@ -128,7 +127,3 @@ export default {
 }
 
 </script>
-
-<style scoped>
-
-</style>

@@ -12,14 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Unit tests for Product class
  */
 @SpringBootTest
-public class ProductTest {
+class ProductTest {
     /**
      * Creates the example product from the API.
      * Then checks all of the attributes of the new Product.
      * (Except the images attribute)
      */
     @Test
-    public void createTestProduct() {
+    void createTestProduct() {
         Product testProduct = new Product("WATT-420-BEANS", "Watties Baked Beans - 420g can",
                 "Baked Beans as they should be.", "Watties", 2.2, 1);
 
