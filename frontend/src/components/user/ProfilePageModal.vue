@@ -20,7 +20,8 @@
         </div>
 
         <div class="modal-body">
-          <profile :user-id="id"
+          <profile :show-edit-on-cards="false"
+                   :user-id="id"
                    @user-data-obtained="setInfo"
           />
         </div>

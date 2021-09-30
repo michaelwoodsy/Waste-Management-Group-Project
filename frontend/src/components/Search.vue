@@ -15,7 +15,7 @@ Page for searching users or businesses
       <br>
       <!--    Div for search tabs    -->
       <div class="row justify-content-center mb-3">
-        <div class="col-6">
+        <div class="col col-sm-8 col-lg-5">
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
               <a id="for-sale-link"

@@ -109,7 +109,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
         <!-- Edit button -->
         <button
-            v-if="canEditCard && !expired"
+            v-if="canEditCard && !expired && showEdit"
             :data-target="'#editCard' + cardData.id" class="btn btn-sm btn-outline-primary ml-3"
             data-toggle="modal"
             @click="editCard"
@@ -119,7 +119,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
         <!-- Delete button -->
         <button
-            v-if="canEditCard && !expired"
+            v-if="canEditCard && !expired && showEdit"
             :data-target="'#deleteModal' + cardData.id"
             class="btn btn-sm btn-outline-danger ml-3"
             data-toggle="modal"
@@ -197,6 +197,10 @@ export default {
     showExpired: {
       type: Boolean,
       default: false
+    },
+    showEdit: {
+      type: Boolean,
+      default: true
     }
   },
 

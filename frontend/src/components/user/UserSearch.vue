@@ -1,6 +1,6 @@
 <template>
 
-  <div v-if="isLoggedIn" class="container-fluid">
+  <div v-if="userState.isLoggedIn()" class="container-fluid">
 
     <!--    Search Users Header    -->
     <div class="row">
@@ -23,12 +23,12 @@
           <input id="search"
                  v-model="searchTerm"
                  :class="{'is-invalid': searchError}"
-                 class="form-control no-outline"
+                 class="form-control"
                  placeholder="name/nickname"
                  type="search"
                  @keyup.enter="search">
           <div class="input-group-append">
-            <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
+            <button class="btn btn-primary" type="button" @click="search">Search</button>
           </div>
         </div>
         <span class="invalid-feedback d-block text-center">{{ searchError }}</span>
@@ -94,9 +94,9 @@
               </td>
               <td>
                 {{ nameAndNickname(user) }}<br>
-                <span v-if="isActingAsAdmin && user.role === 'globalApplicationAdmin'"
+                <span v-if="userState.canDoAdminAction() && user.role === 'globalApplicationAdmin'"
                       class="badge badge-danger admin-badge">ADMIN</span>
-                <span v-else-if="isActingAsAdmin && user.role === 'defaultGlobalApplicationAdmin'"
+                <span v-else-if="userState.canDoAdminAction() && user.role === 'defaultGlobalApplicationAdmin'"
                       class="badge badge-danger admin-badge">DGAA</span>
               </td>
               <td>{{ user.middleName }}</td>
@@ -136,7 +136,7 @@
       </div>
     </div>
 
-    <profile-page-modal v-if="viewUserModal" :id="viewUserModalId" @close-modal="viewUserModal = false"/>
+    <profile-page-modal v-if="viewUserModal" :id="viewUserModalId" @close-profile="getUserData"/>
 
   </div>
 
@@ -151,6 +151,7 @@ import ShowingResultsText from "../ShowingResultsText";
 import Pagination from "../Pagination";
 import Alert from '../Alert'
 import ProfilePageModal from "@/components/user/ProfilePageModal";
+import userState from "@/store/modules/user"
 
 export default {
   name: "UserSearch",
@@ -164,6 +165,7 @@ export default {
 
   data() {
     return {
+      userState: userState,
       searchTerm: "",
       searchError: null,
       users: [],
@@ -185,14 +187,6 @@ export default {
 
   computed: {
     /**
-     * Checks to see if user is logged in currently
-     * @returns {boolean|*}
-     */
-    isLoggedIn() {
-      return this.$root.$data.user.state.loggedIn
-    },
-
-    /**
      * Checks which direction (ascending or descending) the order by should be
      * @returns {string}
      */
@@ -204,11 +198,17 @@ export default {
     },
 
     /**
-     * Returns whether the currently logged in user is the DGAA
-     * @returns {boolean|*}
+     * Returns the sortBy string for search request
      */
-    isActingAsAdmin() {
-      return this.$root.$data.user.canDoAdminAction()
+    sortBy() {
+      if (this.orderCol === null) return ""
+      let sortBy = this.orderCol
+      if (!this.orderDirection) {
+        sortBy += "ASC"
+      } else {
+        sortBy += "DESC"
+      }
+      return sortBy
     }
   },
 
@@ -223,17 +223,7 @@ export default {
       this.page = 1;
       this.orderCol = null
       this.orderDirection = false
-
-      try {
-        const response = await User.getUsers(this.searchTerm, this.page - 1, "")
-        this.error = null;
-        this.users = response.data[0];
-        this.totalCount = response.data[1];
-        this.loading = false;
-      } catch (error) {
-        this.error = error
-        this.loading = false
-      }
+      await this.getUserData()
     },
     /**
      * Function is called by pagination component to make another call to the backend
@@ -243,23 +233,7 @@ export default {
       this.blurSearch();
       this.loading = true;
       this.page = page
-      let sortBy = this.orderCol
-      if (!this.orderDirection) {
-        sortBy += "ASC"
-      } else {
-        sortBy += "DESC"
-      }
-      if (this.orderCol === null) sortBy = ""
-      try {
-        const res = await User.getUsers(this.searchTerm, this.page - 1, sortBy)
-        this.error = null;
-        this.users = res.data[0];
-        this.totalCount = res.data[1];
-        this.loading = false;
-      } catch (error) {
-        this.error = error;
-        this.loading = false;
-      }
+      await this.getUserData()
     },
     /**
      * Function called when you click on one of the columns to order the results
@@ -276,20 +250,23 @@ export default {
       }
 
       this.orderCol = sortBy
-      if (!this.orderDirection) {
-        sortBy += "ASC"
-      } else {
-        sortBy += "DESC"
-      }
+      await this.getUserData()
+    },
+
+    /**
+     * Gets user data
+     */
+    async getUserData() {
+      this.viewUserModal = false
       try {
-        const res = await User.getUsers(this.searchTerm, this.page - 1, sortBy)
+        const res = await User.getUsers(this.searchTerm, this.page - 1, this.sortBy)
         this.error = null;
         this.users = res.data[0];
         this.totalCount = res.data[1];
         this.loading = false;
-      } catch (err) {
-        this.error = err
-        this.loading = false
+      } catch (error) {
+        this.error = error;
+        this.loading = false;
       }
     },
 

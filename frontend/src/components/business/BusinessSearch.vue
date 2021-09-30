@@ -29,12 +29,12 @@ Component on Search page for searching businesses
             <input id="search"
                    v-model="searchTerm"
                    :class="{'is-invalid': searchError}"
-                   class="form-control no-outline"
+                   class="form-control"
                    placeholder="business name"
                    type="search"
                    @keyup.enter="search">
             <div class="input-group-append">
-              <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
+              <button class="btn btn-primary" type="button" @click="search">Search</button>
             </div>
           </div>
           <span class="invalid-feedback d-block text-center">{{ searchError }}</span>
