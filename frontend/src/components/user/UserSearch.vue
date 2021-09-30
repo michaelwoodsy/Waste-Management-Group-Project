@@ -136,18 +136,7 @@
       </div>
     </div>
 
-    <div v-if="viewUserModal" id="viewUserModal" class="modal fade" data-backdrop="static">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-body">
-            <button aria-label="Close" class="close" data-dismiss="modal" type="button" @click="viewUserModal=false">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <profile-page-modal :id="viewUserModalId" @close-profile="viewUserModal=false"></profile-page-modal>
-          </div>
-        </div>
-      </div>
-    </div>
+    <profile-page-modal v-if="viewUserModal" :id="viewUserModalId" @close-modal="viewUserModal = false"/>
 
   </div>
 

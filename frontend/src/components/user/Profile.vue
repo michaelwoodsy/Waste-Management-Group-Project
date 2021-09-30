@@ -1,28 +1,6 @@
 <template>
   <div>
 
-    <div class="row">
-      <div class="col-2"/>
-      <div class="col text-center">
-        <h2 class="mb-0">{{ firstName }} {{ lastName }}
-          <span v-if="isGAA && canDoAdminAction" class="badge badge-danger admin-badge">ADMIN</span>
-          <span v-else-if="isDGAA && canDoAdminAction" class="badge badge-danger admin-badge">DGAA</span>
-        </h2>
-      </div>
-      <div class="col-2 text-right">
-        <!-- Edit button -->
-        <router-link v-if="isViewingSelf || canDoAdminAction"
-                     :class="{'btn-primary': isViewingSelf, 'btn-danger': !isViewingSelf && canDoAdminAction}"
-                     :to="`users/${userId}/edit`"
-                     class="btn btn-primary"
-        >
-          Edit Profile
-        </router-link>
-      </div>
-    </div>
-    <hr>
-
-
     <!-- Profile image -->
     <div class="row mb-3">
       <div class="col text-center">
@@ -158,7 +136,7 @@
 
     <!--Button to add as admin to business currently acting as-->
     <div
-        v-if="!isViewingSelf && !isAdministrator && this.$root.$data.user.isActingAsBusiness() && this.$root.$data.user.isPrimaryAdminOfBusiness()"
+        v-if="!isViewingSelf && !isAdministrator && userState.isActingAsBusiness() && userState.isPrimaryAdminOfBusiness()"
         class="d-flex justify-content-center"
     >
       <button class="btn btn-primary"
@@ -167,7 +145,7 @@
     </div>
 
     <div
-        v-if="!isViewingSelf && isAdministrator && this.$root.$data.user.isActingAsBusiness() && this.$root.$data.user.isPrimaryAdminOfBusiness()"
+        v-if="!isViewingSelf && isAdministrator && userState.isActingAsBusiness() && userState.isPrimaryAdminOfBusiness()"
         class="d-flex justify-content-center"
     >
       <button class="btn btn-danger"
@@ -250,6 +228,7 @@
 </template>
 
 <script>
+import userState from "@/store/modules/user"
 import {Business, Images, User} from '@/Api'
 import Alert from "@/components/Alert";
 import MarketCard from "../marketplace/MarketCard";
@@ -269,6 +248,7 @@ export default {
 
   data() {
     return {
+      userState: userState,
       firstName: null,
       middleName: null,
       lastName: null,
@@ -293,7 +273,7 @@ export default {
   },
 
   async mounted() {
-    User.getUserData(this.userId).then((response) => this.profile(response))
+    await this.getUserData()
     await this.getCardData();
     this.filterCards();
   },
@@ -301,7 +281,6 @@ export default {
   computed: {
     /**
      * Checks to see if user is logged in currently
-     * @returns {boolean|*}
      */
     isLoggedIn() {
       return this.$root.$data.user.state.loggedIn
@@ -309,7 +288,6 @@ export default {
 
     /**
      * Returns true if the user is primary admin of any businesses
-     * @returns {boolean|*}
      */
     isPrimaryAdmin() {
       return this.primaryAdminOf.length > 0;
@@ -317,38 +295,40 @@ export default {
 
     /**
      * Returns true if the user is currently viewing their profile page
-     * @returns {boolean|*}
      */
     isViewingSelf() {
-      return this.userId.toString() === this.$root.$data.user.state.userId.toString()
+      return this.userId.toString() === this.userState.state.userId.toString()
     },
 
     /**
-     * Returns true if the user is an administrator of the curentley acting business
-     * @returns {boolean|*}
+     * Returns true if the user is an administrator of the currently acting business
      */
     isAdministrator() {
       for (const business of this.businessesAdministered) {
-        if (business.id === this.$root.$data.user.state.actingAs.id) return true
+        if (business.id === this.userState.state.actingAs.id) return true
       }
       return false
     },
+
     /**
      * Gets the currently logged in user's role
      */
     userRole() {
-      return this.$root.$data.user.state.role;
+      return this.userState.state.role;
     },
 
+    /**
+     * Returns true if user is GAA
+     */
     isGAA() {
       return this.role === "globalApplicationAdmin"
     },
 
+    /**
+     * Returns true if user is DGAA
+     */
     isDGAA() {
       return this.role === "defaultGlobalApplicationAdmin"
-    },
-    canDoAdminAction() {
-      return this.$root.$data.user.canDoAdminAction()
     }
   },
 
@@ -358,7 +338,7 @@ export default {
      */
     async userId(value) {
       if (value !== undefined) {
-        User.getUserData(value).then((response) => this.profile(response))
+        await this.getUserData()
         await this.getCardData()
         this.filterCards()
       }
@@ -368,29 +348,30 @@ export default {
   methods: {
     /**
      * Assigns the data from the response to the profile variables
-     * @param response is the response from the server
+     *
+     * @param userData the user's data
      */
-    profile(response) {
-      this.firstName = response.data.firstName
-      this.middleName = response.data.middleName
-      this.lastName = response.data.lastName
-      this.nickName = response.data.nickname
-      this.bio = response.data.bio
-      this.email = response.data.email
-      this.role = response.data.role
-      this.images = response.data.images
-      this.primaryImageId = response.data.primaryImageId
+    profile(userData) {
+      this.firstName = userData.firstName
+      this.middleName = userData.middleName
+      this.lastName = userData.lastName
+      this.nickName = userData.nickname
+      this.bio = userData.bio
+      this.email = userData.email
+      this.role = userData.role
+      this.images = userData.images
+      this.primaryImageId = userData.primaryImageId
       if (this.isViewingSelf) {
-        this.dateOfBirth = response.data.dateOfBirth
-        this.phoneNumber = response.data.phoneNumber
+        this.dateOfBirth = userData.dateOfBirth
+        this.phoneNumber = userData.phoneNumber
       }
 
-      this.homeAddress = this.$root.$data.address.formatAddress(response.data.homeAddress)
+      this.homeAddress = this.$root.$data.address.formatAddress(userData.homeAddress)
 
-      this.dateJoined = response.data.created
+      this.dateJoined = userData.created
       this.timeCalculator(Date.parse(this.dateJoined))
       this.dateJoined = this.dateJoined.substring(0, 10)
-      this.businessesAdministered = response.data.businessesAdministered
+      this.businessesAdministered = userData.businessesAdministered
       this.setPrimaryAdminList()
     },
 
@@ -428,8 +409,7 @@ export default {
         await Business.addAdministrator(Number(this.$root.$data.user.state.actingAs.id), Number(this.$route.params.userId))
         this.adminMessage = `Added ${this.firstName} ${this.lastName} as business administrator`
         //Reload the data
-        const response = await User.getUserData(this.userId)
-        this.profile(response)
+        await this.getUserData()
       } catch (err) {
         this.error = err.response
             ? err.response.data.slice(err.response.data.indexOf(":") + 2)
@@ -444,8 +424,7 @@ export default {
       try {
         await Business.removeAdministrator(Number(this.$root.$data.user.state.actingAs.id), Number(this.$route.params.userId))
         this.adminMessage = `Removed ${this.firstName} ${this.lastName} as business administrator`
-        const response = await User.getUserData(this.userId)
-        this.profile(response)
+        await this.getUserData()
       } catch (err) {
         this.error = err.response
             ? err.response.data.slice(err.response.data.indexOf(":") + 2)
@@ -534,8 +513,7 @@ export default {
         try {
           await User.makeAdmin(id)
           console.log(`Successfully granted admin rights to user with id ${id}`)
-          const response = await User.getUserData(id)
-          this.profile(response)
+          await this.getUserData()
         } catch (error) {
           console.error(error)
           this.error = error.response
@@ -555,8 +533,7 @@ export default {
         try {
           await User.revokeAdmin(id)
           console.log(`Successfully revoked admin rights from user with id ${id}`)
-          const response = await User.getUserData(id)
-          this.profile(response)
+          await this.getUserData()
         } catch (error) {
           console.error(error)
           this.error = error.response
@@ -565,6 +542,22 @@ export default {
         }
       }
     },
+
+    async getUserData() {
+      try {
+        const res = await User.getUserData(this.userId)
+        this.profile(res.data)
+        this.$emit('user-data-obtained', {
+          firstName: this.firstName,
+          lastName: this.lastName,
+          role: this.role
+        })
+      } catch (error) {
+        let message = error.response ? error.response.data.slice(error.response.data.indexOf(":") + 2) : error
+        this.error = message.charAt(0).toUpperCase() + message.slice(1)
+      }
+    },
+
     /**
      * Gets the user's cards to display on their profile page
      */
@@ -577,17 +570,20 @@ export default {
         this.error = error.response ? error.response.data : error
       }
     },
+
     expired(card) {
       const now = new Date();
       if (now >= new Date(card.displayPeriodEnd)) {
         return true;
       }
     },
+
     filterCards() {
       this.cards = this.cards.filter((card) => {
         return !this.expired(card);
       })
     }
+
   }
 }
 
