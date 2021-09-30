@@ -21,7 +21,6 @@ Feature: U11 - Modifying Businesses
       | New Business Name | Some new description | Accommodation and Food Services |           |
       | New Business Name | Some new description | Invalid Business Type           | Australia |
 
-# TODO: Implement steps for AC3 once discussed
 
   Scenario: AC4: I can upload one or more images.
     Given I am the administrator of a business account

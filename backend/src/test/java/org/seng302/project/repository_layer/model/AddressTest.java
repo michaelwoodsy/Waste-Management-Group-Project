@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for Address class
  */
 @SpringBootTest
-public class AddressTest {
+class AddressTest {
 
     @Autowired
     private AddressRepository addressRepository;
@@ -22,7 +22,7 @@ public class AddressTest {
      */
     @Test
     @Order(1)
-    public void testCreateAddress() {
+    void testCreateAddress() {
         Address testAddress = new Address("27", "Ilam Road", "Christchurch", "Canterbury", "New Zealand", "8041");
         Address testAddressNull = new Address();
         testAddressNull.setCountry("Australia");
@@ -55,7 +55,7 @@ public class AddressTest {
      */
     @Test
     @Order(2)
-    public void testAddressRepository() {
+    void testAddressRepository() {
         Address testAddress = new Address("50", "Lab Test Ave", "Beijing", null, "China", null);
         addressRepository.save(testAddress);
 

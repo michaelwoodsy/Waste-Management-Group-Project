@@ -21,8 +21,8 @@
       <div class="form-group row">
         <label for="productCode"><strong>Product ID<span class="required">*</span></strong></label>
         <div :class="{'input-group': true, 'is-invalid': msg.productId}">
-          <div id="productCode" :class="{'form-control': true, 'is-invalid': msg.productId}">
-            <span v-if="!productId">Select a product from your catalogue...</span>
+          <div id="productCode" style="cursor: default" readonly :class="{'form-control': true, 'is-invalid': msg.productId}">
+            <span class="text-muted" v-if="!productId" >Select a product from your catalogue...</span>
             <span v-else>{{ productId }}</span>
           </div>
           <div class="input-group-append">
@@ -36,7 +36,7 @@
       <div class="form-group row">
         <label for="quantity"><strong>Product Quantity<span class="required">*</span></strong></label>
         <input id="quantity" v-model="quantity" :class="{'form-control': true, 'is-invalid': msg.quantity}"
-               placeholder="Enter the quantity"
+               placeholder="Enter the quantity" :disabled="!productId"
                required maxlength="10" type="text">
         <span class="invalid-feedback">{{ msg.quantity }}</span>
       </div>
@@ -50,7 +50,7 @@
           </div>
           <input id="pricePerItem" v-model="pricePerItem"
                  :class="{'form-control': true, 'is-invalid': msg.pricePerItem}"
-                 maxlength="10"
+                 maxlength="10" :disabled="!productId"
                  placeholder="Price Per Item" type="text">
           <div class="input-group-append">
             <span class="input-group-text">{{ this.currencyCode }}</span>
@@ -68,7 +68,7 @@
           </div>
           <input id="totalPrice" v-model="totalPrice"
                  :class="{'form-control': true, 'is-invalid': msg.totalPrice}"
-                 maxlength="10"
+                 maxlength="10" :disabled="!productId"
                  placeholder="Total Price" type="text">
           <div class="input-group-append">
             <span class="input-group-text">{{ this.currencyCode }}</span>
@@ -82,7 +82,7 @@
         <label for="manufactured"><strong>Manufactured Date</strong></label>
         <input id="manufactured" v-model="manufactured"
                :class="{'form-control': true, 'is-invalid': msg.manufactured}" required style="width:100%"
-               type="date">
+               type="date" :disabled="!productId">
         <!--    Error message for the date input    -->
         <span class="invalid-feedback">{{ msg.manufactured }}</span>
       </div>
@@ -91,7 +91,7 @@
       <div class="form-group row">
         <label for="sellBy"><strong>Sell By Date</strong></label>
         <input id="sellBy" v-model="sellBy" :class="{'form-control': true, 'is-invalid': msg.sellBy}" required
-               style="width:100%"
+               style="width:100%" :disabled="!productId"
                type="date">
         <!--    Error message for the date input    -->
         <span class="invalid-feedback">{{ msg.sellBy }}</span>
@@ -101,7 +101,7 @@
       <div class="form-group row">
         <label for="bestBefore"><strong>Best Before Date</strong></label>
         <input id="bestBefore" v-model="bestBefore" :class="{'form-control': true, 'is-invalid': msg.bestBefore}"
-               required style="width:100%"
+               required style="width:100%" :disabled="!productId"
                type="date">
         <!--    Error message for the date input    -->
         <span class="invalid-feedback">{{ msg.bestBefore }}</span>
@@ -111,7 +111,7 @@
       <div class="form-group row">
         <label for="expires"><strong>Expiry Date<span class="required">*</span></strong></label>
         <input id="expires" v-model="expires" :class="{'form-control': true, 'is-invalid': msg.expires}" required
-               style="width:100%"
+               style="width:100%" :disabled="!productId"
                type="date">
         <!--    Error message for the date input    -->
         <span class="invalid-feedback">{{ msg.expires }}</span>
@@ -149,6 +149,7 @@ export default {
   data() {
     return {
       title: 'Create a new inventory item',
+      selectedProduct: null,
       productId: '', // Required
       quantity: '', // Required
       pricePerItem: '',
@@ -185,7 +186,7 @@ export default {
   methods: {
     validateProductCode() {
       if (!/^[a-zA-Z0-9-]+$/.test(this.productId)) {
-        this.msg.productId = 'Please enter a valid product ID';
+        this.msg.productId = 'Please select a product';
         this.valid = false;
       } else {
         this.msg.productId = null;
@@ -327,11 +328,9 @@ export default {
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
-        console.log(this.msg.errorChecks);
         this.valid = true;
       } else {
         this.msg.errorChecks = null;
-        console.log('No errors');
         this.addItem();
       }
     },

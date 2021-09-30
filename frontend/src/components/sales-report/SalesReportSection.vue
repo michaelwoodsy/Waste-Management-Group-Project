@@ -49,7 +49,7 @@
       </tr>
     </table>
 
-    <ReviewModal v-if="viewModal" :sale="saleToView" @close-modal="viewModal = false"/>
+    <ReviewModal v-if="viewModal" :sale="saleToView" @update-data="reloadTable" @close-modal="viewModal = false"/>
 
   </div>
 </template>
@@ -94,11 +94,15 @@ export default {
     viewReview(sale) {
       this.saleToView = sale
       this.viewModal = true
+    },
+
+    /**
+     * Emits an event caused by the business replying to a review
+     * to reload the table
+     */
+    reloadTable(){
+      this.$emit('reload-table')
     }
   }
 }
 </script>
-
-<style scoped>
-
-</style>

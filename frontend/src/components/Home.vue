@@ -16,43 +16,67 @@
             <li class="nav-item mb-2">
               <router-link class="btn btn-block btn-primary" to="/marketplace">Marketplace</router-link>
             </li>
-            <li v-if="user.isActingAsUser()" class="nav-item mb-2">
-              <router-link class="btn btn-block btn-primary"
-                           :to="`users/${user.state.userId}/purchases`"
-              >
-                My Purchases
-              </router-link>
-            </li>
-            <li v-if="user.isActingAsUser()" class="nav-item mb-2">
-              <router-link :to="`users/${user.state.userId}/edit`"
-                           class="btn btn-block btn-primary">Edit Profile
-              </router-link>
+            <li class="nav-item mb-2">
+              <router-link class="btn btn-block btn-primary" to="/listings">Browse Sale Listings</router-link>
             </li>
           </ul>
         </div>
         <!-- Links to display if acting as business -->
         <div v-if="user.isActingAsBusiness()">
-          <br>
+          <br/>
           <h4 class="text-light">My Business</h4>
           <ul class="nav flex-column">
             <li class="nav-item mb-2">
+              <router-link :to="`businesses/${user.actor().id}`" class="btn btn-block btn-primary">
+                Business Profile
+              </router-link>
+            </li>
+            <li class="nav-item mb-2">
               <router-link :to="`businesses/${user.actor().id}/products`"
-                           class="btn btn-block btn-primary">Product Catalogue
+                           class="btn btn-block btn-primary">
+                Product Catalogue
               </router-link>
             </li>
             <li class="nav-item mb-2">
               <router-link :to="`businesses/${user.actor().id}/inventory`"
-                           class="btn btn-block btn-primary">Inventory
+                           class="btn btn-block btn-primary">
+                Product Inventory
               </router-link>
             </li>
             <li class="nav-item mb-2">
               <router-link :to="`businesses/${user.actor().id}/listings`"
-                           class="btn btn-block btn-primary">Sale Listings
+                           class="btn btn-block btn-primary">
+                Sale Listings
               </router-link>
             </li>
             <li class="nav-item mb-2">
               <router-link :to="`businesses/${user.actor().id}/edit`"
-                           class="btn btn-block btn-primary">Edit Business
+                           class="btn btn-block btn-primary">
+                Edit Business
+              </router-link>
+            </li>
+          </ul>
+        </div>
+        <div v-else>
+          <br/>
+          <h4 class="text-light">My Profile</h4>
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+              <router-link :to="`users/${user.state.userId}/purchases`"
+                           class="btn btn-block btn-primary"
+              >
+                My Purchases
+              </router-link>
+            </li>
+            <li class="nav-item mb-2">
+              <router-link class="btn btn-block btn-primary" to="/businesses">Create Business</router-link>
+            </li>
+            <li class="nav-item mb-2">
+              <router-link :to="`users/${user.state.userId}`" class="btn btn-block btn-primary">My Profile</router-link>
+            </li>
+            <li class="nav-item mb-2">
+              <router-link :to="`users/${user.state.userId}/edit`"
+                           class="btn btn-block btn-primary">Edit Profile
               </router-link>
             </li>
           </ul>
@@ -246,7 +270,7 @@ import LoginRequired from "./LoginRequired";
 import MarketCard from "@/components/marketplace/MarketCard";
 import Alert from "@/components/Alert";
 import Notification from "@/components/Notification";
-import {User, Business} from "@/Api";
+import {Business, User} from "@/Api";
 import userState from "@/store/modules/user"
 import $ from 'jquery';
 import Message from "@/components/marketplace/Message";
@@ -299,8 +323,7 @@ export default {
   async mounted() {
     try {
       await this.getData()
-    }
-    catch (err) {
+    } catch (err) {
       // do nothing
     }
   },
@@ -570,27 +593,6 @@ export default {
       try {
         const response = await User.getNotifications(this.user.actor().id)
         this.notifications = response.data
-        // TODO: Whoever implements the Business notification endpoints can remove this test data
-        const test_data =
-            {
-              id: 999,
-              review: {
-                reviewMessage: "10/10 really good would recommend",
-                reviewReply: "Thank you for the feedback!",
-                rating: 3,
-                sale: {
-                  inventoryItem: {
-                    product: {
-                      name: "Beans"
-                    }
-                  }
-                }
-              },
-              created: "2021-09-25T13:02:50.632123",
-              message: "Myrtle's Muffins has left a reply.",
-              type: "reviewReply"
-            }
-        this.notifications.push(test_data)
       } catch (error) {
         console.error(error)
         this.error = error
@@ -629,28 +631,8 @@ export default {
     async getBusinessNotificationData() {
       try {
         const response = await Business.getNotifications(this.user.actor().id)
-        this.notifications.push(...response.data)
+        this.notifications = response.data
       } catch (error) {
-        // TODO: Whoever implements the Business notification endpoints can remove this test data
-        const test_data =
-          {
-            id: 1000,
-            review: {
-              reviewMessage: "10/10 really good would recommend",
-              rating: 3,
-              sale: {
-                inventoryItem: {
-                  product: {
-                    name: "Beans"
-                  }
-                }
-              }
-            },
-            created: "2021-09-24T13:02:50.632123",
-            message: "Tom has left you a review.",
-            type: "review"
-          }
-        this.notifications.push(test_data)
         console.error(error)
         this.error = error
       }

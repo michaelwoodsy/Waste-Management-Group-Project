@@ -19,7 +19,7 @@
           <div class="row mb-3">
             <div class="col"/>
             <div class="col text-center">
-              <h4>Inventory</h4>
+              <h4>Product Inventory</h4>
             </div>
             <div class="col text-right">
               <!--              Buton for GAA or DGAA to add product (so the button is red)-->
@@ -48,7 +48,7 @@
     </div>
 
     <div id="createInventoryItem" :key="this.createNewInventoryItem" class="modal fade" data-backdrop="static">
-      <div ref="createInventoryItemWindow" class="modal-dialog modal-open" :class="{'modal-xl': selectingProduct}">
+      <div ref="createInventoryItemWindow" :class="{'modal-xl': selectingProduct}" class="modal-dialog modal-open">
         <div class="modal-content">
           <div class="modal-body">
             <create-inventory-item @refresh-inventory="refreshInventory"
@@ -141,7 +141,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

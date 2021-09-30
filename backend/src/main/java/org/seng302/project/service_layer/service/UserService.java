@@ -39,7 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Provides logic for User objects
@@ -422,9 +421,18 @@ public class UserService {
         Page<Sale> page = saleHistoryRepository.findAll(spec, pageable);
         long totalCount = page.getTotalElements();
         List<Sale> purchases = page.getContent();
+        List<GetSaleDTO> saleList = new ArrayList<>();
+
+        for (Sale sale : purchases) {
+            GetSaleDTO dto = new GetSaleDTO(sale);
+            if (sale.getReview() != null){
+                dto.attachReview(sale.getReview());
+            }
+            saleList.add(dto);
+        }
 
         logger.info("Retrieved {} Purchases, showing {}", totalCount, purchases.size());
-        return Arrays.asList(purchases.stream().map(GetSaleDTO::new).collect(Collectors.toList()), totalCount);
+        return Arrays.asList(saleList, totalCount);
     }
 
     /**

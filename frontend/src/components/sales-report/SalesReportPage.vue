@@ -10,13 +10,13 @@
     <div class="text-center" v-if="!reportGenerated">
       <span>Click the button above to generate a sales report</span>
     </div>
-
     <div v-else>
       <div v-if="report != null">
         <sales-report
             v-if="report != null && report.length > 0"
             :data="report"
             :currency="currency"
+            :options="options"
         />
         <div class="card shadow mt-5">
           <div class="card-body">
@@ -88,7 +88,7 @@ export default {
       try {
         this.reportGenerated = true
         const res = await Business.getSalesReport(this.businessId, options)
-        this.options.granularity = options.granularity
+        this.options = options
         this.$set(this, "report", res.data)
         this.reportChange = this.report[0].periodStart + this.report[0].periodEnd
       } catch (error) {
@@ -99,7 +99,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

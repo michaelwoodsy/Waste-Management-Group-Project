@@ -29,12 +29,12 @@ Component on Search page for searching businesses
             <input id="search"
                    v-model="searchTerm"
                    :class="{'is-invalid': searchError}"
-                   class="form-control no-outline"
-                   placeholder="business name"
+                   class="form-control"
+                   placeholder="Business Name"
                    type="search"
                    @keyup.enter="search">
             <div class="input-group-append">
-              <button class="btn btn-primary no-outline" type="button" @click="search">Search</button>
+              <button class="btn btn-primary" type="button" @click="search">Search</button>
             </div>
           </div>
           <span class="invalid-feedback d-block text-center">{{ searchError }}</span>
@@ -148,10 +148,10 @@ Component on Search page for searching businesses
     <!-- hidden button used to programmatically open the business modal -->
     <button
         id="modalButton"
+        ref="closeButton"
+        class="d-none"
         data-target="#viewBusinessModal"
         data-toggle="modal"
-        class="d-none"
-        ref="closeButton"
     />
 
   </div>
@@ -165,7 +165,6 @@ import Pagination from "@/components/Pagination";
 import {Business, Images} from "@/Api";
 import BusinessProfilePageModal from "@/components/business/BusinessProfilePageModal";
 import LoginRequired from "@/components/LoginRequired";
-// import $ from "jquery";
 
 export default {
   name: "BusinessSearch",
@@ -226,7 +225,9 @@ export default {
         this.viewBusinessModal = true
 
         // band-aid fix for the modal not displaying properly when clicking browser back button
-        window.setTimeout(() => {this.$refs.closeButton.click()}, 500)
+        window.setTimeout(() => {
+          this.$refs.closeButton.click()
+        }, 500)
       })
     }
   },
@@ -250,6 +251,9 @@ export default {
         this.businesses = res.data[0]
         this.totalCount = res.data[1]
         this.loading = false;
+        if (this.businessType == null) {
+          this.businessType = 'Any type'
+        }
       } catch (error) {
         this.error = error;
         this.loading = false;

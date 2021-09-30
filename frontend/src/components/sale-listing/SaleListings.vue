@@ -90,7 +90,7 @@
                     <img alt="productImage" class="ui-icon-image pointer"
                          :src="getPrimaryImageThumbnail(listing.inventoryItem.product)">
                   </td>
-                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" style="word-break: break-word; width: 50%" class="pointer">
+                  <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" style="word-break: break-word; width: 40%" class="pointer">
                     {{ listing.inventoryItem.product.name }}
                     <span v-if="listing.moreInfo" style="font-size: small"><br/>{{ listing.moreInfo }}</span>
                   </td>
@@ -106,7 +106,7 @@
                   <td data-target="#viewListingModal" data-toggle="modal" @click="viewListing(listing)" class="pointer">
                     {{ formatDate(listing.closes) }}
                   </td>
-                  <td v-if="isAdminOf">
+                  <td v-if="isAdminOf" class="pointer">
                     <div class="custom-control custom-checkbox">
                       <input :id="listing.id" class="custom-control-input" type="checkbox" v-model="listing.featured" @click="featureListing(listing)">
                       <!-- You need this label for some reason otherwise the checkbox wont show..... -->

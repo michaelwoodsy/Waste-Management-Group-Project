@@ -36,10 +36,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
-public class InventoryItemControllerTest {
+class InventoryItemControllerTest {
 
-    private User user;
-    private User owner;
     private Integer businessId;
 
     @Autowired
@@ -106,11 +104,11 @@ public class InventoryItemControllerTest {
         addressRepository.save(testAddress3);
 
         // Create the users
-        user = createUser(new User("John", "Smith", "Bob", "Jonny",
+        User user = createUser(new User("John", "Smith", "Bob", "Jonny",
                 "Likes long walks on the beach", "jane111@gmail.com", "1999-04-27",
                 "+64 3 555 0129", testAddress1, "1337-H%nt3r2"));
 
-        owner = createUser(new User("Jane", "Smith", "Rose", "Jonny",
+        User owner = createUser(new User("Jane", "Smith", "Rose", "Jonny",
                 "Likes long walks on the beach", "johnxyz@gmail.com", "1999-04-27",
                 "+64 3 555 0120", testAddress2, "1337-H%nt3r2"));
 
@@ -449,7 +447,7 @@ public class InventoryItemControllerTest {
      * Tests that a 401 is returned if trying to get when not logged in.
      */
     @Test
-    public void tryGetInventoryNotLoggedIn() throws Exception {
+    void tryGetInventoryNotLoggedIn() throws Exception {
         Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
         createInventoryItem(product);
 
@@ -467,7 +465,7 @@ public class InventoryItemControllerTest {
      * Tests getting the inventory for a business that does not exist.
      */
     @Test
-    public void tryGetInventoryNoBusiness() throws Exception {
+    void tryGetInventoryNoBusiness() throws Exception {
         if (businessRepository.findById(237).isPresent()) {
             businessRepository.deleteById(237);
         }
@@ -487,7 +485,7 @@ public class InventoryItemControllerTest {
      * Tests that a 403 is returned when trying to get inventory when not admin.
      */
     @Test
-    public void tryGettingInventoryNotAdmin() throws Exception {
+    void tryGettingInventoryNotAdmin() throws Exception {
         Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
         createInventoryItem(product);
 
@@ -506,7 +504,7 @@ public class InventoryItemControllerTest {
      * Tests that the inventory is successfully returned when admin sends get request.
      */
     @Test
-    public void tryGettingInventory() throws Exception {
+    void tryGettingInventory() throws Exception {
         Product product = productRepository.findById(new ProductId("p1", businessId)).orElseThrow();
         createInventoryItem(product);
 
@@ -721,7 +719,7 @@ public class InventoryItemControllerTest {
      * Tests editing an inventory item and then retrieving that inventory item
      */
     @Test
-    public void editAndRetrieveItem() throws Exception {
+    void editAndRetrieveItem() throws Exception {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
 

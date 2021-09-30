@@ -6,7 +6,9 @@
 
       <!--    Order By   -->
       <div class="overflow-auto">
-        <table class="table table-hover">
+        <table class="table"
+               aria-label="Table showing inventory items"
+        >
           <thead>
           <tr>
             <!--    Product Code    -->
@@ -445,9 +447,11 @@ export default {
     },
     filterAvailableItems() {
       let newInventoryItems = [];
+      const today = new Date();
 
       for (const item of this.inventoryItems) {
-        if (this.getMaxQuantity(item) !== 0) {
+        const itemDate = new Date(item.expires)
+        if (this.getMaxQuantity(item) !== 0 && itemDate > today) {
           newInventoryItems.push(item);
         }
       }
@@ -469,7 +473,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -52,10 +52,6 @@ Eg, <market-card @card-deleted="someMethod" ... />
         </p>
       </div>
 
-      <div v-else>
-
-      </div>
-
       <!-- Card Title -->
       <h5 class="card-title d-inline"> {{ cardData.title }} </h5>
 
@@ -71,24 +67,26 @@ Eg, <market-card @card-deleted="someMethod" ... />
       </p>
 
       <div :id="'cardDetails' + cardData.id" class="collapse">
-        <hr/>
+        <hr v-if="cardData.description"/>
         <!-- Description -->
         <p class="card-text">{{ cardData.description }}</p>
-        <hr/>
+        <hr v-if="cardData.description || cardData.keywords.length > 0"/>
         <!-- Keyword Bubbles -->
-        <button v-for="(keyword, index) in cardData.keywords"
-                :key="'keyword' + index"
-                class="btn btn-sm btn-primary mr-2">
+        <span v-for="(keyword, index) in cardData.keywords"
+              :key="'keyword' + index"
+              class="mr-2 my-1 badge badge-primary"
+              style="font-size: medium; cursor: default"
+        >
           {{ keyword.name }}
-        </button>
-
-        <hr/>
+        </span>
+        <hr v-if="cardData.keywords.length > 0"/>
       </div>
 
       <div class="text-right">
 
         <!-- Button toggles card details -->
-        <button :data-target="'#cardDetails' + cardData.id" class="btn btn-sm btn-outline-secondary"
+        <button v-if="cardData.description || cardData.keywords.length > 0"
+                :data-target="'#cardDetails' + cardData.id" class="btn btn-sm btn-outline-secondary"
                 data-toggle="collapse" @click="toggleDetails">
           <span v-if="!showDetails">View Details <em class="bi bi-arrow-down"/></span>
           <span v-else>Hide Details <em class="bi bi-arrow-up"/></span>
@@ -96,9 +94,9 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
         <!-- Button to expand area to send a message to the creator -->
         <button v-if="!isCardCreator && actingAsUser"
+                :class="{'btn-outline-primary': !sendingMessage, 'btn-danger': sendingMessage}"
                 :data-target="'#cardMessage' + cardData.id"
                 class="btn btn-sm ml-3"
-                :class="{'btn-outline-primary': !sendingMessage, 'btn-danger': sendingMessage}"
                 data-toggle="collapse"
                 @click="clearMessage">
           <span v-if="sendingMessage">Cancel</span>
@@ -107,7 +105,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
         <!-- Edit button -->
         <button
-            v-if="canEditCard && !expired"
+            v-if="canEditCard && !expired && showEdit"
             :data-target="'#editCard' + cardData.id" class="btn btn-sm btn-outline-primary ml-3"
             data-toggle="modal"
             @click="editCard"
@@ -117,7 +115,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
 
         <!-- Delete button -->
         <button
-            v-if="canEditCard && !expired"
+            v-if="canEditCard && !expired && showEdit"
             :data-target="'#deleteModal' + cardData.id"
             class="btn btn-sm btn-outline-danger ml-3"
             data-toggle="modal"
@@ -149,7 +147,7 @@ Eg, <market-card @card-deleted="someMethod" ... />
     <div :id="'editCard' + cardData.id" :key="this.editCurrentCard" class="modal fade" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-body" v-if="this.editCurrentCard">
+          <div v-if="this.editCurrentCard" class="modal-body">
             <edit-card :card-id="cardData.id" @card-edited="refreshCards()"></edit-card>
           </div>
         </div>
@@ -157,12 +155,12 @@ Eg, <market-card @card-deleted="someMethod" ... />
     </div>
 
     <!-- Delete modal -->
-    <confirmation-modal :modal-id="`deleteModal${cardData.id}`"
-                        :modal-header="`Delete Card: ${cardData.title}`"
-                        modal-message="Do you really want to permanently delete this card?"
+    <confirmation-modal :modal-header="`Delete Card: ${cardData.title}`"
+                        :modal-id="`deleteModal${cardData.id}`"
+                        modal-confirm-colour="btn-danger"
                         modal-confirm-text="Delete"
                         modal-dismiss-text="Cancel"
-                        modal-confirm-colour="btn-danger"
+                        modal-message="Do you really want to permanently delete this card?"
                         @confirm="deleteCard"/>
 
   </div>
@@ -195,6 +193,10 @@ export default {
     showExpired: {
       type: Boolean,
       default: false
+    },
+    showEdit: {
+      type: Boolean,
+      default: true
     }
   },
 

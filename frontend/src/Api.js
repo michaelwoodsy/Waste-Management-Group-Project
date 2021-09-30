@@ -556,6 +556,11 @@ export const Business = {
         params: {
             page
         }
+    }),
+
+
+    leaveReviewResponse: (businessId, reviewId, reviewResponse) => instance.patch(`/businesses/${businessId}/reviews/${reviewId}/respond`, {
+        reviewResponse: reviewResponse
     })
 };
 

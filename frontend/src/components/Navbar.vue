@@ -12,7 +12,7 @@
         <ul class="navbar-nav align-items-baseline">
           <!-- Profile photo -->
           <li class="nav-item">
-            <router-link class="nav-link p-0" :to="imageClickRoute">
+            <router-link :to="imageClickRoute" class="nav-link p-0">
               <img
                   alt="profile"
                   class="logo-image"
@@ -39,14 +39,6 @@
           <li v-if="isLoggedIn" class="nav-item">
             <router-link class="nav-link text-white ml-2" to="/listings">Browse Sale Listings</router-link>
           </li>
-          <!-- User Purchases link -->
-          <li v-if="isLoggedIn && isActingAsUser" class="nav-item">
-            <router-link class="nav-link text-white ml-2"
-                         :to="`users/${userId}/purchases`"
-            >
-              My Purchases
-            </router-link>
-          </li>
         </ul>
 
         <!-- Logged in user links -->
@@ -55,10 +47,10 @@
             <user-profile-links/>
           </li>
           <li class="nav-item">
-            <span class="badge badge-danger"
-                  v-if="this.$root.$data.user.isGAA() && this.$root.$data.user.isActingAsUser()">ADMIN</span>
-            <span class="badge badge-danger"
-                  v-else-if="this.$root.$data.user.isDGAA() && this.$root.$data.user.isActingAsUser()">DGAA</span>
+            <span v-if="this.$root.$data.user.isGAA() && this.$root.$data.user.isActingAsUser()"
+                  class="badge badge-danger">ADMIN</span>
+            <span v-else-if="this.$root.$data.user.isDGAA() && this.$root.$data.user.isActingAsUser()"
+                  class="badge badge-danger">DGAA</span>
           </li>
         </ul>
         <!-- If not logged in, Login and register link -->

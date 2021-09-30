@@ -3,8 +3,10 @@ package org.seng302.project.service_layer.dto.sales_report;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.seng302.project.repository_layer.model.ProductArchive;
+import org.seng302.project.repository_layer.model.Review;
 import org.seng302.project.repository_layer.model.Sale;
 import org.seng302.project.service_layer.dto.business.GetBusinessDTO;
+import org.seng302.project.service_layer.dto.review.GetReviewDTO;
 
 import java.time.LocalDateTime;
 
@@ -27,6 +29,7 @@ public class GetSaleDTO {
     private String productManufacturer;
     private String currencyCountry;
     private GetBusinessDTO business;
+    private GetReviewDTO review;
 
     public GetSaleDTO(Sale sale) {
         this.id = sale.getSaleId();
@@ -42,5 +45,14 @@ public class GetSaleDTO {
         this.productManufacturer = product.getManufacturer();
         this.currencyCountry = product.getCurrencyCountry();
         this.business = new GetBusinessDTO(sale.getBusiness());
+    }
+
+    /**
+     * Attaches a Review object to the sale DTO
+     *
+     * @param review the Review object to attach
+     */
+    public void attachReview(Review review) {
+        this.review = new GetReviewDTO(review);
     }
 }

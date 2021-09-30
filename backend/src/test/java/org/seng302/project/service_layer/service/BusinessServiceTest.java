@@ -371,7 +371,6 @@ class BusinessServiceTest extends AbstractInitializer {
 
         Mockito.when(businessRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(businesses);
-        System.out.println(testBusiness.getName());
         BusinessType type = BusinessType.getType(testBusiness.getBusinessType());
         //Name of testBusiness is "Test Business"
         businessService.searchBusiness("\"Test Business\"", type, 0, "");

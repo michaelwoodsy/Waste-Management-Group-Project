@@ -9,7 +9,7 @@
     <div class="card-body">
 
       <div class="text-left mb-2">
-        <h6 class="card-title mb-0">{{ review.sale.productName }}</h6>
+        <h6 class="card-title mb-0"><strong>{{ review.sale.productName }}</strong></h6>
       </div>
 
       <div class="text-left d-flex align-items-center mb-2">
@@ -24,6 +24,12 @@
 
       <div v-if="review.reviewMessage !== ''" class="text-left">
         {{ review.reviewMessage }}
+      </div>
+
+      <div v-if="review.reviewResponse" class="text-left">
+        <hr/>
+        <strong>Business' Reply</strong>
+        <p>{{ review.reviewResponse }}</p>
       </div>
 
     </div>
@@ -62,9 +68,7 @@ export default {
         }
       }
       if (primaryImage) {
-        console.log(primaryImage.thumbnailFilename)
         this.profileImage = Images.getImageURL(primaryImage.thumbnailFilename)
-        console.log(this.profileImage)
       } else {
         this.profileImage = Images.getImageURL('/media/defaults/defaultProfile_thumbnail.jpg')
       }

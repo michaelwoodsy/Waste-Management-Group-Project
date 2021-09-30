@@ -85,18 +85,19 @@
           </a>
         </div>
         <!-- Keyword Bubbles -->
-        <div class="keyword" v-for="(keyword, index) in keywords" style="padding: 2px"
-             :key="'keyword' + index">
-          <button class="btn btn-primary">
-            <span>{{  keyword  }}</span>
-            <span @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
-          </button>
+        <div class="mt-2">
+          <h4 class="float-left mr-2 mb-2" v-for="(keyword, index) in keywords" :key="'keyword' + index">
+              <span class="badge badge-primary">
+                {{ keyword }}
+                <span style="cursor: pointer" @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
+              </span>
+          </h4>
         </div>
         <span class="invalid-feedback">{{ msg.keywords }}</span>
       </div>
 
       <!-- Save Changes button -->
-      <div class="form-group row mb-0">
+      <div class="form-group row mb-0 mt-0">
         <div class="btn-group" style="width: 100%">
           <button id="cancelButton" ref="close" class="btn btn-secondary col-4" data-dismiss="modal" v-on:click="cancel=true" @click="close">Cancel</button>
           <button id="saveButton" class="btn btn-primary col-8" v-on:click="submit=true" @click="checkInputs">Save Changes</button>
@@ -199,11 +200,9 @@ export default {
 
       if (!this.valid) {
         this.msg.errorChecks = 'Please fix the shown errors and try again';
-        console.log(this.msg.errorChecks);
         this.valid = true;
       } else {
         this.msg.errorChecks = null;
-        console.log('No errors');
         this.editCard()
       }
     },
