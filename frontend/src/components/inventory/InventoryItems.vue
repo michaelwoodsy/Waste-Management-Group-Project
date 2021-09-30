@@ -6,7 +6,7 @@
 
       <!--    Order By   -->
       <div class="overflow-auto">
-        <table class="table table-hover"
+        <table class="table"
                aria-label="Table showing inventory items"
         >
           <thead>

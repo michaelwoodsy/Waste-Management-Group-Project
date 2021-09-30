@@ -30,7 +30,7 @@ Component on Search page for searching businesses
                    v-model="searchTerm"
                    :class="{'is-invalid': searchError}"
                    class="form-control"
-                   placeholder="business name"
+                   placeholder="Business Name"
                    type="search"
                    @keyup.enter="search">
             <div class="input-group-append">
@@ -148,10 +148,10 @@ Component on Search page for searching businesses
     <!-- hidden button used to programmatically open the business modal -->
     <button
         id="modalButton"
+        ref="closeButton"
+        class="d-none"
         data-target="#viewBusinessModal"
         data-toggle="modal"
-        class="d-none"
-        ref="closeButton"
     />
 
   </div>
@@ -225,7 +225,9 @@ export default {
         this.viewBusinessModal = true
 
         // band-aid fix for the modal not displaying properly when clicking browser back button
-        window.setTimeout(() => {this.$refs.closeButton.click()}, 500)
+        window.setTimeout(() => {
+          this.$refs.closeButton.click()
+        }, 500)
       })
     }
   },

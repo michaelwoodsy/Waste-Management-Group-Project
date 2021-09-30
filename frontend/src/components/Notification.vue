@@ -40,38 +40,38 @@
         <div v-if="data.type === 'purchase'">
           <p><strong>Price:</strong>
             <br>
-            {{formattedPrice}}</p>
+            {{ formattedPrice }}</p>
 
           <p><strong>Pickup from:</strong>
             <br>
-            {{formattedAddress}}</p>
+            {{ formattedAddress }}</p>
         </div>
 
         <!-- Business Review Notification Body -->
         <div v-if="data.type === 'review'">
-          <p class="mb-2">Review left on sale: {{data.review.sale.inventoryItem.product.name}}</p>
+          <p class="mb-2">Review left on sale: {{ data.review.sale.inventoryItem.product.name }}</p>
           <em v-for="num in [1, 2, 3, 4, 5]" :key="num"
               :class="{'bi-star-fill': data.review.rating >= num, 'bi-star': data.review.rating < num}"
               class="icon bi mr-1"
           />
           <p v-if="data.review.reviewMessage" class="mt-2 mb-0"><strong>Their message:</strong>
             <br>
-            <em>{{data.review.reviewMessage}}</em></p>
+            <em>{{ data.review.reviewMessage }}</em></p>
         </div>
 
         <!-- User Review Reply Notification Body -->
         <div v-if="data.type === 'reviewReply'">
-          <p class="mb-2">Reply left on sale: {{data.review.sale.inventoryItem.product.name}}</p>
+          <p class="mb-2">Reply left on sale: {{ data.review.sale.inventoryItem.product.name }}</p>
           <em v-for="num in [1, 2, 3, 4, 5]" :key="num"
               :class="{'bi-star-fill': data.review.rating >= num, 'bi-star': data.review.rating < num}"
               class="icon bi mr-1"
           />
           <p class="mt-2"><strong>Your message:</strong>
             <br>
-            <em>{{data.review.reviewMessage}}</em></p>
+            <em>{{ data.review.reviewMessage }}</em></p>
           <p class="mb-0"><strong>Their reply:</strong>
             <br>
-            <em>{{data.review.reviewResponse}}</em></p>
+            <em>{{ data.review.reviewResponse }}</em></p>
         </div>
 
       </div>
@@ -94,7 +94,7 @@
 <script>
 import {formatDateTime} from "@/utils/dateTime";
 import ConfirmationModal from "@/components/ConfirmationModal";
-import {Keyword, User, Business} from "@/Api";
+import {Business, Keyword, User} from "@/Api";
 import user from "@/store/modules/user"
 import undo from "@/utils/undo"
 
@@ -190,16 +190,24 @@ export default {
         // create request function
         if (this.isAdminNotification) {
           if (this.deletingKeyword) {
-            request = async () => {await User.deleteAdminNotification(this.data.id).then(async () => {
-              await Keyword.deleteKeyword(this.data.keyword.id)
-            })}
-          }else {
-            request = async () => {await User.deleteAdminNotification(this.data.id)}
+            request = async () => {
+              await User.deleteAdminNotification(this.data.id).then(async () => {
+                await Keyword.deleteKeyword(this.data.keyword.id)
+              })
+            }
+          } else {
+            request = async () => {
+              await User.deleteAdminNotification(this.data.id)
+            }
           }
         } else if (this.data.type === "review") {
-          await Business.deleteNotification(user.actor().id, this.data.id)
+          request = async () => {
+            await Business.deleteNotification(user.actor().id, this.data.id)
+          }
         } else {
-          request = async () => {await User.deleteNotification(user.actingUserId(), this.data.id)}
+          request = async () => {
+            await User.deleteNotification(user.actingUserId(), this.data.id)
+          }
         }
 
         // register the request in the undo queue

@@ -24,7 +24,7 @@
                  v-model="searchTerm"
                  :class="{'is-invalid': searchError}"
                  class="form-control"
-                 placeholder="name/nickname"
+                 placeholder="Name / Nickname"
                  type="search"
                  @keyup.enter="search">
           <div class="input-group-append">

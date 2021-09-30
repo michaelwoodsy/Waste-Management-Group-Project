@@ -211,18 +211,23 @@
     <hr/>
 
     <div class="row">
-      <div v-if="cards.length !== 0" class="col text-center">
+      <div class="col text-center">
         <h4>User's Cards</h4>
       </div>
     </div>
 
     <!-- Cards -->
-    <div class="row row-cols-1 row-cols-lg-2 mb-3">
+    <div v-if="cards.length === 0">
+      <p class="text-center">This user has no cards.</p>
+    </div>
+    <div v-else class="row row-cols-1 row-cols-lg-2">
       <div v-for="card in cards" v-bind:key="card.id" class="col">
         <MarketCard v-if="!expired(card)" :card-data="card" :hide-image="hideImages"
                     :show-edit="showEditOnCards" :show-expired="false"></MarketCard>
       </div>
     </div>
+
+    <hr/>
 
   </div>
 </template>

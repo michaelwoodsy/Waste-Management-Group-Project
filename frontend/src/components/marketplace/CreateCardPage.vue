@@ -89,10 +89,10 @@
         </div>
         <!-- Keyword Bubbles -->
         <div class="mt-2">
-          <h4 class="float-left mr-2 mb-2" v-for="(keyword, index) in keywords" :key="'keyword' + index">
-              <span class="badge badge-primary">
+          <h4 v-for="(keyword, index) in keywords" :key="'keyword' + index" class="float-left mr-2 mb-2">
+              <span class="badge badge-primary" style="font-size: medium; cursor: default">
                 {{ keyword }}
-                <span style="cursor: pointer" @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
+                <span style="cursor: pointer" @click="removeKeyword(index)"><em class="bi bi-x"/></span>
               </span>
           </h4>
         </div>

@@ -16,21 +16,21 @@
         This business has not had any reviews.
       </div>
 
-      <div v-else class="row row-cols-1 row-cols-md-2">
-        <div v-for="review in reviews" :key="review.reviewId" class="col mb-5">
-          <review :review="review"/>
+      <div v-else>
+        <div class="row row-cols-1 row-cols-md-2">
+          <div v-for="review in reviews" :key="review.reviewId" class="col mb-5">
+            <review :review="review"/>
+          </div>
         </div>
+        <pagination
+            :current-page.sync="page"
+            :items-per-page="10"
+            :total-items="totalReviews"
+            :scroll-to-top-on-change="false"
+            class="mx-auto"
+            @change-page="changePage"
+        />
       </div>
-
-      <pagination
-          :current-page.sync="page"
-          :items-per-page="10"
-          :total-items="totalReviews"
-          :scroll-to-top-on-change="false"
-          class="mx-auto"
-          @change-page="changePage"
-      />
-
     </div>
 
     <hr/>

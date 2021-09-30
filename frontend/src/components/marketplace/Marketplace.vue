@@ -132,12 +132,12 @@ Page for displaying the marketplace.
           </div>
           <!-- Keyword Bubbles -->
           <div class="form-group row ml-0">
-            <h4 class="float-left mr-2 mb-2" v-for="(keyword, index) in keywords" :key="'keyword' + index">
-              <span class="badge badge-primary">
+            <div class="float-left mr-2 my-1" v-for="(keyword, index) in keywords" :key="'keyword' + index">
+              <div class="badge badge-primary align-items-center" style="font-size: medium; cursor: default">
                 {{ keyword.name }}
-              <span style="cursor: pointer" @click="removeKeyword(index)"><em class="bi bi-x"></em></span>
-              </span>
-            </h4>
+                <span style="cursor: pointer" @click="removeKeyword(index)"><em class="bi bi-x"/></span>
+              </div>
+            </div>
           </div>
           <div v-if="keywords.length > 0" class="form-group row custom-control custom-switch m-2">
             <input id="any-all-keyword-switch" v-model="keywordUnion" class="custom-control-input"

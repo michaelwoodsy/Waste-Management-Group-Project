@@ -34,7 +34,7 @@
           <!-- Password -->
           <div class="form-row">
             <label for="password"><strong>Password<span class="required">*</span></strong></label><br/>
-            <div class="input-group">
+            <div class="input-group" :class="{'is-invalid': msg.password}">
               <input id="password"
                      v-model="password"
                      :class="{'form-control': true, 'is-invalid': msg.password}"
@@ -43,14 +43,15 @@
                      required
                      @keyup.enter="login">
               <div class="input-group-append">
-                <button class="btn btn-primary no-outline" @click="showPassword()">
-                <span :class="{bi: true,
-                  'bi-eye-slash': passwordType === 'password',
-                  'bi-eye': passwordType !== 'password'}" aria-hidden="true"></span>
+                <button class="btn btn-primary" @click="showPassword()">
+                  <em :class="{'bi-eye-slash': passwordType === 'password', 'bi-eye': passwordType !== 'password'}"
+                      aria-hidden="true"
+                      class="bi"
+                  />
                 </button>
               </div>
-              <span class="invalid-feedback" style="text-align: left">{{ msg.password }}</span>
             </div>
+            <span class="invalid-feedback" style="text-align: left">{{ msg.password }}</span>
             <div>
               <alert v-if="loginCount===3" id="noMoreAttempts" class="m-2">
                 3 incorrect login attempts. No more attempts allowed.
@@ -75,9 +76,9 @@
           <br>
           <!-- Button for login and link to register-->
           <div class="form-row">
-            <button class="btn btn-block btn-primary" style="width: 100%; margin:0 20px" @click="login">Login</button>
+            <button class="btn btn-block btn-primary mb-2" @click="login">Login</button>
             <br>
-            <p style="width: 100%; margin:0 20px; text-align: center">Don't have an account?
+            <p style="width: 100%; text-align: center">Don't have an account?
               <router-link class="link-text" to="/register">Register here</router-link>
             </p>
           </div>

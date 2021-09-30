@@ -52,10 +52,6 @@ Eg, <market-card @card-deleted="someMethod" ... />
         </p>
       </div>
 
-      <div v-else>
-
-      </div>
-
       <!-- Card Title -->
       <h5 class="card-title d-inline"> {{ cardData.title }} </h5>
 
@@ -71,26 +67,26 @@ Eg, <market-card @card-deleted="someMethod" ... />
       </p>
 
       <div :id="'cardDetails' + cardData.id" class="collapse">
-        <hr/>
+        <hr v-if="cardData.description"/>
         <!-- Description -->
         <p class="card-text">{{ cardData.description }}</p>
-        <hr/>
+        <hr v-if="cardData.description || cardData.keywords.length > 0"/>
         <!-- Keyword Bubbles -->
-        <h4>
-          <span v-for="(keyword, index) in cardData.keywords"
-                :key="'keyword' + index"
-                class="mr-2 mb-2 badge badge-primary">
+        <span v-for="(keyword, index) in cardData.keywords"
+              :key="'keyword' + index"
+              class="mr-2 my-1 badge badge-primary"
+              style="font-size: medium; cursor: default"
+        >
           {{ keyword.name }}
         </span>
-        </h4>
-
-        <hr/>
+        <hr v-if="cardData.keywords.length > 0"/>
       </div>
 
       <div class="text-right">
 
         <!-- Button toggles card details -->
-        <button :data-target="'#cardDetails' + cardData.id" class="btn btn-sm btn-outline-secondary"
+        <button v-if="cardData.description || cardData.keywords.length > 0"
+                :data-target="'#cardDetails' + cardData.id" class="btn btn-sm btn-outline-secondary"
                 data-toggle="collapse" @click="toggleDetails">
           <span v-if="!showDetails">View Details <em class="bi bi-arrow-down"/></span>
           <span v-else>Hide Details <em class="bi bi-arrow-up"/></span>
