@@ -276,7 +276,7 @@ export default {
      * @returns {number} Number of expired cards
      */
     expiredCardsLength() {
-      return this.totalCount - this.filteredCards.length
+      return this.cards.length - this.filteredCards.length
     }
   },
   components: {
