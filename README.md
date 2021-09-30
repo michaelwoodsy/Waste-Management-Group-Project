@@ -35,7 +35,6 @@ Running on: http://localhost:9599/ by default
 ## Contributors
 - Sarah Bealing - smb272
 - Oliver Chaplin - ojc30
-- Lewis Marshall - lma192
 - Tom Rizzi - tcr59
 - Niels van Antwerpen - nva40
 - Rutger van Kruiningen - rva42

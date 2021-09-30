@@ -1,9 +1,6 @@
 package org.seng302.project.service_layer.service;
 
-import org.seng302.project.repository_layer.model.Address;
-import org.seng302.project.repository_layer.model.Business;
-import org.seng302.project.repository_layer.model.BusinessNotification;
-import org.seng302.project.repository_layer.model.User;
+import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.model.enums.BusinessType;
 import org.seng302.project.repository_layer.repository.*;
 import org.seng302.project.repository_layer.specification.BusinessSpecifications;
@@ -516,7 +513,26 @@ public class BusinessService {
         Business business = checkBusiness(businessId);
         checkUserCanDoBusinessAction(appUser, business);
 
-        return businessNotificationRepository.findAllByBusiness(business);
+        List<BusinessNotification> businessNotifications = businessNotificationRepository.findAllByBusiness(business);
+        List<BusinessNotification> returnList = new ArrayList<>();
+        for (var notification: businessNotifications){
+            if(notification.getClass() == ReviewNotification.class){
+                ReviewNotification reviewNotification = (ReviewNotification) notification;
+                //Need to empty objects so you dont get a stack overflow... dont mind this code below...
+                reviewNotification.getReview().getSale().setReview(null);
+                reviewNotification.getReview().getSale().setBusiness(null);
+                reviewNotification.getReview().getBusiness().setAdministrators(Collections.emptyList());
+                reviewNotification.getReview().getUser().setBusinessesAdministered(Collections.emptyList());
+                reviewNotification.getReview().getUser().setLikedSaleListings(Collections.emptyList());
+                reviewNotification.getBusiness().setAdministrators(Collections.emptyList());
+                returnList.add(reviewNotification);
+            }
+            else {
+                notification.getBusiness().setAdministrators(Collections.emptyList());
+                returnList.add(notification);
+            }
+        }
+        return returnList;
     }
 
     /**

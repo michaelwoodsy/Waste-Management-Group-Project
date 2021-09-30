@@ -16,6 +16,10 @@ import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
@@ -49,7 +53,7 @@ class ReviewServiceTest extends AbstractInitializer {
                              AddressRepository addressRepository,
                              ReviewRepository reviewRepository,
                              SaleHistoryRepository saleHistoryRepository,
-                             UserNotificationRepository userNotificationRepository) {
+                             UserNotificationRepository userNotificationRepository){
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.addressRepository = addressRepository;
@@ -99,7 +103,10 @@ class ReviewServiceTest extends AbstractInitializer {
         }
         sale = reviews.get(0).getSale();
         reviewRepository.saveAll(reviews);
-        this.testReview = reviewRepository.findAllByBusinessId(testBusiness.getId(), Pageable.unpaged()).getContent().get(0);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("created").descending());
+        Page<Review> reviewsPage = reviewRepository.findAllByBusinessId(testBusiness.getId(), pageable);
+        List<Review> reviewsList = reviewsPage.getContent();
+        this.testReview = reviewsList.get(0);
     }
 
     /**

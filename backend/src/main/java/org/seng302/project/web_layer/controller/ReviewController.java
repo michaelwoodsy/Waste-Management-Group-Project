@@ -20,8 +20,8 @@ import javax.validation.Valid;
 @RestController
 public class ReviewController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ReviewController.class.getName());
     private final ReviewService reviewService;
+    private static final Logger logger = LoggerFactory.getLogger(ReviewController.class.getName());
 
     @Autowired
     public ReviewController(ReviewService reviewService) {

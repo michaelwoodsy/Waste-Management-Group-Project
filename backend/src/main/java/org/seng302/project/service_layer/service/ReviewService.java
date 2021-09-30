@@ -2,11 +2,15 @@ package org.seng302.project.service_layer.service;
 
 import net.minidev.json.JSONObject;
 import org.seng302.project.repository_layer.model.*;
+import org.seng302.project.repository_layer.model.Review;
+import org.seng302.project.repository_layer.model.ReviewNotification;
+import org.seng302.project.repository_layer.model.Sale;
+import org.seng302.project.repository_layer.model.User;
 import org.seng302.project.repository_layer.repository.BusinessNotificationRepository;
 import org.seng302.project.repository_layer.repository.ReviewRepository;
 import org.seng302.project.repository_layer.repository.SaleHistoryRepository;
-import org.seng302.project.repository_layer.repository.UserNotificationRepository;
 import org.seng302.project.service_layer.dto.review.GetReviewDTO;
+import org.seng302.project.repository_layer.repository.UserNotificationRepository;
 import org.seng302.project.service_layer.dto.review.PostReviewDTO;
 import org.seng302.project.service_layer.exceptions.NotAcceptableException;
 import org.seng302.project.web_layer.authentication.AppUserDetails;

@@ -1,8 +1,6 @@
 package org.seng302.project.service_layer.service;
 
-import org.seng302.project.repository_layer.model.AdminNotification;
-import org.seng302.project.repository_layer.model.User;
-import org.seng302.project.repository_layer.model.UserNotification;
+import org.seng302.project.repository_layer.model.*;
 import org.seng302.project.repository_layer.repository.AdminNotificationRepository;
 import org.seng302.project.repository_layer.repository.UserNotificationRepository;
 import org.seng302.project.repository_layer.repository.UserRepository;
@@ -17,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -62,10 +61,25 @@ public class NotificationService {
             }
 
             var notifications = userNotificationRepository.findAllByUser(user.get());
+            List<UserNotification> returnNotifications = new ArrayList<>();
             for (var notification: notifications) {
-                notification.getUser().setLikedSaleListings(Collections.emptyList());
+                if(notification.getClass() == ReviewReplyNotification.class) {
+                    ReviewReplyNotification replyNotification = (ReviewReplyNotification) notification;
+                    replyNotification.getUser().setLikedSaleListings(Collections.emptyList());
+                    replyNotification.getUser().setBusinessesAdministered(Collections.emptyList());
+                    replyNotification.getReview().getSale().setReview(null);
+                    replyNotification.getReview().getSale().setBusiness(null);
+                    replyNotification.getReview().getBusiness().setAdministrators(Collections.emptyList());
+                    replyNotification.getReview().getUser().setBusinessesAdministered(Collections.emptyList());
+                    replyNotification.getReview().getUser().setLikedSaleListings(Collections.emptyList());
+                    returnNotifications.add(replyNotification);
+                } else {
+                    notification.getUser().setLikedSaleListings(Collections.emptyList());
+                    returnNotifications.add(notification);
+                }
+
             }
-            return notifications;
+            return returnNotifications;
         } catch (ForbiddenNotificationActionException | NotAcceptableException handledException) {
             logger.error(handledException.getMessage());
             throw handledException;
