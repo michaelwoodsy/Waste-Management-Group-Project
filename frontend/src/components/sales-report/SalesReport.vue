@@ -24,7 +24,7 @@
         </div>
       </div>
 
-      <div v-for="(section, index) in data" :key="section.periodStart" class="card">
+      <div v-for="(section, index) in reportData" :key="section.periodStart" class="card">
         <div :id="`reportHeading${index}`" class="card-header">
           <div class="row align-items-center">
             <div class="col-6">
@@ -54,7 +54,7 @@
           </div>
         </div>
         <div :id="`reportSection${index}`" class="collapse" data-parent="#salesReport">
-          <sales-report-section
+          <sales-report-section @reload-table="reloadTable"
               :sales="section.sales"
           />
         </div>
@@ -68,6 +68,7 @@
 import SalesReportSection from "@/components/sales-report/SalesReportSection";
 import product from '@/store/modules/product'
 import Alert from "@/components/Alert";
+import {Business} from "@/Api";
 
 export default {
   name: "SalesReport",
@@ -75,27 +76,30 @@ export default {
   data() {
     return {
       showCurrencyWarning: false,
-      currencyWarningText: ""
+      currencyWarningText: "",
+      reportData: []
     }
   },
   async mounted() {
+    this.reportData = this.data
     await this.getCurrencies()
   },
   props: {
     data: Array,
-    currency: Object
+    currency: Object,
+    options: Object,
   },
   computed: {
     totalSales() {
       let sales = 0
-      for (const section of this.data) {
+      for (const section of this.reportData) {
         sales += section.purchaseCount
       }
       return sales
     },
     totalValue() {
       let value = 0
-      for (const section of this.data) {
+      for (const section of this.reportData) {
         value += section.totalPurchaseValue
       }
       return value
@@ -131,7 +135,7 @@ export default {
       const afterCurrencies = []
       const changeDates = []
 
-      for (const [sectionIndex, section] of this.data.entries()) {
+      for (const [sectionIndex, section] of this.reportData.entries()) {
         for (const [index, sale] of section.sales.entries()) {
           if (sale.currencyCountry) {
             sale.currency = await this.$root.$data.product.getCurrency(sale.currencyCountry)
@@ -173,6 +177,16 @@ export default {
         this.currencyWarningText += "Please convert manually.\n"
       }
       this.showCurrencyWarning = true
+    },
+
+    /**
+     * Emits an event caused by the business replying to a review
+     * to reload the table
+     */
+    async reloadTable() {
+      const res = await Business.getSalesReport(this.data[0].sales[0].business.id, this.options)
+      this.reportData = res.data
+      await this.getCurrencies()
     }
   }
 }

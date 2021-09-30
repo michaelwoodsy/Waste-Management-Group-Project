@@ -20,7 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -95,7 +98,10 @@ class ReviewControllerTest extends AbstractInitializer {
             reviews.add(review);
         }
         reviewRepository.saveAll(reviews);
-        this.testReview = reviewRepository.findAllByBusinessId(testBusiness.getId(), Pageable.unpaged()).getContent().get(0);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("created").descending());
+        Page<Review> reviewsPage = reviewRepository.findAllByBusinessId(testBusiness.getId(), pageable);
+        List<Review> reviewsList = reviewsPage.getContent();
+        this.testReview = reviewsList.get(0);
     }
 
     /**

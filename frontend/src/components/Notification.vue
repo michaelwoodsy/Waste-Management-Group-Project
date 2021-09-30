@@ -71,7 +71,7 @@
             <em>{{data.review.reviewMessage}}</em></p>
           <p class="mb-0"><strong>Their reply:</strong>
             <br>
-            <em>{{data.review.reviewReply}}</em></p>
+            <em>{{data.review.reviewResponse}}</em></p>
         </div>
 
       </div>
