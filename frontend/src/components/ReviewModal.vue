@@ -5,7 +5,8 @@
         <div class="modal-header">
           <div class="col-2"/>
           <div class="col text-center">
-            <h4 class="mb-2">Sale Review</h4>
+            <h4 class="mb-2">Review</h4>
+            <h6 class="mb-0">{{ sale.productName }}</h6>
           </div>
           <div class="col-2">
             <button aria-label="Close" class="close" data-dismiss="modal" type="button">
@@ -50,7 +51,7 @@
               />
             </div>
             <hr v-if="sale.review.reviewMessage"/>
-            <p class="font-weight-bold">Review Message:</p>
+            <p class="font-weight-bold mb-1">Review Message</p>
             <p>{{ sale.review.reviewMessage }}</p>
           </div>
 
@@ -58,7 +59,8 @@
             <!-- Form to leave a reply -->
             <div v-if="!sale.review.reviewResponse">
               <div v-if="isActingAsBusiness() && isBusinessAdmin()" id="reviewReplyForm">
-                <h5>Leave a reply</h5>
+                <hr/>
+                <h6><strong>Leave a reply</strong></h6>
                 <div class="form-group row">
                   <div class="col">
                     <label for="reply">Message</label>
@@ -73,7 +75,7 @@
             </div>
             <div v-else>
               <hr v-if="sale.review.reviewResponse"/>
-              <p class="font-weight-bold">Business' Response:</p>
+              <p class="font-weight-bold mb-1">Business' Response</p>
               <p>{{ sale.review.reviewResponse }}</p>
             </div>
           </div>

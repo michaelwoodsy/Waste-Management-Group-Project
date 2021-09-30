@@ -3,7 +3,7 @@
 
     <login-required
         v-if="!isLoggedIn"
-        page="view a business's profile page"
+        page="view a business' profile page"
     />
 
     <div v-else-if="business">

@@ -7,106 +7,112 @@
     />
 
     <div v-else>
-    <!--Page heading-->
-    <div class="text-center">
-      <h1>My Purchases</h1>
-      <hr>
-    </div>
-    <!--Page content-->
-    <div>
-      <alert v-if="error">{{ error }}</alert>
-      <div class="overflow-auto">
-        <table aria-label="Table to view a user's purchases"
-               class="table mb-0"
-        >
-          <thead>
-          <tr>
-            <th class="pointer" scope="col" @click="orderSearch('datePurchased')">
-              <p class="d-inline">Date Purchased</p>
-              <p v-if="orderCol === 'datePurchased'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
-            </th>
-            <th class="pointer" scope="col" @click="orderSearch('productName')">
-              <p class="d-inline">Product Name</p>
-              <p v-if="orderCol === 'productName'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
-            </th>
-            <th class="pointer" scope="col" @click="orderSearch('quantity')">
-              <p class="d-inline">Quantity</p>
-              <p v-if="orderCol === 'quantity'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
-            </th>
-            <th class="pointer" scope="col" @click="orderSearch('price')">
-              <p class="d-inline">Price</p>
-              <p v-if="orderCol === 'price'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
-            </th>
-            <th class="pointer" scope="col" @click="orderSearch('business')">
-              <p class="d-inline">Business</p>
-              <p v-if="orderCol === 'business'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
-            </th>
-            <th scope="col">Review</th>
-          </tr>
-          </thead>
-          <tbody v-if="!loading">
-          <tr
-              v-for="[index, purchase] of purchases.entries()"
-              :key="index"
+      <!--Page heading-->
+      <div class="text-center">
+        <h1>My Purchases</h1>
+        <hr>
+      </div>
+      <!--Page content-->
+      <div v-if="purchases.length > 0">
+        <alert v-if="error">{{ error }}</alert>
+        <div class="overflow-auto">
+          <table aria-label="Table to view a user's purchases"
+                 class="table mb-0"
           >
-            <td>
-              {{ formattedDate(purchase.dateSold) }}
-            </td>
-            <td>
-              {{ purchase.productName }}
-            </td>
-            <td>
-              {{ purchase.quantity }}
-            </td>
-            <td>
-              {{ formattedPrice(purchase) }}
-            </td>
-            <td>
-              {{ purchase.business.name }}
-            </td>
-            <td>
-              <button
-                  class="btn btn-sm btn-primary"
-                  data-toggle="modal"
-                  data-target="#reviewModal"
-                  @click="viewReview(purchase)"
-              >
-                <span v-if="!purchase.review">Leave Review</span>
-                <span v-else>View Review</span>
-              </button>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- Show loading text until results are obtained -->
-      <div v-if="loading" class="row">
-        <span class="col text-center text-muted">Loading...</span>
-      </div>
+            <thead>
+            <tr>
+              <th class="pointer" scope="col" @click="orderSearch('datePurchased')">
+                <p class="d-inline">Date Purchased</p>
+                <p v-if="orderCol === 'datePurchased'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
+              </th>
+              <th class="pointer" scope="col" @click="orderSearch('productName')">
+                <p class="d-inline">Product Name</p>
+                <p v-if="orderCol === 'productName'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
+              </th>
+              <th class="pointer" scope="col" @click="orderSearch('quantity')">
+                <p class="d-inline">Quantity</p>
+                <p v-if="orderCol === 'quantity'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
+              </th>
+              <th class="pointer" scope="col" @click="orderSearch('price')">
+                <p class="d-inline">Price</p>
+                <p v-if="orderCol === 'price'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
+              </th>
+              <th class="pointer" scope="col" @click="orderSearch('business')">
+                <p class="d-inline">Business</p>
+                <p v-if="orderCol === 'business'" class="d-inline" style="margin-left: 5px">{{ orderDirArrow }}</p>
+              </th>
+              <th scope="col">Review</th>
+            </tr>
+            </thead>
+            <tbody v-if="!loading">
+            <tr
+                v-for="[index, purchase] of purchases.entries()"
+                :key="index"
+            >
+              <td>
+                {{ formattedDate(purchase.dateSold) }}
+              </td>
+              <td>
+                {{ purchase.productName }}
+              </td>
+              <td>
+                {{ purchase.quantity }}
+              </td>
+              <td>
+                {{ formattedPrice(purchase) }}
+              </td>
+              <td>
+                {{ purchase.business.name }}
+              </td>
+              <td>
+                <button
+                    class="btn btn-sm btn-primary"
+                    data-target="#reviewModal"
+                    data-toggle="modal"
+                    @click="viewReview(purchase)"
+                >
+                  <span v-if="!purchase.review">Leave Review</span>
+                  <span v-else>View Review</span>
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Show loading text until results are obtained -->
+        <div v-if="loading" class="row">
+          <span class="col text-center text-muted">Loading...</span>
+        </div>
 
-      <!--    Result Information    -->
-      <div class="row">
-        <div class="col">
-          <div class="mb-2 text-center">
-            <showing-results-text
-                :items-per-page="resultsPerPage"
-                :page="page"
-                :total-count="totalCount"
-            />
-          </div>
-          <div>
-            <pagination
-                :current-page.sync="page"
-                :items-per-page="resultsPerPage"
-                :total-items="totalCount"
-                @change-page="changePage"
-            />
+        <!--    Result Information    -->
+        <div class="row">
+          <div class="col">
+            <div class="mb-2 text-center">
+              <showing-results-text
+                  :items-per-page="resultsPerPage"
+                  :page="page"
+                  :total-count="totalCount"
+              />
+            </div>
+            <div>
+              <pagination
+                  :current-page.sync="page"
+                  :items-per-page="resultsPerPage"
+                  :total-items="totalCount"
+                  @change-page="changePage"
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <ReviewModal v-if="showModal" :sale="purchaseToView" @update-data="fillTable" @close-modal="showModal = false"/>
+      <div v-else class="text-center">
+        You have not made any purchases yet.
+      </div>
+
+      <hr/>
+
+      <ReviewModal v-if="showModal" :sale="purchaseToView" @update-data="fillTable" @close-modal="showModal = false"/>
     </div>
   </page-wrapper>
 </template>

@@ -7,7 +7,9 @@
         <div class="card text-light bg-secondary shadow">
           <div class="card-body">
             <h5 class="card-title">Have any questions?</h5>
-            <button class="btn btn-lg btn-block btn-primary" @click="contactUs" data-toggle="modal" :data-target="'#contactUsModal'">Contact Us</button>
+            <button :data-target="'#contactUsModal'" class="btn btn-lg btn-block btn-primary" data-toggle="modal"
+                    @click="contactUs">Contact Us
+            </button>
           </div>
         </div>
       </div>
@@ -35,14 +37,15 @@
     <div id="contactUsModal" :key="this.contactUsModal" class="modal fade bd-example-modal-lg" data-backdrop="static">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-body" v-if="this.contactUsModal">
+          <div v-if="this.contactUsModal" class="modal-body">
             <div class="container-fluid">
-              <h5 class="form-row mb-3"><strong>Contact Us:</strong></h5>
+              <h5 class="form-row mb-3"><strong>Contact Us</strong></h5>
 
               <!-- Email Input -->
               <div class="form-row">
                 <label for="email"><strong>Email<span class="required">*</span></strong></label>
-                <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}" maxlength="100"
+                <input id="email" v-model="email" :class="{'form-control': true, 'is-invalid': msg.email}"
+                       maxlength="100"
                        placeholder="Enter your Email"
                        required style="width: 100%" type="email">
                 <span class="invalid-feedback">{{ msg.email }}</span>
@@ -50,12 +53,14 @@
 
               <!-- Message Input -->
               <div class="form-row mb-3">
-                <label for="message" style="margin-top:20px"><strong>Message:<span
-                    class="required">*</span></strong></label>
+                <label for="message" style="margin-top:20px">
+                  <strong>Message<span class="required">*</span></strong>
+                </label>
                 <br>
                 <textarea id="message" v-model="message" :class="{'form-control': true, 'is-invalid': msg.message}"
-                       maxlength="500"
-                       placeholder="Enter your Message, max 500 characters" required style="width:100%; height: 10em" type="text"></textarea>
+                          maxlength="500"
+                          placeholder="Enter your Message, max 500 characters" required style="width:100%; height: 10em"
+                          type="text"></textarea>
                 <span class="invalid-feedback">{{ msg.message }}</span>
               </div>
 
@@ -63,11 +68,16 @@
               <div class="form-group row mb-0">
                 <div class="btn-group" style="width: 100%">
                   <!-- Cancel Button -->
-                  <button id="cancelButton" ref="close" class="btn btn-secondary col-4" data-dismiss="modal" @click="resetContactUsModal">Cancel</button>
+                  <button id="cancelButton" ref="close" class="btn btn-secondary col-4" data-dismiss="modal"
+                          @click="resetContactUsModal">Cancel
+                  </button>
                   <!-- Send Message Button -->
-                  <button v-if="!submitting" id="sendButton" class="btn btn-primary col-8" @click="checkInputs">Send Message</button>
+                  <button v-if="!submitting" id="sendButton" class="btn btn-primary col-8" @click="checkInputs">Send
+                    Message
+                  </button>
                   <!-- Sending Message Button -->
-                  <button v-else id="sendingButton" class="btn btn-primary col-8" @click="checkInputs">Sending Message</button>
+                  <button v-else id="sendingButton" class="btn btn-primary col-8" @click="checkInputs">Sending Message
+                  </button>
                 </div>
 
                 <!-- Error Display -->
@@ -148,20 +158,20 @@ export default {
      * Takes the user to the register page
      */
     register() {
-        this.$router.push({name: 'register'})
+      this.$router.push({name: 'register'})
     },
 
     /***
      * Takes the user to the login page
      */
     login() {
-        this.$router.push({name: 'login'})
+      this.$router.push({name: 'login'})
     },
 
     /***
      * Opens the Contact Us Modal
      */
-    contactUs(){
+    contactUs() {
       this.contactUsModal = true
     },
 

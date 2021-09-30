@@ -336,11 +336,10 @@ public class TestDataRunner {
                         sale.setDateSold(LocalDateTime.now().minusDays(80 - (listing.getId() * (long) 4)));
                         sale = saleHistoryRepository.save(sale);
                         List<Integer> ratingNumbers = List.of(1, 2, 3, 4, 5); //Used to get different review numbers
-                        System.out.println(ratingNumbers.get((listing.getId()-1)%5));
                         Optional<User> userOptional = userRepository.findById(1);
                         if (userOptional.isPresent()) {
                             User user = userOptional.get();
-                            Review review = new Review(sale, user, ratingNumbers.get((listing.getId()-1)%5), "");
+                            Review review = new Review(sale, user, ratingNumbers.get((listing.getId()-1)%5), "Was a great product!");
                             reviewRepository.save(review);
                         }
                     }
