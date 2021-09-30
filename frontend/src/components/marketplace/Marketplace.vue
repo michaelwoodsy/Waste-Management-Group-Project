@@ -149,7 +149,7 @@ Page for displaying the marketplace.
 
       <!-- Div with cards -->
       <div class="row row-cols-1 row-cols-lg-2">
-        <div v-for="card in filteredCards" v-bind:key="card.id" class="col">
+        <div v-for="card in cards" v-bind:key="card.id" class="col">
           <MarketCard :card-data="card" :hide-image="hideImages" :show-expired="false"
                       @card-deleted="deleteCard"
                       @refresh-cards="refreshCards()"></MarketCard>
@@ -161,13 +161,13 @@ Page for displaying the marketplace.
         <showing-results-text
             :items-per-page="resultsPerPage"
             :page="page"
-            :total-count="totalCount - expiredCardsLength"
+            :total-count="totalCount"
         />
         <!-- Pagination Links -->
         <pagination
             :current-page.sync="page"
             :items-per-page="resultsPerPage"
-            :total-items="totalCount - expiredCardsLength"
+            :total-items="totalCount"
             class="mx-auto mt-2"
             @change-page="changePage"
         />
@@ -255,28 +255,6 @@ export default {
     /** Returns the current logged in users data **/
     actorName() {
       return this.actor.name
-    },
-
-    /**
-     * Filters the cards to show only active cards.
-     */
-    filteredCards() {
-      const newCards = []
-      for (const card of this.cards) {
-        const displayPeriodEnd = new Date(card.displayPeriodEnd)
-        if (displayPeriodEnd > Date.now()) {
-          newCards.push(card)
-        }
-      }
-      return newCards
-    },
-    /**
-     * Returns the number of expired cards
-     *
-     * @returns {number} Number of expired cards
-     */
-    expiredCardsLength() {
-      return this.cards.length - this.filteredCards.length
     }
   },
   components: {

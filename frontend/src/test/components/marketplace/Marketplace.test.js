@@ -177,18 +177,6 @@ describe('Pagination, ordering and deletion tests', () => {
         expect(wrapper.vm.$data.cards.find((a) => a.id === 502)).toBeUndefined()
     })
 
-    test("filteredCards only returns cards with a future displayPeriodEnd date", () => {
-        let date = new Date()
-        date.setDate(date.getDate() - 7) // Set date to be a prior to today's date.
-        wrapper.vm.$data.cards[0].displayPeriodEnd = date.toDateString()
-        date = new Date()
-        date.setDate(date.getDate() + 7) // Set date to be after today's date.
-        wrapper.vm.$data.cards[1].displayPeriodEnd = date.toDateString()
-        wrapper.vm.$data.cards[2].displayPeriodEnd = date.toDateString()
-
-        expect(wrapper.vm.filteredCards.every((card) => new Date(card.displayPeriodEnd) > Date.now())).toBeTruthy()
-    })
-
     test("Checking that the clear button on the keyword search clears all the keywords", async () => {
         wrapper.vm.$data.keywords = ["Fruit", "Bananas"]
         await wrapper.vm.clearFilter()
