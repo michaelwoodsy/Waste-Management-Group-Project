@@ -131,7 +131,7 @@ public class CardService {
             }
 
             // Return all cards in the section
-            Specification<Card> spec = CardSpecifications.inSection(section);
+            Specification<Card> spec = CardSpecifications.inSection(section).and(CardSpecifications.isActive());
             if (keywordSpec != null) {
                 spec = spec.and(keywordSpec);
             }

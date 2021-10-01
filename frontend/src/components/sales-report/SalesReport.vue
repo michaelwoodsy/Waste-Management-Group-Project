@@ -84,6 +84,15 @@ export default {
     this.reportData = this.data
     await this.getCurrencies()
   },
+  watch: {
+    async data() {
+      //Only if the data changes
+      if (this.reportData.length !== this.data.length) {
+        this.reportData = this.data
+        await this.getCurrencies()
+      }
+    }
+  },
   props: {
     data: Array,
     currency: Object,

@@ -275,12 +275,18 @@ export default {
         sortBy += "DESC"
       }
       if (this.orderCol === null) sortBy = ""
+      if (this.businessType === 'Any type' || this.businessType === '') {
+        this.businessType = null;
+      }
       try {
         const res = await Business.getBusinesses(this.searchTerm, this.businessType, this.page - 1, sortBy)
         this.error = null;
         this.businesses = res.data[0];
         this.totalCount = res.data[1];
         this.loading = false;
+        if (this.businessType == null) {
+          this.businessType = 'Any type'
+        }
       } catch (error) {
         this.error = error;
         this.loading = false;
@@ -307,12 +313,19 @@ export default {
       } else {
         sortBy += "DESC"
       }
+
+      if (this.businessType === 'Any type' || this.businessType === '') {
+        this.businessType = null;
+      }
       try {
         const res = await Business.getBusinesses(this.searchTerm, this.businessType, this.page - 1, sortBy)
         this.error = null;
         this.businesses = res.data[0];
         this.totalCount = res.data[1];
         this.loading = false;
+        if (this.businessType == null) {
+          this.businessType = 'Any type'
+        }
       } catch (error) {
         this.error = error;
         this.loading = false;

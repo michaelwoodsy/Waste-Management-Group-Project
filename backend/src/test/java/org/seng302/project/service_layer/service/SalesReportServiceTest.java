@@ -278,8 +278,6 @@ class SalesReportServiceTest extends AbstractInitializer {
 
         //expect 2 items because spanning this month and last month
         Assertions.assertEquals(2, salesReport.size());
-
-        Assertions.assertEquals(soldLastMonth.getMoreInfo(), salesReport.get(0).getSales().get(0).getMoreInfo());
     }
 
 

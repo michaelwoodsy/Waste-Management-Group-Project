@@ -33,7 +33,7 @@
             <div class="form-group row">
               <div class="col">
                 <label for="review">Message</label>
-                <textarea id="review" v-model="reviewForm.reviewMessage" class="form-control"/>
+                <textarea id="review" v-model="reviewForm.reviewMessage" class="form-control" maxlength="255"/>
               </div>
             </div>
             <div class="text-right">
@@ -64,7 +64,7 @@
                 <div class="form-group row">
                   <div class="col">
                     <label for="reply">Message</label>
-                    <textarea id="reply" v-model="replyForm.replyMessage" class="form-control"/>
+                    <textarea id="reply" v-model="replyForm.replyMessage" class="form-control" maxlength="255"/>
                     <span v-if="invalidReply" class="text-danger small"><br>Please enter a reply</span>
                   </div>
                 </div>

@@ -4,6 +4,8 @@ import org.seng302.project.repository_layer.model.Card;
 import org.seng302.project.repository_layer.model.Keyword;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
+
 /**
  * Class containing specifications used for searching cards
  */
@@ -35,5 +37,16 @@ public class CardSpecifications {
     public static Specification<Card> hasKeyword(Keyword keyword) {
         return ((root, query, builder) ->
                 builder.isMember(keyword, root.get("keywords")));
+    }
+
+    /**
+     * Creates a Specification object used to filter cards that are still active
+     *
+     * @return a specification object to search repository with
+     */
+    public static Specification<Card> isActive() {
+        return ((root, query, builder) ->
+                builder.greaterThanOrEqualTo(root.get("displayPeriodEnd"), LocalDateTime.now())
+        );
     }
 }
